@@ -8,6 +8,13 @@ import Button from "@material-ui/core/Button/Button";
 import Grid from "@material-ui/core/Grid/Grid";
 
 class SignIn extends React.Component {
+	state = {
+		firstName: '',
+		lastName: '',
+		email: '',
+		password1: '',
+		password2: ''
+	};
 
 	render() {
 		return (
@@ -20,13 +27,20 @@ class SignIn extends React.Component {
 							<br/>
 							<TextField margin="normal" style={{'width': '100%'}} id="lastName" label="Last Name"/>
 							<br/>
-							<TextField margin="normal" style={{'width': '100%'}} id="email" label="Email"/>
+							<TextField margin="normal" style={{'width': '100%'}} id="email" label="UWO Email"
+							           onChange={(e) => this.setState({'email': e.target.value})} value={this.state.email}
+							           error={this.state.email.length > 0 && !/^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(this.state.email)}/>
 							<br/>
-							<TextField margin="normal" style={{'width': '100%'}} id="password1" label="Password" type="password"/>
+							<TextField margin="normal" style={{'width': '100%'}} id="password1" label="Password (minimum 8 characters)"
+							           type="password" helperText="" onfocusout={() => console.log('abc')}
+							           onChange={(e) => this.setState({'password1': e.target.value})} value={this.state.password1}
+							           error={this.state.password1.length > 0 && this.state.password1.length < 8}/>
 							<br/>
-							<TextField margin="normal" style={{'width': '100%'}} id="password2" label="Re-Enter Password" type="password"/>
+							<TextField margin="normal" style={{'width': '100%'}} id="password2" label="Re-Enter Password" type="password"
+							           onChange={(e) => this.setState({'password2': e.target.value})} value={this.state.password2}
+							           error={this.state.password2.length > 0 && this.state.password2 !== this.state.password1}/>
 							<br/><br/>
-							<Button color="primary">Register</Button>
+							<Button color="primary" onClick={() => this.register()}>Register</Button>
 						</form>
 					</Grid>
 					<Grid item xs={6}>
@@ -35,6 +49,10 @@ class SignIn extends React.Component {
 				</Grid>
 			</Card>
 		);
+	}
+
+	register() {
+		console.log(this.state);
 	}
 }
 
