@@ -1,0 +1,14 @@
+#root {
+    position: fixed;
+    background-color: #F5F5F5;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.LoginCard {
+    width: 50%;
+    height: 90vh;
+    margin-left: 25vw;
+    margin-top: 5vh;
+}
