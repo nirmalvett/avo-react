@@ -12,3 +12,22 @@
     margin-left: 30vw;
     margin-top: 5vh;
 }
+
+::-webkit-scrollbar {
+    width: 7px;
+}
+
+::-webkit-scrollbar-track {
+    background: #BFBFBF;
+    border: 3px solid transparent;
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #9D9D9D;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: #399103;
+}
