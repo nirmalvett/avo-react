@@ -16,7 +16,6 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ListItem from '@material-ui/core/ListItem/ListItem';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
-import ListItemIcon from '@material-ui/core/ListItemIcon/ListItemIcon';
 
 import HomeIcon from '@material-ui/icons/Home';
 import ClassIcon from '@material-ui/icons/Class';
@@ -28,8 +27,10 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import SettingsIcon from '@material-ui/icons/Settings';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
-import logo from './Avocado_logo_transparent.svg';
+import logoLight from './Avocado_logo_light.svg';
+import logoDark from './Avocado_logo_dark.svg';
 import Paper from '@material-ui/core/Paper/Paper';
+import Preferences from "./Preferences";
 
 const drawerWidth = 240;
 
@@ -72,55 +73,58 @@ const styles = theme => ({
             duration: theme.transitions.duration.enteringScreen,
         }),
         marginLeft: 0
-    }
+    },
 });
 
 class Layout extends React.Component {
     constructor(props) {
         super(props);
+        let color = {red: red, pink: pink, purple: purple, deepPurple: deepPurple, indigo: indigo, blue: blue,
+                lightBlue: lightBlue, cyan: cyan, teal: teal, green: green, lightGreen: lightGreen, lime: lime,
+                yellow: yellow, amber: amber, orange: orange, deepOrange: deepOrange, brown: brown, grey: grey,
+                blueGrey: blueGrey}['green'];
         this.state = {
             name: 'John Doe',
             open: true,
             section: 'Home',
-            themePrimary: green,
-            themeType: 'dark',
+            color: color,
+            theme: 'light',
         };
     }
 
     render() {
         const {classes} = this.props;
         const {open} = this.state;
+        const theme = createMuiTheme({palette: {primary: this.state.color, type: this.state.theme}});
 
-        const theme = createMuiTheme({palette: {primary: this.state.themePrimary, type: this.state.themeType}});
+        let listItem = (icon, text) => {
+            let selected = this.state.section === text;
+            let style = {backgroundColor: selected ? this.state.color[this.state.theme === 'light' ? '100' : '500'] : undefined};
+            icon = React.createElement(icon, {color: selected && this.state.theme === 'light' ? 'primary' : 'action'});
+            return <ListItem button selected={selected} onClick={() => this.setState({section: text})} style={style}>
+                {icon}<ListItemText primary={text}/></ListItem>;
+        };
+
         return (
             <MuiThemeProvider theme={theme}>
                 <Paper square style={{display: 'flex', width: '100%', height: '100%'}}>
                     <Drawer variant='persistent' anchor='left' open={open} classes={{paper: classes.drawerPaper}}>
-                        <img src={logo} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
+                        <img src={this.state.theme === 'light' ? logoLight : logoDark} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
                         <Divider/>
                         <div style={{'overflow-y': 'auto'}}>
                             <List>
-                                <ListItem button><ListItemIcon><HomeIcon/></ListItemIcon>
-                                    <ListItemText primary='Home'/></ListItem>
-                                <ListItem button><ListItemIcon><ClassIcon/></ListItemIcon>
-                                    <ListItemText primary='My Classes'/></ListItem>
-                                <ListItem button><ListItemIcon><SchoolIcon/></ListItemIcon>
-                                    <ListItemText primary='Teaching Tools'/></ListItem>
-                                <ListItem button><ListItemIcon><BuildIcon/></ListItemIcon>
-                                    <ListItemText primary='Build Question'/></ListItem>
-                                <ListItem button><ListItemIcon><PieChartIcon/></ListItemIcon>
-                                    <ListItemText primary='My Analytics'/></ListItem>
+                                {listItem(HomeIcon, 'Home')}
+                                {listItem(ClassIcon, 'My Classes')}
+                                {listItem(SchoolIcon, 'Teaching Tools')}
+                                {listItem(BuildIcon, 'Build Question')}
+                                {listItem(PieChartIcon, 'My Analytics')}
                             </List>
                             <Divider/>
                             <List>
-                                <ListItem button><ListItemIcon><AccountCircleIcon/></ListItemIcon>
-                                    <ListItemText primary='My Account'/></ListItem>
-                                <ListItem button><ListItemIcon><InfoIcon/></ListItemIcon>
-                                    <ListItemText primary='About'/></ListItem>
-                                <ListItem button><ListItemIcon><SettingsIcon/></ListItemIcon>
-                                    <ListItemText primary='Preferences'/></ListItem>
-                                <ListItem button><ListItemIcon><ExitToAppIcon/></ListItemIcon>
-                                    <ListItemText primary='Logout'/></ListItem>
+                                {listItem(AccountCircleIcon, 'My Account')}
+                                {listItem(InfoIcon, 'About')}
+                                {listItem(SettingsIcon, 'Preferences')}
+                                {listItem(ExitToAppIcon, 'Logout')}
                             </List>
                         </div>
                     </Drawer>
@@ -144,7 +148,9 @@ class Layout extends React.Component {
                                 : this.state.section === 'My Analytics' ? null
                                 : this.state.section === 'My Account' ? null
                                 : this.state.section === 'About' ? null
-                                : this.state.section === 'Preferences' ? null
+                                : this.state.section === 'Preferences' ? <Preferences theme={this.state.theme}
+                                                            changeColor={(color) => this.setState({color: color})}
+                                                            changeTheme={(theme) => this.setState({theme: theme})}/>
                                 : null
                         }
                     </div>

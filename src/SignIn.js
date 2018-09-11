@@ -6,7 +6,7 @@ import Card from "@material-ui/core/Card/Card";
 import Typography from "@material-ui/core/Typography/Typography";
 import Button from "@material-ui/core/Button/Button";
 import Grid from "@material-ui/core/Grid/Grid";
-import logo from "./Avocado_logo_transparent.svg"
+import logo from "./Avocado_logo_light.svg"
 
 class SignIn extends React.Component {
     state = {
