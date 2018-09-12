@@ -89,7 +89,7 @@ class SignIn extends React.Component {
 
     // noinspection JSMethodCanBeStatic
     signIn() {
-        window.location.href = 'Teacher'; // Todo
+        window.location.href = 'Teacher/Home'; // Todo
     }
 }
 

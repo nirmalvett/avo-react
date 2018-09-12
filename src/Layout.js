@@ -88,9 +88,9 @@ class Layout extends React.Component {
         this.state = {
             name: 'John Doe',
             open: true,
-            section: 'Home',
+            path: this.props.path,
             color: color,
-            theme: 'light',
+            theme: 'dark',
             logoutDialogue: false,
         };
     }
@@ -101,10 +101,11 @@ class Layout extends React.Component {
         const theme = createMuiTheme({palette: {primary: this.state.color, type: this.state.theme}});
 
         let listItem = (icon, text) => {
-            let selected = this.state.section === text;
+            let url = text.replace(/ /, '');
+            let selected = this.state.path[0] === url;
             let style = {backgroundColor: selected ? this.state.color[this.state.theme === 'light' ? '100' : '500'] : undefined};
             icon = React.createElement(icon, {color: selected && this.state.theme === 'light' ? 'primary' : 'action'});
-            return <ListItem button selected={selected} onClick={() => this.setState({section: text})} style={style}>
+            return <ListItem button selected={selected} onClick={() => {this.setState({path: [url]});window.history.pushState({}, null, url)}} style={style}>
                 {icon}<ListItemText primary={text}/></ListItem>;
         };
 
@@ -146,16 +147,16 @@ class Layout extends React.Component {
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
                         {
-                            this.state.section === 'Home' ? <Home/>
-                                : this.state.section === 'My Classes' ? null
-                                : this.state.section === 'Teaching Tools' ? null
-                                : this.state.section === 'Build Question' ? null
-                                : this.state.section === 'My Analytics' ? null
-                                : this.state.section === 'My Account' ? null
-                                : this.state.section === 'Preferences' ? <Preferences theme={this.state.theme}
+                            this.state.path[0] === 'Home' ? <Home/>
+                                : this.state.path[0] === 'MyClasses' ? null
+                                : this.state.path[0] === 'TeachingTools' ? null
+                                : this.state.path[0] === 'BuildQuestion' ? null
+                                : this.state.path[0] === 'MyAnalytics' ? null
+                                : this.state.path[0] === 'MyAccount' ? null
+                                : this.state.path[0] === 'Preferences' ? <Preferences theme={this.state.theme}
                                                             changeColor={(color) => this.setState({color: color})}
                                                             changeTheme={(theme) => this.setState({theme: theme})}/>
-                                : null
+                                : window.location.href = 'Home'
                         }
                     </div>
                 </Paper>
@@ -167,7 +168,7 @@ class Layout extends React.Component {
 
     // noinspection JSMethodCanBeStatic
     logout() {
-        window.location.href = 'SignIn'; // Todo
+        window.location.href = '../SignIn'; // Todo
     }
 }
 

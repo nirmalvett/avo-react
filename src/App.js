@@ -1,21 +1,21 @@
 import React from 'react';
 import './App.css';
-import {BrowserRouter as Router, Route} from 'react-router-dom'
 
 import SignIn from "./SignIn";
 import Layout from "./Layout";
 
 class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {path: window.location.pathname.substr(1).split('/')};
+    }
+
     render() {
-        return (
-            <Router>
-                <div style={{position: 'fixed', height: '100vh', width: '100vw'}}>
-                    <Route exact path='/' component={() => window.location.replace('SignIn')}/>
-                    <Route path='/SignIn' component={() => <SignIn/>}/>
-                    <Route path='/Teacher' component={() => <Layout/>}/>
-                </div>
-            </Router>
-        )
+        let path = this.state.path.slice(1);
+        if (this.state.path[0] === 'Teacher')
+            return <Layout path={path}/>;
+        else
+            return <SignIn path={path}/>;
     }
 }
 
