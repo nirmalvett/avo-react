@@ -17,6 +17,7 @@ import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import StopIcon from '@material-ui/icons/Stop';
 import DeleteIcon from '@material-ui/icons/Delete';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import NoteAddIcon from '@material-ui/icons/NoteAdd';
 
 class MyClasses extends React.Component {
     constructor(props) {
@@ -83,7 +84,10 @@ class MyClasses extends React.Component {
                         <Card style={{marginTop: '10%', marginBottom: '10%', padding: '10px', flex: 1}}>
                             <CardHeader title={this.state.classes[this.state.selectedClass].name}
                                         subheader={'Enroll Key: ' + this.state.classes[this.state.selectedClass].enrollKey}
-                                        action={[<IconButton><GetAppIcon/></IconButton>]}/>
+                                        action={[
+                                            <IconButton><NoteAddIcon/></IconButton>,
+                                            <IconButton><GetAppIcon/></IconButton>
+                                        ]}/>
                             {/*Todo - Add 'Add Test' button, results graphics for class and individual, make button download csv*/}
                         </Card>
                         : null

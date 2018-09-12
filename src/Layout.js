@@ -123,7 +123,7 @@ class Layout extends React.Component {
                         <img src={this.state.theme === 'light' ? logoLight : logoDark} alt='' style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
                         <Divider/>
                         <div style={{overflowY: 'auto'}}>
-                            <List subheader={<ListSubheader component='div'>Student & Teacher</ListSubheader>}>
+                            <List subheader={this.state.isTeacher && <ListSubheader component='div'>Student & Teacher</ListSubheader>}>
                                 {listItem(HomeIcon, 'Home')}
                                 {listItem(ClassIcon, 'My Classes')}
                                 {disabledListItem(AssignmentTurnedInIcon, 'Explanations')}
