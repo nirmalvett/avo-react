@@ -21,7 +21,7 @@ class Preferences extends React.Component {
         let color_icon = color => <td style={{padding: '10px'}}><Avatar style={{width: '60px', height: '60px',
             backgroundColor:color['500']}} onClick={() => this.state.changeColor(color)}/></td>;
         return (
-            <div style={{padding: '10px'}}>
+            <div style={{margin: '10px', flex: 1, overflowY: 'auto'}}>
                 <Typography variant={"headline"}>Please select a color</Typography>
                 <table>
                     <tr>{[red, pink, purple, deepPurple, indigo].map(x => color_icon(x))}</tr>
@@ -29,6 +29,7 @@ class Preferences extends React.Component {
                     <tr>{[lightGreen, lime, yellow, amber, orange].map(x => color_icon(x))}</tr>
                     <tr>{[deepOrange, brown, grey, blueGrey].map(x => color_icon(x))}</tr>
                 </table>
+                <Typography variant={"headline"}>Please select a theme</Typography>
                 <RadioGroup aria-label="Theme" name="theme" value={this.props.theme} onChange={(e, value) => this.props.changeTheme(value)}>
                     <FormControlLabel value="light" control={<Radio color='primary'/>} label="Light Theme"/>
                     <FormControlLabel value="dark" control={<Radio color='primary'/>} label="Dark Theme"/>

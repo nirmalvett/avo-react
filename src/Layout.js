@@ -63,6 +63,7 @@ const styles = theme => ({
             easing: theme.transitions.easing.easeIn,
             duration: theme.transitions.duration.leavingScreen,
         }),
+        display: 'flex',
         flex: 1,
         marginTop: '64px',
         marginLeft: -drawerWidth
