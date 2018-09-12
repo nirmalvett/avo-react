@@ -167,7 +167,7 @@ class Layout extends React.Component {
 
     // noinspection JSMethodCanBeStatic
     logout() {
-        alert("Todo");  // Todo
+        window.location.href = 'SignIn'; // Todo
     }
 }
 
