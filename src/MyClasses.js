@@ -77,14 +77,14 @@ class MyClasses extends React.Component {
                                                 ? <IconButton><StopIcon/></IconButton>
                                                 : <IconButton><PlayArrowIcon/></IconButton>,
                                             <IconButton><DeleteIcon/></IconButton>]}/>
-                            {/*Todo - Add mark editor*/}
+                            {/*Todo - Add mark editor, make buttons do things*/}
                         </Card>
                         : this.state.selectedClass !== null ?
                         <Card style={{marginTop: '10%', marginBottom: '10%', padding: '10px', flex: 1}}>
                             <CardHeader title={this.state.classes[this.state.selectedClass].name}
                                         subheader={'Enroll Key: ' + this.state.classes[this.state.selectedClass].enrollKey}
                                         action={[<IconButton><GetAppIcon/></IconButton>]}/>
-                            {/*Todo - Add 'Add Test' button, results graphics for class and individual*/}
+                            {/*Todo - Add 'Add Test' button, results graphics for class and individual, make button download csv*/}
                         </Card>
                         : null
                     }</Grid>

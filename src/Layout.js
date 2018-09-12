@@ -21,10 +21,9 @@ import HomeIcon from '@material-ui/icons/Home';
 import ClassIcon from '@material-ui/icons/Class';
 import SchoolIcon from '@material-ui/icons/School';
 import BuildIcon from '@material-ui/icons/Build';
-import PieChartIcon from '@material-ui/icons/PieChart';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import SettingsIcon from '@material-ui/icons/Settings';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn'
 
 import logoLight from './Avocado_logo_light.svg';
 import logoDark from './Avocado_logo_dark.svg';
@@ -33,6 +32,7 @@ import Preferences from './Preferences';
 import Home from './Home';
 import LogoutDialogue from './LogoutDialogue'
 import MyClasses from './MyClasses'
+import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 
 const drawerWidth = 240;
 
@@ -87,9 +87,11 @@ class Layout extends React.Component {
                 yellow: yellow, amber: amber, orange: orange, deepOrange: deepOrange, brown: brown, grey: grey,
                 blueGrey: blueGrey}['green'];
         this.state = {
+            isTeacher: this.props.isTeacher,
             name: 'John Doe',
             open: true,
             path: this.props.path,
+            parentPath: this.props.parentPath,
             color: color,
             theme: 'dark',
             logoutDialogue: false,
@@ -103,13 +105,16 @@ class Layout extends React.Component {
         const theme = createMuiTheme({palette: {primary: this.state.color, type: this.state.theme}});
 
         let listItem = (icon, text) => {
-            let url = text.replace(/ /, '');
+            let url = text.replace(/ /, '-').toLowerCase();
             let selected = this.state.path[0] === url;
+            let fullUrl = '/' + this.state.parentPath.join('/') + '/' + url;
             let style = {backgroundColor: selected ? this.state.color[this.state.theme === 'light' ? '100' : '500'] : undefined};
             icon = React.createElement(icon, {color: selected && this.state.theme === 'light' ? 'primary' : 'action'});
-            return <ListItem button selected={selected} onClick={() => {this.setState({path: [url]});window.history.pushState({}, null, url)}} style={style}>
+            return <ListItem button selected={selected} onClick={() => {this.setState({path: [url]});window.history.pushState({}, null, fullUrl)}} style={style}>
                 {icon}<ListItemText primary={text}/></ListItem>;
         };
+        let disabledListItem = (icon, text) =>
+            <ListItem button disabled>{React.createElement(icon, {color: 'action'})}<ListItemText primary={text}/></ListItem>;
 
         return (
             <MuiThemeProvider theme={theme}>
@@ -118,16 +123,19 @@ class Layout extends React.Component {
                         <img src={this.state.theme === 'light' ? logoLight : logoDark} alt='' style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
                         <Divider/>
                         <div style={{overflowY: 'auto'}}>
-                            <List>
+                            <List subheader={<ListSubheader component='div'>Student & Teacher</ListSubheader>}>
                                 {listItem(HomeIcon, 'Home')}
                                 {listItem(ClassIcon, 'My Classes')}
-                                {listItem(SchoolIcon, 'Teaching Tools')}
-                                {listItem(BuildIcon, 'Build Question')}
-                                {listItem(PieChartIcon, 'My Analytics')}
+                                {disabledListItem(AssignmentTurnedInIcon, 'Explanations')}
                             </List>
-                            <Divider/>
-                            <List>
-                                {listItem(AccountCircleIcon, 'My Account')}
+                            {this.state.isTeacher && [
+                                <Divider/>,
+                                <List subheader={<ListSubheader component='div'>Teacher Only</ListSubheader>}>
+                                    {disabledListItem(SchoolIcon, 'Teaching Tools')}
+                                    {disabledListItem(BuildIcon, 'Build Question')}
+                                </List>
+                            ]}
+                            <Divider/><List>
                                 {listItem(SettingsIcon, 'Preferences')}
                                 <ListItem button onClick={() => this.setState({logoutDialogue: true})}>
                                     <ExitToAppIcon color='action'/>
@@ -149,16 +157,15 @@ class Layout extends React.Component {
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
                         {
-                            this.state.path[0] === 'Home' ? <Home/>
-                                : this.state.path[0] === 'MyClasses' ? <MyClasses path={path}/>
-                                : this.state.path[0] === 'TeachingTools' ? null
-                                : this.state.path[0] === 'BuildQuestion' ? null
-                                : this.state.path[0] === 'MyAnalytics' ? null
-                                : this.state.path[0] === 'MyAccount' ? null
-                                : this.state.path[0] === 'Preferences' ? <Preferences theme={this.state.theme}
+                            this.state.path[0] === 'home' ? <Home/>
+                                : this.state.path[0] === 'my-classes' ? <MyClasses path={path}/>
+                                : this.state.path[0] === 'teaching-tools' ? null
+                                : this.state.path[0] === 'explanations' ? null
+                                : this.state.path[0] === 'build-question' ? null
+                                : this.state.path[0] === 'preferences' ? <Preferences theme={this.state.theme}
                                                             changeColor={(color) => this.setState({color: color})}
                                                             changeTheme={(theme) => this.setState({theme: theme})}/>
-                                : window.location.href = 'Home'
+                                : null
                         }
                     </div>
                 </Paper>
@@ -170,7 +177,7 @@ class Layout extends React.Component {
 
     // noinspection JSMethodCanBeStatic
     logout() {
-        window.location.href = '../SignIn'; // Todo
+        window.location.href = '..'; // Todo
     }
 }
 
