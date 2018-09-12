@@ -1,8 +1,8 @@
 import React from 'react';
 import './App.css';
 
-import SignIn from "./SignIn";
-import Layout from "./Layout";
+import SignIn from './SignIn';
+import Layout from './Layout';
 
 class App extends React.Component {
     constructor(props) {
