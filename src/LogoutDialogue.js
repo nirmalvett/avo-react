@@ -19,8 +19,6 @@ class LogoutDialogue extends React.Component {
             </Dialog>
         );
     }
-
-    handleClose() {}
 }
 
 export default LogoutDialogue

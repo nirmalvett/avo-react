@@ -22,7 +22,6 @@ import ClassIcon from '@material-ui/icons/Class';
 import SchoolIcon from '@material-ui/icons/School';
 import BuildIcon from '@material-ui/icons/Build';
 import PieChartIcon from '@material-ui/icons/PieChart';
-import InfoIcon from '@material-ui/icons/Info';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import SettingsIcon from '@material-ui/icons/Settings';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
@@ -126,7 +125,6 @@ class Layout extends React.Component {
                             <Divider/>
                             <List>
                                 {listItem(AccountCircleIcon, 'My Account')}
-                                {listItem(InfoIcon, 'About')}
                                 {listItem(SettingsIcon, 'Preferences')}
                                 <ListItem button onClick={() => this.setState({logoutDialogue: true})}>
                                     <ExitToAppIcon color='action'/>
@@ -154,7 +152,6 @@ class Layout extends React.Component {
                                 : this.state.section === 'Build Question' ? null
                                 : this.state.section === 'My Analytics' ? null
                                 : this.state.section === 'My Account' ? null
-                                : this.state.section === 'About' ? null
                                 : this.state.section === 'Preferences' ? <Preferences theme={this.state.theme}
                                                             changeColor={(color) => this.setState({color: color})}
                                                             changeTheme={(theme) => this.setState({theme: theme})}/>
