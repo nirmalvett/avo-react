@@ -32,6 +32,7 @@ import Paper from '@material-ui/core/Paper/Paper';
 import Preferences from './Preferences';
 import Home from './Home';
 import LogoutDialogue from './LogoutDialogue'
+import MyClasses from './MyClasses'
 
 const drawerWidth = 240;
 
@@ -96,6 +97,7 @@ class Layout extends React.Component {
     }
 
     render() {
+        let path = this.state.path.slice(1);
         const {classes} = this.props;
         const {open} = this.state;
         const theme = createMuiTheme({palette: {primary: this.state.color, type: this.state.theme}});
@@ -113,9 +115,9 @@ class Layout extends React.Component {
             <MuiThemeProvider theme={theme}>
                 <Paper square style={{display: 'flex', width: '100%', height: '100%'}}>
                     <Drawer variant='persistent' anchor='left' open={open} classes={{paper: classes.drawerPaper}}>
-                        <img src={this.state.theme === 'light' ? logoLight : logoDark} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
+                        <img src={this.state.theme === 'light' ? logoLight : logoDark} alt='' style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
                         <Divider/>
-                        <div style={{'overflow-y': 'auto'}}>
+                        <div style={{overflowY: 'auto'}}>
                             <List>
                                 {listItem(HomeIcon, 'Home')}
                                 {listItem(ClassIcon, 'My Classes')}
@@ -148,7 +150,7 @@ class Layout extends React.Component {
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
                         {
                             this.state.path[0] === 'Home' ? <Home/>
-                                : this.state.path[0] === 'MyClasses' ? null
+                                : this.state.path[0] === 'MyClasses' ? <MyClasses path={path}/>
                                 : this.state.path[0] === 'TeachingTools' ? null
                                 : this.state.path[0] === 'BuildQuestion' ? null
                                 : this.state.path[0] === 'MyAnalytics' ? null

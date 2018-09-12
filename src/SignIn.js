@@ -54,7 +54,7 @@ class SignIn extends React.Component {
                             </form>
                         </Grid>
                         <Grid item xs={6}>
-                            <img src={logo}/>
+                            <img src={logo} alt=''/>
                             <Typography variant='headline'>Sign In</Typography>
                             <form style={style} noValidate autoComplete='off'>
                                 <TextField margin='normal' style={style} id='email' label='Email'
