@@ -30,7 +30,9 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import logoLight from './Avocado_logo_light.svg';
 import logoDark from './Avocado_logo_dark.svg';
 import Paper from '@material-ui/core/Paper/Paper';
-import Preferences from "./Preferences";
+import Preferences from './Preferences';
+import Home from './Home';
+import LogoutDialogue from './LogoutDialogue'
 
 const drawerWidth = 240;
 
@@ -90,6 +92,7 @@ class Layout extends React.Component {
             section: 'Home',
             color: color,
             theme: 'light',
+            logoutDialogue: false,
         };
     }
 
@@ -125,7 +128,10 @@ class Layout extends React.Component {
                                 {listItem(AccountCircleIcon, 'My Account')}
                                 {listItem(InfoIcon, 'About')}
                                 {listItem(SettingsIcon, 'Preferences')}
-                                {listItem(ExitToAppIcon, 'Logout')}
+                                <ListItem button onClick={() => this.setState({logoutDialogue: true})}>
+                                    <ExitToAppIcon color='action'/>
+                                    <ListItemText primary='Logout'/>
+                                </ListItem>
                             </List>
                         </div>
                     </Drawer>
@@ -142,7 +148,7 @@ class Layout extends React.Component {
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
                         {
-                            this.state.section === 'Home' ? null
+                            this.state.section === 'Home' ? <Home/>
                                 : this.state.section === 'My Classes' ? null
                                 : this.state.section === 'Teaching Tools' ? null
                                 : this.state.section === 'Build Question' ? null
@@ -156,8 +162,15 @@ class Layout extends React.Component {
                         }
                     </div>
                 </Paper>
+                {this.state.logoutDialogue ?
+                    <LogoutDialogue cancel={() => this.setState({logoutDialogue: false})} logout={this.logout}/> : null}
             </MuiThemeProvider>
         );
+    }
+
+    // noinspection JSMethodCanBeStatic
+    logout() {
+        alert("Todo");  // Todo
     }
 }
 
