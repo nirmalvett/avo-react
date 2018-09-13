@@ -5,7 +5,8 @@ import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
-import Logo from './Logo.js';
+import Logo from './Logo';
+import AvoHttp from "./Http";
 
 export default class SignIn extends React.Component {
     constructor(props) {
@@ -86,7 +87,7 @@ export default class SignIn extends React.Component {
 
     // noinspection JSMethodCanBeStatic
     register() {
-        alert(this.state.rPassword1);
+        alert(this.state.rPassword1); // Todo
     }
 
     // noinspection JSMethodCanBeStatic
@@ -96,6 +97,12 @@ export default class SignIn extends React.Component {
 
     // noinspection JSMethodCanBeStatic
     signIn() {
-        window.location.href = '/teacher/home'; // Todo
+        AvoHttp.login(this.state.username, this.state.password, (result) => {
+            if (result.is_teacher)
+            window.location.href = '/teacher/home'
+            }, (result) => {
+            console.log('failure', result)
+            }
+        );
     }
 }

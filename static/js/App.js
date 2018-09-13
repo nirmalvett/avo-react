@@ -4,6 +4,7 @@ import SignIn from './SignIn.js';
 import Layout from './Layout.js';
 import {createMuiTheme, MuiThemeProvider} from '@material-ui/core';
 import {green} from "@material-ui/core/colors";
+import Http from "./Http";
 
 export default class App extends React.Component {
     constructor(props) {
@@ -35,13 +36,34 @@ export default class App extends React.Component {
     getContent() {
         let parentPath = this.state.path[0];
         let path = this.state.path.slice(1);
-        if (parentPath === 'teacher')
-            return <Layout path={path} parentPath={parentPath} setTheme={this.setTheme} isTeacher={true}/>;
-        if (parentPath === 'student')
-            return <Layout path={path} parentPath={parentPath} setTheme={this.setTheme} isTeacher={false}/>;
-        if (parentPath === 'signin')
-            return <SignIn path={path} parentPath={parentPath} setTheme={this.setTheme}/>;
-        window.history.pushState({}, null, '/signin');
-        this.setState({path: ['signin']});
+        if (parentPath === 'teacher') {
+            Http.getUserInfo(
+                (result) => {
+                    if (result.is_teacher)
+                        return <Layout path={path} parentPath={parentPath} setTheme={this.setTheme} isTeacher={true}/>;
+                    else
+                        this.redirect('student/home');
+                },
+                () => {
+                    this.redirect('signin');
+                }
+            );
+        }
+        if (parentPath === 'student') {
+            Http.getUserInfo(
+                () => <Layout path={path} parentPath={parentPath} setTheme={this.setTheme} isTeacher={false}/>,
+                () => {
+                    this.redirect('signin');
+                }
+            );
+        }
+        if (parentPath !== 'signin')
+            this.redirect('signin');
+        return <SignIn path={path} parentPath={parentPath} setTheme={this.setTheme}/>;
+    }
+
+    redirect(url) {
+        window.history.pushState({}, null, '/' + url);
+        this.setState({path: [url]});
     }
 }
