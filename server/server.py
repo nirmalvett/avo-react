@@ -3,7 +3,7 @@ from flask_login import login_required, current_user, login_user, logout_user, L
 from sqlite3 import connect
 from hashlib import sha512
 from uuid import uuid4
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, BadSignature
 from re import fullmatch
 # noinspection PyUnresolvedReferences
 import config as config
@@ -47,6 +47,28 @@ def serve_static_file(path, filename):
     return send_file('../static/dist/' + filename)
 
 
+@app.route('/confirm/<token>')
+def confirm(token):
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT)
+    except BadSignature:
+        return "Invalid confirmation link"
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('SELECT user, confirmed FROM user WHERE email=?', (email,))
+    user = db.fetchone()
+    if user is None:
+        return "There is no account associated with the email in that token"
+    if user[1] == 0:
+        db.execute('UPDATE user SET confirmed=1 WHERE user=?', (user[0],))
+        database.commit()
+    database.close()
+    login_user(User(user[0]))  # This is probably not a good idea but whatever I'll remove it later
+    # noinspection PyUnresolvedReferences
+    return render_template('/index.html')
+
+
 @app.route('/register', methods=['POST'])
 def register():
     if not request.json:
@@ -72,6 +94,7 @@ def register():
     database.close()
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
+    print(token)
     return jsonify(message='Account created')
 
 
@@ -114,6 +137,8 @@ def get_user_info():
                (current_user.get_id(),))
     user = db.fetchone()
     database.close()
+    if user is None:
+        return jsonify(error='User does not exist')
     return jsonify(first_name=user[0], last_name=user[1], is_teacher=user[2],
                    is_admin=user[3], color=user[4], theme=user[5])
 
