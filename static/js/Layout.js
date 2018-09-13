@@ -88,14 +88,15 @@ class Layout extends React.Component {
                 this.setState({
                     name: result.first_name + ' ' + result.last_name,
                     color: color[result.color],
-                    theme: result.theme ? 'dark' : 'light'
+                    theme: result.theme ? 'dark' : 'light',
+                    isTeacher: result.is_teacher
                 });
             },
             () => {this.logout();}
             );
         this.state = {
             section: 'Home',
-            isTeacher: this.props.isTeacher,
+            isTeacher: false,
             name: 'Loading...',
             open: true,
             color: color[9],
