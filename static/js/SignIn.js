@@ -17,8 +17,8 @@ export default class SignIn extends React.Component {
             rEmail: '',
             rPassword1: '',
             rPassword2: '',
-            username: '',
-            password: '',
+            username: this.props.username,
+            password: this.props.password,
         };
     }
 
@@ -107,7 +107,7 @@ export default class SignIn extends React.Component {
     // noinspection JSMethodCanBeStatic
     signIn() {
         AvoHttp.login(this.state.username, this.state.password, () => {
-            this.props.login();
+            this.props.login(this.state.username, this.state.password);
             }, (result) => {
             alert(result.error)
             }

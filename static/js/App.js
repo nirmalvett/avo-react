@@ -12,7 +12,9 @@ export default class App extends React.Component {
         this.state = {
             color: green,
             theme: 'light',
-            authenticated: null
+            authenticated: null,
+            username: '',
+            password: ''
         };
         Http.getUserInfo(
             () => {this.setState({authenticated: true});},
@@ -30,7 +32,8 @@ export default class App extends React.Component {
                         ? <Layout setTheme={(color, theme) => this.setState({color: color, theme: theme})}
                                   logout={() => this.setState({authenticated: false})}
                                   isTeacher={this.state.user === 1}/>
-                        : <SignIn login={() => this.setState({authenticated: true})}/>
+                        : <SignIn login={(u, p) => this.setState({authenticated: true, username: u, password: p})}
+                                  username={this.state.username} password={this.state.password}/>
                 }
             </MuiThemeProvider>
         );

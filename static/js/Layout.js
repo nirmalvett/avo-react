@@ -28,7 +28,6 @@ import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn'
 import Paper from '@material-ui/core/Paper/Paper';
 import Preferences from './Preferences';
 import Home from './Home';
-import LogoutDialogue from './LogoutDialogue'
 import MyClasses from './MyClasses'
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import Logo from "./Logo";
@@ -101,7 +100,6 @@ class Layout extends React.Component {
             open: true,
             color: color[9],
             theme: 'dark',
-            logoutDialogue: false,
         };
         this.logout = this.logout.bind(this);
     }
@@ -142,7 +140,7 @@ class Layout extends React.Component {
                             ]}
                             <Divider/><List>
                                 {listItem(SettingsIcon, 'Preferences')}
-                                <ListItem button onClick={() => this.setState({logoutDialogue: true})}>
+                                <ListItem button onClick={() => this.logout()}>
                                     <ExitToAppIcon color='action'/>
                                     <ListItemText primary='Logout'/>
                                 </ListItem>
@@ -174,8 +172,6 @@ class Layout extends React.Component {
                         }
                     </div>
                 </Paper>
-                {this.state.logoutDialogue ?
-                    <LogoutDialogue cancel={() => this.setState({logoutDialogue: false})} logout={this.logout}/> : null}
             </MuiThemeProvider>
         );
     }
