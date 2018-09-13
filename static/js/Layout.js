@@ -25,14 +25,13 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn'
 
-import logoLight from './Avocado_logo_light.svg';
-import logoDark from './Avocado_logo_dark.svg';
 import Paper from '@material-ui/core/Paper/Paper';
 import Preferences from './Preferences';
 import Home from './Home';
 import LogoutDialogue from './LogoutDialogue'
 import MyClasses from './MyClasses'
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
+import Logo from "./Logo";
 
 const drawerWidth = 240;
 
@@ -107,7 +106,7 @@ class Layout extends React.Component {
         let listItem = (icon, text) => {
             let url = text.replace(/ /, '-').toLowerCase();
             let selected = this.state.path[0] === url;
-            let fullUrl = '/' + this.state.parentPath.join('/') + '/' + url;
+            let fullUrl = '/' + this.state.parentPath + '/' + url;
             let style = {backgroundColor: selected ? this.state.color[this.state.theme === 'light' ? '100' : '500'] : undefined};
             icon = React.createElement(icon, {color: selected && this.state.theme === 'light' ? 'primary' : 'action'});
             return <ListItem button selected={selected} onClick={() => {this.setState({path: [url]});window.history.pushState({}, null, fullUrl)}} style={style}>
@@ -120,7 +119,7 @@ class Layout extends React.Component {
             <MuiThemeProvider theme={theme}>
                 <Paper square style={{display: 'flex', width: '100%', height: '100%'}}>
                     <Drawer variant='persistent' anchor='left' open={open} classes={{paper: classes.drawerPaper}}>
-                        <img src={this.state.theme === 'light' ? logoLight : logoDark} alt='' style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
+                        <Logo theme={this.state.theme} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
                         <Divider/>
                         <div style={{overflowY: 'auto'}}>
                             <List subheader={this.state.isTeacher && <ListSubheader component='div'>Student & Teacher</ListSubheader>}>
