@@ -2,6 +2,7 @@
 /venv
 .idea
 */desktop.ini
+*/__pycache__
 
 # This can be committed once we need to set up a hook to a production server. Until then, it should be gitignored to prevent merge conflicts.
 static/dist

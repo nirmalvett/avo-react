@@ -87,7 +87,16 @@ export default class SignIn extends React.Component {
 
     // noinspection JSMethodCanBeStatic
     register() {
-        alert(this.state.rPassword1); // Todo
+        let s = this.state;
+        if (/^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.rEmail) && s.rPassword1.length >= 8 && s.rPassword2 === s.rPassword1) {
+            AvoHttp.register(s.rFirstName, s.rLastName, s.rEmail, s.rPassword1,
+                () => {this.setState({rFirstName: '', rLastName: '', rEmail: '', rPassword1: '', rPassword2: '',
+                    username: s.rEmail, password: s.rPassword1})},
+                (result) => {
+                    alert(result.error);
+                }
+            );
+        }
     }
 
     // noinspection JSMethodCanBeStatic
@@ -97,11 +106,10 @@ export default class SignIn extends React.Component {
 
     // noinspection JSMethodCanBeStatic
     signIn() {
-        AvoHttp.login(this.state.username, this.state.password, (result) => {
-            if (result.is_teacher)
-            window.location.href = '/teacher/home'
+        AvoHttp.login(this.state.username, this.state.password, () => {
+            this.props.login();
             }, (result) => {
-            console.log('failure', result)
+            alert(result.error)
             }
         );
     }

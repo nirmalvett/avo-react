@@ -32,6 +32,7 @@ import LogoutDialogue from './LogoutDialogue'
 import MyClasses from './MyClasses'
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import Logo from "./Logo";
+import Http from "./Http";
 
 const drawerWidth = 240;
 
@@ -81,35 +82,40 @@ const styles = theme => ({
 class Layout extends React.Component {
     constructor(props) {
         super(props);
-        let color = {red: red, pink: pink, purple: purple, deepPurple: deepPurple, indigo: indigo, blue: blue,
-                lightBlue: lightBlue, cyan: cyan, teal: teal, green: green, lightGreen: lightGreen, lime: lime,
-                yellow: yellow, amber: amber, orange: orange, deepOrange: deepOrange, brown: brown, grey: grey,
-                blueGrey: blueGrey}['green'];
+        let color = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal,
+            green, lightGreen, lime, yellow, amber, orange, deepOrange, brown, grey, blueGrey];
+        Http.getUserInfo(
+            (result) => {
+                this.setState({
+                    name: result.first_name + ' ' + result.last_name,
+                    color: color[result.color],
+                    theme: result.theme ? 'dark' : 'light'
+                });
+            },
+            () => {this.logout();}
+            );
         this.state = {
+            section: 'Home',
             isTeacher: this.props.isTeacher,
-            name: 'John Doe',
+            name: 'Loading...',
             open: true,
-            path: this.props.path,
-            parentPath: this.props.parentPath,
-            color: color,
+            color: color[9],
             theme: 'dark',
             logoutDialogue: false,
         };
+        this.logout = this.logout.bind(this);
     }
 
     render() {
-        let path = this.state.path.slice(1);
         const {classes} = this.props;
         const {open} = this.state;
         const theme = createMuiTheme({palette: {primary: this.state.color, type: this.state.theme}});
 
         let listItem = (icon, text) => {
-            let url = text.replace(/ /, '-').toLowerCase();
-            let selected = this.state.path[0] === url;
-            let fullUrl = '/' + this.state.parentPath + '/' + url;
+            let selected = this.state.section === text;
             let style = {backgroundColor: selected ? this.state.color[this.state.theme === 'light' ? '100' : '500'] : undefined};
             icon = React.createElement(icon, {color: selected && this.state.theme === 'light' ? 'primary' : 'action'});
-            return <ListItem button selected={selected} onClick={() => {this.setState({path: [url]});window.history.pushState({}, null, fullUrl)}} style={style}>
+            return <ListItem button selected={selected} onClick={() => {this.setState({section: text});window.history.pushState({}, null, fullUrl)}} style={style}>
                 {icon}<ListItemText primary={text}/></ListItem>;
         };
         let disabledListItem = (icon, text) =>
@@ -156,12 +162,12 @@ class Layout extends React.Component {
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
                         {
-                            this.state.path[0] === 'home' ? <Home/>
-                                : this.state.path[0] === 'my-classes' ? <MyClasses path={path}/>
-                                : this.state.path[0] === 'teaching-tools' ? null
-                                : this.state.path[0] === 'explanations' ? null
-                                : this.state.path[0] === 'build-question' ? null
-                                : this.state.path[0] === 'preferences' ? <Preferences theme={this.state.theme}
+                            this.state.section === 'Home' ? <Home/>
+                                : this.state.section === 'My Classes' ? <MyClasses/>
+                                : this.state.section === 'Teaching Tools' ? null
+                                : this.state.section === 'Explanations' ? null
+                                : this.state.section === 'Build Question' ? null
+                                : this.state.section === 'Preferences' ? <Preferences theme={this.state.theme}
                                                             changeColor={(color) => this.setState({color: color})}
                                                             changeTheme={(theme) => this.setState({theme: theme})}/>
                                 : null
@@ -174,9 +180,11 @@ class Layout extends React.Component {
         );
     }
 
-    // noinspection JSMethodCanBeStatic
     logout() {
-        window.location.href = '..'; // Todo
+        Http.logout(() => {
+            console.log('Logged out');
+            this.props.logout();
+        });
     }
 }
 
