@@ -127,6 +127,36 @@ def logout():
     return jsonify(message='Successfully logged out')
 
 
+@login_required
+@app.route('/change_color', methods=['POST'])
+def change_color():
+    if not request.json:
+        return abort(400)
+    data = request.json
+    color = data['color']
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('UPDATE user SET color=? WHERE user=?', (color, current_user.id))
+    database.commit()
+    database.close()
+    return jsonify(message='updated')
+
+
+@login_required
+@app.route('/change_theme', methods=['POST'])
+def change_theme():
+    if not request.json:
+        return abort(400)
+    data = request.json
+    theme = data['theme']
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('UPDATE user SET theme=? WHERE user=?', (theme, current_user.id))
+    database.commit()
+    database.close()
+    return jsonify(message='updated')
+
+
 @app.route('/get_user_info')
 def get_user_info():
     if current_user.get_id() is None:

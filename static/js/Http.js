@@ -35,6 +35,14 @@ export default class AvoHttp {
         AvoHttp._request('GET', '/logout', success, failure);
     }
 
+    static changeColor(color, success, failure) {
+        AvoHttp._request('POST', '/change_color', success, failure, {color: color});
+    }
+
+    static changeTheme(theme, success, failure) {
+        AvoHttp._request('POST', '/change_theme', success, failure, {theme: theme});
+    }
+
     static getClasses(success, failure) {
         AvoHttp._request('GET', '/get_classes', success, failure);
     }

@@ -6,13 +6,22 @@ import Typography from '@material-ui/core/Typography/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
 import RadioGroup from '@material-ui/core/RadioGroup/RadioGroup';
 import Radio from '@material-ui/core/Radio/Radio';
+import Http from "./Http";
 
 class Preferences extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            changeColor: this.props.changeColor,
-            changeTheme: this.props.changeTheme,
+            changeColor: (color) => {
+                let index = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green,
+                    lightGreen, lime, yellow, amber, orange, deepOrange, brown, grey, blueGrey].indexOf(color);
+                Http.changeColor(index, () => {}, () => {});
+                this.props.changeColor(color);
+            },
+            changeTheme: (theme) => {
+                Http.changeTheme(theme === 'dark' ? 1 : 0, () => {}, () => {});
+                this.props.changeTheme(theme);
+            },
             theme: this.props.theme === 'dark'
         }
     }
@@ -23,14 +32,15 @@ class Preferences extends React.Component {
         return (
             <div style={{margin: '10px', flex: 1, overflowY: 'auto'}}>
                 <Typography variant={'headline'}>Please select a color</Typography>
-                <table>
+                <table><tbody>
                     <tr>{[red, pink, purple, deepPurple, indigo].map(x => color_icon(x))}</tr>
                     <tr>{[blue, lightBlue, cyan, teal, green].map(x => color_icon(x))}</tr>
                     <tr>{[lightGreen, lime, yellow, amber, orange].map(x => color_icon(x))}</tr>
                     <tr>{[deepOrange, brown, grey, blueGrey].map(x => color_icon(x))}</tr>
-                </table>
+                </tbody></table>
                 <Typography variant={'headline'}>Please select a theme</Typography>
-                <RadioGroup aria-label='Theme' name='theme' value={this.props.theme} onChange={(e, value) => this.props.changeTheme(value)}>
+                <RadioGroup aria-label='Theme' name='theme' value={this.props.theme}
+                            onChange={(e, value) => this.state.changeTheme(value)}>
                     <FormControlLabel value='light' control={<Radio color='primary'/>} label='Light Theme'/>
                     <FormControlLabel value='dark' control={<Radio color='primary'/>} label='Dark Theme'/>
                 </RadioGroup>

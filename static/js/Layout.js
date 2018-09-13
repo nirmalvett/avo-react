@@ -115,7 +115,7 @@ class Layout extends React.Component {
             let selected = this.state.section === text;
             let style = {backgroundColor: selected ? this.state.color[this.state.theme === 'light' ? '100' : '500'] : undefined};
             icon = React.createElement(icon, {color: selected && this.state.theme === 'light' ? 'primary' : 'action'});
-            return <ListItem button selected={selected} onClick={() => {this.setState({section: text});window.history.pushState({}, null, fullUrl)}} style={style}>
+            return <ListItem button selected={selected} onClick={() => this.setState({section: text})} style={style}>
                 {icon}<ListItemText primary={text}/></ListItem>;
         };
         let disabledListItem = (icon, text) =>
