@@ -43,7 +43,15 @@ export default class AvoHttp {
         AvoHttp._request('POST', '/change_theme', success, failure, {theme: theme});
     }
 
+    static createClass(name, success, failure) {
+        AvoHttp._request('POST', '/create_class', success, failure, {name: name});
+    }
+
     static getClasses(success, failure) {
         AvoHttp._request('GET', '/get_classes', success, failure);
+    }
+
+    static enrollInClass(key, success, failure) {
+        AvoHttp._request('POST', '/enroll', success, failure, {key: key});
     }
 }

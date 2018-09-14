@@ -18,18 +18,16 @@ import StopIcon from '@material-ui/icons/Stop';
 import DeleteIcon from '@material-ui/icons/Delete';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
+import AddBoxIcon from '@material-ui/icons/AddBox'
+import Http from "./Http";
 
 class MyClasses extends React.Component {
     constructor(props) {
         super(props);
+        Http.getClasses(result => this.setState(result), result => console.log(result));
         this.state = {
             path: this.props.path,
-            classes: [
-                {id: 1, name: 'Class 1', enrollKey: 'enrollKey1', tests: [{id: 1, name: 'Test 1', open: true}, {id: 2, name: 'Test 2', open: false}]},
-                {id: 2, name: 'Class 2', enrollKey: 'enrollKey2', tests: [{id: 3, name: 'Test 3', open: false}]},
-                {id: 3, name: 'Class 3', enrollKey: 'enrollKey3', tests: [{id: 4, name: 'Test 4', open: false}, {id: 5, name: 'Test 5', open: true}, {id: 6, name: 'Test 6', open: false}]},
-                {id: 4, name: 'Class 4', enrollKey: 'enrollKey4', tests: []}
-            ],
+            classes: [],
             selectedClass: null,
             selectedTest: null,
         };
@@ -38,9 +36,9 @@ class MyClasses extends React.Component {
     render() {
         // Todo: menu doesn't go to bottom of screen
         return (
-            <div style={{width: '100%', height: '100%', display: 'flex'}}>
-                <Grid container spacing={8} style={{height: '100%', marginBottom: 0}}>
-                    <Grid item xs={3} style={{height: '100%', display: 'flex'}}>
+            <div style={{width: '100%', flex: 1, display: 'flex'}}>
+                <Grid container spacing={8} style={{flex: 1, display: 'flex', marginBottom: 0}}>
+                    <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
                         <Paper style={{width: '100%', flex: 1, display: 'flex'}}>
                             <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}} component="nav"
                                   subheader={<ListSubheader component="div">My Classes</ListSubheader>}>
@@ -65,6 +63,28 @@ class MyClasses extends React.Component {
                                             </ListItem>)
                                     }</List></Collapse>
                                 ])}
+                                {this.props.isTeacher
+                                    ? <ListItem button onClick={() => {
+                                        let name = prompt("Class Name:");
+                                        if (name !== null && name !== "") {
+                                            Http.createClass(name,
+                                                () => alert('Class Created! Navigate out of this section and then back to refresh.'),
+                                                () => alert('Something went wrong :\'('));
+                                        }
+                                        }}>
+                                            <AddBoxIcon color='action'/>
+                                        <ListItemText inset primary='Enroll in Class'/></ListItem>
+                                    : <ListItem button onClick={() => {
+                                        let key = prompt("Enroll Key:");
+                                        if (key !== null && key !== "") {
+                                            Http.enrollInClass(key,
+                                                () => alert('Enroll successful! Navigate out of this section and ' +
+                                                    'then back to refresh.'),
+                                                () => alert('Looks like you entered an invalid key.'));
+                                        }
+                                        }}>
+                                            <AddBoxIcon color='action'/>
+                                        <ListItemText inset primary='Enroll in Class'/></ListItem>}
                             </List>
                         </Paper>
                     </Grid>

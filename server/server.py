@@ -173,5 +173,59 @@ def get_user_info():
                    is_admin=user[3], color=user[4], theme=user[5])
 
 
+@login_required
+@app.route('/create_class', methods=['POST'])
+def create_class():
+    if not request.json:
+        return abort(400)
+    name = request.json['name']
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('INSERT INTO `class`(`user`,`name`,`enroll_key`) VALUES (?,?,?);', (current_user.get_id(), name, name))
+    database.commit()
+    database.close()
+    return jsonify(message='Created!')
+
+
+@login_required
+@app.route('/get_classes')
+def get_classes():
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('SELECT class, name, enroll_key FROM class WHERE user=?', (current_user.get_id(),))
+    classes = db.fetchall()
+    db.execute('SELECT class.class, class.name, class.enroll_key FROM class LEFT JOIN enrolled'
+               ' on class.class = enrolled.class WHERE enrolled.user=?', (current_user.get_id(),))
+    classes += db.fetchall()
+    class_list = []
+    for c in classes:
+        db.execute('SELECT test, name, is_open FROM test WHERE class=?', (c[0],))
+        tests = db.fetchall()
+        test_list = []
+        for t in tests:
+            test_list.append({'id': t[0], 'name': t[1], 'open': t[2]})
+        class_list.append({'id': c[0], 'name': c[1], 'enrollKey': c[2], 'tests': test_list})
+    database.close()
+    return jsonify(classes=class_list)
+
+
+@login_required
+@app.route('/enroll', methods=['POST'])
+def enroll():
+    if not request.json:
+        return abort(400)
+    key = request.json['key']
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('SELECT class FROM class WHERE enroll_key=?', (key,))
+    c = db.fetchone()
+    if c is None:
+        return jsonify(error='Invalid enroll key')
+    db.execute('INSERT INTO `enrolled`(`user`,`class`) VALUES (?,?);', (current_user.get_id(), c[0]))
+    database.commit()
+    database.close()
+    return jsonify(message='Enrolled!')
+
+
 if __name__ == '__main__':
     app.run()

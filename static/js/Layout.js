@@ -85,11 +85,12 @@ class Layout extends React.Component {
             green, lightGreen, lime, yellow, amber, orange, deepOrange, brown, grey, blueGrey];
         Http.getUserInfo(
             (result) => {
+                // noinspection RedundantConditionalExpressionJS, JSUnresolvedVariable
                 this.setState({
                     name: result.first_name + ' ' + result.last_name,
                     color: color[result.color],
                     theme: result.theme ? 'dark' : 'light',
-                    isTeacher: result.is_teacher
+                    isTeacher: result.is_teacher ? true : false
                 });
             },
             () => {this.logout();}
@@ -162,7 +163,7 @@ class Layout extends React.Component {
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
                         {
                             this.state.section === 'Home' ? <Home/>
-                                : this.state.section === 'My Classes' ? <MyClasses/>
+                                : this.state.section === 'My Classes' ? <MyClasses isTeacher={this.state.isTeacher}/>
                                 : this.state.section === 'Teaching Tools' ? null
                                 : this.state.section === 'Explanations' ? null
                                 : this.state.section === 'Build Question' ? null
