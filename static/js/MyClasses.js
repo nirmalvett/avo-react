@@ -73,7 +73,7 @@ class MyClasses extends React.Component {
                                         }
                                         }}>
                                             <AddBoxIcon color='action'/>
-                                        <ListItemText inset primary='Enroll in Class'/></ListItem>
+                                        <ListItemText inset primary='Create Class'/></ListItem>
                                     : <ListItem button onClick={() => {
                                         let key = prompt("Enroll Key:");
                                         if (key !== null && key !== "") {
@@ -105,7 +105,7 @@ class MyClasses extends React.Component {
                             <CardHeader title={this.state.classes[this.state.selectedClass].name}
                                         subheader={'Enroll Key: ' + this.state.classes[this.state.selectedClass].enrollKey}
                                         action={[
-                                            <IconButton><NoteAddIcon/></IconButton>,
+                                            <IconButton onClick={() => this.props.createTest()}><NoteAddIcon/></IconButton>,
                                             <IconButton><GetAppIcon/></IconButton>
                                         ]}/>
                             {/*Todo - Add 'Add Test' button, results graphics for class and individual, make button download csv*/}

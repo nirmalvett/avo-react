@@ -29,6 +29,7 @@ import Paper from '@material-ui/core/Paper/Paper';
 import Preferences from './Preferences';
 import Home from './Home';
 import MyClasses from './MyClasses'
+import CreateTest from './CreateTest'
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import Logo from "./Logo";
 import Http from "./Http";
@@ -102,6 +103,7 @@ class Layout extends React.Component {
             open: true,
             color: color[9],
             theme: 'dark',
+            testCreator: null
         };
         this.logout = this.logout.bind(this);
     }
@@ -163,13 +165,21 @@ class Layout extends React.Component {
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
                         {
                             this.state.section === 'Home' ? <Home/>
-                                : this.state.section === 'My Classes' ? <MyClasses isTeacher={this.state.isTeacher}/>
-                                : this.state.section === 'Teaching Tools' ? null
-                                : this.state.section === 'Explanations' ? null
-                                : this.state.section === 'Build Question' ? null
-                                : this.state.section === 'Preferences' ? <Preferences theme={this.state.theme}
-                                                            changeColor={(color) => this.setState({color: color})}
-                                                            changeTheme={(theme) => this.setState({theme: theme})}/>
+                                : this.state.section === 'My Classes'
+                                    ? <MyClasses isTeacher={this.state.isTeacher}
+                                                 createTest={(cls) => this.startCreateTest(cls)}/>
+                                : this.state.section === 'Create Test'
+                                    ? <CreateTest/>
+                                : this.state.section === 'Teaching Tools'
+                                    ? null
+                                : this.state.section === 'Explanations'
+                                    ? null
+                                : this.state.section === 'Build Question'
+                                    ? null
+                                : this.state.section === 'Preferences'
+                                    ? <Preferences theme={this.state.theme}
+                                                   changeColor={(color) => this.setState({color: color})}
+                                                   changeTheme={(theme) => this.setState({theme: theme})}/>
                                 : null
                         }
                     </div>
@@ -183,6 +193,10 @@ class Layout extends React.Component {
             console.log('Logged out');
             this.props.logout();
         });
+    }
+
+    startCreateTest(cls) {
+        this.setState({section: 'Create Test', testCreator: cls});
     }
 }
 
