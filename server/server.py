@@ -7,6 +7,8 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature
 from re import fullmatch
 # noinspection PyUnresolvedReferences
 import config as config
+from random import SystemRandom
+from string import ascii_letters, digits
 
 app = Flask(__name__, static_folder='../static/dist', template_folder='../static')
 app.secret_key = config.SECRET_KEY
@@ -181,7 +183,8 @@ def create_class():
     name = request.json['name']
     database = connect('avo.db')
     db = database.cursor()
-    db.execute('INSERT INTO `class`(`user`,`name`,`enroll_key`) VALUES (?,?,?);', (current_user.get_id(), name, name))
+    key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
+    db.execute('INSERT INTO `class`(`user`,`name`,`enroll_key`) VALUES (?,?,?);', (current_user.get_id(), name, key))
     database.commit()
     database.close()
     return jsonify(message='Created!')
