@@ -58,7 +58,7 @@ class MyClasses extends React.Component {
                                     <Collapse in={x.open} timeout="auto" unmountOnExit><List>{
                                         x.tests.map((a, b) =>
                                             <ListItem button onClick={() => this.setState({selectedClass: y, selectedTest: b})}>
-                                                <AssessmentIcon color='action' style={{marginLeft: '10px'}}/>
+                                                <AssessmentIcon color={a.open ? 'primary' : 'disabled'} style={{marginLeft: '10px'}}/>
                                                 <ListItemText inset primary={a.name}/>
                                             </ListItem>)
                                     }</List></Collapse>
@@ -95,8 +95,22 @@ class MyClasses extends React.Component {
                             <CardHeader title={this.state.classes[this.state.selectedClass].tests[this.state.selectedTest].name}
                                         action={[
                                             this.state.classes[this.state.selectedClass].tests[this.state.selectedTest].open
-                                                ? <IconButton><StopIcon/></IconButton>
-                                                : <IconButton><PlayArrowIcon/></IconButton>,
+                                                ? <IconButton><StopIcon onClick={() => {
+                                                    Http.closeTest(this.state.classes[this.state.selectedClass].tests[this.state.selectedTest].id,
+                                                        () => {
+                                                        let newClasses = JSON.parse(JSON.stringify(this.state.classes));
+                                                        newClasses[this.state.selectedClass].tests[this.state.selectedTest].open = false;
+                                                        this.setState({classes: newClasses});
+                                                        }, () => {})
+                                                }}/></IconButton>
+                                                : <IconButton><PlayArrowIcon onClick={() => {
+                                                    Http.openTest(this.state.classes[this.state.selectedClass].tests[this.state.selectedTest].id,
+                                                        () => {
+                                                        let newClasses = JSON.parse(JSON.stringify(this.state.classes));
+                                                        newClasses[this.state.selectedClass].tests[this.state.selectedTest].open = true;
+                                                        this.setState({classes: newClasses})
+                                                        }, () => {})
+                                                }}/></IconButton>,
                                             <IconButton><DeleteIcon/></IconButton>]}/>
                             {/*Todo - Add mark editor, make buttons do things*/}
                         </Card>

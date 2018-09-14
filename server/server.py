@@ -247,5 +247,33 @@ def enroll():
     return jsonify(message='Enrolled!')
 
 
+@login_required
+@app.route('/open', methods=['POST'])
+def open():
+    if not request.json:
+        return abort(400)
+    test = request.json['test']
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('UPDATE test SET is_open=1 WHERE test=?', (test,))
+    database.commit()
+    database.close()
+    return jsonify(message='Opened!')
+
+
+@login_required
+@app.route('/close', methods=['POST'])
+def close():
+    if not request.json:
+        return abort(400)
+    test = request.json['test']
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('UPDATE test SET is_open=0 WHERE test=?', (test,))
+    database.commit()
+    database.close()
+    return jsonify(message='Closed!')
+
+
 if __name__ == '__main__':
     app.run()

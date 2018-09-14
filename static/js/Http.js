@@ -58,4 +58,12 @@ export default class AvoHttp {
     static enrollInClass(key, success, failure) {
         AvoHttp._request('POST', '/enroll', success, failure, {key: key});
     }
+
+    static openTest(test, success, failure) {
+        AvoHttp._request('POST', '/open', success, failure, {test: test});
+    }
+
+    static closeTest(test, success, failure) {
+        AvoHttp._request('POST', '/close', success, failure, {test: test});
+    }
 }
