@@ -210,6 +210,26 @@ def get_classes():
 
 
 @login_required
+@app.route('/get_sets')
+def get_sets():
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('SELECT `set`.[set], `set`.name FROM `set` LEFT JOIN user_views_set on '
+               '`set`.[set] = user_views_set.[set] WHERE user_views_set.user=?', (current_user.get_id(),))
+    sets = db.fetchall()
+    set_list = []
+    for s in sets:
+        db.execute('SELECT question, name, string, total FROM question WHERE `set`=?', (s[0],))
+        questions = db.fetchall()
+        question_list = []
+        for q in questions:
+            question_list.append({'id': q[0], 'name': q[1], 'string': q[2], 'total': q[3]})
+        set_list.append({'id': s[0], 'name': s[1], 'questions': question_list})
+    database.close()
+    return jsonify(sets=set_list)
+
+
+@login_required
 @app.route('/enroll', methods=['POST'])
 def enroll():
     if not request.json:

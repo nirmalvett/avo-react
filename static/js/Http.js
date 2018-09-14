@@ -51,6 +51,10 @@ export default class AvoHttp {
         AvoHttp._request('GET', '/get_classes', success, failure);
     }
 
+    static getSets(success, failure) {
+        AvoHttp._request('GET', '/get_sets', success, failure);
+    }
+
     static enrollInClass(key, success, failure) {
         AvoHttp._request('POST', '/enroll', success, failure, {key: key});
     }
