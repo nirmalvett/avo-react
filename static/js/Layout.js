@@ -127,7 +127,7 @@ class Layout extends React.Component {
                 <div style={{display: 'flex', width: '100%', height: '100%',
                     backgroundColor: this.state.theme === 'dark' ? '#303030' : '#fafafa'}}>
                     <Drawer variant='persistent' anchor='left' open={open} classes={{paper: classes.drawerPaper}}>
-                        <Logo theme={this.state.theme} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
+                        <Logo theme={this.state.theme} color={this.state.color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
                         <Divider/>
                         <div style={{overflowY: 'auto'}}>
                             <List subheader={this.state.isTeacher && <ListSubheader component='div'>Student & Teacher</ListSubheader>}>

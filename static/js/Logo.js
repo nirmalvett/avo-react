@@ -8,6 +8,10 @@ export default class Logo extends React.Component {
         let green = '#399103';
         let yellow = '#f8ee7b';
         let white = '#fff';
+        if (this.props.color !== undefined) {
+            green = this.props.color['500'];
+            yellow = this.props.color['200'];
+        }
         return (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1044.74 555.43" style={this.props.style}>
                 <g id="AVO">
