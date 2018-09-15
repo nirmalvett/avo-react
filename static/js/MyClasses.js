@@ -89,7 +89,7 @@ class MyClasses extends React.Component {
                         </Paper>
                     </Grid>
                     <Grid item xs={2}/>
-                    <Grid item xs={5} style={{height: '100%', display: 'flex'}}>{
+                    <Grid item xs={5} style={{display: 'flex'}}>{
                         this.state.selectedTest !== null ?
                         <Card style={{marginTop: '10%', marginBottom: '10%', padding: '10px', flex: 1}}>
                             <CardHeader title={this.state.classes[this.state.selectedClass].tests[this.state.selectedTest].name}

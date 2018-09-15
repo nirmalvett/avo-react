@@ -65,7 +65,7 @@ export default class CreateTest extends React.Component {
                     </Paper>
                 </Grid>
                 <Grid item xs={2}/>
-                <Grid item xs={5} style={{height: '100%', display: 'flex'}}>
+                <Grid item xs={5} style={{display: 'flex'}}>
                     <Card style={{marginTop: '10%', marginBottom: '10%', padding: '10px', flex: 1}}>{
                         this.state.testQuestions[this.state.questionIndex] !== null
                         ? <CardHeader title={'Question ' + (this.state.questionIndex + 1)}

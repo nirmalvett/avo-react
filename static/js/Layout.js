@@ -25,7 +25,6 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn'
 
-import Paper from '@material-ui/core/Paper/Paper';
 import Preferences from './Preferences';
 import Home from './Home';
 import MyClasses from './MyClasses'
@@ -125,7 +124,8 @@ class Layout extends React.Component {
 
         return (
             <MuiThemeProvider theme={theme}>
-                <Paper square style={{display: 'flex', width: '100%', height: '100%'}}>
+                <div style={{display: 'flex', width: '100%', height: '100%',
+                    backgroundColor: this.state.theme === 'dark' ? '#303030' : '#fafafa'}}>
                     <Drawer variant='persistent' anchor='left' open={open} classes={{paper: classes.drawerPaper}}>
                         <Logo theme={this.state.theme} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
                         <Divider/>
@@ -183,7 +183,7 @@ class Layout extends React.Component {
                                 : null
                         }
                     </div>
-                </Paper>
+                </div>
             </MuiThemeProvider>
         );
     }
