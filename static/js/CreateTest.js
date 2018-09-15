@@ -79,10 +79,14 @@ export default class CreateTest extends React.Component {
                                 <Collapse in={x.open} timeout="auto" unmountOnExit><List>{
                                     x.questions.map((a) =>
                                         <ListItem button onClick={() => {
-                                            let newTestQuestions = JSON.parse(JSON.stringify(this.state.testQuestions));
-                                            newTestQuestions.splice(index + 1, 0,
-                                                {id: a.id, name: a.name, seed: Math.floor(Math.random() * 65536), locked: false});
-                                            this.setState({testQuestions: newTestQuestions, questionIndex: index + 1})
+                                            let seed = Math.floor(Math.random() * 65536);
+                                            Http.getQuestion(a.id, seed, (result) => {
+                                                let newTestQuestions = JSON.parse(JSON.stringify(this.state.testQuestions));
+                                                newTestQuestions.splice(index + 1, 0,
+                                                    {id: a.id, name: a.name, seed: seed, locked: false,
+                                                        prompt: result.prompt, prompts: result.prompts});
+                                                this.setState({testQuestions: newTestQuestions, questionIndex: index + 1});
+                                            }, () => {});
                                         }}>
                                             <ListItemText secondary={a.name}/>
                                         </ListItem>)
@@ -106,7 +110,7 @@ export default class CreateTest extends React.Component {
                                     currentQ.locked
                                         ? <IconButton onClick={unlock}><LockIcon/></IconButton>
                                         : <IconButton onClick={lock}><LockOpenIcon/></IconButton>,
-                                    <IconButton onClick={deleteQ}><DeleteIcon/></IconButton>]}/>]
+                                    <IconButton onClick={deleteQ}><DeleteIcon/></IconButton>]}/>, currentQ.prompt]
                         : <CardHeader title='No Questions Yet' subheader='Click on a question in the sidebar to add one'/>
                     }</Card>
                 </Grid>

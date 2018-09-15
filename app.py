@@ -5,6 +5,8 @@ from sqlite3 import connect
 from random import SystemRandom
 from string import ascii_letters, digits
 
+from server.MathCode.question import AvoQuestion
+
 from server import app
 
 
@@ -139,6 +141,23 @@ def close_test():
     database.commit()
     database.close()
     return jsonify(message='Closed!')
+
+
+@login_required
+@app.route('/getQuestion', methods=['POST'])
+def get_question():
+    if not request.json:
+        return abort(400)
+    data = request.json
+    question, seed = data['question'], data['seed']
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('SELECT string FROM question WHERE question=?', (question,))
+    question = db.fetchone()
+    if question is None:
+        return jsonify(error='No question found')
+    q = AvoQuestion(question[0], seed)
+    return jsonify(prompt=q.prompt, prompts=q.prompts)
 
 
 if __name__ == '__main__':
