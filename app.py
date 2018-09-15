@@ -67,11 +67,13 @@ def get_classes():
     classes += db.fetchall()
     class_list = []
     for c in classes:
-        db.execute('SELECT test, name, is_open FROM test WHERE class=?', (c[0],))
+        db.execute('SELECT test, name, is_open, deadline, timer, attempts, is_assignment FROM test WHERE class=?',
+                   (c[0],))
         tests = db.fetchall()
         test_list = []
         for t in tests:
-            test_list.append({'id': t[0], 'name': t[1], 'open': t[2]})
+            test_list.append({'id': t[0], 'name': t[1], 'open': t[2], 'deadline': t[3],
+                              'timer': t[4], 'attempts': t[5], 'is_assignment': t[6]})
         class_list.append({'id': c[0], 'name': c[1], 'enrollKey': c[2], 'tests': test_list})
     database.close()
     return jsonify(classes=class_list)
@@ -141,6 +143,20 @@ def close_test():
     database.commit()
     database.close()
     return jsonify(message='Closed!')
+
+
+@login_required
+@app.route('/deleteTest', methods=['POST'])
+def delete_test():
+    if not request.json:
+        return abort(400)
+    test = request.json['test']
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('UPDATE test SET class=NULL WHERE test=?', (test,))
+    database.commit()
+    database.close()
+    return jsonify(message='Deleted!')
 
 
 @login_required

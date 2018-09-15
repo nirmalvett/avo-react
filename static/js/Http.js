@@ -67,6 +67,10 @@ export default class AvoHttp {
         AvoHttp._request('POST', '/closeTest', success, failure, {test: test});
     }
 
+    static deleteTest(test, success, failure) {
+        AvoHttp._request('POST', '/deleteTest', success, failure, {test: test});
+    }
+
     static getQuestion(question, seed, success, failure) {
         AvoHttp._request('POST', '/getQuestion', success, failure, {question: question, seed: seed});
     }
