@@ -28,7 +28,7 @@ export default class AvoHttp {
     }
 
     static getUserInfo(success, failure) {
-        AvoHttp._request('GET', '/get_user_info', success, failure);
+        AvoHttp._request('GET', '/getUserInfo', success, failure);
     }
 
     static logout(success, failure) {
@@ -36,23 +36,23 @@ export default class AvoHttp {
     }
 
     static changeColor(color, success, failure) {
-        AvoHttp._request('POST', '/change_color', success, failure, {color: color});
+        AvoHttp._request('POST', '/changeColor', success, failure, {color: color});
     }
 
     static changeTheme(theme, success, failure) {
-        AvoHttp._request('POST', '/change_theme', success, failure, {theme: theme});
+        AvoHttp._request('POST', '/changeTheme', success, failure, {theme: theme});
     }
 
     static createClass(name, success, failure) {
-        AvoHttp._request('POST', '/create_class', success, failure, {name: name});
+        AvoHttp._request('POST', '/createClass', success, failure, {name: name});
     }
 
     static getClasses(success, failure) {
-        AvoHttp._request('GET', '/get_classes', success, failure);
+        AvoHttp._request('GET', '/getClasses', success, failure);
     }
 
     static getSets(success, failure) {
-        AvoHttp._request('GET', '/get_sets', success, failure);
+        AvoHttp._request('GET', '/getSets', success, failure);
     }
 
     static enrollInClass(key, success, failure) {
@@ -60,10 +60,10 @@ export default class AvoHttp {
     }
 
     static openTest(test, success, failure) {
-        AvoHttp._request('POST', '/open', success, failure, {test: test});
+        AvoHttp._request('POST', '/openTest', success, failure, {test: test});
     }
 
     static closeTest(test, success, failure) {
-        AvoHttp._request('POST', '/close', success, failure, {test: test});
+        AvoHttp._request('POST', '/closeTest', success, failure, {test: test});
     }
 }
