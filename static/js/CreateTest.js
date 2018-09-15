@@ -19,6 +19,8 @@ import IconButton from "@material-ui/core/IconButton/IconButton";
 import ArrowBack from '@material-ui/icons/ArrowBack';
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import Button from "@material-ui/core/Button/Button";
+import MathJax from 'react-mathjax2'
+import Typography from "@material-ui/core/Typography/Typography";
 
 
 export default class CreateTest extends React.Component {
@@ -33,11 +35,24 @@ export default class CreateTest extends React.Component {
     }
 
     render() {
+        let getMathJax = (text, variant) => {
+            let strings = text.split(/\\[()]/).map((x, y) => y % 2 === 0 ? x :
+                <MathJax.Node inline>{x}</MathJax.Node>);
+            return <MathJax.Context input='tex'><Typography variant={variant}>{strings}</Typography></MathJax.Context>
+        };
         let index = this.state.questionIndex;
+        let currentQ = this.state.testQuestions[index];
         let refresh = () => {
             let newTestQuestions = JSON.parse(JSON.stringify(this.state.testQuestions));
             newTestQuestions[index].seed = Math.floor(Math.random() * 65536);
             this.setState({testQuestions: newTestQuestions});
+            let seed = Math.floor(Math.random() * 65536);
+            Http.getQuestion(currentQ.id, seed, (result) => {
+                let newTestQuestions = JSON.parse(JSON.stringify(this.state.testQuestions));
+                newTestQuestions[index].prompt = result.prompt;
+                newTestQuestions[index].prompts = result.prompts;
+                this.setState({testQuestions: newTestQuestions});
+            }, () => {});
         };
         let lock = () => {
             let newTestQuestions = JSON.parse(JSON.stringify(this.state.testQuestions));
@@ -57,7 +72,6 @@ export default class CreateTest extends React.Component {
                 questionIndex: index === 0 && newTestQuestions.length !== 0 ? 0 : index - 1
             });
         };
-        let currentQ = this.state.testQuestions[index];
         return (
             <Grid container spacing={8} style={{flex: 1, display: 'flex', marginBottom: 0}}>
                 <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
@@ -110,7 +124,10 @@ export default class CreateTest extends React.Component {
                                     currentQ.locked
                                         ? <IconButton onClick={unlock}><LockIcon/></IconButton>
                                         : <IconButton onClick={lock}><LockOpenIcon/></IconButton>,
-                                    <IconButton onClick={deleteQ}><DeleteIcon/></IconButton>]}/>, currentQ.prompt]
+                                    <IconButton onClick={deleteQ}><DeleteIcon/></IconButton>]}/>,
+                                getMathJax(currentQ.prompt, 'subheading'),
+                                currentQ.prompts.map((x, y) => getMathJax((y+1) + ') ' + x, 'body2'))
+                            ]
                         : <CardHeader title='No Questions Yet' subheader='Click on a question in the sidebar to add one'/>
                     }</Card>
                 </Grid>
@@ -122,3 +139,6 @@ export default class CreateTest extends React.Component {
         );
     }
 }
+{/*<MathJax.Context input='tex'><div>*/}
+    {/*{['123', <MathJax.Node inline>{eq}</MathJax.Node>, '456']}*/}
+{/*</div></MathJax.Context>*/}
