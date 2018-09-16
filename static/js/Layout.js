@@ -86,7 +86,7 @@ class Layout extends React.Component {
                     name: result.first_name + ' ' + result.last_name,
                     color: color[result.color],
                     theme: result.theme ? 'dark' : 'light',
-                    isTeacher: result.is_teacher ? true : false
+                    isTeacher: result.is_teacher
                 });
             },
             () => {this.logout();}

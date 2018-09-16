@@ -1,10 +1,13 @@
-from flask import Blueprint, abort, jsonify, request
+from flask import Blueprint, abort, jsonify, request, render_template
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from hashlib import sha512
 from re import fullmatch
 from sqlite3 import connect
 from uuid import uuid4
 from itsdangerous import URLSafeTimedSerializer, BadSignature
+from smtplib import SMTP
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import config
 
 UserRoutes = Blueprint('UserRoutes', __name__)
@@ -52,7 +55,12 @@ def register():
     database.close()
     serializer = URLSafeTimedSerializer(config.SECRET_KEY)
     token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
-    print(token)
+    send_email(email, 'Confirm your AvocadoCore Account',
+               f'<html><body>Hi {first_name},<br/><br/>'
+               f'Thanks for signing up! Please click <a href="https://app.AvocadoCore.com/confirm/{token}">here</a> to '
+               f'activate your account. If you have any questions or suggestions for how we can improve, please send '
+               f'us an email at contact@avocadocore.com.'
+               f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>')
     return jsonify(message='Account created')
 
 
@@ -118,5 +126,19 @@ def get_user_info():
     database.close()
     if user is None:
         return jsonify(error='User does not exist')
-    return jsonify(first_name=user[0], last_name=user[1], is_teacher=user[2],
-                   is_admin=user[3], color=user[4], theme=user[5])
+    return jsonify(first_name=user[0], last_name=user[1], is_teacher=bool(user[2]),
+                   is_admin=bool(user[3]), color=user[4], theme=user[5])
+
+
+def send_email(recipient: str, subject: str, message: str):
+    sender = 'no-reply@avocadocore.com'
+    msg = MIMEMultipart()
+    msg['From'], msg['To'], msg['Subject'] = sender, recipient, subject
+    msg.attach(MIMEText(message, 'html'))
+    # noinspection SpellCheckingInspection
+    server = SMTP('smtp.zoho.com', 587)
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
+    server.login(sender, '@henrikiscontributingtoconvo@1')
+    server.sendmail(sender, recipient, msg.as_string())

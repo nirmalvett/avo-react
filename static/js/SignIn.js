@@ -47,12 +47,14 @@ export default class SignIn extends React.Component {
                     <Grid item xs={6}>
                         <Typography variant='headline'>Register</Typography>
                         <form style={{'width': '100%'}}>
-                            <TextField margin='normal' style={style} label='First Name' onChange={updateFirstName}/>
+                            <TextField margin='normal' style={style} label='First Name' onChange={updateFirstName}
+                                       value={this.state.rFirstName}/>
                             <br/>
-                            <TextField margin='normal' style={style} label='Last Name' onChange={updateLastName}/>
+                            <TextField margin='normal' style={style} label='Last Name' onChange={updateLastName}
+                                       value={this.state.rLastName}/>
                             <br/>
                             <TextField margin='normal' style={style} label='UWO Email' onChange={updateEmail}
-                                       error={emailError}/>
+                                       value={this.state.rEmail} error={emailError}/>
                             <br/>
                             <TextField margin='normal' style={style} label='Password' type='password'
                                        onChange={updatePassword1} value={this.state.rPassword1} error={rPw1Error}

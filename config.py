@@ -19,14 +19,3 @@ SECURITY_PASSWORD_SALT = \
     'G5XwF!xep2C@d8k5&Sv+kcx+&Mqy&QJADaax?cU8m@vy6mNVqAZT&y@=REDtep#h5eMU-WXDG++nJu9-RwbaU=288W9fUrTLMbB8*G=A6w-tgr%H' \
     'PQVVAj8swCr_D?w?Rys%JwSDJz!Gxrw^DZKvwM5ef=Zka-#zSXy_X?rwL5Me694yBA@SFXn#BcjLH*UG*WjgFe*Ya7-@aWCt?xdw=fAA8F=d+dRe' \
     '4Sk-+WGNdbdJW4X!'
-DATABASE_URI = 'avo.db'
-
-# Mail settings
-MAIL_SERVER = 'smtp.zoho.com'
-MAIL_PORT = 465
-MAIL_USE_TLS = False
-MAIL_USE_SSL = True
-
-# Email Login
-MAIL_USERNAME = 'no-reply@avocadocore.com'
-MAIL_PASSWORD = '@henrikiscontributingtoconvo@1'
