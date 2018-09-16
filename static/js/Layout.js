@@ -1,37 +1,33 @@
 import React from 'react';
-import classNames from 'classnames';
-import {withStyles} from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-
+import Http from "./Http";
+import Logo from "./Logo";
+import HomePage from './HomePage';
+import TakeTest from './TakeTest';
+import MyClasses from './MyClasses';
+import CreateTest from './CreateTest';
+import Preferences from './Preferences';
+import ManageClasses from './ManageClasses';
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, lime, yellow, amber,
     orange, deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors/';
-
+import classNames from 'classnames';
+import {withStyles} from '@material-ui/core/styles';
+import List from '@material-ui/core/List';
+import AppBar from '@material-ui/core/AppBar';
+import Drawer from '@material-ui/core/Drawer';
+import Divider from '@material-ui/core/Divider';
+import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
+import Typography from '@material-ui/core/Typography';
 import ListItem from '@material-ui/core/ListItem/ListItem';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
-
-import HomeIcon from '@material-ui/icons/Home';
-import ClassIcon from '@material-ui/icons/Class';
-import SchoolIcon from '@material-ui/icons/School';
-import BuildIcon from '@material-ui/icons/Build';
-import SettingsIcon from '@material-ui/icons/Settings';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn'
-
-import Preferences from './Preferences';
-import Home from './Home';
-import MyClasses from './MyClasses'
-import CreateTest from './CreateTest'
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
-import Logo from "./Logo";
-import Http from "./Http";
+import Home from '@material-ui/icons/Home';
+import Menu from '@material-ui/icons/Menu';
+import Build from '@material-ui/icons/Build';
+import Class from '@material-ui/icons/Class';
+import Settings from '@material-ui/icons/Settings';
+import ExitToApp from '@material-ui/icons/ExitToApp';
 
 const drawerWidth = 240;
 
@@ -131,21 +127,20 @@ class Layout extends React.Component {
                         <Divider/>
                         <div style={{overflowY: 'auto'}}>
                             <List subheader={this.state.isTeacher && <ListSubheader component='div'>Student & Teacher</ListSubheader>}>
-                                {listItem(HomeIcon, 'Home')}
-                                {listItem(ClassIcon, 'My Classes')}
-                                {disabledListItem(AssignmentTurnedInIcon, 'Explanations')}
+                                {listItem(Home, 'Home')}
+                                {listItem(Class, 'My Classes')}
                             </List>
                             {this.state.isTeacher && [
                                 <Divider/>,
                                 <List subheader={<ListSubheader component='div'>Teacher Only</ListSubheader>}>
-                                    {disabledListItem(SchoolIcon, 'Teaching Tools')}
-                                    {disabledListItem(BuildIcon, 'Build Question')}
+                                    {listItem(Class, 'Manage Classes')}
+                                    {disabledListItem(Build, 'Build Question')}
                                 </List>
                             ]}
                             <Divider/><List>
-                                {listItem(SettingsIcon, 'Preferences')}
+                                {listItem(Settings, 'Preferences')}
                                 <ListItem button onClick={() => this.logout()}>
-                                    <ExitToAppIcon color='action'/>
+                                    <ExitToApp color='action'/>
                                     <ListItemText primary='Logout'/>
                                 </ListItem>
                             </List>
@@ -155,7 +150,7 @@ class Layout extends React.Component {
                         <Toolbar disableGutters>
                             <IconButton color='inherit' aria-label='Toggle drawer' style={{marginLeft: 12, marginRight: 20}}
                                         onClick={() => this.setState({open: !this.state.open})}>
-                                <MenuIcon/>
+                                <Menu/>
                             </IconButton>
                             <Typography variant='title' color='inherit' noWrap>
                                 {this.state.name}
@@ -164,18 +159,17 @@ class Layout extends React.Component {
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
                         {
-                            this.state.section === 'Home' ? <Home/>
+                            this.state.section === 'Home' ? <HomePage/>
                                 : this.state.section === 'My Classes'
-                                    ? <MyClasses isTeacher={this.state.isTeacher}
-                                                 createTest={(cls) => this.startCreateTest(cls)}/>
+                                    ? <MyClasses startTest={(cls) => this.startTest(cls)}/>
+                                : this.state.section === 'Manage Classes'
+                                    ? <ManageClasses createTest={(cls) => this.startCreateTest(cls)}/>
                                 : this.state.section === 'Create Test'
-                                    ? <CreateTest/>
-                                : this.state.section === 'Teaching Tools'
-                                    ? null
-                                : this.state.section === 'Explanations'
-                                    ? null
+                                    ? <CreateTest classID={this.state.testCreator}/>
                                 : this.state.section === 'Build Question'
                                     ? null
+                                : this.state.section === 'Take Test'
+                                    ? <TakeTest testID={this.state.test}/>
                                 : this.state.section === 'Preferences'
                                     ? <Preferences theme={this.state.theme}
                                                    changeColor={(color) => this.setState({color: color})}
@@ -197,6 +191,10 @@ class Layout extends React.Component {
 
     startCreateTest(cls) {
         this.setState({section: 'Create Test', testCreator: cls});
+    }
+
+    startTest(test) {
+        this.setState({section: 'Take Test', test: test});
     }
 }
 

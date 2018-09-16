@@ -1,7 +1,7 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography/Typography';
 
-class Home extends React.Component {
+export default class HomePage extends React.Component {
     render() {
         return (
             <div style={{margin: '80px', flex: 1, overflowY: 'auto'}}>
@@ -12,5 +12,3 @@ class Home extends React.Component {
         );
     }
 }
-
-export default Home

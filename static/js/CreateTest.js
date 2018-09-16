@@ -34,7 +34,8 @@ export default class CreateTest extends React.Component {
         this.state = {
             sets: [],
             testQuestions: [],
-            questionIndex: 0
+            questionIndex: 0,
+            deadline: '',
         };
     }
 
@@ -131,7 +132,8 @@ export default class CreateTest extends React.Component {
                                 <TextField margin='normal' label='Attempts (enter -1 for unlimited)' type='number'
                                            style={{width: '46%', margin: '2%'}}/>,
                                 <TextField margin='normal' helperText='Deadline' type='datetime-local'
-                                           style={{width: '46%', margin: '2%'}}/>,
+                                           style={{width: '46%', margin: '2%'}}
+                                           onChange={(e) => this.setState({deadline: e.target.value})}/>,
                                 <br/>,
                                 <FormControlLabel style={{width: '46%', margin: '2%'}}
                                     control={<Checkbox checked={this.state.isAssignment}

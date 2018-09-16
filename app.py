@@ -72,7 +72,7 @@ def get_classes():
         tests = db.fetchall()
         test_list = []
         for t in tests:
-            test_list.append({'id': t[0], 'name': t[1], 'open': t[2], 'deadline': t[3],
+            test_list.append({'id': t[0], 'name': t[1], 'open': t[2], 'deadline': str(t[3]),
                               'timer': t[4], 'attempts': t[5], 'is_assignment': t[6]})
         class_list.append({'id': c[0], 'name': c[1], 'enrollKey': c[2], 'tests': test_list})
     database.close()

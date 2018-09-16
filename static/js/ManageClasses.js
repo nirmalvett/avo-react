@@ -8,17 +8,20 @@ import Collapse from '@material-ui/core/Collapse/Collapse';
 import ListItem from '@material-ui/core/ListItem/ListItem';
 import CardHeader from "@material-ui/core/CardHeader/CardHeader";
 import IconButton from "@material-ui/core/IconButton/IconButton";
-import Typography from "@material-ui/core/Typography/Typography";
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
+import Stop from '@material-ui/icons/Stop';
 import AddBox from '@material-ui/icons/AddBox';
-import Create from '@material-ui/icons/Create';
+import Delete from '@material-ui/icons/Delete';
+import GetApp from '@material-ui/icons/GetApp';
 import People from '@material-ui/icons/People';
+import NoteAdd from '@material-ui/icons/NoteAdd';
+import PlayArrow from '@material-ui/icons/PlayArrow';
 import Assessment from '@material-ui/icons/Assessment';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 
-export default class MyClasses extends React.Component {
+export default class ManageClasses extends React.Component {
     constructor(props) {
         super(props);
         Http.getClasses(result => this.setState(result), result => console.log(result));
@@ -26,7 +29,7 @@ export default class MyClasses extends React.Component {
             classes: [],
             c: null, // Selected class
             t: null, // Selected test
-            startTest: this.props.startTest,
+            createTest: this.props.createTest,
         };
     }
 
@@ -61,9 +64,9 @@ export default class MyClasses extends React.Component {
                                             </ListItem>)
                                     }</List></Collapse>
                                 ])}
-                                <ListItem button onClick={() => this.enrollInClass()}>
+                                <ListItem button onClick={() => this.createClass()}>
                                     <AddBox color='action'/>
-                                    <ListItemText inset primary='Enroll in Class'/>
+                                    <ListItemText inset primary='Create Class'/>
                                 </ListItem>
                             </List>
                         </Paper>
@@ -81,38 +84,61 @@ export default class MyClasses extends React.Component {
         let selectedClass = this.state.classes[this.state.c];
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
-            return [
-                <CardHeader title={selectedTest.name} action={
-                    <IconButton disabled={!selectedTest.open} onClick={() => this.state.startTest(selectedTest.id)}>
-                        <Create/></IconButton>
-                }/>,
-                <Typography>Deadline: {MyClasses.getDateString(selectedTest.deadline)}</Typography>,
-                <Typography>Time Limit: {selectedTest.timer} minutes</Typography>,
-
-            ];
+            return <CardHeader title={selectedTest.name} action={[selectedTest.open
+                ? <IconButton onClick={() => this.closeTest()}><Stop/></IconButton>
+                : <IconButton onClick={() => this.openTest()}><PlayArrow/></IconButton>,
+                <IconButton onClick={() => this.deleteTest()}><Delete/></IconButton>]}/>;
         }
         if (this.state.c !== null) {
-            return <CardHeader title={selectedClass.name}/>;
+            return <CardHeader title={selectedClass.name}
+                               subheader={'Enroll Key: ' + selectedClass.enrollKey}
+                               action={[
+                                   <IconButton onClick={() => this.state.createTest(selectedClass.id)}>
+                                       <NoteAdd/>
+                                   </IconButton>,
+                                   <IconButton onClick={() => alert('CSV download coming soon!')}>
+                                       <GetApp/>
+                                   </IconButton>
+                               ]}/>;
         }
         return null;
     }
 
-    enrollInClass() {
-        let key = prompt("Enroll Key:");
-        if (key !== null && key !== "") {
-            Http.enrollInClass(key,
-                () => alert('Enroll successful! Navigate out of this section and ' +
-                    'then back to refresh.'),
-                () => alert('Looks like you entered an invalid key.'));
+    createClass() {
+        let name = prompt("Class Name:");
+        if (name !== null && name !== "") {
+            Http.createClass(name,
+                () => alert('Class Created! Navigate out of this section and then back to refresh.'),
+                () => alert('Something went wrong :\'('));
         }
     }
 
-    static getDateString(date) {
-        let hour = parseInt(date.slice(8, 10));
-        let x = hour > 11 ? 'pm' : 'am';
-        hour = ((hour + 11) % 12) + 1;
-        return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
-            'November', 'December'][date.slice(4, 6) - 1] + ' ' + date.slice(6, 8) + ', ' + date.slice(0, 4)
-            + ' at ' + hour + ':' + date.slice(10, 12) + x;
+    openTest() {
+        let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
+        let newClasses = JSON.parse(JSON.stringify(this.state.classes));
+        Http.openTest(selectedTest.id, () => {
+            newClasses[this.state.c].tests[this.state.t].open = true;
+            this.setState({classes: newClasses});
+            }, () => {});
+    }
+
+    closeTest() {
+        let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
+        let newClasses = JSON.parse(JSON.stringify(this.state.classes));
+        Http.closeTest(selectedTest.id, () => {
+            newClasses[this.state.c].tests[this.state.t].open = false;
+            this.setState({classes: newClasses});
+            }, () => {});
+    }
+
+    deleteTest() {
+        let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
+        let newClasses = JSON.parse(JSON.stringify(this.state.classes));
+        Http.deleteTest(selectedTest.id, () => {
+            newClasses[this.state.c].tests.splice(this.state.t, 1);
+            if (newClasses[this.state.c].tests.length === 0)
+                newClasses[this.state.c].open = false;
+            this.setState({classes: newClasses, t: null});
+            }, () => {});
     }
 }
