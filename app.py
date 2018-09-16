@@ -2,8 +2,9 @@ from flask import request, abort, jsonify
 from flask_login import login_required, current_user
 from sqlite3 import connect
 
-from random import SystemRandom
+from random import SystemRandom, randint
 from string import ascii_letters, digits
+from datetime import datetime, timedelta
 
 from server.MathCode.question import AvoQuestion
 
@@ -174,6 +175,81 @@ def get_question():
         return jsonify(error='No question found')
     q = AvoQuestion(question[0], seed)
     return jsonify(prompt=q.prompt, prompts=q.prompts)
+
+
+@login_required
+@app.route('/getTest', methods=['POST'])
+def get_test():
+    if not request.json:
+        return abort(400)
+    data = request.json
+    test_id = data['test']
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('SELECT name, is_open, deadline, timer, attempts, question_list, seed_list FROM test WHERE test=?',
+               (test_id,))
+    test = db.fetchone()
+    if test is None:
+        return jsonify(error='Test not found')
+    db.execute('SELECT takes, time_submitted, answers, seeds from takes WHERE test=? AND user=? AND time_submitted>?',
+               (test_id, current_user.get_id(), time_stamp(datetime.now())))
+    takes = db.fetchone()
+    if takes is None:
+        takes = create_takes(test_id, current_user.get_id())
+        if takes is None:
+            return jsonify(error="Couldn't start test")
+        db.execute('SELECT takes, time_submitted, answers, seeds from takes WHERE takes=?', [takes])
+        takes = db.fetchone()
+    questions = []
+    question_ids = eval(test[5])
+    seeds = eval(takes[3])
+    for i in range(len(question_ids)):
+        db.execute('SELECT string FROM question WHERE question=?', [question_ids[i]])
+        q = AvoQuestion(db.fetchone()[0], seeds[i])
+        questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
+    database.close()
+    return jsonify(takes=takes[0], time_submitted=takes[1], answers=eval(takes[2]), questions=questions)
+
+
+def time_stamp(t):
+    return int('{:04d}{:02d}{:02d}{:02d}{:02d}{:02d}'.format(t.year, t.month, t.day, t.hour, t.minute, t.second))
+
+
+def create_takes(test, user):
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('SELECT name, is_open, deadline, timer, attempts, question_list, seed_list FROM test WHERE test=?',
+               [test])
+    x = db.fetchone()
+    if x is None:
+        print(1)
+        return
+    test_name, test_is_open, test_deadline, test_timer, test_attempts, test_question_list, test_seed_list = x
+    db.execute('SELECT count(*) FROM takes WHERE test=? AND user=?', (test, user))
+    if test_attempts != -1 and db.fetchone()[0] >= test_attempts:
+        print(2)
+        return
+    test_question_list = eval(test_question_list)
+    seeds = list(map(lambda seed: randint(0, 65536) if seed == -1 else seed, eval(test_seed_list)))
+    answer_list = []
+    marks_list = []
+    for i in test_question_list:
+        db.execute('SELECT string, answers FROM question WHERE question=?', (i,))
+        q = db.fetchone()
+        marks_list.append([0] * q[0].split('；')[0].count('%'))
+        answer_list.append([''] * q[1])
+    t = datetime.now()
+    time1 = time_stamp(t)
+    time2 = min(time_stamp(t + timedelta(minutes=test_timer)), test_deadline*100)
+    db.execute('INSERT INTO `takes`(`test`,`user`,`time_started`,`time_submitted`,`marks`,`answers`,`seeds`) '
+               'VALUES (?,?,?,?,?,?,?);', (test, user, time1, time2, str(marks_list), str(answer_list), str(seeds)))
+    database.commit()
+    db.execute('SELECT takes FROM takes WHERE user=? AND time_started=?', (user, str(time1)))
+    takes = db.fetchone()
+    print(takes)
+    database.close()
+    print(3)
+    return None if takes is None else takes[0]
 
 
 if __name__ == '__main__':

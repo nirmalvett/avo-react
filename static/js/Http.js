@@ -74,4 +74,8 @@ export default class AvoHttp {
     static getQuestion(question, seed, success, failure) {
         AvoHttp._request('POST', '/getQuestion', success, failure, {question: question, seed: seed});
     }
+
+    static getTest(test, success, failure) {
+        AvoHttp._request('POST', '/getTest', success, failure, {test: test});
+    }
 }
