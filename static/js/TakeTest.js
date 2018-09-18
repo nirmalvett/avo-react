@@ -64,12 +64,12 @@ export default class TakeTest extends React.Component {
                 getMathJax(prompt, 'body2'),
                 <NumberInput prompt={prompt} answer={answer} onChange={() => {}}/>
             ];
-        if (type === '8')
+        if (type === '6')
             return [
                 getMathJax(prompt, 'body2'),
                 <VectorInput prompt={prompt} answer={answer} onChange={() => {}}/>
             ];
-        if (type === '6')
+        if (type === '8')
             return [
                 getMathJax(prompt, 'body2'),
                 <MatrixInput prompt={prompt} answer={answer} onChange={() => {}}/>
