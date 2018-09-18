@@ -78,7 +78,18 @@ export default class AnswerInput extends React.Component {
                 </div>
             );
         } else if (this.state.type === '9') {
-            return null;
+            let basis = validateMatrix(this.state.value);
+            return (
+                <div>
+                    {getMathJax(this.state.prompt)}
+                    <TextField multiline value={this.state.value} label='Enter basis'
+                               onChange={e => this.onChange(e.target.value)}
+                               error={!Array.isArray(basis)} helperText={!Array.isArray(basis) ? basis : undefined}/>
+                    <br/><br/>
+                    {Array.isArray(basis) ? getMathJax('\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}'
+                        + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)', 'body2') : undefined}
+                </div>
+            );
         }
     }
 
