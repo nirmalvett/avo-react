@@ -2,10 +2,17 @@ import React from 'react';
 import Typography from '@material-ui/core/Typography/Typography';
 import Grid from "@material-ui/core/Grid/Grid";
 import Card from "@material-ui/core/Card/Card";
-import MathJax from "react-mathjax2";
 import AvoHttp from "./Http";
 import Divider from "@material-ui/core/Divider/Divider";
 import TextField from "@material-ui/core/TextField/TextField";
+import Button from "@material-ui/core/Button/Button";
+import Save from '@material-ui/icons/Save';
+import IconButton from "@material-ui/core/IconButton/IconButton";
+import CardHeader from "@material-ui/core/CardHeader/CardHeader";
+import NumberInput from "./input/NumberInput";
+import VectorInput from "./input/VectorInput";
+import MatrixInput from "./input/MatrixInput";
+import {getMathJax} from "./Utilities";
 
 export default class TakeTest extends React.Component {
     constructor(props) {
@@ -26,6 +33,11 @@ export default class TakeTest extends React.Component {
                 <Grid xs={1}/>
                 <Grid xs={10} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
                     {this.state.questions.map((x, y) => this.getQuestionCard(x, this.state.answers[y]))}
+                    <div style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px'}}>
+                        <Button color='primary' variant='raised' style={{width: '100%'}}>
+                            <Typography variant='button'>Submit Test</Typography>
+                        </Button>
+                    </div>
                 </Grid>
                 <Grid xs={1}/>
             </Grid>
@@ -35,25 +47,33 @@ export default class TakeTest extends React.Component {
     getQuestionCard(question, answer) {
         return (
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
-                {this.getMathJax(question.prompt, 'subheading')}
+                <CardHeader title={getMathJax(question.prompt)} action={<IconButton><Save/></IconButton>}/>
                 {question.prompts.map((x, y) => {
                     let result = [<Divider style={{marginTop: '10px', marginBottom: '10px'}}/>];
-                    if (x !== '')
-                        result.push(this.getMathJax(x, 'body2'));
-                    result.push(this.getAnswerField(question.types[y], answer[y]));
+                    result.push(this.getAnswerField(x, question.types[y], answer[y]));
                     return result;
                 })}
             </Card>
         );
     }
 
-    getAnswerField(type, answer) {
+    getAnswerField(prompt, type, answer) {
+        console.log(answer);
+        if (type === '2')
+            return [
+                getMathJax(prompt, 'body2'),
+                <NumberInput prompt={prompt} answer={answer} onChange={() => {}}/>
+            ];
+        if (type === '8')
+            return [
+                getMathJax(prompt, 'body2'),
+                <VectorInput prompt={prompt} answer={answer} onChange={() => {}}/>
+            ];
+        if (type === '6')
+            return [
+                getMathJax(prompt, 'body2'),
+                <MatrixInput prompt={prompt} answer={answer} onChange={() => {}}/>
+            ];
         return <TextField/>
-    }
-
-    // noinspection JSMethodCanBeStatic
-    getMathJax(text, variant) {
-        let strings = text.split(/\\[()]/g).map((x, y) => y % 2 === 0 ? x : <MathJax.Node inline>{x}</MathJax.Node>);
-        return <MathJax.Context input='tex'><Typography variant={variant}>{strings}</Typography></MathJax.Context>
     }
 }

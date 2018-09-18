@@ -1,6 +1,6 @@
 import React from 'react';
 import Http from './Http';
-import MathJax from 'react-mathjax2'
+import {getMathJax} from "./Utilities";
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import List from '@material-ui/core/List/List';
@@ -12,7 +12,6 @@ import ListItem from '@material-ui/core/ListItem/ListItem';
 import TextField from '@material-ui/core/TextField/TextField';
 import CardHeader from '@material-ui/core/CardHeader/CardHeader';
 import IconButton from '@material-ui/core/IconButton/IconButton';
-import Typography from '@material-ui/core/Typography/Typography';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
@@ -40,11 +39,6 @@ export default class CreateTest extends React.Component {
     }
 
     render() {
-        let getMathJax = (text, variant) => {
-            let strings = text.split(/\\[()]/).map((x, y) => y % 2 === 0 ? x :
-                <MathJax.Node inline>{x}</MathJax.Node>);
-            return <MathJax.Context input='tex'><Typography variant={variant}>{strings}</Typography></MathJax.Context>
-        };
         let index = this.state.questionIndex;
         let currentQ = this.state.testQuestions[index];
         let refresh = () => {
