@@ -183,10 +183,7 @@ class Layout extends React.Component {
     }
 
     logout() {
-        Http.logout(() => {
-            console.log('Logged out');
-            this.props.logout();
-        });
+        Http.logout(() => this.props.logout());
     }
 
     startCreateTest(cls) {

@@ -4,21 +4,17 @@ import Grid from "@material-ui/core/Grid/Grid";
 import Card from "@material-ui/core/Card/Card";
 import AvoHttp from "./Http";
 import Divider from "@material-ui/core/Divider/Divider";
-import TextField from "@material-ui/core/TextField/TextField";
 import Button from "@material-ui/core/Button/Button";
 import Save from '@material-ui/icons/Save';
 import IconButton from "@material-ui/core/IconButton/IconButton";
 import CardHeader from "@material-ui/core/CardHeader/CardHeader";
-import NumberInput from "./input/NumberInput";
-import VectorInput from "./input/VectorInput";
-import MatrixInput from "./input/MatrixInput";
 import {getMathJax} from "./Utilities";
+import AnswerInput from "./AnswerInput";
 
 export default class TakeTest extends React.Component {
     constructor(props) {
         super(props);
         AvoHttp.getTest(this.props.testID, (result) => {
-            console.log(result);
             this.setState(result);
             }, (result) => alert(result.error));
         this.state = {
@@ -48,32 +44,11 @@ export default class TakeTest extends React.Component {
         return (
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
                 <CardHeader title={getMathJax(question.prompt)} action={<IconButton><Save/></IconButton>}/>
-                {question.prompts.map((x, y) => {
-                    let result = [<Divider style={{marginTop: '10px', marginBottom: '10px'}}/>];
-                    result.push(this.getAnswerField(x, question.types[y], answer[y]));
-                    return result;
-                })}
+                {question.prompts.map((x, y) => [
+                    <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
+                    <AnswerInput type={question.types[y]} value={answer[y]} prompt={x}/>
+                ])}
             </Card>
         );
-    }
-
-    getAnswerField(prompt, type, answer) {
-        console.log(answer);
-        if (type === '2')
-            return [
-                getMathJax(prompt, 'body2'),
-                <NumberInput prompt={prompt} answer={answer} onChange={() => {}}/>
-            ];
-        if (type === '6')
-            return [
-                getMathJax(prompt, 'body2'),
-                <VectorInput prompt={prompt} answer={answer} onChange={() => {}}/>
-            ];
-        if (type === '8')
-            return [
-                getMathJax(prompt, 'body2'),
-                <MatrixInput prompt={prompt} answer={answer} onChange={() => {}}/>
-            ];
-        return <TextField/>
     }
 }
