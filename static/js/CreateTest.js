@@ -5,7 +5,6 @@ import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import List from '@material-ui/core/List/List';
 import Paper from '@material-ui/core/Paper/Paper';
-import Button from '@material-ui/core/Button/Button';
 import Checkbox from '@material-ui/core/Checkbox/Checkbox';
 import Collapse from '@material-ui/core/Collapse/Collapse';
 import ListItem from '@material-ui/core/ListItem/ListItem';
@@ -21,9 +20,8 @@ import Delete from '@material-ui/icons/Delete';
 import Folder from '@material-ui/icons/Folder';
 import Refresh from '@material-ui/icons/Refresh';
 import LockOpen from '@material-ui/icons/LockOpen';
-import ArrowBack from '@material-ui/icons/ArrowBack';
 import FolderOpen from '@material-ui/icons/FolderOpen';
-import ArrowForward from '@material-ui/icons/ArrowForward';
+import AnswerInput from "./AnswerInput";
 
 
 export default class CreateTest extends React.Component {
@@ -33,46 +31,36 @@ export default class CreateTest extends React.Component {
         this.state = {
             sets: [],
             testQuestions: [],
-            questionIndex: 0,
             deadline: '',
         };
     }
 
     render() {
-        let index = this.state.questionIndex;
-        let currentQ = this.state.testQuestions[index];
-        let refresh = () => {
-            let newTestQuestions = JSON.parse(JSON.stringify(this.state.testQuestions));
-            newTestQuestions[index].seed = Math.floor(Math.random() * 65536);
-            this.setState({testQuestions: newTestQuestions});
+        let refresh = index => () => {
             let seed = Math.floor(Math.random() * 65536);
-            Http.getQuestion(currentQ.id, seed, (result) => {
+            Http.getQuestion(this.state.testQuestions[index].id, seed, (result) => {
                 let newTestQuestions = JSON.parse(JSON.stringify(this.state.testQuestions));
                 newTestQuestions[index].prompt = result.prompt;
                 newTestQuestions[index].prompts = result.prompts;
+                newTestQuestions[index].seed = seed;
                 this.setState({testQuestions: newTestQuestions});
             }, () => {});
         };
-        let lock = () => {
+        let lock = index => () => {
             let newTestQuestions = JSON.parse(JSON.stringify(this.state.testQuestions));
             newTestQuestions[index].locked = true;
             this.setState({testQuestions: newTestQuestions});
         };
-        let unlock = () => {
+        let unlock = index => () => {
             let newTestQuestions = JSON.parse(JSON.stringify(this.state.testQuestions));
             newTestQuestions[index].locked = false;
             this.setState({testQuestions: newTestQuestions});
         };
-        let deleteQ = () => {
+        let deleteQ = index => () => {
             let newTestQuestions = JSON.parse(JSON.stringify(this.state.testQuestions));
             newTestQuestions.splice(index, 1);
-            this.setState({
-                testQuestions: newTestQuestions,
-                questionIndex: index === 0 && newTestQuestions.length !== 0 ? 0 : index - 1
-            });
+            this.setState({testQuestions: newTestQuestions});
         };
-        let disableL = index === 0;
-        let disableR = index === this.state.testQuestions.length;
         return (
             <Grid container spacing={8} style={{flex: 1, display: 'flex', marginBottom: 0}}>
                 <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
@@ -96,11 +84,9 @@ export default class CreateTest extends React.Component {
                                             let seed = Math.floor(Math.random() * 65536);
                                             Http.getQuestion(a.id, seed, (result) => {
                                                 let newTestQuestions = JSON.parse(JSON.stringify(this.state.testQuestions));
-                                                let newIndex = disableR ? index : index + 1;
-                                                newTestQuestions.splice(newIndex, 0,
-                                                    {id: a.id, name: a.name, seed: seed, locked: false,
-                                                        prompt: result.prompt, prompts: result.prompts});
-                                                this.setState({testQuestions: newTestQuestions, questionIndex: newIndex});
+                                                newTestQuestions.push({id: a.id, name: a.name, seed: seed,
+                                                    locked: false, prompt: result.prompt, prompts: result.prompts, types: result.types});
+                                                this.setState({testQuestions: newTestQuestions});
                                             }, () => {});
                                         }}>
                                             <ListItemText secondary={a.name}/>
@@ -110,55 +96,46 @@ export default class CreateTest extends React.Component {
                         </List>
                     </Paper>
                 </Grid>
-                <Grid item xs={1} style={{textAlign: 'center', marginTop: '10%'}}>
-                    <Button variant='fab' onClick={() => {this.setState({questionIndex: index - 1})}} disabled={disableL}>
-                        <ArrowBack style={{width: '100%'}}/></Button></Grid>
-                <Grid item xs={7} style={{display: 'flex'}}>
-                    <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>{
-                        index === this.state.testQuestions.length
-                            ? [<CardHeader title={'Test Settings'}
-                                           action={<IconButton><Done/></IconButton>}/>,
-                                <TextField margin='normal' label='Name'
-                                           style={{width: '46%', margin: '2%'}}/>,
-                                <TextField margin='normal' label='Time Limit (minutes)' type='number'
-                                           style={{width: '46%', margin: '2%'}}/>,
-                                <br/>,
-                                <TextField margin='normal' label='Attempts (enter -1 for unlimited)' type='number'
-                                           style={{width: '46%', margin: '2%'}}/>,
-                                <TextField margin='normal' helperText='Deadline' type='datetime-local'
-                                           style={{width: '46%', margin: '2%'}}
-                                           onChange={(e) => this.setState({deadline: e.target.value})}/>,
-                                <br/>,
-                                <FormControlLabel style={{width: '46%', margin: '2%'}}
-                                    control={<Checkbox checked={this.state.isAssignment}
-                                            onChange={() => this.setState({isAssignment: !this.state.isAssignment})}
-                                            color='primary'
-                                        />
-                                    }
-                                    label='This is an assignment'
-                                />,
-                            ]
-                            : [<CardHeader
-                                title={currentQ.name}
-                                subheader={'Question ' + (index + 1) + '/' + this.state.testQuestions.length}
+                <Grid item xs={1} style={{textAlign: 'center', marginTop: '10%'}}/>
+                <Grid item xs={7} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
+                    {this.state.testQuestions.map((x, y) =>
+                        <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px'}}>
+                            <CardHeader
+                                title={x.name}
+                                subheader={'Question ' + (y + 1) + '/' + this.state.testQuestions.length}
                                 action={[
-                                    <IconButton onClick={refresh}><Refresh/></IconButton>,
-                                    currentQ.locked
-                                        ? <IconButton onClick={unlock}><Lock/></IconButton>
-                                        : <IconButton onClick={lock}><LockOpen/></IconButton>,
-                                    <IconButton onClick={deleteQ}><Delete/></IconButton>]}/>,
-                                getMathJax(currentQ.prompt, 'subheading'),
-                                currentQ.prompts.map((x, y) => getMathJax((y + 1) + ') ' + x, 'body2'))
-                            ]
-                    }</Card>
+                                    <IconButton onClick={refresh(y)}><Refresh/></IconButton>,
+                                    x.locked
+                                        ? <IconButton onClick={unlock(y)}><Lock/></IconButton>
+                                        : <IconButton onClick={lock(y)}><LockOpen/></IconButton>,
+                                    <IconButton onClick={deleteQ(y)}><Delete/></IconButton>]}/>
+                            {getMathJax(x.prompt, 'subheading')}
+                            {x.prompts.map((a, b) => <AnswerInput value='' prompt={a} type={x.types[b]}/>)}
+                        </Card>
+                    )}
+                    <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
+                        <CardHeader title={'Test Settings'}
+                                    action={<IconButton><Done/></IconButton>}/>
+                        <TextField margin='normal' label='Name' style={{width: '46%', margin: '2%'}}/>
+                        <TextField margin='normal' label='Time Limit (minutes)' type='number'
+                                   style={{width: '46%', margin: '2%'}}/>
+                        <br/>
+                        <TextField margin='normal' label='Attempts (enter -1 for unlimited)' type='number'
+                                   style={{width: '46%', margin: '2%'}}/>
+                        <TextField margin='normal' helperText='Deadline' type='datetime-local'
+                                   style={{width: '46%', margin: '2%'}}
+                                   onChange={(e) => this.setState({deadline: e.target.value})}/>
+                        <br/>
+                        <FormControlLabel style={{width: '46%', margin: '2%'}}
+                                          control={<Checkbox checked={this.state.isAssignment}
+                                                             onChange={() => this.setState({isAssignment: !this.state.isAssignment})}
+                                                             color='primary'/>}
+                                          label='This is an assignment'
+                        />
+                    </Card>
                 </Grid>
-                <Grid item xs={1} style={{textAlign: 'center', marginTop: '10%'}}>
-                    <Button variant='fab' onClick={() => {this.setState({questionIndex: index + 1})}} disabled={disableR}>
-                    <ArrowForward style={{width: '100%'}}/></Button></Grid>
+                <Grid item xs={1} style={{textAlign: 'center', marginTop: '10%'}}/>
             </Grid>
         );
     }
 }
-{/*<MathJax.Context input='tex'><div>*/}
-    {/*{['123', <MathJax.Node inline>{eq}</MathJax.Node>, '456']}*/}
-{/*</div></MathJax.Context>*/}

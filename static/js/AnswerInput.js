@@ -3,6 +3,7 @@ import TextField from "@material-ui/core/TextField/TextField";
 import FormControlLabel from "@material-ui/core/FormControlLabel/FormControlLabel";
 import Radio from "@material-ui/core/Radio/Radio";
 import {getMathJax, validateMatrix, validateNumber, validateVector} from "./Utilities";
+import Typography from "@material-ui/core/Typography/Typography";
 
 export default class AnswerInput extends React.Component {
     constructor(props) {
@@ -15,27 +16,30 @@ export default class AnswerInput extends React.Component {
     }
 
     render() {
+        let v = this.state.value;
         if (this.state.type === '0') {
             return [
                 getMathJax(this.state.prompt),
-                <FormControlLabel value={false} control={<Radio color="action"/>} label="False" labelPlacement="start"
-                                  onChange={() => this.onChange(false)}/>,
-                <FormControlLabel value={true} control={<Radio color="action"/>} label="True" labelPlacement="start"
-                                  onChange={() => this.onChange(true)}/>
+                <FormControlLabel value={true} control={<Radio color="action" checked={v === true}/>} label="True"
+                                  onChange={() => this.onChange(true)}/>,
+                <FormControlLabel value={false} control={<Radio color="action" checked={v === false}/>} label="False"
+                                  onChange={() => this.onChange(false)}/>
             ];
         } else if (this.state.type === '1') {
             let p = this.state.prompt.split('—');
             return [
-                getMathJax(p[0])].concat(p.slice(1).map((x, y) =>
-                <FormControlLabel control={<Radio color='action'/>} label={getMathJax(x)} labelPlacement='start'
-                                  onChange={() => this.onChange(y)}/>)
+                getMathJax(p[0])].concat(p.slice(1).map((x, y) => [
+                    <FormControlLabel control={<Radio color='action' checked={v === y}/>} label={getMathJax(x)}
+                                      onChange={() => this.onChange(y)}/>,
+                <br/>
+                ])
             );
         } else if (this.state.type === '2') {
-            let message = validateNumber(this.state.value);
+            let message = validateNumber(v);
             return (
                 <div>
                     {getMathJax(this.state.prompt)}
-                    <TextField value={this.state.value} onChange={(e) => this.onChange(e.target.value)}
+                    <TextField value={v} onChange={(e) => this.onChange(e.target.value)}
                                error={!Array.isArray(message)} label='Enter number'
                                helperText={!Array.isArray(message) ? message : undefined}/>
                     <br/>
@@ -50,11 +54,11 @@ export default class AnswerInput extends React.Component {
         } else if (this.state.type === '5') {
             return null;
         } else if (this.state.type === '6') {
-            let vector = validateVector(this.state.value);
+            let vector = validateVector(v);
             return (
                 <div>
                     {getMathJax(this.state.prompt)}
-                    <TextField value={this.state.value} label='Enter vector'
+                    <TextField value={v} label='Enter vector'
                                onChange={e => this.onChange(e.target.value)}
                                error={!Array.isArray(vector)} helperText={!Array.isArray(vector) ? vector : undefined}/>
                     <br/><br/>
@@ -65,11 +69,11 @@ export default class AnswerInput extends React.Component {
         } else if (this.state.type === '7') {
             return null;
         } else if (this.state.type === '8') {
-            let matrix = validateMatrix(this.state.value);
+            let matrix = validateMatrix(v);
             return (
                 <div>
                     {getMathJax(this.state.prompt)}
-                    <TextField multiline value={this.state.value} label='Enter matrix'
+                    <TextField multiline value={v} label='Enter matrix'
                                onChange={e => this.onChange(e.target.value)}
                                error={!Array.isArray(matrix)} helperText={!Array.isArray(matrix) ? matrix : undefined}/>
                     <br/><br/>
@@ -78,11 +82,11 @@ export default class AnswerInput extends React.Component {
                 </div>
             );
         } else if (this.state.type === '9') {
-            let basis = validateMatrix(this.state.value);
+            let basis = validateMatrix(v);
             return (
                 <div>
                     {getMathJax(this.state.prompt)}
-                    <TextField multiline value={this.state.value} label='Enter basis'
+                    <TextField multiline value={v} label='Enter basis'
                                onChange={e => this.onChange(e.target.value)}
                                error={!Array.isArray(basis)} helperText={!Array.isArray(basis) ? basis : undefined}/>
                     <br/><br/>
@@ -91,6 +95,7 @@ export default class AnswerInput extends React.Component {
                 </div>
             );
         }
+        return <Typography variant='body2' color='error'>Invalid answer type</Typography>
     }
 
     onChange(value) {

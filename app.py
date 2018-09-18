@@ -174,7 +174,7 @@ def get_question():
     if question is None:
         return jsonify(error='No question found')
     q = AvoQuestion(question[0], seed)
-    return jsonify(prompt=q.prompt, prompts=q.prompts)
+    return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
 
 
 @login_required
