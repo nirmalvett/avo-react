@@ -252,5 +252,30 @@ def create_takes(test, user):
     return None if takes is None else takes[0]
 
 
+@login_required
+@app.route('/saveTest', methods=['POST'])
+def save_test():
+    if not request.json:
+        return abort(400)
+    data = request.json
+    class_id, name, deadline, timer, attempts, is_assignment, question_list, seed_list = \
+        data['classID'], data['name'], data['deadline'], data['timer'], data['attempts'], data['isAssignment'], \
+        data['questionList'], data['seedList']
+    database = connect('avo.db')
+    db = database.cursor()
+    total = 0
+    for q in question_list:
+        db.execute('SELECT total FROM question WHERE question=?', [q])
+        total += db.fetchone()[0]
+    db.execute('INSERT INTO `test`(`class`,`name`,`is_open`,`deadline`,`timer`,`attempts`,`is_assignment`,'
+               '`question_list`,`seed_list`,`total`) VALUES (?,?,0,?,?,?,?,?,?,?);',
+               (class_id, name, deadline, timer, attempts, is_assignment, str(question_list), str(seed_list), total))
+    db.execute('SELECT test FROM test WHERE _ROWID_=?', [db.lastrowid])
+    test = db.fetchone()[0]
+    database.commit()
+    database.close()
+    return jsonify(test=test)
+
+
 if __name__ == '__main__':
     app.run()

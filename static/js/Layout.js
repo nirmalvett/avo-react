@@ -165,7 +165,8 @@ class Layout extends React.Component {
                                 : this.state.section === 'Manage Classes'
                                     ? <ManageClasses createTest={(cls) => this.startCreateTest(cls)}/>
                                 : this.state.section === 'Create Test'
-                                    ? <CreateTest classID={this.state.testCreator}/>
+                                    ? <CreateTest classID={this.state.testCreator}
+                                                  onCreate={() => this.setState({section: 'Manage Classes'})}/>
                                 : this.state.section === 'Build Question'
                                     ? null
                                 : this.state.section === 'Take Test'

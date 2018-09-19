@@ -78,4 +78,10 @@ export default class AvoHttp {
     static getTest(test, success, failure) {
         AvoHttp._request('POST', '/getTest', success, failure, {test: test});
     }
+
+    static saveTest(classID, name, deadline, timer, attempts, isAssignment, questionList, seedList, success, failure) {
+        AvoHttp._request('POST', '/saveTest', success, failure, {classID: classID, name: name, deadline: deadline,
+            timer: timer, attempts: attempts, isAssignment: isAssignment, questionList: questionList, seedList: seedList
+        });
+    }
 }

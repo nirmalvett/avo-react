@@ -32,6 +32,7 @@ export default class CreateTest extends React.Component {
             sets: [],
             testQuestions: [],
             deadline: '',
+            isAssignment: false,
         };
     }
 
@@ -114,17 +115,31 @@ export default class CreateTest extends React.Component {
                         </Card>
                     )}
                     <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
-                        <CardHeader title={'Test Settings'}
-                                    action={<IconButton><Done/></IconButton>}/>
-                        <TextField margin='normal' label='Name' style={{width: '46%', margin: '2%'}}/>
+                        <CardHeader title={'Test Settings'} action={<IconButton onClick={() => {
+                            let s = this.state;
+                            let questions = s.testQuestions.map(x => x.id);
+                            let seeds = s.testQuestions.map(x => x.locked ? x.seed : -1);
+                            let deadline = s.deadline.replace(/[\-T:]/g, '');
+                            if (deadline.length !== 12) {
+                                alert('Invalid deadline');
+                                return;
+                            }
+                            Http.saveTest(this.props.classID, s.name, deadline, s.timeLimit, s.attempts,
+                                s.isAssignment, questions, seeds, () => {this.props.onCreate()},
+                                () => {alert('Something went wrong')});
+                        }}><Done/></IconButton>}/>
+                        <TextField margin='normal' label='Name' style={{width: '46%', margin: '2%'}}
+                                   onChange={e => this.setState({name: e.target.value})}/>
                         <TextField margin='normal' label='Time Limit (minutes)' type='number'
-                                   style={{width: '46%', margin: '2%'}}/>
+                                   style={{width: '46%', margin: '2%'}}
+                                   onChange={e => this.setState({timeLimit: e.target.value})}/>
                         <br/>
                         <TextField margin='normal' label='Attempts (enter -1 for unlimited)' type='number'
-                                   style={{width: '46%', margin: '2%'}}/>
+                                   style={{width: '46%', margin: '2%'}}
+                                   onChange={e => this.setState({attempts: e.target.value})}/>
                         <TextField margin='normal' helperText='Deadline' type='datetime-local'
                                    style={{width: '46%', margin: '2%'}}
-                                   onChange={(e) => this.setState({deadline: e.target.value})}/>
+                                   onChange={e => this.setState({deadline: e.target.value})}/>
                         <br/>
                         <FormControlLabel style={{width: '46%', margin: '2%'}}
                                           control={<Checkbox checked={this.state.isAssignment}
