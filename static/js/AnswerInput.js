@@ -12,25 +12,27 @@ export default class AnswerInput extends React.Component {
             type: this.props.type,
             value: this.props.value,
             prompt: this.props.prompt,
+            disabled: this.props.disabled,
         };
     }
 
     render() {
         let v = this.state.value;
+        let x = this.state.disabled;
         if (this.state.type === '0') {
             return [
                 getMathJax(this.state.prompt),
-                <FormControlLabel value={true} control={<Radio color="action" checked={v === true}/>} label="True"
-                                  onChange={() => this.onChange(true)}/>,
-                <FormControlLabel value={false} control={<Radio color="action" checked={v === false}/>} label="False"
-                                  onChange={() => this.onChange(false)}/>
+                <FormControlLabel disabled={x} value={true} control={<Radio color="action" checked={v === true}/>}
+                                  label="True" onChange={() => this.onChange(true)}/>,
+                <FormControlLabel disabled={x} value={false} control={<Radio color="action" checked={v === false}/>}
+                                  label="False" onChange={() => this.onChange(false)}/>
             ];
         } else if (this.state.type === '1') {
             let p = this.state.prompt.split('—');
             return [
                 getMathJax(p[0])].concat(p.slice(1).map((x, y) => [
                     <FormControlLabel control={<Radio color='action' checked={v === y}/>} label={getMathJax(x)}
-                                      onChange={() => this.onChange(y)}/>,
+                                      disabled={x} onChange={() => this.onChange(y)}/>,
                 <br/>
                 ])
             );
@@ -40,7 +42,7 @@ export default class AnswerInput extends React.Component {
                 <div>
                     {getMathJax(this.state.prompt)}
                     <TextField value={v} onChange={(e) => this.onChange(e.target.value)}
-                               error={!Array.isArray(message)} label='Enter number'
+                               error={!x && !Array.isArray(message)} label='Enter number' disabled={x}
                                helperText={!Array.isArray(message) ? message : undefined}/>
                     <br/>
                     <br/>
@@ -58,9 +60,9 @@ export default class AnswerInput extends React.Component {
             return (
                 <div>
                     {getMathJax(this.state.prompt)}
-                    <TextField value={v} label='Enter vector'
+                    <TextField disabled={x} value={v} label='Enter vector'
                                onChange={e => this.onChange(e.target.value)}
-                               error={!Array.isArray(vector)} helperText={!Array.isArray(vector) ? vector : undefined}/>
+                               error={!x && !Array.isArray(vector)} helperText={!Array.isArray(vector) ? vector : undefined}/>
                     <br/><br/>
                     {Array.isArray(vector) ? getMathJax('\\(\\begin{bmatrix}'
                         + vector.join('\\\\') + '\\end{bmatrix}\\)', 'body2') : undefined}
@@ -73,9 +75,9 @@ export default class AnswerInput extends React.Component {
             return (
                 <div>
                     {getMathJax(this.state.prompt)}
-                    <TextField multiline value={v} label='Enter matrix'
+                    <TextField disabled={x} multiline value={v} label='Enter matrix'
                                onChange={e => this.onChange(e.target.value)}
-                               error={!Array.isArray(matrix)} helperText={!Array.isArray(matrix) ? matrix : undefined}/>
+                               error={!x && !Array.isArray(matrix)} helperText={!Array.isArray(matrix) ? matrix : undefined}/>
                     <br/><br/>
                     {Array.isArray(matrix) ? getMathJax('\\(\\begin{bmatrix}'
                         + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)', 'body2') : undefined}
@@ -86,9 +88,9 @@ export default class AnswerInput extends React.Component {
             return (
                 <div>
                     {getMathJax(this.state.prompt)}
-                    <TextField multiline value={v} label='Enter basis'
+                    <TextField disabled={x} multiline value={v} label='Enter basis'
                                onChange={e => this.onChange(e.target.value)}
-                               error={!Array.isArray(basis)} helperText={!Array.isArray(basis) ? basis : undefined}/>
+                               error={!x && !Array.isArray(basis)} helperText={!Array.isArray(basis) ? basis : undefined}/>
                     <br/><br/>
                     {Array.isArray(basis) ? getMathJax('\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}'
                         + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)', 'body2') : undefined}

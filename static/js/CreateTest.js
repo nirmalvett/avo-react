@@ -111,7 +111,7 @@ export default class CreateTest extends React.Component {
                                         : <IconButton onClick={lock(y)}><LockOpen/></IconButton>,
                                     <IconButton onClick={deleteQ(y)}><Delete/></IconButton>]}/>
                             {getMathJax(x.prompt, 'subheading')}
-                            {x.prompts.map((a, b) => <AnswerInput value='' prompt={a} type={x.types[b]}/>)}
+                            {x.prompts.map((a, b) => <AnswerInput value='' disabled prompt={a} type={x.types[b]}/>)}
                         </Card>
                     )}
                     <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
@@ -127,7 +127,7 @@ export default class CreateTest extends React.Component {
                             Http.saveTest(this.props.classID, s.name, deadline, s.timeLimit, s.attempts,
                                 s.isAssignment, questions, seeds, () => {this.props.onCreate()},
                                 () => {alert('Something went wrong')});
-                        }}><Done/></IconButton>}/>
+                        }} color='primary'><Done/></IconButton>}/>
                         <TextField margin='normal' label='Name' style={{width: '46%', margin: '2%'}}
                                    onChange={e => this.setState({name: e.target.value})}/>
                         <TextField margin='normal' label='Time Limit (minutes)' type='number'
