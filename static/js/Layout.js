@@ -8,8 +8,8 @@ import CreateTest from './CreateTest';
 import Preferences from './Preferences';
 import ManageClasses from './ManageClasses';
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
-import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, lime, yellow, amber,
-    orange, deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors/';
+import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, lime, amber, orange,
+    deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors/';
 import classNames from 'classnames';
 import {withStyles} from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
@@ -78,9 +78,9 @@ class Layout extends React.Component {
     constructor(props) {
         super(props);
         let color = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal,
-            green, lightGreen, lime, yellow, amber, orange, deepOrange, brown, grey, blueGrey];
+            green, lightGreen, lime, orange, deepOrange, brown, grey, blueGrey];
         Http.getUserInfo(
-            (result) => {
+            result => {
                 // noinspection RedundantConditionalExpressionJS, JSUnresolvedVariable
                 this.setState({
                     name: result.first_name + ' ' + result.last_name,
@@ -100,45 +100,41 @@ class Layout extends React.Component {
             theme: 'dark',
             testCreator: null
         };
-        this.logout = this.logout.bind(this);
     }
 
     render() {
         const {classes} = this.props;
-        const {open} = this.state;
-        const theme = createMuiTheme({palette: {primary: this.state.color, type: this.state.theme}});
+        const {color, theme, open, isTeacher} = this.state;
 
-        let listItem = (icon, text) => {
-            let selected = this.state.section === text;
-            let style = {backgroundColor: selected ? this.state.color[this.state.theme === 'light' ? '100' : '500'] : undefined};
-            icon = React.createElement(icon, {color: selected && this.state.theme === 'light' ? 'primary' : 'action'});
-            return <ListItem button selected={selected} onClick={() => this.setState({section: text})} style={style}>
-                {icon}<ListItemText primary={text}/></ListItem>;
-        };
-        let disabledListItem = (icon, text) =>
-            <ListItem button disabled>{React.createElement(icon, {color: 'action'})}<ListItemText primary={text}/></ListItem>;
+        let disabledListItem = (icon, text) => (
+            <ListItem button disabled>
+                {React.createElement(icon, {color: 'action'})}
+                <ListItemText primary={text}/>
+            </ListItem>
+        );
 
         return (
-            <MuiThemeProvider theme={theme}>
+            <MuiThemeProvider theme={createMuiTheme({palette: {primary: color, type: theme}})}>
                 <div style={{display: 'flex', width: '100%', height: '100%',
-                    backgroundColor: this.state.theme === 'dark' ? '#303030' : '#fafafa'}}>
+                    backgroundColor: theme === 'dark' ? '#303030' : '#fafafa'}}>
                     <Drawer variant='persistent' anchor='left' open={open} classes={{paper: classes.drawerPaper}}>
-                        <Logo theme={this.state.theme} color={this.state.color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
+                        <Logo theme={theme} color={color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
                         <Divider/>
                         <div style={{overflowY: 'auto'}}>
-                            <List subheader={this.state.isTeacher && <ListSubheader component='div'>Student & Teacher</ListSubheader>}>
-                                {listItem(Home, 'Home')}
-                                {listItem(Class, 'My Classes')}
+                            <List subheader={isTeacher ? <ListSubheader>Student & Teacher</ListSubheader> : undefined}>
+                                {this.listItem(Home, 'Home')}
+                                {this.listItem(Class, 'My Classes')}
                             </List>
-                            {this.state.isTeacher && [
+                            {isTeacher ? [
                                 <Divider/>,
-                                <List subheader={<ListSubheader component='div'>Teacher Only</ListSubheader>}>
-                                    {listItem(Class, 'Manage Classes')}
+                                <List subheader={<ListSubheader>Teacher Only</ListSubheader>}>
+                                    {this.listItem(Class, 'Manage Classes')}
                                     {disabledListItem(Build, 'Build Question')}
                                 </List>
-                            ]}
-                            <Divider/><List>
-                                {listItem(Settings, 'Preferences')}
+                            ] : undefined}
+                            <Divider/>
+                            <List>
+                                {this.listItem(Settings, 'Preferences')}
                                 <ListItem button onClick={() => this.logout()}>
                                     <ExitToApp color='action'/>
                                     <ListItemText primary='Logout'/>
@@ -148,39 +144,51 @@ class Layout extends React.Component {
                     </Drawer>
                     <AppBar className={classNames(classes.appBar, {[classes.appBarShift]: open})}>
                         <Toolbar disableGutters>
-                            <IconButton color='inherit' aria-label='Toggle drawer' style={{marginLeft: 12, marginRight: 20}}
-                                        onClick={() => this.setState({open: !this.state.open})}>
+                            <IconButton style={{marginLeft: 12, marginRight: 20}}
+                                        onClick={() => this.setState({open: !open})}>
                                 <Menu/>
                             </IconButton>
-                            <Typography variant='title' color='inherit' noWrap>
-                                {this.state.name}
-                            </Typography>
+                            <Typography variant='title' noWrap>{this.state.name}</Typography>
                         </Toolbar>
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
-                        {
-                            this.state.section === 'Home' ? <HomePage/>
-                                : this.state.section === 'My Classes'
-                                    ? <MyClasses startTest={(cls) => this.startTest(cls)}/>
-                                : this.state.section === 'Manage Classes'
-                                    ? <ManageClasses createTest={(cls) => this.startCreateTest(cls)}/>
-                                : this.state.section === 'Create Test'
-                                    ? <CreateTest classID={this.state.testCreator}
-                                                  onCreate={() => this.setState({section: 'Manage Classes'})}/>
-                                : this.state.section === 'Build Question'
-                                    ? null
-                                : this.state.section === 'Take Test'
-                                    ? <TakeTest testID={this.state.test}/>
-                                : this.state.section === 'Preferences'
-                                    ? <Preferences theme={this.state.theme}
-                                                   changeColor={(color) => this.setState({color: color})}
-                                                   changeTheme={(theme) => this.setState({theme: theme})}/>
-                                : null
-                        }
+                        {this.getContent()}
                     </div>
                 </div>
             </MuiThemeProvider>
         );
+    }
+
+    listItem(icon, text) {
+        let {color, theme} = this.state;
+        let selected = this.state.section === text;
+        let style = {backgroundColor: selected ? color[theme === 'light' ? '100' : '500'] : undefined};
+        return (
+            <ListItem button selected={selected} onClick={() => this.setState({section: text})} style={style}>
+                {React.createElement(icon, {color: selected && theme === 'light' ? 'primary' : 'action'})}
+                <ListItemText primary={text}/>
+            </ListItem>
+        );
+    }
+
+    getContent() {
+        const {section, color, theme} = this.state;
+        if (section === 'Home')
+            return (<HomePage/>);
+        if (section === 'My Classes')
+            return (<MyClasses startTest={cls => this.startTest(cls)}/>);
+        if (section === 'Manage Classes')
+            return (<ManageClasses createTest={cls => this.startCreateTest(cls)}/>);
+        if (section === 'Create Test')
+            return (<CreateTest classID={this.state.testCreator}
+                                onCreate={() => this.setState({section: 'Manage Classes'})}/>);
+        if (section === 'Build Question')
+            return null;
+        if (section === 'Take Test')
+            return (<TakeTest testID={this.state.test}/>);
+        if (section === 'Preferences')
+            return (<Preferences color={color} changeColor={color => this.setState({color: color})}
+                                 theme={theme} changeTheme={theme => this.setState({theme: theme})}/>);
     }
 
     logout() {
