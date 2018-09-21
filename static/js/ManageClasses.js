@@ -1,13 +1,13 @@
 import React from 'react';
-import Http from "./Http";
-import Card from "@material-ui/core/Card/Card";
-import Grid from "@material-ui/core/Grid/Grid";
+import Http from './Http';
+import Card from '@material-ui/core/Card/Card';
+import Grid from '@material-ui/core/Grid/Grid';
 import List from '@material-ui/core/List/List';
 import Paper from '@material-ui/core/Paper/Paper';
 import Collapse from '@material-ui/core/Collapse/Collapse';
 import ListItem from '@material-ui/core/ListItem/ListItem';
-import CardHeader from "@material-ui/core/CardHeader/CardHeader";
-import IconButton from "@material-ui/core/IconButton/IconButton";
+import CardHeader from '@material-ui/core/CardHeader/CardHeader';
+import IconButton from '@material-ui/core/IconButton/IconButton';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import Stop from '@material-ui/icons/Stop';
@@ -41,8 +41,8 @@ export default class ManageClasses extends React.Component {
                 <Grid container spacing={8} style={{flex: 1, display: 'flex', marginBottom: 0}}>
                     <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
                         <Paper style={{width: '100%', flex: 1, display: 'flex'}}>
-                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}} component="nav"
-                                  subheader={<ListSubheader component="div">My Classes</ListSubheader>}>
+                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}
+                                  component='nav' subheader={<ListSubheader>My Classes</ListSubheader>}>
                                 {this.state.classes.map((x, y) => [
                                     <ListItem button onClick={() => {
                                         let newClassList = JSON.parse(JSON.stringify(this.state.classes));
@@ -56,7 +56,7 @@ export default class ManageClasses extends React.Component {
                                             <ExpandLess color={x.tests.length === 0 ? 'disabled' : 'action'}/> :
                                             <ExpandMore color={x.tests.length === 0 ? 'disabled' : 'action'}/>}
                                     </ListItem>,
-                                    <Collapse in={x.open} timeout="auto" unmountOnExit><List>{
+                                    <Collapse in={x.open} timeout='auto' unmountOnExit><List>{
                                         x.tests.map((a, b) =>
                                             <ListItem button onClick={() => this.setState({c: y, t: b})}>
                                                 <Assessment color={a.open ? 'primary' : 'disabled'} style={{marginLeft: '10px'}}/>
@@ -105,8 +105,8 @@ export default class ManageClasses extends React.Component {
     }
 
     createClass() {
-        let name = prompt("Class Name:");
-        if (name !== null && name !== "") {
+        let name = prompt('Class Name:');
+        if (name !== null && name !== '') {
             Http.createClass(name,
                 () => alert('Class Created! Navigate out of this section and then back to refresh.'),
                 () => alert('Something went wrong :\'('));

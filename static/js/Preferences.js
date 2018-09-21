@@ -1,14 +1,14 @@
 import React from 'react';
-import Avatar from '@material-ui/core/Avatar/Avatar';
+import Http from './Http';
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
     deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors/';
+import Radio from '@material-ui/core/Radio/Radio';
+import Avatar from '@material-ui/core/Avatar/Avatar';
+import RadioGroup from '@material-ui/core/RadioGroup/RadioGroup';
 import Typography from '@material-ui/core/Typography/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
-import RadioGroup from '@material-ui/core/RadioGroup/RadioGroup';
-import Radio from '@material-ui/core/Radio/Radio';
-import Http from "./Http";
 
-class Preferences extends React.Component {
+export default class Preferences extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -56,5 +56,3 @@ class Preferences extends React.Component {
         );
     }
 }
-
-export default Preferences

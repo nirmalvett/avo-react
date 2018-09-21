@@ -1,9 +1,9 @@
 import React from 'react';
-import TextField from "@material-ui/core/TextField/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel/FormControlLabel";
-import Radio from "@material-ui/core/Radio/Radio";
-import {getMathJax, validateMatrix, validateNumber, validateVector} from "./Utilities";
-import Typography from "@material-ui/core/Typography/Typography";
+import {getMathJax, validateMatrix, validateNumber, validateVector} from './Utilities';
+import Radio from '@material-ui/core/Radio/Radio';
+import TextField from '@material-ui/core/TextField/TextField';
+import Typography from '@material-ui/core/Typography/Typography';
+import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
 
 export default class AnswerInput extends React.Component {
     constructor(props) {
@@ -22,10 +22,10 @@ export default class AnswerInput extends React.Component {
         if (this.state.type === '0') {
             return [
                 getMathJax(this.state.prompt),
-                <FormControlLabel disabled={x} value={true} control={<Radio color="action" checked={v === true}/>}
-                                  label="True" onChange={() => this.onChange(true)}/>,
-                <FormControlLabel disabled={x} value={false} control={<Radio color="action" checked={v === false}/>}
-                                  label="False" onChange={() => this.onChange(false)}/>
+                <FormControlLabel disabled={x} value={true} control={<Radio color='action' checked={v === true}/>}
+                                  label='True' onChange={() => this.onChange(true)}/>,
+                <FormControlLabel disabled={x} value={false} control={<Radio color='action' checked={v === false}/>}
+                                  label='False' onChange={() => this.onChange(false)}/>
             ];
         } else if (this.state.type === '1') {
             let p = this.state.prompt.split('—');

@@ -1,6 +1,6 @@
 import React from 'react';
-import Http from "./Http";
-import Logo from "./Logo";
+import Http from './Http';
+import Logo from './Logo';
 import HomePage from './HomePage';
 import TakeTest from './TakeTest';
 import MyClasses from './MyClasses';
@@ -8,7 +8,7 @@ import CreateTest from './CreateTest';
 import Preferences from './Preferences';
 import ManageClasses from './ManageClasses';
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
-import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, lime, amber, orange,
+import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
     deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors/';
 import classNames from 'classnames';
 import {withStyles} from '@material-ui/core/styles';
@@ -78,7 +78,7 @@ class Layout extends React.Component {
     constructor(props) {
         super(props);
         let color = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal,
-            green, lightGreen, lime, orange, deepOrange, brown, grey, blueGrey];
+            green, lightGreen, amber, orange, deepOrange, brown, grey, blueGrey];
         Http.getUserInfo(
             result => {
                 // noinspection RedundantConditionalExpressionJS, JSUnresolvedVariable

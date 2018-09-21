@@ -1,20 +1,20 @@
 import React from 'react';
+import Http from './Http';
+import {getMathJax} from './Utilities';
+import AnswerInput from './AnswerInput';
+import Card from '@material-ui/core/Card/Card';
+import Grid from '@material-ui/core/Grid/Grid';
+import Button from '@material-ui/core/Button/Button';
+import Divider from '@material-ui/core/Divider/Divider';
+import CardHeader from '@material-ui/core/CardHeader/CardHeader';
+import IconButton from '@material-ui/core/IconButton/IconButton';
 import Typography from '@material-ui/core/Typography/Typography';
-import Grid from "@material-ui/core/Grid/Grid";
-import Card from "@material-ui/core/Card/Card";
-import AvoHttp from "./Http";
-import Divider from "@material-ui/core/Divider/Divider";
-import Button from "@material-ui/core/Button/Button";
 import Save from '@material-ui/icons/Save';
-import IconButton from "@material-ui/core/IconButton/IconButton";
-import CardHeader from "@material-ui/core/CardHeader/CardHeader";
-import {getMathJax} from "./Utilities";
-import AnswerInput from "./AnswerInput";
 
 export default class TakeTest extends React.Component {
     constructor(props) {
         super(props);
-        AvoHttp.getTest(this.props.testID, (result) => {
+        Http.getTest(this.props.testID, (result) => {
             this.setState(result);
             }, (result) => alert(result.error));
         this.state = {

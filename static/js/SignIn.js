@@ -1,12 +1,11 @@
 import React from 'react';
-
-import Button from '@material-ui/core/Button/Button';
+import Http from './Http';
+import Logo from './Logo';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
+import Button from '@material-ui/core/Button/Button';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
-import Logo from './Logo';
-import AvoHttp from "./Http";
 
 export default class SignIn extends React.Component {
     constructor(props) {
@@ -91,7 +90,7 @@ export default class SignIn extends React.Component {
     register() {
         let s = this.state;
         if (/^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.rEmail) && s.rPassword1.length >= 8 && s.rPassword2 === s.rPassword1) {
-            AvoHttp.register(s.rFirstName, s.rLastName, s.rEmail, s.rPassword1,
+            Http.register(s.rFirstName, s.rLastName, s.rEmail, s.rPassword1,
                 () => {this.setState({rFirstName: '', rLastName: '', rEmail: '', rPassword1: '', rPassword2: '',
                     username: s.rEmail, password: s.rPassword1})},
                 (result) => {
@@ -108,7 +107,7 @@ export default class SignIn extends React.Component {
 
     // noinspection JSMethodCanBeStatic
     signIn() {
-        AvoHttp.login(this.state.username, this.state.password, () => {
+        Http.login(this.state.username, this.state.password, () => {
             this.props.login(this.state.username, this.state.password);
             }, (result) => {
             alert(result.error)

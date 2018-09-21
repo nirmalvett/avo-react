@@ -1,6 +1,7 @@
 import React from 'react';
 import Http from './Http';
-import {getMathJax} from "./Utilities";
+import {getMathJax} from './Utilities';
+import AnswerInput from './AnswerInput';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import List from '@material-ui/core/List/List';
@@ -21,7 +22,6 @@ import Folder from '@material-ui/icons/Folder';
 import Refresh from '@material-ui/icons/Refresh';
 import LockOpen from '@material-ui/icons/LockOpen';
 import FolderOpen from '@material-ui/icons/FolderOpen';
-import AnswerInput from "./AnswerInput";
 
 
 export default class CreateTest extends React.Component {
