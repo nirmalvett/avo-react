@@ -222,12 +222,10 @@ def create_takes(test, user):
                [test])
     x = db.fetchone()
     if x is None:
-        print(1)
         return
     test_name, test_is_open, test_deadline, test_timer, test_attempts, test_question_list, test_seed_list = x
     db.execute('SELECT count(*) FROM takes WHERE test=? AND user=?', (test, user))
     if test_attempts != -1 and db.fetchone()[0] >= test_attempts:
-        print(2)
         return
     test_question_list = eval(test_question_list)
     seeds = list(map(lambda seed: randint(0, 65536) if seed == -1 else seed, eval(test_seed_list)))
@@ -246,9 +244,7 @@ def create_takes(test, user):
     database.commit()
     db.execute('SELECT takes FROM takes WHERE user=? AND time_started=?', (user, str(time1)))
     takes = db.fetchone()
-    print(takes)
     database.close()
-    print(3)
     return None if takes is None else takes[0]
 
 
