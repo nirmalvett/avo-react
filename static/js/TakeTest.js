@@ -31,7 +31,13 @@ export default class TakeTest extends React.Component {
                 <Grid xs={10} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
                     {this.state.questions.map((x, y) => this.getQuestionCard(x, this.state.answers[y], y))}
                     <div style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px'}}>
-                        <Button color='primary' variant='raised' style={{width: '100%'}}>
+                        <Button color='primary' variant='raised' style={{width: '100%'}} onClick={() => {
+                            Http.submitTest(this.state.takes, result => {
+                                alert('Success!')
+                            }, result => {
+                                alert('Something went wrong')
+                            })
+                        }}>
                             <Typography variant='button'>Submit Test</Typography>
                         </Button>
                     </div>
@@ -45,7 +51,9 @@ export default class TakeTest extends React.Component {
         return (
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
                 <CardHeader title={getMathJax(question.prompt)} action={<IconButton onClick={() => {
-                    Http.saveAnswer(this.state.takes, index, this.state.newAnswers[index]);
+                    Http.saveAnswer(this.state.takes, index, this.state.newAnswers[index], result => {}, result => {
+                        alert(result.error);
+                    });
                 }}><Save/></IconButton>}/>
                 {question.prompts.map((x, y) => [
                     <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,

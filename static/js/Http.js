@@ -88,4 +88,8 @@ export default class Http {
     static saveAnswer(takes, question, answer, success, failure) {
         Http._request('POST', '/saveAnswer', success, failure, {takes: takes, question: question, answer: answer});
     }
+
+    static submitTest(takes, success, failure) {
+        Http._request('POST', '/submitTest', success, failure, {takes: takes});
+    }
 }

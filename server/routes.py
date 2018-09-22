@@ -306,4 +306,20 @@ def save_answer():
     db.execute('UPDATE takes SET grade=?, marks=?, answers=? WHERE takes=?', [grade, str(marks), str(answers), takes])
     database.commit()
     database.close()
-    return jsonify('Changed successfully!')
+    return jsonify(message='Changed successfully!')
+
+
+@login_required
+@routes.route('/submitTest', methods=['POST'])
+def submit_test():
+    if not request.json:
+        return abort(400)
+    data = request.json
+    takes = data['takes']
+    database = connect('avo.db')
+    db = database.cursor()
+    time = time_stamp(datetime.now() - timedelta(seconds=1))
+    db.execute('UPDATE takes SET time_submitted=? WHERE takes=?', (time, takes))
+    database.commit()
+    database.close()
+    return jsonify(message='Submitted successfully!')
