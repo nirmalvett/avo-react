@@ -15,6 +15,7 @@ export default class TakeTest extends React.Component {
     constructor(props) {
         super(props);
         Http.getTest(this.props.testID, (result) => {
+            result.newAnswers = JSON.parse(JSON.stringify(result.answers));
             this.setState(result);
             }, (result) => alert(result.error));
         this.state = {
@@ -28,7 +29,7 @@ export default class TakeTest extends React.Component {
             <Grid container spacing={8}>
                 <Grid xs={1}/>
                 <Grid xs={10} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
-                    {this.state.questions.map((x, y) => this.getQuestionCard(x, this.state.answers[y]))}
+                    {this.state.questions.map((x, y) => this.getQuestionCard(x, this.state.answers[y], y))}
                     <div style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px'}}>
                         <Button color='primary' variant='raised' style={{width: '100%'}}>
                             <Typography variant='button'>Submit Test</Typography>
@@ -40,13 +41,19 @@ export default class TakeTest extends React.Component {
         );
     }
 
-    getQuestionCard(question, answer) {
+    getQuestionCard(question, answer, index) {
         return (
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
-                <CardHeader title={getMathJax(question.prompt)} action={<IconButton><Save/></IconButton>}/>
+                <CardHeader title={getMathJax(question.prompt)} action={<IconButton onClick={() => {
+                    Http.saveAnswer(this.state.takes, index, this.state.newAnswers[index]);
+                }}><Save/></IconButton>}/>
                 {question.prompts.map((x, y) => [
                     <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
-                    <AnswerInput type={question.types[y]} value={answer[y]} prompt={x}/>
+                    <AnswerInput type={question.types[y]} value={answer[y]} prompt={x} onChange={value => {
+                        let newAnswerList = JSON.parse(JSON.stringify(this.state.newAnswers));
+                        newAnswerList[index][y] = value;
+                        this.setState({newAnswers: newAnswerList});
+                    }}/>
                 ])}
             </Card>
         );

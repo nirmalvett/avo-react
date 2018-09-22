@@ -103,6 +103,6 @@ export default class AnswerInput extends React.Component {
     onChange(value) {
         this.setState({value: value});
         console.log(value);
-        // this.props.onChange();
+        this.props.onChange(value);
     }
 }

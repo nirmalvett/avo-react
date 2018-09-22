@@ -136,11 +136,12 @@ class AvoQuestion:
             elif answer_type == '5':  # Polynomial
                 raise NotImplementedError
             elif answer_type == '6':  # Vector
-                ans = matrix(map(lambda r: [build_number(r)], answer))
+                ans = matrix(map(lambda r: [build_number(r)], answer.split(',')))
             elif answer_type == '7':  # Vector of linear expressions
                 ans = build_vector_free_vars(answer)
             elif answer_type == '8':  # Matrix
-                ans = matrix(map(lambda r: map(lambda c: build_number(c), r), answer))
+                array = map(lambda x: x.split(','), answer.split('\n'))
+                ans = matrix(map(lambda r: map(lambda c: build_number(c), r), array))
             elif answer_type == '9':  # Basis
                 # Todo: Fix this on the front end so the list doesn't need to be filtered
                 rows = len(answer[0])
