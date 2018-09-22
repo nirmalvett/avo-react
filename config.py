@@ -2,12 +2,14 @@ from os.path import abspath, dirname, join
 
 _cwd = dirname(abspath(__file__))
 
+# noinspection SpellCheckingInspection
 SECRET_KEY = \
     'f%GXzNNjp?+Cy#SjC^v#&b=GApRPsvtjhAB*XF4AE@@rskTq3-@mHGcR%tWPe6EQZU$VrD6aU3zTYR4eAVb&wxYXsM3^dE!KWQ23a!9EUyeBZU9N' \
     'zQ_?2fnjT=M3*x?FH5vZx+9eXEE!J84RhDEQQMnYRJ=79sw8zVR?uXH5&fS8p=x*!qF#G@phb9A%4yy_zBNSTqd#RVLJx2S@C$^QxMw8bh_KaphT' \
     'qsGHhX9PRa8#j@Wh2X#H8?5PpDUW7y!*Ua24b@Ry6w3Uu%@a&2XASnh%vpzdnKV3PVQ-guuxN2m5useadac9$K6uuwLXranS8p5a_EDz+J*b?acY' \
     'g2pGGSQ8c2mjDw-P@hr$3PJXz_Ha*C=WaPuE26FG9cW!Z9s4-#k2TPS^NJ^MfYzYVggV@3KSdS8kFhhqs6Cewe%Rj%BZ6QgNV!y@kKqGYt6*tL5q' \
     'D=btZdtfU#ch-JCxSM649m+F+gQQJGtC%8nQZvKW3qPA*kPn+QJNDWnzVt62KC*b'
+# noinspection SpellCheckingInspection
 SECURITY_PASSWORD_SALT = \
     'X7%?c-zjB-=cM-yYRuTL4Q3htp7MyhJv*mC+Z9K*!_*xPrNMd3$G=DPYAtcNP#Kqv9h4?!dCRL237zgMgZKHq9BX=pC9UE@6usa5vFymwWmexjvg' \
     'ydVy767R%45g%HaAB?drE^DHdK_=n==?V*%D^W#&nzZ!RWDQxHK%?fCh2=?_=MH!EDftD#v+rcHJy-23wXFfJMt^P=eYt!YzwY%kNQb*j5FW6m5v' \
@@ -19,3 +21,8 @@ SECURITY_PASSWORD_SALT = \
     'G5XwF!xep2C@d8k5&Sv+kcx+&Mqy&QJADaax?cU8m@vy6mNVqAZT&y@=REDtep#h5eMU-WXDG++nJu9-RwbaU=288W9fUrTLMbB8*G=A6w-tgr%H' \
     'PQVVAj8swCr_D?w?Rys%JwSDJz!Gxrw^DZKvwM5ef=Zka-#zSXy_X?rwL5Me694yBA@SFXn#BcjLH*UG*WjgFe*Ya7-@aWCt?xdw=fAA8F=d+dRe' \
     '4Sk-+WGNdbdJW4X!'
+
+# Database URI location on server. One of these needs to be commented out.
+SQLALCHEMY_DATABASE_URI = 'sqlite:///' + join(_cwd, 'avo.db')
+SQLALCHEMY_ECHO = False
+SQLALCHEMY_TRACK_MODIFICATIONS = False

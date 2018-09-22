@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from server.MathCode.question import AvoQuestion
 
 from server import app
+# from server.models import *
 
 
 @login_required
@@ -21,6 +22,8 @@ def change_color():
     database = connect('avo.db')
     db = database.cursor()
     db.execute('UPDATE user SET color=? WHERE user=?', (color, current_user.id))
+    # current_user.color = color
+    # db.session.commit()
     database.commit()
     database.close()
     return jsonify(message='updated')
@@ -278,4 +281,5 @@ def save_test():
 
 
 if __name__ == '__main__':
+    # db.create_all(app=app)
     app.run()
