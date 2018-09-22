@@ -26,3 +26,13 @@ SECURITY_PASSWORD_SALT = \
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + join(_cwd, 'avo.db')
 SQLALCHEMY_ECHO = False
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+#Gzip Settings
+COMPRESS_MIMETYPES = [
+'text/html',
+'text/css',
+'application/json',
+'application/javascript',
+'image/svg'
+]
+

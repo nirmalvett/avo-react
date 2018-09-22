@@ -1,0 +1,15 @@
+Flask==1.0.2
+Flask-Login==0.4.1
+Flask-SQLAlchemy==2.3.2
+flask-emails==0.4
+Flask-Compress==1.4.0
+Jinja2==2.10
+Mail==2.1.0
+SQLAlchemy==1.2.11
+gunicorn==19.9.0
+numpy==1.15.1
+sympy==1.2
+pip==9.0.3
+Flask-Mail==0.9.1
+MarkupSafe==1.0
+
