@@ -33,8 +33,8 @@ class Takes(db.Model):
     __tablename__ = "takes"
 
     TAKES = db.Column(db.Integer, primary_key=True)
-    TEST = db.Column(db.Integer, db.ForeignKey('TEST.TEST', nullable=False))
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER', nullable=False))
+    TEST = db.Column(db.Integer, db.ForeignKey('TEST.TEST'), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
     time_started = db.Column(db.DateTime, nullable=False)
     time_submitted = db.Column(db.DateTime, nullable=False)
     grade = db.Column(db.Float, nullable=False)
