@@ -48,13 +48,18 @@ export default class TakeTest extends React.Component {
     }
 
     getQuestionCard(question, answer, index) {
+        let disabled = JSON.stringify(this.state.newAnswers[index]) === JSON.stringify(this.state.answers[index]);
         return (
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
                 <CardHeader title={getMathJax(question.prompt)} action={<IconButton onClick={() => {
-                    Http.saveAnswer(this.state.takes, index, this.state.newAnswers[index], result => {}, result => {
+                    Http.saveAnswer(this.state.takes, index, this.state.newAnswers[index], result => {
+                        let newAnswers = JSON.parse(JSON.stringify(this.state.answers));
+                        newAnswers[index] = JSON.parse(JSON.stringify(this.state.newAnswers[index]));
+                        this.setState({answers: newAnswers});
+                    }, result => {
                         alert(result.error);
                     });
-                }}><Save/></IconButton>}/>
+                }} disabled={disabled} color={disabled ? 'disabled' : 'primary'}><Save/></IconButton>}/>
                 {question.prompts.map((x, y) => [
                     <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
                     <AnswerInput type={question.types[y]} value={answer[y]} prompt={x} onChange={value => {
