@@ -67,14 +67,23 @@ def get_classes():
                ' on class.class = enrolled.class WHERE enrolled.user=?', (current_user.get_id(),))
     classes += db.fetchall()
     class_list = []
+    time = time_stamp(datetime.now())
     for c in classes:
-        db.execute('SELECT test, name, is_open, deadline, timer, attempts FROM test WHERE class=?',
+        db.execute('SELECT test, name, is_open, deadline, timer, attempts, total FROM test WHERE class=?',
                    (c[0],))
         tests = db.fetchall()
         test_list = []
         for t in tests:
-            test_list.append({'id': t[0], 'name': t[1], 'open': t[2], 'deadline': str(t[3]),
-                              'timer': t[4], 'attempts': t[5]})
+            db.execute('SELECT takes, time_submitted, grade FROM takes WHERE test=? AND user=? AND time_submitted<?',
+                       (t[0], current_user.get_id(), time))
+            submitted = list(map(lambda x: {'takes': x[0], 'timeSubmitted': x[1], 'grade': x[2]}, db.fetchall()))
+            db.execute('SELECT time_started, time_submitted FROM takes WHERE test=? AND user=? AND time_submitted>?',
+                       (t[0], current_user.get_id(), time))
+            current = db.fetchone()
+            if current is not None:
+                current = {'timeStarted': current[0], 'timeSubmitted': current[1]}
+            test_list.append({'id': t[0], 'name': t[1], 'open': t[2], 'deadline': str(t[3]), 'timer': t[4],
+                              'attempts': t[5], 'total': t[6], 'submitted': submitted, 'current': current})
         class_list.append({'id': c[0], 'name': c[1], 'enrollKey': c[2], 'tests': test_list})
     database.close()
     return jsonify(classes=class_list)
@@ -319,3 +328,30 @@ def submit_test():
     database.commit()
     database.close()
     return jsonify(message='Submitted successfully!')
+
+
+@login_required
+@routes.route('/postTest', methods=['POST'])
+def post_test():
+    if not request.json:
+        return abort(400)
+    data = request.json
+    takes = data['takes']
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('SELECT test, grade, marks, answers, seeds FROM takes WHERE takes=?', [takes])
+    takes_list = db.fetchone()
+    if takes_list is None:
+        return jsonify(error='No takes record with that ID')
+    test, grade, marks, answers, seeds = takes_list
+    marks, answers, seeds = eval(marks), eval(answers), eval(seeds)
+    db.execute('SELECT question_list from test WHERE test=?', [test])
+    questions = eval(db.fetchone()[0])
+    question_list = []
+    for i in range(len(questions)):
+        db.execute('SELECT string FROM question WHERE question=?', [questions[i]])
+        q = AvoQuestion(db.fetchone()[0], seeds[i])
+        q.get_score(*answers[i])
+        question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation, 'types': q.types,
+                              'answers': answers[i], 'totals': q.totals, 'scores': q.scores})
+    return jsonify(questions=question_list)
