@@ -1,5 +1,6 @@
 import React from 'react';
 import Http from './Http';
+import {getDateString} from "./Utilities";
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import List from '@material-ui/core/List/List';
@@ -15,12 +16,12 @@ import AddBox from '@material-ui/icons/AddBox';
 import Create from '@material-ui/icons/Create';
 import People from '@material-ui/icons/People';
 import Assessment from '@material-ui/icons/Assessment';
+import Assignment from '@material-ui/icons/Assignment';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
-import AssignmentTurnedIn from '@material-ui/icons/AssignmentTurnedIn';
-import AssignmentLate from '@material-ui/icons/AssignmentLate';
-import Assignment from '@material-ui/icons/Assignment';
 import Description from '@material-ui/icons/Description';
+import AssignmentLate from '@material-ui/icons/AssignmentLate';
+import AssignmentTurnedIn from '@material-ui/icons/AssignmentTurnedIn';
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 
 export default class MyClasses extends React.Component {
@@ -89,7 +90,7 @@ export default class MyClasses extends React.Component {
             let selectedTest = selectedClass.tests[this.state.t];
             return [
                 <CardHeader title={selectedTest.name}/>,
-                <Typography>Deadline: {MyClasses.getDateString(selectedTest.deadline)}</Typography>,
+                <Typography>Deadline: {getDateString(selectedTest.deadline)}</Typography>,
                 <Typography>Time Limit: {selectedTest.timer} minutes</Typography>,
                 <Typography>Attempts: {selectedTest.attempts}</Typography>,
                 <List style={{flex: 1, overflowY: 'auto'}}>
@@ -98,7 +99,7 @@ export default class MyClasses extends React.Component {
                             <ListItem>
                                 <AssignmentTurnedIn color='action'/>
                                 <ListItemText primary={'Attempt ' + (y+1) + ' - ' + x.grade + '/' + selectedTest.total}
-                                              secondary={'Submitted on ' + MyClasses.getDateString(x.timeSubmitted)}/>
+                                              secondary={'Submitted on ' + getDateString(x.timeSubmitted)}/>
                                 <ListItemSecondaryAction><IconButton onClick={() => {this.props.postTest(x.takes)}}>
                                     <Description/>
                                 </IconButton></ListItemSecondaryAction>
@@ -107,7 +108,7 @@ export default class MyClasses extends React.Component {
                             ? <ListItem>
                                 <AssignmentLate color='primary'/>
                                 <ListItemText primary='Current Attempt'
-                                              secondary={'Ends on ' + MyClasses.getDateString(selectedTest.current.timeSubmitted)}/>
+                                              secondary={'Ends on ' + getDateString(selectedTest.current.timeSubmitted)}/>
                                 <ListItemSecondaryAction>
                                     <IconButton onClick={() => this.state.startTest(selectedTest.id)}><Create/></IconButton>
                                 </ListItemSecondaryAction>
@@ -143,15 +144,5 @@ export default class MyClasses extends React.Component {
                     'then back to refresh.'),
                 () => alert('Looks like you entered an invalid key.'));
         }
-    }
-
-    static getDateString(date) {
-        date = date.toString();
-        let hour = parseInt(date.slice(8, 10));
-        let x = hour > 11 ? 'pm' : 'am';
-        hour = ((hour + 11) % 12) + 1;
-        return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
-            'November', 'December'][date.slice(4, 6) - 1] + ' ' + date.slice(6, 8) //+ ', ' + date.slice(0, 4)
-            + ' at ' + hour + ':' + date.slice(10, 12) + x;
     }
 }

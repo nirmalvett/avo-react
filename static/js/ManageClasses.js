@@ -18,8 +18,13 @@ import People from '@material-ui/icons/People';
 import NoteAdd from '@material-ui/icons/NoteAdd';
 import PlayArrow from '@material-ui/icons/PlayArrow';
 import Assessment from '@material-ui/icons/Assessment';
+import Assignment from '@material-ui/icons/Assignment';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import Description from '@material-ui/icons/Description';
+import AssignmentTurnedIn from "@material-ui/icons/AssignmentTurnedIn";
+import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
+import {getDateString} from "./Utilities";
 
 export default class ManageClasses extends React.Component {
     constructor(props) {
@@ -34,7 +39,7 @@ export default class ManageClasses extends React.Component {
     }
 
     render() {
-        let cardStyle = {marginTop: '10%', marginBottom: '10%', padding: '10px', flex: 1};
+        let cardStyle = {marginTop: '10%', marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};
 
         return (
             <div style={{width: '100%', flex: 1, display: 'flex'}}>
@@ -58,7 +63,13 @@ export default class ManageClasses extends React.Component {
                                     </ListItem>,
                                     <Collapse in={x.open} timeout='auto' unmountOnExit><List>{
                                         x.tests.map((a, b) =>
-                                            <ListItem button onClick={() => this.setState({c: y, t: b})}>
+                                            <ListItem button onClick={() => {
+                                                Http.getClassTestResults(this.state.classes[y].tests[b].id, result => {
+                                                    this.setState({c: y, t: b, results: result.results});
+                                                }, () => {
+                                                    this.setState({c: y, t: b, results: []});
+                                                });
+                                            }}>
                                                 <Assessment color={a.open ? 'primary' : 'disabled'} style={{marginLeft: '10px'}}/>
                                                 <ListItemText inset primary={a.name}/>
                                             </ListItem>)
@@ -84,10 +95,27 @@ export default class ManageClasses extends React.Component {
         let selectedClass = this.state.classes[this.state.c];
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
-            return <CardHeader title={selectedTest.name} action={[selectedTest.open
-                ? <IconButton onClick={() => this.closeTest()}><Stop/></IconButton>
-                : <IconButton onClick={() => this.openTest()}><PlayArrow/></IconButton>,
-                <IconButton onClick={() => this.deleteTest()}><Delete/></IconButton>]}/>;
+            return [
+                <CardHeader title={selectedTest.name} action={[selectedTest.open
+                    ? <IconButton onClick={() => this.closeTest()}><Stop/></IconButton>
+                    : <IconButton onClick={() => this.openTest()}><PlayArrow/></IconButton>,
+                    <IconButton onClick={() => this.deleteTest()}><Delete/></IconButton>]}/>,
+                <List style={{flex: 1, overflowY: 'auto'}} dense>
+                    {this.state.results.map((x) => [
+                        <ListSubheader>{x.firstName + ' ' + x.lastName}</ListSubheader>,
+                        x.tests.map(y => (
+                            <ListItem>
+                                <AssignmentTurnedIn color='action'/>
+                                <ListItemText primary={y.grade + '/' + selectedTest.total}
+                                              secondary={'Submitted on ' + getDateString(y.timeSubmitted)}/>
+                                <ListItemSecondaryAction><IconButton onClick={() => {this.props.postTest(y.takes)}}>
+                                    <Description/>
+                                </IconButton></ListItemSecondaryAction>
+                            </ListItem>
+                        ))
+                    ])}
+                </List>
+            ];
         }
         if (this.state.c !== null) {
             return <CardHeader title={selectedClass.name}

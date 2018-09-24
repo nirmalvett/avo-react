@@ -190,3 +190,13 @@ export function validateMatrix(text) {
     }
     return validation.map(row => row.map(cell => cell[0]));
 }
+
+export function getDateString(date) {
+    date = date.toString();
+    let hour = parseInt(date.slice(8, 10));
+    let x = hour > 11 ? 'pm' : 'am';
+    hour = ((hour + 11) % 12) + 1;
+    return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
+        'November', 'December'][date.slice(4, 6) - 1] + ' ' + date.slice(6, 8) //+ ', ' + date.slice(0, 4)
+        + ' at ' + hour + ':' + date.slice(10, 12) + x;
+}
