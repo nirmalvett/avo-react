@@ -5,7 +5,6 @@ from random import SystemRandom, randint
 from string import ascii_letters, digits
 from datetime import datetime, timedelta
 from sqlite3 import connect
-import os
 import sys
 from git import Repo
 
@@ -389,7 +388,7 @@ def shutdown():
     Shuts down the app given and update from Gitlab (updating done externally)
     :return: Exits the system
     """
-    repo = Repo(os.getcwd())
+    repo = Repo(".")
     branch = repo.active_branch
     branch = branch.name
 
