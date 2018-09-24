@@ -389,7 +389,7 @@ def shutdown():
     Shuts down the app given and update from Gitlab (updating done externally)
     :return: Exits the system
     """
-    repo = Repo(os.getcwd)
+    repo = Repo(os.getcwd())
     branch = repo.active_branch
     branch = branch.name
 
