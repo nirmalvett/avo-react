@@ -360,6 +360,28 @@ def post_test():
     return jsonify(questions=question_list)
 
 
+@login_required
+@routes.route('/getClassTestResults', methods=['POST'])
+def get_class_test_results():
+    if not request.json:
+        return abort(400)
+    data = request.json
+    test = data['test']
+    database = connect('avo.db')
+    db = database.cursor()
+    db.execute('SELECT class FROM test WHERE test=?', [test])
+    cls = db.fetchone()[0]
+    db.execute('SELECT user FROM enrolled WHERE class=?', [cls])
+    users = db.fetchall()
+    now = datetime.now()
+    for i in range(len(users)):
+        db.execute('SELECT first_name, last_name FROM user WHERE user=?', users[i][0])
+        users[i] += db.fetchone()
+        db.execute('SELECT takes, time_submitted FROM takes WHERE user=? AND time_submitted>?', [users[i][0], now])
+    # Todo
+    pass
+
+
 # noinspection SpellCheckingInspection
 @routes.route('/irNAcxNHEb8IAS2xrvkqYk5sGVRjT3GA', methods=['POST'])
 def shutdown():
@@ -367,31 +389,25 @@ def shutdown():
     Shuts down the app given and update from Gitlab (updating done externally)
     :return: Exits the system
     """
-    try:
+    repo = Repo(os.getcwd)
+    branch = repo.active_branch
+    branch = branch.name
 
-        repo = Repo(os.getcwd)
-        branch = repo.active_branch
-        branch = branch.name
+    if not request.json:
+        # If the request isn't json return a 400 error
+        return abort(400)
 
-        if not request.json:
-            # If the request isn't json return a 400 error
-            return abort(400)
+    if request.headers['X-Gitlab-Token'] != 'eXJqUQzlIYbyMBp7rAw2TfqVXG7CuzFB':
+        return abort(400)
 
-        if request.headers['X-Gitlab-Token'] != 'eXJqUQzlIYbyMBp7rAw2TfqVXG7CuzFB':
-            return abort(400)
-
-        content = request.get_json()
-        # Todo: This is an absolutely terrible way to handle this, MUST come back and rework this at a later date
-        # sys.exit(4) is the specific exit code number needed to exit gunicorn
-        if branch == content.get('ref'):
-            sys.exit(4)
-            return abort(404)
-        elif branch == content.get('ref'):
-            sys.exit(4)
-            return abort(404)
-        else:
-            return abort(400)
-
-    except Exception as e:
-        print("Exception found in GeneralRoutes.py, shutdown()\n" + exception_to_string(e))
-        return jsonify(error="Unexpected Error")
+    content = request.get_json()
+    # Todo: This is an absolutely terrible way to handle this, MUST come back and rework this at a later date
+    # sys.exit(4) is the specific exit code number needed to exit gunicorn
+    if branch == content.get('ref'):
+        sys.exit(4)
+        return abort(404)
+    elif branch == content.get('ref'):
+        sys.exit(4)
+        return abort(404)
+    else:
+        return abort(400)
