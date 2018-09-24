@@ -401,12 +401,14 @@ def shutdown():
         return abort(400)
 
     content = request.get_json()
+    ref = content.get('ref').split('/')
+    request_branch = ref[len(ref) - 1]
     # Todo: This is an absolutely terrible way to handle this, MUST come back and rework this at a later date
     # sys.exit(4) is the specific exit code number needed to exit gunicorn
-    if branch == content.get('ref'):
+    if branch == request_branch:
         sys.exit(4)
         return abort(404)
-    elif branch == content.get('ref'):
+    elif branch == request_branch:
         sys.exit(4)
         return abort(404)
     else:
