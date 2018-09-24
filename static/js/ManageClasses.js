@@ -34,45 +34,45 @@ export default class ManageClasses extends React.Component {
     }
 
     render() {
-        let cardStyle = {marginTop: '10%', marginBottom: '10%', padding: '10px', flex: 1};
+        let cardStyle = { marginTop: '10%', marginBottom: '10%', padding: '10px', flex: 1 };
 
         return (
-            <div style={{width: '100%', flex: 1, display: 'flex'}}>
-                <Grid container spacing={8} style={{flex: 1, display: 'flex', marginBottom: 0}}>
-                    <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
-                        <Paper style={{width: '100%', flex: 1, display: 'flex'}}>
-                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}
-                                  component='nav' subheader={<ListSubheader>My Classes</ListSubheader>}>
+            <div style={{ width: '100%', flex: 1, display: 'flex' }}>
+                <Grid container spacing={8} style={{ flex: 1, display: 'flex', marginBottom: 0 }}>
+                    <Grid item xs={3} style={{ flex: 1, display: 'flex' }}>
+                        <Paper style={{ width: '100%', flex: 1, display: 'flex' }}>
+                            <List style={{ flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' }}
+                                component='nav' subheader={<ListSubheader>My Classes</ListSubheader>}>
                                 {this.state.classes.map((x, y) => [
                                     <ListItem button onClick={() => {
                                         let newClassList = JSON.parse(JSON.stringify(this.state.classes));
                                         if (newClassList[y].tests.length > 0)
                                             newClassList[y].open = !newClassList[y].open;
-                                        this.setState({classes: newClassList, c: y, t: null});
+                                        this.setState({ classes: newClassList, c: y, t: null });
                                     }}>
-                                        <People color='action'/>
-                                        <ListItemText inset primary={x.name}/>
+                                        <People color='action' />
+                                        <ListItemText inset primary={x.name} />
                                         {x.open ?
-                                            <ExpandLess color={x.tests.length === 0 ? 'disabled' : 'action'}/> :
-                                            <ExpandMore color={x.tests.length === 0 ? 'disabled' : 'action'}/>}
+                                            <ExpandLess color={x.tests.length === 0 ? 'disabled' : 'action'} /> :
+                                            <ExpandMore color={x.tests.length === 0 ? 'disabled' : 'action'} />}
                                     </ListItem>,
                                     <Collapse in={x.open} timeout='auto' unmountOnExit><List>{
                                         x.tests.map((a, b) =>
-                                            <ListItem button onClick={() => this.setState({c: y, t: b})}>
-                                                <Assessment color={a.open ? 'primary' : 'disabled'} style={{marginLeft: '10px'}}/>
-                                                <ListItemText inset primary={a.name}/>
+                                            <ListItem button onClick={() => this.setState({ c: y, t: b })}>
+                                                <Assessment color={a.open ? 'primary' : 'disabled'} style={{ marginLeft: '10px' }} />
+                                                <ListItemText inset primary={a.name} />
                                             </ListItem>)
                                     }</List></Collapse>
                                 ])}
                                 <ListItem button onClick={() => this.createClass()}>
-                                    <AddBox color='action'/>
-                                    <ListItemText inset primary='Create Class'/>
+                                    <AddBox color='action' />
+                                    <ListItemText inset primary='Create Class' />
                                 </ListItem>
                             </List>
                         </Paper>
                     </Grid>
-                    <Grid item xs={2}/>
-                    <Grid item xs={5} style={{display: 'flex'}}>
+                    <Grid item xs={2} />
+                    <Grid item xs={5} style={{ display: 'flex' }}>
                         <Card style={cardStyle}>{this.detailsCard()}</Card>
                     </Grid>
                 </Grid>
@@ -85,21 +85,21 @@ export default class ManageClasses extends React.Component {
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
             return <CardHeader title={selectedTest.name} action={[selectedTest.open
-                ? <IconButton onClick={() => this.closeTest()}><Stop/></IconButton>
-                : <IconButton onClick={() => this.openTest()}><PlayArrow/></IconButton>,
-                <IconButton onClick={() => this.deleteTest()}><Delete/></IconButton>]}/>;
+                ? <IconButton onClick={() => this.closeTest()}><Stop /></IconButton>
+                : <IconButton onClick={() => this.openTest()}><PlayArrow /></IconButton>,
+            <IconButton onClick={() => this.deleteTest()}><Delete /></IconButton>]} />;
         }
         if (this.state.c !== null) {
             return <CardHeader title={selectedClass.name}
-                               subheader={'Enroll Key: ' + selectedClass.enrollKey}
-                               action={[
-                                   <IconButton onClick={() => this.state.createTest(selectedClass.id)}>
-                                       <NoteAdd/>
-                                   </IconButton>,
-                                   <IconButton onClick={() => alert('CSV download coming soon!')}>
-                                       <GetApp/>
-                                   </IconButton>
-                               ]}/>;
+                subheader={'Enroll Key: ' + selectedClass.enrollKey}
+                action={[
+                    <IconButton onClick={() => this.state.createTest(selectedClass.id)}>
+                        <NoteAdd />
+                    </IconButton>,
+                    <IconButton onClick={() => alert('CSV download coming soon!')}>
+                        <GetApp />
+                    </IconButton>
+                ]} />;
         }
         return null;
     }
@@ -118,8 +118,8 @@ export default class ManageClasses extends React.Component {
         let newClasses = JSON.parse(JSON.stringify(this.state.classes));
         Http.openTest(selectedTest.id, () => {
             newClasses[this.state.c].tests[this.state.t].open = true;
-            this.setState({classes: newClasses});
-            }, () => {});
+            this.setState({ classes: newClasses });
+        }, () => { });
     }
 
     closeTest() {
@@ -127,8 +127,8 @@ export default class ManageClasses extends React.Component {
         let newClasses = JSON.parse(JSON.stringify(this.state.classes));
         Http.closeTest(selectedTest.id, () => {
             newClasses[this.state.c].tests[this.state.t].open = false;
-            this.setState({classes: newClasses});
-            }, () => {});
+            this.setState({ classes: newClasses });
+        }, () => { });
     }
 
     deleteTest() {
@@ -138,7 +138,7 @@ export default class ManageClasses extends React.Component {
             newClasses[this.state.c].tests.splice(this.state.t, 1);
             if (newClasses[this.state.c].tests.length === 0)
                 newClasses[this.state.c].open = false;
-            this.setState({classes: newClasses, t: null});
-            }, () => {});
+            this.setState({ classes: newClasses, t: null });
+        }, () => { });
     }
 }
