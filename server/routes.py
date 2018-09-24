@@ -5,6 +5,9 @@ from random import SystemRandom, randint
 from string import ascii_letters, digits
 from datetime import datetime, timedelta
 from sqlite3 import connect
+import os
+import sys
+from git import Repo
 
 routes = Blueprint('routes', __name__)
 
@@ -355,3 +358,40 @@ def post_test():
         question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation, 'types': q.types,
                               'answers': answers[i], 'totals': q.totals, 'scores': q.scores})
     return jsonify(questions=question_list)
+
+
+# noinspection SpellCheckingInspection
+@routes.route('/irNAcxNHEb8IAS2xrvkqYk5sGVRjT3GA', methods=['POST'])
+def shutdown():
+    """
+    Shuts down the app given and update from Gitlab (updating done externally)
+    :return: Exits the system
+    """
+    try:
+
+        repo = Repo(os.getcwd)
+        branch = repo.active_branch
+        branch = branch.name
+
+        if not request.json:
+            # If the request isn't json return a 400 error
+            return abort(400)
+
+        if request.headers['X-Gitlab-Token'] != 'eXJqUQzlIYbyMBp7rAw2TfqVXG7CuzFB':
+            return abort(400)
+
+        content = request.get_json()
+        # Todo: This is an absolutely terrible way to handle this, MUST come back and rework this at a later date
+        # sys.exit(4) is the specific exit code number needed to exit gunicorn
+        if branch == content.get('ref'):
+            sys.exit(4)
+            return abort(404)
+        elif branch == content.get('ref'):
+            sys.exit(4)
+            return abort(404)
+        else:
+            return abort(400)
+
+    except Exception as e:
+        print("Exception found in GeneralRoutes.py, shutdown()\n" + exception_to_string(e))
+        return jsonify(error="Unexpected Error")
