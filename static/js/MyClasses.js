@@ -17,6 +17,12 @@ import People from '@material-ui/icons/People';
 import Assessment from '@material-ui/icons/Assessment';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import AssignmentTurnedIn from '@material-ui/icons/AssignmentTurnedIn';
+import AssignmentLate from '@material-ui/icons/AssignmentLate';
+import Assignment from '@material-ui/icons/Assignment';
+import Description from '@material-ui/icons/Description';
+import Button from "@material-ui/core/Button/Button";
+import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 
 export default class MyClasses extends React.Component {
     constructor(props) {
@@ -88,7 +94,34 @@ export default class MyClasses extends React.Component {
                 }/>,
                 <Typography>Deadline: {MyClasses.getDateString(selectedTest.deadline)}</Typography>,
                 <Typography>Time Limit: {selectedTest.timer} minutes</Typography>,
-
+                <Typography>Attempts: {selectedTest.attempts}</Typography>,
+                <Button onClick={() => this.props.postTest(1)}>Post Test</Button>,
+                <List>
+                    {[
+                        selectedTest.submitted.map(x => (
+                            <ListItem>
+                                <AssignmentTurnedIn color='action'/><ListItemText primary={x.timeSubmitted}/>
+                                <ListItemSecondaryAction><IconButton onClick={() => {this.props.postTest(x.takes)}}>
+                                    <Description/>
+                                </IconButton></ListItemSecondaryAction>
+                            </ListItem>)),
+                        selectedTest.current !== null
+                            ? <ListItem>
+                                <AssignmentLate color='primary'/>
+                                <ListItemText primary='Current Attempt'
+                                              secondary={'Ends on ' + MyClasses.getDateString(selectedTest.current.timeSubmitted)}/>
+                                <ListItemSecondaryAction>
+                                    <IconButton onClick={() => this.state.startTest(selectedTest.id)}><Create/></IconButton>
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                            : <ListItem>
+                                <Assignment color='action'/><ListItemText primary='Start Test'/>
+                                <ListItemSecondaryAction>
+                                    <IconButton onClick={() => this.state.startTest(selectedTest.id)}><Create/></IconButton>
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                    ]}
+                </List>
             ];
         }
         if (this.state.c !== null) {
@@ -108,6 +141,7 @@ export default class MyClasses extends React.Component {
     }
 
     static getDateString(date) {
+        date = date.toString();
         let hour = parseInt(date.slice(8, 10));
         let x = hour > 11 ? 'pm' : 'am';
         hour = ((hour + 11) % 12) + 1;

@@ -2,6 +2,7 @@ import React from 'react';
 import Http from './Http';
 import Logo from './Logo';
 import HomePage from './HomePage';
+import PostTest from './PostTest';
 import TakeTest from './TakeTest';
 import MyClasses from './MyClasses';
 import CreateTest from './CreateTest';
@@ -98,7 +99,8 @@ class Layout extends React.Component {
             open: true,
             color: color[9],
             theme: 'dark',
-            testCreator: null
+            testCreator: null,
+            postTest: null,
         };
     }
 
@@ -176,7 +178,8 @@ class Layout extends React.Component {
         if (section === 'Home')
             return (<HomePage/>);
         if (section === 'My Classes')
-            return (<MyClasses startTest={cls => this.startTest(cls)}/>);
+            return (<MyClasses startTest={cls => this.startTest(cls)}
+                               postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Manage Classes')
             return (<ManageClasses createTest={cls => this.startCreateTest(cls)}/>);
         if (section === 'Create Test')
@@ -189,6 +192,8 @@ class Layout extends React.Component {
         if (section === 'Preferences')
             return (<Preferences color={color} changeColor={color => this.setState({color: color})}
                                  theme={theme} changeTheme={theme => this.setState({theme: theme})}/>);
+        if (section === 'Post Test')
+            return <PostTest takes={this.state.postTest}/>
     }
 
     logout() {
