@@ -97,11 +97,11 @@ def login():
     user = db.fetchone()
     database.close()
     if user is None:
-        return jsonify(error='Account does not exist')
+        return jsonify(error='Account does not exist!')
     elif user[1] != sha512(user[2].encode() + password.encode()).hexdigest():
-        return jsonify(error='Password is incorrect')
+        return jsonify(error='Password is incorrect!')
     elif user[3] == 0:
-        return jsonify(error='Account has not been confirmed')
+        return jsonify(error='Account has not been confirmed!')
     else:
         login_user(User(user[0]))
         return jsonify(message='Successfully logged in')
@@ -125,7 +125,7 @@ def get_user_info():
     user = db.fetchone()
     database.close()
     if user is None:
-        return jsonify(error='User does not exist')
+        return jsonify(error='User does not exist!')
     return jsonify(first_name=user[0], last_name=user[1], is_teacher=bool(user[2]),
                    is_admin=bool(user[3]), color=user[4], theme=user[5])
 

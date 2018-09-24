@@ -21,6 +21,7 @@ export default class SignIn extends React.Component {
             rPassword2: '',
             username: this.props.username,
             password: this.props.password,
+            signInError: ''
         };
     }
 
@@ -120,7 +121,7 @@ export default class SignIn extends React.Component {
                         </React.Fragment>
                     ) : (
                         <React.Fragment>
-                            {/* <div className="avo-mascot">
+                            <div className="avo-mascot">
                                 <section className="move-area">
                                     <div className='eye-brow left'></div>
                                     <div className='eye-brow right'></div>
@@ -128,7 +129,7 @@ export default class SignIn extends React.Component {
                                     <div className='eye'></div>
                                     <div className='mouth'></div>
                                 </section>
-                            </div> */}
+                            </div>
                             <Typography variant='headline'>
                                 Sign In
                             </Typography>
@@ -151,21 +152,53 @@ export default class SignIn extends React.Component {
                                     value={this.state.password} error={passwordError}
                                 />
                                 <br/>
+                                <Typography variant='caption' className='avo-styles__error'>
+                                    {this.state.signInError}
+                                </Typography>
                                 <br/>
                                 <Button 
+                                    id='avo-signin__button'
                                     color='primary' 
-                                    className="avo-button" 
-                                    onClick={() => this.forgotPassword()}>
-                                    Forgot Password
-                                </Button>
-                                <Button 
-                                    color='primary' 
-                                    className="avo-button" 
-                                    onClick={() => 
-                                    this.signIn()}>
+                                    className="avo-button avo-styles__float-right" 
+                                    onClick={() => this.signIn()}>
                                     Sign In
                                 </Button>
                             </form>
+                            <br/>
+                            <br/>
+                            <Typography variant='caption' className='avo-styles__text-center'>
+                                {'If you forgot your password click '}
+                                <a 
+                                    id="forgot-password__button"
+                                    className="avo-styles__link">
+                                    here.
+                                </a>                     
+                            </Typography>
+                            <AVOModal 
+                                title='Forgot your password?'
+                                target="forgot-password__button"
+                                acceptText='Send It'
+                                declineText='Nevermind'
+                                onAccept={() => {}}
+                                onDecline={() => {}}
+                            >
+                                <React.Fragment>
+                                    <br/>
+                                    <Typography variant='body'>
+                                        That's Ok! Just enter in your associated <b>Email</b> & we'll send you an email with instructions on how to change it!
+                                    </Typography>
+                                    <TextField 
+                                        margin='normal' 
+                                        style={{ width: '60%' }} 
+                                        label='UWO Email' 
+                                        onChange={updateEmail}
+                                        value={this.state.rEmail} 
+                                        error={emailError}
+                                        />
+                                    <br/>
+                                    <br/>
+                                </React.Fragment>   
+                            </AVOModal>
                         </React.Fragment>
                     )} 
                     <br/>
@@ -174,6 +207,7 @@ export default class SignIn extends React.Component {
                         <Typography variant='caption'>
                             {this.state.isSigningIn ? 'Don\'t have an Account? Click ' : 'Already have an Account? Click '}   
                             <a 
+                                id="switchRegistration"
                                 className="avo-styles__link"
                                 onClick={() => this.setState({ isSigningIn : !this.state.isSigningIn })}
                                 >
@@ -211,7 +245,7 @@ export default class SignIn extends React.Component {
         Http.login(this.state.username, this.state.password, () => {
             this.props.login(this.state.username, this.state.password);
             }, (result) => {
-            alert(result.error)
+                this.setState({ signInError : result.error });
             }
         );
     };
@@ -282,5 +316,122 @@ export default class SignIn extends React.Component {
             30.  To protect personal Information, users, educators and institutions are urged to: (a) protect and nevershare their passwords; (b) only access the services using secure networks; (c) maintain updatedinternet security and virus protection software on their devices and computer systems; (d)immediately change a password and contact AvocadoCore support if there is a suspicion that thepassword has been compromised; and (e) contact AvocadoCore support if there is another security orprivacy concern or issue.
             </p>
         );
+    };
+    
+    componentDidMount() {
+        this.initMascot();
+    };
+
+    componentDidUpdate() {
+        if(this.state.isSigningIn) {
+            this.initMascot();
+        };
+    };
+
+    initMascot() {
+        const eye_0 = document.getElementsByClassName('eye')[0];
+        const eye_1 = document.getElementsByClassName('eye')[1];
+        const browL = document.getElementsByClassName('eye-brow')[0];
+        const browR = document.getElementsByClassName('eye-brow')[1];
+        const mouth = document.getElementsByClassName('mouth')[0];
+        const _this = this;
+        document.addEventListener("mousemove", function (event) {
+            var x = event.pageX - 40;
+            var y = event.pageY - 40;
+            var offsets = eye_0.getBoundingClientRect();
+            var left = (offsets.left - x)
+            var top = (offsets.top - y)
+            var rad = Math.atan2(top, left);
+            var deg = rad * (180 / Math.PI) - 90;
+            document.getElementById('avo-signin__button').addEventListener('mouseover', () => {
+                _this.mascotIntriguedExpressionCOM(eye_0, eye_1, mouth, browL, browR);
+            });
+            document.getElementById('avo-signin__button').addEventListener('mouseleave', () => {
+                _this.mascotIntriguedExpressionDECOM(eye_0, eye_1, mouth, browL, browR);
+            });
+            document.getElementById('switchRegistration').addEventListener('mouseover', () => {
+                _this.mascotShockedExpressionCOM(eye_0, eye_1, mouth, browL, browR);
+            });
+            document.getElementById('switchRegistration').addEventListener('mouseleave', () => {
+                _this.mascotShockedExpressionDECOM(eye_0, eye_1, mouth, browL, browR);
+            });
+            document.getElementById('forgot-password__button').addEventListener('mouseover', () => {
+                _this.mascotUpsetExpressionCOM(eye_0, eye_1, mouth, browL, browR);
+            });
+            document.getElementById('forgot-password__button').addEventListener('mouseleave', () => {
+                _this.mascotUpsetExpressionDECOM(eye_0, eye_1, mouth, browL, browR);
+            });
+            eye_0.style.webkitTransform = "rotate(" + deg + "deg)";
+            eye_1.style.webkitTransform = "rotate(" + deg + "deg)";
+        });
+    };
+
+    mascotUpsetExpressionCOM(eye_0, eye_1, mouth, browL, browR) {
+        mouth.style.setProperty('--avo-mouth-height', '-30px');
+        mouth.style.setProperty('--avo-mouth-bordr', 'transparent transparent #000 transparent');
+        mouth.style.setProperty('--avo-mouth-bgcol', 'rgba(0, 0, 0, 0)');
+        browR.style.setProperty('--avo-eyebrow-height', '-10px');
+        browR.style.setProperty('--avo-eyebrow-angle', '15deg');
+        browL.style.setProperty('--avo-eyebrow-height', '-10px');
+        browL.style.setProperty('--avo-eyebrow-angle', '15deg');
+    };
+
+    mascotUpsetExpressionDECOM(eye_0, eye_1, mouth, browL, browR) {
+        mouth.style.setProperty('--avo-mouth-height', '30px');
+        mouth.style.setProperty('--avo-mouth-bordr', 'transparent transparent #000 transparent');
+        mouth.style.setProperty('--avo-mouth-bgcol', 'rgba(0, 0, 0, 0)');
+        mouth.style.setProperty('--avo-mouth-bgcol', 'rgba(0, 0, 0, 0)');
+        browL.style.setProperty('--avo-eyebrow-height', '-4px');
+        browL.style.setProperty('--avo-eyebrow-angle', '10deg');
+        browR.style.setProperty('--avo-eyebrow-height', '-4px');
+        browR.style.setProperty('--avo-eyebrow-angle', '10deg');
+    };
+
+    mascotIntriguedExpressionCOM(eye_0, eye_1, mouth, browL, browR) {
+        mouth.style.setProperty('--avo-mouth-width', '10px');
+        mouth.style.setProperty('--avo-mouth-height', '10px');
+        mouth.style.setProperty('--avo-mouth-oleft', '24px');
+        mouth.style.setProperty('--avo-mouth-bordr', 'transparent');
+        mouth.style.setProperty('--avo-mouth-bgcol', 'black');
+        browR.style.setProperty('--avo-eyebrow-height', '-8px');
+        browR.style.setProperty('--avo-eyebrow-angle', '15deg');
+    };
+
+    mascotIntriguedExpressionDECOM(eye_0, eye_1, mouth, browL, browR) {
+        mouth.style.setProperty('--avo-mouth-width', '66px');
+        mouth.style.setProperty('--avo-mouth-height', '30px');
+        mouth.style.setProperty('--avo-mouth-oleft', '0px');
+        mouth.style.setProperty('--avo-mouth-bordr', 'transparent transparent #000 transparent');
+        mouth.style.setProperty('--avo-mouth-bgcol', 'rgba(0, 0, 0, 0)');
+        browR.style.setProperty('--avo-eyebrow-height', '-4px');
+        browR.style.setProperty('--avo-eyebrow-angle', '10deg');
+    };
+
+    mascotShockedExpressionCOM(eye_0, eye_1, mouth, browL, browR) {
+        eye_0.style.setProperty('--avo-pupil-size', '13px');
+        eye_1.style.setProperty('--avo-pupil-size', '13px');
+        mouth.style.setProperty('--avo-mouth-width', '15px');
+        mouth.style.setProperty('--avo-mouth-height', '15px');
+        mouth.style.setProperty('--avo-mouth-oleft', '24px');
+        mouth.style.setProperty('--avo-mouth-bordr', 'transparent');
+        mouth.style.setProperty('--avo-mouth-bgcol', 'black');
+        browL.style.setProperty('--avo-eyebrow-height', '-10px');
+        browL.style.setProperty('--avo-eyebrow-angle', '15deg');
+        browR.style.setProperty('--avo-eyebrow-height', '-10px');
+        browR.style.setProperty('--avo-eyebrow-angle', '15deg');
+    };
+
+    mascotShockedExpressionDECOM(eye_0, eye_1, mouth, browL, browR) {
+        eye_0.style.setProperty('--avo-pupil-size', '11px');
+        eye_1.style.setProperty('--avo-pupil-size', '11px');
+        mouth.style.setProperty('--avo-mouth-width', '66px');
+        mouth.style.setProperty('--avo-mouth-height', '30px');
+        mouth.style.setProperty('--avo-mouth-oleft', '0px');
+        mouth.style.setProperty('--avo-mouth-bordr', 'transparent transparent #000 transparent');
+        mouth.style.setProperty('--avo-mouth-bgcol', 'rgba(0, 0, 0, 0)');
+        browL.style.setProperty('--avo-eyebrow-height', '-4px');
+        browL.style.setProperty('--avo-eyebrow-angle', '10deg');
+        browR.style.setProperty('--avo-eyebrow-height', '-4px');
+        browR.style.setProperty('--avo-eyebrow-angle', '10deg');
     };
 };

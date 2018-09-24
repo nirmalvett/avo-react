@@ -44,7 +44,7 @@ export default class AVOModal extends React.Component {
                     className='avo-button' 
                     onClick={() => {
                         this.props.onDecline();
-                        this.setState({ isOpen : false });
+                        this.closeModal();
                     }}
                 >
                     {this.props.declineText}
@@ -54,12 +54,19 @@ export default class AVOModal extends React.Component {
                     className='avo-button' 
                     onClick={() => {
                         this.props.onAccept();
-                        this.setState({ isOpen : false });
+                        this.closeModal();
                     }}
                 >
                     {this.props.acceptText}
                 </Button>            
             </footer>
         );
+    };
+
+    closeModal() {
+        this.setState({ hasLoaded : false });
+        setTimeout(() => {
+            this.setState({ isOpen : false });
+        }, 550);
     };
 };
