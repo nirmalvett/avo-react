@@ -181,7 +181,8 @@ class Layout extends React.Component {
             return (<MyClasses startTest={cls => this.startTest(cls)}
                                postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Manage Classes')
-            return (<ManageClasses createTest={cls => this.startCreateTest(cls)}/>);
+            return (<ManageClasses createTest={cls => this.startCreateTest(cls)}
+                                   postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Create Test')
             return (<CreateTest classID={this.state.testCreator}
                                 onCreate={() => this.setState({section: 'Manage Classes'})}/>);

@@ -371,14 +371,15 @@ def get_class_test_results():
     db.execute('SELECT class FROM test WHERE test=?', [test])
     cls = db.fetchone()[0]
     db.execute('SELECT user FROM enrolled WHERE class=?', [cls])
-    users = db.fetchall()
+    users = list(map(lambda x: x[0], db.fetchall()))
     now = datetime.now()
     for i in range(len(users)):
-        db.execute('SELECT first_name, last_name FROM user WHERE user=?', users[i][0])
-        users[i] += db.fetchone()
-        db.execute('SELECT takes, time_submitted FROM takes WHERE user=? AND time_submitted>?', [users[i][0], now])
-    # Todo
-    pass
+        db.execute('SELECT first_name, last_name FROM user WHERE user=?', [users[i]])
+        names = db.fetchone()
+        db.execute('SELECT takes, time_submitted, grade FROM takes WHERE user=? AND time_submitted<?', [users[i], now])
+        users[i] = {'user': users[i], 'firstName': names[0], 'lastName': names[1],
+                    'tests': list(map(lambda x: {'takes': x[0], 'timeSubmitted': x[1], 'grade': x[2]}, db.fetchall()))}
+    return jsonify(results=users)
 
 
 # noinspection SpellCheckingInspection

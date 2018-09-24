@@ -96,4 +96,8 @@ export default class Http {
     static postTest(takes, success, failure) {
         Http._request('POST', '/postTest', success, failure, {takes: takes});
     }
+
+    static getClassTestResults(test, success, failure) {
+        Http._request('POST', '/getClassTestResults', success, failure, {test: test});
+    }
 }
