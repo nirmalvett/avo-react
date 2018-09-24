@@ -21,7 +21,6 @@ import AssignmentTurnedIn from '@material-ui/icons/AssignmentTurnedIn';
 import AssignmentLate from '@material-ui/icons/AssignmentLate';
 import Assignment from '@material-ui/icons/Assignment';
 import Description from '@material-ui/icons/Description';
-import Button from "@material-ui/core/Button/Button";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 
 export default class MyClasses extends React.Component {
@@ -37,8 +36,6 @@ export default class MyClasses extends React.Component {
     }
 
     render() {
-        let cardStyle = {marginTop: '10%', marginBottom: '10%', padding: '10px', flex: 1};
-
         return (
             <div style={{width: '100%', flex: 1, display: 'flex'}}>
                 <Grid container spacing={8} style={{flex: 1, display: 'flex', marginBottom: 0}}>
@@ -76,7 +73,10 @@ export default class MyClasses extends React.Component {
                     </Grid>
                     <Grid item xs={2}/>
                     <Grid item xs={5} style={{display: 'flex'}}>
-                        <Card style={cardStyle}>{this.detailsCard()}</Card>
+                        <Card style={{marginTop: '10%', marginBottom: '10%', padding: '10px', flex: 1,
+                            display: 'flex', flexDirection: 'column'}}>
+                            {this.detailsCard()}
+                            </Card>
                     </Grid>
                 </Grid>
             </div>
@@ -88,19 +88,17 @@ export default class MyClasses extends React.Component {
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
             return [
-                <CardHeader title={selectedTest.name} action={
-                    <IconButton disabled={!selectedTest.open} onClick={() => this.state.startTest(selectedTest.id)}>
-                        <Create/></IconButton>
-                }/>,
+                <CardHeader title={selectedTest.name}/>,
                 <Typography>Deadline: {MyClasses.getDateString(selectedTest.deadline)}</Typography>,
                 <Typography>Time Limit: {selectedTest.timer} minutes</Typography>,
                 <Typography>Attempts: {selectedTest.attempts}</Typography>,
-                <Button onClick={() => this.props.postTest(1)}>Post Test</Button>,
-                <List>
+                <List style={{flex: 1, overflowY: 'auto'}}>
                     {[
-                        selectedTest.submitted.map(x => (
+                        selectedTest.submitted.map((x, y) => (
                             <ListItem>
-                                <AssignmentTurnedIn color='action'/><ListItemText primary={x.timeSubmitted}/>
+                                <AssignmentTurnedIn color='action'/>
+                                <ListItemText primary={'Attempt ' + (y+1) + ' - ' + x.grade + '/' + selectedTest.total}
+                                              secondary={'Submitted on ' + MyClasses.getDateString(x.timeSubmitted)}/>
                                 <ListItemSecondaryAction><IconButton onClick={() => {this.props.postTest(x.takes)}}>
                                     <Description/>
                                 </IconButton></ListItemSecondaryAction>
@@ -114,11 +112,18 @@ export default class MyClasses extends React.Component {
                                     <IconButton onClick={() => this.state.startTest(selectedTest.id)}><Create/></IconButton>
                                 </ListItemSecondaryAction>
                             </ListItem>
-                            : <ListItem>
+                            : selectedTest.attempts > selectedTest.submitted.length
+                            ? <ListItem>
                                 <Assignment color='action'/><ListItemText primary='Start Test'/>
                                 <ListItemSecondaryAction>
                                     <IconButton onClick={() => this.state.startTest(selectedTest.id)}><Create/></IconButton>
                                 </ListItemSecondaryAction>
+                            </ListItem>
+                            : <ListItem disabled>
+                                <Assignment color='disabled'/><ListItemText primary='No attempts left'/>
+                                <ListItemSecondaryAction><IconButton disabled>
+                                    <Create color='disabled'/>
+                                </IconButton></ListItemSecondaryAction>
                             </ListItem>
                     ]}
                 </List>
@@ -146,7 +151,7 @@ export default class MyClasses extends React.Component {
         let x = hour > 11 ? 'pm' : 'am';
         hour = ((hour + 11) % 12) + 1;
         return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
-            'November', 'December'][date.slice(4, 6) - 1] + ' ' + date.slice(6, 8) + ', ' + date.slice(0, 4)
+            'November', 'December'][date.slice(4, 6) - 1] + ' ' + date.slice(6, 8) //+ ', ' + date.slice(0, 4)
             + ' at ' + hour + ':' + date.slice(10, 12) + x;
     }
 }
