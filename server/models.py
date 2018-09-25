@@ -10,25 +10,17 @@ enrolled = db.Table(
 )
 
 
-user_views_set = db.Table(
-    'user_views_set',
-    db.metadata,
-    db.Column('USER', db.Integer, db.ForeignKey("USER.USER"), nullable=False),
-    db.Column('SET', db.Integer, db.ForeignKey("SET.SET"), nullable=False),
-    db.Column('can_edit', db.Boolean, default=False, nullable=False)
-)
-
-
 class Class(db.Model):
-    __tablename__ = 'CLASS'
+    __tablename__ = "CLASS"
 
     CLASS = db.Column(db.Integer, primary_key=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
     name = db.Column(db.String, nullable=False)
     enroll_key = db.Column(db.String, nullable=False)
 
-    USER_RELATION = db.relationship('User', secondary=enrolled, back_populates='CLASS')
-    TEST_RELATION = db.relationship('Test', back_populates='CLASS')
+    USER_RELATION = db.relationship("User", back_populates="CLASS_RELATION")
+    USER_ENROLLED_RELATION = db.relationship("User", secondary=enrolled, back_populates="CLASS_ENROLLED_RELATION")
+    TEST_RELATION = db.relationship("Test", back_populates="CLASS_RELATION")
 
     # noinspection PyPep8Naming
     def __init__(self, USER, name, enroll_key):
@@ -44,8 +36,8 @@ class Takes(db.Model):
     __tablename__ = "takes"
 
     TAKES = db.Column(db.Integer, primary_key=True)
-    TEST = db.Column(db.Integer, db.ForeignKey('TEST.TEST'), nullable=False)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    TEST = db.Column(db.Integer, db.ForeignKey("TEST.TEST"), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
     time_started = db.Column(db.Integer, nullable=False)
     time_submitted = db.Column(db.Integer, nullable=False)
     grade = db.Column(db.Float, nullable=False)
@@ -53,8 +45,8 @@ class Takes(db.Model):
     answers = db.Column(db.String, nullable=False)
     seeds = db.Column(db.String, nullable=False)
 
-    TEST_RELATION = db.relationship('Test', back_populates='takes')
-    USER_RELATION = db.relationship('User', back_populates='takes')
+    TEST_RELATION = db.relationship("Test", back_populates="TAKES_RELATION")
+    USER_RELATION = db.relationship("User", back_populates="TAKES_RELATION")
 
     def __init__(self, TEST, USER, time_started, time_submitted, grade, marks, answers, seeds):
         self.TEST = TEST
@@ -72,7 +64,7 @@ class Takes(db.Model):
 
 
 class User(UserMixin, db.Model):
-    __tablename__ = 'USER'
+    __tablename__ = "USER"
 
     USER = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String, unique=True, nullable=False)
@@ -86,9 +78,10 @@ class User(UserMixin, db.Model):
     color = db.Column(db.Integer, nullable=False, default=9)
     theme = db.Column(db.Boolean, nullable=False, default=False)
 
-    CLASS_RELATION = db.relationship('Class', secondary=enrolled, back_populates='USER')
-    TAKES_RELATION = db.relationship('Takes', back_populates='USER')
-    USER_VIEWS_SET_RELATION = db.relationship('user_views_set', back_populates='USER')
+    CLASS_RELATION = db.relationship("Class", back_populates="USER_RELATION")
+    CLASS_ENROLLED_RELATION = db.relationship("Class", secondary=enrolled, back_populates="USER_RELATION")
+    TAKES_RELATION = db.relationship("Takes", back_populates="USER_RELATION")
+    USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
 
     # noinspection PyPep8Naming
     def __init__(self, email, first_name, last_name, password, salt, confirmed, is_teacher, is_admin, color, theme):
@@ -109,16 +102,16 @@ class User(UserMixin, db.Model):
 
 
 class Question(db.Model):
-    __tablename__ = 'QUESTION'
+    __tablename__ = "QUESTION"
 
     QUESTION = db.Column(db.Integer, primary_key=True)
-    SET = db.Column(db.Integer, db.ForeignKey('SET.SET'), nullable=False)
+    SET = db.Column(db.Integer, db.ForeignKey("SET.SET"), nullable=False)
     name = db.Column(db.String, nullable=False)
     string = db.Column(db.String, nullable=False)
     answers = db.Column(db.Integer, nullable=False)
     total = db.Column(db.Integer, nullable=False)
 
-    SET_RELATION = db.relationship('Set', back_populates='QUESTION')
+    SET_RELATION = db.relationship("Set", back_populates="QUESTION_RELATION")
 
     def __init__(self, SET, name, string, answers, total):
         self.SET = SET
@@ -137,8 +130,8 @@ class Set(db.Model):
     SET = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
 
-    QUESTION_RELATION = db.relationship('Question', back_populates='SET')
-    USER_VIEWS_SET_RELATION = db.relationship('user_views_set', back_populates='SET')
+    QUESTION_RELATION = db.relationship("Question", back_populates="SET_RELATION")
+    USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="SET_RELATION")
 
     def __init__(self, name):
         self.name = name
@@ -161,8 +154,8 @@ class Test(db.Model):
     seed_list = db.Column(db.String, nullable=False)
     total = db.Column(db.Integer, nullable=False)
 
-    TAKES_RELATION = db.relationship('Takes', back_populates='TEST')
-    CLASS_RELATION = db.relationship('Class', back_populates='TEST')
+    TAKES_RELATION = db.relationship("Takes", back_populates="TEST_RELATION")
+    CLASS_RELATION = db.relationship("Class", back_populates="TEST_RELATION")
 
     def __init__(self, CLASS, name, is_open, deadline, timer, attempts, question_list, seed_list, total):
         self.CLASS = CLASS
@@ -178,3 +171,23 @@ class Test(db.Model):
     def __repr__(self):
         return f'<Test {self.TEST} {self.CLASS} {self.name} {self.is_open} ' \
                f'{self.deadline} {self.timer} {self.attempts} {self.question_list} {self.seed_list} {self.total}>'
+
+
+class UserViewsSet(db.Model):
+    __tablename__ = "user_views_set"
+
+    USER_VIEWS_SET = db.Column(db.Integer, primary_key=True)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    SET = db.Column(db.Integer, db.ForeignKey("SET.SET"), nullable=False)
+    can_edit = db.Column(db.Boolean, default=False, nullable=False)
+
+    USER_RELATION = db.relationship("User", back_populates="USER_VIEWS_SET_RELATION")
+    SET_RELATION = db.relationship("Set", back_populates="USER_VIEWS_SET_RELATION")
+
+    def __init__(self, USER, SET, can_edit):
+        self.USER = USER
+        self.SET = SET
+        self.can_edit = can_edit
+
+    def __repr__(self):
+        return  f'UserViewsSet {self.USER_VIEWS_SET} {self.USER} {self.SET} {self.can_edit}'
