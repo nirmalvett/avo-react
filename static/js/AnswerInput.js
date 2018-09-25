@@ -28,7 +28,7 @@ export default class AnswerInput extends React.Component {
                                   label='False' onChange={() => this.onChange(false)}/>
             ];
         } else if (this.state.type === '1') {
-            let p = this.state.prompt.split('—');
+            let p = this.state.prompt.replace('不都', 'None of the above').replace('都', 'All of the above').split('—');
             return [
                 getMathJax(p[0])].concat(p.slice(1).map((x, y) => [
                     <FormControlLabel control={<Radio color='action' checked={v === y}/>} label={getMathJax(x)}
