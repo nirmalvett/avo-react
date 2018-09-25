@@ -1,6 +1,8 @@
 from server.data import db
 from flask_login import UserMixin
 
+from server.Encoding.PasswordHash import generate_salt, hash_password
+
 
 enrolled = db.Table(
     'enrolled',
@@ -84,12 +86,12 @@ class User(UserMixin, db.Model):
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
 
     # noinspection PyPep8Naming
-    def __init__(self, email, first_name, last_name, password, salt, confirmed, is_teacher, is_admin, color, theme):
+    def __init__(self, email, first_name, last_name, password, confirmed, is_teacher, is_admin, color, theme):
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
-        self.password = password  # todo
-        self.salt = salt  # todo
+        self.salt = generate_salt()
+        self.password = hash_password(password, self.salt)  # todo
         self.confirmed = confirmed
         self.is_teacher = is_teacher
         self.is_admin = is_admin
@@ -100,6 +102,8 @@ class User(UserMixin, db.Model):
         return f'<User {self.email} {self.first_name} {self.last_name} {self.password} {self.salt} {self.confirmed} ' \
                f'{self.is_teacher} {self.is_admin} {self.color} {self.theme}>'
 
+    def get_id(self):
+        return self.USER
 
 class Question(db.Model):
     __tablename__ = "QUESTION"

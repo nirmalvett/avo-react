@@ -1,5 +1,6 @@
 from flask import Blueprint, abort, jsonify, request, render_template
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from sqlalchemy.orm.exc import NoResultFound
 from hashlib import sha512
 from re import fullmatch
 from sqlite3 import connect
@@ -9,25 +10,17 @@ from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import config
+from server.Encoding.PasswordHash import check_password
+
+from server.models import *
 
 UserRoutes = Blueprint('UserRoutes', __name__)
 login_manager = LoginManager()
 
 
-class User:
-    def __init__(self, user):
-        self.is_authenticated = True
-        self.is_active = True
-        self.is_anonymous = False
-        self.id = user
-
-    def get_id(self):
-        return str(self.id)
-
-
 @login_manager.user_loader
 def load_user(user_id):
-    return User(user_id)
+    return User.query.get(user_id)
 
 
 @UserRoutes.route('/register', methods=['POST'])
@@ -91,19 +84,16 @@ def login():
         return abort(400)
     data = request.json
     username, password = data['username'], data['password']
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('SELECT user, password, salt, confirmed from user WHERE email=?', (username,))
-    user = db.fetchone()
-    database.close()
-    if user is None:
+    try:
+        user = User.query.filter(User.email == username).one()
+    except NoResultFound:
         return jsonify(error='Account does not exist!')
-    elif user[1] != sha512(user[2].encode() + password.encode()).hexdigest():
+    if not check_password(password, user.salt, user.password):
         return jsonify(error='Password is incorrect!')
-    elif user[3] == 0:
+    elif not user.confirmed:
         return jsonify(error='Account has not been confirmed!')
     else:
-        login_user(User(user[0]))
+        login_user(user)
         return jsonify(message='Successfully logged in')
 
 
@@ -116,12 +106,12 @@ def logout():
 
 @UserRoutes.route('/getUserInfo')
 def get_user_info():
-    if current_user.get_id() is None:
+    if current_user.USER is None:
         return jsonify(error='User not logged in')
     database = connect('avo.db')
     db = database.cursor()
     db.execute('SELECT first_name, last_name, is_teacher, is_admin, color, theme from user WHERE user=?',
-               (current_user.get_id(),))
+               (current_user.USER,))
     user = db.fetchone()
     database.close()
     if user is None:
