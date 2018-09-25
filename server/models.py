@@ -2,10 +2,21 @@ from server.data import db
 from flask_login import UserMixin
 
 
-enrolled = db.Table('enrolled', db.metadata,
-                    db.Column('USER', db.Integer, db.ForeignKey("USER.USER")),
-                    db.Column('CLASS', db.Integer, db.ForeignKey("CLASS.CLASS"))
-                    )
+enrolled = db.Table(
+    'enrolled',
+    db.metadata,
+    db.Column('USER', db.Integer, db.ForeignKey("USER.USER"), nullable=False),
+    db.Column('CLASS', db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+)
+
+
+user_views_set = db.Table(
+    'user_views_set',
+    db.metadata,
+    db.Column('USER', db.Integer, db.ForeignKey("USER.USER"), nullable=False),
+    db.Column('SET', db.Integer, db.ForeignKey("SET.SET"), nullable=False),
+    db.Column('can_edit', db.Boolean, default=False, nullable=False)
+)
 
 
 class Class(db.Model):
@@ -35,8 +46,8 @@ class Takes(db.Model):
     TAKES = db.Column(db.Integer, primary_key=True)
     TEST = db.Column(db.Integer, db.ForeignKey('TEST.TEST'), nullable=False)
     USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
-    time_started = db.Column(db.DateTime, nullable=False)
-    time_submitted = db.Column(db.DateTime, nullable=False)
+    time_started = db.Column(db.Integer, nullable=False)
+    time_submitted = db.Column(db.Integer, nullable=False)
     grade = db.Column(db.Float, nullable=False)
     marks = db.Column(db.String, nullable=False)
     answers = db.Column(db.String, nullable=False)
@@ -64,11 +75,11 @@ class User(UserMixin, db.Model):
     __tablename__ = 'USER'
 
     USER = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.Integer, unique=True, nullable=False)
-    first_name = db.Column(db.Integer, nullable=False)
-    last_name = db.Column(db.Integer, nullable=False)
-    password = db.Column(db.Integer, nullable=False)
-    salt = db.Column(db.Integer, nullable=False)
+    email = db.Column(db.String, unique=True, nullable=False)
+    first_name = db.Column(db.String, nullable=False)
+    last_name = db.Column(db.String, nullable=False)
+    password = db.Column(db.String, nullable=False)
+    salt = db.Column(db.String, nullable=False)
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
     is_teacher = db.Column(db.Boolean, nullable=False, default=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
@@ -143,7 +154,7 @@ class Test(db.Model):
     CLASS = db.Column(db.Integer, db.ForeignKey('CLASS.CLASS'), nullable=False)
     name = db.Column(db.String, nullable=False)
     is_open = db.Column(db.Boolean, nullable=False, default=False)
-    deadline = db.Column(db.DateTime, nullable=False)
+    deadline = db.Column(db.Integer, nullable=False)
     timer = db.Column(db.Integer, nullable=False, default=15)
     attempts = db.Column(db.Integer, nullable=False, default=1)
     question_list = db.Column(db.String, nullable=False)
@@ -167,23 +178,3 @@ class Test(db.Model):
     def __repr__(self):
         return f'<Test {self.TEST} {self.CLASS} {self.name} {self.is_open} ' \
                f'{self.deadline} {self.timer} {self.attempts} {self.question_list} {self.seed_list} {self.total}>'
-
-
-class UserViewsSet(db.Model):
-    __tablename__ = "user_views_set"
-
-    USERVIEWSETID = db.Column(db.Integer, primary_key=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
-    SET = db.Column(db.INTEGER, db.ForeignKey('SET.SET'), nullable=False)
-    can_edit = db.Column(db.Boolean, nullable=False, default=False)
-
-    USER_RELATION = db.relationship('User', back_populates='user_views_set')
-    SET_RELATION = db.relationship('Set', back_populates='user_views_set')
-
-    def __init__(self, USER, SET, can_edit):
-        self.USER = USER
-        self.SET = SET
-        self.can_edit = can_edit
-
-    def __repr__(self):
-        return f'<UserViewSet {self.USER} {self.SET} {self.can_edit}>'
