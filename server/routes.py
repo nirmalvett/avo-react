@@ -42,17 +42,16 @@ def change_theme():
 
 
 @login_required
+@teacher_only
 @routes.route('/createClass', methods=['POST'])
 def create_class():
     if not request.json:
         return abort(400)
     name = request.json['name']
-    database = connect('avo.db')
-    db = database.cursor()
     key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
-    db.execute('INSERT INTO `class`(`user`,`name`,`enroll_key`) VALUES (?,?,?);', (current_user.get_id(), name, key))
-    database.commit()
-    database.close()
+    new_class = Class(current_user.USER, name, key)
+    db.session.add(new_class)
+    db.session.commit()
     return jsonify(message='Created!')
 
 
