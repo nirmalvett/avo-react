@@ -92,7 +92,14 @@ export default class MyClasses extends React.Component {
                 <CardHeader title={selectedTest.name}/>,
                 <Typography>Deadline: {getDateString(selectedTest.deadline)}</Typography>,
                 <Typography>Time Limit: {selectedTest.timer} minutes</Typography>,
-                <Typography>Attempts: {selectedTest.attempts}</Typography>,
+                <Typography>Attempts:
+                    {
+                        selectedTest.attempts === -1
+                            ? " Unlimited"
+                            : selectedTest.attempts
+                    }
+                </Typography>,
+
                 <List style={{flex: 1, overflowY: 'auto'}}>
                     {[
                         selectedTest.submitted.map((x, y) => (
@@ -113,7 +120,7 @@ export default class MyClasses extends React.Component {
                                     <IconButton onClick={() => this.state.startTest(selectedTest.id)}><Create/></IconButton>
                                 </ListItemSecondaryAction>
                             </ListItem>
-                            : selectedTest.attempts > selectedTest.submitted.length
+                            : (selectedTest.attempts > selectedTest.submitted.length) || (selectedTest.attempts === -1)
                             ? <ListItem>
                                 <Assignment color='action'/><ListItemText primary='Start Test'/>
                                 <ListItemSecondaryAction>
