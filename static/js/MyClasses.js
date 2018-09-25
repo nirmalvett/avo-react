@@ -96,7 +96,7 @@ export default class MyClasses extends React.Component {
                     {
                         selectedTest.attempts === -1
                             ? " Unlimited"
-                            : selectedTest.attempts
+                            : " " + selectedTest.attempts
                     }
                 </Typography>,
 
