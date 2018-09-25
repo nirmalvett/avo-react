@@ -8,23 +8,24 @@ from sqlite3 import connect
 import sys
 from git import Repo
 
+from server.DecorationFunctions import *
+
+from server.models import *
+
 routes = Blueprint('routes', __name__)
 
 
 @login_required
+@check_confirmed
 @routes.route('/changeColor', methods=['POST'])
 def change_color():
     if not request.json:
         return abort(400)
     data = request.json
     color = data['color']
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('UPDATE user SET color=? WHERE user=?', (color, current_user.id))
-    # current_user.color = color
-    # db.session.commit()
-    database.commit()
-    database.close()
+
+    current_user.color = color
+    db.session.commit()
     return jsonify(message='updated')
 
 
@@ -35,11 +36,8 @@ def change_theme():
         return abort(400)
     data = request.json
     theme = data['theme']
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('UPDATE user SET theme=? WHERE user=?', (theme, current_user.id))
-    database.commit()
-    database.close()
+    current_user.theme = theme
+    db.session.commit()
     return jsonify(message='updated')
 
 
