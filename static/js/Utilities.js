@@ -3,31 +3,50 @@ import MathJax from "react-mathjax2";
 import Typography from "@material-ui/core/Typography/Typography";
 
 export function getMathJax(text, variant='body2') {
+    // Initialize an empty list of MathJax elements
     let result = [];
     while (true) {
         let marker1 = text.indexOf('\\(');
         let marker2 = text.indexOf('\\[');
+        // If the first structure is \(
         if (marker1 !== -1 && (marker2 === -1 || marker1 < marker2)) {
+            // Add all the plain text before the math
             result.push(text.substr(0, marker1));
+            // Find the \)
             let endMarker = text.indexOf('\\)');
+            // If there is no \)
             if (endMarker === -1) {
+                // Append the rest of the string as an inline equation
                 result.push(<MathJax.Node inline>{text.slice(marker1 + 2)}</MathJax.Node>);
                 console.warn('Invalid LaTeX: Missing closing \\)');
                 break;
             }
+            // Add the inline math element
             result.push(<MathJax.Node inline>{text.slice(marker1 + 2, endMarker)}</MathJax.Node>);
+            // Remove the beginning of the string up to and including the \)
             text = text.slice(endMarker + 2);
-        } else if (marker2 !== -1) {
+        }
+        // Else if the first structure is \[
+        else if (marker2 !== -1) {
+            // Add all the plain text before the math
             result.push(text.substr(0, marker2));
+            // Find the \]
             let endMarker = text.indexOf('\\]');
+            // If there is no \]
             if (endMarker === -1) {
+                // Append the rest of the string as an block equation
                 result.push(<MathJax.Node>{text.slice(marker2 + 2)}</MathJax.Node>);
                 console.warn('Invalid LaTeX: Missing closing \\]');
                 break;
             }
+            // Add the block math element
             result.push(<MathJax.Node>{text.slice(marker2 + 2, endMarker)}</MathJax.Node>);
+            // Remove the beginning of the string up to and including the \]
             text = text.slice(endMarker + 2);
-        } else {
+        }
+        // Else - this means that the rest of the string is plain text
+        else {
+            // Add the remaining plain text to the list
             result.push(text);
             break;
         }
