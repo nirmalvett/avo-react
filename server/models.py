@@ -105,6 +105,7 @@ class User(UserMixin, db.Model):
     def get_id(self):
         return self.USER
 
+
 class Question(db.Model):
     __tablename__ = "QUESTION"
 

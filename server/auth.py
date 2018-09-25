@@ -10,7 +10,9 @@ from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import config
+
 from server.Encoding.PasswordHash import check_password
+from server.DecorationFunctions import *
 
 from server.models import *
 
@@ -105,19 +107,12 @@ def logout():
 
 
 @UserRoutes.route('/getUserInfo')
+@login_required
+@check_confirmed
 def get_user_info():
-    if current_user.USER is None:
-        return jsonify(error='User not logged in')
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('SELECT first_name, last_name, is_teacher, is_admin, color, theme from user WHERE user=?',
-               (current_user.USER,))
-    user = db.fetchone()
-    database.close()
-    if user is None:
-        return jsonify(error='User does not exist!')
-    return jsonify(first_name=user[0], last_name=user[1], is_teacher=bool(user[2]),
-                   is_admin=bool(user[3]), color=user[4], theme=user[5])
+    return jsonify(first_name=current_user.first_name, last_name=current_user.last_name,
+                   is_teacher=current_user.is_teacher, is_admin=current_user.is_admin,
+                   color=current_user.color, theme=current_user.theme)
 
 
 def send_email(recipient: str, subject: str, message: str):
