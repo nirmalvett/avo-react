@@ -1,10 +1,8 @@
 from flask import Blueprint, abort, jsonify, request, render_template
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from sqlalchemy.orm.exc import NoResultFound
-from hashlib import sha512
 from re import fullmatch
 from sqlite3 import connect
-from uuid import uuid4
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
@@ -36,22 +34,18 @@ def register():
         return jsonify(error='Invalid uwo email')
     if len(password) < 8:
         return jsonify(error='Password too short')
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('SELECT * from user WHERE email=?', (email,))
-    if db.fetchone() is not None:
-        database.close()
+
+    user = User.query.filter().all()
+    if user is not None:
         return jsonify(error='User already exists')
-    salt = uuid4().hex
-    password = sha512(salt.encode() + password.encode()).hexdigest()
-    db.execute('INSERT INTO `user`(`email`,`first_name`,`last_name`,`password`,`salt`) VALUES (?,?,?,?,?);',
-               (email, first_name, last_name, password, salt))
-    database.commit()
-    database.close()
+
+    user = User(email, first_name, last_name, password, False, 0, 0)
+    db.session.add(user)
+    db.sesion.commit()
     serializer = URLSafeTimedSerializer(config.SECRET_KEY)
     token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
     send_email(email, 'Confirm your AvocadoCore Account',
-               f'<html><body>Hi {first_name},<br/><br/>'
+               f'<html><body>Hi {user.first_name},<br/><br/>'
                f'Thanks for signing up! Please click <a href="https://app.AvocadoCore.com/confirm/{token}">here</a> to '
                f'activate your account. If you have any questions or suggestions for how we can improve, please send '
                f'us an email at contact@avocadocore.com.'
@@ -66,16 +60,13 @@ def confirm(token):
         email = serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT)
     except BadSignature:
         return "Invalid confirmation link"
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('SELECT user, confirmed FROM user WHERE email=?', (email,))
-    user = db.fetchone()
+    user = User.query.filter(User.email == email).first()
     if user is None:
         return "There is no account associated with the email in that token"
-    if user[1] == 0:
-        db.execute('UPDATE user SET confirmed=1 WHERE user=?', (user[0],))
-        database.commit()
-    database.close()
+
+    if not user.confirmed:
+        user.confirmed = True
+        db.session.commit()
     # noinspection PyUnresolvedReferences
     return render_template('/index.html')
 

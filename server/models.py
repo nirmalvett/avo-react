@@ -86,15 +86,15 @@ class User(UserMixin, db.Model):
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
 
     # noinspection PyPep8Naming
-    def __init__(self, email, first_name, last_name, password, confirmed, is_teacher, is_admin, color, theme):
+    def __init__(self, email, first_name, last_name, password, is_teacher, color, theme):
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
         self.salt = generate_salt()
         self.password = hash_password(password, self.salt)  # todo
-        self.confirmed = confirmed
+        self.confirmed = False
         self.is_teacher = is_teacher
-        self.is_admin = is_admin
+        self.is_admin = False
         self.color = color
         self.theme = theme
 
