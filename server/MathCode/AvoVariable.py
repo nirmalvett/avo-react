@@ -1011,21 +1011,9 @@ class AvoVariable:
         types = get_types(self, other)
         if types != (MC_ANS, NUMBER):
             return error(undefined)
-        explanation = [r'\text{' + self.val[1][0] + '}'] if len(self.val[1][0]) > 0 else []
-        for i in range(1, len(self.val[1])):
-            if i == int(other):
-                step = '\color{green}✔'
-            else:
-                # noinspection SpellCheckingInspection
-                step = r'\text{' + 'abcdefghij'[i - 1] + '.}'
-            if i == self.val[0]:
-                step += r'\color{DarkOrange}{\text{ ' + self.val[1][i] + '}}'
-            else:
-                step += r'\text{ ' + self.val[1][i] + '}'
-            explanation.append(step)
-        if self.val[0] is None:
-            explanation.append(r"\color{grey}{\text{No answer selected.}}")
-        explanation = [(r'\begin{array}{l}' + r'\\'.join(explanation) + r'\end{array}', -1)]
+        explanation = [self.val[1][0]] if len(self.val[1][0]) > 0 else []
+        explanation.append('Correct answer: ' + self.val[1][int(other)])
+        explanation = [(r'\(\\\)'.join(explanation), -1)]
         return boolean(self.val[0] == int(other), explanation)
 
     def true_false(self, other):
