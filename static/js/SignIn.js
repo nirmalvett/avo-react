@@ -26,7 +26,10 @@ export default class SignIn extends React.Component {
 
         let updateFirstName = (e) => this.setState({rFirstName: e.target.value});
         let updateLastName = (e) => this.setState({rLastName: e.target.value});
-        let updateEmail = (e) => this.setState({rEmail: e.target.value.toLowerCase()});
+        let updateEmail = (e) => this.setState({
+          rEmail: e.target.value.toLowerCase(),
+          rFirstName: e.target.value.toLowerCase().replace("@uwo.ca", ""),
+        }); // We're setting the email and the first name as the same value here
         let updatePassword1 = (e) => this.setState({rPassword1: e.target.value});
         let updatePassword2 = (e) => this.setState({rPassword2: e.target.value});
 
@@ -46,12 +49,13 @@ export default class SignIn extends React.Component {
                     <Grid item xs={6}>
                         <Typography variant='headline'>Register</Typography>
                         <form style={{'width': '100%'}}>
-                            <TextField margin='normal' style={style} label='First Name' onChange={updateFirstName}
-                                       value={this.state.rFirstName}/>
-                            <br/>
-                            <TextField margin='normal' style={style} label='Last Name' onChange={updateLastName}
-                                       value={this.state.rLastName}/>
-                            <br/>
+                            {/* This is commented out because Turnbull does not want names*/}
+                            {/*<TextField margin='normal' style={style} label='First Name' onChange={updateFirstName}*/}
+                                       {/*value={this.state.rFirstName}/>*/}
+                            {/*<br/>*/}
+                            {/*<TextField margin='normal' style={style} label='Last Name' onChange={updateLastName}*/}
+                                       {/*value={this.state.rLastName}/>*/}
+                            {/*<br/>*/}
                             <TextField margin='normal' style={style} label='UWO Email' onChange={updateEmail}
                                        value={this.state.rEmail} error={emailError}/>
                             <br/>
