@@ -106,12 +106,12 @@ class AvoQuestion:
             answer: Any = answers[i]
             answer_type = self.types[i]
             ans = error('Invalid answer')
-            if len(answer) == 0 and answer_type not in ('0', '1'):
+            if len(str(answer)) == 0 and answer_type not in ('0', '1'):
                 ans = error("No answer given")
             elif answer_type == '0':  # True/False
-                if answer == "true":
+                if answer is True:
                     ans = tf_ans(True, self.prompts[i])
-                elif answer == "false":
+                elif answer is False:
                     ans = tf_ans(False, self.prompts[i])
                 else:
                     ans = tf_ans(None, self.prompts[i])

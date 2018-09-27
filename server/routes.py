@@ -367,7 +367,8 @@ def get_class_test_results():
     for i in range(len(users)):
         db.execute('SELECT first_name, last_name FROM user WHERE user=?', [users[i]])
         names = db.fetchone()
-        db.execute('SELECT takes, time_submitted, grade FROM takes WHERE user=? AND time_submitted<?', [users[i], now])
+        db.execute('SELECT takes, time_submitted, grade FROM takes WHERE test=? AND user=? AND time_submitted<?',
+                   [test, users[i], now])
         users[i] = {'user': users[i], 'firstName': names[0], 'lastName': names[1],
                     'tests': list(map(lambda x: {'takes': x[0], 'timeSubmitted': x[1], 'grade': x[2]}, db.fetchall()))}
     return jsonify(results=users)

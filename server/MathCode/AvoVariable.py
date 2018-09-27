@@ -1020,14 +1020,9 @@ class AvoVariable:
         types = get_types(self, other)
         if types != (TF_ANS, BOOLEAN):
             return error(undefined)
-        explanation = [r'\text{' + self.val[1] + '}'] if len(self.val[1]) > 0 else []
-        explanation.append(('\color{green}✔' if other.val is True else '\color{red}✘') +
-                           (r'\color{DarkOrange}{\text{ True}}' if self.val[0] is True else r'\text{ True}'))
-        explanation.append(('\color{green}✔' if other.val is False else '\color{red}✘') +
-                           (r'\color{DarkOrange}{\text{ False}}' if self.val[0] is False else r'\text{ False}'))
-        if self.val[0] is None:
-            explanation.append(r"\color{grey}{\text{No answer selected.}}")
-        explanation = [(r'\begin{array}{l}' + r'\\'.join(explanation) + r'\end{array}', -1)]
+        explanation = [self.val[1]] if len(self.val[1][0]) > 0 else []
+        explanation.append('Correct answer: ' + ('True' if other.val else 'False'))
+        explanation = [(r'\(\\\)'.join(explanation), -1)]
         return boolean(self.val[0] == other.val, explanation)
 
 
