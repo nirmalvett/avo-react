@@ -149,7 +149,7 @@ class Test(db.Model):
     __tablename__ = "TEST"
 
     TEST = db.Column(db.Integer, primary_key=True)
-    CLASS = db.Column(db.Integer, db.ForeignKey('CLASS.CLASS'), nullable=False)
+    CLASS = db.Column(db.Integer, db.ForeignKey('CLASS.CLASS'), nullable=True)
     name = db.Column(db.String, nullable=False)
     is_open = db.Column(db.Boolean, nullable=False, default=False)
     deadline = db.Column(db.Integer, nullable=False)

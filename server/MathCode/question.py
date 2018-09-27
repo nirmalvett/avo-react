@@ -156,11 +156,7 @@ class AvoQuestion:
 
     def increment_score(self, condition, amount):
         if condition.explanation[0][1] == -1:
-            step = '\(' + condition.explanation[0][0] + r'\\\)'
-            if condition:
-                step += f'You were correct, so you got {amount}/{amount} for this part of the question.'
-            else:
-                step += f'You were not correct, so you got 0/{amount} for this part of the question.'
+            step = condition.explanation[0][0] + r'\(\\\)'
         else:
             step = rf'For {amount} point{"s" if float(amount) > 1 else ""}, the following expression must be true:' \
                    rf'\[{condition.explanation[0][0]}\]'
@@ -168,10 +164,6 @@ class AvoQuestion:
                 step += 'This can be simplified as follows:'
                 for s in condition.explanation[1:-1]:
                     step += r'\[' + s[0] + r'\]'
-            if condition:
-                step += f'This expression is true, so you got {amount}/{amount} for this part of the question.'
-            else:
-                step += f'This expression is not true, so you got 0/{amount} for this part of the question.'
         if self.notes[0] != '':
             step += r'$\\$Notes:$\\$' + self.notes[0]
         self.notes.pop(0)

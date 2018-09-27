@@ -1,5 +1,6 @@
 from flask import Blueprint, abort, jsonify, request
 from flask_login import login_required, current_user
+from sqlalchemy.orm.exc import NoResultFound
 from server.MathCode.question import AvoQuestion
 from random import SystemRandom, randint
 from string import ascii_letters, digits
@@ -30,6 +31,7 @@ def change_color():
 
 
 @login_required
+@check_confirmed
 @routes.route('/changeTheme', methods=['POST'])
 def change_theme():
     if not request.json:
@@ -42,6 +44,7 @@ def change_theme():
 
 
 @login_required
+@check_confirmed
 @teacher_only
 @routes.route('/createClass', methods=['POST'])
 def create_class():
@@ -89,22 +92,18 @@ def get_classes():
 
 
 @login_required
+@check_confirmed
+@teacher_only
 @routes.route('/getSets')
 def get_sets():
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('SELECT `set`.[set], `set`.name FROM `set` LEFT JOIN user_views_set on '
-               '`set`.[set] = user_views_set.[set] WHERE user_views_set.user=?', (current_user.get_id(),))
-    sets = db.fetchall()
+    list_of_sets = Set.query.filter((Set.SET == UserViewsSet.SET) & (UserViewsSet.USER == current_user.USER)).all()
     set_list = []
-    for s in sets:
-        db.execute('SELECT question, name, string, total FROM question WHERE `set`=?', (s[0],))
-        questions = db.fetchall()
+    for s in list_of_sets:
+        questions = Question.query.filter(Question.SET == s.SET).all()
         question_list = []
         for q in questions:
-            question_list.append({'id': q[0], 'name': q[1], 'string': q[2], 'total': q[3]})
-        set_list.append({'id': s[0], 'name': s[1], 'questions': question_list})
-    database.close()
+            question_list.append({'id': q.QUESTION, 'name': q.name, 'string': q.string, 'total': q.total})
+        set_list.append({'id': s.SET, 'name': s.name, 'questions': question_list})
     return jsonify(sets=set_list)
 
 
@@ -127,16 +126,16 @@ def enroll():
 
 
 @login_required
+@check_confirmed
+@teacher_only
 @routes.route('/openTest', methods=['POST'])
 def open_test():
     if not request.json:
         return abort(400)
     test = request.json['test']
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('UPDATE test SET is_open=1 WHERE test=?', (test,))
-    database.commit()
-    database.close()
+    current_test = Test.query.get(test)
+    current_test.is_open = True
+    db.session.commit()
     return jsonify(message='Opened!')
 
 
@@ -146,11 +145,9 @@ def close_test():
     if not request.json:
         return abort(400)
     test = request.json['test']
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('UPDATE test SET is_open=0 WHERE test=?', (test,))
-    database.commit()
-    database.close()
+    current_test = Test.query.get(test)
+    current_test.is_open = False
+    db.session.commit()
     return jsonify(message='Closed!')
 
 
@@ -160,28 +157,25 @@ def delete_test():
     if not request.json:
         return abort(400)
     test = request.json['test']
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('UPDATE test SET class=NULL WHERE test=?', (test,))
-    database.commit()
-    database.close()
+    current_test = Test.query.get(test)
+    current_test.CLASS = None
+    db.session.commit()
     return jsonify(message='Deleted!')
 
 
 @login_required
+@check_confirmed
 @routes.route('/getQuestion', methods=['POST'])
 def get_question():
     if not request.json:
         return abort(400)
     data = request.json
     question, seed = data['question'], data['seed']
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('SELECT string FROM question WHERE question=?', (question,))
-    question = db.fetchone()
-    if question is None:
+    try:
+        question = Question.query.get(question)
+    except NoResultFound:
         return jsonify(error='No question found')
-    q = AvoQuestion(question[0], seed)
+    q = AvoQuestion(question.string, seed)
     return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
 
 

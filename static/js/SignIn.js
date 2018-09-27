@@ -28,7 +28,10 @@ export default class SignIn extends React.Component {
 
         let updateFirstName = (e) => this.setState({rFirstName: e.target.value});
         let updateLastName = (e) => this.setState({rLastName: e.target.value});
-        let updateEmail = (e) => this.setState({rEmail: e.target.value.toLowerCase()});
+        let updateEmail = (e) => this.setState({
+          rEmail: e.target.value.toLowerCase(),
+          rFirstName: e.target.value.toLowerCase().replace("@uwo.ca", ""),
+        }); // We're setting the email and the first name as the same value here
         let updatePassword1 = (e) => this.setState({rPassword1: e.target.value});
         let updatePassword2 = (e) => this.setState({rPassword2: e.target.value});
 
@@ -45,174 +48,44 @@ export default class SignIn extends React.Component {
         return (
             <Card className='LoginCard' id='avo-registrator'>
                 <Grid container spacing={24} style={{'margin': '5%', 'width': '90%', 'height': '90%'}}>
-                    <Grid item xs={12}>
-                    {!this.state.isSigningIn ? (
-                        <React.Fragment>
-                            <Typography variant='headline'>
-                                Register
-                            </Typography>
-                            <form style={{'width': '100%'}}>
-                                <TextField
-                                    margin='normal'
-                                    style={style}
-                                    label='First Name'
-                                    onChange={updateFirstName}
-                                    value={this.state.rFirstName}
-                                />
-                                <br/>
-                                <TextField
-                                    margin='normal'
-                                    style={style}
-                                    label='Last Name'
-                                    onChange={updateLastName}
-                                    value={this.state.rLastName}
-                                />
-                                <br/>
-                                <TextField
-                                    margin='normal'
-                                    style={style}
-                                    label='UWO Email'
-                                    onChange={updateEmail}
-                                    value={this.state.rEmail} error={emailError}
-                                />
-                                <br/>
-                                <TextField
-                                    margin='normal'
-                                    style={style}
-                                    label='Password'
-                                    type='password'
-                                    onChange={updatePassword1} value={this.state.rPassword1}
-                                    error={rPw1Error}
-                                    helperText='(Minimum 8 characters)'
-                                />
-                                <br/>
-                                <TextField
-                                    margin='normal'
-                                    style={style}
-                                    label='Re-Enter Password'
-                                    type='password'
-                                    onChange={updatePassword2}
-                                    value={this.state.rPassword2}
-                                    error={rPw2Error}
-                                />
-                                <br/>
-                                <Typography variant='caption'>
-                                    By creating an account you agree to the Terms of Service found <a id='ToC-here'>here.</a>
-                                </Typography>
-                                <Button
-                                    color='primary'
-                                    className="avo-button avo-styles__float-right"
-                                    onClick={() => this.register()}>
-                                    Register
-                                </Button>
-                            </form>
-                            <AVOModal
-                                title='Terms of Service'
-                                target="ToC-here"
-                                acceptText='I Agree'
-                                declineText='Decline'
-                                onAccept={() => {}}
-                                onDecline={() => {}}
-                            >
-                                {SignIn.getTermsOfService()}
-                            </AVOModal>
-                        </React.Fragment>
-                    ) : (
-                        <React.Fragment>
-                            <div className="avo-mascot">
-                                <section className="move-area">
-                                    <div className='eye-brow left'/>
-                                    <div className='eye-brow right'/>
-                                    <div className='eye'/>
-                                    <div className='eye'/>
-                                    <div className='mouth'/>
-                                </section>
-                            </div>
-                            <Typography variant='headline'>
-                                Sign In
-                            </Typography>
-                            <form style={style} noValidate autoComplete='off'>
-                                <TextField
-                                    margin='normal'
-                                    style={style}
-                                    label='Email'
-                                    onChange={updateUsername}
-                                    value={this.state.username}
-                                    error={usernameError}
-                                />
-                                <br/>
-                                <TextField
-                                    margin='normal'
-                                    style={style}
-                                    label='Password'
-                                    type='password'
-                                    onChange={updatePassword}
-                                    value={this.state.password} error={passwordError}
-                                />
-                                <br/>
-                                <Typography variant='caption' className='avo-styles__error'>
-                                    {this.state.signInError}
-                                </Typography>
-                                <br/>
-                                <Button
-                                    id='avo-signin__button'
-                                    color='primary'
-                                    className="avo-button avo-styles__float-right"
-                                    onClick={() => this.signIn()}>
-                                    Sign In
-                                </Button>
-                            </form>
+                    <Grid item xs={6}>
+                        <Typography variant='headline'>Register</Typography>
+                        <form style={{'width': '100%'}}>
+                            {/* This is commented out because Turnbull does not want names*/}
+                            {/*<TextField margin='normal' style={style} label='First Name' onChange={updateFirstName}*/}
+                                       {/*value={this.state.rFirstName}/>*/}
+                            {/*<br/>*/}
+                            {/*<TextField margin='normal' style={style} label='Last Name' onChange={updateLastName}*/}
+                                       {/*value={this.state.rLastName}/>*/}
+                            {/*<br/>*/}
+                            <TextField margin='normal' style={style} label='UWO Email' onChange={updateEmail}
+                                       value={this.state.rEmail} error={emailError}/>
+                            <br/>
+                            <TextField margin='normal' style={style} label='Password' type='password'
+                                       onChange={updatePassword1} value={this.state.rPassword1} error={rPw1Error}
+                                       helperText='(Minimum 8 characters)'/>
+                            <br/>
+                            <TextField margin='normal' style={style} label='Re-Enter Password' type='password'
+                                       onChange={updatePassword2} value={this.state.rPassword2} error={rPw2Error}/>
                             <br/>
                             <br/>
-                            <Typography variant='caption' className='avo-styles__text-center'>
-                                {'If you forgot your password click '}
-                                <a
-                                    id="forgot-password__button"
-                                    className="avo-styles__link">
-                                    here.
-                                </a>
-                            </Typography>
-                            <AVOModal
-                                title='Forgot your password?'
-                                target="forgot-password__button"
-                                acceptText='Send It'
-                                declineText='Never mind'
-                                onAccept={() => {}}
-                                onDecline={() => {}}
-                            >
-                                <React.Fragment>
-                                    <br/>
-                                    <Typography variant='body'>
-                                        That's Ok! Just enter in your associated <b>Email</b> & we'll send you an email with instructions on how to change it!
-                                    </Typography>
-                                    <TextField
-                                        margin='normal'
-                                        style={{ width: '60%' }}
-                                        label='UWO Email'
-                                        onChange={updateEmail}
-                                        value={this.state.rEmail}
-                                        error={emailError}
-                                        />
-                                    <br/>
-                                    <br/>
-                                </React.Fragment>
-                            </AVOModal>
-                        </React.Fragment>
-                    )}
-                    <br/>
-                    <br/>
-                    <footer className='avo-styles__footer'>
-                        <Typography variant='caption'>
-                            {this.state.isSigningIn ? 'Don\'t have an Account? Click ' : 'Already have an Account? Click '}
-                            <a
-                                id="switchRegistration"
-                                className="avo-styles__link"
-                                onClick={() => this.setState({ isSigningIn : !this.state.isSigningIn })}
-                                >
-                                here.
-                            </a>
-                        </Typography>
-                    </footer>
+                            <Button color='primary' onClick={() => this.register()}>Register</Button>
+                        </form>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Logo theme='light'/>
+                        <Typography variant='headline'>Sign In</Typography>
+                        <form style={style} noValidate autoComplete='off'>
+                            <TextField margin='normal' style={style} label='Email'
+                                       onChange={updateUsername} value={this.state.username} error={usernameError}/>
+                            <br/>
+                            <TextField margin='normal' style={style} label='Password' type='password'
+                                       onChange={updatePassword} value={this.state.password} error={passwordError}/>
+                            <br/>
+                            <br/>
+                            <Button color='primary' onClick={() => this.forgotPassword()}>Forgot Password</Button>
+                            <Button color='primary' onClick={() => this.signIn()}>Sign In</Button>
+                        </form>
                     </Grid>
                 </Grid>
             </Card>
