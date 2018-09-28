@@ -1,6 +1,6 @@
 import React from 'react';
 import Http from './Http';
-import {getMathJax} from './Utilities';
+import {copy, getMathJax} from './Utilities';
 import AnswerInput from './AnswerInput';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
@@ -15,7 +15,7 @@ export default class TakeTest extends React.Component {
     constructor(props) {
         super(props);
         Http.getTest(this.props.testID, (result) => {
-            result.newAnswers = JSON.parse(JSON.stringify(result.answers));
+            result.newAnswers = copy(result.answers);
             this.setState(result);
             }, (result) => alert(result.error));
         this.state = {
@@ -53,8 +53,8 @@ export default class TakeTest extends React.Component {
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
                 <CardHeader title={getMathJax(question.prompt)} action={<IconButton onClick={() => {
                     Http.saveAnswer(this.state.takes, index, this.state.newAnswers[index], result => {
-                        let newAnswers = JSON.parse(JSON.stringify(this.state.answers));
-                        newAnswers[index] = JSON.parse(JSON.stringify(this.state.newAnswers[index]));
+                        let newAnswers = copy(this.state.answers);
+                        newAnswers[index] = copy(this.state.newAnswers[index]);
                         this.setState({answers: newAnswers});
                     }, result => {
                         alert(result.error);
@@ -63,7 +63,7 @@ export default class TakeTest extends React.Component {
                 {question.prompts.map((x, y) => [
                     <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
                     <AnswerInput type={question.types[y]} value={answer[y]} prompt={x} onChange={value => {
-                        let newAnswerList = JSON.parse(JSON.stringify(this.state.newAnswers));
+                        let newAnswerList = copy(this.state.newAnswers);
                         newAnswerList[index][y] = value;
                         this.setState({newAnswers: newAnswerList});
                     }}/>

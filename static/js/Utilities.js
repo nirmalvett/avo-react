@@ -219,3 +219,7 @@ export function getDateString(date) {
         'November', 'December'][date.slice(4, 6) - 1] + ' ' + date.slice(6, 8) //+ ', ' + date.slice(0, 4)
         + ' at ' + hour + ':' + date.slice(10, 12) + x;
 }
+
+export function copy(object) {
+    return JSON.parse(JSON.stringify(object));
+}

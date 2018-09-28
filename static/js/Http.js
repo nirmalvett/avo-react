@@ -79,7 +79,7 @@ export default class Http {
         Http._request('POST', '/getTest', success, failure, {test: test});
     }
 
-    static saveTest(classID, name, deadline, timer, attempts, isAssignment, questionList, seedList, success, failure) {
+    static saveTest(classID, name, deadline, timer, attempts, questionList, seedList, success, failure) {
         Http._request('POST', '/saveTest', success, failure, {classID: classID, name: name, deadline: deadline,
             timer: timer, attempts: attempts, questionList: questionList, seedList: seedList
         });

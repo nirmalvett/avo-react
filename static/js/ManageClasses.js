@@ -18,13 +18,12 @@ import People from '@material-ui/icons/People';
 import NoteAdd from '@material-ui/icons/NoteAdd';
 import PlayArrow from '@material-ui/icons/PlayArrow';
 import Assessment from '@material-ui/icons/Assessment';
-import Assignment from '@material-ui/icons/Assignment';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Description from '@material-ui/icons/Description';
 import AssignmentTurnedIn from "@material-ui/icons/AssignmentTurnedIn";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
-import {getDateString} from "./Utilities";
+import {copy, getDateString} from "./Utilities";
 
 export default class ManageClasses extends React.Component {
     constructor(props) {
@@ -43,14 +42,13 @@ export default class ManageClasses extends React.Component {
 
         return (
             <div style={{width: '100%', flex: 1, display: 'flex'}}>
-                <Grid container spacing={8} style={{flex: 1, display: 'flex', marginBottom: 0}}>
+                <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
                     <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
-                        <Paper style={{width: '100%', flex: 1, display: 'flex'}}>
-                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}
-                                  component='nav' subheader={<ListSubheader>My Classes</ListSubheader>}>
+                        <Paper square style={{width: '100%', flex: 1, display: 'flex'}}>
+                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
                                 {this.state.classes.map((x, y) => [
                                     <ListItem button onClick={() => {
-                                        let newClassList = JSON.parse(JSON.stringify(this.state.classes));
+                                        let newClassList = copy(this.state.classes);
                                         if (newClassList[y].tests.length > 0)
                                             newClassList[y].open = !newClassList[y].open;
                                         this.setState({classes: newClassList, c: y, t: null});
@@ -143,7 +141,7 @@ export default class ManageClasses extends React.Component {
 
     openTest() {
         let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
-        let newClasses = JSON.parse(JSON.stringify(this.state.classes));
+        let newClasses = copy(this.state.classes);
         Http.openTest(selectedTest.id, () => {
             newClasses[this.state.c].tests[this.state.t].open = true;
             this.setState({classes: newClasses});
@@ -152,7 +150,7 @@ export default class ManageClasses extends React.Component {
 
     closeTest() {
         let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
-        let newClasses = JSON.parse(JSON.stringify(this.state.classes));
+        let newClasses = copy(this.state.classes);
         Http.closeTest(selectedTest.id, () => {
             newClasses[this.state.c].tests[this.state.t].open = false;
             this.setState({classes: newClasses});
@@ -161,7 +159,7 @@ export default class ManageClasses extends React.Component {
 
     deleteTest() {
         let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
-        let newClasses = JSON.parse(JSON.stringify(this.state.classes));
+        let newClasses = copy(this.state.classes);
         Http.deleteTest(selectedTest.id, () => {
             newClasses[this.state.c].tests.splice(this.state.t, 1);
             if (newClasses[this.state.c].tests.length === 0)
