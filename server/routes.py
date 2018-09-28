@@ -88,6 +88,32 @@ def get_classes():
                               'attempts': t[5], 'total': t[6], 'submitted': submitted, 'current': current})
         class_list.append({'id': c[0], 'name': c[1], 'enrollKey': c[2], 'tests': test_list})
     database.close()
+    # Returns a list of objects of the following structure:
+    #   {
+    #       id: ___,
+    #       name: ___,
+    #       enrollKey: ___,
+    #       tests: [
+    #           {
+    #               id: ___,
+    #               name: ___,
+    #               open: ___,
+    #               deadline: ___,
+    #               timer: ___,
+    #               attempts: ___,
+    #               total: ___,
+    #               submitted: {
+    #                   takes: ___,
+    #                   timeSubmitted: ___,
+    #                   grade: ___,
+    #               },
+    #               current: {
+    #                   timeStarted: ___,
+    #                   timeSubmitted: ___,
+    #               },
+    #           }
+    #       ]
+    #   }
     return jsonify(classes=class_list)
 
 
@@ -407,9 +433,5 @@ def shutdown():
     # sys.exit(4) is the specific exit code number needed to exit gunicorn
     if branch == request_branch:
         sys.exit(4)
-        return abort(404)
-    elif branch == request_branch:
-        sys.exit(4)
-        return abort(404)
     else:
         return abort(400)

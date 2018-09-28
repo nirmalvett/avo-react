@@ -1,6 +1,6 @@
 import React from 'react';
 import Http from './Http';
-import {getDateString} from "./Utilities";
+import {copy, getDateString} from "./Utilities";
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import List from '@material-ui/core/List/List';
@@ -11,7 +11,6 @@ import CardHeader from '@material-ui/core/CardHeader/CardHeader';
 import IconButton from '@material-ui/core/IconButton/IconButton';
 import Typography from '@material-ui/core/Typography/Typography';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
-import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import AddBox from '@material-ui/icons/AddBox';
 import Create from '@material-ui/icons/Create';
 import People from '@material-ui/icons/People';
@@ -27,7 +26,14 @@ import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/L
 export default class MyClasses extends React.Component {
     constructor(props) {
         super(props);
-        Http.getClasses(result => this.setState(result), result => console.log(result));
+        Http.getClasses(
+            (result) => {
+                this.setState(result)
+            },
+            (result) => {
+                console.log(result)
+            }
+        );
         this.state = {
             classes: [],
             c: null, // Selected class
@@ -39,14 +45,13 @@ export default class MyClasses extends React.Component {
     render() {
         return (
             <div style={{width: '100%', flex: 1, display: 'flex'}}>
-                <Grid container spacing={8} style={{flex: 1, display: 'flex', marginBottom: 0}}>
+                <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
                     <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
-                        <Paper style={{width: '100%', flex: 1, display: 'flex'}}>
-                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}} component='nav'
-                                  subheader={<ListSubheader>My Classes</ListSubheader>}>
+                        <Paper square style={{width: '100%', flex: 1, display: 'flex'}}>
+                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
                                 {this.state.classes.map((x, y) => [
                                     <ListItem button onClick={() => {
-                                        let newClassList = JSON.parse(JSON.stringify(this.state.classes));
+                                        let newClassList = copy(this.state.classes);
                                         if (newClassList[y].tests.length > 0)
                                             newClassList[y].open = !newClassList[y].open;
                                         this.setState({classes: newClassList, c: y, t: null});
