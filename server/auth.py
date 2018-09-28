@@ -2,7 +2,6 @@ from flask import Blueprint, abort, jsonify, request, render_template
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from sqlalchemy.orm.exc import NoResultFound
 from re import fullmatch
-from sqlite3 import connect
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
@@ -98,12 +97,13 @@ def logout():
 
 
 @UserRoutes.route('/getUserInfo')
-@login_required
-@check_confirmed
 def get_user_info():
-    return jsonify(first_name=current_user.first_name, last_name=current_user.last_name,
-                   is_teacher=current_user.is_teacher, is_admin=current_user.is_admin,
-                   color=current_user.color, theme=current_user.theme)
+    try:
+        return jsonify(first_name=current_user.first_name, last_name=current_user.last_name,
+                       is_teacher=current_user.is_teacher, is_admin=current_user.is_admin,
+                       color=current_user.color, theme=current_user.theme)
+    except:
+        return jsonify(error='User does not exist')
 
 
 def send_email(recipient: str, subject: str, message: str):
