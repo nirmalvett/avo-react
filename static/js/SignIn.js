@@ -59,7 +59,7 @@ export default class SignIn extends React.Component {
                             <TextField margin='normal' style={style} label='UWO Email' onChange={updateEmail}
                                        value={this.state.rEmail} error={emailError}/>
                             <br/>
-                            <TextField margin='normal' style={style} label='Password' type='password'
+                            <TextField margin='normal' style={style} label='New Password' type='password'
                                        onChange={updatePassword1} value={this.state.rPassword1} error={rPw1Error}
                                        helperText='(Minimum 8 characters)'/>
                             <br/>
