@@ -108,20 +108,18 @@ def get_sets():
 
 
 @login_required
+@check_confirmed
 @routes.route('/enroll', methods=['POST'])
 def enroll():
     if not request.json:
         return abort(400)
     key = request.json['key']
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('SELECT class FROM class WHERE enroll_key=?', (key,))
-    c = db.fetchone()
-    if c is None:
+    try:
+        current_class = Class.query.filter().first()
+    except NoResultFound:
         return jsonify(error='Invalid enroll key')
-    db.execute('INSERT INTO `enrolled`(`user`,`class`) VALUES (?,?);', (current_user.get_id(), c[0]))
-    database.commit()
-    database.close()
+    current_user.TEST_RELATION.append(current_class)
+    db.session.commit()
     return jsonify(message='Enrolled!')
 
 
@@ -134,6 +132,8 @@ def open_test():
         return abort(400)
     test = request.json['test']
     current_test = Test.query.get(test)
+    if current_test is None:
+        return jsonify(error='No Test Found')
     current_test.is_open = True
     db.session.commit()
     return jsonify(message='Opened!')
@@ -146,6 +146,8 @@ def close_test():
         return abort(400)
     test = request.json['test']
     current_test = Test.query.get(test)
+    if current_test is None:
+        return jsonify(error='No test found')
     current_test.is_open = False
     db.session.commit()
     return jsonify(message='Closed!')
@@ -158,6 +160,8 @@ def delete_test():
         return abort(400)
     test = request.json['test']
     current_test = Test.query.get(test)
+    if current_test is None:
+        return jsonify(error='No Test Found')
     current_test.CLASS = None
     db.session.commit()
     return jsonify(message='Deleted!')
@@ -171,11 +175,10 @@ def get_question():
         return abort(400)
     data = request.json
     question, seed = data['question'], data['seed']
-    try:
-        question = Question.query.get(question)
-    except NoResultFound:
+    current_question = Question.query.get(question)
+    if current_question is None:
         return jsonify(error='No question found')
-    q = AvoQuestion(question.string, seed)
+    q = AvoQuestion(current_question.string, seed)
     return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
 
 
@@ -186,31 +189,22 @@ def get_test():
         return abort(400)
     data = request.json
     test_id = data['test']
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('SELECT name, is_open, deadline, timer, attempts, question_list, seed_list FROM test WHERE test=?',
-               (test_id,))
-    test = db.fetchone()
+    test = Test.query.get(test_id)
     if test is None:
         return jsonify(error='Test not found')
-    db.execute('SELECT takes, time_submitted, answers, seeds from takes WHERE test=? AND user=? AND time_submitted>?',
-               (test_id, current_user.get_id(), time_stamp(datetime.now())))
-    takes = db.fetchone()
+    takes = Takes.query.filter((Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (Takes.time_submitted > datetime.now())).first()
     if takes is None:
         takes = create_takes(test_id, current_user.get_id())
         if takes is None:
             return jsonify(error="Couldn't start test")
-        db.execute('SELECT takes, time_submitted, answers, seeds from takes WHERE takes=?', [takes])
-        takes = db.fetchone()
     questions = []
-    question_ids = eval(test[5])
-    seeds = eval(takes[3])
+    question_ids = eval(test.question_list)
+    seeds = eval(takes.seeds)
     for i in range(len(question_ids)):
-        db.execute('SELECT string FROM question WHERE question=?', [question_ids[i]])
-        q = AvoQuestion(db.fetchone()[0], seeds[i])
+        current_question = Question.query.get(question_ids[i])
+        q = AvoQuestion(current_question.string, seeds[i])
         questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
-    database.close()
-    return jsonify(takes=takes[0], time_submitted=takes[1], answers=eval(takes[2]), questions=questions)
+    return jsonify(takes=takes.TAKES, time_submitted=takes.time_submitted, answers=eval(takes.answers), questions=questions)
 
 
 def time_stamp(t):

@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button/Button';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
 import AVOModal from './AVOMatComps/AVOMatModal';
+import Logo from "./Logo";
 
 export default class SignIn extends React.Component {
     constructor(props) {
