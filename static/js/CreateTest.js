@@ -6,14 +6,12 @@ import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import List from '@material-ui/core/List/List';
 import Paper from '@material-ui/core/Paper/Paper';
-import Checkbox from '@material-ui/core/Checkbox/Checkbox';
 import Collapse from '@material-ui/core/Collapse/Collapse';
 import ListItem from '@material-ui/core/ListItem/ListItem';
 import TextField from '@material-ui/core/TextField/TextField';
 import CardHeader from '@material-ui/core/CardHeader/CardHeader';
 import IconButton from '@material-ui/core/IconButton/IconButton';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
-import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
 import Done from '@material-ui/icons/Done';
 import Lock from '@material-ui/icons/Lock';
 import Delete from '@material-ui/icons/Delete';
@@ -31,7 +29,6 @@ export default class CreateTest extends React.Component {
             sets: [],
             testQuestions: [],
             deadline: '',
-            isAssignment: false,
         };
     }
 
@@ -123,7 +120,7 @@ export default class CreateTest extends React.Component {
                                 return;
                             }
                             Http.saveTest(this.props.classID, s.name, deadline, s.timeLimit, s.attempts,
-                                s.isAssignment, questions, seeds, () => {this.props.onCreate()},
+                                questions, seeds, () => {this.props.onCreate()},
                                 () => {alert('Something went wrong')});
                         }} color='primary'><Done/></IconButton>}/>
                         <TextField margin='normal' label='Name' style={{width: '46%', margin: '2%'}}
@@ -138,13 +135,6 @@ export default class CreateTest extends React.Component {
                         <TextField margin='normal' helperText='Deadline' type='datetime-local'
                                    style={{width: '46%', margin: '2%'}} placeholder='2018-10-31T23:59'
                                    onChange={e => this.setState({deadline: e.target.value})}/>
-                        <br/>
-                        <FormControlLabel style={{width: '46%', margin: '2%'}}
-                                          control={<Checkbox checked={this.state.isAssignment}
-                                                             onChange={() => this.setState({isAssignment: !this.state.isAssignment})}
-                                                             color='primary'/>}
-                                          label='This is an assignment'
-                        />
                     </Card>
                 </Grid>
                 <Grid item xs={1} style={{textAlign: 'center', marginTop: '10%'}}/>
