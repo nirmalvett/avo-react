@@ -49,24 +49,30 @@ export default class TakeTest extends React.Component {
 
     getQuestionCard(question, answer, index) {
         let disabled = JSON.stringify(this.state.newAnswers[index]) === JSON.stringify(this.state.answers[index]);
+        let save = () => {
+            Http.saveAnswer(this.state.takes, index, this.state.newAnswers[index], result => {
+                let newAnswers = copy(this.state.answers);
+                newAnswers[index] = copy(this.state.newAnswers[index]);
+                this.setState({answers: newAnswers});
+            }, result => {
+                alert(result.error);
+            });
+        };
         return (
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
-                <CardHeader title={getMathJax(question.prompt)} action={<IconButton onClick={() => {
-                    Http.saveAnswer(this.state.takes, index, this.state.newAnswers[index], result => {
-                        let newAnswers = copy(this.state.answers);
-                        newAnswers[index] = copy(this.state.newAnswers[index]);
-                        this.setState({answers: newAnswers});
-                    }, result => {
-                        alert(result.error);
-                    });
-                }} disabled={disabled} color={disabled ? 'disabled' : 'primary'}><Save/></IconButton>}/>
+                <CardHeader title={getMathJax(question.prompt)} action={
+                    <IconButton onClick={save} disabled={disabled} color={disabled ? 'disabled' : 'primary'}>
+                        <Save/>
+                    </IconButton>
+                }/>
                 {question.prompts.map((x, y) => [
                     <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
-                    <AnswerInput type={question.types[y]} value={answer[y]} prompt={x} onChange={value => {
-                        let newAnswerList = copy(this.state.newAnswers);
-                        newAnswerList[index][y] = value;
-                        this.setState({newAnswers: newAnswerList});
-                    }}/>
+                    <AnswerInput type={question.types[y]} value={answer[y]} prompt={x} onBlur={save}
+                                 onChange={value => {
+                                     let newAnswerList = copy(this.state.newAnswers);
+                                     newAnswerList[index][y] = value;
+                                     this.setState({newAnswers: newAnswerList});
+                                 }}/>
                 ])}
             </Card>
         );
