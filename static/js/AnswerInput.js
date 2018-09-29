@@ -1,5 +1,5 @@
 import React from 'react';
-import {getMathJax, validateMatrix, validateNumber, validateVector} from './Utilities';
+import {getMathJax, sleep, validateMatrix, validateNumber, validateVector} from './Utilities';
 import Radio from '@material-ui/core/Radio/Radio';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
@@ -25,16 +25,18 @@ export default class AnswerInput extends React.Component {
                 <FormControlLabel disabled={disabled}
                                   value={true}
                                   control={<Radio color='action' checked={v === true}/>}
-                                  onChange={() => {
+                                  onChange={async () => {
                                       this.onChange(true);
+                                      await sleep(100);
                                       this.props.onBlur();
                                   }}
                                   label='True'/>,
                 <FormControlLabel disabled={disabled}
                                   value={false}
                                   control={<Radio color='action' checked={v === false}/>}
-                                  onChange={() => {
+                                  onChange={async () => {
                                       this.onChange(false);
+                                      await sleep(100);
                                       this.props.onBlur();
                                   }}
                                   label='False'/>
@@ -45,8 +47,9 @@ export default class AnswerInput extends React.Component {
                 getMathJax(p[0])].concat(p.slice(1).map((x, y) => [
                     <FormControlLabel control={<Radio color='action' checked={v === y.toString()}/>}
                                       disabled={disabled}
-                                      onChange={() => {
+                                      onChange={async () => {
                                           this.onChange(y.toString());
+                                          await sleep(100);
                                           this.props.onBlur();
                                       }}
                                       label={getMathJax(x)}/>,
@@ -132,7 +135,6 @@ export default class AnswerInput extends React.Component {
 
     onChange(value) {
         this.setState({value: value});
-        console.log(value);
         this.props.onChange(value);
     }
 }

@@ -190,7 +190,8 @@ class Layout extends React.Component {
         if (section === 'Build Question')
             return null;
         if (section === 'Take Test')
-            return (<TakeTest testID={this.state.test}/>);
+            return (<TakeTest testID={this.state.test}
+                              submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);
         if (section === 'Preferences')
             return (<Preferences colorList={this.colorList}
                                  color={color} changeColor={color => this.setState({color: color})}

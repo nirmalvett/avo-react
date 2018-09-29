@@ -32,9 +32,9 @@ export default class TakeTest extends React.Component {
                     {this.state.questions.map((x, y) => this.getQuestionCard(x, this.state.answers[y], y))}
                     <div style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px'}}>
                         <Button color='primary' variant='raised' style={{width: '100%'}} onClick={() => {
-                            Http.submitTest(this.state.takes, result => {
-                                alert('Success!')
-                            }, result => {
+                            Http.submitTest(this.state.takes, () => {
+                                this.props.submitTest(this.state.takes);
+                            }, () => {
                                 alert('Something went wrong')
                             })
                         }}>
