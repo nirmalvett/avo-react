@@ -4,7 +4,8 @@ import SignIn from './SignIn.js';
 import Layout from './Layout.js';
 import {createMuiTheme, MuiThemeProvider} from '@material-ui/core';
 import {green} from '@material-ui/core/colors';
-
+import { unregister } from './registerServiceWorker';
+unregister();
 export default class App extends React.Component {
     constructor(props) {
         super(props);
