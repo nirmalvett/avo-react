@@ -23,7 +23,7 @@ SECURITY_PASSWORD_SALT = \
     '4Sk-+WGNdbdJW4X!'
 
 # Database URI location on server. One of these needs to be commented out.
-#SQLALCHEMY_DATABASE_URI = 'sqlite:///' + join(_cwd, 'avo.db')
+# SQLALCHEMY_DATABASE_URI = 'sqlite:///' + join(_cwd, 'avo.db')
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root@localhost/main'
 SQLALCHEMY_ECHO = False
 SQLALCHEMY_TRACK_MODIFICATIONS = False

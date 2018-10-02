@@ -212,36 +212,26 @@ def time_stamp(t):
 
 
 def create_takes(test, user):
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('SELECT name, is_open, deadline, timer, attempts, question_list, seed_list FROM test WHERE test=?',
-               [test])
-    x = db.fetchone()
+    x = Test.query.get(test)
     if x is None:
         return
-    test_name, test_is_open, test_deadline, test_timer, test_attempts, test_question_list, test_seed_list = x
-    db.execute('SELECT count(*) FROM takes WHERE test=? AND user=?', (test, user))
-    if test_attempts != -1 and db.fetchone()[0] >= test_attempts:
+    takes = Takes.query.filter((Takes.TEST == test.TEST) & (Takes.USER == user.USER)).all()
+    if x.attempts != -1 and len(takes) >= x.attempts:
         return
-    test_question_list = eval(test_question_list)
-    seeds = list(map(lambda seed: randint(0, 65536) if seed == -1 else seed, eval(test_seed_list)))
+    test_question_list = eval(x.quetion_list)
+    seeds = list(map(lambda seed: randint(0, 65536) if seed == -1 else seed, eval(x.seed_list)))
     answer_list = []
     marks_list = []
     for i in test_question_list:
-        db.execute('SELECT string, answers FROM question WHERE question=?', (i,))
-        q = db.fetchone()
-        marks_list.append([0] * q[0].split('；')[0].count('%'))
-        answer_list.append([''] * q[1])
+        q = Question.query.get(test_question_list[i])
+        marks_list.append([0] * q.string.split('；')[0].count('%'))
+        answer_list.append([''] * q.answers)
     t = datetime.now()
     time1 = time_stamp(t)
-    time2 = min(time_stamp(t + timedelta(minutes=test_timer)), test_deadline*100)
-    db.execute('INSERT INTO `takes`(`test`,`user`,`time_started`,`time_submitted`,`marks`,`answers`,`seeds`) '
-               'VALUES (?,?,?,?,?,?,?);', (test, user, time1, time2, str(marks_list), str(answer_list), str(seeds)))
-    database.commit()
-    db.execute('SELECT takes FROM takes WHERE user=? AND time_started=?', (user, str(time1)))
-    takes = db.fetchone()
-    database.close()
-    return None if takes is None else takes[0]
+    time2 = min(time_stamp(t + timedelta(minutes=x.timer)), x.deadline*100)
+    takes = Takes(test, user, time1, time2, 0, str(marks_list), str(answer_list), str(seeds))
+    db.session.commit()
+    return None if takes is None else takes.TAKES
 
 
 @login_required
@@ -253,19 +243,13 @@ def save_test():
     class_id, name, deadline, timer, attempts, question_list, seed_list = \
         data['classID'], data['name'], data['deadline'], data['timer'], data['attempts'], data['questionList'],\
         data['seedList']
-    database = connect('avo.db')
-    db = database.cursor()
     total = 0
     for q in question_list:
-        db.execute('SELECT total FROM question WHERE question=?', [q])
-        total += db.fetchone()[0]
-    db.execute('INSERT INTO `test`(`class`,`name`,`is_open`,`deadline`,`timer`,`attempts`,'
-               '`question_list`,`seed_list`,`total`) VALUES (?,?,0,?,?,?,?,?,?);',
-               (class_id, name, deadline, timer, attempts, str(question_list), str(seed_list), total))
-    db.execute('SELECT test FROM test WHERE _ROWID_=?', [db.lastrowid])
-    test = db.fetchone()[0]
-    database.commit()
-    database.close()
+        current_question = Question.query.get(q)
+        total += current_question.total
+    test = Test(class_id, name, False, deadline, timer, attempts, question_list, seed_list, total)
+    db.session.add(test)
+    db.session.commmit()
     return jsonify(test=test)
 
 
@@ -308,12 +292,9 @@ def submit_test():
         return abort(400)
     data = request.json
     takes = data['takes']
-    database = connect('avo.db')
-    db = database.cursor()
-    time = time_stamp(datetime.now() - timedelta(seconds=1))
-    db.execute('UPDATE takes SET time_submitted=? WHERE takes=?', (time, takes))
-    database.commit()
-    database.close()
+    current_takes = Takes.query.get(takes)
+    current_takes.time_submitted = time_stamp(datetime.now() - timedelta(seconds=1))
+    db.session.commit()
     return jsonify(message='Submitted successfully!')
 
 
@@ -324,20 +305,16 @@ def post_test():
         return abort(400)
     data = request.json
     takes = data['takes']
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('SELECT test, grade, marks, answers, seeds FROM takes WHERE takes=?', [takes])
-    takes_list = db.fetchone()
+    takes_list = Takes.query.get(takes)
     if takes_list is None:
         return jsonify(error='No takes record with that ID')
-    test, grade, marks, answers, seeds = takes_list
-    marks, answers, seeds = eval(marks), eval(answers), eval(seeds)
-    db.execute('SELECT question_list from test WHERE test=?', [test])
-    questions = eval(db.fetchone()[0])
+    marks, answers, seeds = eval(takes_list.marks), eval(takes_list.answers), eval(takes_list.seeds)
+    test = Test.query.get(takes.TEST)
+    questions = eval(test.question_list)
     question_list = []
     for i in range(len(questions)):
-        db.execute('SELECT string FROM question WHERE question=?', [questions[i]])
-        q = AvoQuestion(db.fetchone()[0], seeds[i])
+        current_question = Question.query.get(questions[i])
+        q = AvoQuestion(current_question.string, seeds[i])
         q.get_score(*answers[i])
         question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation, 'types': q.types,
                               'answers': answers[i], 'totals': q.totals, 'scores': q.scores})
@@ -351,20 +328,12 @@ def get_class_test_results():
         return abort(400)
     data = request.json
     test = data['test']
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('SELECT class FROM test WHERE test=?', [test])
-    cls = db.fetchone()[0]
-    db.execute('SELECT user FROM enrolled WHERE class=?', [cls])
-    users = list(map(lambda x: x[0], db.fetchall()))
-    now = datetime.now()
+    users = User.query.filter((User.USER == enrolled.c.USER) & (Class.CLASS == enrolled.c.CLASS)).all()
     for i in range(len(users)):
-        db.execute('SELECT first_name, last_name FROM user WHERE user=?', [users[i]])
-        names = db.fetchone()
-        db.execute('SELECT takes, time_submitted, grade FROM takes WHERE test=? AND user=? AND time_submitted<?',
-                   [test, users[i], now])
-        users[i] = {'user': users[i], 'firstName': names[0], 'lastName': names[1],
-                    'tests': list(map(lambda x: {'takes': x[0], 'timeSubmitted': x[1], 'grade': x[2]}, db.fetchall()))}
+        first_name, last_name = users[i].first_name, users[i].last_name
+        takes = Takes.query.order_by(Takes.grade).filter((Takes.USER == users[i].USER) & (Takes.TEST == test)).first()
+        users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
+                    'tests': {'takes': takes.TAKES, 'timeSubmitted': takes.time_submitted, 'grade': takes.grade}}
     return jsonify(results=users)
 
 
