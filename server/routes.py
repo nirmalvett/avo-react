@@ -261,27 +261,23 @@ def save_answer():
     data = request.json
     takes, question, answer = data['takes'], data['question'], data['answer']
     time = time_stamp(datetime.now())
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('SELECT test, marks, answers, seeds FROM takes WHERE takes=? AND user=? AND time_submitted>?',
-               [takes, current_user.get_id(), time])
-    takes_list = db.fetchone()
-    if takes_list is None:
+    takes_list = Takes.query.get(takes)
+    if takes_list is None or takes_list.USER is not current_user.USER or takes_list.deadline < time:
         return jsonify(error='Invalid takes record')
-    db.execute('SELECT question_list FROM test WHERE test=?', [takes_list[0]])
-    question_id = eval(db.fetchone()[0])[question]
-    db.execute('SELECT string FROM question WHERE question=?', [question_id])
-    question_string = db.fetchone()[0]
-    q = AvoQuestion(question_string, eval(takes_list[3])[question])
+    test = Test.query.get(takes_list.TEST)
+    question_id = eval(test.question_list)[question]
+    current_question = Question.query.get(question_id)
+    q = AvoQuestion(current_question.string, eval(takes_list.seed_list)[question])
     q.get_score(*answer)
-    marks = eval(takes_list[1])
-    answers = eval(takes_list[2])
+    marks = eval(takes_list.marks)
+    answers = eval(takes_list.answers)
     marks[question] = q.scores
+    takes_list.marks = marks
     answers[question] = answer
-    grade = sum(map(lambda x: sum(x), marks))
-    db.execute('UPDATE takes SET grade=?, marks=?, answers=? WHERE takes=?', [grade, str(marks), str(answers), takes])
-    database.commit()
-    database.close()
+    takes_list.answers = answers
+    takes_list.grade = sum(map(lambda x: sum(x), marks))
+    db.session.commit()
+    db.session.close()
     return jsonify(message='Changed successfully!')
 
 
