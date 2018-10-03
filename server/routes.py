@@ -72,12 +72,12 @@ def get_classes():
         test_list = []
         for t in tests:
             takes = Takes.query.order_by(Takes.grade).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER) & (Takes.time_submitted > time)).first()
-            submitted = list({'takes': takes.TAKES, 'timeSubmitted': takes.time_submitted, 'grade': takes.grade})
+            submitted = {'takes': takes.TAKES, 'timeSubmitted': takes.time_submitted, 'grade': takes.grade}
             current = None
             if takes is not None:
                 current = {'timeStarted': takes.time_started, 'timeSubmitted': takes.time_submitted}
             test_list.append({'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': t.deadline, 'timer': t.timer,
-                              'attempts': t.attempts, 'total': t.total, 'submitted': takes.submitted, 'current': current})
+                              'attempts': t.attempts, 'total': t.total, 'submitted': submitted, 'current': current})
         class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
 
