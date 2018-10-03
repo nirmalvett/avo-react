@@ -61,33 +61,24 @@ def create_class():
 @login_required
 @routes.route('/getClasses')
 def get_classes():
-    database = connect('avo.db')
-    db = database.cursor()
-    db.execute('SELECT class, name, enroll_key FROM class WHERE user=?', (current_user.get_id(),))
-    classes = db.fetchall()
-    db.execute('SELECT class.class, class.name, class.enroll_key FROM class LEFT JOIN enrolled'
-               ' on class.class = enrolled.class WHERE enrolled.user=?', (current_user.get_id(),))
-    classes += db.fetchall()
+
+    teach_classes = Class.query.filter(Class.USER == current_user.USER).all()
+    enroll_classes = Class.query.filter((Class.CLASS == enrolled.c.CLASS) & (current_user.USER == enrolled.c.USER)).all()
+    classes = teach_classes.append(enroll_classes)
     class_list = []
     time = time_stamp(datetime.now())
     for c in classes:
-        db.execute('SELECT test, name, is_open, deadline, timer, attempts, total FROM test WHERE class=?',
-                   (c[0],))
-        tests = db.fetchall()
+        tests = Test.query.filter(Test.CLASS == c.CLASS).all()
         test_list = []
         for t in tests:
-            db.execute('SELECT takes, time_submitted, grade FROM takes WHERE test=? AND user=? AND time_submitted<?',
-                       (t[0], current_user.get_id(), time))
-            submitted = list(map(lambda x: {'takes': x[0], 'timeSubmitted': x[1], 'grade': x[2]}, db.fetchall()))
-            db.execute('SELECT time_started, time_submitted FROM takes WHERE test=? AND user=? AND time_submitted>?',
-                       (t[0], current_user.get_id(), time))
-            current = db.fetchone()
-            if current is not None:
-                current = {'timeStarted': current[0], 'timeSubmitted': current[1]}
-            test_list.append({'id': t[0], 'name': t[1], 'open': t[2], 'deadline': str(t[3]), 'timer': t[4],
-                              'attempts': t[5], 'total': t[6], 'submitted': submitted, 'current': current})
-        class_list.append({'id': c[0], 'name': c[1], 'enrollKey': c[2], 'tests': test_list})
-    database.close()
+            takes = Takes.query.order_by(Takes.grade).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER) & (Takes.time_submitted > time)).first()
+            submitted = list({'takes': takes.TAKES, 'timeSubmitted': takes.time_submitted, 'grade': takes.grade})
+            current = None
+            if takes is not None:
+                current = {'timeStarted': takes.time_started, 'timeSubmitted': takes.time_submitted}
+            test_list.append({'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': t.deadline, 'timer': t.timer,
+                              'attempts': t.attempts, 'total': t.total, 'submitted': takes.submitted, 'current': current})
+        class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
 
 
