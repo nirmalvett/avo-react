@@ -39,7 +39,8 @@ export default class MyClasses extends React.Component {
         /* Loads the classes into the state */
       Http.getClasses(
             (result) => {
-                this.setState(result)
+                this.setState(result);
+                this.setState({classes: this.removeDuplicateClasses(this.state.classes)});
             },
             (result) => {
                 console.log(result)
@@ -93,6 +94,21 @@ export default class MyClasses extends React.Component {
             </div>
         );
     }
+    removeDuplicateClasses(classList){
+        /* Sorts by id so that the same class is not duplicated*/
+        // TODO this should really be done server side
+      let keysAlreadyFound = [];
+      let noDuplicateList = [];
+      for (let i = 0; i < classList.length; i++){
+          const id = classList[i].id;
+          if (keysAlreadyFound.indexOf(id) === -1){
+              keysAlreadyFound.push(id);
+              noDuplicateList.push(classList[i]);
+          }
+      }
+      return noDuplicateList;
+    }
+
 
     detailsCard() {
         let selectedClass = this.state.classes[this.state.c];
