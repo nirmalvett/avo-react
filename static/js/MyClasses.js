@@ -26,7 +26,18 @@ import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/L
 export default class MyClasses extends React.Component {
     constructor(props) {
         super(props);
-        Http.getClasses(
+        this.loadClasses();
+        this.state = {
+            classes: [],
+            c: null, // Selected class
+            t: null, // Selected test
+            startTest: this.props.startTest,
+        };
+    }
+
+    loadClasses(){
+        /* Loads the classes into the state */
+      Http.getClasses(
             (result) => {
                 this.setState(result)
             },
@@ -34,12 +45,6 @@ export default class MyClasses extends React.Component {
                 console.log(result)
             }
         );
-        this.state = {
-            classes: [],
-            c: null, // Selected class
-            t: null, // Selected test
-            startTest: this.props.startTest,
-        };
     }
 
     render() {
@@ -148,13 +153,14 @@ export default class MyClasses extends React.Component {
         return null;
     }
 
-    enrollInClass() {
+    enrollInClass() { 
         let key = prompt('Enroll Key:');
         if (key !== null && key !== '') {
             Http.enrollInClass(key,
-                () => alert('Enroll successful! Navigate out of this section and ' +
-                    'then back to refresh.'),
+                this.loadClasses(),
                 () => alert('Looks like you entered an invalid key.'));
         }
     }
+
+
 }
