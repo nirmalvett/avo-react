@@ -22,6 +22,8 @@ import Description from '@material-ui/icons/Description';
 import AssignmentLate from '@material-ui/icons/AssignmentLate';
 import AssignmentTurnedIn from '@material-ui/icons/AssignmentTurnedIn';
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
+import { removeDuplicateClasses } from "./helpers";
+
 
 export default class MyClasses extends React.Component {
     constructor(props) {
@@ -39,15 +41,13 @@ export default class MyClasses extends React.Component {
         /* Loads the classes into the state */
       Http.getClasses(
             (result) => {
-                this.setState(result);
-                this.setState({classes: this.removeDuplicateClasses(this.state.classes)});
+                this.setState({classes: removeDuplicateClasses(result.classes)});
             },
             (result) => {
                 console.log(result)
             }
         );
     }
-
     render() {
         return (
             <div style={{width: '100%', flex: 1, display: 'flex'}}>
@@ -94,20 +94,7 @@ export default class MyClasses extends React.Component {
             </div>
         );
     }
-    removeDuplicateClasses(classList){
-        /* Sorts by id so that the same class is not duplicated*/
-        // TODO this should really be done server side
-      let keysAlreadyFound = [];
-      let noDuplicateList = [];
-      for (let i = 0; i < classList.length; i++){
-          const id = classList[i].id;
-          if (keysAlreadyFound.indexOf(id) === -1){
-              keysAlreadyFound.push(id);
-              noDuplicateList.push(classList[i]);
-          }
-      }
-      return noDuplicateList;
-    }
+
 
 
     detailsCard() {
