@@ -160,7 +160,7 @@ export default class MyClasses extends React.Component {
         let key = prompt('Enroll Key:');
         if (key !== null && key !== '') {
             Http.enrollInClass(key,
-                this.loadClasses(),
+                () => this.loadClasses(),
                 () => alert('Looks like you entered an invalid key.'));
         }
     }
