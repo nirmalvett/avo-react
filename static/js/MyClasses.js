@@ -117,33 +117,34 @@ export default class MyClasses extends React.Component {
                     {[
                         selectedTest.submitted.map((x, y) => (
                             <ListItem key = { uniqueKey() }>
-                                <AssignmentTurnedIn color='action'/>
-                                <ListItemText primary={'Attempt ' + (y+1) + ' - ' + x.grade + '/' + selectedTest.total}
+                                <AssignmentTurnedIn key = { uniqueKey() } color='action'/>
+                                <ListItemText key = { uniqueKey() } primary={'Attempt ' + (y+1) + ' - ' + x.grade + '/' + selectedTest.total}
                                               secondary={'Submitted on ' + getDateString(x.timeSubmitted)}/>
-                                <ListItemSecondaryAction><IconButton onClick={() => {this.props.postTest(x.takes)}}>
-                                    <Description/>
+                                <ListItemSecondaryAction key = { uniqueKey() }><IconButton key = { uniqueKey() } onClick={() => {this.props.postTest(x.takes)}}>
+                                    <Description key = { uniqueKey() }/>
                                 </IconButton></ListItemSecondaryAction>
                             </ListItem>)),
                         selectedTest.current !== null
                             ? <ListItem key = { uniqueKey() }>
-                                <AssignmentLate color='primary'/>
-                                <ListItemText primary='Current Attempt'
+                                <AssignmentLate key = { uniqueKey() } color='primary'/>
+                                <ListItemText key = { uniqueKey() }
+                                              primary='Current Attempt'
                                               secondary={'Ends on ' + getDateString(selectedTest.current.timeSubmitted)}/>
-                                <ListItemSecondaryAction>
-                                    <IconButton onClick={() => this.state.startTest(selectedTest.id)}><Create/></IconButton>
+                                <ListItemSecondaryAction key = { uniqueKey() }>
+                                    <IconButton key = { uniqueKey() } onClick={() => this.state.startTest(selectedTest.id)}><Create key = { uniqueKey() }/></IconButton>
                                 </ListItemSecondaryAction>
                             </ListItem>
                             : (selectedTest.attempts > selectedTest.submitted.length) || (selectedTest.attempts === -1)
                             ? <ListItem key = { uniqueKey() }>
-                                <Assignment color='action'/><ListItemText primary='Start Test'/>
-                                <ListItemSecondaryAction>
-                                    <IconButton onClick={() => this.state.startTest(selectedTest.id)}><Create/></IconButton>
+                                <Assignment key = { uniqueKey() } color='action'/><ListItemText  key = { uniqueKey() } primary='Start Test'/>
+                                <ListItemSecondaryAction key = { uniqueKey() }>
+                                    <IconButton key = { uniqueKey() } onClick={() => this.state.startTest(selectedTest.id)}><Create/></IconButton>
                                 </ListItemSecondaryAction>
                             </ListItem>
                             : <ListItem key = { uniqueKey() } disabled>
-                                <Assignment color='disabled'/><ListItemText primary='No attempts left'/>
-                                <ListItemSecondaryAction><IconButton disabled>
-                                    <Create color='disabled'/>
+                                <Assignment key = { uniqueKey() } color='disabled'/><ListItemText key = { uniqueKey() } primary='No attempts left'/>
+                                <ListItemSecondaryAction key = { uniqueKey() }><IconButton key = { uniqueKey() } disabled>
+                                    <Create key = { uniqueKey() } color='disabled'/>
                                 </IconButton></ListItemSecondaryAction>
                             </ListItem>
                     ]}
@@ -151,7 +152,7 @@ export default class MyClasses extends React.Component {
             ];
         }
         if (this.state.c !== null) {
-            return <CardHeader title={selectedClass.name}/>;
+            return <CardHeader key = { uniqueKey() } title={selectedClass.name}/>;
         }
         return null;
     }
