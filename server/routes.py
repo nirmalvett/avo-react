@@ -323,12 +323,12 @@ def save_answer():
     db.execute('SELECT test, marks, answers, seeds FROM takes WHERE takes=? AND user=? AND time_submitted>?',
                [takes, current_user.get_id(), time])
     takes_list = db.fetchone()
+    if takes_list is None:
+        return jsonify(error='Invalid takes record')
     answers = eval(takes_list[2])
     answers[question] = answer
     db.execute('UPDATE takes SET answers=? WHERE takes=?', [str(answers), takes])
     database.commit()
-    if takes_list is None:
-        return jsonify(error='Invalid takes record')
     db.execute('SELECT question_list FROM test WHERE test=?', [takes_list[0]])
     question_id = eval(db.fetchone()[0])[question]
     db.execute('SELECT string FROM question WHERE question=?', [question_id])
