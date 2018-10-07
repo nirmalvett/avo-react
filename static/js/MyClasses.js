@@ -125,7 +125,7 @@ export default class MyClasses extends React.Component {
                                 </IconButton></ListItemSecondaryAction>
                             </ListItem>)),
                         selectedTest.current !== null
-                            ? <ListItem>
+                            ? <ListItem key = { uniqueKey() }>
                                 <AssignmentLate color='primary'/>
                                 <ListItemText primary='Current Attempt'
                                               secondary={'Ends on ' + getDateString(selectedTest.current.timeSubmitted)}/>
@@ -134,13 +134,13 @@ export default class MyClasses extends React.Component {
                                 </ListItemSecondaryAction>
                             </ListItem>
                             : (selectedTest.attempts > selectedTest.submitted.length) || (selectedTest.attempts === -1)
-                            ? <ListItem>
+                            ? <ListItem key = { uniqueKey() }>
                                 <Assignment color='action'/><ListItemText primary='Start Test'/>
                                 <ListItemSecondaryAction>
                                     <IconButton onClick={() => this.state.startTest(selectedTest.id)}><Create/></IconButton>
                                 </ListItemSecondaryAction>
                             </ListItem>
-                            : <ListItem disabled>
+                            : <ListItem key = { uniqueKey() } disabled>
                                 <Assignment color='disabled'/><ListItemText primary='No attempts left'/>
                                 <ListItemSecondaryAction><IconButton disabled>
                                     <Create color='disabled'/>
