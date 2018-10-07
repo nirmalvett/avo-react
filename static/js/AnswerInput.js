@@ -4,6 +4,7 @@ import Radio from '@material-ui/core/Radio/Radio';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
+import { uniqueKey } from "./helpers";
 
 export default class AnswerInput extends React.Component {
     constructor(props) {
@@ -45,7 +46,8 @@ export default class AnswerInput extends React.Component {
             let p = this.state.prompt.replace('不都', 'None of the above').replace('都', 'All of the above').split('—');
             return [
                 getMathJax(p[0])].concat(p.slice(1).map((x, y) => [
-                    <FormControlLabel control={<Radio color='action' checked={v === y.toString()}/>}
+                    <FormControlLabel key = { uniqueKey() }
+                                      key = { uniqueKey() }control={<Radio color='action' checked={v === y.toString()}/>}
                                       disabled={disabled}
                                       onChange={async () => {
                                           this.onChange(y.toString());
@@ -62,6 +64,7 @@ export default class AnswerInput extends React.Component {
                 <div>
                     {getMathJax(this.state.prompt)}
                     <TextField value={v}
+                               key = { uniqueKey() }
                                onChange={(e) => this.onChange(e.target.value)}
                                onBlur={() => this.props.onBlur()}
                                error={!disabled && !Array.isArray(message)}
@@ -85,6 +88,7 @@ export default class AnswerInput extends React.Component {
                 <div>
                     {getMathJax(this.state.prompt)}
                     <TextField disabled={disabled} value={v} label='Enter vector'
+                               key = { uniqueKey() }
                                onChange={e => this.onChange(e.target.value)}
                                onBlur={() => this.props.onBlur()}
                                error={!disabled && !Array.isArray(vector)}
@@ -101,7 +105,9 @@ export default class AnswerInput extends React.Component {
             return (
                 <div>
                     {getMathJax(this.state.prompt)}
-                    <TextField disabled={disabled}
+                    <TextField
+                              key = { uniqueKey() }
+                              disabled={disabled}
                                multiline
                                value={v}
                                label='Enter matrix'
@@ -119,11 +125,13 @@ export default class AnswerInput extends React.Component {
             return (
                 <div>
                     {getMathJax(this.state.prompt)}
-                    <TextField disabled={disabled} multiline value={v} label='Enter basis'
-                               onChange={e => this.onChange(e.target.value)}
-                               onBlur={() => this.props.onBlur()}
-                               error={!disabled && !Array.isArray(basis)}
-                               helperText={!Array.isArray(basis) ? basis : undefined}/>
+                    <TextField
+                        key = { uniqueKey() }
+                        disabled={disabled} multiline value={v} label='Enter basis'
+                        onChange={e => this.onChange(e.target.value)}
+                        onBlur={() => this.props.onBlur()}
+                        error={!disabled && !Array.isArray(basis)}
+                        helperText={!Array.isArray(basis) ? basis : undefined}/>
                     <br/><br/>
                     {Array.isArray(basis) ? getMathJax('\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}'
                         + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)', 'body2') : undefined}
