@@ -71,9 +71,9 @@ export default class CreateTest extends React.Component {
                                     this.setState({sets: newSetList});
                                 }} disabled={this.state.sets[y].questions.length === 0}>
                                     {x.open ?
-                                        <FolderOpen color={x.questions.length === 0 ? 'disabled' : 'action'}/> :
-                                        <Folder color={x.questions.length === 0 ? 'disabled' : 'action'}/>}
-                                    <ListItemText inset primary={x.name}/>
+                                        <FolderOpen key = { uniqueKey() } color={x.questions.length === 0 ? 'disabled' : 'action'}/> :
+                                        <Folder key = { uniqueKey() } color={x.questions.length === 0 ? 'disabled' : 'action'}/>}
+                                    <ListItemText key = { uniqueKey() } inset primary={x.name}/>
                                 </ListItem>,
                                 <Collapse in={x.open} timeout='auto' unmountOnExit><List>{
                                     x.questions.map((a) =>
@@ -86,7 +86,7 @@ export default class CreateTest extends React.Component {
                                                 this.setState({testQuestions: newTestQuestions});
                                             }, () => {});
                                         }}>
-                                            <ListItemText secondary={a.name}/>
+                                            <ListItemText key = { uniqueKey() } secondary={a.name}/>
                                         </ListItem>)
                                 }</List></Collapse>
                             ])}
@@ -98,14 +98,15 @@ export default class CreateTest extends React.Component {
                     {this.state.testQuestions.map((x, y) =>
                         <Card key = { uniqueKey() } style={{marginTop: '5%', marginBottom: '5%', padding: '10px'}}>
                             <CardHeader
+                                key = { uniqueKey() }
                                 title={x.name}
                                 subheader={'Question ' + (y + 1) + '/' + this.state.testQuestions.length}
                                 action={[
-                                    <IconButton onClick={refresh(y)}><Refresh/></IconButton>,
+                                    <IconButton key = { uniqueKey() } onClick={refresh(y)}><Refresh/></IconButton>,
                                     x.locked
-                                        ? <IconButton onClick={unlock(y)}><Lock/></IconButton>
-                                        : <IconButton onClick={lock(y)}><LockOpen/></IconButton>,
-                                    <IconButton onClick={deleteQ(y)}><Delete/></IconButton>]}/>
+                                        ? <IconButton key = { uniqueKey() } onClick={unlock(y)}><Lock/></IconButton>
+                                        : <IconButton key = { uniqueKey() } onClick={lock(y)}><LockOpen/></IconButton>,
+                                    <IconButton key = { uniqueKey() } onClick={deleteQ(y)}><Delete/></IconButton>]}/>
                             {getMathJax(x.prompt, 'subheading')}
                             {x.prompts.map((a, b) => <AnswerInput key = { uniqueKey() } value='' disabled prompt={a} type={x.types[b]}/>)}
                         </Card>
