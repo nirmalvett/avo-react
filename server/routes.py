@@ -323,6 +323,10 @@ def save_answer():
     db.execute('SELECT test, marks, answers, seeds FROM takes WHERE takes=? AND user=? AND time_submitted>?',
                [takes, current_user.get_id(), time])
     takes_list = db.fetchone()
+    answers = eval(takes_list[2])
+    answers[question] = answer
+    db.execute('UPDATE takes SET answers=? WHERE takes=?', [str(answers), takes])
+    database.commit()
     if takes_list is None:
         return jsonify(error='Invalid takes record')
     db.execute('SELECT question_list FROM test WHERE test=?', [takes_list[0]])
@@ -332,11 +336,9 @@ def save_answer():
     q = AvoQuestion(question_string, eval(takes_list[3])[question])
     q.get_score(*answer)
     marks = eval(takes_list[1])
-    answers = eval(takes_list[2])
     marks[question] = q.scores
-    answers[question] = answer
     grade = sum(map(lambda x: sum(x), marks))
-    db.execute('UPDATE takes SET grade=?, marks=?, answers=? WHERE takes=?', [grade, str(marks), str(answers), takes])
+    db.execute('UPDATE takes SET grade=?, marks=? WHERE takes=?', [grade, str(marks), takes])
     database.commit()
     database.close()
     return jsonify(message='Changed successfully!')
