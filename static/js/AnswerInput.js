@@ -46,7 +46,8 @@ export default class AnswerInput extends React.Component {
             let p = this.state.prompt.replace('不都', 'None of the above').replace('都', 'All of the above').split('—');
             return [
                 getMathJax(p[0])].concat(p.slice(1).map((x, y) => [
-                    <FormControlLabel key = { uniqueKey() }control={<Radio color='action' checked={v === y.toString()}/>}
+                    <FormControlLabel key = { uniqueKey() }
+                                      control={<Radio color='action' checked={v === y.toString()}/>}
                                       disabled={disabled}
                                       onChange={async () => {
                                           this.onChange(y.toString());
