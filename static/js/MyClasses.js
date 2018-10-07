@@ -22,18 +22,13 @@ import Description from '@material-ui/icons/Description';
 import AssignmentLate from '@material-ui/icons/AssignmentLate';
 import AssignmentTurnedIn from '@material-ui/icons/AssignmentTurnedIn';
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
+import { removeDuplicateClasses } from "./helpers";
+
 
 export default class MyClasses extends React.Component {
     constructor(props) {
         super(props);
-        Http.getClasses(
-            (result) => {
-                this.setState(result)
-            },
-            (result) => {
-                console.log(result)
-            }
-        );
+        this.loadClasses();
         this.state = {
             classes: [],
             c: null, // Selected class
@@ -42,6 +37,17 @@ export default class MyClasses extends React.Component {
         };
     }
 
+    loadClasses(){
+        /* Loads the classes into the state */
+      Http.getClasses(
+            (result) => {
+                this.setState({classes: removeDuplicateClasses(result.classes)});
+            },
+            (result) => {
+                console.log(result)
+            }
+        );
+    }
     render() {
         return (
             <div style={{width: '100%', flex: 1, display: 'flex'}}>
@@ -88,6 +94,8 @@ export default class MyClasses extends React.Component {
             </div>
         );
     }
+
+
 
     detailsCard() {
         let selectedClass = this.state.classes[this.state.c];
@@ -148,13 +156,14 @@ export default class MyClasses extends React.Component {
         return null;
     }
 
-    enrollInClass() {
+    enrollInClass() { 
         let key = prompt('Enroll Key:');
         if (key !== null && key !== '') {
             Http.enrollInClass(key,
-                () => alert('Enroll successful! Navigate out of this section and ' +
-                    'then back to refresh.'),
+                () => this.loadClasses(),
                 () => alert('Looks like you entered an invalid key.'));
         }
     }
+
+
 }
