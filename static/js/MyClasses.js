@@ -23,7 +23,7 @@ import AssignmentLate from '@material-ui/icons/AssignmentLate';
 import AssignmentTurnedIn from '@material-ui/icons/AssignmentTurnedIn';
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import { removeDuplicateClasses } from "./helpers";
-
+import { uniqueKey } from "./helpers";
 
 export default class MyClasses extends React.Component {
     constructor(props) {
@@ -56,7 +56,7 @@ export default class MyClasses extends React.Component {
                         <Paper square style={{width: '100%', flex: 1, display: 'flex'}}>
                             <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
                                 {this.state.classes.map((x, y) => [
-                                    <ListItem button onClick={() => {
+                                    <ListItem key = { uniqueKey() } button onClick={() => {
                                         let newClassList = copy(this.state.classes);
                                         if (newClassList[y].tests.length > 0)
                                             newClassList[y].open = !newClassList[y].open;
@@ -70,7 +70,7 @@ export default class MyClasses extends React.Component {
                                     </ListItem>,
                                     <Collapse in={x.open} timeout='auto' unmountOnExit><List>{
                                         x.tests.map((a, b) =>
-                                            <ListItem button onClick={() => this.setState({c: y, t: b})}>
+                                            <ListItem key = { uniqueKey() } button onClick={() => this.setState({c: y, t: b})}>
                                                 <Assessment color={a.open ? 'primary' : 'disabled'} style={{marginLeft: '10px'}}/>
                                                 <ListItemText inset primary={a.name}/>
                                             </ListItem>)
@@ -116,7 +116,7 @@ export default class MyClasses extends React.Component {
                 <List style={{flex: 1, overflowY: 'auto'}}>
                     {[
                         selectedTest.submitted.map((x, y) => (
-                            <ListItem>
+                            <ListItem key = { uniqueKey() }>
                                 <AssignmentTurnedIn color='action'/>
                                 <ListItemText primary={'Attempt ' + (y+1) + ' - ' + x.grade + '/' + selectedTest.total}
                                               secondary={'Submitted on ' + getDateString(x.timeSubmitted)}/>
