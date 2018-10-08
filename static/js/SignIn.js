@@ -104,6 +104,7 @@ export default class SignIn extends React.Component {
 
     // noinspection JSMethodCanBeStatic
     register() {
+      this.setState({messageToUser: "Loading..."});
        let s = this.state;
         if (this.checkInputFields()) {
             Http.register(s.rFirstName, s.rLastName, s.rEmail, s.rPassword1,
