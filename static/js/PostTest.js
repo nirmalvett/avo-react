@@ -7,6 +7,7 @@ import {getMathJax} from "./Utilities";
 import Divider from "@material-ui/core/Divider/Divider";
 import AnswerInput from "./AnswerInput";
 import Typography from "@material-ui/core/Typography/Typography";
+import {uniqueKey} from "./helpers";
 
 export default class PostTest extends React.Component {
     constructor(props) {
@@ -33,20 +34,20 @@ export default class PostTest extends React.Component {
 
     getQuestionCard(question, index) {
         return (
-            <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
-                <CardHeader title={getMathJax(question.prompt)} style={{position: 'relative'}} action={
-                    <Typography variant='headline' color='primary'>
+            <Card key = { uniqueKey() } style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
+                <CardHeader key = { uniqueKey() } title={getMathJax(question.prompt)} style={{position: 'relative'}} action={
+                    <Typography key = { uniqueKey() } variant='headline' color='primary'>
                         {question.scores.reduce((a, b) => a+b, 0)}/{question.totals.reduce((a, b) => a+b, 0)}
                     </Typography>
                 }/>
                 {question.prompts.map((x, y) => [
-                    <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
-                    <AnswerInput disabled type={question.types[y]} value={question.answers[y]} prompt={x}/>
+                    <Divider key = { uniqueKey() } style={{marginTop: '10px', marginBottom: '10px'}}/>,
+                    <AnswerInput key = { uniqueKey() } disabled type={question.types[y]} value={question.answers[y]} prompt={x}/>
                 ])}
                 {question.explanation.map((x, y) => [
-                    <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
-                    <div style={{position: 'relative'}}>
-                        <Typography style={{position: 'absolute', right: '8px', top: '8px'}}
+                    <Divider key = { uniqueKey() } style={{marginTop: '10px', marginBottom: '10px'}}/>,
+                    <div key = { uniqueKey() } style={{position: 'relative'}}>
+                        <Typography key = { uniqueKey() } style={{position: 'absolute', right: '8px', top: '8px'}}
                                     color='textSecondary' variant='title'>
                             {question.scores[y]}/{question.totals[y]}
                         </Typography>
