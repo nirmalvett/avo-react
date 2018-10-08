@@ -24,7 +24,6 @@ import Description from '@material-ui/icons/Description';
 import AssignmentTurnedIn from "@material-ui/icons/AssignmentTurnedIn";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import {copy, getDateString} from "./Utilities";
-import {uniqueKey} from "./helpers";
 
 export default class ManageClasses extends React.Component {
     constructor(props) {
@@ -48,7 +47,7 @@ export default class ManageClasses extends React.Component {
                         <Paper square style={{width: '100%', flex: 1, display: 'flex'}}>
                             <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
                                 {this.state.classes.map((x, y) => [
-                                    <ListItem key = { uniqueKey() } button onClick={() => {
+                                    <ListItem button onClick={() => {
                                         let newClassList = copy(this.state.classes);
                                         if (newClassList[y].tests.length > 0)
                                             newClassList[y].open = !newClassList[y].open;
@@ -62,7 +61,7 @@ export default class ManageClasses extends React.Component {
                                     </ListItem>,
                                     <Collapse in={x.open} timeout='auto' unmountOnExit><List>{
                                         x.tests.map((a, b) =>
-                                            <ListItem key = { uniqueKey() } button onClick={() => {
+                                            <ListItem button onClick={() => {
                                                 Http.getClassTestResults(this.state.classes[y].tests[b].id, result => {
                                                     this.setState({c: y, t: b, results: result.results});
                                                 }, () => {
@@ -101,9 +100,9 @@ export default class ManageClasses extends React.Component {
                     <IconButton onClick={() => this.deleteTest()}><Delete/></IconButton>]}/>,
                 <List style={{flex: 1, overflowY: 'auto'}} dense>
                     {this.state.results.map((x) => [
-                        <ListSubheader key = { uniqueKey() } >{x.firstName + ' ' + x.lastName}</ListSubheader>,
+                        <ListSubheader>{x.firstName + ' ' + x.lastName}</ListSubheader>,
                         x.tests.map(y => (
-                            <ListItem key = { uniqueKey() }>
+                            <ListItem>
                                 <AssignmentTurnedIn color='action'/>
                                 <ListItemText primary={y.grade + '/' + selectedTest.total}
                                               secondary={'Submitted on ' + getDateString(y.timeSubmitted)}/>
