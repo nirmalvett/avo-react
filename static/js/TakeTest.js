@@ -32,14 +32,14 @@ export default class TakeTest extends React.Component {
                 <Grid xs={10} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
                     {this.state.questions.map((x, y) => this.getQuestionCard(x, this.state.answers[y], y))}
                     <div key = { uniqueKey() } style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px'}}>
-                        <Button key = { uniqueKey() } color='primary' variant='raised' style={{width: '100%'}} onClick={() => {
+                        <Button color='primary' variant='raised' style={{width: '100%'}} onClick={() => {
                             Http.submitTest(this.state.takes, () => {
                                 this.props.submitTest(this.state.takes);
                             }, () => {
                                 alert('Something went wrong')
                             })
                         }}>
-                            <Typography key = { uniqueKey() } variant='button'>Submit Test</Typography>
+                            <Typography variant='button'>Submit Test</Typography>
                         </Button>
                     </div>
                 </Grid>
@@ -60,10 +60,10 @@ export default class TakeTest extends React.Component {
             });
         };
         return (
-            <Card key = { uniqueKey() } style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
-                <CardHeader key = { uniqueKey() } title={getMathJax(question.prompt)} action={
-                    <IconButton key = { uniqueKey() } onClick={save} disabled={disabled} color={disabled ? 'disabled' : 'primary'}>
-                        <Save key = { uniqueKey() }/>
+            <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
+                <CardHeader title={getMathJax(question.prompt)} action={
+                    <IconButton onClick={save} disabled={disabled} color={disabled ? 'disabled' : 'primary'}>
+                        <Save/>
                     </IconButton>
                 }/>
                 {question.prompts.map((x, y) => [
