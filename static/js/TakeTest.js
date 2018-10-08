@@ -10,7 +10,6 @@ import CardHeader from '@material-ui/core/CardHeader/CardHeader';
 import IconButton from '@material-ui/core/IconButton/IconButton';
 import Typography from '@material-ui/core/Typography/Typography';
 import Save from '@material-ui/icons/Save';
-import {uniqueKey} from "./helpers";
 
 export default class TakeTest extends React.Component {
     constructor(props) {
@@ -31,7 +30,7 @@ export default class TakeTest extends React.Component {
                 <Grid xs={1}/>
                 <Grid xs={10} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
                     {this.state.questions.map((x, y) => this.getQuestionCard(x, this.state.answers[y], y))}
-                    <div key = { uniqueKey() } style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px'}}>
+                    <div style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px'}}>
                         <Button color='primary' variant='raised' style={{width: '100%'}} onClick={() => {
                             Http.submitTest(this.state.takes, () => {
                                 this.props.submitTest(this.state.takes);
@@ -67,8 +66,8 @@ export default class TakeTest extends React.Component {
                     </IconButton>
                 }/>
                 {question.prompts.map((x, y) => [
-                    <Divider key = { uniqueKey() } style={{marginTop: '10px', marginBottom: '10px'}}/>,
-                    <AnswerInput key = { uniqueKey() } type={question.types[y]} value={answer[y]} prompt={x} onBlur={save}
+                    <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
+                    <AnswerInput type={question.types[y]} value={answer[y]} prompt={x} onBlur={save}
                                  onChange={value => {
                                      let newAnswerList = copy(this.state.newAnswers);
                                      newAnswerList[index][y] = value;
