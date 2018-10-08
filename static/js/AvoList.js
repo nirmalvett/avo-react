@@ -51,15 +51,15 @@ export default class AvoList extends React.Component {
             return (
                 <ListItem key = { uniqueKey() } button onClick={onClick} style={style}>
                     {createElement(icon, {color: iconColor})}
-                    <ListItemText key = { uniqueKey() } inset primary={primary} secondary={secondary}/>
+                    <ListItemText inset primary={primary} secondary={secondary}/>
                 </ListItem>
             );
         } else if (items.length === 0) {
             return (
                 <ListItem key = { uniqueKey() } button onClick={onClick} style={style}>
                     {createElement(icon, {color: iconColor})}
-                    <ListItemText key = { uniqueKey() } inset primary={primary} secondary={secondary}/>
-                    <ExpandMore key = { uniqueKey() } color='disabled'/>
+                    <ListItemText inset primary={primary} secondary={secondary}/>
+                    <ExpandMore color='disabled'/>
                 </ListItem>
             );
         } else {
@@ -67,13 +67,13 @@ export default class AvoList extends React.Component {
             return [
                 <ListItem key = { uniqueKey() } button onClick={onClick} style={style}>
                     {createElement(icon, {color: iconColor})}
-                    <ListItemText key = { uniqueKey() } inset primary={primary} secondary={secondary}/>
+                    <ListItemText inset primary={primary} secondary={secondary}/>
                     {open
-                        ? <ExpandLess key = { uniqueKey() } color='action'/>
-                        : <ExpandMore key = { uniqueKey() } color='action'/>}
+                        ? <ExpandLess color='action'/>
+                        : <ExpandMore color='action'/>}
                 </ListItem>,
-                <Collapse key = { uniqueKey() } in={open} timeout='auto' unmountOnExit>
-                    <List key = { uniqueKey() } dense={this.dense}>
+                <Collapse in={open} timeout='auto' unmountOnExit>
+                    <List dense={this.dense}>
                         {items.map((item2, index2) => this.createListItem(item2, index2, depth + 1, open))}
                     </List>
                 </Collapse>
