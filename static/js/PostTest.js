@@ -35,8 +35,8 @@ export default class PostTest extends React.Component {
     getQuestionCard(question, index) {
         return (
             <Card key = { uniqueKey() } style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
-                <CardHeader key = { uniqueKey() } title={getMathJax(question.prompt)} style={{position: 'relative'}} action={
-                    <Typography key = { uniqueKey() } variant='headline' color='primary'>
+                <CardHeader title={getMathJax(question.prompt)} style={{position: 'relative'}} action={
+                    <Typography variant='headline' color='primary'>
                         {question.scores.reduce((a, b) => a+b, 0)}/{question.totals.reduce((a, b) => a+b, 0)}
                     </Typography>
                 }/>
@@ -47,7 +47,7 @@ export default class PostTest extends React.Component {
                 {question.explanation.map((x, y) => [
                     <Divider key = { uniqueKey() } style={{marginTop: '10px', marginBottom: '10px'}}/>,
                     <div key = { uniqueKey() } style={{position: 'relative'}}>
-                        <Typography key = { uniqueKey() } style={{position: 'absolute', right: '8px', top: '8px'}}
+                        <Typography style={{position: 'absolute', right: '8px', top: '8px'}}
                                     color='textSecondary' variant='title'>
                             {question.scores[y]}/{question.totals[y]}
                         </Typography>

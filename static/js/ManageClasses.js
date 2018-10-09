@@ -24,7 +24,6 @@ import Description from '@material-ui/icons/Description';
 import AssignmentTurnedIn from "@material-ui/icons/AssignmentTurnedIn";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import {copy, getDateString} from "./Utilities";
-import {uniqueKey} from "./helpers";
 
 export default class ManageClasses extends React.Component {
     constructor(props) {
@@ -48,35 +47,35 @@ export default class ManageClasses extends React.Component {
                         <Paper square style={{width: '100%', flex: 1, display: 'flex'}}>
                             <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
                                 {this.state.classes.map((x, y) => [
-                                    <ListItem key = { uniqueKey() } button onClick={() => {
+                                    <ListItem button onClick={() => {
                                         let newClassList = copy(this.state.classes);
                                         if (newClassList[y].tests.length > 0)
                                             newClassList[y].open = !newClassList[y].open;
                                         this.setState({classes: newClassList, c: y, t: null});
                                     }}>
-                                        <People key = { uniqueKey() } color='action'/>
-                                        <ListItemText key = { uniqueKey() } inset primary={x.name}/>
+                                        <People color='action'/>
+                                        <ListItemText inset primary={x.name}/>
                                         {x.open ?
-                                            <ExpandLess key = { uniqueKey() } color={x.tests.length === 0 ? 'disabled' : 'action'}/> :
-                                            <ExpandMore key = { uniqueKey() } color={x.tests.length === 0 ? 'disabled' : 'action'}/>}
+                                            <ExpandLess color={x.tests.length === 0 ? 'disabled' : 'action'}/> :
+                                            <ExpandMore color={x.tests.length === 0 ? 'disabled' : 'action'}/>}
                                     </ListItem>,
-                                    <Collapse key = { uniqueKey() } in={x.open} timeout='auto' unmountOnExit><List>{
+                                    <Collapse in={x.open} timeout='auto' unmountOnExit><List>{
                                         x.tests.map((a, b) =>
-                                            <ListItem key = { uniqueKey() } button onClick={() => {
+                                            <ListItem button onClick={() => {
                                                 Http.getClassTestResults(this.state.classes[y].tests[b].id, result => {
                                                     this.setState({c: y, t: b, results: result.results});
                                                 }, () => {
                                                     this.setState({c: y, t: b, results: []});
                                                 });
                                             }}>
-                                                <Assessment key = { uniqueKey() } color={a.open ? 'primary' : 'disabled'} style={{marginLeft: '10px'}}/>
-                                                <ListItemText key = { uniqueKey() } inset primary={a.name}/>
+                                                <Assessment color={a.open ? 'primary' : 'disabled'} style={{marginLeft: '10px'}}/>
+                                                <ListItemText inset primary={a.name}/>
                                             </ListItem>)
                                     }</List></Collapse>
                                 ])}
                                 <ListItem button onClick={() => this.createClass()}>
                                     <AddBox color='action'/>
-                                    <ListItemText  inset primary='Create Class'/>
+                                    <ListItemText inset primary='Create Class'/>
                                 </ListItem>
                             </List>
                         </Paper>
@@ -101,18 +100,15 @@ export default class ManageClasses extends React.Component {
                     <IconButton onClick={() => this.deleteTest()}><Delete/></IconButton>]}/>,
                 <List style={{flex: 1, overflowY: 'auto'}} dense>
                     {this.state.results.map((x) => [
-                        <ListSubheader key = { uniqueKey() } >{x.firstName + ' ' + x.lastName}</ListSubheader>,
+                        <ListSubheader>{x.firstName + ' ' + x.lastName}</ListSubheader>,
                         x.tests.map(y => (
-                            <ListItem key = { uniqueKey() }>
-                                <AssignmentTurnedIn  key = { uniqueKey() } color='action'/>
-                                <ListItemText key = { uniqueKey() }
-                                              primary={y.grade + '/' + selectedTest.total}
+                            <ListItem>
+                                <AssignmentTurnedIn color='action'/>
+                                <ListItemText primary={y.grade + '/' + selectedTest.total}
                                               secondary={'Submitted on ' + getDateString(y.timeSubmitted)}/>
-                                <ListItemSecondaryAction key = { uniqueKey() }>
-                                  <IconButton key = { uniqueKey() } onClick={() => {this.props.postTest(y.takes)}}>
-                                    <Description key = { uniqueKey() }/>
-                                    </IconButton>
-                                </ListItemSecondaryAction>
+                                <ListItemSecondaryAction><IconButton onClick={() => {this.props.postTest(y.takes)}}>
+                                    <Description/>
+                                </IconButton></ListItemSecondaryAction>
                             </ListItem>
                         ))
                     ])}
@@ -120,15 +116,14 @@ export default class ManageClasses extends React.Component {
             ];
         }
         if (this.state.c !== null) {
-            return <CardHeader key = { uniqueKey() }
-                               title={selectedClass.name}
+            return <CardHeader title={selectedClass.name}
                                subheader={'Enroll Key: ' + selectedClass.enrollKey}
                                action={[
-                                   <IconButton key = { uniqueKey() } onClick={() => this.state.createTest(selectedClass.id)}>
-                                       <NoteAdd key = { uniqueKey() } />
+                                   <IconButton onClick={() => this.state.createTest(selectedClass.id)}>
+                                       <NoteAdd/>
                                    </IconButton>,
-                                   <IconButton key = { uniqueKey() } onClick={() => alert('CSV download coming soon!')}>
-                                       <GetApp key = { uniqueKey() }/>
+                                   <IconButton onClick={() => alert('CSV download coming soon!')}>
+                                       <GetApp/>
                                    </IconButton>
                                ]}/>;
         }
