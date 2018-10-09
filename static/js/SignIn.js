@@ -6,7 +6,8 @@ import Grid from '@material-ui/core/Grid/Grid';
 import Button from '@material-ui/core/Button/Button';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
-
+import { getTermsOfService } from "./helpers";
+import AVOScrollablePopup from "./AVOScrollablePopup"
 export default class SignIn extends React.Component {
     constructor(props) {
         super(props);
@@ -18,6 +19,8 @@ export default class SignIn extends React.Component {
             rPassword2: '',
             username: this.props.username,
             password: this.props.password,
+            hasAgreedToTOS: false,
+            messageToUser: ""
         };
     }
 
@@ -43,6 +46,7 @@ export default class SignIn extends React.Component {
         let usernameError = this.state.username.length > 0 && !/^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(this.state.username);
         let passwordError = this.state.password.length > 0 && this.state.password.length < 8;
 
+
         return (
             <Card className='LoginCard'>
                 <Grid container spacing={24} style={{'margin': '5%', 'width': '90%', 'height': '90%'}}>
@@ -67,8 +71,16 @@ export default class SignIn extends React.Component {
                                        onChange={updatePassword2} value={this.state.rPassword2} error={rPw2Error}/>
                             <br/>
                             <br/>
+                            <AVOScrollablePopup
+                                mainTextBody = { getTermsOfService() }
+                                confirmButtonText = 'I agree'
+                                mainButtonText = 'Terms and Conditions'
+                                dialogueTitle = 'Terms of Service and Privacy Policy'
+                                onConfirmFunction = { this.hasAgreedTOSConfirm.bind(this)}
+                            />
                             <Button color='primary' onClick={() => this.register()}>Register</Button>
                         </form>
+                        { this.state.messageToUser }
                     </Grid>
                     <Grid item xs={6}>
                         <Logo theme='light'/>
@@ -92,16 +104,48 @@ export default class SignIn extends React.Component {
 
     // noinspection JSMethodCanBeStatic
     register() {
-        let s = this.state;
-        if (/^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.rEmail) && s.rPassword1.length >= 8 && s.rPassword2 === s.rPassword1) {
+      this.setState({messageToUser: "Loading..."});
+       let s = this.state;
+        if (this.checkInputFields()) {
             Http.register(s.rFirstName, s.rLastName, s.rEmail, s.rPassword1,
-                () => {this.setState({rFirstName: '', rLastName: '', rEmail: '', rPassword1: '', rPassword2: '',
-                    username: s.rEmail, password: s.rPassword1})},
+                () => {
+                this.setState({
+                  rFirstName: '',
+                  rLastName: '',
+                  rEmail: '',
+                  rPassword1: '',
+                  rPassword2: '',
+                  username: s.rEmail,
+                  password: s.rPassword1,
+                  hasAgreedToTOS: false,
+                  messageToUser: "Registration successful! To fully activate your account please check your email inbox/spam folder for the activation link."
+                });
+                },
                 (result) => {
-                    alert(result.error);
-                }
+                  this.setState({messageToUser: result.error});
+                },
             );
         }
+    }
+
+    hasAgreedTOSConfirm(){
+        this.setState({hasAgreedToTOS: true })
+    }
+
+    checkInputFields(){
+         let s = this.state;
+         console.log(this.state);
+
+         const isValid = /^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.rEmail) && s.rPassword1.length >= 8 && s.rPassword2 === s.rPassword1;
+         if (isValid && s.hasAgreedToTOS){
+             return true;
+         }
+         else if (!isValid){
+           this.setState({messageToUser: 'Please check you email and password fields again.'})
+         }
+         else if (!s.hasAgreedToTOS){
+           this.setState({messageToUser: 'Please click on Terms and Conditions and agree to it before registering'});
+         }
     }
 
     // noinspection JSMethodCanBeStatic
