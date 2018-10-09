@@ -106,47 +106,50 @@ class AvoQuestion:
             answer: Any = answers[i]
             answer_type = self.types[i]
             ans = error('Invalid answer')
-            if len(str(answer)) == 0 and answer_type not in ('0', '1'):
-                ans = error("No answer given")
-            elif answer_type == '0':  # True/False
-                if answer is True:
-                    ans = tf_ans(True, self.prompts[i])
-                elif answer is False:
-                    ans = tf_ans(False, self.prompts[i])
-                else:
-                    ans = tf_ans(None, self.prompts[i])
-            elif answer_type == '1':  # Multiple Choice
-                if fullmatch(r'\d+', str(answer)):
-                    ans = mc_ans(int(answer) + 1, self.prompts[i])
-                else:
-                    ans = mc_ans(None, self.prompts[i])
-            elif answer_type == '2':  # Number
-                ans = build_number(answer)
-            elif answer_type == '3':  # Linear Expression
-                raise NotImplementedError
-            elif answer_type == '4':  # Any, None, or comma-separated list of numbers
-                if answer == 'any':
-                    ans = boolean(True)
-                elif answer == 'none':
-                    ans = boolean(False)
-                else:
-                    x = matrix(map(lambda r: [build_number(r)], answer.split(',')))
-                    if x.type == MATRIX:
-                        ans = x
-            elif answer_type == '5':  # Polynomial
-                raise NotImplementedError
-            elif answer_type == '6':  # Vector
-                ans = matrix(map(lambda r: [build_number(r)], answer.split(',')))
-            elif answer_type == '7':  # Vector of linear expressions
-                ans = build_vector_free_vars(answer)
-            elif answer_type == '8':  # Matrix
-                array = map(lambda x: x.split(','), answer.split('\n'))
-                ans = matrix(map(lambda r: map(lambda c: build_number(c), r), array))
-            elif answer_type == '9':  # Basis
-                # Todo: Fix this on the front end so the list doesn't need to be filtered
-                rows = len(answer[0])
-                answer = filter(lambda vector: any(map(lambda c: c != '', vector)), answer)
-                ans = basis(map(lambda vector: matrix(map(lambda r: [build_number(r)], vector)), answer), rows)
+            try:
+                if len(str(answer)) == 0 and answer_type not in ('0', '1'):
+                    ans = error("No answer given")
+                elif answer_type == '0':  # True/False
+                    if answer is True:
+                        ans = tf_ans(True, self.prompts[i])
+                    elif answer is False:
+                        ans = tf_ans(False, self.prompts[i])
+                    else:
+                        ans = tf_ans(None, self.prompts[i])
+                elif answer_type == '1':  # Multiple Choice
+                    if fullmatch(r'\d+', str(answer)):
+                        ans = mc_ans(int(answer) + 1, self.prompts[i])
+                    else:
+                        ans = mc_ans(None, self.prompts[i])
+                elif answer_type == '2':  # Number
+                    ans = build_number(answer)
+                elif answer_type == '3':  # Linear Expression
+                    raise NotImplementedError
+                elif answer_type == '4':  # Any, None, or comma-separated list of numbers
+                    if answer == 'any':
+                        ans = boolean(True)
+                    elif answer == 'none':
+                        ans = boolean(False)
+                    else:
+                        x = matrix(map(lambda r: [build_number(r)], answer.split(',')))
+                        if x.type == MATRIX:
+                            ans = x
+                elif answer_type == '5':  # Polynomial
+                    raise NotImplementedError
+                elif answer_type == '6':  # Vector
+                    ans = matrix(map(lambda r: [build_number(r)], answer.split(',')))
+                elif answer_type == '7':  # Vector of linear expressions
+                    ans = build_vector_free_vars(answer)
+                elif answer_type == '8':  # Matrix
+                    array = map(lambda x: x.split(','), answer.split('\n'))
+                    ans = matrix(map(lambda r: map(lambda c: build_number(c), r), array))
+                elif answer_type == '9':  # Basis
+                    # Todo: Fix this on the front end so the list doesn't need to be filtered
+                    rows = len(answer[0])
+                    answer = filter(lambda vector: any(map(lambda c: c != '', vector)), answer)
+                    ans = basis(map(lambda vector: matrix(map(lambda r: [build_number(r)], vector)), answer), rows)
+            except Exception:
+                pass
             ans.explanation = ([(r'\color{{DarkOrange}}{{\text{{Answer {}}}}}'.format(i + 1), 8),
                                 (r'\color{DarkOrange}{' + repr(ans) + '}', 8)])
             self.ans_list.append(ans)
