@@ -118,7 +118,7 @@ export default class SignIn extends React.Component {
                   username: s.rEmail,
                   password: s.rPassword1,
                   hasAgreedToTOS: false,
-                  messageToUser: "Registration successful! To fully activate your account please check your email inbox/spam folder for activation link."
+                  messageToUser: "Registration successful! To fully activate your account please check your email inbox/spam folder for the activation link."
                 });
                 },
                 (result) => {
