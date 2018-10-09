@@ -7,6 +7,7 @@ import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import {copy} from "./Utilities";
+import { uniqueKey } from "./helpers";
 
 export default class AvoList extends React.Component {
     constructor(props) {
@@ -48,14 +49,14 @@ export default class AvoList extends React.Component {
         let style = {paddingLeft: (24 + depth * 10 + 'px')};
         if (items === undefined) {
             return (
-                <ListItem button onClick={onClick} style={style}>
+                <ListItem key = { uniqueKey() } button onClick={onClick} style={style}>
                     {createElement(icon, {color: iconColor})}
                     <ListItemText inset primary={primary} secondary={secondary}/>
                 </ListItem>
             );
         } else if (items.length === 0) {
             return (
-                <ListItem button onClick={onClick} style={style}>
+                <ListItem key = { uniqueKey() } button onClick={onClick} style={style}>
                     {createElement(icon, {color: iconColor})}
                     <ListItemText inset primary={primary} secondary={secondary}/>
                     <ExpandMore color='disabled'/>
@@ -64,7 +65,7 @@ export default class AvoList extends React.Component {
         } else {
             let open = selected && this.state.selected[depth] === index;
             return [
-                <ListItem button onClick={onClick} style={style}>
+                <ListItem key = { uniqueKey() } button onClick={onClick} style={style}>
                     {createElement(icon, {color: iconColor})}
                     <ListItemText inset primary={primary} secondary={secondary}/>
                     {open
