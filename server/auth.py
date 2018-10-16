@@ -16,6 +16,8 @@ from server.models import *
 UserRoutes = Blueprint('UserRoutes', __name__)
 login_manager = LoginManager()
 
+login_manager.login_view = "FileRoutes.serve_sign_in"
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -70,6 +72,7 @@ def confirm(token):
     return render_template('/index.html')
 
 
+# Tested
 @UserRoutes.route('/login', methods=['POST'])
 def login():
     if not request.json:
@@ -96,6 +99,7 @@ def logout():
     return jsonify(message='Successfully logged out')
 
 
+# Tested
 @UserRoutes.route('/getUserInfo')
 def get_user_info():
     try:

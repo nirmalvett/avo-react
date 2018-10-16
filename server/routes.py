@@ -5,7 +5,6 @@ from server.MathCode.question import AvoQuestion
 from random import SystemRandom, randint
 from string import ascii_letters, digits
 from datetime import datetime, timedelta
-from sqlite3 import connect
 import sys
 from git import Repo
 
@@ -16,6 +15,7 @@ from server.models import *
 routes = Blueprint('routes', __name__)
 
 
+# Tested
 @login_required
 @check_confirmed
 @routes.route('/changeColor', methods=['POST'])
@@ -30,6 +30,7 @@ def change_color():
     return jsonify(message='updated')
 
 
+# Tested
 @login_required
 @check_confirmed
 @routes.route('/changeTheme', methods=['POST'])
@@ -43,6 +44,7 @@ def change_theme():
     return jsonify(message='updated')
 
 
+# Tested
 @login_required
 @check_confirmed
 @teacher_only
@@ -58,30 +60,33 @@ def create_class():
     return jsonify(message='Created!')
 
 
+# Tested ????
 @login_required
 @routes.route('/getClasses')
 def get_classes():
 
     teach_classes = Class.query.filter(Class.USER == current_user.USER).all()
     enroll_classes = Class.query.filter((Class.CLASS == enrolled.c.CLASS) & (current_user.USER == enrolled.c.USER)).all()
-    classes = teach_classes.append(enroll_classes)
+    classes = teach_classes + enroll_classes
     class_list = []
     time = time_stamp(datetime.now())
-    for c in classes:
-        tests = Test.query.filter(Test.CLASS == c.CLASS).all()
-        test_list = []
-        for t in tests:
-            takes = Takes.query.order_by(Takes.grade).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER) & (Takes.time_submitted > time)).first()
-            submitted = {'takes': takes.TAKES, 'timeSubmitted': takes.time_submitted, 'grade': takes.grade}
-            current = None
-            if takes is not None:
-                current = {'timeStarted': takes.time_started, 'timeSubmitted': takes.time_submitted}
-            test_list.append({'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': t.deadline, 'timer': t.timer,
-                              'attempts': t.attempts, 'total': t.total, 'submitted': submitted, 'current': current})
-        class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
+    if classes is not None:
+        for c in classes:
+            tests = Test.query.filter(Test.CLASS == c.CLASS).all()
+            test_list = []
+            for t in tests:
+                takes = Takes.query.order_by(Takes.grade).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER) & (Takes.time_submitted > time)).first()
+                current, submitted = None, None
+                if takes is not None:
+                    submitted = {'takes': takes.TAKES, 'timeSubmitted': takes.time_submitted, 'grade': takes.grade}
+                    current = {'timeStarted': takes.time_started, 'timeSubmitted': takes.time_submitted}
+                test_list.append({'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': t.deadline, 'timer': t.timer,
+                                  'attempts': t.attempts, 'total': t.total, 'submitted': submitted, 'current': current})
+            class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
 
 
+# Tested
 @login_required
 @check_confirmed
 @teacher_only
@@ -106,7 +111,7 @@ def enroll():
         return abort(400)
     key = request.json['key']
     try:
-        current_class = Class.query.filter().first()
+        current_class = Class.query.filter(Class.enroll_key == key).first()
     except NoResultFound:
         return jsonify(error='Invalid enroll key')
     current_user.TEST_RELATION.append(current_class)
@@ -114,6 +119,7 @@ def enroll():
     return jsonify(message='Enrolled!')
 
 
+# Tested
 @login_required
 @check_confirmed
 @teacher_only
@@ -130,7 +136,10 @@ def open_test():
     return jsonify(message='Opened!')
 
 
+# Tested
 @login_required
+@check_confirmed
+@teacher_only
 @routes.route('/closeTest', methods=['POST'])
 def close_test():
     if not request.json:
@@ -145,6 +154,8 @@ def close_test():
 
 
 @login_required
+@check_confirmed
+@teacher_only
 @routes.route('/deleteTest', methods=['POST'])
 def delete_test():
     if not request.json:
@@ -158,6 +169,7 @@ def delete_test():
     return jsonify(message='Deleted!')
 
 
+# Tested
 @login_required
 @check_confirmed
 @routes.route('/getQuestion', methods=['POST'])
@@ -174,6 +186,7 @@ def get_question():
 
 
 @login_required
+@check_confirmed
 @routes.route('/getTest', methods=['POST'])
 def get_test():
     if not request.json:
@@ -206,26 +219,27 @@ def create_takes(test, user):
     x = Test.query.get(test)
     if x is None:
         return
-    takes = Takes.query.filter((Takes.TEST == test.TEST) & (Takes.USER == user.USER)).all()
+    takes = Takes.query.filter((Takes.TEST == test) & (Takes.USER == user)).all()
     if x.attempts != -1 and len(takes) >= x.attempts:
         return
-    test_question_list = eval(x.quetion_list)
+    test_question_list = eval(x.question_list)
     seeds = list(map(lambda seed: randint(0, 65536) if seed == -1 else seed, eval(x.seed_list)))
     answer_list = []
     marks_list = []
-    for i in test_question_list:
+    for i in range(len(test_question_list)):
         q = Question.query.get(test_question_list[i])
         marks_list.append([0] * q.string.split('；')[0].count('%'))
         answer_list.append([''] * q.answers)
     t = datetime.now()
-    time1 = time_stamp(t)
-    time2 = min(time_stamp(t + timedelta(minutes=x.timer)), x.deadline*100)
-    takes = Takes(test, user, time1, time2, 0, str(marks_list), str(answer_list), str(seeds))
+    time2 = min(t + timedelta(minutes=x.timer), x.deadline)
+    takes = Takes(test, user, t, time2, 0, str(marks_list), str(answer_list), str(seeds))
+    db.session.add(takes)
     db.session.commit()
-    return None if takes is None else takes.TAKES
+    return None if takes is None else takes
 
 
 @login_required
+@check_confirmed
 @routes.route('/saveTest', methods=['POST'])
 def save_test():
     if not request.json:
@@ -238,13 +252,14 @@ def save_test():
     for q in question_list:
         current_question = Question.query.get(q)
         total += current_question.total
-    test = Test(class_id, name, False, deadline, timer, attempts, question_list, seed_list, total)
+    test = Test(class_id, name, False, deadline, timer, attempts, str(question_list), str(seed_list), total)
     db.session.add(test)
-    db.session.commmit()
-    return jsonify(test=test)
+    db.session.commit()
+    return jsonify(test=test.TEST)
 
 
 @login_required
+@check_confirmed
 @routes.route('/saveAnswer', methods=['POST'])
 def save_answer():
     if not request.json:
@@ -273,6 +288,7 @@ def save_answer():
 
 
 @login_required
+@check_confirmed
 @routes.route('/submitTest', methods=['POST'])
 def submit_test():
     if not request.json:
@@ -286,6 +302,7 @@ def submit_test():
 
 
 @login_required
+@check_confirmed
 @routes.route('/postTest', methods=['POST'])
 def post_test():
     if not request.json:

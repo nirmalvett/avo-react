@@ -91,7 +91,7 @@ class User(UserMixin, db.Model):
         self.first_name = first_name
         self.last_name = last_name
         self.salt = generate_salt()
-        self.password = hash_password(password, self.salt)  # todo
+        self.password = hash_password(password, self.salt)
         self.confirmed = False
         self.is_teacher = is_teacher
         self.is_admin = False
@@ -148,7 +148,7 @@ class Set(db.Model):
 class Test(db.Model):
     __tablename__ = "TEST"
 
-    TEST = db.Column(db.Integer, primary_key=True)
+    TEST = db.Column(db.Integer, primary_key=True, autoincrement=True)
     CLASS = db.Column(db.Integer, db.ForeignKey('CLASS.CLASS'), nullable=True)
     name = db.Column(db.String, nullable=False)
     is_open = db.Column(db.Boolean, nullable=False, default=False)
