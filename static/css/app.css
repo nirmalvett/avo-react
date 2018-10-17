@@ -1,3 +1,20 @@
+:root{
+    --pri-theme-color: #399103;
+    --dis-theme-color: rgba(0, 0, 0, 0.5);
+    --avo-pupil-size : 11px;
+	--avo-mouth-width: 66px;
+	--avo-mouth-height: 30px;
+	--avo-mouth-oleft: 0px;
+	--avo-mouth-border: transparent transparent #000 transparent;
+	--avo-mouth-bgcol: rgba(0,0,0,0);
+	--avo-eyebrow-height: -4px;
+	--avo-eyebrow-angle: 10deg;
+}
+
+body {
+    background: #fafafa;
+}
+
 #root {
     position: fixed;
     left: 0;
@@ -6,13 +23,8 @@
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-}
-
-.LoginCard {
-    width: 40%;
-    height: 90vh;
-    margin-left: 30vw;
-    margin-top: 5vh;
+    background: url('../img/backdrop.svg') center/cover;
+    background-position: 0px 0px; background-size: 100%;
 }
 
 ::-webkit-scrollbar {
@@ -32,4 +44,202 @@
 
 ::-webkit-scrollbar-thumb:active {
     background: #BBBBBB;
+}
+
+* {
+    font-family: 'Open Sans', sans-serif !important;
+}
+
+.LoginCard {
+    display: flex;
+    width: 33%;
+    height: 90vh;
+    margin: auto;
+    margin-top: 5vh;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
+    overflow-y: auto !important;
+}
+
+.avo-button {
+    border-radius: 16px !important;
+    color: var(--pri-theme-color) !important;
+    transition: color 0.5s ease-in;
+}
+
+.avo-button.disabled {
+    color: var(--dis-theme-color) !important;
+    transition: color 0.5s ease-in;
+}
+
+.avo-student__background {
+    height: 100%;
+    background-color: #F5F5F5;
+    width: 100%;
+    background-position: 0px 0px; background-size: 100%;
+    background: url('../img/backdrop.svg') center/cover !important;
+}
+
+.avo-tech__info-card {
+    height: 100px;
+    width: 100%;
+    background: url('../img/avo-server.svg') center/cover !important;
+    background-position: 0px 0px;
+    background-size: 10%;
+}
+
+.avo-card {
+    width: 100%;
+    margin: 16px;
+    height: auto;
+    max-height: 80%;
+    position: relative;
+    border-radius: 8px !important;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
+    padding: 16px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.avo-card__test-info {
+    margin-left: 24px !important;
+}
+
+.avo-modal__card {
+    width: 50%;
+    margin: auto;
+    position: relative;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
+    transform: translateY(110vh) scale(0.5);
+    transition: transform 500ms ease-in;
+    padding: 8px;
+    height: auto;
+}
+
+.avo-modal__card.active {
+    transform: translateY(10vh) scale(1);
+    transition: transform 1000ms ease-in-out;
+}
+
+.avo-modal__card-footer {
+    position: relative;
+    float: right;
+}
+
+.avo-menu__item {
+    border-radius: 0px 50px 50px 0px !important;
+    width: 97.5% !important;
+}
+
+.avo-menu__item.selected {
+    background: var(--pri-theme-color) !important;
+}
+
+.avo-menu__item.selected > div > span {
+    color: white !important;
+}
+
+.avo-scrollable {
+    overflow-y: auto;
+}
+
+.ToC {
+    max-height: 300px;
+    overflow-y: scroll;
+}
+
+#ToC-here {
+    text-decoration: underline;
+    cursor: pointer;
+    color: var(--pri-theme-color);
+}
+
+.avo-styles__link {
+    text-decoration: underline;
+    cursor: pointer;
+    color: var(--pri-theme-color);
+}
+
+.avo-styles__footer {
+    position: relative;
+    text-align: center;
+    margin-top: 8px;
+}
+
+.avo-styles__error {
+    color: red !important;
+}
+
+.avo-styles__text-center {
+    text-align: center;
+}
+
+.avo-styles__float-right {
+    position: relative;
+    float: right;
+}
+
+.avo-mascot{
+    background: url('../img/avo_mascot.svg') center/cover no-repeat; 
+    width: 100%; 
+    height: 15em;
+}
+
+.move-area{
+    position: relative; left: 40%; top: 50%;
+}
+
+.eye-brow {
+	position: absolute;
+	height: 4px;
+	width: 25px;
+	background: black;
+	top: var(--avo-eyebrow-height);
+	transition: top 0.3s ease-in-out, transform 0.3s ease;
+}
+
+.eye-brow.left {
+    left: 4px;
+    transform: rotate( calc( -1 * var(--avo-eyebrow-angle) ) );
+}
+
+.eye-brow.right {
+    left: 44px;
+    transform: rotate( var(--avo-eyebrow-angle) );		
+}
+
+.eye {
+	position: relative;
+	margin: 3px;
+	display: inline-block;
+	border-radius: 50%;
+	height: 30px;
+	width: 30px;
+	background: #fff;
+  }
+  .eye:after { /*pupil*/
+	position: absolute;
+	bottom: 17px;
+	right: 10px;
+	width: var(--avo-pupil-size);
+	height: var(--avo-pupil-size);
+	background: #000;
+	border-radius: 50%;
+	transition: width 0.2s ease-in, height 0.2s ease-in;
+	content: " ";
+  }
+
+.mouth {
+	width: var(--avo-mouth-width);
+	height: var(--avo-mouth-height);
+	background: var(--avo-mouth-bgcol);
+	border-style: solid;
+	border-radius: 75%;
+	border-width: 4px;
+	border-color: var(--avo-mouth-border);
+	position: absolute;
+	bottom: -1.5em;
+	left: var(--avo-mouth-oleft);
+	transition: width 0.1s ease-in, left 0.1s ease-in;
 }
