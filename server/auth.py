@@ -45,9 +45,10 @@ def register():
     db.session.commit()
     serializer = URLSafeTimedSerializer(config.SECRET_KEY)
     token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
+    confirm_url = url_for('UserRoutes.confirm', token=token, _external=True)
     send_email(email, 'Confirm your AvocadoCore Account',
                f'<html><body>Hi {user.first_name},<br/><br/>'
-               f'Thanks for signing up! Please click <a href="https://app.AvocadoCore.com/confirm/{token}">here</a> to '
+               f'Thanks for signing up! Please click <a href="{confirm_url}">here</a> to '
                f'activate your account. If you have any questions or suggestions for how we can improve, please send '
                f'us an email at contact@avocadocore.com.'
                f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>')
