@@ -37,7 +37,7 @@ class Class(db.Model):
 class Takes(db.Model):
     __tablename__ = "takes"
 
-    TAKES = db.Column(db.Integer, primary_key=True)
+    TAKES = db.Column(db.Integer, primary_key=True, autoincrement=True)
     TEST = db.Column(db.Integer, db.ForeignKey("TEST.TEST"), nullable=False)
     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
     time_started = db.Column(db.DateTime, nullable=False)
@@ -68,7 +68,7 @@ class Takes(db.Model):
 class User(UserMixin, db.Model):
     __tablename__ = "USER"
 
-    USER = db.Column(db.Integer, primary_key=True)
+    USER = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String, unique=True, nullable=False)
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
@@ -81,7 +81,7 @@ class User(UserMixin, db.Model):
     theme = db.Column(db.Boolean, nullable=False, default=False)
 
     CLASS_RELATION = db.relationship("Class", back_populates="USER_RELATION")
-    CLASS_ENROLLED_RELATION = db.relationship("Class", secondary=enrolled, back_populates="USER_RELATION")
+    CLASS_ENROLLED_RELATION = db.relationship("Class", secondary=enrolled, back_populates="USER_ENROLLED_RELATION")
     TAKES_RELATION = db.relationship("Takes", back_populates="USER_RELATION")
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
 
@@ -109,7 +109,7 @@ class User(UserMixin, db.Model):
 class Question(db.Model):
     __tablename__ = "QUESTION"
 
-    QUESTION = db.Column(db.Integer, primary_key=True)
+    QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
     SET = db.Column(db.Integer, db.ForeignKey("SET.SET"), nullable=False)
     name = db.Column(db.String, nullable=False)
     string = db.Column(db.String, nullable=False)
@@ -132,7 +132,7 @@ class Question(db.Model):
 class Set(db.Model):
     __tablename__ = "SET"
 
-    SET = db.Column(db.Integer, primary_key=True)
+    SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False)
 
     QUESTION_RELATION = db.relationship("Question", back_populates="SET_RELATION")
@@ -181,7 +181,7 @@ class Test(db.Model):
 class UserViewsSet(db.Model):
     __tablename__ = "user_views_set"
 
-    USER_VIEWS_SET = db.Column(db.Integer, primary_key=True)
+    USER_VIEWS_SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
     SET = db.Column(db.Integer, db.ForeignKey("SET.SET"), nullable=False)
     can_edit = db.Column(db.Boolean, default=False, nullable=False)

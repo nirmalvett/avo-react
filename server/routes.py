@@ -60,7 +60,7 @@ def create_class():
     return jsonify(message='Created!')
 
 
-# Tested ????
+# Tested
 @login_required
 @routes.route('/getClasses')
 def get_classes():
@@ -70,16 +70,19 @@ def get_classes():
     classes = teach_classes + enroll_classes
     class_list = []
     time = time_stamp(datetime.now())
+    print(teach_classes)
     if classes is not None:
         for c in classes:
             tests = Test.query.filter(Test.CLASS == c.CLASS).all()
             test_list = []
             for t in tests:
-                takes = Takes.query.order_by(Takes.grade).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER) & (Takes.time_submitted > time)).first()
-                current, submitted = None, None
-                if takes is not None:
-                    submitted = {'takes': takes.TAKES, 'timeSubmitted': takes.time_submitted, 'grade': takes.grade}
-                    current = {'timeStarted': takes.time_started, 'timeSubmitted': takes.time_submitted}
+                takes = Takes.query.order_by(Takes.time_started).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER)).all()
+                submitted = []
+                current = None
+                for ta in takes:
+                    if ta is not None:
+                        current = {'timeStarted': ta.time_started, 'timeSubmitted': ta.time_submitted}
+                        submitted.append({'takes': ta.TAKES, 'timeSubmitted': ta.time_submitted, 'grade': ta.grade})
                 test_list.append({'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': t.deadline, 'timer': t.timer,
                                   'attempts': t.attempts, 'total': t.total, 'submitted': submitted, 'current': current})
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
@@ -103,6 +106,7 @@ def get_sets():
     return jsonify(sets=set_list)
 
 
+# Tested
 @login_required
 @check_confirmed
 @routes.route('/enroll', methods=['POST'])
@@ -114,7 +118,7 @@ def enroll():
         current_class = Class.query.filter(Class.enroll_key == key).first()
     except NoResultFound:
         return jsonify(error='Invalid enroll key')
-    current_user.TEST_RELATION.append(current_class)
+    current_user.CLASS_ENROLLED_RELATION.append(current_class)
     db.session.commit()
     return jsonify(message='Enrolled!')
 
@@ -153,6 +157,7 @@ def close_test():
     return jsonify(message='Closed!')
 
 
+# Tested
 @login_required
 @check_confirmed
 @teacher_only
@@ -185,6 +190,7 @@ def get_question():
     return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
 
 
+# Tested
 @login_required
 @check_confirmed
 @routes.route('/getTest', methods=['POST'])
@@ -238,6 +244,7 @@ def create_takes(test, user):
     return None if takes is None else takes
 
 
+# Tested
 @login_required
 @check_confirmed
 @routes.route('/saveTest', methods=['POST'])
@@ -258,6 +265,7 @@ def save_test():
     return jsonify(test=test.TEST)
 
 
+# Tested
 @login_required
 @check_confirmed
 @routes.route('/saveAnswer', methods=['POST'])
@@ -268,25 +276,26 @@ def save_answer():
     takes, question, answer = data['takes'], data['question'], data['answer']
     time = time_stamp(datetime.now())
     takes_list = Takes.query.get(takes)
-    if takes_list is None or takes_list.USER is not current_user.USER or takes_list.deadline < time:
+    if takes_list is None or takes_list.USER is not current_user.USER:
         return jsonify(error='Invalid takes record')
     test = Test.query.get(takes_list.TEST)
     question_id = eval(test.question_list)[question]
     current_question = Question.query.get(question_id)
-    q = AvoQuestion(current_question.string, eval(takes_list.seed_list)[question])
+    q = AvoQuestion(current_question.string, eval(takes_list.seeds)[question])
     q.get_score(*answer)
     marks = eval(takes_list.marks)
     answers = eval(takes_list.answers)
     marks[question] = q.scores
-    takes_list.marks = marks
+    takes_list.marks = str(marks)
     answers[question] = answer
-    takes_list.answers = answers
+    takes_list.answers = str(answers)
     takes_list.grade = sum(map(lambda x: sum(x), marks))
     db.session.commit()
     db.session.close()
     return jsonify(message='Changed successfully!')
 
 
+# Tested
 @login_required
 @check_confirmed
 @routes.route('/submitTest', methods=['POST'])
@@ -301,6 +310,7 @@ def submit_test():
     return jsonify(message='Submitted successfully!')
 
 
+# Tested
 @login_required
 @check_confirmed
 @routes.route('/postTest', methods=['POST'])
@@ -313,7 +323,7 @@ def post_test():
     if takes_list is None:
         return jsonify(error='No takes record with that ID')
     marks, answers, seeds = eval(takes_list.marks), eval(takes_list.answers), eval(takes_list.seeds)
-    test = Test.query.get(takes.TEST)
+    test = Test.query.get(takes_list.TEST)
     questions = eval(test.question_list)
     question_list = []
     for i in range(len(questions)):
@@ -325,6 +335,7 @@ def post_test():
     return jsonify(questions=question_list)
 
 
+# Tested
 @login_required
 @routes.route('/getClassTestResults', methods=['POST'])
 def get_class_test_results():
@@ -337,7 +348,7 @@ def get_class_test_results():
         first_name, last_name = users[i].first_name, users[i].last_name
         takes = Takes.query.order_by(Takes.grade).filter((Takes.USER == users[i].USER) & (Takes.TEST == test)).first()
         users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
-                    'tests': {'takes': takes.TAKES, 'timeSubmitted': takes.time_submitted, 'grade': takes.grade}}
+                    'tests': [{'takes': takes.TAKES, 'timeSubmitted': takes.time_submitted, 'grade': takes.grade}]}
     return jsonify(results=users)
 
 
