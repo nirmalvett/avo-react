@@ -36,13 +36,13 @@ def register():
     if len(password) < 8:
         return jsonify(error='Password too short')
 
-    user = User.query.filter().all()
-    if user is not None:
+    user = User.query.filter(User.email == email).all()
+    if len(user) is not 0:
         return jsonify(error='User already exists')
 
     user = User(email, first_name, last_name, password, False, 0, 0)
     db.session.add(user)
-    db.sesion.commit()
+    db.session.commit()
     serializer = URLSafeTimedSerializer(config.SECRET_KEY)
     token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
     send_email(email, 'Confirm your AvocadoCore Account',
