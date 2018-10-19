@@ -107,3 +107,51 @@ export function getTermsOfService() {
             </p>
         );
     };
+
+
+// For Henrik to do work on stuff
+
+export const studentClass = {"classes":[{"enrollKey":"hBw2lD4sEg","id":8,"name":"Passini 1600","tests":[{"attempts":-1,"current":null,"deadline":"201904170000","id":28,"name":"Set 1","open":1,"submitted":[],"timer":100,"total":11},{"attempts":-1,"current":null,"deadline":"202002120000","id":29,"name":"Set 2","open":1,"submitted":[],"timer":100,"total":14},{"attempts":-1,"current":null,"deadline":"202002120000","id":30,"name":"Set 3","open":1,"submitted":[],"timer":100,"total":15},{"attempts":-1,"current":null,"deadline":"202002120000","id":31,"name":"Set 4","open":1,"submitted":[],"timer":100,"total":15},{"attempts":-1,"current":null,"deadline":"202012020000","id":32,"name":"Set 5","open":1,"submitted":[],"timer":100,"total":14},{"attempts":-1,"current":null,"deadline":"202012020000","id":33,"name":"Set 6","open":1,"submitted":[],"timer":100,"total":15},{"attempts":-1,"current":null,"deadline":"202012020000","id":34,"name":"Set 7","open":1,"submitted":[],"timer":100,"total":10},{"attempts":-1,"current":null,"deadline":"202012020000","id":35,"name":"Set 8","open":1,"submitted":[],"timer":100,"total":15},{"attempts":-1,"current":null,"deadline":"202012020000","id":36,"name":"Set 9","open":1,"submitted":[],"timer":100,"total":24},{"attempts":-1,"current":null,"deadline":"202012020000","id":37,"name":"Set 10","open":1,"submitted":[],"timer":100,"total":21},{"attempts":-1,"current":null,"deadline":"202012020000","id":38,"name":"Set 11","open":1,"submitted":[],"timer":100,"total":15}]}]};
+export const teacherClass = {
+  "classes":[
+      {"enrollKey":"hBw2lD4sEg","id":8,"name":"Passini 1600",
+      "tests":[{"attempts":-1,"current":null,"deadline":"201904170000","id":28,"name":"Set 1","open":1,
+        "submitted":[
+            {"grade":0,"takes":50,"timeSubmitted":20181001220146},
+            {"grade":0,"takes":57,"timeSubmitted":20181008140045},
+            {"grade":0,"takes":58,"timeSubmitted":20181009123931},
+            {"grade":0,"takes":59,"timeSubmitted":20181009124032}],
+            "timer":100,"total":11},
+        {"attempts":-1,"current":null,"deadline":"202002120000","id":29,"name":"Set 2","open":1,"submitted":[],"timer":100,"total":14},
+        {"attempts":-1,"current":null,"deadline":"202002120000","id":30,"name":"Set 3","open":1,"submitted":[],"timer":100,"total":15},
+        {"attempts":-1,"current":null,"deadline":"202002120000","id":31,"name":"Set 4","open":1,"submitted":[],"timer":100,"total":15},
+        {"attempts":-1,"current":null,"deadline":"202012020000","id":32,"name":"Set 5","open":1,"submitted":[],"timer":100,"total":14},
+        {"attempts":-1,"current":null,"deadline":"202012020000","id":33,"name":"Set 6","open":1,"submitted":[],"timer":100,"total":15},
+        {"attempts":-1,"current":null,"deadline":"202012020000","id":34,"name":"Set 7","open":1,"submitted":[],"timer":100,"total":10},
+        {"attempts":-1,"current":null,"deadline":"202012020000","id":35,"name":"Set 8","open":1,"submitted":[],"timer":100,"total":15},
+        {"attempts":-1,"current":null,"deadline":"202012020000","id":36,"name":"Set 9","open":1,"submitted":[],"timer":100,"total":24},
+        {"attempts":-1,"current":null,"deadline":"202012020000","id":37,"name":"Set 10","open":1,"submitted":[],"timer":100,"total":21},
+        {"attempts":-1,"current":null,"deadline":"202012020000","id":38,"name":"Set 11","open":1,"submitted":[],"timer":100,"total":15}]},
+    {"enrollKey":"dm55UU8LXB","id":9,"name":"Passini 1229","tests":[{"attempts":-1,"current":null,"deadline":"202002120000","id":39,"name":"Set 1","open":1,"submitted":[{"grade":0,"takes":37,"timeSubmitted":20180927175717},{"grade":0,"takes":52,"timeSubmitted":20181007181042}],"timer":100,"total":8},{"attempts":-1,"current":null,"deadline":"202012020000","id":40,"name":"Set 2","open":1,"submitted":[],"timer":100,"total":8},{"attempts":-1,"current":null,"deadline":"202012020000","id":41,"name":"Set 3","open":1,"submitted":[],"timer":100,"total":8},{"attempts":-1,"current":null,"deadline":"202012010000","id":42,"name":"Set 4","open":1,"submitted":[],"timer":100,"total":8},{"attempts":-1,"current":null,"deadline":"202012020000","id":43,"name":"Set 5","open":1,"submitted":[],"timer":100,"total":8},{"attempts":-1,"current":null,"deadline":"202012020000","id":44,"name":"Set 6","open":1,"submitted":[{"grade":0,"takes":38,"timeSubmitted":20180927175751}],"timer":100,"total":8},{"attempts":-1,"current":null,"deadline":"201810311000","id":46,"name":"prova","open":0,"submitted":[{"grade":0,"takes":43,"timeSubmitted":20181001150959}],"timer":30,"total":1},{"attempts":-1,"current":null,"deadline":"201812202359","id":47,"name":"training2","open":1,"submitted":[{"grade":6,"takes":44,"timeSubmitted":20181001153200},{"grade":1,"takes":47,"timeSubmitted":20181001183916},{"grade":0,"takes":48,"timeSubmitted":20181001231943}],"timer":100,"total":6}]}]};
+export const testResultsExample =
+    [
+        {
+          "firstName":"Frank",
+          "lastName":"2",
+          "tests":[
+              {"grade":64,"takes":34,"timeSubmitted":20180927144619},
+              {"grade":80,"takes":35,"timeSubmitted":20180927144619}
+              ],
+          "user":10
+        },
+        {
+          "firstName":"Henrik",
+          "lastName":"1",
+          "tests":[
+               {"grade":70,"takes":36,"timeSubmitted":20180927144619},
+              {"grade":90,"takes":37,"timeSubmitted":20180927144619}
+          ],
+          "user":9
+        }
+
+    ];
