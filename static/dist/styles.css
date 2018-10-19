@@ -23,7 +23,7 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background: url(887ae467c351aae840132e48e9839c14.svg) center/cover;
+    background: url(c60431235ec9139830309814335d149c.svg) center/cover;
     background-position: 0px 0px; background-size: 100%;
 }
 
@@ -77,13 +77,13 @@ body {
     background-color: #F5F5F5;
     width: 100%;
     background-position: 0px 0px; background-size: 100%;
-    background: url(887ae467c351aae840132e48e9839c14.svg) center/cover !important;
+    background: url(c60431235ec9139830309814335d149c.svg) center/cover !important;
 }
 
 .avo-tech__info-card {
     height: 100px;
     width: 100%;
-    background: url(1062db8333af6434f1deb2a100974008.svg) center/cover !important;
+    background: url(44b167088163c8c7001bce8dda53d628.svg) center/cover !important;
     background-position: 0px 0px;
     background-size: 10%;
 }
@@ -181,7 +181,7 @@ body {
 }
 
 .avo-mascot{
-    background: url(9e3295771fe428286dd8070c4f33ad44.svg) center/cover no-repeat; 
+    background: url(098c79c5eb66064e9b76b7d258a94bce.svg) center/cover no-repeat; 
     width: 100%; 
     height: 15em;
 }
