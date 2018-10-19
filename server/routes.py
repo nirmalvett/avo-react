@@ -255,6 +255,9 @@ def save_test():
     class_id, name, deadline, timer, attempts, question_list, seed_list = \
         data['classID'], data['name'], data['deadline'], data['timer'], data['attempts'], data['questionList'],\
         data['seedList']
+    deadline = str(deadline)
+    deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
+    deadline = datetime.strptime(str(deadline), '%Y-%m-%d %I:%M')
     total = 0
     for q in question_list:
         current_question = Question.query.get(q)

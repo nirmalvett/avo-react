@@ -40,7 +40,7 @@ def register():
     if len(user) is not 0:
         return jsonify(error='User already exists')
 
-    user = User(email, first_name, last_name, password, False, 0, 0)
+    user = User(email, first_name, last_name, password, False, 9, 0)
     db.session.add(user)
     db.session.commit()
     serializer = URLSafeTimedSerializer(config.SECRET_KEY)
