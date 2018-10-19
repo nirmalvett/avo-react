@@ -202,6 +202,8 @@ def get_test():
     test = Test.query.get(test_id)
     if test is None:
         return jsonify(error='Test not found')
+    if test.is_open = False:
+        return jsonify(error='Test Not Open')
     takes = Takes.query.filter((Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (Takes.time_submitted > datetime.now())).first()
     if takes is None:
         takes = create_takes(test_id, current_user.get_id())
