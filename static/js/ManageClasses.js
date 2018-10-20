@@ -28,13 +28,17 @@ import {copy, getDateString} from "./Utilities";
 export default class ManageClasses extends React.Component {
     constructor(props) {
         super(props);
-        Http.getClasses(result => this.setState(result), result => console.log(result));
+        this.loadClasses();
         this.state = {
             classes: [],
             c: null, // Selected class
             t: null, // Selected test
             createTest: this.props.createTest,
         };
+    }
+
+    loadClasses(){
+        Http.getClasses(result => this.setState(result), result => console.log(result));
     }
 
     render() {
@@ -134,7 +138,7 @@ export default class ManageClasses extends React.Component {
         let name = prompt('Class Name:');
         if (name !== null && name !== '') {
             Http.createClass(name,
-                () => alert('Class Created! Navigate out of this section and then back to refresh.'),
+                () => this.loadClasses(), // we don't need to alert to refresh anymore
                 () => alert('Something went wrong :\'('));
         }
     }
