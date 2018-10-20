@@ -167,8 +167,17 @@ class Layout extends React.Component {
         let selected = this.state.section === text;
         let style = {backgroundColor: selected ? color[theme === 'light' ? '100' : '500'] : undefined};
         return (
-            <ListItem button selected={selected} onClick={() => this.setState({section: text})} style={style}>
-                {React.createElement(icon, {color: selected && theme === 'light' ? 'primary' : 'action'})}
+            <ListItem 
+                button
+                classes={{
+                    root : 'avo-menu__item',
+                    selected : 'selected'
+                }} 
+                selected={selected} 
+                onClick={() => this.setState({section: text})} 
+                style={style}
+            >
+                {React.createElement(icon, {color: selected && theme === 'light' ? 'secondary' : 'action'})}
                 <ListItemText primary={text}/>
             </ListItem>
         );

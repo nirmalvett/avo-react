@@ -4,6 +4,7 @@ import SignIn from './SignIn.js';
 import Layout from './Layout.js';
 import {createMuiTheme, MuiThemeProvider} from '@material-ui/core';
 import {green} from '@material-ui/core/colors';
+import {white} from '@material-ui/core/colors';
 import { unregister } from './registerServiceWorker';
 unregister();
 export default class App extends React.Component {
@@ -26,7 +27,14 @@ export default class App extends React.Component {
         if (this.state.authenticated === null)
             return <p>Loading...</p>;
         return (
-            <MuiThemeProvider theme={createMuiTheme({palette: {primary: this.state.color, type: this.state.theme}})}>
+            <MuiThemeProvider 
+                theme={createMuiTheme({
+                    palette: {
+                        primary: this.state.color, 
+                        type: this.state.theme,
+                    }
+                })}
+            >
                 {
                     this.state.authenticated
                         ? <Layout setTheme={(color, theme) => this.setState({color: color, theme: theme})}
