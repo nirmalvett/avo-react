@@ -177,7 +177,7 @@ class Layout extends React.Component {
                 onClick={() => this.setState({section: text})} 
                 style={style}
             >
-                {React.createElement(icon, {color: selected && theme === 'light' ? 'secondary' : 'action'})}
+                {React.createElement(icon, {nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' })}
                 <ListItemText primary={text}/>
             </ListItem>
         );
