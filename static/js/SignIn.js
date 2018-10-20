@@ -24,6 +24,11 @@ export default class SignIn extends React.Component {
         };
     }
 
+    componentDidMount(){
+      /* This runs after the component is rendered */
+      this.confirmedAccountAlert();
+    }
+
     render() {
         let style = {'width': '100%'};
 
@@ -161,5 +166,13 @@ export default class SignIn extends React.Component {
             alert(result.error)
             }
         );
+    }
+
+    confirmedAccountAlert(){
+      console.log(window.location.href);
+      const containsConfirmInUrl = window.location.href.includes('/confirm/');
+      if (containsConfirmInUrl){
+        alert("Your account was successfully confirmed! You may now log in and begin using AVO.")
+      }
     }
 }
