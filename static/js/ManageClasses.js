@@ -22,6 +22,7 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Description from '@material-ui/icons/Description';
 import AssignmentTurnedIn from "@material-ui/icons/AssignmentTurnedIn";
+import AssignmentNotTurnedIn from "@material-ui/icons/AssignmentLate";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import {copy, getDateString} from "./Utilities";
 
@@ -105,6 +106,12 @@ export default class ManageClasses extends React.Component {
                 <List style={{flex: 1, overflowY: 'auto'}} dense>
                     {this.state.results.map((x) => [
                         <ListSubheader>{x.firstName + ' ' + x.lastName}</ListSubheader>,
+                        x.tests.length === 0
+                            ? <ListItem>
+                                <AssignmentNotTurnedIn color='action'/>
+                                <ListItemText primary={'This user has not taken any tests yet.'}/>
+                            </ListItem>
+                            : null,
                         x.tests.map(y => (
                             <ListItem>
                                 <AssignmentTurnedIn color='action'/>
