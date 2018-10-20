@@ -147,11 +147,11 @@ class Layout extends React.Component {
                     </Drawer>
                     <AppBar className={classNames(classes.appBar, {[classes.appBarShift]: open})}>
                         <Toolbar disableGutters>
-                            <IconButton style={{marginLeft: 12, marginRight: 20}}
+                            <IconButton style={{marginLeft: 12, marginRight: 20, color : 'white'}}
                                         onClick={() => this.setState({open: !open})}>
                                 <Menu/>
                             </IconButton>
-                            <Typography variant='title' noWrap>{this.state.name}</Typography>
+                            <Typography variant='title' style={{ color : 'white' }} noWrap>{this.state.name}</Typography>
                         </Toolbar>
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
