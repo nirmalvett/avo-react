@@ -4248,7 +4248,7 @@ function uniqueKey() {
     return '_' + Math.random().toString(36).substr(2, 9);
 }
 
-var notChromeMessage = exports.notChromeMessage = "We have detected that you are currently not using Google Chrome.\n" + "This is not recommended as AVO has not been properly tested and many of the basic functionality may not work.\n\n" + "Some known issues include:\n" + "- Teacher accounts are unable to properly set the test date deadline.\n" + "- Scrolling does not work properly.\n" + "- Latex rendering issues causing things to look misaligned.\n\n" + "Many of these issues are caused by bugs found in non Chrome browsers which are out AvocadoCore's control. " + "We will continue to look for solutions but we advise using Chrome when using AVO.";
+var notChromeMessage = exports.notChromeMessage = "We have detected that you are currently not using Google Chrome.\n" + "This is not recommended as AVO has not been properly tested and many of the basic functionality may not work.\n\n" + "Some known issues include:\n" + "- Teacher accounts are unable to properly set the test date deadline.\n" + "- Scrolling does not work properly.\n" + "- Latex rendering issues causing things to look misaligned.\n\n" + "Many of these issues are caused by bugs found in non Chrome browsers which are out AvocadoCore's control. " + "We will continue to look for solutions, but we strongly advise using Chrome.";
 
 function isChrome() {
     // please note,
