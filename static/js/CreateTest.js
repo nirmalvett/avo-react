@@ -96,7 +96,7 @@ export default class CreateTest extends React.Component {
                 <Grid item xs={1} style={{textAlign: 'center', marginTop: '10%'}}/>
                 <Grid item xs={7} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
                     {this.state.testQuestions.map((x, y) =>
-                        <Card key = { `Create-Test-Index-${y}-${x.prompt}` } style={{marginTop: '5%', marginBottom: '5%', padding: '10px'}}>
+                        <Card key = { `Create-Test-Card-index:${y}-id:${x.id}-seed:${x.seed}` } style={{marginTop: '5%', marginBottom: '5%', padding: '10px'}}>
                             <CardHeader
                                 title={x.name}
                                 subheader={'Question ' + (y + 1) + '/' + this.state.testQuestions.length}
@@ -107,7 +107,7 @@ export default class CreateTest extends React.Component {
                                         : <IconButton onClick={lock(y)}><LockOpen/></IconButton>,
                                     <IconButton onClick={deleteQ(y)}><Delete/></IconButton>]}/>
                             {getMathJax(x.prompt, 'subheading')}
-                            {x.prompts.map((a, b) => <AnswerInput key = { `Answer-Input-Index-${y}-${x.prompt}` } value='' disabled prompt={a} type={x.types[b]}/>)}
+                            {x.prompts.map((a, b) => <AnswerInput key = { `Create-Test-Answer-index:${b}-id:${x.id}-seed:${x.seed}` } value='' disabled prompt={a} type={x.types[b]}/>)}
                         </Card>
                     )}
                     <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>

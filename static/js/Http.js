@@ -1,3 +1,5 @@
+const debugMode = false; // if True it will print off everything
+
 export default class Http {
     static _request(type, url, success, failure, data = '') {
         console.log(url);
@@ -11,6 +13,7 @@ export default class Http {
                         + '\n Error Message: ' + JSON.stringify(JSON.parse(http.responseText)));
                     failure(JSON.parse(http.responseText));
                 } else {
+                    debugModeLog(type, url, data, http);
                     success(JSON.parse(http.responseText));
                 }
             }
@@ -100,4 +103,13 @@ export default class Http {
     static getClassTestResults(test, success, failure) {
         Http._request('POST', '/getClassTestResults', success, failure, {test: test});
     }
+}
+
+function debugModeLog(type, url, data = '', http){
+       if (debugMode){
+           console.log("----------------------------------------");
+           console.log("url: ", url);
+           console.log("data sent to server: ", data);
+           console.log("returned Object from server: ", JSON.parse(http.responseText))
+     }
 }
