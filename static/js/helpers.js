@@ -27,7 +27,7 @@ export const notChromeMessage = "We have detected that you are currently not usi
              "- Scrolling does not work properly.\n" +
              "- Latex rendering issues causing things to look misaligned.\n\n" +
              "Many of these issues are caused by bugs found in non Chrome browsers which are out AvocadoCore's control. " +
-             "We will continue to look for solutions but we advise using Chrome when using AVO.";
+             "We will continue to look for solutions, but we strongly advise using Chrome.";
 
 export function isChrome(){
       // please note,
