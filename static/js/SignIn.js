@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography/Typography';
 import AVOModal from './AVOMatComps/AVOMatModal';
 import Checkbox from '@material-ui/core/Checkbox';
 import Slide from '@material-ui/core/Slide';
-import { getTermsOfService } from "./helpers";
+import { isChrome, notChromeMessage } from "./helpers";
 import Logo from "./Logo"
 export default class SignIn extends React.Component {
     constructor(props) {
@@ -25,7 +25,10 @@ export default class SignIn extends React.Component {
             signInError: '',
             hasAgreedToTOS : false
         };
+        if (!isChrome()){ alert(notChromeMessage) }
     }
+
+
 
     componentDidMount(){
       /* This runs after the component is rendered */
