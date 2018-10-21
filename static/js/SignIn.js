@@ -115,7 +115,7 @@ export default class SignIn extends React.Component {
                                         checked={this.state.hasAgreedToTOS}
                                         onClick={() => this.setState({ hasAgreedToTOS : !this.state.hasAgreedToTOS })}
                                     />
-                                    I agree to the Terms of Service found <a id='ToC-here'>here.</a>
+                                    I agree to the Terms of Service found <a id='ToC-here'>here</a>.
                                     <br/>
                                     <center style={{ 'color' : 'red' }}>
                                         {this.state.messageToUser}
@@ -215,7 +215,7 @@ export default class SignIn extends React.Component {
                                 <React.Fragment>
                                     <br/>
                                     <Typography variant='body'>
-                                        That's Ok! Just enter in your associated <b>Email</b> & we'll send you an email with instructions on how to change it!
+                                        That's Ok! Just enter in your associated email & we'll send you an email with instructions on how to change it!
                                     </Typography>
                                     <TextField
                                         margin='normal'
@@ -233,7 +233,7 @@ export default class SignIn extends React.Component {
                     )}
                     <footer className='avo-styles__footer'>
                         <Typography variant='caption'>
-                            {this.state.isSigningIn ? 'Don\'t have an Account? Click ' : 'Already have an Account? Click '}
+                            {this.state.isSigningIn ? 'Don\'t have an account? Click ' : 'Already have an Account? Click '}
                             <a
                                 id="switchRegistration"
                                 className="avo-styles__link"
