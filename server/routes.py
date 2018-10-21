@@ -228,8 +228,8 @@ def get_test():
     test = db.fetchone()
     if test is None:
         return jsonify(error='Test not found')
-    if test[1] is False:
-        return jsonify(error='Test is Not Open')
+    if test[1] == 0:
+        return jsonify(error='This Test is not yet open by your instructor! Please wait until it has been opened.')
     db.execute('SELECT takes, time_submitted, answers, seeds from takes WHERE test=? AND user=? AND time_submitted>?',
                (test_id, current_user.get_id(), time_stamp(datetime.now())))
     takes = db.fetchone()
