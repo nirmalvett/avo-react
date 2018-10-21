@@ -29,6 +29,7 @@ import Build from '@material-ui/icons/Build';
 import Class from '@material-ui/icons/Class';
 import Settings from '@material-ui/icons/Settings';
 import ExitToApp from '@material-ui/icons/ExitToApp';
+import { isNotChromeAlert } from "./helpers";
 
 const drawerWidth = 240;
 
