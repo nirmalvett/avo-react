@@ -46,9 +46,6 @@ body {
     background: #BBBBBB;
 }
 
-* {
-    font-family: 'Open Sans', sans-serif !important;
-}
 
 .LoginCard {
     display: flex;
