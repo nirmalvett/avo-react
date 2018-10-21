@@ -22,19 +22,24 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Description from '@material-ui/icons/Description';
 import AssignmentTurnedIn from "@material-ui/icons/AssignmentTurnedIn";
+import AssignmentNotTurnedIn from "@material-ui/icons/AssignmentLate";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import {copy, getDateString} from "./Utilities";
 
 export default class ManageClasses extends React.Component {
     constructor(props) {
         super(props);
-        Http.getClasses(result => this.setState(result), result => console.log(result));
+        this.loadClasses();
         this.state = {
             classes: [],
             c: null, // Selected class
             t: null, // Selected test
             createTest: this.props.createTest,
         };
+    }
+
+    loadClasses(){
+        Http.getClasses(result => this.setState(result), result => console.log(result));
     }
 
     render() {
@@ -101,6 +106,12 @@ export default class ManageClasses extends React.Component {
                 <List style={{flex: 1, overflowY: 'auto'}} dense>
                     {this.state.results.map((x) => [
                         <ListSubheader>{x.firstName + ' ' + x.lastName}</ListSubheader>,
+                        x.tests.length === 0
+                            ? <ListItem>
+                                <AssignmentNotTurnedIn color='action'/>
+                                <ListItemText primary={'This user has not taken any tests yet.'}/>
+                            </ListItem>
+                            : null,
                         x.tests.map(y => (
                             <ListItem>
                                 <AssignmentTurnedIn color='action'/>
@@ -134,7 +145,7 @@ export default class ManageClasses extends React.Component {
         let name = prompt('Class Name:');
         if (name !== null && name !== '') {
             Http.createClass(name,
-                () => alert('Class Created! Navigate out of this section and then back to refresh.'),
+                () => this.loadClasses(), // we don't need to alert to refresh anymore
                 () => alert('Something went wrong :\'('));
         }
     }
