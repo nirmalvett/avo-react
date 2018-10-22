@@ -30,7 +30,7 @@ SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root@localhost/dev'
 SQLALCHEMY_ECHO = False
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-#Gzip Settings
+# Gzip Settings
 COMPRESS_MIMETYPES = [
 'text/html',
 'text/css',
