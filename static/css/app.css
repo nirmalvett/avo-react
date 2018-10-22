@@ -1,5 +1,6 @@
 :root{
     --pri-theme-color: #399103;
+    --dis-theme-color: rgba(0, 0, 0, 0.5);
     --avo-pupil-size : 11px;
 	--avo-mouth-width: 66px;
 	--avo-mouth-height: 30px;
@@ -8,6 +9,10 @@
 	--avo-mouth-bgcol: rgba(0,0,0,0);
 	--avo-eyebrow-height: -4px;
 	--avo-eyebrow-angle: 10deg;
+}
+
+body {
+    background: #fafafa;
 }
 
 #root {
@@ -41,24 +46,61 @@
     background: #BBBBBB;
 }
 
-* {
-    font-family: 'Open Sans', sans-serif !important;
-}
-
 .LoginCard {
+    display: flex;
     width: 33%;
     height: 90vh;
     margin: auto;
     margin-top: 5vh;
     border-radius: 8px !important;
     box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
+    overflow-y: auto !important;
 }
 
 .avo-button {
     border-radius: 16px !important;
     color: var(--pri-theme-color) !important;
+
+    transition: color 0.5s ease-in;
 }
 
+.avo-button.disabled {
+    color: var(--dis-theme-color) !important;
+    transition: color 0.5s ease-in;
+}
+
+.avo-student__background {
+    height: 100%;
+    background-color: #F5F5F5;
+    width: 100%;
+    background-position: 0px 0px; background-size: 100%;
+    background: url('../img/backdrop.svg') center/cover !important;
+}
+
+.avo-tech__info-card {
+    height: 100px;
+    width: 100%;
+    background: url('../img/avo-server.svg') center/cover !important;
+    background-position: 0px 0px;
+    background-size: 10%;
+}
+
+.avo-card {
+    width: 100%;
+    margin: 16px;
+    height: auto;
+    max-height: 80%;
+    position: relative;
+    border-radius: 8px !important;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
+    padding: 16px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.avo-card__test-info {
+    margin-left: 24px !important;
+}
 
 .avo-modal__card {
     width: 50%;
@@ -82,6 +124,24 @@
     float: right;
 }
 
+.avo-menu__item {
+    border-radius: 0px 50px 50px 0px !important;
+    width: 97.5% !important;
+}
+
+/* Frank: Commented out the line below so that when a user selects a theme the side bar matches the primary color they selected */
+/*.avo-menu__item.selected {*/
+    /*background: var(--pri-theme-color) !important;*/
+/*}*/
+
+.avo-menu__item.selected > div > span {
+    color: white !important;
+}
+
+.avo-scrollable {
+    overflow-y: auto;
+}
+
 .ToC {
     max-height: 300px;
     overflow-y: scroll;
@@ -101,8 +161,8 @@
 
 .avo-styles__footer {
     position: relative;
-    bottom: 8px;
     text-align: center;
+    margin-top: 8px;
 }
 
 .avo-styles__error {

@@ -1,6 +1,6 @@
 import React from 'react';
 import Http from './Http';
-import {getDateString} from "./Utilities";
+import {copy, getDateString} from "./Utilities";
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import List from '@material-ui/core/List/List';
@@ -11,7 +11,6 @@ import CardHeader from '@material-ui/core/CardHeader/CardHeader';
 import IconButton from '@material-ui/core/IconButton/IconButton';
 import Typography from '@material-ui/core/Typography/Typography';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
-import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import AddBox from '@material-ui/icons/AddBox';
 import Create from '@material-ui/icons/Create';
 import People from '@material-ui/icons/People';
@@ -23,11 +22,13 @@ import Description from '@material-ui/icons/Description';
 import AssignmentLate from '@material-ui/icons/AssignmentLate';
 import AssignmentTurnedIn from '@material-ui/icons/AssignmentTurnedIn';
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
+import { removeDuplicateClasses } from "./helpers";
+import { uniqueKey } from "./helpers";
 
 export default class MyClasses extends React.Component {
     constructor(props) {
         super(props);
-        Http.getClasses(result => this.setState(result), result => console.log(result));
+        this.loadClasses();
         this.state = {
             classes: [],
             c: null, // Selected class
@@ -36,17 +37,27 @@ export default class MyClasses extends React.Component {
         };
     }
 
+    loadClasses(){
+        /* Loads the classes into the state */
+      Http.getClasses(
+            (result) => {
+                this.setState({classes: removeDuplicateClasses(result.classes)});
+            },
+            (result) => {
+                console.log(result)
+            }
+        );
+    }
     render() {
         return (
             <div style={{width: '100%', flex: 1, display: 'flex'}}>
-                <Grid container spacing={8} style={{flex: 1, display: 'flex', marginBottom: 0}}>
+                <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
                     <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
-                        <Paper style={{width: '100%', flex: 1, display: 'flex'}}>
-                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}} component='nav'
-                                  subheader={<ListSubheader>My Classes</ListSubheader>}>
+                        <Paper square style={{width: '100%', flex: 1, display: 'flex'}}>
+                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
                                 {this.state.classes.map((x, y) => [
-                                    <ListItem button onClick={() => {
-                                        let newClassList = JSON.parse(JSON.stringify(this.state.classes));
+                                    <ListItem key = { uniqueKey() } button onClick={() => {
+                                        let newClassList = copy(this.state.classes);
                                         if (newClassList[y].tests.length > 0)
                                             newClassList[y].open = !newClassList[y].open;
                                         this.setState({classes: newClassList, c: y, t: null});
@@ -59,7 +70,7 @@ export default class MyClasses extends React.Component {
                                     </ListItem>,
                                     <Collapse in={x.open} timeout='auto' unmountOnExit><List>{
                                         x.tests.map((a, b) =>
-                                            <ListItem button onClick={() => this.setState({c: y, t: b})}>
+                                            <ListItem key = { uniqueKey() } button onClick={() => this.setState({c: y, t: b})}>
                                                 <Assessment color={a.open ? 'primary' : 'disabled'} style={{marginLeft: '10px'}}/>
                                                 <ListItemText inset primary={a.name}/>
                                             </ListItem>)
@@ -84,6 +95,8 @@ export default class MyClasses extends React.Component {
         );
     }
 
+
+
     detailsCard() {
         let selectedClass = this.state.classes[this.state.c];
         if (this.state.t !== null) {
@@ -103,7 +116,7 @@ export default class MyClasses extends React.Component {
                 <List style={{flex: 1, overflowY: 'auto'}}>
                     {[
                         selectedTest.submitted.map((x, y) => (
-                            <ListItem>
+                            <ListItem key = { uniqueKey() }>
                                 <AssignmentTurnedIn color='action'/>
                                 <ListItemText primary={'Attempt ' + (y+1) + ' - ' + x.grade + '/' + selectedTest.total}
                                               secondary={'Submitted on ' + getDateString(x.timeSubmitted)}/>
@@ -112,7 +125,7 @@ export default class MyClasses extends React.Component {
                                 </IconButton></ListItemSecondaryAction>
                             </ListItem>)),
                         selectedTest.current !== null
-                            ? <ListItem>
+                            ? <ListItem key = { uniqueKey() }>
                                 <AssignmentLate color='primary'/>
                                 <ListItemText primary='Current Attempt'
                                               secondary={'Ends on ' + getDateString(selectedTest.current.timeSubmitted)}/>
@@ -121,13 +134,13 @@ export default class MyClasses extends React.Component {
                                 </ListItemSecondaryAction>
                             </ListItem>
                             : (selectedTest.attempts > selectedTest.submitted.length) || (selectedTest.attempts === -1)
-                            ? <ListItem>
+                            ? <ListItem key = { uniqueKey() }>
                                 <Assignment color='action'/><ListItemText primary='Start Test'/>
                                 <ListItemSecondaryAction>
                                     <IconButton onClick={() => this.state.startTest(selectedTest.id)}><Create/></IconButton>
                                 </ListItemSecondaryAction>
                             </ListItem>
-                            : <ListItem disabled>
+                            : <ListItem key = { uniqueKey() } disabled>
                                 <Assignment color='disabled'/><ListItemText primary='No attempts left'/>
                                 <ListItemSecondaryAction><IconButton disabled>
                                     <Create color='disabled'/>
@@ -143,13 +156,14 @@ export default class MyClasses extends React.Component {
         return null;
     }
 
-    enrollInClass() {
+    enrollInClass() { 
         let key = prompt('Enroll Key:');
         if (key !== null && key !== '') {
             Http.enrollInClass(key,
-                () => alert('Enroll successful! Navigate out of this section and ' +
-                    'then back to refresh.'),
+                () => this.loadClasses(),
                 () => alert('Looks like you entered an invalid key.'));
         }
     }
+
+
 }

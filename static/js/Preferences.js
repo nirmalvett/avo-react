@@ -1,7 +1,5 @@
 import React from 'react';
 import Http from './Http';
-import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
-    deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors/';
 import Radio from '@material-ui/core/Radio/Radio';
 import Avatar from '@material-ui/core/Avatar/Avatar';
 import RadioGroup from '@material-ui/core/RadioGroup/RadioGroup';
@@ -11,10 +9,10 @@ import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabe
 export default class Preferences extends React.Component {
     constructor(props) {
         super(props);
+        this.colorList = this.props.colorList;
         this.state = {
             changeColor: (color) => {
-                let index = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green,
-                    lightGreen, amber, orange, deepOrange, brown, grey, blueGrey].indexOf(color);
+                let index = this.colorList.indexOf(color);
                 Http.changeColor(index, () => {}, () => {});
                 this.props.changeColor(color);
             },
@@ -33,9 +31,9 @@ export default class Preferences extends React.Component {
             <div style={{margin: '10px', flex: 1, overflowY: 'auto'}}>
                 <Typography variant={'headline'}>Please select a color</Typography>
                 <table><tbody>
-                    <tr>{[red, pink, purple, deepPurple, indigo, blue].map(x => color_icon(x))}</tr>
-                    <tr>{[lightBlue, cyan, teal, green, lightGreen, amber].map(x => color_icon(x))}</tr>
-                    <tr>{[orange, deepOrange, brown, grey, blueGrey].map(x => color_icon(x))}</tr>
+                    <tr>{this.colorList.slice(0, 6).map(x => color_icon(x))}</tr>
+                    <tr>{this.colorList.slice(6, 12).map(x => color_icon(x))}</tr>
+                    <tr>{this.colorList.slice(12, 18).map(x => color_icon(x))}</tr>
                 </tbody></table>
                 <Typography variant={'headline'}>Please select a theme</Typography>
                 <RadioGroup name='theme' value={this.props.theme}
