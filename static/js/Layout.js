@@ -29,6 +29,7 @@ import Build from '@material-ui/icons/Build';
 import Class from '@material-ui/icons/Class';
 import Settings from '@material-ui/icons/Settings';
 import ExitToApp from '@material-ui/icons/ExitToApp';
+import { isNotChromeAlert } from "./helpers";
 
 const drawerWidth = 240;
 
@@ -78,14 +79,15 @@ const styles = theme => ({
 class Layout extends React.Component {
     constructor(props) {
         super(props);
-        let color = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal,
-            green, lightGreen, amber, orange, deepOrange, brown, grey, blueGrey];
+        let avoGreen = {'200': '#f8ee7b', '500': '#399103'};
+        this.colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal,
+            avoGreen, green, lightGreen, amber, orange, deepOrange, brown, grey, blueGrey];
         Http.getUserInfo(
             result => {
                 // noinspection RedundantConditionalExpressionJS, JSUnresolvedVariable
                 this.setState({
                     name: result.first_name + ' ' + result.last_name,
-                    color: color[result.color],
+                    color: this.colorList[result.color],
                     theme: result.theme ? 'dark' : 'light',
                     isTeacher: result.is_teacher
                 });
@@ -97,7 +99,7 @@ class Layout extends React.Component {
             isTeacher: false,
             name: 'Loading...',
             open: true,
-            color: color[9],
+            color: this.colorList[9],
             theme: 'dark',
             testCreator: null,
             postTest: null,
@@ -146,11 +148,11 @@ class Layout extends React.Component {
                     </Drawer>
                     <AppBar className={classNames(classes.appBar, {[classes.appBarShift]: open})}>
                         <Toolbar disableGutters>
-                            <IconButton style={{marginLeft: 12, marginRight: 20}}
+                            <IconButton style={{marginLeft: 12, marginRight: 20, color : 'white'}}
                                         onClick={() => this.setState({open: !open})}>
                                 <Menu/>
                             </IconButton>
-                            <Typography variant='title' noWrap>{this.state.name}</Typography>
+                            <Typography variant='title' style={{ color : 'white' }} noWrap>{this.state.name}</Typography>
                         </Toolbar>
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
@@ -166,8 +168,17 @@ class Layout extends React.Component {
         let selected = this.state.section === text;
         let style = {backgroundColor: selected ? color[theme === 'light' ? '100' : '500'] : undefined};
         return (
-            <ListItem button selected={selected} onClick={() => this.setState({section: text})} style={style}>
-                {React.createElement(icon, {color: selected && theme === 'light' ? 'primary' : 'action'})}
+            <ListItem 
+                button
+                classes={{
+                    root : 'avo-menu__item',
+                    selected : 'selected'
+                }} 
+                selected={selected} 
+                onClick={() => this.setState({section: text})} 
+                style={style}
+            >
+                {React.createElement(icon, {nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' })}
                 <ListItemText primary={text}/>
             </ListItem>
         );
@@ -189,9 +200,11 @@ class Layout extends React.Component {
         if (section === 'Build Question')
             return null;
         if (section === 'Take Test')
-            return (<TakeTest testID={this.state.test}/>);
+            return (<TakeTest testID={this.state.test}
+                              submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);
         if (section === 'Preferences')
-            return (<Preferences color={color} changeColor={color => this.setState({color: color})}
+            return (<Preferences colorList={this.colorList}
+                                 color={color} changeColor={color => this.setState({color: color})}
                                  theme={theme} changeTheme={theme => this.setState({theme: theme})}/>);
         if (section === 'Post Test')
             return <PostTest takes={this.state.postTest}/>
@@ -209,6 +222,5 @@ class Layout extends React.Component {
         this.setState({section: 'Take Test', test: test});
     }
 }
-
 
 export default withStyles(styles)(Layout);

@@ -1,6 +1,6 @@
 import React from 'react';
 import Http from './Http';
-import {getMathJax} from './Utilities';
+import {copy, getMathJax} from './Utilities';
 import AnswerInput from './AnswerInput';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
@@ -15,7 +15,7 @@ export default class TakeTest extends React.Component {
     constructor(props) {
         super(props);
         Http.getTest(this.props.testID, (result) => {
-            result.newAnswers = JSON.parse(JSON.stringify(result.answers));
+            result.newAnswers = copy(result.answers);
             this.setState(result);
             }, (result) => alert(result.error));
         this.state = {
@@ -32,9 +32,9 @@ export default class TakeTest extends React.Component {
                     {this.state.questions.map((x, y) => this.getQuestionCard(x, this.state.answers[y], y))}
                     <div style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px'}}>
                         <Button color='primary' variant='raised' style={{width: '100%'}} onClick={() => {
-                            Http.submitTest(this.state.takes, result => {
-                                alert('Success!')
-                            }, result => {
+                            Http.submitTest(this.state.takes, () => {
+                                this.props.submitTest(this.state.takes);
+                            }, () => {
                                 alert('Something went wrong')
                             })
                         }}>
@@ -49,24 +49,30 @@ export default class TakeTest extends React.Component {
 
     getQuestionCard(question, answer, index) {
         let disabled = JSON.stringify(this.state.newAnswers[index]) === JSON.stringify(this.state.answers[index]);
+        let save = () => {
+            Http.saveAnswer(this.state.takes, index, this.state.newAnswers[index], result => {
+                let newAnswers = copy(this.state.answers);
+                newAnswers[index] = copy(this.state.newAnswers[index]);
+                this.setState({answers: newAnswers});
+            }, result => {
+                alert(result.error);
+            });
+        };
         return (
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
-                <CardHeader title={getMathJax(question.prompt)} action={<IconButton onClick={() => {
-                    Http.saveAnswer(this.state.takes, index, this.state.newAnswers[index], result => {
-                        let newAnswers = JSON.parse(JSON.stringify(this.state.answers));
-                        newAnswers[index] = JSON.parse(JSON.stringify(this.state.newAnswers[index]));
-                        this.setState({answers: newAnswers});
-                    }, result => {
-                        alert(result.error);
-                    });
-                }} disabled={disabled} color={disabled ? 'disabled' : 'primary'}><Save/></IconButton>}/>
+                <CardHeader title={getMathJax(question.prompt)} action={
+                    <IconButton onClick={save} disabled={disabled} color={disabled ? 'disabled' : 'primary'}>
+                        <Save/>
+                    </IconButton>
+                }/>
                 {question.prompts.map((x, y) => [
                     <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
-                    <AnswerInput type={question.types[y]} value={answer[y]} prompt={x} onChange={value => {
-                        let newAnswerList = JSON.parse(JSON.stringify(this.state.newAnswers));
-                        newAnswerList[index][y] = value;
-                        this.setState({newAnswers: newAnswerList});
-                    }}/>
+                    <AnswerInput type={question.types[y]} value={answer[y]} prompt={x} onBlur={save}
+                                 onChange={value => {
+                                     let newAnswerList = copy(this.state.newAnswers);
+                                     newAnswerList[index][y] = value;
+                                     this.setState({newAnswers: newAnswerList});
+                                 }}/>
                 ])}
             </Card>
         );

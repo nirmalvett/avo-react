@@ -70,7 +70,6 @@ def get_classes():
     classes = teach_classes + enroll_classes
     class_list = []
     time = time_stamp(datetime.now())
-    print(teach_classes)
     if classes is not None:
         for c in classes:
             tests = Test.query.filter(Test.CLASS == c.CLASS).all()
@@ -381,9 +380,5 @@ def shutdown():
     # sys.exit(4) is the specific exit code number needed to exit gunicorn
     if branch == request_branch:
         sys.exit(4)
-        return abort(404)
-    elif branch == request_branch:
-        sys.exit(4)
-        return abort(404)
     else:
         return abort(400)
