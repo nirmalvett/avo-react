@@ -5,7 +5,7 @@ from math import sqrt, sin, cos, tan, asin, acos, atan, pi
 from re import fullmatch, sub, search
 from typing import List, Any
 
-
+# This is a test
 class AvoQuestion:
     def __init__(self, question: str, seed=0):
         question = question.split('；')
