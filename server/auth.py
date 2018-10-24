@@ -111,6 +111,14 @@ def get_user_info():
         return jsonify(error='User does not exist')
 
 
+def teaches_class(class_id):
+    pass
+
+
+def enrolled_in_class(class_id):
+    pass
+
+
 def send_email(recipient: str, subject: str, message: str):
     sender = 'no-reply@avocadocore.com'
     msg = MIMEMultipart()

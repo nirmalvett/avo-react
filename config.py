@@ -26,7 +26,7 @@ SECURITY_PASSWORD_SALT = \
 
 # Database URI location on server. One of these needs to be commented out.
 #SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root@localhost/dev'
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://avocado:4v0c4d0c0r3@158.69.213.96:22/' + branch
+SQLALCHEMY_DATABASE_URI = 'mysql+pymsql://avocado:uw%J@%$n5C15q8Xswv@localhost/' + branch
 SQLALCHEMY_ECHO = False
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
