@@ -120,7 +120,15 @@ class Layout extends React.Component {
             <MuiThemeProvider theme={createMuiTheme({palette: {primary: color, type: theme}})}>
                 <div style={{display: 'flex', width: '100%', height: '100%',
                     backgroundColor: theme === 'dark' ? '#303030' : '#fafafa'}}>
-                    <Drawer variant='persistent' anchor='left' open={open} classes={{paper: classes.drawerPaper}}>
+                    <Drawer 
+                        variant='persistent' 
+                        anchor='left' 
+                        open={open} 
+                        classes={{
+                            paper: classes.drawerPaper
+                        }}
+                    >
+                    <div className='avo-drawer__with-logo'>
                         <Logo theme={theme} color={color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
                         <Divider/>
                         <div style={{overflowY: 'auto'}}>
@@ -143,6 +151,7 @@ class Layout extends React.Component {
                                     <ListItemText primary='Logout'/>
                                 </ListItem>
                             </List>
+                        </div>
                         </div>
                     </Drawer>
                     <AppBar className={classNames(classes.appBar, {[classes.appBarShift]: open})}>

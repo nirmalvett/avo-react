@@ -243,3 +243,10 @@ body {
 	left: var(--avo-mouth-oleft);
 	transition: width 0.1s ease-in, left 0.1s ease-in;
 }
+
+.avo-drawer__with-logo {
+    background: url(755585143c8e948141c7b16b45f2fc69.svg) -45px bottom no-repeat; 
+    background-size: 60%; 
+    height: 100%; 
+    overflow-y: auto;
+}
