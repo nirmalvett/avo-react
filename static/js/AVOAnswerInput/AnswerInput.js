@@ -4,6 +4,7 @@ import Radio from '@material-ui/core/Radio/Radio';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
+import ButtonInput from "./ButtonInput"
 
 export const CONST_BOOLEAN = '0';
 export const CONST_MULTIPLE_CHOICE = '1';
@@ -69,7 +70,7 @@ export default class AnswerInput extends React.Component {
                 <br/>
                 ])
             );
-        } 
+        }
         else if (type === CONST_NUMBER) {
             let message = validateNumber(v);
             return (
@@ -98,6 +99,7 @@ export default class AnswerInput extends React.Component {
             return null;
         }
         else if (type === CONST_VECTOR) {
+          return (<ButtonInput type = {CONST_VECTOR}/>)
             let vector = validateVector(v);
             return (
                 <div>
