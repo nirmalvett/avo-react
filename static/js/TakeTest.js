@@ -1,7 +1,7 @@
 import React from 'react';
 import Http from './Http';
 import {copy, getMathJax} from './Utilities';
-import AnswerInput from './AnswerInput';
+import AnswerInput from './AVOAnswerInput/AnswerInput';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import Button from '@material-ui/core/Button/Button';

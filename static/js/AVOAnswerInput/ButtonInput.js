@@ -5,7 +5,9 @@ import Radio from "@material-ui/core/Radio/Radio";
 import TextField from "@material-ui/core/TextField/TextField";
 import Typography from "@material-ui/core/Typography/Typography";
 
-export default class AnswerInput extends React.Component {
+
+
+export default class ButtonInput extends React.Component {
     constructor(props) {
         super(props);
     }

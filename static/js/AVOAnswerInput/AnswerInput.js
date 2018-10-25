@@ -1,9 +1,20 @@
 import React from 'react';
-import {getMathJax, sleep, validateMatrix, validateNumber, validateVector} from './Utilities';
+import {getMathJax, sleep, validateMatrix, validateNumber, validateVector} from '../Utilities';
 import Radio from '@material-ui/core/Radio/Radio';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
+
+export const CONST_BOOLEAN = '0';
+export const CONST_MULTIPLE_CHOICE = '1';
+export const CONST_NUMBER = '2';
+export const CONST_LINEAR_EXPRESSION = '3';
+export const CONST_MANUAL_INPUT = '4';
+export const CONST_MANUAL_INPUT_POLYNOMIAL = '5';
+export const CONST_VECTOR = '6';
+export const CONST_VECTOR_LINEAR_EXPRESSION = '7';
+export const CONST_MATRIX = '8';
+export const CONST_BASIS = '9';
 
 export default class AnswerInput extends React.Component {
     constructor(props) {
@@ -19,7 +30,8 @@ export default class AnswerInput extends React.Component {
     render() {
         let v = this.state.value;
         let disabled = this.state.disabled;
-        if (this.state.type === '0') {
+        const { type } = this.state;
+        if (type  === CONST_BOOLEAN) {
             return [
                 getMathJax(this.state.prompt),
                 <FormControlLabel disabled={disabled}
@@ -41,7 +53,8 @@ export default class AnswerInput extends React.Component {
                                   }}
                                   label='False'/>
             ];
-        } else if (this.state.type === '1') {
+        }
+        else if (type === CONST_MULTIPLE_CHOICE) {
             let p = this.state.prompt.replace('不都', 'None of the above').replace('都', 'All of the above').split('—');
             return [
                 getMathJax(p[0])].concat(p.slice(1).map((x, y) => [
@@ -56,7 +69,8 @@ export default class AnswerInput extends React.Component {
                 <br/>
                 ])
             );
-        } else if (this.state.type === '2') {
+        } 
+        else if (type === CONST_NUMBER) {
             let message = validateNumber(v);
             return (
                 <div>
@@ -73,13 +87,17 @@ export default class AnswerInput extends React.Component {
                     {Array.isArray(message) ? getMathJax('\\(' + message[0] + '\\)') : undefined}
                 </div>
             );
-        } else if (this.state.type === '3') {
+        }
+        else if (type === CONST_LINEAR_EXPRESSION) {
             return null;
-        } else if (this.state.type === '4') {
+        }
+        else if (type === CONST_MANUAL_INPUT) {
             return null;
-        } else if (this.state.type === '5') {
+        }
+        else if (type === CONST_MANUAL_INPUT_POLYNOMIAL) {
             return null;
-        } else if (this.state.type === '6') {
+        }
+        else if (type === CONST_VECTOR) {
             let vector = validateVector(v);
             return (
                 <div>
@@ -94,9 +112,11 @@ export default class AnswerInput extends React.Component {
                         + vector.join('\\\\') + '\\end{bmatrix}\\)', 'body2') : undefined}
                 </div>
             );
-        } else if (this.state.type === '7') {
+        }
+        else if (type === CONST_VECTOR_LINEAR_EXPRESSION) {
             return null;
-        } else if (this.state.type === '8') {
+        }
+        else if (type === CONST_MATRIX) {
             let matrix = validateMatrix(v);
             return (
                 <div>
@@ -114,7 +134,8 @@ export default class AnswerInput extends React.Component {
                         + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)', 'body2') : undefined}
                 </div>
             );
-        } else if (this.state.type === '9') {
+        }
+        else if (type === CONST_BASIS) {
             let basis = validateMatrix(v);
             return (
                 <div>
