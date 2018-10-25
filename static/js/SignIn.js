@@ -8,7 +8,8 @@ import Typography from '@material-ui/core/Typography/Typography';
 import AVOModal from './AVOMatComps/AVOMatModal';
 import Checkbox from '@material-ui/core/Checkbox';
 import Slide from '@material-ui/core/Slide';
-
+import { isChrome, notChromeMessage } from "./helpers";
+import Logo from "./Logo"
 export default class SignIn extends React.Component {
     constructor(props) {
         super(props);
@@ -24,7 +25,10 @@ export default class SignIn extends React.Component {
             signInError: '',
             hasAgreedToTOS : false
         };
+        if (!isChrome()){ alert(notChromeMessage) }
     }
+
+
 
     componentDidMount(){
       /* This runs after the component is rendered */
@@ -65,22 +69,23 @@ export default class SignIn extends React.Component {
                                 Register
                             </Typography>
                             <form style={{'width': '100%'}}>
-                                <TextField
-                                    margin='normal'
-                                    style={style}
-                                    label='First Name'
-                                    onChange={updateFirstName}
-                                    value={this.state.rFirstName}
-                                />
-                                <br/>
-                                <TextField
-                                    margin='normal'
-                                    style={style}
-                                    label='Last Name'
-                                    onChange={updateLastName}
-                                    value={this.state.rLastName}
-                                />
-                                <br/>
+                                {/* This is the first and last name field which we will omit for now on Turnbull's request*/}
+                                {/*<TextField*/}
+                                    {/*margin='normal'*/}
+                                    {/*style={style}*/}
+                                    {/*label='First Name'*/}
+                                    {/*onChange={updateFirstName}*/}
+                                    {/*value={this.state.rFirstName}*/}
+                                {/*/>*/}
+                                {/*<br/>*/}
+                                {/*<TextField*/}
+                                    {/*margin='normal'*/}
+                                    {/*style={style}*/}
+                                    {/*label='Last Name'*/}
+                                    {/*onChange={updateLastName}*/}
+                                    {/*value={this.state.rLastName}*/}
+                                {/*/>*/}
+                                {/*<br/>*/}
                                 <TextField
                                     margin='normal'
                                     style={style}
@@ -151,15 +156,17 @@ export default class SignIn extends React.Component {
                         </React.Fragment>
                     ) : (
                         <React.Fragment>
-                            <div className="avo-mascot">
-                                <section className="move-area">
-                                    <div className='eye-brow left'/>
-                                    <div className='eye-brow right'/>
-                                    <div className='eye'/>
-                                    <div className='eye'/>
-                                    <div className='mouth'/>
-                                </section>
-                            </div>
+                            {/* This is AVO Mascot which includes the logo but isn't aligning properly right now */}
+                            {/*<div className="avo-mascot">*/}
+                                {/*<section className="move-area">*/}
+                                    {/*<div className='eye-brow left'/>*/}
+                                    {/*<div className='eye-brow right'/>*/}
+                                    {/*<div className='eye'/>*/}
+                                    {/*<div className='eye'/>*/}
+                                    {/*<div className='mouth'/>*/}
+                                {/*</section>*/}
+                            {/*</div>*/}
+                            <Logo/>
                             <Typography variant='headline'>
                                 Sign In
                             </Typography>
@@ -196,39 +203,40 @@ export default class SignIn extends React.Component {
                             </form>
                             <br/>
                             <br/>
-                            <Typography variant='caption' className='avo-styles__text-center'>
-                                {'If you forgot your password click '}
-                                <a
-                                    id="forgot-password__button"
-                                    className="avo-styles__link">
-                                    here.
-                                </a>
-                            </Typography>
-                            <AVOModal
-                                title='Forgot your password?'
-                                target="forgot-password__button"
-                                acceptText='Send It'
-                                declineText='Never mind'
-                                onAccept={() => {}}
-                                onDecline={() => {}}
-                            >
-                                <React.Fragment>
-                                    <br/>
-                                    <Typography variant='body'>
-                                        That's Ok! Just enter in your associated email & we'll send you an email with instructions on how to change it!
-                                    </Typography>
-                                    <TextField
-                                        margin='normal'
-                                        style={{ width: '60%' }}
-                                        label='UWO Email'
-                                        onChange={updateEmail}
-                                        value={this.state.rEmail}
-                                        error={emailError}
-                                        />
-                                    <br/>
-                                    <br/>
-                                </React.Fragment>
-                            </AVOModal>
+                            {/* We currently don't have the routes for change password */}
+                            {/*<Typography variant='caption' className='avo-styles__text-center'>*/}
+                                {/*{'If you forgot your password click '}*/}
+                                {/*<a*/}
+                                    {/*id="forgot-password__button"*/}
+                                    {/*className="avo-styles__link">*/}
+                                    {/*here.*/}
+                                {/*</a>*/}
+                            {/*</Typography>*/}
+                            {/*<AVOModal*/}
+                                {/*title='Forgot your password?'*/}
+                                {/*target="forgot-password__button"*/}
+                                {/*acceptText='Send It'*/}
+                                {/*declineText='Never mind'*/}
+                                {/*onAccept={() => {}}*/}
+                                {/*onDecline={() => {}}*/}
+                            {/*>*/}
+                                {/*<React.Fragment>*/}
+                                    {/*<br/>*/}
+                                    {/*<Typography variant='body'>*/}
+                                        {/*That's Ok! Just enter in your associated email & we'll send you an email with instructions on how to change it!*/}
+                                    {/*</Typography>*/}
+                                    {/*<TextField*/}
+                                        {/*margin='normal'*/}
+                                        {/*style={{ width: '60%' }}*/}
+                                        {/*label='UWO Email'*/}
+                                        {/*onChange={updateEmail}*/}
+                                        {/*value={this.state.rEmail}*/}
+                                        {/*error={emailError}*/}
+                                        {/*/>*/}
+                                    {/*<br/>*/}
+                                    {/*<br/>*/}
+                                {/*</React.Fragment>*/}
+                            {/*</AVOModal>*/}
                         </React.Fragment>
                     )}
                     <footer className='avo-styles__footer'>
@@ -239,8 +247,9 @@ export default class SignIn extends React.Component {
                                 className="avo-styles__link"
                                 onClick={() => this.setState({ isSigningIn : !this.state.isSigningIn })}
                                 >
-                                here.
+                                here
                             </a>
+                            {'.'}
                         </Typography>
                     </footer>
                     </Grid>
@@ -277,12 +286,11 @@ export default class SignIn extends React.Component {
     }
 
     allFieldsValid(){
-        return isValid = /^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.rEmail) && s.rPassword1.length >= 8 && s.rPassword2 === s.rPassword1;
+        return '/^[a-zA-Z]{2,}\d*@uwo\.ca$/'.test(s.rEmail) && s.rPassword1.length >= 8 && s.rPassword2 === s.rPassword1;
     };
 
     checkInputFields(){
          let s = this.state;
-         console.log(this.state);
 
          const isValid = /^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.rEmail) && s.rPassword1.length >= 8 && s.rPassword2 === s.rPassword1;
          if (isValid && s.hasAgreedToTOS){
@@ -312,8 +320,9 @@ export default class SignIn extends React.Component {
     };
 
     static getTermsOfService() {
-        return (
+       return (
            <p className='ToC'>
+               Terms of Service
             <br/><br/>
             1.     Under this End User License Agreement (the “Agreement”), AvocadoCore (the “Vendor”) grants to the user (the “Licensee”) a non-exclusive and non-transferable license (the “License”) to use AVO(the “Software”).
             <br/><br/>
@@ -321,13 +330,17 @@ export default class SignIn extends React.Component {
             <br/><br/>
             3.     Title, copyright, intellectual property rights and distribution rights of the Software remain exclusively with the Vendor. Intellectual property rights include the look and feel of the Software.
             <br/><br/>
-            4.     The rights and obligations of this Agreement are personal rights granted to the Licensee only. TheLicensee may not transfer or assign any of the rights or obligations granted under this Agreement to any other person or legal entity. The Licensee may not make available the Software for use by one or more third parties.
+            4.     The rights and obligations of this Agreement are personal rights granted to the Licensee only. The Licensee may not transfer or assign any of the rights or obligations granted under this Agreement to any other person or legal entity. The Licensee may not make available the Software for use by one or more third parties.
             <br/><br/>
             5.     The Software may not be modified, reverse-engineered, or de-compiled in any manner through current or future available technologies.
             <br/><br/>
-            6.     Failure to comply with any of the terms under the License section will be considered a material breach of this Agreement.License Fee
+            6.     Failure to comply with any of the terms under the License section will be considered a material breach of this Agreement.
+              <br/><br/>
+             License Fee
             <br/><br/>
-            7.     The original purchase price paid by the Licensee will constitute the entire license fee and is the full consideration for the Agreement.Limitation of Liability
+            7.     The original purchase price paid by the Licensee will constitute the entire license fee and is the full consideration for the Agreement.
+              <br/><br/>
+             Limitation of Liability
             <br/><br/>
             8.     The Software is provided by the Vendor and accepted by the Licensee “as is”. Liability of the Vendor will be limited to a maximum of the original purchase price of the Software. The Vendor will not be liable for any general, special, incidental or consequential damages including, but not limited to, loss of productions, loss of profits, loss of revenue, loss of data, or any other business or economic disadvantage suffered by the Licensee arising out of the use or failure to use the Software.
             <br/><br/>
@@ -335,24 +348,32 @@ export default class SignIn extends React.Component {
             <br/><br/>
             10.    The Vendor does not warrant that use of the Software will be uninterrupted or error-free. TheLicensee accepts that software in general is prone to bugs and flaws within an acceptable level as determined in the industry. Warrants and Representations
             <br/><br/>
-            11.  The Vendor warrants and represents that it is the copyright holder of the Software. The Vendor warrants and represents that granting the license to use this Software is not in violation of any other agreement, copyright or applicable statute. Acceptance
+            11.  The Vendor warrants and represents that it is the copyright holder of the Software. The Vendor warrants and represents that granting the license to use this Software is not in violation of any other agreement, copyright or applicable statute.
+              <br/><br/>
+             Acceptance
             <br/><br/>
             12.  All terms, conditions and obligations of this Agreement will be deemed to be accepted by theLicensee (“Acceptance”) on registration of the Software with the Vendor.User Support
             <br/><br/>
-            13.  No user support or maintenance is provided as part of this Agreement.Term
+            13.  No user support or maintenance is provided as part of this Agreement.
+              <br/><br/>
+             Term
             <br/><br/>
-            14.  The term of this Agreement will begin on Acceptance and is perpetual.Termination
+            14.  The term of this Agreement will begin on Acceptance and is perpetual.
+              <br/><br/>
+             Termination
             <br/><br/>
             15.  This Agreement will be terminated and the License forfeited where the Licensee has failed to comply with any of the terms of this Agreement or is in breach of this Agreement. On termination of this Agreement for any reason, the Licensee will promptly destroy the Software or return the Software tot he Vendor.Force Majeure
             <br/><br/>
             16.  The Vendor will be free of liability to the Licensee where the Vendor is prevented from executing its obligations under this Agreement in whole or in part due to Force Majeure, such as earthquake, flood,
-            fire or any other unforeseen and uncontrollable event where the Vendor has taken any and all appropriate action to mitigate such an event. Additional Clause
+            fire or any other unforeseen and uncontrollable event where the Vendor has taken any and all appropriate action to mitigate such an event.
             <br/><br/>
-            17.  Additional clause 1
+            17.  The Vendor is able to update the agreement in the future whereupon an email will be sent with the updated agreement. Continued use will mean that the user agrees to the new agreement.
             <br/><br/>
             18.  Additional clause 2 Governing Law
             <br/><br/>
-            19.  The Parties to this Agreement submit to the jurisdiction of the courts of the Province of Ontario for the enforcement of this Agreement or any arbitration award or decision arising from this Agreement.This Agreement will be enforced or construed according to the laws of the Province of Ontario. Miscellaneous
+            19.  The Parties to this Agreement submit to the jurisdiction of the courts of the Province of Ontario for the enforcement of this Agreement or any arbitration award or decision arising from this Agreement.This Agreement will be enforced or construed according to the laws of the Province of Ontario.
+              <br/><br/>
+             Miscellaneous
             <br/><br/>
             20.  This Agreement can only be modified in writing signed by both the Vendor and the Licensee.
             <br/><br/>
@@ -364,7 +385,11 @@ export default class SignIn extends React.Component {
             <br/><br/>
             24.  This Agreement contains the entire agreement between the parties. All understandings have been included in this Agreement. Representations which may have been made by any party to thisAgreement may in some way be inconsistent with this final written Agreement. All such statements are declared to be of no value in this Agreement. Only the written terms of this Agreement will bind the parties.
             <br/><br/>
-            25.  This Agreement and the terms and conditions contained in this Agreement apply to and are binding upon the Vendor’s successors and assigns.Privacy Policy
+            25.  This Agreement and the terms and conditions contained in this Agreement apply to and are binding upon the Vendor’s successors and assigns.
+               <br/><br/>
+               ----------------------------------------------------------------------------------
+               <br/><br/>
+             Privacy Policy
             <br/><br/>
             26.  AvocadoCore receives authorization and consent from Users to collect, process and otherwise handle personal Information under this Privacy Policy when the user: (a) purchases the services; (b)establishes an account or registers to use the services; (c) accesses the services through account credentials that an educator has associated with the user’s personal information, such as through an institution’s course or learning management system; or (d) uses the Services.
             <br/><br/>
@@ -380,12 +405,14 @@ export default class SignIn extends React.Component {
     };
 
     componentDidMount() {
-        this.initMascot();
+      /* Mascot is currently not aligning properly with the logo so this is commented out for now */
+        // this.initMascot();
     };
 
     componentDidUpdate() {
         if(this.state.isSigningIn) {
-            this.initMascot();
+          /* Mascot is currently not aligning properly with the logo so this is commented out for now */
+            // this.initMascot();
         }
     };
 
@@ -496,7 +523,6 @@ export default class SignIn extends React.Component {
     };
 
     confirmedAccountAlert(){
-      console.log(window.location.href);
       const containsConfirmInUrl = window.location.href.includes('/confirm/');
       if (containsConfirmInUrl){
         alert("Your account was successfully confirmed! You may now log in and begin using AVO.")

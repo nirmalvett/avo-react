@@ -23,12 +23,13 @@ import Typography from '@material-ui/core/Typography';
 import ListItem from '@material-ui/core/ListItem/ListItem';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
-import Home from '@material-ui/icons/Home';
+import HomeOutlinedIcon from '@material-ui/icons/HomeOutlined';
 import Menu from '@material-ui/icons/Menu';
-import Build from '@material-ui/icons/Build';
-import Class from '@material-ui/icons/Class';
-import Settings from '@material-ui/icons/Settings';
-import ExitToApp from '@material-ui/icons/ExitToApp';
+import BuildOutlinedIcon from '@material-ui/icons/BuildOutlined';
+import ClassOutlinedIcon from '@material-ui/icons/ClassOutlined';
+import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
+import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
+import { isNotChromeAlert } from "./helpers";
 
 const drawerWidth = 240;
 
@@ -128,30 +129,30 @@ class Layout extends React.Component {
                             paper: classes.drawerPaper
                         }}
                     >
-                    <div className='avo-drawer__with-logo'>
-                        <Logo theme={theme} color={color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
-                        <Divider/>
-                        <div style={{overflowY: 'auto'}}>
-                            <List subheader={isTeacher ? <ListSubheader>Student & Teacher</ListSubheader> : undefined}>
-                                {this.listItem(Home, 'Home')}
-                                {this.listItem(Class, 'My Classes')}
-                            </List>
-                            {isTeacher ? [
-                                <Divider/>,
-                                <List subheader={<ListSubheader>Teacher Only</ListSubheader>}>
-                                    {this.listItem(Class, 'Manage Classes')}
-                                    {disabledListItem(Build, 'Build Question')}
-                                </List>
-                            ] : undefined}
+                        <div className='avo-drawer__with-logo'>
+                            <Logo theme={theme} color={color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
                             <Divider/>
-                            <List>
-                                {this.listItem(Settings, 'Preferences')}
-                                <ListItem button onClick={() => this.logout()}>
-                                    <ExitToApp color='action'/>
-                                    <ListItemText primary='Logout'/>
-                                </ListItem>
-                            </List>
-                        </div>
+                            <div style={{overflowY: 'auto'}}>
+                                <List subheader={isTeacher ? <ListSubheader>Student & Teacher</ListSubheader> : undefined}>
+                                    {this.listItem(HomeOutlinedIcon, 'Home')}
+                                    {this.listItem(ClassOutlinedIcon, 'My Classes')}
+                                </List>
+                                {isTeacher ? [
+                                    <Divider/>,
+                                    <List subheader={<ListSubheader>Teacher Only</ListSubheader>}>
+                                        {this.listItem(ClassOutlinedIcon, 'Manage Classes')}
+                                        {disabledListItem(BuildOutlinedIcon, 'Build Question')}
+                                    </List>
+                                ] : undefined}
+                                <Divider/>
+                                <List>
+                                    {this.listItem(SettingsOutlinedIcon, 'Preferences')}
+                                    <ListItem button onClick={() => this.logout()}>
+                                        <ExitToAppOutlinedIcon color='action'/>
+                                        <ListItemText primary='Logout'/>
+                                    </ListItem>
+                                </List>
+                            </div>
                         </div>
                     </Drawer>
                     <AppBar className={classNames(classes.appBar, {[classes.appBarShift]: open})}>
