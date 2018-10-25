@@ -99,7 +99,7 @@ export default class AnswerInput extends React.Component {
             return null;
         }
         else if (type === CONST_VECTOR) {
-          return (<ButtonInput type = {CONST_VECTOR}/>)
+          // return (<ButtonInput type = {CONST_VECTOR}/>) // This is only here for testing button input
             let vector = validateVector(v);
             return (
                 <div>
