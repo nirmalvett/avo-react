@@ -46,9 +46,6 @@ body {
     background: #BBBBBB;
 }
 
-* {
-    font-family: 'Open Sans', sans-serif !important;
-}
 
 .LoginCard {
     display: flex;
@@ -132,9 +129,10 @@ body {
     width: 97.5% !important;
 }
 
-.avo-menu__item.selected {
-    background: var(--pri-theme-color) !important;
-}
+/* Frank: Commented out the line below so that when a user selects a theme the side bar matches the primary color they selected */
+/*.avo-menu__item.selected {*/
+    /*background: var(--pri-theme-color) !important;*/
+/*}*/
 
 .avo-menu__item.selected > div > span {
     color: white !important;
