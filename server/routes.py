@@ -15,7 +15,6 @@ from server.models import *
 routes = Blueprint('routes', __name__)
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/changeColor', methods=['POST'])
@@ -30,7 +29,6 @@ def change_color():
     return jsonify(message='updated')
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/changeTheme', methods=['POST'])
@@ -44,7 +42,6 @@ def change_theme():
     return jsonify(message='updated')
 
 
-# Tested
 @login_required
 @check_confirmed
 @teacher_only
@@ -60,7 +57,6 @@ def create_class():
     return jsonify(message='Created!')
 
 
-# Tested
 @login_required
 @routes.route('/getClasses')
 def get_classes():
@@ -88,7 +84,6 @@ def get_classes():
     return jsonify(classes=class_list)
 
 
-# Tested
 @login_required
 @check_confirmed
 @teacher_only
@@ -105,7 +100,6 @@ def get_sets():
     return jsonify(sets=set_list)
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/enroll', methods=['POST'])
@@ -122,7 +116,6 @@ def enroll():
     return jsonify(message='Enrolled!')
 
 
-# Tested
 @login_required
 @check_confirmed
 @teacher_only
@@ -139,7 +132,6 @@ def open_test():
     return jsonify(message='Opened!')
 
 
-# Tested
 @login_required
 @check_confirmed
 @teacher_only
@@ -156,7 +148,6 @@ def close_test():
     return jsonify(message='Closed!')
 
 
-# Tested
 @login_required
 @check_confirmed
 @teacher_only
@@ -173,7 +164,6 @@ def delete_test():
     return jsonify(message='Deleted!')
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/getQuestion', methods=['POST'])
@@ -189,7 +179,6 @@ def get_question():
     return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/getTest', methods=['POST'])
@@ -245,7 +234,6 @@ def create_takes(test, user):
     return None if takes is None else takes
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/saveTest', methods=['POST'])
@@ -269,7 +257,6 @@ def save_test():
     return jsonify(test=test.TEST)
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/saveAnswer', methods=['POST'])
@@ -299,7 +286,6 @@ def save_answer():
     return jsonify(message='Changed successfully!')
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/submitTest', methods=['POST'])
@@ -314,7 +300,6 @@ def submit_test():
     return jsonify(message='Submitted successfully!')
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/postTest', methods=['POST'])
@@ -339,7 +324,6 @@ def post_test():
     return jsonify(questions=question_list)
 
 
-# Tested
 @login_required
 @routes.route('/getClassTestResults', methods=['POST'])
 def get_class_test_results():

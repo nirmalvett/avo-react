@@ -73,7 +73,6 @@ def confirm(token):
     return render_template('/index.html')
 
 
-# Tested
 @UserRoutes.route('/login', methods=['POST'])
 def login():
     if not request.json:
@@ -100,7 +99,6 @@ def logout():
     return jsonify(message='Successfully logged out')
 
 
-# Tested
 @UserRoutes.route('/getUserInfo')
 def get_user_info():
     try:
