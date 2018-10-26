@@ -56,6 +56,7 @@ export default class MyClasses extends React.Component {
                     <Grid item xs={3} style={{ flex: 1, display: 'flex' }}>
                         <Paper classes={{ root : 'avo-sidebar' }} square style={{ width: '100%', flex: 1, display: 'flex' }}>
                             <List style={{ flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' }}>
+                                <center className='open-sans__header'>Welcome to My Classes</center>
                                 {this.state.classes.map((x, y) => [
                                     <ListItem key={uniqueKey()} button onClick={() => {
                                         let newClassList = copy(this.state.classes);
@@ -143,35 +144,13 @@ export default class MyClasses extends React.Component {
                     {[
                         selectedTest.submitted.map((x, y) => (
                             <ListItem key={uniqueKey()}>
-                                {/* <AssignmentTurnedInOutlinedIcon color='action' /> */}
                                 <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
                                     secondary={'Submitted on ' + getDateString(x.timeSubmitted)} />
                                 <ListItemSecondaryAction><IconButton onClick={() => { this.props.postTest(x.takes) }}>
                                     <DescriptionOutlinedIcon />
                                 </IconButton></ListItemSecondaryAction>
-                            </ListItem>))
-                        // selectedTest.current !== null
-                        //     ? <ListItem key={uniqueKey()}>
-                        //         <AssignmentLate color='primary' />
-                        //         <ListItemText primary='Current Attempt'
-                        //             secondary={'Ends on ' + getDateString(selectedTest.current.timeSubmitted)} />
-                        //         <ListItemSecondaryAction>
-                        //             <IconButton onClick={() => this.state.startTest(selectedTest.id)}><Create /></IconButton>
-                        //         </ListItemSecondaryAction>
-                        //     </ListItem>
-                        //     : (selectedTest.attempts > selectedTest.submitted.length) || (selectedTest.attempts === -1)
-                        //         ? <ListItem key={uniqueKey()}>
-                        //             <Assignment color='action' /><ListItemText primary='Start Test' />
-                        //             <ListItemSecondaryAction>
-                        //                 <IconButton onClick={() => this.state.startTest(selectedTest.id)}><Create /></IconButton>
-                        //             </ListItemSecondaryAction>
-                        //         </ListItem>
-                        //         : <ListItem key={uniqueKey()} disabled>
-                        //             <Assignment color='disabled' /><ListItemText primary='No attempts left' />
-                        //             <ListItemSecondaryAction><IconButton disabled>
-                        //                 <Create color='disabled' />
-                        //             </IconButton></ListItemSecondaryAction>
-                        //         </ListItem>
+                            </ListItem>
+                        ))
                     ]}
                 </List>
             ];
@@ -186,7 +165,20 @@ export default class MyClasses extends React.Component {
                 />
             );
         }
-        return null;
+        return (
+            <React.Fragment>
+                <CardHeader
+                    classes={{
+                        root: 'avo-card__header'
+                    }}
+                    title={'Hey there!'}
+                />
+                <div className='open-sans__text'>
+                    Looks like you haven't selected a Class or Test yet!
+                </div>
+                <br/>
+            </React.Fragment>
+        );
     }
 
     enrollInClass() {

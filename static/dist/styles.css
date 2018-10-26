@@ -15,6 +15,11 @@ body {
     background: white;
 }
 
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 #root {
     position: fixed;
     left: 0;
@@ -23,7 +28,7 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background: url(887ae467c351aae840132e48e9839c14.svg) center/cover;
+    background: url(2de111b2f29dfc87e4e3c9d324812475.svg) center/cover;
     background-position: 0px 0px; background-size: 100%;
 }
 
@@ -74,7 +79,7 @@ body {
     background-color: white;
     width: 100%;
     background-position: 0px 0px; background-size: 100%;
-    /* background: url('../img/backdrop_3.svg') center/cover !important; */
+    background: url(2de111b2f29dfc87e4e3c9d324812475.svg) center/cover !important;
 }
 
 .avo-tech__info-card {
@@ -88,7 +93,7 @@ body {
 .avo-card {
     width: 100%;
     margin: 16px;
-    height: auto;
+    height: fit-content;
     max-height: 80%;
     position: relative;
     border: 1px solid #dadce0;
@@ -272,7 +277,22 @@ body {
 
 .avo-drawer__with-logo {
     background: url(755585143c8e948141c7b16b45f2fc69.svg) -45px bottom no-repeat; 
-    background-size: 60%; 
+    background-size: 50%; 
     height: 100%; 
     overflow-y: auto;
+}
+
+.open-sans__header {
+    font-size: 1.2em;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    font-weight: 300;
+    color: rgba(0,0,0, 0.87);
+    font-family: 'Open Sans', sans-serif;
+}
+
+.open-sans__text {
+    font-weight: 300;
+    color: rgba(0,0,0, 0.87);
+    font-family: 'Open Sans', sans-serif;
 }
