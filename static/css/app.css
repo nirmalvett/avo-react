@@ -12,14 +12,14 @@
 }
 
 body {
-    background: #fafafa;
+    background: white;
 }
 
 #root {
     position: fixed;
     left: 0;
     top: 0;
-    background-color: #F5F5F5;
+    background-color: white;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
@@ -74,7 +74,7 @@ body {
     background-color: white;
     width: 100%;
     background-position: 0px 0px; background-size: 100%;
-    background: url('../img/backdrop.svg') center/cover !important;
+    /* background: url('../img/backdrop_3.svg') center/cover !important; */
 }
 
 .avo-tech__info-card {
@@ -123,6 +123,11 @@ body {
 .avo-sidebar {
     box-shadow: none !important;
     border-right: 1px solid #dadce0;
+    transition: box-shadow 0.25s ease-in;
+}
+
+.avo-sidebar:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
 }
 
 .avo-modal__card {

@@ -120,7 +120,7 @@ class Layout extends React.Component {
         return (
             <MuiThemeProvider theme={createMuiTheme({palette: {primary: color, type: theme}})}>
                 <div style={{display: 'flex', width: '100%', height: '100%',
-                    backgroundColor: theme === 'dark' ? '#303030' : '#fafafa'}}>
+                    backgroundColor: theme === 'dark' ? '#303030' : '#fff'}}>
                     <Drawer 
                         variant='persistent' 
                         anchor='left' 

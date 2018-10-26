@@ -54,7 +54,7 @@ export default class MyClasses extends React.Component {
             <div className='avo-user__background' style={{ width: '100%', flex: 1, display: 'flex' }}>
                 <Grid container spacing={8} style={{ flex: 1, display: 'flex', paddingBottom: 0 }}>
                     <Grid item xs={3} style={{ flex: 1, display: 'flex' }}>
-                        <Paper square style={{ width: '100%', flex: 1, display: 'flex' }}>
+                        <Paper classes={{ root : 'avo-sidebar' }} square style={{ width: '100%', flex: 1, display: 'flex' }}>
                             <List style={{ flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' }}>
                                 {this.state.classes.map((x, y) => [
                                     <ListItem key={uniqueKey()} button onClick={() => {
@@ -143,7 +143,7 @@ export default class MyClasses extends React.Component {
                     {[
                         selectedTest.submitted.map((x, y) => (
                             <ListItem key={uniqueKey()}>
-                                <AssignmentTurnedInOutlinedIcon color='action' />
+                                {/* <AssignmentTurnedInOutlinedIcon color='action' /> */}
                                 <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
                                     secondary={'Submitted on ' + getDateString(x.timeSubmitted)} />
                                 <ListItemSecondaryAction><IconButton onClick={() => { this.props.postTest(x.takes) }}>
