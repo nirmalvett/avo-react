@@ -112,11 +112,17 @@ def get_user_info():
 
 
 def teaches_class(class_id):
-    pass
+    current_class = Class.query.get(class_id)
+    if current_user.USER is current_class.USER:
+        return True
+    return False
 
 
 def enrolled_in_class(class_id):
-    pass
+    current_class = Class.query.filter((enrolled.c.CLASS == class_id) & (current_user == enrolled.c.USER)).all()
+    if len(current_class) is 0:
+        return False
+    return True
 
 
 def send_email(recipient: str, subject: str, message: str):
