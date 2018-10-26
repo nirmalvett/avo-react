@@ -29,6 +29,7 @@ import Build from '@material-ui/icons/Build';
 import Class from '@material-ui/icons/Class';
 import Settings from '@material-ui/icons/Settings';
 import ExitToApp from '@material-ui/icons/ExitToApp';
+import { isNotChromeAlert } from "./helpers";
 
 const drawerWidth = 240;
 
@@ -147,11 +148,11 @@ class Layout extends React.Component {
                     </Drawer>
                     <AppBar className={classNames(classes.appBar, {[classes.appBarShift]: open})}>
                         <Toolbar disableGutters>
-                            <IconButton style={{marginLeft: 12, marginRight: 20}}
+                            <IconButton style={{marginLeft: 12, marginRight: 20, color : 'white'}}
                                         onClick={() => this.setState({open: !open})}>
                                 <Menu/>
                             </IconButton>
-                            <Typography variant='title' noWrap>{this.state.name}</Typography>
+                            <Typography variant='title' style={{ color : 'white' }} noWrap>{this.state.name}</Typography>
                         </Toolbar>
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
@@ -167,8 +168,17 @@ class Layout extends React.Component {
         let selected = this.state.section === text;
         let style = {backgroundColor: selected ? color[theme === 'light' ? '100' : '500'] : undefined};
         return (
-            <ListItem button selected={selected} onClick={() => this.setState({section: text})} style={style}>
-                {React.createElement(icon, {color: selected && theme === 'light' ? 'primary' : 'action'})}
+            <ListItem 
+                button
+                classes={{
+                    root : 'avo-menu__item',
+                    selected : 'selected'
+                }} 
+                selected={selected} 
+                onClick={() => this.setState({section: text})} 
+                style={style}
+            >
+                {React.createElement(icon, {nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' })}
                 <ListItemText primary={text}/>
             </ListItem>
         );

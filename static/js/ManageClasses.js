@@ -22,19 +22,24 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Description from '@material-ui/icons/Description';
 import AssignmentTurnedIn from "@material-ui/icons/AssignmentTurnedIn";
+import AssignmentNotTurnedIn from "@material-ui/icons/AssignmentLate";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import {copy, getDateString} from "./Utilities";
 
 export default class ManageClasses extends React.Component {
     constructor(props) {
         super(props);
-        Http.getClasses(result => this.setState(result), result => console.log(result));
+        this.loadClasses();
         this.state = {
             classes: [],
             c: null, // Selected class
             t: null, // Selected test
             createTest: this.props.createTest,
         };
+    }
+
+    loadClasses(){
+        Http.getClasses(result => this.setState(result), result => console.log(result));
     }
 
     render() {
@@ -46,6 +51,7 @@ export default class ManageClasses extends React.Component {
                     <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
                         <Paper square style={{width: '100%', flex: 1, display: 'flex'}}>
                             <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
+                                {/* For each Class create a menu option */}
                                 {this.state.classes.map((x, y) => [
                                     <ListItem button onClick={() => {
                                         let newClassList = copy(this.state.classes);
@@ -59,7 +65,9 @@ export default class ManageClasses extends React.Component {
                                             <ExpandLess color={x.tests.length === 0 ? 'disabled' : 'action'}/> :
                                             <ExpandMore color={x.tests.length === 0 ? 'disabled' : 'action'}/>}
                                     </ListItem>,
-                                    <Collapse in={x.open} timeout='auto' unmountOnExit><List>{
+                                    <Collapse in={x.open} timeout='auto' unmountOnExit><List>
+                                      {
+                                        // For each test create a menu option
                                         x.tests.map((a, b) =>
                                             <ListItem button onClick={() => {
                                                 Http.getClassTestResults(this.state.classes[y].tests[b].id, result => {
@@ -99,19 +107,27 @@ export default class ManageClasses extends React.Component {
                     : <IconButton onClick={() => this.openTest()}><PlayArrow/></IconButton>,
                     <IconButton onClick={() => this.deleteTest()}><Delete/></IconButton>]}/>,
                 <List style={{flex: 1, overflowY: 'auto'}} dense>
-                    {this.state.results.map((x) => [
-                        <ListSubheader>{x.firstName + ' ' + x.lastName}</ListSubheader>,
-                        x.tests.map(y => (
-                            <ListItem>
-                                <AssignmentTurnedIn color='action'/>
-                                <ListItemText primary={y.grade + '/' + selectedTest.total}
-                                              secondary={'Submitted on ' + getDateString(y.timeSubmitted)}/>
-                                <ListItemSecondaryAction><IconButton onClick={() => {this.props.postTest(y.takes)}}>
-                                    <Description/>
-                                </IconButton></ListItemSecondaryAction>
-                            </ListItem>
-                        ))
-                    ])}
+                    { /* Show all the students that are in the class*/
+                        this.state.results.map((x) => [
+                            <ListSubheader disableSticky = {true}>{x.firstName + ' ' + x.lastName}</ListSubheader>,
+                            x.tests.length === 0
+                                ? <ListItem>
+                                    <AssignmentNotTurnedIn color='action'/>
+                                    <ListItemText primary={'This user has not taken any tests yet.'}/>
+                                </ListItem>
+                                : null,
+                            /* Show all the tests that are in the class*/
+                            x.tests.map(y => (
+                                <ListItem>
+                                    <AssignmentTurnedIn color='action'/>
+                                    <ListItemText primary={y.grade + '/' + selectedTest.total}
+                                                  secondary={'Submitted on ' + getDateString(y.timeSubmitted)}/>
+                                    <ListItemSecondaryAction><IconButton onClick={() => {this.props.postTest(y.takes)}}>
+                                        <Description/>
+                                    </IconButton></ListItemSecondaryAction>
+                                </ListItem>
+                            ))
+                        ])}
                 </List>
             ];
         }
@@ -134,7 +150,7 @@ export default class ManageClasses extends React.Component {
         let name = prompt('Class Name:');
         if (name !== null && name !== '') {
             Http.createClass(name,
-                () => alert('Class Created! Navigate out of this section and then back to refresh.'),
+                () => this.loadClasses(), // we don't need to alert to refresh anymore
                 () => alert('Something went wrong :\'('));
         }
     }
