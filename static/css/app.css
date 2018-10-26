@@ -28,7 +28,7 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background: url('../img/backdrop_3.svg') center/cover;
+    /* background: url('../img/backdrop_3.svg') center/cover; */
     background-position: 0px 0px; background-size: 100%;
 }
 
@@ -79,7 +79,7 @@ body {
     background-color: white;
     width: 100%;
     background-position: 0px 0px; background-size: 100%;
-    background: url('../img/backdrop_3.svg') center/cover !important;
+    /* background: url('../img/backdrop_3.svg') center/cover !important; */
 }
 
 .avo-tech__info-card {
@@ -285,7 +285,7 @@ body {
 .open-sans__header {
     font-size: 1.2em;
     margin-top: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 16px;
     font-weight: 300;
     color: rgba(0,0,0, 0.87);
     font-family: 'Open Sans', sans-serif;

@@ -4,6 +4,7 @@ import { copy, getDateString } from "./Utilities";
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import List from '@material-ui/core/List/List';
+import Divider from '@material-ui/core/Divider';
 import Paper from '@material-ui/core/Paper/Paper';
 import Collapse from '@material-ui/core/Collapse/Collapse';
 import ListItem from '@material-ui/core/ListItem/ListItem';
@@ -11,8 +12,10 @@ import CardHeader from '@material-ui/core/CardHeader/CardHeader';
 import IconButton from '@material-ui/core/IconButton/IconButton';
 import Typography from '@material-ui/core/Typography/Typography';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
+import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import Button from '@material-ui/core/Button/Button';
 import AddBox from '@material-ui/icons/AddBox';
+import BarChart from '@material-ui/icons/BarChart';
 import Create from '@material-ui/icons/Create';
 import PeopleOutlinedIcon from '@material-ui/icons/PeopleOutlined';
 import AssessmentOutlinedIcon from '@material-ui/icons/AssessmentOutlined';
@@ -57,6 +60,18 @@ export default class MyClasses extends React.Component {
                         <Paper classes={{ root : 'avo-sidebar' }} square style={{ width: '100%', flex: 1, display: 'flex' }}>
                             <List style={{ flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' }}>
                                 <center className='open-sans__header'>Welcome to My Classes</center>
+                                <Divider/>
+                                <ListSubheader>Analytics & Enrollment</ListSubheader>
+                                <ListItem button disabled>
+                                    <BarChart color='action' />
+                                    <ListItemText inset primary='My Analytics' />
+                                </ListItem>
+                                <ListItem button onClick={() => this.enrollInClass()}>
+                                    <AddBox color='action' />
+                                    <ListItemText inset primary='Enroll in Class' />
+                                </ListItem>
+                                <Divider/>
+                                <ListSubheader>Classes</ListSubheader>
                                 {this.state.classes.map((x, y) => [
                                     <ListItem key={uniqueKey()} button onClick={() => {
                                         let newClassList = copy(this.state.classes);
@@ -78,10 +93,6 @@ export default class MyClasses extends React.Component {
                                             </ListItem>)
                                     }</List></Collapse>
                                 ])}
-                                <ListItem button onClick={() => this.enrollInClass()}>
-                                    <AddBox color='action' />
-                                    <ListItemText inset primary='Enroll in Class' />
-                                </ListItem>
                             </List>
                         </Paper>
                     </Grid>
