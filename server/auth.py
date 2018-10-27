@@ -21,28 +21,43 @@ login_manager.login_view = "FileRoutes.serve_sign_in"
 
 @login_manager.user_loader
 def load_user(user_id):
+    """
+    Callback function for Flask Login logs in user
+    :param user_id: the id of the user being logged in
+    :return: a user object for Flask Login
+    """
     return User.query.get(user_id)
 
 
 @UserRoutes.route('/register', methods=['POST'])
 def register():
+    """
+    Registers a new user account
+    :return: Confirmation to the client
+    """
     if not request.json:
+        # If the request is not json return a 400 error
         return abort(400)
-    data = request.json
+    data = request.json # Data sent from client
     # Todo: validate arguments
     first_name, last_name, email, password = data['first_name'], data['last_name'], data['email'], data['password']
     if not fullmatch(r'[a-zA-Z]{2,}\d*@uwo\.ca+', email):
+        # Checks if the email is a UWO if not return an error JSON
         return jsonify(error='Invalid uwo email')
     if len(password) < 8:
+        # If the password is les then 8 return error JSON
         return jsonify(error='Password too short')
 
-    user = User.query.filter(User.email == email).all()
+    user = User.query.filter(User.email == email).all() # Creates a user object based off of the email entered
     if len(user) is not 0:
+        # If no user is found then return error JSON
         return jsonify(error='User already exists')
 
+    # Create new user instance form data entered and commit to database
     user = User(email, first_name, last_name, password, False, 9, 0)
     db.session.add(user)
     db.session.commit()
+    # Generates the confirmation email and sends it to the user's email
     serializer = URLSafeTimedSerializer(config.SECRET_KEY)
     token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
     confirm_url = url_for('UserRoutes.confirm', token=token, _external=True)
@@ -57,16 +72,24 @@ def register():
 
 @UserRoutes.route('/confirm/<token>')
 def confirm(token):
+    """
+    Confirms the users email
+    :param token: The token give from the email URL
+    :return: The user to the home page
+    """
     serializer = URLSafeTimedSerializer(config.SECRET_KEY)
     try:
+        # check if the token is valid if not return error
         email = serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT)
     except BadSignature:
         return "Invalid confirmation link"
-    user = User.query.filter(User.email == email).first()
+    user = User.query.filter(User.email == email).first() # get user from the email
     if user is None:
+        # If there is no user found return an error
         return "There is no account associated with the email in that token"
 
     if not user.confirmed:
+        # If the user is not confirm confirm then and commit to database
         user.confirmed = True
         db.session.commit()
     # noinspection PyUnresolvedReferences
@@ -75,19 +98,28 @@ def confirm(token):
 
 @UserRoutes.route('/login', methods=['POST'])
 def login():
+    """
+    Login the user
+    :return: Confirmation that the user has been logged in
+    """
     if not request.json:
+        # If the request isn't JSON return a 400 error
         return abort(400)
-    data = request.json
+    data = request.json # Data from the client
     username, password = data['username'], data['password']
     try:
+        # Try to create the user from the email if not throw error JSON
         user = User.query.filter(User.email == username).one()
     except NoResultFound:
         return jsonify(error='Account does not exist!')
     if not check_password(password, user.salt, user.password):
+        # Checks the password if false throw error JSON
         return jsonify(error='Password is incorrect!')
     elif not user.confirmed:
+        # If the user hasn't confirmed their email throw error JSON
         return jsonify(error='Account has not been confirmed!')
     else:
+        # Else log the user in
         login_user(user)
         return jsonify(message='Successfully logged in')
 
@@ -95,13 +127,22 @@ def login():
 @login_required
 @UserRoutes.route('/logout')
 def logout():
+    """
+    Logout the current user
+    :return: Confermation that the user has been logged out
+    """
     logout_user()
     return jsonify(message='Successfully logged out')
 
 
 @UserRoutes.route('/getUserInfo')
 def get_user_info():
+    """
+    Get the current user's info
+    :return: The user's info
+    """
     try:
+        # Returns the current user's data if not logged in return error JSON
         return jsonify(first_name=current_user.first_name, last_name=current_user.last_name,
                        is_teacher=current_user.is_teacher, is_admin=current_user.is_admin,
                        color=current_user.color, theme=current_user.theme)
@@ -110,25 +151,47 @@ def get_user_info():
 
 
 def teaches_class(class_id):
-    current_class = Class.query.get(class_id)
+    """
+    Helper function to test if teacher teaches class
+    :param class_id: The class ID to test
+    :return: True if the user is teaching the class False if not
+    """
+    current_class = Class.query.get(class_id) # Gets the class form the class ID
     if current_user.USER is current_class.USER:
+        # If the current user teaches the class then return true if not return False
         return True
     return False
 
 
 def enrolled_in_class(class_id):
-    current_class = Class.query.filter((enrolled.c.CLASS == class_id) & (current_user == enrolled.c.USER)).all()
-    if len(current_class) is 0:
+    """
+    Checks if the current user is enrolled in a given class
+    :param class_id: The class ID to check against
+    :return: True if the user is enrolled False if not
+    """
+    try:
+        # If the user is enrolled then return True if not return False
+        current_class = Class.query.filter((enrolled.c.CLASS == class_id) & (current_user == enrolled.c.USER)).first()
+        if Class is not None:
+            return True
         return False
-    return True
+    except NoResultFound:
+        return False
 
 
 def send_email(recipient: str, subject: str, message: str):
-    sender = 'no-reply@avocadocore.com'
+    """
+    Sends email to a client
+    :param recipient: The person to recive the email
+    :param subject: The subject of the email
+    :param message: HTML of the email
+    """
+    sender = 'no-reply@avocadocore.com' # Sets the sender of no-reply
     msg = MIMEMultipart()
-    msg['From'], msg['To'], msg['Subject'] = sender, recipient, subject
+    msg['From'], msg['To'], msg['Subject'] = sender, recipient, subject # Sets To From Subject values
     msg.attach(MIMEText(message, 'html'))
     # noinspection SpellCheckingInspection
+    # Sends email with given configuration
     server = SMTP('smtp.zoho.com', 587)
     server.ehlo()
     server.starttls()
