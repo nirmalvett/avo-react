@@ -66,7 +66,7 @@ def create_class():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     name = request.json['name'] # Name of the new class
-    new_class = Class(current_user.USER, name, key)
+    new_class = Class(current_user.USER, name)
     db.session.add(new_class)
     db.session.commit()
     return jsonify(message='Created!')
