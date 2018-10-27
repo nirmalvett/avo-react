@@ -2,8 +2,7 @@ from flask import Blueprint, abort, jsonify, request
 from flask_login import login_required, current_user
 from sqlalchemy.orm.exc import NoResultFound
 from server.MathCode.question import AvoQuestion
-from random import SystemRandom, randint
-from string import ascii_letters, digits
+from random import randint
 from datetime import datetime, timedelta
 import sys
 from git import Repo
@@ -19,11 +18,17 @@ routes = Blueprint('routes', __name__)
 @check_confirmed
 @routes.route('/changeColor', methods=['POST'])
 def change_color():
+    """
+    Changes the current user's color theme
+    :return: Confirmation
+    """
     if not request.json:
+        # If the request isn't JSON return a 400 error
         return abort(400)
-    data = request.json
+    data = request.json  # Data from client
     color = data['color']
 
+    # Commit the users's changes to the DB
     current_user.color = color
     db.session.commit()
     return jsonify(message='updated')
@@ -33,10 +38,16 @@ def change_color():
 @check_confirmed
 @routes.route('/changeTheme', methods=['POST'])
 def change_theme():
+    """
+    Changes the current user's theme
+    :return: Confirmation of the change
+    """
     if not request.json:
+        # If the request isn't JSON return a 400 error
         return abort(400)
-    data = request.json
+    data = request.json # Data from the client
     theme = data['theme']
+    # Applies the user's changes to the database
     current_user.theme = theme
     db.session.commit()
     return jsonify(message='updated')
@@ -47,10 +58,14 @@ def change_theme():
 @teacher_only
 @routes.route('/createClass', methods=['POST'])
 def create_class():
+    """
+    Creates a class with the current user as the teacher
+    :return: Confirmation that the class was created
+    """
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
-    name = request.json['name']
-    key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
+    name = request.json['name'] # Name of the new class
     new_class = Class(current_user.USER, name, key)
     db.session.add(new_class)
     db.session.commit()
@@ -105,6 +120,7 @@ def get_sets():
 @routes.route('/enroll', methods=['POST'])
 def enroll():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     key = request.json['key']
     try:
@@ -122,6 +138,7 @@ def enroll():
 @routes.route('/openTest', methods=['POST'])
 def open_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     test = request.json['test']
     current_test = Test.query.get(test)
@@ -138,6 +155,7 @@ def open_test():
 @routes.route('/closeTest', methods=['POST'])
 def close_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     test = request.json['test']
     current_test = Test.query.get(test)
@@ -154,6 +172,7 @@ def close_test():
 @routes.route('/deleteTest', methods=['POST'])
 def delete_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     test = request.json['test']
     current_test = Test.query.get(test)
@@ -169,6 +188,7 @@ def delete_test():
 @routes.route('/getQuestion', methods=['POST'])
 def get_question():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     question, seed = data['question'], data['seed']
@@ -184,6 +204,7 @@ def get_question():
 @routes.route('/getTest', methods=['POST'])
 def get_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     test_id = data['test']
@@ -239,6 +260,7 @@ def create_takes(test, user):
 @routes.route('/saveTest', methods=['POST'])
 def save_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     class_id, name, deadline, timer, attempts, question_list, seed_list = \
@@ -262,6 +284,7 @@ def save_test():
 @routes.route('/saveAnswer', methods=['POST'])
 def save_answer():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     takes, question, answer = data['takes'], data['question'], data['answer']
@@ -291,6 +314,7 @@ def save_answer():
 @routes.route('/submitTest', methods=['POST'])
 def submit_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     takes = data['takes']
@@ -305,6 +329,7 @@ def submit_test():
 @routes.route('/postTest', methods=['POST'])
 def post_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     takes = data['takes']
@@ -328,6 +353,7 @@ def post_test():
 @routes.route('/getClassTestResults', methods=['POST'])
 def get_class_test_results():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     test = data['test']
