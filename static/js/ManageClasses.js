@@ -62,7 +62,7 @@ export default class ManageClasses extends React.Component {
                             <List style={{ flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' }}>
                                 <center className='open-sans__header'>Manage My Classes</center>
                                 <Divider />
-                                <ListSubheader style={{ 'position': 'relative' }}>Class Creation & Misc.</ListSubheader>
+                                <ListSubheader style={{ 'position': 'relative' }}>Class Creation</ListSubheader>
                                 <ListItem button onClick={() => this.createClass()}>
                                     <AddBoxOutlinedIcon color='action' />
                                     <ListItemText inset primary='Create Class' />
