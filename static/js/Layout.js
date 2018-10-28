@@ -175,7 +175,6 @@ class Layout extends React.Component {
     listItem(icon, text) {
         let {color, theme} = this.state;
         let selected = this.state.section === text;
-        let style = {backgroundColor: selected ? color[theme === 'light' ? '100' : '500'] : undefined};
         return (
             <ListItem 
                 button
@@ -185,7 +184,7 @@ class Layout extends React.Component {
                 }} 
                 selected={selected} 
                 onClick={() => this.setState({section: text})} 
-                style={style}
+                style={{ backgroundColor: selected ? color.main : undefined }}
             >
                 {React.createElement(icon, {nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' })}
                 <ListItemText primary={text}/>

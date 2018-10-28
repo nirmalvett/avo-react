@@ -12,7 +12,6 @@ import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import Divider from '@material-ui/core/Divider';
 import Stop from '@material-ui/icons/Stop';
-import Downshift from 'downshift';
 import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined';
 import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 import GetAppOutlinedIcon from '@material-ui/icons/GetAppOutlined';
@@ -32,6 +31,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Chip from '@material-ui/core/Chip';
 import { copy, getDateString } from "./Utilities";
+import Tooltip from '@material-ui/core/Tooltip';
 
 export default class ManageClasses extends React.Component {
     constructor(props) {
@@ -97,7 +97,9 @@ export default class ManageClasses extends React.Component {
                                                     <AssessmentOutlinedIcon color={a.open ? 'primary' : 'disabled'} style={{ marginLeft: '10px' }} />
                                                     <ListItemText inset primary={a.name} />
                                                 </ListItem>)
-                                        }</List></Collapse>
+                                        }
+                                    </List>
+                                    </Collapse>
                                 ])}
                             </List>
                         </Paper>
@@ -121,10 +123,25 @@ export default class ManageClasses extends React.Component {
                     classes={{
                         root: 'avo-card__header'
                     }}
-                    title={selectedTest.name} action={[selectedTest.open
-                        ? <IconButton onClick={() => this.closeTest()}><Stop /></IconButton>
-                        : <IconButton onClick={() => this.openTest()}><PlayArrow /></IconButton>,
-                    <IconButton onClick={() => this.deleteTest()}><DeleteOutlinedIcon /></IconButton>]} 
+                    title={selectedTest.name} 
+                    action={[
+                        selectedTest.open ? (
+                            <Tooltip title="Stop the test">
+                                <IconButton onClick={() => this.closeTest()}>
+                                    <Stop />
+                                </IconButton>
+                            </Tooltip>
+                        ) : (
+                            <Tooltip title="Start the test">
+                                <IconButton onClick={() => this.openTest()}>
+                                    <PlayArrow />
+                                </IconButton>
+                            </Tooltip>
+                        ),
+                        <Tooltip title="Delete the test(This cannot be undone)">
+                            <IconButton onClick={() => this.deleteTest()}><DeleteOutlinedIcon /></IconButton>
+                        </Tooltip>
+                    ]} 
                 />,
 
                 <List style={{ flex: 1, overflowY: 'auto' }} dense>
@@ -148,7 +165,7 @@ export default class ManageClasses extends React.Component {
                             //         </IconButton></ListItemSecondaryAction>
                             //     </ListItem>
                             // ))
-                            <ListItem>
+                            <ListItem disabled={x.tests.length === 0}>
                                 {x.tests.length === 0 ? <AssignmentNotTurnedIn color='action' /> : <AssignmentTurnedIn color='action' />}
                                 <ListItemText 
                                     primary={`${x.firstName} ${x.lastName}`} 
@@ -165,6 +182,7 @@ export default class ManageClasses extends React.Component {
                                         aria-owns={anchorEl ? 'simple-menu' : null}
                                         aria-haspopup="true"
                                         student-index={`${idx}`}
+                                        disabled={x.tests.length === 0}
                                         onClick={(event) => this.setState({ anchorEl: event.currentTarget })}
                                     >
                                         <MoreVert/>
@@ -203,12 +221,16 @@ export default class ManageClasses extends React.Component {
                 }}
                 subheader={'Enroll Key: ' + selectedClass.enrollKey}
                 action={[
-                    <IconButton onClick={() => this.state.createTest(selectedClass.id)}>
-                        <NoteAddOutlinedIcon />
-                    </IconButton>,
-                    <IconButton onClick={() => alert('CSV download coming soon!')}>
-                        <GetAppOutlinedIcon />
-                    </IconButton>
+                    <Tooltip title="Create a new Test">
+                        <IconButton onClick={() => this.state.createTest(selectedClass.id)}>
+                            <NoteAddOutlinedIcon />
+                        </IconButton>
+                    </Tooltip>,
+                    <Tooltip title="Download CSV">
+                        <IconButton onClick={() => alert('CSV download coming soon!')}>
+                            <GetAppOutlinedIcon />
+                        </IconButton>
+                    </Tooltip>
                 ]} />;
         }
         return (
