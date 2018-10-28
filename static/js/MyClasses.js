@@ -14,8 +14,8 @@ import Typography from '@material-ui/core/Typography/Typography';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import Button from '@material-ui/core/Button/Button';
-import AddBox from '@material-ui/icons/AddBox';
-import BarChart from '@material-ui/icons/BarChart';
+import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined';
+import BarChartOutlinedIcon from '@material-ui/icons/BarChartOutlined';
 import Create from '@material-ui/icons/Create';
 import PeopleOutlinedIcon from '@material-ui/icons/PeopleOutlined';
 import AssessmentOutlinedIcon from '@material-ui/icons/AssessmentOutlined';
@@ -61,17 +61,17 @@ export default class MyClasses extends React.Component {
                             <List style={{ flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' }}>
                                 <center className='open-sans__header'>Welcome to My Classes</center>
                                 <Divider/>
-                                <ListSubheader>Analytics & Enrollment</ListSubheader>
+                                <ListSubheader style={{ 'position' : 'relative' }}>Analytics & Enrollment</ListSubheader>
                                 <ListItem button disabled>
-                                    <BarChart color='action' />
+                                    <BarChartOutlinedIcon color='action' />
                                     <ListItemText inset primary='My Analytics' />
                                 </ListItem>
                                 <ListItem button onClick={() => this.enrollInClass()}>
-                                    <AddBox color='action' />
+                                    <AddBoxOutlinedIcon color='action' />
                                     <ListItemText inset primary='Enroll in Class' />
                                 </ListItem>
                                 <Divider/>
-                                <ListSubheader>Classes</ListSubheader>
+                                <ListSubheader style={{ 'position' : 'relative' }}>Classes</ListSubheader>
                                 {this.state.classes.map((x, y) => [
                                     <ListItem key={uniqueKey()} button onClick={() => {
                                         let newClassList = copy(this.state.classes);
@@ -122,6 +122,7 @@ export default class MyClasses extends React.Component {
         let selectedClass = this.state.classes[this.state.c];
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
+            console.log(selectedTest);
             return [
                 <CardHeader
                     classes={{
@@ -136,7 +137,7 @@ export default class MyClasses extends React.Component {
                         disabled: 'disabled'
                     }}
                     onClick={() => this.state.startTest(selectedTest.id)}
-                    disabled={!(selectedTest.attempts > selectedTest.submitted.length) || (selectedTest.attempts === -1)}
+                    disabled={!selectedTest.open && (selectedTest.attempts == -1 || selectedTest.submitted.length < selectedTest.attempts)}
                 >
                     Start Test
                 </Button>,
