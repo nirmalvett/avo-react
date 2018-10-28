@@ -27,7 +27,8 @@ export default class ButtonInput extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-          stage: CONST_CREATE_OBJECT
+          stage: CONST_CREATE_OBJECT,
+          vectorSize: ''
         }
     }
 
@@ -71,6 +72,8 @@ export default class ButtonInput extends React.Component {
 
     selectDimension(){
       return (
+          <div>
+            <input label='Enter vector' value = {this.state.vectorSize} onChange = {(e) => this.handleVectorSize(e)}/>
            <Button
                 variant="extendedFab"
                 color = "primary"
@@ -79,6 +82,7 @@ export default class ButtonInput extends React.Component {
             >
               Confirm Dimension
             </Button>
+          </div>
       )
     }
 
@@ -110,6 +114,17 @@ export default class ButtonInput extends React.Component {
            </Button>
           </div>
       )
+    }
+
+    // Handlers for Dimension Selection
+    handleVectorSize(e){
+      e.preventDefault();
+      const value = e.target.value;
+      // if only numbers are in the input then update
+      if(RegExp('^[0-9]*$').test(value)){
+        this.setState({vectorSize: e.target.value})
+      }
+
     }
 
 
