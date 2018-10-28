@@ -36,7 +36,7 @@ export default class ButtonInput extends React.Component {
       const { stage } = this.state;
         return (
             <div style={{ flex: 1 }}>
-              <center>
+
                 {
                   stage === CONST_CREATE_OBJECT
                       ?  this.createObject() // if True then render create object button i.e. "Create Vector"
@@ -48,7 +48,6 @@ export default class ButtonInput extends React.Component {
                               ? this.showObject() //If true then show the answer in latex
                               : null
                 }
-              </center>
             </div>
         )
 
@@ -56,12 +55,11 @@ export default class ButtonInput extends React.Component {
 
     createObject(){
       const { type } = this.props;
-      if (type === CONST_VECTOR || CONST_VECTOR_LINEAR_EXPRESSION){
+      if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION){
         return (
             <Button
                 variant="extendedFab"
                 color = "primary"
-                aria-label="Delete"
                 onClick = {() => this.setState({stage: CONST_SELECT_DIMENSION})}
             >
               Create Vector
@@ -71,32 +69,53 @@ export default class ButtonInput extends React.Component {
     }
 
     selectDimension(){
-      return (
-          <div>
-            <input label='Enter vector' value = {this.state.vectorSize} onChange = {(e) => this.handleVectorSize(e)}/>
-           <Button
-                variant="extendedFab"
-                color = "primary"
-                aria-label="Delete"
-                onClick = {() => this.setState({stage: CONST_INPUT_PHASE})}
-            >
-              Confirm Dimension
-            </Button>
-          </div>
-      )
+         return (
+            <div>
+              <input
+                  label='Enter vector'
+                  value = {this.state.vectorSize}
+                  onChange = {(e) => this.handleVectorSize(e)}/>
+             <Button
+                  variant="extendedFab"
+                  color = "primary"
+                  onClick = {() => this.setState({stage: CONST_INPUT_PHASE})}
+              >
+                Confirm Dimension
+              </Button>
+            </div>
+          )
+      // }
+
     }
 
     inputPhase(){
-      return (
-           <Button
-                variant="extendedFab"
-                color = "primary"
-                aria-label="Delete"
-                onClick = {() => this.setState({stage: CONST_SHOW_OBJECT})}
-            >
-              Finish Answer
-            </Button>
-      )
+
+      const numberOfFields = parseInt(this.state.vectorSize);
+      // We need to create an array of ids which we can use to map. The count is going to start at 1 instead of 0
+      const uniqueIds = [];
+      for (let i = 0; i < numberOfFields; i++){
+        const idName = 'button-input-vector-' + (i + 1);
+        uniqueIds.push(idName);
+      }
+        return (
+            <div>
+              {
+                uniqueIds.map(idName => {
+                  return (
+                      <input id ={idName}/>
+                  )
+                })
+              }
+              <Button
+                  variant="extendedFab"
+                  color="primary"
+                  onClick={() => this.setState({stage: CONST_SHOW_OBJECT})}
+              >
+                Finish Answer
+              </Button>
+            </div>
+        )
+
     }
 
     showObject(){
