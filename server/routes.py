@@ -65,8 +65,9 @@ def create_class():
     if not request.json:
         # If the request isn't JSON then return a 400 error
         return abort(400)
-    name = request.json['name'] # Name of the new class
-    new_class = Class(current_user.USER, name)
+    name = request.json['name']  # Name of the new class
+    new_class = Class(current_user.USER, name)  # Class to be created
+    # Add to database and commit
     db.session.add(new_class)
     db.session.commit()
     return jsonify(message='Created!')
@@ -75,22 +76,33 @@ def create_class():
 @login_required
 @routes.route('/getClasses')
 def get_classes():
-
-    teach_classes = Class.query.filter(Class.USER == current_user.USER).all()
-    enroll_classes = Class.query.filter((Class.CLASS == enrolled.c.CLASS) & (current_user.USER == enrolled.c.USER)).all()
-    classes = teach_classes + enroll_classes
-    class_list = []
+    """
+    Get the current users classes available to them
+    :return: A list of class data
+    """
+    teach_classes = []  # The classes the current user teaches
+    if current_user.is_teacher is True:
+        # If the current user is a teacher query the data base for teaching classes
+        teach_classes = Class.query.filter(Class.USER == current_user.USER).all()
+    enroll_classes = Class.query.filter((Class.CLASS == enrolled.c.CLASS) & (current_user.USER == enrolled.c.USER)).all()  # Classes the current user is enrolled in
+    classes = teach_classes + enroll_classes  # append the class lists together
+    class_list = []  # List of class data to return to the client
     time = time_stamp(datetime.now())
     if classes is not None:
+        # If the current user has a relation with any class parse the data to lists
         for c in classes:
+            # for every class get the tests and takes and append them
             tests = Test.query.filter(Test.CLASS == c.CLASS).all()
-            test_list = []
+            test_list = []  # List of tests in the class
             for t in tests:
+                # For every test get all the takes and append them
                 takes = Takes.query.order_by(Takes.time_started).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER)).all()
-                submitted = []
-                current = None
+                submitted = []  # List of takes indexes
+                current = None  # Current instance of takes
                 for ta in takes:
+                    # For each instance of takes append the data
                     if ta is not None:
+                        # If the takes value is not empty append the data if not append a null value
                         current = {'timeStarted': ta.time_started, 'timeSubmitted': ta.time_submitted}
                         submitted.append({'takes': ta.TAKES, 'timeSubmitted': ta.time_submitted, 'grade': ta.grade})
                 test_list.append({'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': t.deadline, 'timer': t.timer,
@@ -104,12 +116,18 @@ def get_classes():
 @teacher_only
 @routes.route('/getSets')
 def get_sets():
-    list_of_sets = Set.query.filter((Set.SET == UserViewsSet.SET) & (UserViewsSet.USER == current_user.USER)).all()
-    set_list = []
+    """
+    Get the list of Sets available to the user
+    :return: The list of sets
+    """
+    list_of_sets = Set.query.filter((Set.SET == UserViewsSet.SET) & (UserViewsSet.USER == current_user.USER)).all()  # Get list of avalible sets for current user
+    set_list = []  # List of sets to send back to the user
     for s in list_of_sets:
-        questions = Question.query.filter(Question.SET == s.SET).all()
+        # For each set append the data
+        questions = Question.query.filter(Question.SET == s.SET).all()  # Get all questions in set
         question_list = []
         for q in questions:
+            #  For each question append the data
             question_list.append({'id': q.QUESTION, 'name': q.name, 'string': q.string, 'total': q.total})
         set_list.append({'id': s.SET, 'name': s.name, 'questions': question_list})
     return jsonify(sets=set_list)
