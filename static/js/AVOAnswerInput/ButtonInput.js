@@ -54,7 +54,7 @@ export default class ButtonInput extends React.Component {
       this.setState({
         stage: CONST_CREATE_OBJECT,
         vectorSize: null, // if vector is being used then this should an int else it remains null
-        dimensionStorage: null, // This will be [1, 2] for a vector and [1,2;3,4] for matrix,
+        dimensionStorage: {}, // This will be [1, 2] for a vector and [1,2;3,4] for matrix,
         type: this.props.type // this is the type of the input itself
       });
       this.inputData = null;
@@ -149,7 +149,10 @@ export default class ButtonInput extends React.Component {
         uniqueIds.push(idName);
         stateObject[i] = ''; // this will be a blank holder for all the objects
       }
-      this.state.dimensionStorage = stateObject;
+      if (this.state.dimensionStorage === {}){ // We this check otherwise it'll keep wiping the input
+        this.state.dimensionStorage = stateObject;
+      }
+
 
       return (
           <Grid container
@@ -186,16 +189,21 @@ export default class ButtonInput extends React.Component {
       )
     }
     vectorShowObject(){
-      console.log("state at vectorShowObject", this.state);
       // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
       // Now we just we just need to accumulate the vector latex to show students
       let vectorLatex = "\\(\\begin{bmatrix}";
       const { dimensionStorage } = this.state;
-      for (let vKey in dimensionStorage) {
-        const value = dimensionStorage[vKey];
+      console.log(this.state);
+      const keyArray = Object.keys(dimensionStorage);
+      console.log(keyArray);
+
+      for (let i = 0; i < keyArray.length; i++){
+        const value = dimensionStorage[keyArray[i]];
+        console.log(value);
         vectorLatex += value + "\\\\";
-      }
+      };
       vectorLatex += "\\end{bmatrix}\\)";
+      console.log( vectorLatex);
        return (
            <Grid container
                   direction="column"
@@ -229,16 +237,10 @@ export default class ButtonInput extends React.Component {
       const nameSplit = name.split("-");
       const x_value = parseInt(nameSplit[0]); // this will be the actual index
       const y_value = parseInt(nameSplit[1]); // this will always be set to 0, only here for the sake of reuse
+      const dimensionStorage = this.state.dimensionStorage;
+      dimensionStorage[x_value] = value;
+      this.setState(dimensionStorage);
 
-      // if only numbers are in the input then update
-      if(RegExp('^[0-9]*$').test(value)){
-        // const copyDimensionStorage = copy(this.state.dimensionStorage); // initially it'll look like {0: '', 1:''}
-        // copyDimensionStorage[x_value] = value; // now if you push 1 in the first vector it's {0: '1', 1:''}
-        const dimensionStorage = this.state;
-        dimensionStorage[x_value] = value;
-        console.log("dimensionStorage", dimensionStorage);
-        this.setState(dimensionStorage, () => console.log("state", this.state));
-      }
     }
 
 
