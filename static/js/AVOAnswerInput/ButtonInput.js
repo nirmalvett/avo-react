@@ -44,8 +44,9 @@ export default class ButtonInput extends React.Component {
         this.state = {
           stage: CONST_CREATE_OBJECT,
           vectorSize: '',
-          dimensionStorage: [], // [1,2] if vector, [1,2;3,4] if matrix
-          type: this.props.type // this is the type of the input itself
+          dimensionStorage: {}, // [1,2] if vector, [1,2;3,4] if matrix
+          type: this.props.type, // this is the type of the input itself,
+          debugState: ''
         };
     }
     resetAll(){
@@ -140,13 +141,13 @@ export default class ButtonInput extends React.Component {
     }
     vectorInputPhase(){
       // INPUT PHASE: ______  ______ _______ , ________  ________ __________ | Submit |
-       const numberOfFields = this.state.vectorSize; // given by previous input
+      const numberOfFields = this.state.vectorSize; // given by previous input
       const uniqueIds = []; // create an array of ids which we can use to map
-      const stateObject = []; // We need something to hold all the input values in the state
+      const stateObject = {}; // We need something to hold all the input values in the state
       for (let i = 0; i < numberOfFields; i++){ // for the number of fields we need
         const idName = 'button-input-vector-' + (i);
         uniqueIds.push(idName);
-        stateObject.push(''); // this will be a blank holder for all the objects
+        stateObject[i] = ''; // this will be a blank holder for all the objects
       }
       this.state.dimensionStorage = stateObject;
 
@@ -161,11 +162,12 @@ export default class ButtonInput extends React.Component {
                     return (
                       <div>
                       <TextField
-                          id ={idName}
+                          key = {idName}
                           name = {`${index}-0` }
-                          value = { this.state.dimensionStorage[index] }
+                          value = { this.state.dimensionStorage[index]}
                           onChange = {(e) => this.handleVectorInput(e)}
                           label={`Vector Parameter ${index + 1}` }
+
                       />
                         <br/>
                       </div>
@@ -184,13 +186,22 @@ export default class ButtonInput extends React.Component {
       )
     }
     vectorShowObject(){
+      console.log("state at vectorShowObject", this.state);
       // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
+      // Now we just we just need to accumulate the vector latex to show students
+      let vectorLatex = "\\(\\begin{bmatrix}";
+      const { dimensionStorage } = this.state;
+      for (let vKey in dimensionStorage) {
+        const value = dimensionStorage[vKey];
+        vectorLatex += value + "\\\\";
+      }
+      vectorLatex += "\\end{bmatrix}\\)";
        return (
            <Grid container
                   direction="column"
                   justify="center"
                   alignItems="center">
-            { getMathJax("\\(\\begin{bmatrix}4\\\\3\\\\2\\end{bmatrix}\\)") }
+            { getMathJax(vectorLatex) }
             <br/> <br/>
              <Button
                 variant="extendedFab"
@@ -221,15 +232,16 @@ export default class ButtonInput extends React.Component {
 
       // if only numbers are in the input then update
       if(RegExp('^[0-9]*$').test(value)){
-        const copyDimensionStorage = copy(this.state.dimensionStorage); // initially it'll look like ['', '', '']
-        copyDimensionStorage[x_value] = value; // now if you push 1 in the first vector it's ['1'. '', '']
-        console.log("copyDimensionStorage", copyDimensionStorage);
-        this.setState({dimensionStorage: copyDimensionStorage});
-        console.log("state after setState", this.state);
-        this.state.dimensionStorage = copyDimensionStorage;
-        console.log("state after this.state[dimensionStorage] = copyDimensionStorage", this.state);
+        // const copyDimensionStorage = copy(this.state.dimensionStorage); // initially it'll look like {0: '', 1:''}
+        // copyDimensionStorage[x_value] = value; // now if you push 1 in the first vector it's {0: '1', 1:''}
+        const dimensionStorage = this.state;
+        dimensionStorage[x_value] = value;
+        console.log("dimensionStorage", dimensionStorage);
+        this.setState(dimensionStorage, () => console.log("state", this.state));
       }
     }
+
+
 
 
 
