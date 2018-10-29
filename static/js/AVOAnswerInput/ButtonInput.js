@@ -44,7 +44,7 @@ export default class ButtonInput extends React.Component {
         this.state = {
           stage: CONST_CREATE_OBJECT,
           vectorSize: '',
-          dimensionStorage: null, // This
+          dimensionStorage: [], // [1,2] if vector, [1,2;3,4] if matrix
           type: this.props.type // this is the type of the input itself
         };
     }
@@ -91,13 +91,10 @@ export default class ButtonInput extends React.Component {
     inputPhase(){
       const {type} = this.state;
       if (type === CONST_VECTOR){ return this.vectorInputPhase(); }
-
-
     }
     showObject(){
       const {type} = this.state;
       if (type === CONST_VECTOR){ return this.vectorShowObject(); }
-
     }
 
     // ================================== Vector Input Logic ===========================================
@@ -152,6 +149,7 @@ export default class ButtonInput extends React.Component {
         stateObject.push(''); // this will be a blank holder for all the objects
       }
       this.state.dimensionStorage = stateObject;
+
       return (
           <Grid container
                 direction="column"
@@ -164,9 +162,10 @@ export default class ButtonInput extends React.Component {
                       <div>
                       <TextField
                           id ={idName}
-                          name = {`${index+1}-0` }
-                          value = {this.state.dimensionStorage[index]}
-                          onChange = {this.handleVectorInput.bind(this)}
+                          name = {`${index}-0` }
+                          value = { this.state.dimensionStorage[index] }
+                          onChange = {(e) => this.handleVectorInput(e)}
+                          label={`Vector Parameter ${index + 1}` }
                       />
                         <br/>
                       </div>
@@ -213,19 +212,23 @@ export default class ButtonInput extends React.Component {
       }
     }
     handleVectorInput(e){
-      // e.preventDefault();
-      // console.log(e);
-      // const value = e.target.value;
-      // const x_value = parseInt(event.target.name.split("-")[0]); // this will be the actual index
-      // const y_value = parseInt(event.target.name.split("-")[1]); // this will always be set to 0, only here for the sake of reuse
-      //
-      // // if only numbers are in the input then update
-      // if(RegExp('^[0-9]*$').test(value)){
-      //   const copyState = copy(this.state); // we have a entire copy of the state
-      //   copyState[dimensionStorage][x_value] = value;
-      //   this.setState(copyState);
-      //   console.log("state", this.state);
-      // }
+      e.preventDefault();
+      const value = e.target.value; // the value the user inputs
+      const name = e.target.name; // if the coordinates are 1, 2 then the string name will be 1-2
+      const nameSplit = name.split("-");
+      const x_value = parseInt(nameSplit[0]); // this will be the actual index
+      const y_value = parseInt(nameSplit[1]); // this will always be set to 0, only here for the sake of reuse
+
+      // if only numbers are in the input then update
+      if(RegExp('^[0-9]*$').test(value)){
+        const copyDimensionStorage = copy(this.state.dimensionStorage); // initially it'll look like ['', '', '']
+        copyDimensionStorage[x_value] = value; // now if you push 1 in the first vector it's ['1'. '', '']
+        console.log("copyDimensionStorage", copyDimensionStorage);
+        this.setState({dimensionStorage: copyDimensionStorage});
+        console.log("state after setState", this.state);
+        this.state.dimensionStorage = copyDimensionStorage;
+        console.log("state after this.state[dimensionStorage] = copyDimensionStorage", this.state);
+      }
     }
 
 
