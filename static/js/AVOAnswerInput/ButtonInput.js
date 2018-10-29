@@ -11,6 +11,13 @@ import NavigationIcon from '@material-ui/icons/Navigation';
 import {green} from '@material-ui/core/colors';
 import { CONST_VECTOR, CONST_VECTOR_LINEAR_EXPRESSION} from "./AnswerInput";
 import {getMathJax, sleep, validateMatrix, validateNumber, validateVector} from '../Utilities';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid/Grid';
 const styles = theme => ({
   center: {
     flex: 1,
@@ -35,8 +42,7 @@ export default class ButtonInput extends React.Component {
     render() {
       const { stage } = this.state;
         return (
-            <div style={{ flex: 1 }}>
-
+              <div>
                 {
                   stage === CONST_CREATE_OBJECT
                       ?  this.createObject() // if True then render create object button i.e. "Create Vector"
@@ -48,7 +54,8 @@ export default class ButtonInput extends React.Component {
                               ? this.showObject() //If true then show the answer in latex
                               : null
                 }
-            </div>
+              </div>
+
         )
 
     }
@@ -57,24 +64,34 @@ export default class ButtonInput extends React.Component {
       const { type } = this.props;
       if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION){
         return (
-            <Button
-                variant="extendedFab"
-                color = "primary"
-                onClick = {() => this.setState({stage: CONST_SELECT_DIMENSION})}
-            >
-              Create Vector
-            </Button>
+             <Grid container
+                  direction="column"
+                  justify="center"
+                  alignItems="center">
+                <Button
+                    variant="extendedFab"
+                    color = "primary"
+                    onClick = {() => this.setState({stage: CONST_SELECT_DIMENSION})}
+                >
+                  Create Vector
+                </Button>
+            </Grid>
         )
       }
     }
 
     selectDimension(){
          return (
-            <div>
-              <input
-                  label='Enter vector'
+            <Grid container
+                  direction="column"
+                  justify="center"
+                  alignItems="center">
+              <TextField
+                  label='Enter vector size.'
                   value = {this.state.vectorSize}
                   onChange = {(e) => this.handleVectorSize(e)}/>
+              <br/>
+
              <Button
                   variant="extendedFab"
                   color = "primary"
@@ -82,30 +99,40 @@ export default class ButtonInput extends React.Component {
               >
                 Confirm Dimension
               </Button>
-            </div>
+            </Grid>
           )
-      // }
 
     }
 
     inputPhase(){
 
       const numberOfFields = parseInt(this.state.vectorSize);
-      // We need to create an array of ids which we can use to map. The count is going to start at 1 instead of 0
+      // We need to create an array of ids which we can use to map. The count is going to start at 0
       const uniqueIds = [];
       for (let i = 0; i < numberOfFields; i++){
-        const idName = 'button-input-vector-' + (i + 1);
+        const idName = 'button-input-vector-' + (i);
         uniqueIds.push(idName);
       }
         return (
-            <div>
-              {
-                uniqueIds.map(idName => {
-                  return (
-                      <input id ={idName}/>
-                  )
-                })
-              }
+            <Grid container
+                  direction="column"
+                  justify="center"
+                  alignItems="center">
+
+                  { // We're mapping the vector inputs here
+                    uniqueIds.map((idName, index) => {
+                      return (
+                        <div>
+                        <TextField
+                            id ={idName}
+                            x-index = {index+1}
+                            y-index = {0} />
+                          <br/>
+                        </div>
+                      )
+                    })
+                  }
+              <br/>
               <Button
                   variant="extendedFab"
                   color="primary"
@@ -113,16 +140,19 @@ export default class ButtonInput extends React.Component {
               >
                 Finish Answer
               </Button>
-            </div>
+            </Grid>
         )
 
     }
 
     showObject(){
       return (
-          <div>
+           <Grid container
+                  direction="column"
+                  justify="center"
+                  alignItems="center">
             { getMathJax("\\(\\begin{bmatrix}4\\\\3\\\\2\\end{bmatrix}\\)") }
-            { getMathJax("\\(\\\\ \\\\ \\\\ \\)") }
+            <br/>
              <Button
                 variant="extendedFab"
                 color = "primary"
@@ -131,11 +161,11 @@ export default class ButtonInput extends React.Component {
             >
                Clear Answer
            </Button>
-          </div>
+          </Grid>
       )
     }
 
-    // Handlers for Dimension Selection
+    // Handlers
     handleVectorSize(e){
       e.preventDefault();
       const value = e.target.value;
