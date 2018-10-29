@@ -87,7 +87,6 @@ def get_classes():
     enroll_classes = Class.query.filter((Class.CLASS == enrolled.c.CLASS) & (current_user.USER == enrolled.c.USER)).all()  # Classes the current user is enrolled in
     classes = teach_classes + enroll_classes  # append the class lists together
     class_list = []  # List of class data to return to the client
-    time = time_stamp(datetime.now())
     if classes is not None:
         # If the current user has a relation with any class parse the data to lists
         for c in classes:
@@ -103,9 +102,9 @@ def get_classes():
                     # For each instance of takes append the data
                     if ta is not None:
                         # If the takes value is not empty append the data if not append a null value
-                        current = {'timeStarted': ta.time_started, 'timeSubmitted': ta.time_submitted}
-                        submitted.append({'takes': ta.TAKES, 'timeSubmitted': ta.time_submitted, 'grade': ta.grade})
-                test_list.append({'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': t.deadline, 'timer': t.timer,
+                        current = {'timeStarted': time_stamp(ta.time_started), 'timeSubmitted': time_stamp(ta.time_submitted)}
+                        submitted.append({'takes': ta.TAKES, 'timeSubmitted': time_stamp(ta.time_submitted), 'grade': ta.grade})
+                test_list.append({'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': time_stamp(t.deadline), 'timer': t.timer,
                                   'attempts': t.attempts, 'total': t.total, 'submitted': submitted, 'current': current})
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
@@ -310,7 +309,6 @@ def save_answer():
         return abort(400)
     data = request.json
     takes, question, answer = data['takes'], data['question'], data['answer']
-    time = time_stamp(datetime.now())
     takes_list = Takes.query.get(takes)
     if takes_list is None or takes_list.USER is not current_user.USER:
         return jsonify(error='Invalid takes record')
