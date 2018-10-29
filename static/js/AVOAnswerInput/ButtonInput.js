@@ -9,7 +9,7 @@ import Icon from '@material-ui/core/Icon';
 import DeleteIcon from '@material-ui/icons/Delete';
 import NavigationIcon from '@material-ui/icons/Navigation';
 import {green} from '@material-ui/core/colors';
-import { CONST_VECTOR, CONST_VECTOR_LINEAR_EXPRESSION} from "./AnswerInput";
+
 import {getMathJax, sleep, validateMatrix, validateNumber, validateVector} from '../Utilities';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -18,6 +18,13 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid/Grid';
+import { copy } from "../Utilities";
+import { CONST_CREATE_OBJECT, CONST_INPUT_PHASE, CONST_SHOW_OBJECT, CONST_SELECT_DIMENSION, CONST_VECTOR,
+        CONST_VECTOR_LINEAR_EXPRESSION, CONST_BASIS, CONST_BOOLEAN, CONST_LINEAR_EXPRESSION,CONST_MANUAL_INPUT,
+        CONST_MANUAL_INPUT_POLYNOMIAL, CONST_MATRIX, CONST_MULTIPLE_CHOICE, CONST_NUMBER
+} from "./InputConsts";
+
+
 const styles = theme => ({
   center: {
     flex: 1,
@@ -25,20 +32,32 @@ const styles = theme => ({
   }
 });
 
-const CONST_CREATE_OBJECT = 1; // | Create Matrix |
-const CONST_SELECT_DIMENSION = 2; // Size of rows: ___________, Size of Columns: ______________ | Input Values |
-const CONST_INPUT_PHASE = 3; // ______  ______ _______ , ________  ________ __________ | Submit |
-const CONST_SHOW_OBJECT = 4; // | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
+// ====================== The four phases which this component goes through ======================
+// CREATE OBJECT PHASE: | Create Matrix |
+// SELECT DIMENSION: Size of rows: ___________, Size of Columns: ______________ | Input Values |
+// INPUT PHASE: ______  ______ _______ , ________  ________ __________ | Submit |
+// SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
 
 export default class ButtonInput extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
           stage: CONST_CREATE_OBJECT,
-          vectorSize: ''
-        }
+          vectorSize: '',
+          dimensionStorage: null, // This
+          type: this.props.type // this is the type of the input itself
+        };
     }
-
+    resetAll(){
+      // This method resets the state back to the initial one and should be used once and then whenever user clicks clear
+      this.setState({
+        stage: CONST_CREATE_OBJECT,
+        vectorSize: null, // if vector is being used then this should an int else it remains null
+        dimensionStorage: null, // This will be [1, 2] for a vector and [1,2;3,4] for matrix,
+        type: this.props.type // this is the type of the input itself
+      });
+      this.inputData = null;
+    }
     render() {
       const { stage } = this.state;
         return (
@@ -60,11 +79,32 @@ export default class ButtonInput extends React.Component {
 
     }
 
-    createObject(){
-      const { type } = this.props;
-      if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION){
-        return (
-             <Grid container
+    // ================================== General Four Phases ===========================================
+    createObject() {
+      const {type} = this.state;
+      if (type === CONST_VECTOR) { return this.vectorCreateObject(); }
+    }
+    selectDimension(){
+      const {type} = this.state;
+      if (type === CONST_VECTOR){ return this.vectorSelectDimension(); }
+    }
+    inputPhase(){
+      const {type} = this.state;
+      if (type === CONST_VECTOR){ return this.vectorInputPhase(); }
+
+
+    }
+    showObject(){
+      const {type} = this.state;
+      if (type === CONST_VECTOR){ return this.vectorShowObject(); }
+
+    }
+
+    // ================================== Vector Input Logic ===========================================
+    vectorCreateObject(){
+      //  CREATE OBJECT PHASE: | Create Matrix |
+      return (
+           <Grid container
                   direction="column"
                   justify="center"
                   alignItems="center">
@@ -76,12 +116,11 @@ export default class ButtonInput extends React.Component {
                   Create Vector
                 </Button>
             </Grid>
-        )
-      }
+      )
     }
-
-    selectDimension(){
-         return (
+    vectorSelectDimension(){
+      // SELECT DIMENSION: Size of Rows: ___________, Size of Columns: ______________ | Input Values |
+       return (
             <Grid container
                   direction="column"
                   justify="center"
@@ -101,80 +140,94 @@ export default class ButtonInput extends React.Component {
               </Button>
             </Grid>
           )
-
     }
-
-    inputPhase(){
-
-      const numberOfFields = parseInt(this.state.vectorSize);
-      // We need to create an array of ids which we can use to map. The count is going to start at 0
-      const uniqueIds = [];
-      for (let i = 0; i < numberOfFields; i++){
+    vectorInputPhase(){
+      // INPUT PHASE: ______  ______ _______ , ________  ________ __________ | Submit |
+       const numberOfFields = this.state.vectorSize; // given by previous input
+      const uniqueIds = []; // create an array of ids which we can use to map
+      const stateObject = []; // We need something to hold all the input values in the state
+      for (let i = 0; i < numberOfFields; i++){ // for the number of fields we need
         const idName = 'button-input-vector-' + (i);
         uniqueIds.push(idName);
+        stateObject.push(''); // this will be a blank holder for all the objects
       }
-        return (
-            <Grid container
-                  direction="column"
-                  justify="center"
-                  alignItems="center">
-
-                  { // We're mapping the vector inputs here
-                    uniqueIds.map((idName, index) => {
-                      return (
-                        <div>
-                        <TextField
-                            id ={idName}
-                            x-index = {index+1}
-                            y-index = {0} />
-                          <br/>
-                        </div>
-                      )
-                    })
-                  }
-              <br/>
-              <Button
-                  variant="extendedFab"
-                  color="primary"
-                  onClick={() => this.setState({stage: CONST_SHOW_OBJECT})}
-              >
-                Finish Answer
-              </Button>
-            </Grid>
-        )
-
-    }
-
-    showObject(){
+      this.state.dimensionStorage = stateObject;
       return (
+          <Grid container
+                direction="column"
+                justify="center"
+                alignItems="center">
+
+                { // We're mapping the vector inputs here
+                  uniqueIds.map((idName, index) => {
+                    return (
+                      <div>
+                      <TextField
+                          id ={idName}
+                          name = {`${index+1}-0` }
+                          value = {this.state.dimensionStorage[index]}
+                          onChange = {this.handleVectorInput.bind(this)}
+                      />
+                        <br/>
+                      </div>
+                    )
+                  })
+                }
+            <br/>
+            <Button
+                variant="extendedFab"
+                color="primary"
+                onClick={() => this.setState({stage: CONST_SHOW_OBJECT})}
+            >
+              Finish Answer
+            </Button>
+          </Grid>
+      )
+    }
+    vectorShowObject(){
+      // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
+       return (
            <Grid container
                   direction="column"
                   justify="center"
                   alignItems="center">
             { getMathJax("\\(\\begin{bmatrix}4\\\\3\\\\2\\end{bmatrix}\\)") }
-            <br/>
+            <br/> <br/>
              <Button
                 variant="extendedFab"
                 color = "primary"
                 aria-label="Delete"
-                onClick = {() => this.setState({stage: CONST_CREATE_OBJECT})}
+                onClick = {() => this.resetAll() }
             >
                Clear Answer
            </Button>
           </Grid>
       )
     }
-
-    // Handlers
     handleVectorSize(e){
       e.preventDefault();
       const value = e.target.value;
       // if only numbers are in the input then update
       if(RegExp('^[0-9]*$').test(value)){
-        this.setState({vectorSize: e.target.value})
+        this.setState({vectorSize: parseInt(e.target.value)})
       }
-
     }
+    handleVectorInput(e){
+      // e.preventDefault();
+      // console.log(e);
+      // const value = e.target.value;
+      // const x_value = parseInt(event.target.name.split("-")[0]); // this will be the actual index
+      // const y_value = parseInt(event.target.name.split("-")[1]); // this will always be set to 0, only here for the sake of reuse
+      //
+      // // if only numbers are in the input then update
+      // if(RegExp('^[0-9]*$').test(value)){
+      //   const copyState = copy(this.state); // we have a entire copy of the state
+      //   copyState[dimensionStorage][x_value] = value;
+      //   this.setState(copyState);
+      //   console.log("state", this.state);
+      // }
+    }
+
 
 
 

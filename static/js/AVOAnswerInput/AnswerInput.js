@@ -5,17 +5,10 @@ import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
 import ButtonInput from "./ButtonInput"
+import { CONST_VECTOR, CONST_VECTOR_LINEAR_EXPRESSION, CONST_BASIS, CONST_BOOLEAN, CONST_LINEAR_EXPRESSION,
+        CONST_MANUAL_INPUT, CONST_MANUAL_INPUT_POLYNOMIAL, CONST_MATRIX, CONST_MULTIPLE_CHOICE, CONST_NUMBER
+} from "./InputConsts";
 
-export const CONST_BOOLEAN = '0';
-export const CONST_MULTIPLE_CHOICE = '1';
-export const CONST_NUMBER = '2';
-export const CONST_LINEAR_EXPRESSION = '3';
-export const CONST_MANUAL_INPUT = '4';
-export const CONST_MANUAL_INPUT_POLYNOMIAL = '5';
-export const CONST_VECTOR = '6';
-export const CONST_VECTOR_LINEAR_EXPRESSION = '7';
-export const CONST_MATRIX = '8';
-export const CONST_BASIS = '9';
 
 export default class AnswerInput extends React.Component {
     constructor(props) {
@@ -99,7 +92,7 @@ export default class AnswerInput extends React.Component {
             return null;
         }
         else if (type === CONST_VECTOR) {
-          // return (<ButtonInput type = {CONST_VECTOR}/>) // This is only here for testing button input
+          return (<ButtonInput type = {CONST_VECTOR}/>) // This is only here for testing button input
             let vector = validateVector(v);
             return (
                 <div>
