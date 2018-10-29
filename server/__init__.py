@@ -6,7 +6,8 @@ from server.auth import login_manager, UserRoutes
 from server.files import FileRoutes
 from server.routes import routes
 
-app = Flask(__name__, static_folder='../static/dist', template_folder='../static')
+app = Flask(__name__, static_folder='../static/dist', template_folder='../static') # Creates the Flask app
+# Adds in login manager Database Blueprints and GZIP support
 login_manager.init_app(app)
 app.config.from_object('config')
 

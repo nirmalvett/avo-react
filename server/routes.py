@@ -2,8 +2,7 @@ from flask import Blueprint, abort, jsonify, request
 from flask_login import login_required, current_user
 from sqlalchemy.orm.exc import NoResultFound
 from server.MathCode.question import AvoQuestion
-from random import SystemRandom, randint
-from string import ascii_letters, digits
+from random import randint
 from datetime import datetime, timedelta
 import sys
 from git import Repo
@@ -15,71 +14,95 @@ from server.models import *
 routes = Blueprint('routes', __name__)
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/changeColor', methods=['POST'])
 def change_color():
+    """
+    Changes the current user's color theme
+    :return: Confirmation
+    """
     if not request.json:
+        # If the request isn't JSON return a 400 error
         return abort(400)
-    data = request.json
+    data = request.json  # Data from client
     color = data['color']
 
+    # Commit the users's changes to the DB
     current_user.color = color
     db.session.commit()
     return jsonify(message='updated')
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/changeTheme', methods=['POST'])
 def change_theme():
+    """
+    Changes the current user's theme
+    :return: Confirmation of the change
+    """
     if not request.json:
+        # If the request isn't JSON return a 400 error
         return abort(400)
-    data = request.json
+    data = request.json # Data from the client
     theme = data['theme']
+    # Applies the user's changes to the database
     current_user.theme = theme
     db.session.commit()
     return jsonify(message='updated')
 
 
-# Tested
 @login_required
 @check_confirmed
 @teacher_only
 @routes.route('/createClass', methods=['POST'])
 def create_class():
+    """
+    Creates a class with the current user as the teacher
+    :return: Confirmation that the class was created
+    """
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
-    name = request.json['name']
-    key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
-    new_class = Class(current_user.USER, name, key)
+    name = request.json['name']  # Name of the new class
+    new_class = Class(current_user.USER, name)  # Class to be created
+    # Add to database and commit
     db.session.add(new_class)
     db.session.commit()
     return jsonify(message='Created!')
 
 
-# Tested
 @login_required
 @routes.route('/getClasses')
 def get_classes():
-
-    teach_classes = Class.query.filter(Class.USER == current_user.USER).all()
-    enroll_classes = Class.query.filter((Class.CLASS == enrolled.c.CLASS) & (current_user.USER == enrolled.c.USER)).all()
-    classes = teach_classes + enroll_classes
-    class_list = []
+    """
+    Get the current users classes available to them
+    :return: A list of class data
+    """
+    teach_classes = []  # The classes the current user teaches
+    if current_user.is_teacher is True:
+        # If the current user is a teacher query the data base for teaching classes
+        teach_classes = Class.query.filter(Class.USER == current_user.USER).all()
+    enroll_classes = Class.query.filter((Class.CLASS == enrolled.c.CLASS) & (current_user.USER == enrolled.c.USER)).all()  # Classes the current user is enrolled in
+    classes = teach_classes + enroll_classes  # append the class lists together
+    class_list = []  # List of class data to return to the client
     time = time_stamp(datetime.now())
     if classes is not None:
+        # If the current user has a relation with any class parse the data to lists
         for c in classes:
+            # for every class get the tests and takes and append them
             tests = Test.query.filter(Test.CLASS == c.CLASS).all()
-            test_list = []
+            test_list = []  # List of tests in the class
             for t in tests:
+                # For every test get all the takes and append them
                 takes = Takes.query.order_by(Takes.time_started).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER)).all()
-                submitted = []
-                current = None
+                submitted = []  # List of takes indexes
+                current = None  # Current instance of takes
                 for ta in takes:
+                    # For each instance of takes append the data
                     if ta is not None:
+                        # If the takes value is not empty append the data if not append a null value
                         current = {'timeStarted': ta.time_started, 'timeSubmitted': ta.time_submitted}
                         submitted.append({'takes': ta.TAKES, 'timeSubmitted': ta.time_submitted, 'grade': ta.grade})
                 test_list.append({'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': t.deadline, 'timer': t.timer,
@@ -88,29 +111,38 @@ def get_classes():
     return jsonify(classes=class_list)
 
 
-# Tested
 @login_required
 @check_confirmed
 @teacher_only
 @routes.route('/getSets')
 def get_sets():
-    list_of_sets = Set.query.filter((Set.SET == UserViewsSet.SET) & (UserViewsSet.USER == current_user.USER)).all()
-    set_list = []
+    """
+    Get the list of Sets available to the user
+    :return: The list of sets
+    """
+    list_of_sets = Set.query.filter((Set.SET == UserViewsSet.SET) & (UserViewsSet.USER == current_user.USER)).all()  # Get list of avalible sets for current user
+    set_list = []  # List of sets to send back to the user
     for s in list_of_sets:
-        questions = Question.query.filter(Question.SET == s.SET).all()
+        # For each set append the data
+        questions = Question.query.filter(Question.SET == s.SET).all()  # Get all questions in set
         question_list = []
         for q in questions:
+            #  For each question append the data
             question_list.append({'id': q.QUESTION, 'name': q.name, 'string': q.string, 'total': q.total})
         set_list.append({'id': s.SET, 'name': s.name, 'questions': question_list})
     return jsonify(sets=set_list)
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/enroll', methods=['POST'])
 def enroll():
+    """
+    Enroll the current user in a class
+    :return: Confirmation
+    """
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     key = request.json['key']
     try:
@@ -122,13 +154,13 @@ def enroll():
     return jsonify(message='Enrolled!')
 
 
-# Tested
 @login_required
 @check_confirmed
 @teacher_only
 @routes.route('/openTest', methods=['POST'])
 def open_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     test = request.json['test']
     current_test = Test.query.get(test)
@@ -139,13 +171,13 @@ def open_test():
     return jsonify(message='Opened!')
 
 
-# Tested
 @login_required
 @check_confirmed
 @teacher_only
 @routes.route('/closeTest', methods=['POST'])
 def close_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     test = request.json['test']
     current_test = Test.query.get(test)
@@ -156,13 +188,13 @@ def close_test():
     return jsonify(message='Closed!')
 
 
-# Tested
 @login_required
 @check_confirmed
 @teacher_only
 @routes.route('/deleteTest', methods=['POST'])
 def delete_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     test = request.json['test']
     current_test = Test.query.get(test)
@@ -173,12 +205,12 @@ def delete_test():
     return jsonify(message='Deleted!')
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/getQuestion', methods=['POST'])
 def get_question():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     question, seed = data['question'], data['seed']
@@ -189,12 +221,12 @@ def get_question():
     return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/getTest', methods=['POST'])
 def get_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     test_id = data['test']
@@ -202,7 +234,7 @@ def get_test():
     if test is None:
         return jsonify(error='Test not found')
     if test.is_open is False:
-        return jsonify(error='Test Not Open')
+        return jsonify(error='This set of questions has not been opened by your instructor yet')
     takes = Takes.query.filter((Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (Takes.time_submitted > datetime.now())).first()
     if takes is None:
         takes = create_takes(test_id, current_user.get_id())
@@ -245,12 +277,12 @@ def create_takes(test, user):
     return None if takes is None else takes
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/saveTest', methods=['POST'])
 def save_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     class_id, name, deadline, timer, attempts, question_list, seed_list = \
@@ -269,12 +301,12 @@ def save_test():
     return jsonify(test=test.TEST)
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/saveAnswer', methods=['POST'])
 def save_answer():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     takes, question, answer = data['takes'], data['question'], data['answer']
@@ -299,12 +331,12 @@ def save_answer():
     return jsonify(message='Changed successfully!')
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/submitTest', methods=['POST'])
 def submit_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     takes = data['takes']
@@ -314,12 +346,12 @@ def submit_test():
     return jsonify(message='Submitted successfully!')
 
 
-# Tested
 @login_required
 @check_confirmed
 @routes.route('/postTest', methods=['POST'])
 def post_test():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     takes = data['takes']
@@ -339,11 +371,11 @@ def post_test():
     return jsonify(questions=question_list)
 
 
-# Tested
 @login_required
 @routes.route('/getClassTestResults', methods=['POST'])
 def get_class_test_results():
     if not request.json:
+        # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
     test = data['test']
