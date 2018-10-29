@@ -137,6 +137,10 @@ def get_sets():
 @check_confirmed
 @routes.route('/enroll', methods=['POST'])
 def enroll():
+    """
+    Enroll the current user in a class
+    :return: Confirmation
+    """
     if not request.json:
         # If the request isn't JSON then return a 400 error
         return abort(400)
