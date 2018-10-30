@@ -20,6 +20,14 @@ export function uniqueKey(){
   return '_' + Math.random().toString(36).substr(2, 9);
 }
 
+export function objectSize(obj){
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+}
+
 export const notChromeMessage = "We have detected that you are currently not using Google Chrome.\n" +
              "This is not recommended as AVO has not been properly tested and many of the basic functionality may not work.\n\n" +
              "Some known issues include:\n" +
