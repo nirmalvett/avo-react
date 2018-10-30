@@ -12,9 +12,6 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Slide from '@material-ui/core/Slide';
 import { objectSize } from "../helpers";
 import Typography from '@material-ui/core/Typography/Typography';
-function TransitionUp(props) {
-  return <Slide {...props} direction="up" />;
-}
 
 
 // ====================== The four phases which this component goes through ======================
@@ -33,18 +30,22 @@ export default class ButtonInput extends React.Component {
           type: this.props.type, // this is the type of the input itself,
           message: '',
           totalFields: -1, // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill,
-          disabled: this.props.disabled, // if true then the starting input should be disabled
+          disabled: this.props.disabled, // if true then the starting input should be disabled,
+          dataForServer: '',
         };
     }
     resetAll(){
       // This method resets the state back to the initial one and should be used once and then whenever user clicks clear
-      this.setState({
-        stage: CONST_CREATE_OBJECT,
-        vectorSize: null, // if vector is being used then this should an int else it remains null
-        dimensionStorage: {}, // This will be [1, 2] for a vector and [1,2;3,4] for matrix,
-        type: this.props.type, // this is the type of the input itself
-        totalFields: -1 // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill
-      });
+          this.state = {
+          stage: CONST_CREATE_OBJECT,
+          vectorSize: '',
+          dimensionStorage: {}, // [1,2] if vector, [1,2;3,4] if matrix
+          type: this.props.type, // this is the type of the input itself,
+          message: '',
+          totalFields: -1, // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill,
+          disabled: this.props.disabled, // if true then the starting input should be disabled,
+          dataForServer: '',
+        };
     }
     render() {
       const { stage } = this.state;
@@ -88,6 +89,7 @@ export default class ButtonInput extends React.Component {
     }
 
     // ================================== Vector Input Logic ===========================================
+    // "1,2,3,4" is the expected format to send to the server
     vectorCreateObject(){
       //  CREATE OBJECT PHASE: | Create Matrix |
       return (
@@ -95,6 +97,7 @@ export default class ButtonInput extends React.Component {
                   direction="column"
                   justify="center"
                   alignItems="center">
+                <br/>
                 <Button
                     disabled = { this.state.disabled }
                     variant="extendedFab"
@@ -161,9 +164,11 @@ export default class ButtonInput extends React.Component {
                           onChange = {(e) => this.handleVectorInput(e)}
                           label={`Vector Parameter ${index + 1}` }
                           error={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))}
-                          helperText={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))
+                          helperText={
+                            !Array.isArray(validateNumber(this.state.dimensionStorage[index]))
                               ? validateNumber(this.state.dimensionStorage[index])
-                              : undefined}
+                              : undefined
+                          }
 
                       />
                         <br/>
@@ -185,19 +190,26 @@ export default class ButtonInput extends React.Component {
     }
     vectorShowObject(){
       // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
-      // Now we just we just need to accumulate the vector latex to show students
-      let vectorLatex = "\\(\\begin{bmatrix}";
+      // Stores the data in latex and in a form that the server likes
       const { dimensionStorage } = this.state;
-      console.log(this.state);
-      const keyArray = Object.keys(dimensionStorage);
-      console.log(keyArray);
+      let vectorLatex = "\\(\\begin{bmatrix}"; // Now we just we just need to accumulate the vector latex to show students
+      let dataForServer = ""; // this is for the server
 
+      const keyArray = Object.keys(dimensionStorage);
       for (let i = 0; i < keyArray.length; i++){
         const value = dimensionStorage[keyArray[i]];
-        console.log(value);
-        vectorLatex += value + "\\\\";
-      };
+
+        if (i !== keyArray.length - 1){ // add comma after it
+          vectorLatex += value + "\\\\";
+          dataForServer += value + ",";
+        }
+        else { // it's the last one so don't add anything
+          vectorLatex += value;
+          dataForServer += value;
+        }
+      }
       vectorLatex += "\\end{bmatrix}\\)";
+      this.props.onChange(dataForServer);
        return (
            <Grid container
                   direction="column"
@@ -216,6 +228,7 @@ export default class ButtonInput extends React.Component {
           </Grid>
       )
     }
+
     handleVectorSize(e){
       e.preventDefault();
       const value = e.target.value;
@@ -248,8 +261,8 @@ export default class ButtonInput extends React.Component {
       const dimensionStorage = this.state.dimensionStorage;
       dimensionStorage[x_value] = value;
       this.setState(dimensionStorage);
-
     }
+
 
     // ==================================== Global Methods ==============================================
     handleFinishAnswer(e){
@@ -264,8 +277,6 @@ export default class ButtonInput extends React.Component {
         this.setState({stage: CONST_SHOW_OBJECT, message: ''})
       }
     }
-
-
 
 
 
