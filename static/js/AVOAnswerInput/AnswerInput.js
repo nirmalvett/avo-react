@@ -100,7 +100,7 @@ export default class AnswerInput extends React.Component {
                   type = {CONST_VECTOR}  // this is the type
                   disabled={disabled}  // this is whether the input is disabled
                   value={v}  // this is the value if a test is resumed
-                  onBlur={ this.props.onBlur } // this essentially submits
+                  saveAnswer={ this.props.onBlur } // this essentially submits
                   onChange={this.props.onChange} // this is the onChange method that modifies the data
                 />
             )

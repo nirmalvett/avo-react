@@ -32,6 +32,7 @@ export default class ButtonInput extends React.Component {
           totalFields: -1, // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill,
           disabled: this.props.disabled, // if true then the starting input should be disabled,
           dataForServer: '',
+          latexString: '',
         };
     }
     resetAll(){
@@ -45,6 +46,7 @@ export default class ButtonInput extends React.Component {
           totalFields: -1, // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill,
           disabled: this.props.disabled, // if true then the starting input should be disabled,
           dataForServer: '',
+          latexString: '',
         };
     }
     render() {
@@ -181,16 +183,17 @@ export default class ButtonInput extends React.Component {
             <Button
                 variant="extendedFab"
                 color="primary"
-                onClick={(e) => {this.handleFinishAnswer(e)}}
+                onClick={(e) => { this.handleFinishAnswer(e); }}
+
             >
               Finish Answer
             </Button>
           </Grid>
       )
     }
-    vectorShowObject(){
-      // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
-      // Stores the data in latex and in a form that the server likes
+    parseAnswerForLatexServer(){
+      // sets dataForServer: '', latexString: '', in state where dataForServer is what we want to send and latexString
+      // is what we display
       const { dimensionStorage } = this.state;
       let vectorLatex = "\\(\\begin{bmatrix}"; // Now we just we just need to accumulate the vector latex to show students
       let dataForServer = ""; // this is for the server
@@ -209,13 +212,22 @@ export default class ButtonInput extends React.Component {
         }
       }
       vectorLatex += "\\end{bmatrix}\\)";
-      this.props.onChange(dataForServer);
+      this.state.latexString = vectorLatex;
+      this.state.dataForServer = dataForServer;
+
+
+    }
+    vectorShowObject(){
+      // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
+      // Stores the data in latex and in a form that the server likes
+      const { latexString } = this.state;
+
        return (
            <Grid container
                   direction="column"
                   justify="center"
                   alignItems="center">
-            { getMathJax(vectorLatex) }
+            { getMathJax(latexString) }
             <br/> <br/>
              <Button
                 variant="extendedFab"
@@ -228,7 +240,6 @@ export default class ButtonInput extends React.Component {
           </Grid>
       )
     }
-
     handleVectorSize(e){
       e.preventDefault();
       const value = e.target.value;
@@ -264,16 +275,20 @@ export default class ButtonInput extends React.Component {
     }
 
 
+
     // ==================================== Global Methods ==============================================
     handleFinishAnswer(e){
       e.preventDefault();
       const { dimensionStorage, totalFields } = this.state;
       // CASE 0: The user did not give any inputs or one of the inputs is missing
       if(!allFieldsFilled(dimensionStorage, totalFields)){
-        this.setState({ message: 'Looks like you forget to fill in field.',})
+        this.setState({ message: 'Looks like you forget to fill in a field.',})
       }
       // CASE 1: We can go ahead and show the object compiled
       else{
+        this.parseAnswerForLatexServer();
+        this.props.onChange(this.state.dataForServer);
+        // this.props.saveAnswer(); // TODO this is not working for some reason
         this.setState({stage: CONST_SHOW_OBJECT, message: ''})
       }
     }
