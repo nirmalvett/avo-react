@@ -22,9 +22,21 @@ export default class TakeTest extends React.Component {
             testID: this.props.testID,
             questions: [],
         };
+        /* this.state actually looks like this
+         {
+            answers: (6) [Array(1), Array(1), Array(3), Array(1), Array(4), Array(1)],
+            newAnswers: (6) [Array(1), Array(1), Array(3), Array(1), Array(4), Array(1)],
+            questions: (6) [{…}, {…}, {…}, {…}, {…}, {…}],
+            takes: 92,
+            testID: 28,
+            time_submitted: 20181030163809
+         }
+        */
+
     }
 
     render() {
+        console.log("TakeTest State", this.state);
         return (
             <Grid container spacing={8}>
                 <Grid xs={1}/>
