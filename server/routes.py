@@ -338,6 +338,8 @@ def save_test():
     class_id, name, deadline, timer, attempts, question_list, seed_list = \
         data['classID'], data['name'], data['deadline'], data['timer'], data['attempts'], data['questionList'],\
         data['seedList']  # Data from the client
+    if len(question_list) is 0:
+        return jsonify(error="Can't Submit A Test WIth Zero Questions")
     deadline = str(deadline)  # Deadline of the test converting to datetime
     deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %I:%M')
