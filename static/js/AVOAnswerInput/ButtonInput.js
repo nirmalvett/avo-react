@@ -1,36 +1,21 @@
 import React from 'react';
-import FormControlLabel from "@material-ui/core/FormControlLabel/FormControlLabel";
-import Radio from "@material-ui/core/Radio/Radio";
 import TextField from "@material-ui/core/TextField/TextField";
-import Typography from "@material-ui/core/Typography/Typography";
 import Button from '@material-ui/core/Button';
-import AddIcon from '@material-ui/icons/Add';
-import Icon from '@material-ui/core/Icon';
-import DeleteIcon from '@material-ui/icons/Delete';
-import NavigationIcon from '@material-ui/icons/Navigation';
-import {green} from '@material-ui/core/colors';
-
 import {getMathJax, sleep, validateMatrix, validateNumber, validateVector} from '../Utilities';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid/Grid';
 import { copy } from "../Utilities";
 import { CONST_CREATE_OBJECT, CONST_INPUT_PHASE, CONST_SHOW_OBJECT, CONST_SELECT_DIMENSION, CONST_VECTOR,
         CONST_VECTOR_LINEAR_EXPRESSION, CONST_BASIS, CONST_BOOLEAN, CONST_LINEAR_EXPRESSION,CONST_MANUAL_INPUT,
         CONST_MANUAL_INPUT_POLYNOMIAL, CONST_MATRIX, CONST_MULTIPLE_CHOICE, CONST_NUMBER
 } from "./InputConsts";
+import Snackbar from '@material-ui/core/Snackbar';
+import Slide from '@material-ui/core/Slide';
+import { objectSize } from "../helpers";
+import Typography from '@material-ui/core/Typography/Typography';
+function TransitionUp(props) {
+  return <Slide {...props} direction="up" />;
+}
 
-
-const styles = theme => ({
-  center: {
-    flex: 1,
-    margin:auto
-  }
-});
 
 // ====================== The four phases which this component goes through ======================
 // CREATE OBJECT PHASE: | Create Matrix |
@@ -46,7 +31,8 @@ export default class ButtonInput extends React.Component {
           vectorSize: '',
           dimensionStorage: {}, // [1,2] if vector, [1,2;3,4] if matrix
           type: this.props.type, // this is the type of the input itself,
-          debugState: ''
+          message: '',
+          totalFields: null // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill
         };
     }
     resetAll(){
@@ -74,6 +60,7 @@ export default class ButtonInput extends React.Component {
                               ? this.showObject() //If true then show the answer in latex
                               : null
                 }
+              <Typography color='error'>{this.state.message}</Typography>
               </div>
 
         )
@@ -170,6 +157,10 @@ export default class ButtonInput extends React.Component {
                           value = { this.state.dimensionStorage[index]}
                           onChange = {(e) => this.handleVectorInput(e)}
                           label={`Vector Parameter ${index + 1}` }
+                          error={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))}
+                          helperText={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))
+                              ? validateNumber(this.state.dimensionStorage[index])
+                              : undefined}
 
                       />
                         <br/>
@@ -181,7 +172,7 @@ export default class ButtonInput extends React.Component {
             <Button
                 variant="extendedFab"
                 color="primary"
-                onClick={() => this.setState({stage: CONST_SHOW_OBJECT})}
+                onClick={(e) => {this.handleFinishAnswer(e)}}
             >
               Finish Answer
             </Button>
@@ -203,7 +194,6 @@ export default class ButtonInput extends React.Component {
         vectorLatex += value + "\\\\";
       };
       vectorLatex += "\\end{bmatrix}\\)";
-      console.log( vectorLatex);
        return (
            <Grid container
                   direction="column"
@@ -224,10 +214,14 @@ export default class ButtonInput extends React.Component {
     }
     handleVectorSize(e){
       e.preventDefault();
-      const value = e.target.value;
+      const value = e.target.value.replace(/ /g, '');
+      if (value.length === 0){
+        this.setState({message: 'Looks like you forget to indicate a vector size.'})
+      }
       // if only numbers are in the input then update
-      if(RegExp('^[0-9]*$').test(value)){
-        this.setState({vectorSize: parseInt(e.target.value)})
+      else if(RegExp('^[0-9]*$').test(value)){
+        const integerValue = parseInt(e.target.value);
+        this.setState({vectorSize: integerValue, totalFields: integerValue})
       }
     }
     handleVectorInput(e){
@@ -243,9 +237,49 @@ export default class ButtonInput extends React.Component {
 
     }
 
+    handleFinishAnswer(e){
+      e.preventDefault();
+      console.log(this.state);
+      const { dimensionStorage, totalFields } = this.state;
+      // CASE 0: The user did not give any inputs or one of the inputs is missing
+      if(!allFieldsFilled(dimensionStorage, totalFields)){
+        this.setState({ message: 'Looks like you forget to fill in field.',})
+      }
+      // CASE 1: We can go ahead and show the object compiled
+      else{
+        this.setState({stage: CONST_SHOW_OBJECT, message: ''})
+      }
+    }
 
 
 
 
 
+}
+function allFieldsFilled(dimensionStorage, totalFields){
+  // CASE 0: The user did not input any object or it's not the right size
+  const objectSize = objectSize(dimensionStorage);
+  if (objectSize === 0 ||  objectSize !== totalFields){
+    return false;
+  }
+  // Checks if all the fields are filled
+  for (let x in dimensionStorage) {
+    if (!dimensionStorage.hasOwnProperty(x)) continue;// skip loop if the property is from prototype
+    const currentObject = dimensionStorage[x];
+    // CASE 1: It's a vector so we just check the first level
+    if ( typeof currentObject === "string" && currentObject === ""){
+      return false;
+    }
+    // CASE 2: It's a Matrix or Basis so we need to check the values inside of it
+    else {
+      for (let y in currentObject){
+        if (!currentObject.hasOwnProperty(y)) continue;// skip loop if the property is from prototype
+        const secondLevelObject = currentObject[y];
+        if (secondLevelObject === ""){
+          return false;
+        }
+      }
+    }
+  }
+  return true;
 }
