@@ -32,7 +32,8 @@ export default class ButtonInput extends React.Component {
           dimensionStorage: {}, // [1,2] if vector, [1,2;3,4] if matrix
           type: this.props.type, // this is the type of the input itself,
           message: '',
-          totalFields: -1 // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill
+          totalFields: -1, // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill,
+          disabled: this.props.disabled, // if true then the starting input should be disabled
         };
     }
     resetAll(){
@@ -95,6 +96,7 @@ export default class ButtonInput extends React.Component {
                   justify="center"
                   alignItems="center">
                 <Button
+                    disabled = { this.state.disabled }
                     variant="extendedFab"
                     color = "primary"
                     onClick = {() => this.setState({stage: CONST_SELECT_DIMENSION})}
@@ -249,6 +251,7 @@ export default class ButtonInput extends React.Component {
 
     }
 
+    // ==================================== Global Methods ==============================================
     handleFinishAnswer(e){
       e.preventDefault();
       const { dimensionStorage, totalFields } = this.state;
