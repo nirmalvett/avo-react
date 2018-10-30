@@ -32,7 +32,7 @@ export default class ButtonInput extends React.Component {
           dimensionStorage: {}, // [1,2] if vector, [1,2;3,4] if matrix
           type: this.props.type, // this is the type of the input itself,
           message: '',
-          totalFields: null // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill
+          totalFields: -1 // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill
         };
     }
     resetAll(){
@@ -41,9 +41,9 @@ export default class ButtonInput extends React.Component {
         stage: CONST_CREATE_OBJECT,
         vectorSize: null, // if vector is being used then this should an int else it remains null
         dimensionStorage: {}, // This will be [1, 2] for a vector and [1,2;3,4] for matrix,
-        type: this.props.type // this is the type of the input itself
+        type: this.props.type, // this is the type of the input itself
+        totalFields: -1 // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill
       });
-      this.inputData = null;
     }
     render() {
       const { stage } = this.state;
@@ -60,6 +60,7 @@ export default class ButtonInput extends React.Component {
                               ? this.showObject() //If true then show the answer in latex
                               : null
                 }
+              <br/>
               <Typography color='error'>{this.state.message}</Typography>
               </div>
 
@@ -119,7 +120,7 @@ export default class ButtonInput extends React.Component {
              <Button
                   variant="extendedFab"
                   color = "primary"
-                  onClick = {() => this.setState({stage: CONST_INPUT_PHASE})}
+                  onClick = {(e) => this.handleVectorDimensionSubmit(e)}
               >
                 Confirm Dimension
               </Button>
@@ -163,6 +164,7 @@ export default class ButtonInput extends React.Component {
                               : undefined}
 
                       />
+                        <br/>
                         <br/>
                       </div>
                     )
@@ -214,14 +216,24 @@ export default class ButtonInput extends React.Component {
     }
     handleVectorSize(e){
       e.preventDefault();
-      const value = e.target.value.replace(/ /g, '');
-      if (value.length === 0){
-        this.setState({message: 'Looks like you forget to indicate a vector size.'})
+      const value = e.target.value;
+      // If the value is nothing then set it back
+      if (value === ""){
+        this.setState({vectorSize: "", totalFields: -1})
       }
       // if only numbers are in the input then update
-      else if(RegExp('^[0-9]*$').test(value)){
-        const integerValue = parseInt(e.target.value);
+      else if(value !== "" && RegExp('^[0-9]*$').test(value)){
+        const integerValue = parseInt(value);
         this.setState({vectorSize: integerValue, totalFields: integerValue})
+      }
+    }
+    handleVectorDimensionSubmit(e){
+
+      if (this.state.totalFields === -1){
+        this.setState({message: 'Looks like you forget to indicate a vector size.'})
+      }
+      else {
+        this.setState({message: '', stage: CONST_INPUT_PHASE})
       }
     }
     handleVectorInput(e){
@@ -239,7 +251,6 @@ export default class ButtonInput extends React.Component {
 
     handleFinishAnswer(e){
       e.preventDefault();
-      console.log(this.state);
       const { dimensionStorage, totalFields } = this.state;
       // CASE 0: The user did not give any inputs or one of the inputs is missing
       if(!allFieldsFilled(dimensionStorage, totalFields)){
@@ -258,8 +269,8 @@ export default class ButtonInput extends React.Component {
 }
 function allFieldsFilled(dimensionStorage, totalFields){
   // CASE 0: The user did not input any object or it's not the right size
-  const objectSize = objectSize(dimensionStorage);
-  if (objectSize === 0 ||  objectSize !== totalFields){
+  const objectSizeInt = objectSize(dimensionStorage);
+  if (objectSizeInt === 0 ||  objectSizeInt !== totalFields){
     return false;
   }
   // Checks if all the fields are filled
