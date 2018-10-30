@@ -105,9 +105,14 @@ body {
 }
 
 .avo-card > .avo-card__header-button {
+    border-radius: 16px !important;
     position: absolute;
     top: 10px;
     right: 10px;
+}
+
+.avo-card > .avo-card__header-button.disabled {
+    color: var(--dis-theme-color) !important;
 }
 
 .avo-card__header {

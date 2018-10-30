@@ -2,6 +2,7 @@ import React from 'react';
 import Http from './Http';
 import { copy, getDateString } from "./Utilities";
 import Card from '@material-ui/core/Card/Card';
+import TextField from '@material-ui/core/TextField/TextField';
 import Grid from '@material-ui/core/Grid/Grid';
 import List from '@material-ui/core/List/List';
 import Divider from '@material-ui/core/Divider';
@@ -28,6 +29,7 @@ import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedI
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import { removeDuplicateClasses } from "./helpers";
 import { uniqueKey } from "./helpers";
+import AVOModal from './AVOMatComps/AVOMatModal';
 
 export default class MyClasses extends React.Component {
     constructor(props) {
@@ -38,6 +40,7 @@ export default class MyClasses extends React.Component {
             c: null, // Selected class
             t: null, // Selected test
             startTest: this.props.startTest,
+            enrollErrorMessage : '',
         };
     }
 
@@ -66,7 +69,7 @@ export default class MyClasses extends React.Component {
                                     <BarChartOutlinedIcon color='action' />
                                     <ListItemText inset primary='My Analytics' />
                                 </ListItem>
-                                <ListItem button onClick={() => this.enrollInClass()}>
+                                <ListItem button id="avo-myclasses__enroll-button">
                                     <AddBoxOutlinedIcon color='action' />
                                     <ListItemText inset primary='Enroll in Class' />
                                 </ListItem>
@@ -112,6 +115,50 @@ export default class MyClasses extends React.Component {
                         </Card>
                     </Grid>
                 </Grid>
+                <AVOModal
+                    title='Enroll into a class'
+                    target="avo-myclasses__enroll-button"
+                    acceptText='Enroll'
+                    declineText='Nevermind'
+                    noDefaultClose={true}
+                    onAccept={(closeFunc) => {
+                        const key = document.getElementById('avo-myclasses__enroll-textfield').value;
+                        if (key !== null && key !== '') {
+                            Http.enrollInClass(
+                                key,
+                                () => {
+                                    this.loadClasses();
+                                    this.setState({ enrollErrorMessage : '' });
+                                    closeFunc();
+                                },
+                                () => this.setState({ 
+                                    enrollErrorMessage : `Invalid code, no courses with code: ${key} available.` 
+                                }),
+                            )
+                        }else{
+                            this.setState({ 
+                                enrollErrorMessage : 'Field cannot be blank. Please enter a code to join a class.' 
+                            });
+                        }
+                    }}
+                    onDecline={() => {}}
+                >
+                    <React.Fragment>
+                        <br/>
+                        <Typography variant='body'>
+                            Please enter the course code for the class you want to enroll in!
+                        </Typography>
+                        <TextField
+                            id='avo-myclasses__enroll-textfield'
+                            margin='normal'
+                            style={{ width: '60%' }}
+                            label="Course code"
+                        />
+                        <br/>
+                        <div style={{ color: 'red', fontSize : '0.75em' }}>{this.state.enrollErrorMessage}</div>
+                        <br/>
+                    </React.Fragment>
+                </AVOModal>
             </div>
         );
     }
@@ -133,7 +180,7 @@ export default class MyClasses extends React.Component {
                 <Button
                     color='primary'
                     classes={{
-                        root: 'avo-card__header-button avo-button',
+                        root: 'avo-card__header-button',
                         disabled: 'disabled'
                     }}
                     onClick={() => this.state.startTest(selectedTest.id)}

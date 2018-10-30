@@ -32,6 +32,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Chip from '@material-ui/core/Chip';
 import { copy, getDateString } from "./Utilities";
 import Tooltip from '@material-ui/core/Tooltip';
+import AVOModal from './AVOMatComps/AVOMatModal';
+import Typography from '@material-ui/core/Typography/Typography';
 
 export default class ManageClasses extends React.Component {
     constructor(props) {
@@ -44,6 +46,7 @@ export default class ManageClasses extends React.Component {
             createTest: this.props.createTest,
             studentNameSearchLabels : [],
             anchorEl: null,
+            createClassErrorMessage : '',
         };
     }
 
@@ -53,7 +56,7 @@ export default class ManageClasses extends React.Component {
 
     render() {
         let cardStyle = { marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column' };
-
+        console.log(this.state.classes);
         return (
             <div style={{ width: '100%', flex: 1, display: 'flex' }}>
                 <Grid container spacing={8} style={{ flex: 1, display: 'flex', paddingBottom: 0 }}>
@@ -63,7 +66,7 @@ export default class ManageClasses extends React.Component {
                                 <center className='open-sans__header'>Manage My Classes</center>
                                 <Divider />
                                 <ListSubheader style={{ 'position': 'relative' }}>Class Creation</ListSubheader>
-                                <ListItem button onClick={() => this.createClass()}>
+                                <ListItem button id='avo-manageclasses__create-button'>
                                     <AddBoxOutlinedIcon color='action' />
                                     <ListItemText inset primary='Create Class' />
                                 </ListItem>
@@ -109,6 +112,50 @@ export default class ManageClasses extends React.Component {
                         <Card classes={{ root: 'avo-card' }} style={cardStyle}>{this.detailsCard()}</Card>
                     </Grid>
                 </Grid>
+                <AVOModal
+                    title='Create a class'
+                    target="avo-manageclasses__create-button"
+                    acceptText='Create'
+                    declineText='Nevermind'
+                    noDefaultClose={true}
+                    onAccept={(closeFunc) => {
+                        const name = document.getElementById('avo-manageclasses__creation-textfield').value;
+                        if (name !== null && name !== '') {
+                            Http.createClass(
+                                name,
+                                () => {
+                                    this.loadClasses();
+                                    this.setState({ createClassErrorMessage : '' });
+                                    closeFunc();
+                                },
+                                () => this.setState({ 
+                                    createClassErrorMessage : 'Something went wrong :( try again later.' 
+                                })
+                            );
+                        }else{
+                            this.setState({
+                                createClassErrorMessage : 'Your class must have a name, if it doesn\'t how is anyone going to find it?'
+                            });
+                        }
+                    }}
+                    onDecline={() => {}}
+                >
+                    <React.Fragment>
+                        <br/>
+                        <Typography variant='body'>
+                            Please enter the desired name of the class you wish to create!
+                        </Typography>
+                        <TextField
+                            id='avo-manageclasses__creation-textfield'
+                            margin='normal'
+                            style={{ width: '60%' }}
+                            label="Class name"
+                        />
+                        <br/>
+                        <div style={{ color: 'red', fontSize : '0.75em' }}>{this.state.createClassErrorMessage}</div>
+                        <br/>
+                    </React.Fragment>
+                </AVOModal>
             </div>
         );
     }
@@ -147,24 +194,6 @@ export default class ManageClasses extends React.Component {
                 <List style={{ flex: 1, overflowY: 'auto' }} dense>
                     { /* Show all the students that are in the class*/
                         this.state.results.map((x, idx) => [
-                            // <ListSubheader disableSticky={true}>{x.firstName + ' ' + x.lastName}</ListSubheader>,
-                            // x.tests.length === 0
-                            //     ? <ListItem>
-                            //         <AssignmentNotTurnedIn color='action' />
-                            //         <ListItemText primary={'This user has not taken any tests yet.'} />
-                            //     </ListItem>
-                            //     : null,
-                            // /* Show all the tests that are in the class*/
-                            // x.tests.map(y => (
-                            //     <ListItem>
-                            //         <AssignmentTurnedIn color='action' />
-                            //         <ListItemText primary={y.grade + '/' + selectedTest.total}
-                            //             secondary={'Submitted on ' + getDateString(y.timeSubmitted)} />
-                            //         <ListItemSecondaryAction><IconButton onClick={() => { this.props.postTest(y.takes) }}>
-                            //             <DescriptionOutlinedIcon />
-                            //         </IconButton></ListItemSecondaryAction>
-                            //     </ListItem>
-                            // ))
                             <ListItem disabled={x.tests.length === 0}>
                                 {x.tests.length === 0 ? <AssignmentNotTurnedIn color='action' /> : <AssignmentTurnedIn color='action' />}
                                 <ListItemText 
@@ -196,7 +225,7 @@ export default class ManageClasses extends React.Component {
                                 open={Boolean(anchorEl)}
                                 onClose={() => this.handleVertClose()}
                         >
-                            <MenuItem value={10}>View More</MenuItem>
+                            <MenuItem value={10}>View all submissions</MenuItem>
                             <MenuItem 
                                 value={20} 
                                 onClick={() => { 
@@ -207,7 +236,7 @@ export default class ManageClasses extends React.Component {
                                     ); 
                                 }}
                             >
-                                Edit Marks
+                                View Marks
                             </MenuItem>
                         </Menu>
                 </List>
