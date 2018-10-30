@@ -95,7 +95,15 @@ export default class AnswerInput extends React.Component {
         }
         else if (type === CONST_VECTOR) {
           if (inputMode === BUTTON_INPUT){
-            return (<ButtonInput type = {CONST_VECTOR} disabled={disabled}/>)
+            return (
+                <ButtonInput
+                  type = {CONST_VECTOR}  // this is the type
+                  disabled={disabled}  // this is whether the input is disabled
+                  value={v}  // this is the value if a test is resumed
+                  onBlur={ this.props.onBlur } // this essentially submits
+                  onChange={this.props.onChange} // this is the onChange method that modifies the data
+                />
+            )
           }
           else if (inputMode === MANUAL_INPUT){
             let vector = validateVector(v);
