@@ -9,7 +9,8 @@ import { CONST_VECTOR, CONST_VECTOR_LINEAR_EXPRESSION, CONST_BASIS, CONST_BOOLEA
         CONST_MANUAL_INPUT, CONST_MANUAL_INPUT_POLYNOMIAL, CONST_MATRIX, CONST_MULTIPLE_CHOICE, CONST_NUMBER
 } from "./InputConsts";
 
-
+const BUTTON_INPUT = 0;
+const MANUAL_INPUT = 1;
 export default class AnswerInput extends React.Component {
     constructor(props) {
         super(props);
@@ -18,13 +19,14 @@ export default class AnswerInput extends React.Component {
             value: this.props.value,
             prompt: this.props.prompt,
             disabled: this.props.disabled,
+            inputMode: BUTTON_INPUT, // should be something from the user later to indicate which mode
         };
     }
 
     render() {
         let v = this.state.value;
         let disabled = this.state.disabled;
-        const { type } = this.state;
+        const { type, inputMode } = this.state;
         if (type  === CONST_BOOLEAN) {
             return [
                 getMathJax(this.state.prompt),
@@ -92,7 +94,10 @@ export default class AnswerInput extends React.Component {
             return null;
         }
         else if (type === CONST_VECTOR) {
-          return (<ButtonInput type = {CONST_VECTOR}/>) // This is only here for testing button input
+          if (inputMode === BUTTON_INPUT){
+            return (<ButtonInput type = {CONST_VECTOR} disabled={disabled}/>)
+          }
+          else if (inputMode === MANUAL_INPUT){
             let vector = validateVector(v);
             return (
                 <div>
@@ -107,6 +112,9 @@ export default class AnswerInput extends React.Component {
                         + vector.join('\\\\') + '\\end{bmatrix}\\)', 'body2') : undefined}
                 </div>
             );
+          }
+
+
         }
         else if (type === CONST_VECTOR_LINEAR_EXPRESSION) {
             return null;
