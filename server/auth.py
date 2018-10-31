@@ -156,7 +156,9 @@ def teaches_class(class_id):
     :param class_id: The class ID to test
     :return: True if the user is teaching the class False if not
     """
-    current_class = Class.query.get(class_id) # Gets the class form the class ID
+    current_class = Class.query.get(class_id)  # Gets the class from the class ID
+    if current_class is None:
+        return False
     if current_user.USER is current_class.USER:
         # If the current user teaches the class then return true if not return False
         return True
@@ -172,7 +174,7 @@ def enrolled_in_class(class_id):
     try:
         # If the user is enrolled then return True if not return False
         current_class = Class.query.filter((enrolled.c.CLASS == class_id) & (current_user == enrolled.c.USER)).first()
-        if Class is not None:
+        if current_class is not None:
             return True
         return False
     except NoResultFound:

@@ -8,6 +8,7 @@ import sys
 from git import Repo
 
 from server.DecorationFunctions import *
+from server.auth import teaches_class, enrolled_in_class
 
 from server.models import *
 
@@ -173,9 +174,13 @@ def open_test():
     if current_test is None:
         # If test cant be found return error json if not set to open and return
         return jsonify(error='No Test Found')
-    current_test.is_open = True
-    db.session.commit()
-    return jsonify(message='Opened!')
+    if teaches_class(current_test.CLASS):
+        # If the user teaches the class the test is in open it
+        current_test.is_open = True
+        db.session.commit()
+        return jsonify(message='Opened!')
+    else:
+        return jsonify(error="User doesn't teach this class")
 
 
 @login_required
@@ -195,9 +200,13 @@ def close_test():
     if current_test is None:
         # If test doesn't exist then return error JSON if not close test and return
         return jsonify(error='No test found')
-    current_test.is_open = False
-    db.session.commit()
-    return jsonify(message='Closed!')
+    if teaches_class(current_test.CLASS):
+        # If the user teaches the class the test is in close it
+        current_test.is_open = False
+        db.session.commit()
+        return jsonify(message='Closed!')
+    else:
+        return jsonify(error="User doesn't teach this class")
 
 
 @login_required
@@ -217,9 +226,12 @@ def delete_test():
     if current_test is None:
         # If test isn't found return error JSON else set class to none and return
         return jsonify(error='No Test Found')
-    current_test.CLASS = None
-    db.session.commit()
-    return jsonify(message='Deleted!')
+    if teaches_class(current_test.CLASS):
+        current_test.CLASS = None
+        db.session.commit()
+        return jsonify(message='Deleted!')
+    else:
+        return jsonify(error="User doesn't teach this class")
 
 
 @login_required
@@ -260,25 +272,28 @@ def get_test():
     if test is None:
         # If no test found return error json
         return jsonify(error='Test not found')
-    if test.is_open is False:
-        # If test is not open then return error JSON
-        return jsonify(error='This set of questions has not been opened by your instructor yet')
-    takes = Takes.query.filter((Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (Takes.time_submitted > datetime.now())).first()  # Get the most current takes
-    if takes is None:
-        # If student has not taken the test create a takes instance
-        takes = create_takes(test_id, current_user.get_id())
+    if teaches_class(test.CLASS) or enrolled_in_class(test.CLASS):
+        if test.is_open is False:
+            # If test is not open then return error JSON
+            return jsonify(error='This set of questions has not been opened by your instructor yet')
+        takes = Takes.query.filter((Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (Takes.time_submitted > datetime.now())).first()  # Get the most current takes
         if takes is None:
-            # If takes still fails return error JSON
-            return jsonify(error="Couldn't start test")
-    questions = []  # Questions in test
-    question_ids = eval(test.question_list)  # IDs of questions in test
-    seeds = eval(takes.seeds)  # Seeds of questions in test if -1 gen random seed
-    for i in range(len(question_ids)):
-        # For each question id get the question data and add to question list
-        current_question = Question.query.get(question_ids[i])
-        q = AvoQuestion(current_question.string, seeds[i])
-        questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
-    return jsonify(takes=takes.TAKES, time_submitted=takes.time_submitted, answers=eval(takes.answers), questions=questions)
+            # If student has not taken the test create a takes instance
+            takes = create_takes(test_id, current_user.get_id())
+            if takes is None:
+                # If takes still fails return error JSON
+                return jsonify(error="Couldn't start test")
+        questions = []  # Questions in test
+        question_ids = eval(test.question_list)  # IDs of questions in test
+        seeds = eval(takes.seeds)  # Seeds of questions in test if -1 gen random seed
+        for i in range(len(question_ids)):
+            # For each question id get the question data and add to question list
+            current_question = Question.query.get(question_ids[i])
+            q = AvoQuestion(current_question.string, seeds[i])
+            questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
+        return jsonify(takes=takes.TAKES, time_submitted=takes.time_submitted, answers=eval(takes.answers), questions=questions)
+    else:
+        return jsonify(error="User doesn't have access to that Class")
 
 
 def time_stamp(t):
@@ -325,6 +340,7 @@ def create_takes(test, user):
 
 @login_required
 @check_confirmed
+@teacher_only
 @routes.route('/saveTest', methods=['POST'])
 def save_test():
     """
@@ -338,6 +354,8 @@ def save_test():
     class_id, name, deadline, timer, attempts, question_list, seed_list = \
         data['classID'], data['name'], data['deadline'], data['timer'], data['attempts'], data['questionList'],\
         data['seedList']  # Data from the client
+    if not teaches_class(class_id):
+        return jsonify(error="User doesn't teach this class")
     if len(question_list) is 0:
         return jsonify(error="Can't Submit A Test WIth Zero Questions")
     deadline = str(deadline)  # Deadline of the test converting to datetime
@@ -406,7 +424,7 @@ def submit_test():
         return abort(400)
     data = request.json
     takes = data['takes']  # Data from client
-    # Get current takes and update submit stime and commit to DataBase
+    # Get current takes and update submit time and commit to DataBase
     current_takes = Takes.query.get(takes)
     current_takes.time_submitted = time_stamp(datetime.now() - timedelta(seconds=1))
     db.session.commit()
@@ -434,16 +452,19 @@ def post_test():
     # Get data from takes and get test from takes
     marks, answers, seeds = eval(takes_list.marks), eval(takes_list.answers), eval(takes_list.seeds)
     test = Test.query.get(takes_list.TEST)
-    questions = eval(test.question_list)
-    question_list = []
-    for i in range(len(questions)):
-        # For each question mark question with answer and add to list then return
-        current_question = Question.query.get(questions[i])
-        q = AvoQuestion(current_question.string, seeds[i])
-        q.get_score(*answers[i])
-        question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation, 'types': q.types,
-                              'answers': answers[i], 'totals': q.totals, 'scores': q.scores})
-    return jsonify(questions=question_list)
+    if enrolled_in_class(test.CLASS) or teaches_class(test.CLASS):
+        questions = eval(test.question_list)
+        question_list = []
+        for i in range(len(questions)):
+            # For each question mark question with answer and add to list then return
+            current_question = Question.query.get(questions[i])
+            q = AvoQuestion(current_question.string, seeds[i])
+            q.get_score(*answers[i])
+            question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation, 'types': q.types,
+                                  'answers': answers[i], 'totals': q.totals, 'scores': q.scores})
+        return jsonify(questions=question_list)
+    else:
+        return jsonify(error="User isn't in class")
 
 
 @login_required
@@ -460,6 +481,9 @@ def get_class_test_results():
         return abort(400)
     data = request.json
     test = data['test']  # Data from client
+    current_test = Test.query.get(test)
+    if not teaches_class(current_test.CLASS):
+        return jsonify(error="User doesn't teach class")
     users = User.query.filter((User.USER == enrolled.c.USER) & (Class.CLASS == enrolled.c.CLASS)).all()  # All users in class
     for i in range(len(users)):
         # For each user get user data and best takes instance and present append to list then return
