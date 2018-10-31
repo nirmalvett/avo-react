@@ -5,9 +5,9 @@ from math import sqrt, sin, cos, tan, asin, acos, atan, pi
 from re import fullmatch, sub, search
 from typing import List, Any
 
-# This is a test
+
 class AvoQuestion:
-    def __init__(self, question: str, seed=0):
+    def __init__(self, question: str, seed=0):  # Takes in question specifications, initializes object with relevant properties to display
         question = question.split('；')
         if len(question) != 5:
             raise SyntaxError(f'Received wrong number of parts: {len(question)}')
@@ -34,7 +34,7 @@ class AvoQuestion:
         if len(self.prompts) != len(self.types):
             raise SyntaxError("The number of prompts and answer fields don't match")
 
-    def step(self, token_list):
+    def step(self, token_list):  # Generates a single step/part of the question being generated based on the parameter passed in
         token_list = token_list.split(' ')
         stack = []
         for token in token_list:
@@ -99,7 +99,7 @@ class AvoQuestion:
                 raise SyntaxError(token)
         self.var_list += stack
 
-    def get_score(self, *answers):
+    def get_score(self, *answers):  # Gives the (student) a score based off how the question was solved versus what was asked (server call)
         if len(answers) != len(self.types):
             raise ValueError("Wrong number of answers")
         for i in range(len(answers)):
@@ -157,7 +157,7 @@ class AvoQuestion:
             self.step(self.steps.pop(0))
         return self.score
 
-    def increment_score(self, condition, amount):
+    def increment_score(self, condition, amount):   # Marks a single criteria/part of the generated question
         if condition.explanation[0][1] == -1:
             step = condition.explanation[0][0] + r'\(\\\)'
         else:
@@ -179,7 +179,7 @@ class AvoQuestion:
         self.totals.append(float(amount))
 
 
-methods = {
+methods = {     # Function calls mapped to abbreviations for simplified calls
     # *#    Variable reference
     # #     Literal number
     # ]     Build matrix
@@ -277,7 +277,7 @@ methods = {
 }
 
 
-def build_number(text: str):
+def build_number(text: str):    # Converts string expression into a number
     invalid = error('invalid expression')
     regex = r'\d+(?:\.\d+)?|(sqrt|sin|cos|tan|arcsin|arccos|arctan)\(|[()+\-*/^]'
     token_list: List = sub(r' {2,}', ' ', sub(regex, r' \g<0> ', text.replace(' ', '')).strip()).split(' ')
@@ -380,7 +380,7 @@ def build_number(text: str):
     return number(token_list[0])
 
 
-def build_vector_free_vars(cells: list):
+def build_vector_free_vars(cells: list):    # Converts string expression into vector for generated question
     invalid = error('invalid expression')
     cells = list(map(lambda c: c.lower(), cells))
     equations = ''.join(cells)
@@ -514,7 +514,7 @@ def build_vector_free_vars(cells: list):
     return vector_free_vars(vector, free_vars)
 
 
-def build_polynomial(cell: str):
+def build_polynomial(cell: str):    # Converts string expression into polynomial for question generated
     invalid = error('invalid expression')
     regex = r'\d+(?:\.\d+)?|[()+\-*/^x]'
     token_list: List = sub(r' {2,}', ' ', sub(regex, r' \g<0> ', cell.replace(' ', '')).strip()).split(' ')
