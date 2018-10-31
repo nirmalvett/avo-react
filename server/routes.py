@@ -28,6 +28,9 @@ def change_color():
         return abort(400)
     data = request.json  # Data from client
     color = data['color']
+    if not isinstance(color, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
 
     # Commit the users's changes to the DB
     current_user.color = color
@@ -48,6 +51,9 @@ def change_theme():
         return abort(400)
     data = request.json # Data from the client
     theme = data['theme']
+    if not isinstance(theme, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     # Applies the user's changes to the database
     current_user.theme = theme
     db.session.commit()
@@ -67,6 +73,9 @@ def create_class():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     name = request.json['name']  # Name of the new class
+    if not isinstance(name, str):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     new_class = Class(current_user.USER, name)  # Class to be created
     # Add to database and commit
     db.session.add(new_class)
@@ -145,7 +154,10 @@ def enroll():
     if not request.json:
         # If the request isn't JSON then return a 400 error
         return abort(400)
-    key = request.json['key'] # Data sent from user
+    key = request.json['key']  # Data sent from user
+    if not isinstance(key,str):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     try:
         # Find class with said enroll key if no class found return error json
         current_class = Class.query.filter(Class.enroll_key == key).first()
@@ -170,6 +182,9 @@ def open_test():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     test = request.json['test']  # Data from client
+    if not isinstance(test, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     current_test = Test.query.get(test)  # Get the test
     if current_test is None:
         # If test cant be found return error json if not set to open and return
@@ -196,6 +211,9 @@ def close_test():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     test = request.json['test']  # Test to close
+    if not isinstance(test, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     current_test = Test.query.get(test) # Get the test
     if current_test is None:
         # If test doesn't exist then return error JSON if not close test and return
@@ -222,6 +240,9 @@ def delete_test():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     test = request.json['test']  # Test to be deleted
+    if not isinstance(test, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     current_test = Test.query.get(test)  # Get the test
     if current_test is None:
         # If test isn't found return error JSON else set class to none and return
@@ -247,6 +268,9 @@ def get_question():
         return abort(400)
     data = request.json
     question, seed = data['question'], data['seed']  # Data from client
+    if not isinstance(question, str) or not isinstance(seed, str):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     current_question = Question.query.get(question)  # Get question from database
     if current_question is None:
         # If the question isn't found return error json if not return to client
@@ -268,6 +292,9 @@ def get_test():
         return abort(400)
     data = request.json
     test_id = data['test']  # Data of test requested
+    if not isinstance(test_id, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     test = Test.query.get(test_id)  # Test requested
     if test is None:
         # If no test found return error json
@@ -354,6 +381,11 @@ def save_test():
     class_id, name, deadline, timer, attempts, question_list, seed_list = \
         data['classID'], data['name'], data['deadline'], data['timer'], data['attempts'], data['questionList'],\
         data['seedList']  # Data from the client
+    if not isinstance(class_id, int) or not isinstance(name, str) or not isinstance(deadline, int) or not \
+            isinstance(timer, int) or not isinstance(attempts, int) or not isinstance(question_list, str) or not \
+            isinstance(seed_list, str):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     if not teaches_class(class_id):
         return jsonify(error="User doesn't teach this class")
     if len(question_list) is 0:
@@ -388,6 +420,9 @@ def save_answer():
         return abort(400)
     data = request.json
     takes, question, answer = data['takes'], data['question'], data['answer']  # Data from user
+    if not isinstance(takes, int) or not isinstance(question, str) or not isinstance(answer, str):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     takes_list = Takes.query.get(takes)  # Instance of takes to add answer to
     if takes_list is None or takes_list.USER is not current_user.USER:
         # If takes instance cant be found or is not the same as current user return error JSON
@@ -401,7 +436,7 @@ def save_answer():
     marks = eval(takes_list.marks)
     answers = eval(takes_list.answers)
     marks[question] = q.scores
-    # UPdate with new values and commit to DataBase
+    # Update with new values and commit to DataBase
     takes_list.marks = str(marks)
     answers[question] = answer
     takes_list.answers = str(answers)
@@ -424,6 +459,9 @@ def submit_test():
         return abort(400)
     data = request.json
     takes = data['takes']  # Data from client
+    if not isinstance(takes, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     # Get current takes and update submit time and commit to DataBase
     current_takes = Takes.query.get(takes)
     current_takes.time_submitted = time_stamp(datetime.now() - timedelta(seconds=1))
@@ -445,6 +483,9 @@ def post_test():
         return abort(400)
     data = request.json
     takes = data['takes']  # Data from client
+    if not isinstance(takes, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     takes_list = Takes.query.get(takes)  # Get current instance of takes
     if takes_list is None:
         # If takes cant be found return error JSON
@@ -481,6 +522,9 @@ def get_class_test_results():
         return abort(400)
     data = request.json
     test = data['test']  # Data from client
+    if not isinstance(test, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     current_test = Test.query.get(test)
     if not teaches_class(current_test.CLASS):
         return jsonify(error="User doesn't teach class")

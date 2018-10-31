@@ -39,8 +39,10 @@ def register():
         # If the request is not json return a 400 error
         return abort(400)
     data = request.json # Data sent from client
-    # Todo: validate arguments
     first_name, last_name, email, password = data['first_name'], data['last_name'], data['email'], data['password']
+    if not isinstance(first_name, str) or not isinstance(last_name, str) or not isinstance(email, str) or not isinstance(password, str):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     if not fullmatch(r'[a-zA-Z]{2,}\d*@uwo\.ca+', email):
         # Checks if the email is a UWO if not return an error JSON
         return jsonify(error='Invalid uwo email')
@@ -105,8 +107,11 @@ def login():
     if not request.json:
         # If the request isn't JSON return a 400 error
         return abort(400)
-    data = request.json # Data from the client
+    data = request.json  # Data from the client
     username, password = data['username'], data['password']
+    if not isinstance(username, str) or not isinstance(password, str):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
     try:
         # Try to create the user from the email if not throw error JSON
         user = User.query.filter(User.email == username).one()
