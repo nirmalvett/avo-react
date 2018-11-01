@@ -288,7 +288,6 @@ export default class ButtonInput extends React.Component {
       else{
         this.parseAnswerForLatexServer();
         this.props.onChange(this.state.dataForServer);
-        // this.props.saveAnswer(); // TODO this is not working for some reason
         this.setState({stage: CONST_SHOW_OBJECT, message: ''})
       }
     }

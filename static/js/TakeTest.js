@@ -84,6 +84,7 @@ export default class TakeTest extends React.Component {
                                      let newAnswerList = copy(this.state.newAnswers);
                                      newAnswerList[index][y] = value;
                                      this.setState({newAnswers: newAnswerList});
+                                     save(); // After each change save it
                                  }}/>
                 ])}
             </Card>
