@@ -37,17 +37,18 @@ export default class ButtonInput extends React.Component {
     }
     resetAll(){
       // This method resets the state back to the initial one and should be used once and then whenever user clicks clear
-          this.state = {
-          stage: CONST_CREATE_OBJECT,
-          vectorSize: '',
-          dimensionStorage: {}, // [1,2] if vector, [1,2;3,4] if matrix
-          type: this.props.type, // this is the type of the input itself,
-          message: '',
-          totalFields: -1, // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill,
-          disabled: this.props.disabled, // if true then the starting input should be disabled,
-          dataForServer: '',
-          latexString: '',
-        };
+          this.setState({
+            stage: CONST_CREATE_OBJECT,
+            vectorSize: '',
+            dimensionStorage: {}, // [1,2] if vector, [1,2;3,4] if matrix
+            type: this.props.type, // this is the type of the input itself,
+            message: '',
+            totalFields: -1, // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill,
+            disabled: this.props.disabled, // if true then the starting input should be disabled,
+            dataForServer: '',
+            latexString: '',
+        });
+        console.log("resetAll()", this.state);
     }
     render() {
       const { stage } = this.state;
