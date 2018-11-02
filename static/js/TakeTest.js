@@ -61,8 +61,9 @@ export default class TakeTest extends React.Component {
 
     getQuestionCard(question, answer, index) {
         let disabled = JSON.stringify(this.state.newAnswers[index]) === JSON.stringify(this.state.answers[index]);
-        let save = () => {
-            Http.saveAnswer(this.state.takes, index, this.state.newAnswers[index], result => {
+        let save = (inputValue) => {
+            let newValue = inputValue === undefined ? this.state.newAnswers[index] : inputValue;
+            Http.saveAnswer(this.state.takes, index, newValue, result => {
                 let newAnswers = copy(this.state.answers);
                 newAnswers[index] = copy(this.state.newAnswers[index]);
                 this.setState({answers: newAnswers});
@@ -84,7 +85,12 @@ export default class TakeTest extends React.Component {
                                      let newAnswerList = copy(this.state.newAnswers);
                                      newAnswerList[index][y] = value;
                                      this.setState({newAnswers: newAnswerList});
-                                     save(); // After each change save it
+                                 }}
+                                 buttonSave={value => {
+                                                 let newAnswerList = copy(this.state.newAnswers);
+                                                 newAnswerList[index][y] = value;
+                                                 this.setState({newAnswers: newAnswerList});
+                                                 save(value); // After each change save it
                                  }}/>
                 ])}
             </Card>
