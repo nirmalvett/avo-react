@@ -155,13 +155,16 @@ def enroll():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     key = request.json['key']  # Data sent from user
-    if not isinstance(key,str):
+    if not isinstance(key, str):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify("One or more data is not correct")
     try:
         # Find class with said enroll key if no class found return error json
         current_class = Class.query.filter(Class.enroll_key == key).first()
     except NoResultFound:
+        return jsonify(error='Invalid enroll key')
+    if current_class is None:
+        # If no class is found
         return jsonify(error='Invalid enroll key')
     # Append current user to the class
     current_user.CLASS_ENROLLED_RELATION.append(current_class)
