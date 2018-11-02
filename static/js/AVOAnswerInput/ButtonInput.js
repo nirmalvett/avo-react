@@ -214,7 +214,7 @@ export default class ButtonInput extends React.Component {
       }
       vectorLatex += "\\end{bmatrix}\\)";
       this.state.latexString = vectorLatex;
-      this.state.dataForServer = dataForServer;
+      this.state.dataForServer = [dataForServer];
 
 
     }
@@ -288,7 +288,7 @@ export default class ButtonInput extends React.Component {
       // CASE 1: We can go ahead and show the object compiled
       else{
         this.parseAnswerForLatexServer();
-        this.props.onChange(this.state.dataForServer);
+        this.props.buttonSave(this.state.dataForServer);
         this.setState({stage: CONST_SHOW_OBJECT, message: ''})
       }
     }
