@@ -265,7 +265,7 @@ export default class ButtonInput extends React.Component {
     }
     handleVectorInput(e){
       e.preventDefault();
-      const value = e.target.value; // the value the user inputs
+      const value = e.target.value.replace(",", "").replace("\n", ""); // We don't want users to input comma or newline
       const name = e.target.name; // if the coordinates are 1, 2 then the string name will be 1-2
       const nameSplit = name.split("-");
       const x_value = parseInt(nameSplit[0]); // this will be the actual index
