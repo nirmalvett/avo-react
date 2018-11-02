@@ -31,10 +31,10 @@ class Class(db.Model):
         self.USER = USER
         self.name = name
         self.enroll_key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
-        enroll_key_class = Class.query.filter(Class.EnrollKey == self.enroll_key).all()
+        enroll_key_class = Class.query.filter(Class.enroll_key == self.enroll_key).all()
         while len(enroll_key_class) is not 0:
             self.enroll_key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
-            enroll_key_class = Class.query.filter(Class.EnrollKey == self.enroll_key).all()
+            enroll_key_class = Class.query.filter(Class.enroll_key == self.enroll_key).all()
 
     def __repr__(self):
         return f'<Class {self.USER} {self.name} {self.enroll_key}>'
