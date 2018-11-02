@@ -164,7 +164,7 @@ def enroll():
     except NoResultFound:
         return jsonify(error='Invalid enroll key')
     if current_class is None:
-        # If no class is found
+        # If no class is found return error JSON
         return jsonify(error='Invalid enroll key')
     # Append current user to the class
     current_user.CLASS_ENROLLED_RELATION.append(current_class)
@@ -271,7 +271,7 @@ def get_question():
         return abort(400)
     data = request.json
     question, seed = data['question'], data['seed']  # Data from client
-    if not isinstance(question, str) or not isinstance(seed, str):
+    if not isinstance(question, int) or not isinstance(seed, int):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify("One or more data is not correct")
     current_question = Question.query.get(question)  # Get question from database
