@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, jsonify, request
+from flask import Blueprint, abort, jsonify, request, make_response
 from flask_login import login_required, current_user
 from sqlalchemy.orm.exc import NoResultFound
 from server.MathCode.question import AvoQuestion
@@ -155,13 +155,16 @@ def enroll():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     key = request.json['key']  # Data sent from user
-    if not isinstance(key,str):
+    if not isinstance(key, str):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify("One or more data is not correct")
     try:
         # Find class with said enroll key if no class found return error json
         current_class = Class.query.filter(Class.enroll_key == key).first()
     except NoResultFound:
+        return jsonify(error='Invalid enroll key')
+    if current_class is None:
+        # If no class is found
         return jsonify(error='Invalid enroll key')
     # Append current user to the class
     current_user.CLASS_ENROLLED_RELATION.append(current_class)
@@ -536,6 +539,59 @@ def get_class_test_results():
         users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
                     'tests': [{'takes': takes.TAKES, 'timeSubmitted': takes.time_submitted, 'grade': takes.grade}]}
     return jsonify(results=users)
+
+
+@login_required
+@check_confirmed
+@teacher_only
+@routes.route('/CSV/ClassMarks/<classid>')
+def csv_class_marks(classid):
+    """
+    Generate a CSV file of the class marks
+    :param classid: The ID of the class to generate marks
+    :return: A CSV file of the class marks
+    """
+
+    if not teaches_class(classid):
+        # If the teacher is not in the class return a 400 error page
+        return abort(400)
+    # Query the database for data on the test class and students data
+    output_class = Class.query.get(classid)
+    student_array = User.query.join(enrolled).join(Class).filter(
+        (enrolled.c.CLASS == classid) & (enrolled.c.USER == User.USER)).all()
+    test_array = Test.query.filter(Test.CLASS == classid).all()
+    test_name_list = []  # An array of the test names
+    output_string = '\"Email\" '  # The output for the file
+
+    for i in range(len(test_array)):
+        # For each test add the names to the array and update the file string
+        test_name_list.append(test_array[i].name)
+        output_string = output_string + ', \"' + str(test_array[i].name) + '\" '
+
+    for i in range(len(student_array)):
+        # For each student get there best mark on each test and add it to the array
+        current_string = '\n' + '\"' + str(student_array[i].email) + '\"'  # A string for each line of the file
+
+        for j in range(len(test_array)):
+            # For each test get the best mark and add it to the array
+            mark = Takes.query.join(User).join(Test).filter(
+                (Takes.TEST == test_array[j].TEST) & (student_array[i].USER == User.USER)).all()
+            try:
+                # Get the best mark f they havn't taken the test add a value as such
+                top_mark = 0
+                for k in range(len(mark)):
+                    # For each mark compare the grade and if its greater add it to the string
+                    if mark[k].grade >= top_mark:
+                        top_mark = k
+                current_string = current_string + ', ' + str(mark[top_mark].grade) + ' / ' + str(
+                    test_array[i].total)
+            except IndexError:
+                current_string = current_string + ', ' + 'Test Not Taken'
+        output_string = output_string + current_string
+
+    response = make_response(output_string)
+    response.headers["Content-Disposition"] = "attachment; filename=" + output_class.name + ".csv"
+    return response  # Return the file to the user
 
 
 # noinspection SpellCheckingInspection
