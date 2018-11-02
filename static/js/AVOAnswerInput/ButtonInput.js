@@ -295,7 +295,9 @@ export default class ButtonInput extends React.Component {
               <br/>
              <Button
                   variant="extendedFab"
-                  color = "primary">
+                  color = "primary"
+                  onClick = {(e) => this.handleMatrixDimensionSubmit(e)}
+             >
                 Confirm Dimension
               </Button>
               <br/>
@@ -411,9 +413,10 @@ export default class ButtonInput extends React.Component {
       }
     }
     handleMatrixDimensionSubmit(e){
+      e.preventDefault();
       if (this.state.matrixColLength === "" || this.state.matrixRowLength === ""){
         this.setState({
-          message: 'Both column and row length must be filled with a number less than or equal to 1.})'
+          message: 'Both column and row length must be filled with a number less than or equal to 1.'
         })
       }
       else {
