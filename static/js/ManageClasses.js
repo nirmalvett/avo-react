@@ -34,6 +34,8 @@ import { copy, getDateString } from "./Utilities";
 import Tooltip from '@material-ui/core/Tooltip';
 import AVOModal from './AVOMatComps/AVOMatModal';
 import Typography from '@material-ui/core/Typography/Typography';
+import Popper from '@material-ui/core/Popper';
+import Button from '@material-ui/core/Button/Button';
 
 export default class ManageClasses extends React.Component {
     constructor(props) {
@@ -47,6 +49,7 @@ export default class ManageClasses extends React.Component {
             studentNameSearchLabels : [],
             anchorEl: null,
             createClassErrorMessage : '',
+            deleteTestPopperOpen : false
         };
     }
 
@@ -186,7 +189,7 @@ export default class ManageClasses extends React.Component {
                             </Tooltip>
                         ),
                         <Tooltip title="Delete the test(This cannot be undone)">
-                            <IconButton onClick={() => this.deleteTest()}><DeleteOutlinedIcon /></IconButton>
+                            <IconButton onClick={() => this.setState({ deleteTestPopperOpen : true })} id="avo-manageclasses__delete-button"><DeleteOutlinedIcon /></IconButton>
                         </Tooltip>
                     ]} 
                 />,
@@ -225,7 +228,7 @@ export default class ManageClasses extends React.Component {
                                 open={Boolean(anchorEl)}
                                 onClose={() => this.handleVertClose()}
                         >
-                            <MenuItem value={10}>View all submissions</MenuItem>
+                            <MenuItem disabled={true} value={10}>View all submissions</MenuItem>
                             <MenuItem 
                                 value={20} 
                                 onClick={() => { 
@@ -239,6 +242,48 @@ export default class ManageClasses extends React.Component {
                                 View Marks
                             </MenuItem>
                         </Menu>
+                        <Popper
+                            placement="left-start"
+                            open={this.state.deleteTestPopperOpen}
+                            anchorEl={document.getElementById('avo-manageclasses__delete-button')}
+                            disablePortal={false}
+                            modifiers={{
+                                flip: {
+                                    enabled: true,
+                                },
+                                preventOverflow: {
+                                    enabled: true,
+                                    boundariesElement: 'scrollParent',
+                                },
+                            }}
+                        >
+                            <Paper style={{ padding : '10px', height : '6em' }}>
+                                <Typography variant='body'>
+                                    Are you sure you want to delete {selectedTest.name}? <br/>
+                                    Once a test has been deleted it can not be recovered!
+                                </Typography>
+                                <br/>
+                                <div style={{ float : 'right', position : 'relative' }}>
+                                    <Button 
+                                        classes={{ root : 'avo-button' }}
+                                        onClick={() => this.setState({ deleteTestPopperOpen : false }) } 
+                                        color="primary"
+                                    >
+                                        Nevermind
+                                    </Button>
+                                    <Button 
+                                        classes={{ root : 'avo-button' }} 
+                                        onClick={() => {
+                                            this.setState({ deleteTestPopperOpen : false });
+                                            this.deleteTest();
+                                        }}
+                                        color="primary"
+                                    >
+                                        Delete
+                                    </Button>
+                                </div>
+                            </Paper>
+                        </Popper>
                 </List>
             ];
         }

@@ -186,7 +186,7 @@ export default class MyClasses extends React.Component {
                     onClick={() => this.state.startTest(selectedTest.id)}
                     disabled={!selectedTest.open && (selectedTest.attempts == -1 || selectedTest.submitted.length < selectedTest.attempts)}
                 >
-                    Start Test
+                    {selectedTest.current !== null ? 'Resume Test' : 'Start Test'}
                 </Button>,
                 <br/>,
                 <Typography>Deadline: {getDateString(selectedTest.deadline)}</Typography>,
