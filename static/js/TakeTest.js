@@ -87,10 +87,10 @@ export default class TakeTest extends React.Component {
                                      this.setState({newAnswers: newAnswerList});
                                  }}
                                  buttonSave={value => {
-                                                 let newAnswerList = copy(this.state.newAnswers);
-                                                 newAnswerList[index][y] = value;
-                                                 this.setState({newAnswers: newAnswerList});
-                                                 save(value); // After each change save it
+                                     let newAnswerList = copy(this.state.newAnswers);
+                                     newAnswerList[index][y] = value;
+                                     this.setState({newAnswers: newAnswerList});
+                                     save(value); // After each change save it
                                  }}/>
                 ])}
             </Card>

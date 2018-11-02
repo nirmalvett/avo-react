@@ -9,6 +9,7 @@ import { CONST_VECTOR, CONST_VECTOR_LINEAR_EXPRESSION, CONST_BASIS, CONST_BOOLEA
         CONST_MANUAL_INPUT, CONST_MANUAL_INPUT_POLYNOMIAL, CONST_MATRIX, CONST_MULTIPLE_CHOICE, CONST_NUMBER
 } from "./InputConsts";
 
+
 const BUTTON_INPUT = 0;
 const MANUAL_INPUT = 1;
 export default class AnswerInput extends React.Component {
@@ -121,13 +122,24 @@ export default class AnswerInput extends React.Component {
                 </div>
             );
           }
-
-
         }
         else if (type === CONST_VECTOR_LINEAR_EXPRESSION) {
             return null;
         }
         else if (type === CONST_MATRIX) {
+          if (inputMode === BUTTON_INPUT){
+            return(
+                <ButtonInput
+                  type = {CONST_MATRIX}  // this is the type
+                  disabled={disabled}  // this is whether the input is disabled
+                  value={v}  // this is the value if a test is resumed
+                  buttonSave={ this.props.buttonSave } // this essentially submits
+                  onChange={this.props.onChange} // this is the onChange method that modifies the data
+                  />
+                )
+
+          }
+          else {
             let matrix = validateMatrix(v);
             return (
                 <div>
@@ -145,6 +157,8 @@ export default class AnswerInput extends React.Component {
                         + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)', 'body2') : undefined}
                 </div>
             );
+          }
+
         }
         else if (type === CONST_BASIS) {
             let basis = validateMatrix(v);
