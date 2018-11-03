@@ -33,8 +33,10 @@ export default class ButtonInput extends React.Component {
           message: '',
           totalFields: -1, // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill,
           disabled: this.props.disabled, // if true then the starting input should be disabled,
+          disabledAnswer: '', // if there is an answer from the student then we want to show it
           dataForServer: '',
           latexString: '',
+
         };
     }
     resetAll(){
@@ -49,9 +51,11 @@ export default class ButtonInput extends React.Component {
           message: '',
           totalFields: -1, // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill,
           disabled: this.props.disabled, // if true then the starting input should be disabled,
+          disabledAnswer: '', // if there is an answer from the student then we want to show it
           dataForServer: '',
           latexString: '',
         });
+
     }
     render() {
       const { stage } = this.state;
@@ -75,12 +79,50 @@ export default class ButtonInput extends React.Component {
         )
 
     }
+    renderPostTestAnswer(){
+      console.log("renderPostTest");
+      const { type } = this.state;
+      if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION){
+        const vector = this.props.value.split(",");
 
+        return (Array.isArray(vector) ? getMathJax('\\(\\begin{bmatrix}'
+                        + vector.join('\\\\') + '\\end{bmatrix}\\)', 'body2') : this.props.value)
+      }
+      else if (type === CONST_MATRIX){
+        const matrix = this.props.value.split("\n");
+        for (let i = 0; i < matrix.length; i++){
+          matrix[i] = matrix[i].split(",")
+        }
+        return (
+            Array.isArray(matrix) ? getMathJax('\\(\\begin{bmatrix}'
+                        + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)', 'body2') : this.props.value
+        )
+      }
+    }
     // ================================== General Four Phases ===========================================
     createObject() {
-      const {type} = this.state;
-      if (type === CONST_VECTOR) { return this.vectorCreateObject(); }
-      else if (type === CONST_MATRIX) { return this.matrixCreateObject();  }
+      const {type, disabled } = this.state;
+      return (
+        <Grid container
+          direction="column"
+          justify="center"
+          alignItems="center">
+            <br/>
+            {
+                type === CONST_VECTOR
+                  ? this.vectorCreateObject()
+                  : type === CONST_MATRIX
+                    ? this.matrixCreateObject()
+                    : null
+            }
+            <br/><br/>
+            { disabled === true
+                ? this.renderPostTestAnswer()
+                : null
+            }
+
+          </Grid>
+      )
     }
     selectDimension(){
       const {type} = this.state;
@@ -477,7 +519,6 @@ export default class ButtonInput extends React.Component {
       // sets dataForServer: '', latexString: '', in state where dataForServer is what we want to send and latexString
       // is what we display
       const { dimensionStorage, type } = this.state;
-      console.log("dimensionstorage", dimensionStorage);
       // CASE 0: Vector input
       if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION){
         const vectorParsed = this.parseVector(dimensionStorage, " \\\\ ");
@@ -545,7 +586,6 @@ export default class ButtonInput extends React.Component {
       // output: "\\(\\begin{bmatrix} 1 //// 2 \end{bmatrix}\)"
       return "\\(\\begin{bmatrix}" + stringInput + "\\end{bmatrix}\\)";
     }
-
     allFieldsFilled() {
       const { dimensionStorage, totalFields, type, matrixColLength, matrixRowLength } = this.state;
       // CASE 0: It's a vector and the user did not input any object or it's not the right size
