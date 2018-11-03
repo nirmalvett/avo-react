@@ -66,7 +66,8 @@ export default class ManageClasses extends React.Component {
                     <Grid item xs={3} style={{ flex: 1, display: 'flex' }}>
                         <Paper classes={{ root: 'avo-sidebar' }} square style={{ width: '100%', flex: 1, display: 'flex' }}>
                             <List style={{ flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' }}>
-                                <center className='open-sans__header'>Manage My Classes</center>
+                                <Typography variant='h2' color="textPrimary"><center>Manage My Classes</center></Typography>
+                                <br/>
                                 <Divider />
                                 <ListSubheader style={{ 'position': 'relative' }}>Class Creation</ListSubheader>
                                 <ListItem button id='avo-manageclasses__create-button'>
@@ -315,9 +316,9 @@ export default class ManageClasses extends React.Component {
                     }}
                     title={'Hey there!'}
                 />
-                <div className='open-sans__text'>
+                <Typography variant='body' color="textPrimary">
                     Looks like you haven't selected a Class or Test yet!
-                </div>
+                </Typography>
                 <br />
             </React.Fragment>
         );
