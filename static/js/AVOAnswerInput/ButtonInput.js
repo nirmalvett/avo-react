@@ -282,6 +282,9 @@ export default class ButtonInput extends React.Component {
       if (totalFields <= 0){
         this.setState({message: 'You need to indicate a vector size and it must be larger or equal to 1.'})
       }
+      else if (totalFields > 10){
+        this.setState({message: 'Your vector size cannot be larger than 10.'})
+      }
       else {
         this.setState({message: '', stage: CONST_INPUT_PHASE})
       }
@@ -390,7 +393,7 @@ export default class ButtonInput extends React.Component {
                                     name = {`${indexRow}-${indexColumn}` }
                                     value = { this.state.dimensionStorage[indexRow][indexColumn]}
                                     onChange = {(e) => this.handleMatrixInput(e)}
-                                    label={`Matrix ${indexRow + 1}, ${indexColumn + 1}` }
+                                    label={`Row:${indexRow + 1}, Col:${indexColumn + 1}` }
                                     error={!Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))}
                                     helperText={
                                       !Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))
@@ -461,7 +464,6 @@ export default class ButtonInput extends React.Component {
     handleMatrixRowLength(e){
       e.preventDefault();
       const value = e.target.value;
-      console.log(value);
       // If the value is nothing then set it back
       if (value === ""){
         this.setState({matrixRowLength: "", totalFields: -1})
@@ -477,6 +479,11 @@ export default class ButtonInput extends React.Component {
       if (this.state.matrixColLength === "" || this.state.matrixRowLength === ""){
         this.setState({
           message: 'Both column and row length must be filled with a number less than or equal to 1.'
+        })
+      }
+      else if (this.state.matrixColLength > 10 || this.state.matrixRowLength > 10){
+        this.setState({
+          message: 'The row and column length must not be larger than 5.'
         })
       }
       else {
