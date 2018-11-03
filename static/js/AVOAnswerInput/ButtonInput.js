@@ -39,18 +39,19 @@ export default class ButtonInput extends React.Component {
     }
     resetAll(){
       // This method resets the state back to the initial one and should be used once and then whenever user clicks clear
-          this.setState({
-            stage: CONST_CREATE_OBJECT,
-            vectorSize: '',
-            dimensionStorage: {}, // [1,2] if vector, [1,2;3,4] if matrix
-            type: this.props.type, // this is the type of the input itself,
-            message: '',
-            totalFields: -1, // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill,
-            disabled: this.props.disabled, // if true then the starting input should be disabled,
-            dataForServer: '',
-            latexString: '',
+      this.setState({
+          stage: CONST_CREATE_OBJECT,
+          vectorSize: '',
+          matrixColLength: '',
+          matrixRowLength: '',
+          dimensionStorage: {}, // [1,2] if vector, [1,2;3,4] if matrix
+          type: this.props.type, // this is the type of the input itself,
+          message: '',
+          totalFields: -1, // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill,
+          disabled: this.props.disabled, // if true then the starting input should be disabled,
+          dataForServer: '',
+          latexString: '',
         });
-        console.log("resetAll()", this.state);
     }
     render() {
       const { stage } = this.state;
@@ -106,7 +107,7 @@ export default class ButtonInput extends React.Component {
                   direction="column"
                   justify="center"
                   alignItems="center">
-                <br/>
+                {/*<br/>*/}
                 <Button
                     disabled = { this.state.disabled }
                     variant="extendedFab"
@@ -167,7 +168,7 @@ export default class ButtonInput extends React.Component {
                     return (
                       <div>
                       <TextField
-                          key = {idName}
+                          id = { idName }
                           name = {`${index}-0` }
                           value = { this.state.dimensionStorage[index]}
                           onChange = {(e) => this.handleVectorInput(e)}
@@ -306,46 +307,62 @@ export default class ButtonInput extends React.Component {
     }
     matrixInputPhase(){
       // INPUT PHASE: ______  ______ _______ , ________  ________ __________ | Submit |
-      const numberOfFields = this.state.vectorSize; // given by previous input
       const uniqueIds = []; // create an array of ids which we can use to map
       const stateObject = {}; // We need something to hold all the input values in the state
-      for (let i = 0; i < numberOfFields; i++){ // for the number of fields we need
-        const idName = 'button-input-vector-' + (i);
-        uniqueIds.push(idName);
-        stateObject[i] = ''; // this will be a blank holder for all the objects
+      for (let i = 0; i < this.state.matrixRowLength; i++){ // for the number of fields we need
+        const rowName = i;
+        const subRowList = [];
+        stateObject[rowName] = {}; // this will be a blank holder for all the objects
+        for (let inputFieldIndex = 0; inputFieldIndex < this.state.matrixColLength; inputFieldIndex++){
+          stateObject[rowName][inputFieldIndex] = "";
+          subRowList.push("matrix-input:" + rowName + "-" + inputFieldIndex);
+        }
+        uniqueIds.push(subRowList);
       }
-      if (this.state.dimensionStorage === {}){ // We this check otherwise it'll keep wiping the input
+      if (objectSize(this.state.dimensionStorage) === 0){ // We this check otherwise it'll keep wiping the input
         this.state.dimensionStorage = stateObject;
       }
 
 
       return (
+
           <Grid container
                 direction="column"
-                justify="center"
                 alignItems="center">
 
                 { // We're mapping the vector inputs here
-                  uniqueIds.map((idName, index) => {
-                    return (
-                      <div>
-                      <TextField
-                          key = {idName}
-                          name = {`${index}-0` }
-                          value = { this.state.dimensionStorage[index]}
-                          onChange = {(e) => this.handleVectorInput(e)}
-                          label={`Vector Parameter ${index + 1}` }
-                          error={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))}
-                          helperText={
-                            !Array.isArray(validateNumber(this.state.dimensionStorage[index]))
-                              ? validateNumber(this.state.dimensionStorage[index])
-                              : undefined
-                          }
 
-                      />
-                        <br/>
-                        <br/>
-                      </div>
+                  uniqueIds.map((rowList, indexRow) => {
+                    return (
+                     <Grid container
+                        direction="row"
+                        justify="center"
+
+                     >
+                       {
+                          rowList.map((fieldString, indexColumn) => {
+                            return (
+                              <Grid item>
+                                <TextField
+                                    id = { fieldString }
+                                    name = {`${indexRow}-${indexColumn}` }
+                                    value = { this.state.dimensionStorage[indexRow][indexColumn]}
+                                    onChange = {(e) => this.handleMatrixInput(e)}
+                                    label={`Matrix ${indexRow + 1}, ${indexColumn + 1}` }
+                                    error={!Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))}
+                                    helperText={
+                                      !Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))
+                                        ? validateNumber(this.state.dimensionStorage[indexRow][indexColumn])
+                                        : undefined
+                                    }
+
+                                />
+                              <br/><br/>
+                              </Grid>
+                            )
+                          })
+                       }
+                     </Grid>
                     )
                   })
                 }
@@ -402,9 +419,10 @@ export default class ButtonInput extends React.Component {
     handleMatrixRowLength(e){
       e.preventDefault();
       const value = e.target.value;
+      console.log(value);
       // If the value is nothing then set it back
       if (value === ""){
-        this.setState({vectorSize: "", totalFields: -1})
+        this.setState({matrixRowLength: "", totalFields: -1})
       }
       // if only numbers are in the input then update
       else if(value !== "" && RegExp('^[0-9]*$').test(value)){
@@ -435,7 +453,7 @@ export default class ButtonInput extends React.Component {
       const x_value = parseInt(nameSplit[0]); // this will be the actual index
       const y_value = parseInt(nameSplit[1]); // this will always be set to 0, only here for the sake of reuse
       const dimensionStorage = this.state.dimensionStorage;
-      dimensionStorage[x_value] = value;
+      dimensionStorage[x_value][y_value] = value;
       this.setState(dimensionStorage);
     }
 
@@ -444,9 +462,8 @@ export default class ButtonInput extends React.Component {
     // ==================================== Global Methods ==============================================
     handleFinishAnswer(e){
       e.preventDefault();
-      const { dimensionStorage, totalFields } = this.state;
       // CASE 0: The user did not give any inputs or one of the inputs is missing
-      if(!allFieldsFilled(dimensionStorage, totalFields)){
+      if(!this.allFieldsFilled()){
         this.setState({ message: 'Looks like you forget to fill in a field.',})
       }
       // CASE 1: We can go ahead and show the object compiled
@@ -459,57 +476,120 @@ export default class ButtonInput extends React.Component {
     parseAnswerForLatexServer(){
       // sets dataForServer: '', latexString: '', in state where dataForServer is what we want to send and latexString
       // is what we display
-      const { dimensionStorage } = this.state;
-      let vectorLatex = "\\(\\begin{bmatrix}"; // Now we just we just need to accumulate the vector latex to show students
-      let dataForServer = ""; // this is for the server
-
-      const keyArray = Object.keys(dimensionStorage);
-      for (let i = 0; i < keyArray.length; i++){
-        const value = dimensionStorage[keyArray[i]];
-
-        if (i !== keyArray.length - 1){ // add comma after it
-          vectorLatex += value + "\\\\";
-          dataForServer += value + ",";
-        }
-        else { // it's the last one so don't add anything
-          vectorLatex += value;
-          dataForServer += value;
-        }
+      const { dimensionStorage, type } = this.state;
+      console.log("dimensionstorage", dimensionStorage);
+      // CASE 0: Vector input
+      if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION){
+        const vectorParsed = this.parseVector(dimensionStorage, " \\\\ ");
+        this.state.latexString = this.latexMatrix(vectorParsed.latexString);
+        this.state.dataForServer = [vectorParsed.dataForServer];
       }
-      vectorLatex += "\\end{bmatrix}\\)";
-      this.state.latexString = vectorLatex;
-      this.state.dataForServer = [dataForServer];
+      else if (type === CONST_MATRIX) {
+        let matrixLatex = ""; // Now we just we just need to accumulate the vector latex to show students
+        let dataForServer = ""; // this is for the server
 
+        const keyArray = Object.keys(dimensionStorage);
+        for (let i = 0; i < keyArray.length; i++){
+          const key = keyArray[i];
+          const rowVector = dimensionStorage[key];
+          const parsedVector = this.parseVector(rowVector, " & ");
+          if (i !== keyArray.length-1){
+            matrixLatex += parsedVector.latexString + " \\\\ ";
+            dataForServer += parsedVector.dataForServer + "\n";
+          }
+          else {
+            matrixLatex += parsedVector.latexString;
+            dataForServer += parsedVector.dataForServer;
+          }
+        }
+        this.state.latexString = this.latexMatrix(matrixLatex);
+        this.state.dataForServer = [dataForServer];
+      }
+      else {
+        console.error("Warning! ButtonInput type not implemented in method parseAnswerForLatexServer(), type: " + type)
+      }
+    }
+    parseVector(inputObj, latexSeperator){
+      // inputObj: {0:1, 1:2} representing the vector [1,2]
+      // latexSeperator: either & for matrix or \\\\ for vector
+      // Output: {latexString: "1 \\\\ 2" , dataForServer: "1,2"]
+      // latexString is for latex display what's missing is the "\\(\\begin{bmatrix}" and the end "\\end{bmatrix}\\)"
+      // dataForServer which is for the server what's missing is that the final needs to be wrapped in a list
+      // this method does not include these things so that it can used for vector and for matrix parsing
+        let vectorLatex = ""; // Now we just we just need to accumulate the vector latex to show students
+        let dataForServer = ""; // this is for the server
+
+        const keyArray = Object.keys(inputObj);
+        for (let i = 0; i < keyArray.length; i++){
+          const key = keyArray[i];
+          const value = inputObj[key];
+          if (typeof value !== "string"){ continue; } // if it's not a string then skip it
+
+          if (i !== keyArray.length - 1){ // add comma after it
+            vectorLatex += value + latexSeperator;
+            dataForServer += value + ",";
+          }
+          else { // it's the last one so don't add anything
+            vectorLatex += value;
+            dataForServer += value;
+          }
+        }
+        return {
+          latexString: vectorLatex,
+          dataForServer: dataForServer
+        }
 
     }
-
-
-
-}
-function allFieldsFilled(dimensionStorage, totalFields){
-  // CASE 0: The user did not input any object or it's not the right size
-  const objectSizeInt = objectSize(dimensionStorage);
-  if (objectSizeInt === 0 ||  objectSizeInt !== totalFields){
-    return false;
-  }
-  // Checks if all the fields are filled
-  for (let x in dimensionStorage) {
-    if (!dimensionStorage.hasOwnProperty(x)) continue;// skip loop if the property is from prototype
-    const currentObject = dimensionStorage[x];
-    // CASE 1: It's a vector so we just check the first level
-    if ( typeof currentObject === "string" && currentObject === ""){
-      return false;
+    latexMatrix(stringInput){
+      // Input: "1 //// 2"
+      // output: "\\(\\begin{bmatrix} 1 //// 2 \end{bmatrix}\)"
+      return "\\(\\begin{bmatrix}" + stringInput + "\\end{bmatrix}\\)";
     }
-    // CASE 2: It's a Matrix or Basis so we need to check the values inside of it
-    else {
-      for (let y in currentObject){
-        if (!currentObject.hasOwnProperty(y)) continue;// skip loop if the property is from prototype
-        const secondLevelObject = currentObject[y];
-        if (secondLevelObject === ""){
+
+    allFieldsFilled() {
+      const { dimensionStorage, totalFields, type, matrixColLength, matrixRowLength } = this.state;
+      // CASE 0: It's a vector and the user did not input any object or it's not the right size
+      if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION){
+        const objectSizeInt = objectSize(dimensionStorage);
+        if (objectSizeInt === 0 || objectSizeInt !== totalFields) {
           return false;
         }
       }
+      // CASE 1: It's a Matrix or Basis and the user did not input any object or it's not the right size
+      else {
+        const rowSize = objectSize(dimensionStorage);
+        // CASE 1.1 the number of rows don't match the number expected
+        if (matrixRowLength !== rowSize){ return false }
+        // Now we check for each entity in each row if the number matches
+        for (let x in dimensionStorage) {
+          if (!dimensionStorage.hasOwnProperty(x)) continue;// skip loop if the property is from prototype
+          const numberOfEntriesInRow = objectSize(dimensionStorage[x]);
+          if (numberOfEntriesInRow !== matrixColLength){
+            return false;
+          }
+        }
+      }
+
+      // Checks if all the fields are filled
+      for (let x in dimensionStorage) {
+        if (!dimensionStorage.hasOwnProperty(x)) continue;// skip loop if the property is from prototype
+        const currentObject = dimensionStorage[x];
+        // CASE 1: It's a vector so we just check the first level
+        if (typeof currentObject === "string" && currentObject === "") {
+          return false;
+        }
+        // CASE 2: It's a Matrix or Basis so we need to check the values inside of it
+        else {
+          for (let y in currentObject) {
+            if (!currentObject.hasOwnProperty(y)) continue;// skip loop if the property is from prototype
+            const secondLevelObject = currentObject[y];
+            if (secondLevelObject === "") {
+              return false;
+            }
+          }
+        }
+      }
+      return true;
     }
-  }
-  return true;
+
 }
