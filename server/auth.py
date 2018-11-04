@@ -178,7 +178,8 @@ def enrolled_in_class(class_id):
     """
     try:
         # If the user is enrolled then return True if not return False
-        current_class = Class.query.filter((enrolled.c.CLASS == class_id) & (current_user == enrolled.c.USER)).first()
+        current_class = Class.query.filter((enrolled.c.CLASS == class_id) &
+                                           (current_user.USER == enrolled.c.USER)).first()
         if current_class is not None:
             return True
         return False
