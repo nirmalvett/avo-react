@@ -115,8 +115,19 @@ def get_classes():
                         # If the takes value is not empty append the data if not append a null value
                         current = {'timeStarted': time_stamp(ta.time_started), 'timeSubmitted': time_stamp(ta.time_submitted)}
                         submitted.append({'takes': ta.TAKES, 'timeSubmitted': time_stamp(ta.time_submitted), 'grade': ta.grade})
-                test_list.append({'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': time_stamp(t.deadline), 'timer': t.timer,
-                                  'attempts': t.attempts, 'total': t.total, 'submitted': submitted, 'current': current})
+                if t.deadline < datetime.now():
+                    # If the deadline has passed then set the is_open value to False
+                    t.is_open = False
+                    db.session.commit()
+                    test_list.append(
+                        {'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': time_stamp(t.deadline),
+                         'timer': t.timer,
+                         'attempts': t.attempts, 'total': t.total, 'submitted': submitted, 'current': current})
+                else:
+                    test_list.append(
+                        {'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': time_stamp(t.deadline),
+                         'timer': t.timer,
+                         'attempts': t.attempts, 'total': t.total, 'submitted': submitted, 'current': current})
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
 
@@ -306,6 +317,11 @@ def get_test():
         if test.is_open is False:
             # If test is not open then return error JSON
             return jsonify(error='This set of questions has not been opened by your instructor yet')
+        if test.deadline < datetime.now():
+            # If deadline has passed set test to closed and return error JSON
+            test.is_open = False
+            db.session.commit()
+            return jsonify(error='The deadline has passed for this test')
         takes = Takes.query.filter((Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (Takes.time_submitted > datetime.now())).first()  # Get the most current takes
         if takes is None:
             # If student has not taken the test create a takes instance
@@ -384,18 +400,17 @@ def save_test():
     class_id, name, deadline, timer, attempts, question_list, seed_list = \
         data['classID'], data['name'], data['deadline'], data['timer'], data['attempts'], data['questionList'],\
         data['seedList']  # Data from the client
-    if not isinstance(class_id, int) or not isinstance(name, str) or not isinstance(deadline, int) or not \
-            isinstance(timer, int) or not isinstance(attempts, int) or not isinstance(question_list, str) or not \
-            isinstance(seed_list, str):
+    if not isinstance(class_id, int) or not isinstance(name, str) or not isinstance(deadline, str) or not \
+            isinstance(timer, str) or not isinstance(attempts, str) or not isinstance(question_list, list) or not \
+            isinstance(seed_list, list):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify("One or more data is not correct")
     if not teaches_class(class_id):
         return jsonify(error="User doesn't teach this class")
     if len(question_list) is 0:
         return jsonify(error="Can't Submit A Test WIth Zero Questions")
-    deadline = str(deadline)  # Deadline of the test converting to datetime
     deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
-    deadline = datetime.strptime(str(deadline), '%Y-%m-%d %I:%M')
+    deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
     total = 0  # Total the test is out of
     for q in question_list:
         # For each question calculate the mark and add to the total
@@ -404,7 +419,7 @@ def save_test():
             return jsonify(error="Question Not Found PLease Try Again")
         total += current_question.total
     # Add the test to the database
-    test = Test(class_id, name, False, deadline, timer, attempts, str(question_list), str(seed_list), total)
+    test = Test(class_id, name, False, deadline, int(timer), int(attempts), str(question_list), str(seed_list), total)
     db.session.add(test)
     db.session.commit()
     return jsonify(test=test.TEST)
@@ -467,6 +482,10 @@ def submit_test():
         return jsonify("One or more data is not correct")
     # Get current takes and update submit time and commit to DataBase
     current_takes = Takes.query.get(takes)
+    test = Test.query.get(current_takes.TEST)
+    if test.deadline < datetime.now():
+        # If test deadline has passed close test return error JSON
+        return jsonify(error="Test deadline has passed")
     current_takes.time_submitted = time_stamp(datetime.now() - timedelta(seconds=1))
     db.session.commit()
     return jsonify(message='Submitted successfully!')
@@ -531,13 +550,18 @@ def get_class_test_results():
     current_test = Test.query.get(test)
     if not teaches_class(current_test.CLASS):
         return jsonify(error="User doesn't teach class")
-    users = User.query.filter((User.USER == enrolled.c.USER) & (Class.CLASS == enrolled.c.CLASS)).all()  # All users in class
+    users = User.query.filter((User.USER == enrolled.c.USER) & (current_test.CLASS == enrolled.c.CLASS)).all()  # All users in class
     for i in range(len(users)):
         # For each user get user data and best takes instance and present append to list then return
         first_name, last_name = users[i].first_name, users[i].last_name
         takes = Takes.query.order_by(Takes.grade).filter((Takes.USER == users[i].USER) & (Takes.TEST == test)).first()
-        users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
-                    'tests': [{'takes': takes.TAKES, 'timeSubmitted': takes.time_submitted, 'grade': takes.grade}]}
+        if takes is None:
+            # If the student hasn't taken the test then return default values else return the marks
+            users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
+                        'tests': [{'takes': -1, 'timeSubmitted': -1, 'grade': -1}]}
+        else:
+            users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
+                        'tests': [{'takes': takes.TAKES, 'timeSubmitted': takes.time_submitted, 'grade': takes.grade}]}
     return jsonify(results=users)
 
 
