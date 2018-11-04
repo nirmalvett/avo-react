@@ -554,14 +554,15 @@ def get_class_test_results():
     for i in range(len(users)):
         # For each user get user data and best takes instance and present append to list then return
         first_name, last_name = users[i].first_name, users[i].last_name
-        takes = Takes.query.order_by(Takes.grade).filter((Takes.USER == users[i].USER) & (Takes.TEST == test)).first()
-        if takes is None:
+        takes = Takes.query.order_by(Takes.grade).filter((Takes.USER == users[i].USER) & (Takes.TEST == test)).all()
+        if len(takes) is 0:
             # If the student hasn't taken the test then return default values else return the marks
             users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
                         'tests': [{'takes': -1, 'timeSubmitted': -1, 'grade': -1}]}
         else:
             users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
-                        'tests': [{'takes': takes.TAKES, 'timeSubmitted': takes.time_submitted, 'grade': takes.grade}]}
+                        'tests': [{'takes': takes[0].TAKES, 'timeSubmitted': takes[0].time_submitted,
+                                   'grade': takes[0].grade}]}
     return jsonify(results=users)
 
 
