@@ -554,7 +554,7 @@ def get_class_test_results():
     for i in range(len(users)):
         # For each user get user data and best takes instance and present append to list then return
         first_name, last_name = users[i].first_name, users[i].last_name
-        takes = Takes.query.order_by(Takes.grade).filter((Takes.USER == users[i].USER) & (Takes.TEST == test)).all()
+        takes = Takes.query.filter((Takes.USER == users[i].USER) & (Takes.TEST == test)).order_by(Takes.grade).all()
         if len(takes) is 0:
             # If the student hasn't taken the test then return default values else return the marks
             users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
