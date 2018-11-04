@@ -438,7 +438,7 @@ def save_answer():
         return abort(400)
     data = request.json
     takes, question, answer = data['takes'], data['question'], data['answer']  # Data from user
-    if not isinstance(takes, int) or not isinstance(question, int) or not isinstance(answer, str):
+    if not isinstance(takes, int) or not isinstance(question, int) or not isinstance(answer, list):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify("One or more data is not correct")
     takes_list = Takes.query.get(takes)  # Instance of takes to add answer to
