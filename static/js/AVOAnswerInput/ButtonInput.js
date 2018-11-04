@@ -33,11 +33,16 @@ export default class ButtonInput extends React.Component {
           message: '',
           totalFields: -1, // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill,
           disabled: this.props.disabled, // if true then the starting input should be disabled,
-          disabledAnswer: '', // if there is an answer from the student then we want to show it
+          previousAnswer: this.props.value, // if there is an answer from the student then we want to show it
           dataForServer: '',
           latexString: '',
-
         };
+
+        // We want to consider whether there is already an answer.
+        // If there is then we want to switch to show object
+        if (this.props.value !== ""){
+          this.state.stage = CONST_SHOW_OBJECT;
+        }
     }
     resetAll(){
       // This method resets the state back to the initial one and should be used once and then whenever user clicks clear
@@ -51,7 +56,7 @@ export default class ButtonInput extends React.Component {
           message: '',
           totalFields: -1, // this should be an int where a 3 by 3 matrix is 9 fields that a student must fill,
           disabled: this.props.disabled, // if true then the starting input should be disabled,
-          disabledAnswer: '', // if there is an answer from the student then we want to show it
+          previousAnswer: "", // set this to empty if it's been reset
           dataForServer: '',
           latexString: '',
         });
@@ -79,28 +84,27 @@ export default class ButtonInput extends React.Component {
         )
 
     }
-    renderPostTestAnswer(){
-      console.log("renderPostTest");
-      const { type } = this.state;
+    renderServerToLatex(){
+      // takes the values from server and renders them into latex String
+     const { type } = this.state;
       if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION){
         const vector = this.props.value.split(",");
-
-        return (Array.isArray(vector) ? getMathJax('\\(\\begin{bmatrix}'
-                        + vector.join('\\\\') + '\\end{bmatrix}\\)', 'body2') : this.props.value)
+        return ('\\(\\begin{bmatrix}' + vector.join('\\\\') + '\\end{bmatrix}\\)')
       }
       else if (type === CONST_MATRIX){
         const matrix = this.props.value.split("\n");
         for (let i = 0; i < matrix.length; i++){
           matrix[i] = matrix[i].split(",")
         }
-        return (
-            Array.isArray(matrix) ? getMathJax('\\(\\begin{bmatrix}'
-                        + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)', 'body2') : this.props.value
-        )
+        return ('\\(\\begin{bmatrix}' + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)')
+      }
+      else {
+        return ""
       }
     }
     // ================================== General Four Phases ===========================================
     createObject() {
+
       const {type, disabled } = this.state;
       return (
         <Grid container
@@ -117,7 +121,7 @@ export default class ButtonInput extends React.Component {
             }
             <br/><br/>
             { disabled === true
-                ? this.renderPostTestAnswer()
+                ? getMathJax(this.renderServerToLatex(), 'body2')
                 : null
             }
 
@@ -135,7 +139,28 @@ export default class ButtonInput extends React.Component {
       else if (type === CONST_MATRIX) { return this.matrixInputPhase();  }
     }
     showObject(){
-      const {type} = this.state;
+      const {type, previousAnswer} = this.state;
+      // CASE 0: We have a previous answer so just process it and display it
+      if (previousAnswer !== ""){
+           return (
+             <Grid container
+                    direction="column"
+                    justify="center"
+                    alignItems="center">
+              { getMathJax(this.renderServerToLatex(), 'body2') }
+              <br/> <br/>
+               <Button
+                  variant="extendedFab"
+                  color = "primary"
+                  aria-label="Delete"
+                  onClick = {() => this.resetAll() }
+              >
+                 Clear Answer
+             </Button>
+            </Grid>
+        )
+      }
+      // CASE 1: We are arriving here because the user filled the fields
       if (type === CONST_VECTOR){ return this.vectorShowObject(); }
        else if (type === CONST_MATRIX) { return this.matrixShowObject();  }
     }
@@ -251,7 +276,8 @@ export default class ButtonInput extends React.Component {
                   direction="column"
                   justify="center"
                   alignItems="center">
-            { getMathJax(latexString) }
+             { getMathJax(latexString) }
+
             <br/> <br/>
              <Button
                 variant="extendedFab"
