@@ -558,7 +558,7 @@ def get_class_test_results():
         if len(takes) is 0:
             # If the student hasn't taken the test then return default values else return the marks
             users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
-                        'tests': [{'takes': -1, 'timeSubmitted': -1, 'grade': -1}]}
+                        'tests': []}
         else:
             users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
                         'tests': [{'takes': takes[len(takes) - 1].TAKES,
