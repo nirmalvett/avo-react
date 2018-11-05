@@ -19,7 +19,9 @@ import Typography from '@material-ui/core/Typography/Typography';
 // SELECT DIMENSION: Size of rows: ___________, Size of Columns: ______________ | Input Values |
 // INPUT PHASE: ______  ______ _______ , ________  ________ __________ | Submit |
 // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
-
+const vectorSizeLimit = 5;
+const matrixRowLimit = 5;
+const matrixColLimit = 5;
 export default class ButtonInput extends React.Component {
     constructor(props) {
         super(props);
@@ -308,7 +310,7 @@ export default class ButtonInput extends React.Component {
       if (totalFields <= 0){
         this.setState({message: 'You need to indicate a vector size and it must be larger or equal to 1.'})
       }
-      else if (totalFields > 10){
+      else if (totalFields > vectorSizeLimit){
         this.setState({message: 'Your vector size cannot be larger than 10.'})
       }
       else {
@@ -507,7 +509,7 @@ export default class ButtonInput extends React.Component {
           message: 'Both column and row length must be filled with a number less than or equal to 1.'
         })
       }
-      else if (this.state.matrixColLength > 10 || this.state.matrixRowLength > 10){
+      else if (this.state.matrixColLength > matrixColLimit || this.state.matrixRowLength > matrixRowLimit){
         this.setState({
           message: 'The row and column length must not be larger than 5.'
         })
