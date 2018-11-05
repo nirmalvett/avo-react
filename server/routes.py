@@ -104,6 +104,7 @@ def get_classes():
             # for every class get the tests and takes and append them
             tests = Test.query.filter(Test.CLASS == c.CLASS).all()
             test_list = []  # List of tests in the class
+            time = datetime.now()  # Current time
             for t in tests:
                 # For every test get all the takes and append them
                 takes = Takes.query.order_by(Takes.time_started).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER)).all()
@@ -113,8 +114,12 @@ def get_classes():
                     # For each instance of takes append the data
                     if ta is not None:
                         # If the takes value is not empty append the data if not append a null value
-                        current = {'timeStarted': time_stamp(ta.time_started), 'timeSubmitted': time_stamp(ta.time_submitted)}
-                        submitted.append({'takes': ta.TAKES, 'timeSubmitted': time_stamp(ta.time_submitted), 'grade': ta.grade})
+                        if ta.time_submitted > time:
+                            # If the time submitted in the takes is greater then current time its the current attempt
+                            # Else add it to past attempts
+                            current = {'timeStarted': time_stamp(ta.time_started), 'timeSubmitted': time_stamp(ta.time_submitted)}
+                        else:
+                            submitted.append({'takes': ta.TAKES, 'timeSubmitted': time_stamp(ta.time_submitted), 'grade': ta.grade})
                 if t.deadline < datetime.now():
                     # If the deadline has passed then set the is_open value to False
                     t.is_open = False
