@@ -79,8 +79,13 @@ export default class ButtonInput extends React.Component {
                               ? this.showObject() //If true then show the answer in latex
                               : null
                 }
-              <br/>
-              <Typography color='error'>{this.state.message}</Typography>
+                {
+                  this.state.message !== ""
+                      ? <div><br/><Typography color='error'>{this.state.message}</Typography></div>
+                      : null
+                }
+
+
               </div>
 
         )
@@ -265,6 +270,15 @@ export default class ButtonInput extends React.Component {
             >
               Finish Answer
             </Button>
+            <br/>
+            <Button
+                variant="extendedFab"
+                color = "primary"
+                aria-label="Delete"
+                onClick = {() => this.resetAll() }
+            >
+               Clear Answer
+           </Button>
           </Grid>
       )
     }
@@ -448,6 +462,15 @@ export default class ButtonInput extends React.Component {
             >
               Finish Answer
             </Button>
+            <br/>
+            <Button
+                variant="extendedFab"
+                color = "primary"
+                aria-label="Delete"
+                onClick = {() => this.resetAll() }
+            >
+               Clear Answer
+           </Button>
           </Grid>
       )
     }
