@@ -161,20 +161,34 @@ export default class AnswerInput extends React.Component {
 
         }
         else if (type === CONST_BASIS) {
-            let basis = validateMatrix(v);
-            return (
-                <div>
-                    {getMathJax(this.state.prompt)}
-                    <TextField disabled={disabled} multiline value={v} label='Enter basis'
-                               onChange={e => this.onChange(e.target.value)}
-                               onBlur={() => this.props.onBlur()}
-                               error={!disabled && !Array.isArray(basis)}
-                               helperText={!Array.isArray(basis) ? basis : undefined}/>
-                    <br/><br/>
-                    {Array.isArray(basis) ? getMathJax('\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}'
-                        + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)', 'body2') : undefined}
-                </div>
-            );
+          if (inputMode === BUTTON_INPUT){
+            return(
+                <ButtonInput
+                  type = {CONST_BASIS}  // this is the type
+                  disabled={disabled}  // this is whether the input is disabled
+                  value={v}  // this is the value if a test is resumed
+                  buttonSave={ this.props.buttonSave } // this essentially submits
+                  onChange={this.props.onChange} // this is the onChange method that modifies the data
+                  />
+                )
+            }
+            else {
+              let basis = validateMatrix(v);
+              return (
+                  <div>
+                      {getMathJax(this.state.prompt)}
+                      <TextField disabled={disabled} multiline value={v} label='Enter basis'
+                                 onChange={e => this.onChange(e.target.value)}
+                                 onBlur={() => this.props.onBlur()}
+                                 error={!disabled && !Array.isArray(basis)}
+                                 helperText={!Array.isArray(basis) ? basis : undefined}/>
+                      <br/><br/>
+                      {Array.isArray(basis) ? getMathJax('\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}'
+                          + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)', 'body2') : undefined}
+                  </div>
+              );
+            }
+
         }
         return <Typography variant='body2' color='error'>Invalid answer type</Typography>
     }

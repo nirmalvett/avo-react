@@ -94,6 +94,9 @@ export default class ButtonInput extends React.Component {
     renderServerToLatex(){
       // takes the values from server and renders them into latex String
      const { type } = this.state;
+     if (this.props.values.length === 0){
+       return "";
+     }
       if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION){
         const vector = this.props.value.split(",");
         return ('\\(\\begin{bmatrix}' + vector.join('\\\\') + '\\end{bmatrix}\\)')
@@ -104,6 +107,26 @@ export default class ButtonInput extends React.Component {
           matrix[i] = matrix[i].split(",")
         }
         return ('\\(\\begin{bmatrix}' + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)')
+      }
+      else if (type === CONST_BASIS){
+        const nestedList = this.props.value.split("\n");
+        for (let i = 0; i < nestedList.length; i++){
+          nestedList[i] = nestedList[i].split(",")
+        }
+        if (nestedList === 0 || nestedList[0].length === 0){ return ""; }
+        // We need to transpose this nested list
+        const properBasis = [];
+        const rowSize = nestedList[0].length;
+        const columnSize = nestedList.length;
+        for (let i = 0; i < rowSize; i++){
+          const row = [];
+          for (let j = 0; j < columnSize; j++){
+            row.push(nestedList[j][i]) // We need to grab it from the previous row and treat it as the new col
+          }
+          properBasis.push(row);
+        }
+        return ('\\(\\begin{bmatrix}' + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)') // TODO change this to display a BASIS
+
       }
       else {
         return ""
@@ -124,7 +147,9 @@ export default class ButtonInput extends React.Component {
                   ? this.vectorCreateObject()
                   : type === CONST_MATRIX
                     ? this.matrixCreateObject()
-                    : null
+                    : type === CONST_BASIS
+                      ? this.basisCreateObject()
+                      : null
             }
             <br/><br/>
             { disabled === true
@@ -139,11 +164,13 @@ export default class ButtonInput extends React.Component {
       const {type} = this.state;
       if (type === CONST_VECTOR){ return this.vectorSelectDimension(); }
       else if (type === CONST_MATRIX) { return this.matrixSelectDimension();  }
+      else if (type === CONST_BASIS){ return this.basisCreateObject() };
     }
     inputPhase(){
       const {type} = this.state;
       if (type === CONST_VECTOR){ return this.vectorInputPhase(); }
       else if (type === CONST_MATRIX) { return this.matrixInputPhase();  }
+      else if (type === CONST_BASIS) { return this.basisInputPhase(); }
     }
     showObject(){
       const {type, previousAnswer} = this.state;
@@ -169,7 +196,8 @@ export default class ButtonInput extends React.Component {
       }
       // CASE 1: We are arriving here because the user filled the fields
       if (type === CONST_VECTOR){ return this.vectorShowObject(); }
-       else if (type === CONST_MATRIX) { return this.matrixShowObject();  }
+      else if (type === CONST_MATRIX) { return this.matrixShowObject();  }
+      else if (type === CONST_BASIS ) { return this.basisShowObject() }
     }
 
     // ================================== Vector Input Logic ===========================================
@@ -556,6 +584,221 @@ export default class ButtonInput extends React.Component {
       dimensionStorage[x_value][y_value] = value;
       this.setState(dimensionStorage);
     }
+
+
+      // ================================== Basis Input Logic ===========================================
+    // "1,2,3,4" is the expected format to send to the server
+    basisCreateObject(){
+      //  CREATE OBJECT PHASE: | Create Matrix |
+      return (
+           <Grid container
+                  direction="column"
+                  justify="center"
+                  alignItems="center">
+                <br/>
+                <Button
+                    disabled = { this.state.disabled }
+                    variant="extendedFab"
+                    color = "primary"
+                    onClick = {() => this.setState({stage: CONST_SELECT_DIMENSION})}
+                >
+                  Create Basis
+                </Button>
+            </Grid>
+      )
+    }
+    basisSelectDimension(){
+      // SELECT DIMENSION: Size of Rows: ___________, Size of Columns: ______________ | Input Values |
+       return (
+            <Grid container
+                  direction="column"
+                  justify="center"
+                  alignItems="center">
+              <TextField
+                  label='Enter the number of Vectors'
+                  value = { this.state.matrixColLength }
+                  onChange = {(e) => this.handleMatrixColLength(e)}/>
+              <br/>
+              <TextField
+                  label='Enter Size of Vector'
+                  value = { this.state.matrixRowLength }
+                  onChange = {(e) => this.handleBasisRowLength(e)}/>
+              <br/>
+             <Button
+                  variant="extendedFab"
+                  color = "primary"
+                  onClick = {(e) => this.handleBasisDimensionSubmit(e)}
+             >
+                Confirm Dimension
+              </Button>
+              <br/>
+            </Grid>
+          )
+    }
+    basisInputPhase(){
+      // INPUT PHASE: ______  ______ _______ , ________  ________ __________ | Submit |
+      const uniqueIds = []; // create an array of ids which we can use to map
+      const stateObject = {}; // We need something to hold all the input values in the state
+      for (let i = 0; i < this.state.matrixRowLength; i++){ // for the number of fields we need
+        const rowName = i;
+        const subRowList = [];
+        stateObject[rowName] = {}; // this will be a blank holder for all the objects
+        for (let inputFieldIndex = 0; inputFieldIndex < this.state.matrixColLength; inputFieldIndex++){
+          stateObject[rowName][inputFieldIndex] = "";
+          subRowList.push("matrix-input:" + rowName + "-" + inputFieldIndex);
+        }
+        uniqueIds.push(subRowList);
+      }
+      if (objectSize(this.state.dimensionStorage) === 0){ // We this check otherwise it'll keep wiping the input
+        this.state.dimensionStorage = stateObject;
+      }
+
+
+      return (
+          <Grid container
+                direction="column"
+                alignItems="center">
+
+                { // We're mapping the vector inputs here
+
+                  uniqueIds.map((rowList, indexRow) => {
+                    return (
+                     <Grid container
+                        direction="row"
+                        justify="center"
+
+                     >
+                       {
+                          rowList.map((fieldString, indexColumn) => {
+                            return (
+                              <Grid item>
+                                <TextField
+                                    id = { fieldString }
+                                    name = {`${indexRow}-${indexColumn}` }
+                                    value = { this.state.dimensionStorage[indexRow][indexColumn]}
+                                    onChange = {(e) => this.handleMatrixInput(e)}
+                                    label={`Vector ${indexColumn + 1}, Param:${indexRow + 1}` }
+                                    error={!Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))}
+                                    helperText={
+                                      !Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))
+                                        ? validateNumber(this.state.dimensionStorage[indexRow][indexColumn])
+                                        : undefined
+                                    }
+
+                                />
+                              <br/><br/>
+                              </Grid>
+                            )
+                          })
+                       }
+                     </Grid>
+                    )
+                  })
+                }
+            <br/>
+            <Button
+                variant="extendedFab"
+                color="primary"
+                onClick={(e) => { this.handleFinishAnswer(e); }}
+
+            >
+              Finish Answer
+            </Button>
+            <br/>
+            <Button
+                variant="extendedFab"
+                color = "primary"
+                aria-label="Delete"
+                onClick = {() => this.resetAll() }
+            >
+               Clear Answer
+           </Button>
+          </Grid>
+      )
+    }
+    basisShowObject(){
+      // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
+      // Stores the data in latex and in a form that the server likes
+      const { latexString } = this.state;
+
+       return (
+           <Grid container
+                  direction="column"
+                  justify="center"
+                  alignItems="center">
+            { getMathJax(latexString) }
+            <br/> <br/>
+             <Button
+                variant="extendedFab"
+                color = "primary"
+                aria-label="Delete"
+                onClick = {() => this.resetAll() }
+            >
+               Clear Answer
+           </Button>
+          </Grid>
+      )
+    }
+    handleBasisColLength(e){
+      e.preventDefault();
+      const value = e.target.value;
+      // If the value is nothing then set it back
+      if (value === ""){
+        this.setState({matrixColLength: "", totalFields: -1})
+      }
+      // if only numbers are in the input then update
+      else if(value !== "" && RegExp('^[0-9]*$').test(value)){
+        const integerValue = parseInt(value);
+        this.setState({
+          matrixColLength: integerValue
+        })
+      }
+    }
+    handleBasisRowLength(e){
+      e.preventDefault();
+      const value = e.target.value;
+      // If the value is nothing then set it back
+      if (value === ""){
+        this.setState({matrixRowLength: "", totalFields: -1})
+      }
+      // if only numbers are in the input then update
+      else if(value !== "" && RegExp('^[0-9]*$').test(value)){
+        const integerValue = parseInt(value);
+        this.setState({matrixRowLength: integerValue})
+      }
+    }
+    handleBasisDimensionSubmit(e){
+      e.preventDefault();
+      if (this.state.matrixColLength === "" || this.state.matrixRowLength === ""){
+        this.setState({
+          message: 'Both number of vectors and size of each vector must be filled with a number less than or equal to 1.'
+        })
+      }
+      else if (this.state.matrixColLength > matrixColLimit || this.state.matrixRowLength > matrixRowLimit){
+        this.setState({
+          message: 'The number of vectors and size of each vector must not be more than 5.'
+        })
+      }
+      else {
+        this.setState({
+          message: '',
+          stage: CONST_INPUT_PHASE,
+          totalFields: this.state.matrixRowLength * this.state.matrixColLength
+        })
+      }
+    }
+    handleBasisInput(e){
+      e.preventDefault();
+      const value = e.target.value.replace(",", "").replace("\n", ""); // We don't want users to input comma or newline
+      const name = e.target.name; // if the coordinates are 1, 2 then the string name will be 1-2
+      const nameSplit = name.split("-");
+      const x_value = parseInt(nameSplit[0]); // this will be the actual index
+      const y_value = parseInt(nameSplit[1]); // this will always be set to 0, only here for the sake of reuse
+      const dimensionStorage = this.state.dimensionStorage;
+      dimensionStorage[x_value][y_value] = value;
+      this.setState(dimensionStorage);
+    }
+
 
 
 
