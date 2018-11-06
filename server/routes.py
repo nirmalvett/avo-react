@@ -15,9 +15,9 @@ from server.models import *
 routes = Blueprint('routes', __name__)
 
 
+@routes.route('/changeColor', methods=['POST'])
 @login_required
 @check_confirmed
-@routes.route('/changeColor', methods=['POST'])
 def change_color():
     """
     Changes the current user's color theme
@@ -38,9 +38,9 @@ def change_color():
     return jsonify(message='updated')
 
 
+@routes.route('/changeTheme', methods=['POST'])
 @login_required
 @check_confirmed
-@routes.route('/changeTheme', methods=['POST'])
 def change_theme():
     """
     Changes the current user's theme
@@ -60,10 +60,10 @@ def change_theme():
     return jsonify(message='updated')
 
 
+@routes.route('/createClass', methods=['POST'])
 @login_required
 @check_confirmed
 @teacher_only
-@routes.route('/createClass', methods=['POST'])
 def create_class():
     """
     Creates a class with the current user as the teacher
@@ -83,9 +83,9 @@ def create_class():
     return jsonify(message='Created!')
 
 
+@routes.route('/getClasses')
 @login_required
 @check_confirmed
-@routes.route('/getClasses')
 def get_classes():
     """
     Get the current users classes available to them
@@ -137,10 +137,10 @@ def get_classes():
     return jsonify(classes=class_list)
 
 
+@routes.route('/getSets')
 @login_required
 @check_confirmed
 @teacher_only
-@routes.route('/getSets')
 def get_sets():
     """
     Get the list of Sets available to the user
@@ -159,9 +159,9 @@ def get_sets():
     return jsonify(sets=set_list)
 
 
+@routes.route('/enroll', methods=['POST'])
 @login_required
 @check_confirmed
-@routes.route('/enroll', methods=['POST'])
 def enroll():
     """
     Enroll the current user in a class
@@ -188,10 +188,10 @@ def enroll():
     return jsonify(message='Enrolled!')
 
 
+@routes.route('/openTest', methods=['POST'])
 @login_required
 @check_confirmed
 @teacher_only
-@routes.route('/openTest', methods=['POST'])
 def open_test():
     """
     Open a test to be taken
@@ -217,10 +217,10 @@ def open_test():
         return jsonify(error="User doesn't teach this class")
 
 
+@routes.route('/closeTest', methods=['POST'])
 @login_required
 @check_confirmed
 @teacher_only
-@routes.route('/closeTest', methods=['POST'])
 def close_test():
     """
     Close selected test
@@ -246,10 +246,10 @@ def close_test():
         return jsonify(error="User doesn't teach this class")
 
 
+@routes.route('/deleteTest', methods=['POST'])
 @login_required
 @check_confirmed
 @teacher_only
-@routes.route('/deleteTest', methods=['POST'])
 def delete_test():
     """
     Delete Test
@@ -274,9 +274,9 @@ def delete_test():
         return jsonify(error="User doesn't teach this class")
 
 
+@routes.route('/getQuestion', methods=['POST'])
 @login_required
 @check_confirmed
-@routes.route('/getQuestion', methods=['POST'])
 def get_question():
     """
     Get question data for client
@@ -298,9 +298,9 @@ def get_question():
     return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
 
 
+@routes.route('/getTest', methods=['POST'])
 @login_required
 @check_confirmed
-@routes.route('/getTest', methods=['POST'])
 def get_test():
     """
     Get test data for client
@@ -389,10 +389,10 @@ def create_takes(test, user):
     return None if takes is None else takes
 
 
+@routes.route('/saveTest', methods=['POST'])
 @login_required
 @check_confirmed
 @teacher_only
-@routes.route('/saveTest', methods=['POST'])
 def save_test():
     """
     Save a test created by teacher
@@ -430,9 +430,9 @@ def save_test():
     return jsonify(test=test.TEST)
 
 
+@routes.route('/saveAnswer', methods=['POST'])
 @login_required
 @check_confirmed
-@routes.route('/saveAnswer', methods=['POST'])
 def save_answer():
     """
     Save a users answer to a question
@@ -469,9 +469,9 @@ def save_answer():
     return jsonify(message='Changed successfully!')
 
 
+@routes.route('/submitTest', methods=['POST'])
 @login_required
 @check_confirmed
-@routes.route('/submitTest', methods=['POST'])
 def submit_test():
     """
     Submit a takes to the DataBase
@@ -496,10 +496,10 @@ def submit_test():
     return jsonify(message='Submitted successfully!')
 
 
+@routes.route('/postTest', methods=['POST'])
 @login_required
 @check_confirmed
 @check_confirmed
-@routes.route('/postTest', methods=['POST'])
 def post_test():
     """
     Generate the post test screen
@@ -535,10 +535,10 @@ def post_test():
         return jsonify(error="User isn't in class")
 
 
+@routes.route('/getClassTestResults', methods=['POST'])
 @login_required
 @check_confirmed
 @teacher_only
-@routes.route('/getClassTestResults', methods=['POST'])
 def get_class_test_results():
     """
     Get test results for a test for teacher
@@ -572,10 +572,10 @@ def get_class_test_results():
     return jsonify(results=users)
 
 
+@routes.route('/CSV/ClassMarks/<classid>')
 @login_required
 @check_confirmed
 @teacher_only
-@routes.route('/CSV/ClassMarks/<classid>')
 def csv_class_marks(classid):
     """
     Generate a CSV file of the class marks

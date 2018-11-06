@@ -129,8 +129,8 @@ def login():
         return jsonify(message='Successfully logged in')
 
 
-@login_required
 @UserRoutes.route('/logout')
+@login_required
 def logout():
     """
     Logout the current user
