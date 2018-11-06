@@ -93,7 +93,7 @@ export default class ButtonInput extends React.Component {
     renderServerToLatex(){
       // takes the values from server and renders them into latex String
      const { type } = this.state;
-     if (this.props.values.length === 0){
+     if (this.props.values === undefined || this.props.values.length === 0){
        return "";
      }
       if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION){
@@ -716,10 +716,11 @@ export default class ButtonInput extends React.Component {
       )
     }
     basisShowObject(){
+
       // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
       // Stores the data in latex and in a form that the server likes
       const { latexString } = this.state;
-
+      console.log(latexString);
        return (
            <Grid container
                   direction="column"
@@ -811,7 +812,11 @@ export default class ButtonInput extends React.Component {
       // CASE 1: We can go ahead and show the object compiled
       else{
         this.parseAnswerForLatexServer();
-        this.props.buttonSave(this.state.dataForServer);
+        const { dataForServer } = this.state;
+        if (dataForServer !== ""){ // We only want to send it to the server if it's not an empty String
+          this.props.buttonSave(this.state.dataForServer);
+        }
+
         this.setState({stage: CONST_SHOW_OBJECT, message: ''})
       }
     }
@@ -847,7 +852,7 @@ export default class ButtonInput extends React.Component {
         this.state.dataForServer = [dataForServer];
       }
       else {
-        console.error("Warning! ButtonInput type not implemented in method parseAnswerForLatexServer(), type: " + type)
+        alert("Warning! ButtonInput type not implemented in method parseAnswerForLatexServer(), type: " + type)
       }
     }
     parseVector(inputObj, latexSeperator){
