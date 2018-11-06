@@ -229,7 +229,7 @@ export default class ManageClasses extends React.Component {
                                 open={Boolean(anchorEl)}
                                 onClose={() => this.handleVertClose()}
                         >
-                            <MenuItem disabled={true} value={10}>View all submissions</MenuItem>
+                            <MenuItem disabled={true} value={10}>View All Submissions</MenuItem>
                             <MenuItem 
                                 value={20} 
                                 onClick={() => { 
@@ -240,7 +240,7 @@ export default class ManageClasses extends React.Component {
                                     ); 
                                 }}
                             >
-                                View Marks
+                                View Most Recent Submission
                             </MenuItem>
                         </Menu>
                         <Popper

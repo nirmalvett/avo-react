@@ -208,7 +208,7 @@ export default class MyClasses extends React.Component {
                                 <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
                                     secondary={'Submitted on ' + getDateString(x.timeSubmitted)} />
                                 <ListItemSecondaryAction>
-                                    <Tooltip title="Start the test">
+                                    <Tooltip title="View Test Result">
                                         <IconButton onClick={() => { this.props.postTest(x.takes) }}>
                                             <DescriptionOutlinedIcon />
                                         </IconButton>
