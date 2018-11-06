@@ -567,7 +567,7 @@ def get_class_test_results():
         else:
             users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
                         'tests': [{'takes': takes[len(takes) - 1].TAKES,
-                                   'timeSubmitted': takes[len(takes) - 1].time_submitted,
+                                   'timeSubmitted': time_stamp(takes[len(takes) - 1].time_submitted),
                                    'grade': takes[len(takes) - 1].grade}]}
     return jsonify(results=users)
 
