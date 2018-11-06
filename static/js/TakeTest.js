@@ -38,7 +38,7 @@ export default class TakeTest extends React.Component {
                                 alert('Something went wrong')
                             })
                         }}>
-                            <Typography variant='button'>Submit Test</Typography>
+                            <Typography variant='button' style={{ color : 'white' }}>Submit Test</Typography>
                         </Button>
                     </div>
                 </Grid>

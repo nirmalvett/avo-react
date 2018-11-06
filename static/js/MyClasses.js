@@ -29,6 +29,7 @@ import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedI
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import { removeDuplicateClasses } from "./helpers";
 import { uniqueKey } from "./helpers";
+import Tooltip from '@material-ui/core/Tooltip';
 import AVOModal from './AVOMatComps/AVOMatModal';
 
 export default class MyClasses extends React.Component {
@@ -206,9 +207,13 @@ export default class MyClasses extends React.Component {
                             <ListItem key={uniqueKey()}>
                                 <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
                                     secondary={'Submitted on ' + getDateString(x.timeSubmitted)} />
-                                <ListItemSecondaryAction><IconButton onClick={() => { this.props.postTest(x.takes) }}>
-                                    <DescriptionOutlinedIcon />
-                                </IconButton></ListItemSecondaryAction>
+                                <ListItemSecondaryAction>
+                                    <Tooltip title="Start the test">
+                                        <IconButton onClick={() => { this.props.postTest(x.takes) }}>
+                                            <DescriptionOutlinedIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                </ListItemSecondaryAction>
                             </ListItem>
                         ))
                     ]}
