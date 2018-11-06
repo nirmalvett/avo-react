@@ -27,6 +27,7 @@ class AvoQuestion:
 
         try:
             self.prompts = tuple(map(lambda prompt: prompt.format(*self.str_list), self.prompts))
+            self.notes = list(map(lambda prompt: prompt.format(*self.str_list), self.notes))
         except IndexError:
             raise SyntaxError("Error: undefined string variable reference")
         self.prompt, self.prompts = self.prompts[0], self.prompts[1:]
@@ -158,19 +159,22 @@ class AvoQuestion:
         return self.score
 
     def increment_score(self, condition, amount):
-        if condition.explanation[0][1] == -1:
-            step = condition.explanation[0][0] + r'\(\\\)'
+        if str(self.notes[0]).startswith('/'):
+            self.explanation.append(self.notes[0][1:])
         else:
-            step = rf'For {amount} point{"s" if float(amount) > 1 else ""}, the following expression must be true:' \
-                   rf'\[{condition.explanation[0][0]}\]'
-            if len(condition.explanation) > 2:
-                step += 'This can be simplified as follows:'
-                for s in condition.explanation[1:-1]:
-                    step += r'\[' + s[0] + r'\]'
-        if self.notes[0] != '':
-            step += r'$\\$Notes:$\\$' + self.notes[0]
+            if condition.explanation[0][1] == -1:
+                step = condition.explanation[0][0] + r'\(\\\)'
+            else:
+                step = rf'For \({amount}\) point{"s" if float(amount) > 1 else ""}, the following expression must be ' \
+                       rf'true:\[{condition.explanation[0][0]}\]'
+                if len(condition.explanation) > 2:
+                    step += 'This can be simplified as follows:'
+                    for s in condition.explanation[1:-1]:
+                        step += r'\[' + s[0] + r'\]'
+            if self.notes[0] != '':
+                step += r'\(\\\)Notes:\(\\\)' + self.notes[0]
+            self.explanation.append(step)
         self.notes.pop(0)
-        self.explanation.append(step)
         if condition:
             self.score += float(amount)
             self.scores.append(float(amount))
