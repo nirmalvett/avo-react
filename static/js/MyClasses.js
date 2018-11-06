@@ -185,7 +185,7 @@ export default class MyClasses extends React.Component {
                         root: 'avo-card__header-button',
                         disabled: 'disabled'
                     }}
-                    onClick={() => this.state.startTest(selectedTest.id)}
+                    onClick={() => this.state.startTest(selectedTest)}
                     disabled={!selectedTest.open && (selectedTest.attempts == -1 || selectedTest.submitted.length < selectedTest.attempts)}
                 >
                     {selectedTest.current !== null ? 'Resume Test' : 'Start Test'}
@@ -208,7 +208,7 @@ export default class MyClasses extends React.Component {
                                 <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
                                     secondary={'Submitted on ' + getDateString(x.timeSubmitted)} />
                                 <ListItemSecondaryAction>
-                                    <Tooltip title="Start the test">
+                                    <Tooltip title="View previous test results">
                                         <IconButton onClick={() => { this.props.postTest(x.takes) }}>
                                             <DescriptionOutlinedIcon />
                                         </IconButton>

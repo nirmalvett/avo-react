@@ -31,7 +31,7 @@ export default class TakeTest extends React.Component {
                 <Grid xs={10} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
                     {this.state.questions.map((x, y) => this.getQuestionCard(x, this.state.answers[y], y))}
                     <div style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px'}}>
-                        <Button color='primary' variant='raised' style={{width: '100%'}} onClick={() => {
+                        <Button color='primary' variant='raised' style={{width: '100%'}} id="avo-test__submit-button" onClick={() => {
                             Http.submitTest(this.state.takes, () => {
                                 this.props.submitTest(this.state.takes);
                             }, () => {

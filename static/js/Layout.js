@@ -30,6 +30,7 @@ import ClassOutlinedIcon from '@material-ui/icons/ClassOutlined';
 import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
 import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import { isNotChromeAlert } from "./helpers";
+import TimerComp from "./TimerComp";
 
 const drawerWidth = 240;
 
@@ -162,6 +163,7 @@ class Layout extends React.Component {
                                 <Menu/>
                             </IconButton>
                             <Typography variant='title' style={{ color : 'white' }} noWrap>{this.state.name}</Typography>
+                            {this.state.section == 'Take Test' && <TimerComp time={1} uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />}
                         </Toolbar>
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
@@ -208,7 +210,7 @@ class Layout extends React.Component {
         if (section === 'Build Question')
             return null;
         if (section === 'Take Test')
-            return (<TakeTest testID={this.state.test}
+            return (<TakeTest testID={this.state.test.id}
                               submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);
         if (section === 'Preferences')
             return (<Preferences colorList={this.colorList}
