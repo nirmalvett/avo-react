@@ -163,7 +163,7 @@ class Layout extends React.Component {
                                 <Menu/>
                             </IconButton>
                             <Typography variant='title' style={{ color : 'white' }} noWrap>{this.state.name}</Typography>
-                            {this.state.section == 'Take Test' && <TimerComp time={1} uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />}
+                            {this.state.section == 'Take Test' && <TimerComp time={this.state.test.timer} uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />}
                         </Toolbar>
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
