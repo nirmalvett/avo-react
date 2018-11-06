@@ -79,10 +79,9 @@ export default class ButtonInput extends React.Component {
                               ? this.showObject() //If true then show the answer in latex
                               : null
                 }
+              <br/>
                 {
-                  this.state.message !== ""
-                      ? <div><br/><Typography color='error'>{this.state.message}</Typography></div>
-                      : null
+                  <Typography color='error'>{this.state.message}</Typography>
                 }
 
 
@@ -134,7 +133,6 @@ export default class ButtonInput extends React.Component {
     }
     // ================================== General Four Phases ===========================================
     createObject() {
-
       const {type, disabled } = this.state;
       return (
         <Grid container
@@ -152,7 +150,8 @@ export default class ButtonInput extends React.Component {
                       : null
             }
             <br/><br/>
-            { disabled === true
+            { // This condition occurs iff it's a view where a teacher is creating a test or it's a post test
+              disabled === true
                 ? getMathJax(this.renderServerToLatex(), 'body2')
                 : null
             }
@@ -164,7 +163,7 @@ export default class ButtonInput extends React.Component {
       const {type} = this.state;
       if (type === CONST_VECTOR){ return this.vectorSelectDimension(); }
       else if (type === CONST_MATRIX) { return this.matrixSelectDimension();  }
-      else if (type === CONST_BASIS){ return this.basisCreateObject() };
+      else if (type === CONST_BASIS){ return this.basisSelectDimension(); }
     }
     inputPhase(){
       const {type} = this.state;
@@ -615,12 +614,12 @@ export default class ButtonInput extends React.Component {
                   justify="center"
                   alignItems="center">
               <TextField
-                  label='Enter the number of Vectors'
+                  label='Vector Amount'
                   value = { this.state.matrixColLength }
                   onChange = {(e) => this.handleMatrixColLength(e)}/>
               <br/>
               <TextField
-                  label='Enter Size of Vector'
+                  label='Size of Each Vector'
                   value = { this.state.matrixRowLength }
                   onChange = {(e) => this.handleBasisRowLength(e)}/>
               <br/>
@@ -677,7 +676,7 @@ export default class ButtonInput extends React.Component {
                                     name = {`${indexRow}-${indexColumn}` }
                                     value = { this.state.dimensionStorage[indexRow][indexColumn]}
                                     onChange = {(e) => this.handleMatrixInput(e)}
-                                    label={`Vector ${indexColumn + 1}, Param:${indexRow + 1}` }
+                                    label={`Vector ${indexColumn + 1}, Parameter ${indexRow + 1}` }
                                     error={!Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))}
                                     helperText={
                                       !Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))
