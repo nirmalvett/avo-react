@@ -1020,7 +1020,7 @@ class AvoVariable:
         types = get_types(self, other)
         if types != (TF_ANS, BOOLEAN):
             return error(undefined)
-        explanation = [self.val[1]] if len(self.val[1][0]) > 0 else []
+        explanation = [self.val[1]] if len(self.val[1]) > 0 else []
         explanation.append('Correct answer: ' + ('True' if other.val else 'False'))
         explanation = [(r'\(\\\)'.join(explanation), -1)]
         return boolean(self.val[0] == other.val, explanation)
