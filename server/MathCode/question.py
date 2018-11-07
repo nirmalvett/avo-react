@@ -146,7 +146,7 @@ class AvoQuestion:
                     ans = matrix(map(lambda r: map(lambda c: build_number(c), r), array))
                 elif answer_type == '9':  # Basis
                     # Todo: Fix this on the front end so the list doesn't need to be filtered
-                    array = map(lambda x: x.split(','), answer.split('\n'))
+                    array = list(map(lambda x: x.split(','), answer.split('\n')))
                     rows = len(array[0])
                     answer = filter(lambda vector: any(map(lambda c: c != '', vector)), array)
                     ans = basis(map(lambda vector: matrix(map(lambda r: [build_number(r)], vector)), array), rows)
