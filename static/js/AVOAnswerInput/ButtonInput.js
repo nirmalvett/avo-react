@@ -974,11 +974,14 @@ function transposeStringMatrix(inputString){
           // So we would for example be grabbing all the values for the first row
           const currentVector = rowsArray[vectorNumber_i].split(",");
           const currentParameter = currentVector[vectorPart_i];
-          transposedForServer += currentParameter + ",";
+          transposedForServer += currentParameter;
+          if (vectorNumber_i !== vectorNumber-1){
+            transposedForServer += ",";
+          }
         }
-        if (vectorNumber_i != vectorNumber - 1){ // add delimiter for new line
+        if (vectorPart_i != vectorLength - 1){ // add delimiter for new line
           transposedForServer += "\n"
         }
       }
-      return transposedForServer.replace(",\n", "\n").substr(0, transposedForServer.length-2);
+      return transposedForServer;
  }
