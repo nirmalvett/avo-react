@@ -869,8 +869,9 @@ export default class ButtonInput extends React.Component {
             dataForServer += parsedVector.dataForServer;
           }
         }
+        console.log(transposeStringMatrix(dataForServer));
         this.state.latexString = this.latexMatrix(matrixLatex);
-        this.state.dataForServer = dataForServer; // TODO if it's multiple part answer then it shouldn't be in an array
+        this.state.dataForServer = transposeStringMatrix(dataForServer);
       }
       else {
         alert("Warning! ButtonInput type not implemented in method parseAnswerForLatexServer(), type: " + type)
@@ -959,3 +960,25 @@ export default class ButtonInput extends React.Component {
     }
 
 }
+
+function transposeStringMatrix(inputString){
+  // Takes something like "1,2/n3,4" and makes it into "1,3/n2,4
+      let transposedForServer = "";
+      const rowsArray = inputString.split("\n"); // ["1,4", "2,5", "3,6"]
+      const vectorNumber = rowsArray.length; // the number of vectors is the number of columns
+      const vectorLength = rowsArray[0].split(",").length;
+      for (let vectorPart_i = 0; vectorPart_i < vectorLength; vectorPart_i++){
+        for (let vectorNumber_i = 0; vectorNumber_i < vectorNumber; vectorNumber_i++){ // For each vector
+        // we go through each to get the value
+          // console.log("x: " + x + ", j: " + j + ", rowsArray[j].split(\",\")[x]： " + rowsArray[j].split(",")[x] );
+          // So we would for example be grabbing all the values for the first row
+          const currentVector = rowsArray[vectorNumber_i].split(",");
+          const currentParameter = currentVector[vectorPart_i];
+          transposedForServer += currentParameter + ",";
+        }
+        if (vectorNumber_i != vectorNumber - 1){ // add delimiter for new line
+          transposedForServer += "\n"
+        }
+      }
+      return transposedForServer.replace(",\n", "\n").substr(0, transposedForServer.length-2);
+ }
