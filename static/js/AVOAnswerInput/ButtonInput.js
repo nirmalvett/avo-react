@@ -828,7 +828,7 @@ export default class ButtonInput extends React.Component {
       if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION){
         const vectorParsed = this.parseVector(dimensionStorage, " \\\\ ");
         this.state.latexString = this.latexMatrix(vectorParsed.latexString);
-        this.state.dataForServer = [vectorParsed.dataForServer];
+        this.state.dataForServer = vectorParsed.dataForServer;
       }
       else if (type === CONST_MATRIX) {
         let matrixLatex = ""; // Now we just we just need to accumulate the vector latex to show students
@@ -849,7 +849,28 @@ export default class ButtonInput extends React.Component {
           }
         }
         this.state.latexString = this.latexMatrix(matrixLatex);
-        this.state.dataForServer = [dataForServer];
+        this.state.dataForServer = dataForServer;
+      }
+      else if (type === CONST_BASIS){
+        let matrixLatex = ""; // Now we just we just need to accumulate the vector latex to show students
+        let dataForServer = ""; // this is for the server
+
+        const keyArray = Object.keys(dimensionStorage);
+        for (let i = 0; i < keyArray.length; i++){
+          const key = keyArray[i];
+          const rowVector = dimensionStorage[key];
+          const parsedVector = this.parseVector(rowVector, " & ");
+          if (i !== keyArray.length-1){
+            matrixLatex += parsedVector.latexString + " \\\\ ";
+            dataForServer += parsedVector.dataForServer + "\n";
+          }
+          else {
+            matrixLatex += parsedVector.latexString;
+            dataForServer += parsedVector.dataForServer;
+          }
+        }
+        this.state.latexString = this.latexMatrix(matrixLatex);
+        this.state.dataForServer = dataForServer; // TODO if it's multiple part answer then it shouldn't be in an array
       }
       else {
         alert("Warning! ButtonInput type not implemented in method parseAnswerForLatexServer(), type: " + type)

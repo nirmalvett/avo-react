@@ -36,7 +36,6 @@ export default class TakeTest extends React.Component {
     }
 
     render() {
-        console.log("TakeTest State", this.state);
         return (
             <Grid container spacing={8}>
                 <Grid xs={1}/>
@@ -61,11 +60,14 @@ export default class TakeTest extends React.Component {
 
     getQuestionCard(question, answer, index) {
         let disabled = JSON.stringify(this.state.newAnswers[index]) === JSON.stringify(this.state.answers[index]);
-        let save = (inputValue) => {
-            let newValue = inputValue === undefined ? this.state.newAnswers[index] : inputValue;
-            Http.saveAnswer(this.state.takes, index, newValue, result => {
+        let save = (inputAnswerList) => {
+            // If the input is not defined then it's manual input otherwise it's button input
+            let  newAnswerList = inputAnswerList === undefined
+                ? this.state.newAnswers[index]
+                : inputAnswerList;
+            Http.saveAnswer(this.state.takes, index, newAnswerList[index], result => {
                 let newAnswers = copy(this.state.answers);
-                newAnswers[index] = copy(this.state.newAnswers[index]);
+                newAnswers[index] = copy(newAnswerList[index]);
                 this.setState({answers: newAnswers});
             }, result => {
                 alert(result.error);
@@ -84,13 +86,15 @@ export default class TakeTest extends React.Component {
                                  onChange={value => {
                                      let newAnswerList = copy(this.state.newAnswers);
                                      newAnswerList[index][y] = value;
+                                     console.log("newAnswerList", newAnswerList);
                                      this.setState({newAnswers: newAnswerList});
                                  }}
                                  buttonSave={value => {
                                      let newAnswerList = copy(this.state.newAnswers);
                                      newAnswerList[index][y] = value;
                                      this.setState({newAnswers: newAnswerList});
-                                     save(value); // After each change save it
+                                     console.log("newAnswerList", newAnswerList);
+                                     save(newAnswerList); // After each change save it
                                  }}/>
                 ])}
             </Card>
