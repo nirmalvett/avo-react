@@ -318,6 +318,7 @@ def save_answer():
     if not request.json:
         return abort(400)
     data = request.json
+    print(data)
     takes, question, answer = data['takes'], data['question'], data['answer']
     time = time_stamp(datetime.now())
     database = connect('avo.db')
