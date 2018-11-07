@@ -93,7 +93,6 @@ export default class ButtonInput extends React.Component {
     renderServerToLatex(){
       // takes the values from server and renders them into latex String
      const { type, previousAnswer } = this.state;
-     console.log("renderServerToLatex() previousAnswer: ", previousAnswer);
      if (previousAnswer === undefined || previousAnswer.length === 0){
        return "";
      }
