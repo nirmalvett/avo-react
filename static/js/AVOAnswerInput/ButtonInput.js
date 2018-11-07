@@ -108,24 +108,10 @@ export default class ButtonInput extends React.Component {
         return ('\\(\\begin{bmatrix}' + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)')
       }
       else if (type === CONST_BASIS){
-        const nestedList = this.props.value.split("\n");
-        for (let i = 0; i < nestedList.length; i++){
-          nestedList[i] = nestedList[i].split(",")
-        }
-        if (nestedList === 0 || nestedList[0].length === 0){ return ""; }
-        // We need to transpose this nested list
-        const properBasis = [];
-        const rowSize = nestedList[0].length;
-        const columnSize = nestedList.length;
-        for (let i = 0; i < rowSize; i++){
-          const row = [];
-          for (let j = 0; j < columnSize; j++){
-            row.push(nestedList[j][i]) // We need to grab it from the previous row and treat it as the new col
-          }
-          properBasis.push(row);
-        }
-        return ('\\(\\begin{bmatrix}' + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)') // TODO change this to display a BASIS
-
+        const { value } = this.props;
+        console.log("value", value);
+        console.log("serverToBasisLatex(value)", serverToBasisLatex(value));
+        return serverToBasisLatex(value);
       }
       else {
         return ""
@@ -312,7 +298,7 @@ export default class ButtonInput extends React.Component {
     vectorShowObject(){
       // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
       // Stores the data in latex and in a form that the server likes
-      const { latexString } = this.state;
+      const { latexString, disabled } = this.state;
 
        return (
            <Grid container
@@ -326,6 +312,7 @@ export default class ButtonInput extends React.Component {
                 variant="extendedFab"
                 color = "primary"
                 aria-label="Delete"
+                disabled = {disabled}
                 onClick = {() => this.resetAll() }
             >
                Clear Answer
@@ -504,7 +491,7 @@ export default class ButtonInput extends React.Component {
     matrixShowObject(){
       // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
       // Stores the data in latex and in a form that the server likes
-      const { latexString } = this.state;
+      const { latexString, disabled } = this.state;
 
        return (
            <Grid container
@@ -517,6 +504,7 @@ export default class ButtonInput extends React.Component {
                 variant="extendedFab"
                 color = "primary"
                 aria-label="Delete"
+                disabled = {disabled}
                 onClick = {() => this.resetAll() }
             >
                Clear Answer
@@ -719,8 +707,7 @@ export default class ButtonInput extends React.Component {
 
       // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
       // Stores the data in latex and in a form that the server likes
-      const { latexString } = this.state;
-      console.log(latexString);
+      const { latexString, disabled } = this.state;
        return (
            <Grid container
                   direction="column"
@@ -732,6 +719,7 @@ export default class ButtonInput extends React.Component {
                 variant="extendedFab"
                 color = "primary"
                 aria-label="Delete"
+                disabled = {disabled}
                 onClick = {() => this.resetAll() }
             >
                Clear Answer
@@ -869,9 +857,11 @@ export default class ButtonInput extends React.Component {
             dataForServer += parsedVector.dataForServer;
           }
         }
-        console.log(transposeStringMatrix(dataForServer));
-        this.state.latexString = this.latexMatrix(matrixLatex);
-        this.state.dataForServer = transposeStringMatrix(dataForServer);
+        const transposedString = transposeStringMatrix(dataForServer);
+
+
+        this.state.latexString = serverToBasisLatex(transposedString);
+        this.state.dataForServer = transposedString;
       }
       else {
         alert("Warning! ButtonInput type not implemented in method parseAnswerForLatexServer(), type: " + type)
@@ -984,4 +974,10 @@ function transposeStringMatrix(inputString){
         }
       }
       return transposedForServer;
+ }
+function serverToBasisLatex(input){
+  let basis = validateMatrix(input);
+  // Takes server form of a basis and transforms it into latex form
+  return '\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}'
+                          + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)'
  }
