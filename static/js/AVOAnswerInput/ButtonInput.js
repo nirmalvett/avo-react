@@ -92,26 +92,25 @@ export default class ButtonInput extends React.Component {
     }
     renderServerToLatex(){
       // takes the values from server and renders them into latex String
-     const { type } = this.state;
-     if (this.props.values === undefined || this.props.values.length === 0){
+     const { type, previousAnswer } = this.state;
+     console.log("renderServerToLatex() previousAnswer: ", previousAnswer);
+     if (previousAnswer === undefined || previousAnswer.length === 0){
        return "";
      }
       if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION){
-        const vector = this.props.value.split(",");
-        return ('\\(\\begin{bmatrix}' + vector.join('\\\\') + '\\end{bmatrix}\\)')
+        const vector = validateVector(previousAnswer);
+        return Array.isArray(vector)
+            ? '\\(\\begin{bmatrix}' + vector.join('\\\\') + '\\end{bmatrix}\\)'
+            : null
       }
       else if (type === CONST_MATRIX){
-        const matrix = this.props.value.split("\n");
-        for (let i = 0; i < matrix.length; i++){
-          matrix[i] = matrix[i].split(",")
-        }
-        return ('\\(\\begin{bmatrix}' + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)')
+        const matrix = validateMatrix(previousAnswer);
+        return Array.isArray(matrix)
+            ? '\\(\\begin{bmatrix}' + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)'
+            : null
       }
       else if (type === CONST_BASIS){
-        const { value } = this.props;
-        console.log("value", value);
-        console.log("serverToBasisLatex(value)", serverToBasisLatex(value));
-        return serverToBasisLatex(value);
+        return serverToBasisLatex(previousAnswer);
       }
       else {
         return ""
@@ -159,6 +158,7 @@ export default class ButtonInput extends React.Component {
     }
     showObject(){
       const {type, previousAnswer} = this.state;
+      console.log("showObject previousAnswer", previousAnswer);
       // CASE 0: We have a previous answer so just process it and display it
       if (previousAnswer !== ""){
            return (
@@ -173,6 +173,7 @@ export default class ButtonInput extends React.Component {
                   color = "primary"
                   aria-label="Delete"
                   onClick = {() => this.resetAll() }
+                  disabled = { this.state.disabled }
               >
                  Clear Answer
              </Button>
@@ -978,6 +979,7 @@ function transposeStringMatrix(inputString){
 function serverToBasisLatex(input){
   let basis = validateMatrix(input);
   // Takes server form of a basis and transforms it into latex form
-  return '\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}'
-                          + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)'
+  return Array.isArray(basis)
+      ? '\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)'
+      : null
  }
