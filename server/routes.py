@@ -210,6 +210,8 @@ def open_test():
         return jsonify(error='No Test Found')
     if teaches_class(current_test.CLASS):
         # If the user teaches the class the test is in open it
+        if current_test.deadline < datetime.now():
+            return jsonify(error="Deadline has already passed test can't be opened")
         current_test.is_open = True
         db.session.commit()
         return jsonify(message='Opened!')
