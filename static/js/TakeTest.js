@@ -86,14 +86,12 @@ export default class TakeTest extends React.Component {
                                  onChange={value => {
                                      let newAnswerList = copy(this.state.newAnswers);
                                      newAnswerList[index][y] = value;
-                                     console.log("newAnswerList", newAnswerList);
                                      this.setState({newAnswers: newAnswerList});
                                  }}
                                  buttonSave={value => {
                                      let newAnswerList = copy(this.state.newAnswers);
                                      newAnswerList[index][y] = value;
                                      this.setState({newAnswers: newAnswerList});
-                                     console.log("newAnswerList", newAnswerList);
                                      save(newAnswerList); // After each change save it
                                  }}/>
                 ])}
