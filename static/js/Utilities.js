@@ -56,7 +56,7 @@ export function getMathJax(text, variant='body2') {
 
 export function validateNumber(text) {
     // Remove whitespace and check if string is empty
-    if (text.replace(/ /g, '').length === 0)
+    if (text === undefined || text.replace(/ /g, '').length === 0)
         return 'No answer given';
 
     // Split string into tokens
