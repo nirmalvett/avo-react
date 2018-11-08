@@ -1,7 +1,7 @@
 import React from 'react';
 import Http from './Http';
 import {copy, getMathJax} from './Utilities';
-import AnswerInput from './AnswerInput';
+import AnswerInput from './AVOAnswerInput/AnswerInput';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import Button from '@material-ui/core/Button/Button';
@@ -22,6 +22,17 @@ export default class TakeTest extends React.Component {
             testID: this.props.testID,
             questions: [],
         };
+        /* this.state actually looks like this
+         {
+            answers: (6) [Array(1), Array(1), Array(3), Array(1), Array(4), Array(1)],
+            newAnswers: (6) [Array(1), Array(1), Array(3), Array(1), Array(4), Array(1)],
+            questions: (6) [{…}, {…}, {…}, {…}, {…}, {…}],
+            takes: 92,
+            testID: 28,
+            time_submitted: 20181030163809
+         }
+        */
+
     }
 
     render() {
@@ -49,8 +60,18 @@ export default class TakeTest extends React.Component {
 
     getQuestionCard(question, answer, index) {
         let disabled = JSON.stringify(this.state.newAnswers[index]) === JSON.stringify(this.state.answers[index]);
-        let save = () => {
-            Http.saveAnswer(this.state.takes, index, this.state.newAnswers[index], result => {
+        let saveButtonInput = (newAnswerList) => {
+            Http.saveAnswer(this.state.takes, index, newAnswerList[index], result => {
+                let newAnswers = copy(this.state.answers);
+                newAnswers[index] = copy(newAnswerList[index]);
+                this.setState({answers: newAnswers});
+            }, result => {
+                alert(result.error);
+            });
+        };
+        let save = (inputValue) => {
+            let newValue = inputValue === undefined ? this.state.newAnswers[index] : inputValue;
+            Http.saveAnswer(this.state.takes, index, newValue, result => {
                 let newAnswers = copy(this.state.answers);
                 newAnswers[index] = copy(this.state.newAnswers[index]);
                 this.setState({answers: newAnswers});
@@ -72,6 +93,12 @@ export default class TakeTest extends React.Component {
                                      let newAnswerList = copy(this.state.newAnswers);
                                      newAnswerList[index][y] = value;
                                      this.setState({newAnswers: newAnswerList});
+                                 }}
+                                 buttonSave={value => {
+                                     let newAnswerList = copy(this.state.newAnswers);
+                                     newAnswerList[index][y] = value;
+                                     this.setState({newAnswers: newAnswerList});
+                                     saveButtonInput(newAnswerList); // After each change save it
                                  }}/>
                 ])}
             </Card>
