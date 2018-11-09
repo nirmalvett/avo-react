@@ -1,5 +1,9 @@
 from server.data import db
 from flask_login import UserMixin
+from random import SystemRandom
+from string import ascii_letters, digits
+
+from server.Encoding.PasswordHash import generate_salt, hash_password
 
 
 enrolled = db.Table(
@@ -23,10 +27,14 @@ class Class(db.Model):
     TEST_RELATION = db.relationship("Test", back_populates="CLASS_RELATION")
 
     # noinspection PyPep8Naming
-    def __init__(self, USER, name, enroll_key):
+    def __init__(self, USER, name):
         self.USER = USER
         self.name = name
-        self.enroll_key = enroll_key
+        self.enroll_key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
+        enroll_key_class = Class.query.filter(Class.enroll_key == self.enroll_key).all()
+        while len(enroll_key_class) is not 0:
+            self.enroll_key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
+            enroll_key_class = Class.query.filter(Class.enroll_key == self.enroll_key).all()
 
     def __repr__(self):
         return f'<Class {self.USER} {self.name} {self.enroll_key}>'
@@ -35,11 +43,11 @@ class Class(db.Model):
 class Takes(db.Model):
     __tablename__ = "takes"
 
-    TAKES = db.Column(db.Integer, primary_key=True)
+    TAKES = db.Column(db.Integer, primary_key=True, autoincrement=True)
     TEST = db.Column(db.Integer, db.ForeignKey("TEST.TEST"), nullable=False)
     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
-    time_started = db.Column(db.Integer, nullable=False)
-    time_submitted = db.Column(db.Integer, nullable=False)
+    time_started = db.Column(db.DateTime, nullable=False)
+    time_submitted = db.Column(db.DateTime, nullable=False)
     grade = db.Column(db.Float, nullable=False)
     marks = db.Column(db.String, nullable=False)
     answers = db.Column(db.String, nullable=False)
@@ -66,7 +74,7 @@ class Takes(db.Model):
 class User(UserMixin, db.Model):
     __tablename__ = "USER"
 
-    USER = db.Column(db.Integer, primary_key=True)
+    USER = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String, unique=True, nullable=False)
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
@@ -79,20 +87,20 @@ class User(UserMixin, db.Model):
     theme = db.Column(db.Boolean, nullable=False, default=False)
 
     CLASS_RELATION = db.relationship("Class", back_populates="USER_RELATION")
-    CLASS_ENROLLED_RELATION = db.relationship("Class", secondary=enrolled, back_populates="USER_RELATION")
+    CLASS_ENROLLED_RELATION = db.relationship("Class", secondary=enrolled, back_populates="USER_ENROLLED_RELATION")
     TAKES_RELATION = db.relationship("Takes", back_populates="USER_RELATION")
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
 
     # noinspection PyPep8Naming
-    def __init__(self, email, first_name, last_name, password, salt, confirmed, is_teacher, is_admin, color, theme):
+    def __init__(self, email, first_name, last_name, password, is_teacher, color, theme):
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
-        self.password = password  # todo
-        self.salt = salt  # todo
-        self.confirmed = confirmed
+        self.salt = generate_salt()
+        self.password = hash_password(password, self.salt)
+        self.confirmed = False
         self.is_teacher = is_teacher
-        self.is_admin = is_admin
+        self.is_admin = False
         self.color = color
         self.theme = theme
 
@@ -100,11 +108,14 @@ class User(UserMixin, db.Model):
         return f'<User {self.email} {self.first_name} {self.last_name} {self.password} {self.salt} {self.confirmed} ' \
                f'{self.is_teacher} {self.is_admin} {self.color} {self.theme}>'
 
+    def get_id(self):
+        return self.USER
+
 
 class Question(db.Model):
     __tablename__ = "QUESTION"
 
-    QUESTION = db.Column(db.Integer, primary_key=True)
+    QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
     SET = db.Column(db.Integer, db.ForeignKey("SET.SET"), nullable=False)
     name = db.Column(db.String, nullable=False)
     string = db.Column(db.String, nullable=False)
@@ -127,7 +138,7 @@ class Question(db.Model):
 class Set(db.Model):
     __tablename__ = "SET"
 
-    SET = db.Column(db.Integer, primary_key=True)
+    SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False)
 
     QUESTION_RELATION = db.relationship("Question", back_populates="SET_RELATION")
@@ -143,11 +154,11 @@ class Set(db.Model):
 class Test(db.Model):
     __tablename__ = "TEST"
 
-    TEST = db.Column(db.Integer, primary_key=True)
-    CLASS = db.Column(db.Integer, db.ForeignKey('CLASS.CLASS'), nullable=False)
+    TEST = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CLASS = db.Column(db.Integer, db.ForeignKey('CLASS.CLASS'), nullable=True)
     name = db.Column(db.String, nullable=False)
     is_open = db.Column(db.Boolean, nullable=False, default=False)
-    deadline = db.Column(db.Integer, nullable=False)
+    deadline = db.Column(db.DateTime, nullable=False)
     timer = db.Column(db.Integer, nullable=False, default=15)
     attempts = db.Column(db.Integer, nullable=False, default=1)
     question_list = db.Column(db.String, nullable=False)
@@ -176,7 +187,7 @@ class Test(db.Model):
 class UserViewsSet(db.Model):
     __tablename__ = "user_views_set"
 
-    USER_VIEWS_SET = db.Column(db.Integer, primary_key=True)
+    USER_VIEWS_SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
     SET = db.Column(db.Integer, db.ForeignKey("SET.SET"), nullable=False)
     can_edit = db.Column(db.Boolean, default=False, nullable=False)
