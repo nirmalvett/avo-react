@@ -201,8 +201,8 @@ class Layout extends React.Component {
             >
                 {React.createElement(icon,
                     {nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' },
-                    {key: key})}
-                <ListItemText primary={text} key = {key}/>
+                    )}
+                <ListItemText primary={text} />
             </ListItem>
         );
     }
