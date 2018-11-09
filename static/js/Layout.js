@@ -31,6 +31,7 @@ import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
 import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import { isNotChromeAlert } from "./helpers";
 import TimerComp from "./TimerComp";
+import { uniqueKey } from "./helpers";
 
 const drawerWidth = 240;
 
@@ -80,13 +81,13 @@ const styles = theme => ({
 class Layout extends React.Component {
     constructor(props) {
         super(props);
-        let avoGreen = {'200': '#f8ee7b', '500': '#399103'};
+        let avoGreen = {'200': '#f8ee7b', '500': '#399103'}; // this our default AVO colors
         this.colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal,
-            avoGreen, green, lightGreen, amber, orange, deepOrange, brown, grey, blueGrey];
-        Http.getUserInfo(
+            avoGreen, green, lightGreen, amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
+        Http.getUserInfo( // get our user info
             result => {
                 // noinspection RedundantConditionalExpressionJS, JSUnresolvedVariable
-                this.setState({
+                this.setState({ // set the state of the profile, theme, color, and whether or not it's teacher account
                     name: result.first_name + ' ' + result.last_name,
                     color: this.colorList[result.color],
                     theme: result.theme ? 'dark' : 'light',
@@ -95,7 +96,7 @@ class Layout extends React.Component {
             },
             () => {this.logout();}
             );
-        this.state = {
+        this.state = { // this loading screen if things are still loading
             section: 'Home',
             isTeacher: false,
             name: 'Loading...',
@@ -113,6 +114,9 @@ class Layout extends React.Component {
 
         let disabledListItem = (icon, text) => (
             <ListItem button disabled>
+                {/* createElement(): Create and return a new React element of the given type. The type argument can be
+                either a tag name string (such as 'div' or 'span'), a React component type (a class or a function), or a
+                React fragment type. */}
                 {React.createElement(icon, {color: 'action'})}
                 <ListItemText primary={text}/>
             </ListItem>
@@ -195,8 +199,10 @@ class Layout extends React.Component {
                 onClick={() => this.setState({section: text})} 
                 style={{ backgroundColor: selected ? color.main : undefined }}
             >
-                {React.createElement(icon, {nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' })}
-                <ListItemText primary={text}/>
+                {React.createElement(icon,
+                    {nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' },
+                    {key: key})}
+                <ListItemText primary={text} key = {key}/>
             </ListItem>
         );
     }
