@@ -229,7 +229,7 @@ export default class ManageClasses extends React.Component {
                                 open={Boolean(anchorEl)}
                                 onClose={() => this.handleVertClose()}
                         >
-                            <MenuItem disabled={true} value={10}>View all submissions</MenuItem>
+                            {/* <MenuItem disabled={true} value={10}>View all submissions</MenuItem> */}
                             <MenuItem 
                                 value={20} 
                                 onClick={() => { 
@@ -316,7 +316,7 @@ export default class ManageClasses extends React.Component {
                     }}
                     title={'Hey there!'}
                 />
-                <Typography variant='body' color="textPrimary">
+                <Typography variant='body' color="textPrimary" class="avo-padding__16px">
                     Looks like you haven't selected a Class or Test yet!
                 </Typography>
                 <br />

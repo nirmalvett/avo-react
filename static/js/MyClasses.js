@@ -191,9 +191,9 @@ export default class MyClasses extends React.Component {
                     {selectedTest.current !== null ? 'Resume Test' : 'Start Test'}
                 </Button>,
                 <br/>,
-                <Typography>Deadline: {getDateString(selectedTest.deadline)}</Typography>,
-                <Typography>Time Limit: {selectedTest.timer} minutes</Typography>,
-                <Typography>Attempts:
+                <Typography class="avo-padding__16px">Deadline: {getDateString(selectedTest.deadline)}</Typography>,
+                <Typography class="avo-padding__16px">Time Limit: {selectedTest.timer} minutes</Typography>,
+                <Typography class="avo-padding__16px">Attempts:
                     {
                         selectedTest.attempts === -1
                             ? " Unlimited"
@@ -222,12 +222,17 @@ export default class MyClasses extends React.Component {
         }
         if (this.state.c !== null) {
             return (
-                <CardHeader
-                    classes={{
-                        root: 'avo-card__header'
-                    }}
-                    title={selectedClass.name}
-                />
+                <React.Fragment>
+                    <CardHeader
+                        classes={{
+                            root: 'avo-card__header'
+                        }}
+                        title={selectedClass.name}
+                    />
+                    <Typography variant='body' color="textPrimary" class="avo-padding__16px">
+                        {selectedClass.tests.length == 0 && "This class doesn't have any tests yet!"}
+                    </Typography>
+                </React.Fragment>
             );
         }
         return (
@@ -238,7 +243,7 @@ export default class MyClasses extends React.Component {
                     }}
                     title={'Hey there!'}
                 />
-                <Typography variant='body' color="textPrimary">
+                <Typography variant='body' color="textPrimary" class="avo-padding__16px">
                     Looks like you haven't selected a Class or Test yet!
                 </Typography>
                 <br/>

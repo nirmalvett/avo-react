@@ -148,7 +148,14 @@ class Layout extends React.Component {
                                 <Divider/>
                                 <List>
                                     {this.listItem(SettingsOutlinedIcon, 'Preferences')}
-                                    <ListItem button onClick={() => this.logout()}>
+                                    <ListItem 
+                                        button 
+                                        onClick={() => this.logout()}
+                                        classes={{
+                                            root : 'avo-menu__item',
+                                            selected : 'selected'
+                                        }} 
+                                    >
                                         <ExitToAppOutlinedIcon color='action'/>
                                         <ListItemText primary='Logout'/>
                                     </ListItem>

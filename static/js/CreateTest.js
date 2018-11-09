@@ -111,13 +111,17 @@ export default class CreateTest extends React.Component {
                         </Card>
                     )}
                     <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
-                        <CardHeader title={'Test Settings'} action={<IconButton onClick={() => {
+                        <CardHeader title={'Test Settings'} action={<IconButton disabled={this.state.testQuestions.length == 0} onClick={() => {
                             let s = this.state;
                             let questions = s.testQuestions.map(x => x.id);
                             let seeds = s.testQuestions.map(x => x.locked ? x.seed : -1);
                             let deadline = s.deadline.replace(/[\-T:]/g, '');
                             if (deadline.length !== 12) {
                                 alert('Invalid deadline');
+                                return;
+                            }
+                            if(this.state.testQuestions.length == 0) {
+                                alert('Test must contain 1 or more questions!');
                                 return;
                             }
                             Http.saveTest(this.props.classID, s.name, deadline, s.timeLimit, s.attempts,
