@@ -146,9 +146,10 @@ class AvoQuestion:
                     ans = matrix(map(lambda r: map(lambda c: build_number(c), r), array))
                 elif answer_type == '9':  # Basis
                     # Todo: Fix this on the front end so the list doesn't need to be filtered
-                    rows = len(answer[0])
-                    answer = filter(lambda vector: any(map(lambda c: c != '', vector)), answer)
-                    ans = basis(map(lambda vector: matrix(map(lambda r: [build_number(r)], vector)), answer), rows)
+                    array = list(map(lambda x: x.split(','), answer.split('\n')))
+                    rows = len(array[0])
+                    answer = filter(lambda vector: any(map(lambda c: c != '', vector)), array)
+                    ans = basis(map(lambda vector: matrix(map(lambda r: [build_number(r)], vector)), array), rows)
             except Exception:
                 pass
             ans.explanation = ([(r'\color{{DarkOrange}}{{\text{{Answer {}}}}}'.format(i + 1), 8),

@@ -46,7 +46,6 @@ body {
     background: #BBBBBB;
 }
 
-
 .LoginCard {
     display: flex;
     width: 33%;
@@ -61,6 +60,7 @@ body {
 .avo-button {
     border-radius: 16px !important;
     color: var(--pri-theme-color) !important;
+
     transition: color 0.5s ease-in;
 }
 
