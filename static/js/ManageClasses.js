@@ -146,7 +146,7 @@ export default class ManageClasses extends React.Component {
                 >
                     <React.Fragment>
                         <br/>
-                        <Typography variant='body'>
+                        <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
                             Please enter the desired name of the class you wish to create!
                         </Typography>
                         <TextField
@@ -259,7 +259,7 @@ export default class ManageClasses extends React.Component {
                             }}
                         >
                             <Paper style={{ padding : '10px', height : '6em' }}>
-                                <Typography variant='body'>
+                                <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
                                     Are you sure you want to delete {selectedTest.name}? <br/>
                                     Once a test has been deleted it can not be recovered!
                                 </Typography>

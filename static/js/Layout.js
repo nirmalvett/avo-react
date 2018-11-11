@@ -200,8 +200,7 @@ class Layout extends React.Component {
                 style={{ backgroundColor: selected ? color.main : undefined }}
             >
                 {React.createElement(icon,
-                    {nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' },
-                    )}
+                    {nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' })}
                 <ListItemText primary={text} />
             </ListItem>
         );

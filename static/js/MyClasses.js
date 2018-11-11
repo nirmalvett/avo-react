@@ -172,53 +172,55 @@ export default class MyClasses extends React.Component {
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
             console.log(selectedTest);
-            return [
-                <CardHeader
-                    classes={{
-                        root: 'avo-card__header'
-                    }}
-                    title={selectedTest.name}
-                />,
-                <Button
-                    color='primary'
-                    classes={{
-                        root: 'avo-card__header-button',
-                        disabled: 'disabled'
-                    }}
-                    onClick={() => this.state.startTest(selectedTest)}
-                    disabled={!selectedTest.open && (selectedTest.attempts == -1 || selectedTest.submitted.length < selectedTest.attempts)}
-                >
-                    {selectedTest.current !== null ? 'Resume Test' : 'Start Test'}
-                </Button>,
-                <br/>,
-                <Typography class="avo-padding__16px">Deadline: {getDateString(selectedTest.deadline)}</Typography>,
-                <Typography class="avo-padding__16px">Time Limit: {selectedTest.timer} minutes</Typography>,
-                <Typography class="avo-padding__16px">Attempts:
-                    {
-                        selectedTest.attempts === -1
-                            ? " Unlimited"
-                            : " " + selectedTest.attempts
-                    }
-                </Typography>,
-                <br/>,
-                <List style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
-                    {[
-                        selectedTest.submitted.map((x, y) => (
-                            <ListItem key={uniqueKey()}>
-                                <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
-                                    secondary={'Submitted on ' + getDateString(x.timeSubmitted)} />
-                                <ListItemSecondaryAction>
-                                    <Tooltip title="View previous test results">
-                                        <IconButton onClick={() => { this.props.postTest(x.takes) }}>
-                                            <DescriptionOutlinedIcon />
-                                        </IconButton>
-                                    </Tooltip>
-                                </ListItemSecondaryAction>
-                            </ListItem>
-                        ))
-                    ]}
-                </List>
-            ];
+            return (
+                <React.Fragment>
+                    <CardHeader
+                        classes={{
+                            root: 'avo-card__header'
+                        }}
+                        title={selectedTest.name}
+                    />
+                    <Button
+                        color='primary'
+                        classes={{
+                            root: 'avo-card__header-button',
+                            disabled: 'disabled'
+                        }}
+                        onClick={() => this.state.startTest(selectedTest)}
+                        disabled={!selectedTest.open && (selectedTest.attempts == -1 || selectedTest.submitted.length < selectedTest.attempts)}
+                    >
+                        {selectedTest.current !== null ? 'Resume Test' : 'Start Test'}
+                    </Button>
+                    <br/>
+                    <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}>Deadline: {getDateString(selectedTest.deadline)}</Typography>
+                    <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}>Time Limit: {selectedTest.timer} minutes</Typography>
+                    <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}>Attempts:
+                        {
+                            selectedTest.attempts === -1
+                                ? " Unlimited"
+                                : " " + selectedTest.attempts
+                        }
+                    </Typography>
+                    <br/>
+                    <List style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+                        {[
+                            selectedTest.submitted.map((x, y) => (
+                                <ListItem key={uniqueKey()}>
+                                    <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
+                                        secondary={'Submitted on ' + getDateString(x.timeSubmitted)} />
+                                    <ListItemSecondaryAction>
+                                        <Tooltip title="View previous test results">
+                                            <IconButton onClick={() => { this.props.postTest(x.takes) }}>
+                                                <DescriptionOutlinedIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </ListItemSecondaryAction>
+                                </ListItem>
+                            ))
+                        ]}
+                    </List>
+                </React.Fragment>
+            );
         }
         if (this.state.c !== null) {
             return (
