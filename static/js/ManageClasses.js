@@ -240,7 +240,7 @@ export default class ManageClasses extends React.Component {
                                     ); 
                                 }}
                             >
-                                View Marks
+                                 View Most Recent Submission
                             </MenuItem>
                         </Menu>
                         <Popper
