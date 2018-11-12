@@ -8800,7 +8800,7 @@ var AnswerInput = function (_React$Component) {
             value: _this.props.value,
             prompt: _this.props.prompt,
             disabled: _this.props.disabled,
-            inputMode: BUTTON_INPUT // should be something from the user later to indicate which mode
+            inputMode: MANUAL_INPUT // should be something from the user later to indicate which mode
         };
         return _this;
     }
