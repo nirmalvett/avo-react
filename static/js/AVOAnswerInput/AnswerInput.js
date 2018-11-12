@@ -20,7 +20,7 @@ export default class AnswerInput extends React.Component {
             value: this.props.value,
             prompt: this.props.prompt,
             disabled: this.props.disabled,
-            inputMode: BUTTON_INPUT, // should be something from the user later to indicate which mode
+            inputMode: MANUAL_INPUT, // should be something from the user later to indicate which mode
         };
     }
 
