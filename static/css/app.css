@@ -134,10 +134,6 @@ body {
     /*background: var(--pri-theme-color) !important;*/
 /*}*/
 
-.avo-menu__item.selected > div > span {
-    color: white !important;
-}
-
 .avo-scrollable {
     overflow-y: auto;
 }
