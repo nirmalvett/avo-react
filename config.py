@@ -32,10 +32,10 @@ SECURITY_PASSWORD_SALT = \
 # ===================================================================================================================
 # Database URI location on server. One of these needs to be commented out.
 # Running MySQL Locally, if you are not sure then this is the correct choice
-# SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root@localhost/dev'
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root@localhost/dev'
 
 # For APP and DEV
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://avocado:uw%J@%$n5C15q8Xswv@localhost/' + branch
+# SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://avocado:uw%J@%$n5C15q8Xswv@localhost/' + branch
 # ===================================================================================================================
 
 SQLALCHEMY_ECHO = False
