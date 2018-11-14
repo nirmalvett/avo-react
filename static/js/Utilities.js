@@ -109,7 +109,7 @@ export function validateNumber(text) {
     if (bracket_level !== 0)
         return 'Mismatched open bracket';
     // noinspection JSCheckFunctionSignatures
-    operations.sort((a, b) => a[1] < b[1]);
+    operations.sort((a, b) => b[1] - a[1]);
 
     let brackets = (e, p) => e[2] < p ? ' \\left( ' + e[1] + ' \\right) ' : e[1];
     let isVar = i => tokenList[i][0] === '~';
