@@ -30,15 +30,13 @@ SECURITY_PASSWORD_SALT = \
     '4Sk-+WGNdbdJW4X!'
 
 # ===================================================================================================================
-# Database URI location on server. One of these needs to be commented out.
-# Running MySQL Locally
-# SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root@localhost/dev'
+if branch == 'app' or branch == 'dev':
+    print(f">>> CONNECTING TO {branch.upper()} DATABASE <<<")
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://avocado:uw%J@%$n5C15q8Xswv@localhost/' + branch
+else:
+    print(">>> CONNECTING TO LOCAL MYSQL DATABASE <<<")
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root@localhost/dev'
 
-# Running SQLite Locally (Probably what you want if not sure)
-# SQLALCHEMY_DATABASE_URI = 'sqlite:///' + join(_cwd, 'avo.db')
-
-# For APP and DEV
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://avocado:uw%J@%$n5C15q8Xswv@localhost/' + branch
 # ===================================================================================================================
 
 SQLALCHEMY_ECHO = False

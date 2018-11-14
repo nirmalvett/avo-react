@@ -38,6 +38,7 @@ export default class ButtonInput extends React.Component {
           previousAnswer: this.props.value, // if there is an answer from the student then we want to show it
           dataForServer: '',
           latexString: '',
+          prompt: this.props.prompt
         };
 
         // We want to consider whether there is already an answer.
@@ -65,9 +66,17 @@ export default class ButtonInput extends React.Component {
 
     }
     render() {
-      const { stage } = this.state;
+      const { stage, prompt } = this.state;
         return (
               <div>
+                {
+                  // If there is no prompt then don't display anything otherwise display the latex this is supposed to
+                  // be the prompt before each answer field
+                  prompt === undefined || prompt === null || prompt === ""
+                      ? null
+                      : getMathJax(prompt)
+                }
+
                 {
                   stage === CONST_CREATE_OBJECT
                       ?  this.createObject() // if True then render create object button i.e. "Create Vector"
