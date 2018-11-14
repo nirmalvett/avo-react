@@ -49,7 +49,6 @@ body {
     background: #BBBBBB;
 }
 
-
 .LoginCard {
     display: flex;
     width: 33%;
@@ -64,6 +63,7 @@ body {
 .avo-button {
     border-radius: 16px !important;
     color: var(--pri-theme-color) !important;
+
     transition: color 0.5s ease-in;
 }
 
@@ -165,10 +165,6 @@ body {
 /* Frank: Commented out the line below so that when a user selects a theme the side bar matches the primary color they selected */
 .avo-menu__item.selected {
     /* background: var(--pri-theme-color) !important; */
-}
-
-.avo-menu__item.selected > div > span {
-    color: white !important;
 }
 
 .avo-scrollable {
@@ -295,4 +291,8 @@ body {
     font-weight: 300;
     color: rgba(0,0,0, 0.87);
     font-family: 'Open Sans', sans-serif;
+}
+
+.color-white {
+    color: white;
 }

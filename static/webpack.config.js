@@ -31,7 +31,7 @@ const config = {
         ]
     },
     plugins: [
-        new ExtractTextPlugin('styles.css'),
+        new ExtractTextPlugin('app.css'),
     ]
 };
 

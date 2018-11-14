@@ -1,6 +1,13 @@
+# noinspection PyUnresolvedReferences
 from os.path import abspath, dirname, join
+from git import Repo
+
 
 _cwd = dirname(abspath(__file__))
+
+repo = Repo(".")
+branch = repo.active_branch
+branch = branch.name
 
 # noinspection SpellCheckingInspection
 SECRET_KEY = \
@@ -22,17 +29,23 @@ SECURITY_PASSWORD_SALT = \
     'PQVVAj8swCr_D?w?Rys%JwSDJz!Gxrw^DZKvwM5ef=Zka-#zSXy_X?rwL5Me694yBA@SFXn#BcjLH*UG*WjgFe*Ya7-@aWCt?xdw=fAA8F=d+dRe' \
     '4Sk-+WGNdbdJW4X!'
 
+# ===================================================================================================================
 # Database URI location on server. One of these needs to be commented out.
-SQLALCHEMY_DATABASE_URI = 'sqlite:///' + join(_cwd, 'avo.db')
+# Running MySQL Locally, if you are not sure then this is the correct choice
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root@localhost/dev'
+
+# For APP and DEV
+# SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://avocado:uw%J@%$n5C15q8Xswv@localhost/' + branch
+# ===================================================================================================================
+
 SQLALCHEMY_ECHO = False
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-#Gzip Settings
+# Gzip Settings
 COMPRESS_MIMETYPES = [
-'text/html',
-'text/css',
-'application/json',
-'application/javascript',
-'image/svg'
+    'text/html',
+    'text/css',
+    'application/json',
+    'application/javascript',
+    'image/svg'
 ]
-
