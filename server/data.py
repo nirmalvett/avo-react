@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy()
+db = SQLAlchemy() # Database INIT
 
 
 def query_to_list(query, include_field_names=True):

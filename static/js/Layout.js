@@ -29,7 +29,7 @@ import Build from '@material-ui/icons/Build';
 import Class from '@material-ui/icons/Class';
 import Settings from '@material-ui/icons/Settings';
 import ExitToApp from '@material-ui/icons/ExitToApp';
-import { isNotChromeAlert } from "./helpers";
+import { uniqueKey } from "./helpers";
 
 const drawerWidth = 240;
 
@@ -79,13 +79,13 @@ const styles = theme => ({
 class Layout extends React.Component {
     constructor(props) {
         super(props);
-        let avoGreen = {'200': '#f8ee7b', '500': '#399103'};
+        let avoGreen = {'100': 'b8e8b8', '200': '#f8ee7b', '500': '#399103'}; // this our default AVO colors
         this.colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal,
-            avoGreen, green, lightGreen, amber, orange, deepOrange, brown, grey, blueGrey];
-        Http.getUserInfo(
+            avoGreen, green, lightGreen, amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
+        Http.getUserInfo( // get our user info
             result => {
                 // noinspection RedundantConditionalExpressionJS, JSUnresolvedVariable
-                this.setState({
+                this.setState({ // set the state of the profile, theme, color, and whether or not it's teacher account
                     name: result.first_name + ' ' + result.last_name,
                     color: this.colorList[result.color],
                     theme: result.theme ? 'dark' : 'light',
@@ -94,7 +94,7 @@ class Layout extends React.Component {
             },
             () => {this.logout();}
             );
-        this.state = {
+        this.state = { // this loading screen if things are still loading
             section: 'Home',
             isTeacher: false,
             name: 'Loading...',
@@ -112,6 +112,9 @@ class Layout extends React.Component {
 
         let disabledListItem = (icon, text) => (
             <ListItem button disabled>
+                {/* createElement(): Create and return a new React element of the given type. The type argument can be
+                either a tag name string (such as 'div' or 'span'), a React component type (a class or a function), or a
+                React fragment type. */}
                 {React.createElement(icon, {color: 'action'})}
                 <ListItemText primary={text}/>
             </ListItem>
@@ -123,21 +126,21 @@ class Layout extends React.Component {
                     backgroundColor: theme === 'dark' ? '#303030' : '#fafafa'}}>
                     <Drawer variant='persistent' anchor='left' open={open} classes={{paper: classes.drawerPaper}}>
                         <Logo theme={theme} color={color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
-                        <Divider/>
+                        <Divider key = {uniqueKey()}/>
                         <div style={{overflowY: 'auto'}}>
-                            <List subheader={isTeacher ? <ListSubheader>Student & Teacher</ListSubheader> : undefined}>
+                            <List key = {uniqueKey()} subheader={isTeacher ? <ListSubheader>Student & Teacher</ListSubheader> : undefined}>
                                 {this.listItem(Home, 'Home')}
                                 {this.listItem(Class, 'My Classes')}
                             </List>
                             {isTeacher ? [
-                                <Divider/>,
-                                <List subheader={<ListSubheader>Teacher Only</ListSubheader>}>
+                                <Divider key = {uniqueKey()}/>,
+                                <List key = {uniqueKey()} subheader={<ListSubheader>Teacher Only</ListSubheader>}>
                                     {this.listItem(Class, 'Manage Classes')}
                                     {disabledListItem(Build, 'Build Question')}
                                 </List>
                             ] : undefined}
-                            <Divider/>
-                            <List>
+                              <Divider key = {uniqueKey()}/>
+                            <List key = {uniqueKey()} >
                                 {this.listItem(Settings, 'Preferences')}
                                 <ListItem button onClick={() => this.logout()}>
                                     <ExitToApp color='action'/>
@@ -167,19 +170,20 @@ class Layout extends React.Component {
         let {color, theme} = this.state;
         let selected = this.state.section === text;
         let style = {backgroundColor: selected ? color[theme === 'light' ? '100' : '500'] : undefined};
+        const key = "layout-list-item" + uniqueKey();
         return (
             <ListItem 
                 button
-                classes={{
-                    root : 'avo-menu__item',
-                    selected : 'selected'
-                }} 
+                classes={{root: 'avo-menu__item'}}
                 selected={selected} 
                 onClick={() => this.setState({section: text})} 
                 style={style}
+                key = {key}
             >
-                {React.createElement(icon, {nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' })}
-                <ListItemText primary={text}/>
+                {React.createElement(icon,
+                    {color: selected && theme === 'light' ? 'primary' : 'action' },
+                    {key: key})}
+                <ListItemText primary={text} key = {key}/>
             </ListItem>
         );
     }

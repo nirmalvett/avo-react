@@ -43,8 +43,6 @@ export default class ManageClasses extends React.Component {
     }
 
     render() {
-        let cardStyle = {marginTop: '10%', marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};
-
         return (
             <div style={{width: '100%', flex: 1, display: 'flex'}}>
                 <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
@@ -90,7 +88,10 @@ export default class ManageClasses extends React.Component {
                     </Grid>
                     <Grid item xs={2}/>
                     <Grid item xs={5} style={{display: 'flex'}}>
-                        <Card style={cardStyle}>{this.detailsCard()}</Card>
+                        <Card style={{marginTop: '10%', marginBottom: '10%', padding: '10px',
+                            flex: 1, display: 'flex', flexDirection: 'column'}}>
+                            {this.detailsCard()}
+                        </Card>
                     </Grid>
                 </Grid>
             </div>
