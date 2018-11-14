@@ -3296,8 +3296,13 @@ function getMathJax(text) {
 
 function validateNumber(text) {
     // Remove whitespace and check if string is empty
-    if (text === undefined || text.replace(/ /g, '').length === 0) return 'No answer given';
-
+    if (text === undefined || text.replace(/ /g, '').length === 0) {
+        return 'No answer given';
+    } else {
+        // TODO remove this when the issue of order mismatch is fixed. For now we're bypassing all checks
+        return [text];
+    }
+    // TODO fix up the parsing for this so 1 + cos(2) works
     // Split string into tokens
     var regex = '\\d+(?:\\.\\d+)?|(sqrt|sin|cos|tan|arcsin|arccos|arctan)\\(|[()+\\-*/^]';
     text = text.replace(/ /g, '').replace(new RegExp(regex, 'g'), ' $& ').trim().replace(/ {2,}/g, ' ');
@@ -8800,7 +8805,7 @@ var AnswerInput = function (_React$Component) {
             value: _this.props.value,
             prompt: _this.props.prompt,
             disabled: _this.props.disabled,
-            inputMode: MANUAL_INPUT // should be something from the user later to indicate which mode
+            inputMode: BUTTON_INPUT // should be something from the user later to indicate which mode
         };
         return _this;
     }
@@ -8876,6 +8881,7 @@ var AnswerInput = function (_React$Component) {
             } else if (type === _InputConsts.CONST_VECTOR) {
                 if (inputMode === BUTTON_INPUT) {
                     return _react2.default.createElement(_ButtonInput2.default, {
+                        prompt: this.props.prompt,
                         type: _InputConsts.CONST_VECTOR // this is the type
                         , disabled: disabled // this is whether the input is disabled
                         , value: v // this is the value if a test is resumed
@@ -8907,6 +8913,7 @@ var AnswerInput = function (_React$Component) {
             } else if (type === _InputConsts.CONST_MATRIX) {
                 if (inputMode === BUTTON_INPUT) {
                     return _react2.default.createElement(_ButtonInput2.default, {
+                        prompt: this.props.prompt,
                         type: _InputConsts.CONST_MATRIX // this is the type
                         , disabled: disabled // this is whether the input is disabled
                         , value: v // this is the value if a test is resumed
@@ -8941,6 +8948,7 @@ var AnswerInput = function (_React$Component) {
             } else if (type === _InputConsts.CONST_BASIS) {
                 if (inputMode === BUTTON_INPUT) {
                     return _react2.default.createElement(_ButtonInput2.default, {
+                        prompt: this.props.prompt,
                         type: _InputConsts.CONST_BASIS // this is the type
                         , disabled: disabled // this is whether the input is disabled
                         , value: v // this is the value if a test is resumed
@@ -47994,7 +48002,7 @@ var Layout = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (Layout.__proto__ || Object.getPrototypeOf(Layout)).call(this, props));
 
-        var avoGreen = { '200': '#f8ee7b', '500': '#399103' }; // this our default AVO colors
+        var avoGreen = { '100': 'b8e8b8', '200': '#f8ee7b', '500': '#399103' }; // this our default AVO colors
         _this.colorList = [_colors.red, _colors.pink, _colors.purple, _colors.deepPurple, _colors.indigo, _colors.blue, _colors.lightBlue, _colors.cyan, _colors.teal, avoGreen, _colors.green, _colors.lightGreen, _colors.amber, _colors.orange, _colors.deepOrange, _colors.brown, _colors.grey, _colors.blueGrey]; // list of colors to choose from
         _Http2.default.getUserInfo( // get our user info
         function (result) {
@@ -48139,10 +48147,7 @@ var Layout = function (_React$Component) {
                 _ListItem2.default,
                 {
                     button: true,
-                    classes: {
-                        root: 'avo-menu__item',
-                        selected: 'selected'
-                    },
+                    classes: { root: 'avo-menu__item' },
                     selected: selected,
                     onClick: function onClick() {
                         return _this3.setState({ section: text });
@@ -48150,7 +48155,7 @@ var Layout = function (_React$Component) {
                     style: style,
                     key: key
                 },
-                _react2.default.createElement(icon, { nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' }, { key: key }),
+                _react2.default.createElement(icon, { color: selected && theme === 'light' ? 'primary' : 'action' }, { key: key }),
                 _react2.default.createElement(_ListItemText2.default, { primary: text, key: key })
             );
         }
@@ -49103,7 +49108,8 @@ var ButtonInput = function (_React$Component) {
       disabled: _this.props.disabled, // if true then the starting input should be disabled,
       previousAnswer: _this.props.value, // if there is an answer from the student then we want to show it
       dataForServer: '',
-      latexString: ''
+      latexString: '',
+      prompt: _this.props.prompt
     };
 
     // We want to consider whether there is already an answer.
@@ -49136,11 +49142,17 @@ var ButtonInput = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      var stage = this.state.stage;
+      var _state = this.state,
+          stage = _state.stage,
+          prompt = _state.prompt;
 
       return _react2.default.createElement(
         'div',
         null,
+
+        // If there is no prompt then don't display anything otherwise display the latex this is supposed to
+        // be the prompt before each answer field
+        prompt === undefined || prompt === null || prompt === "" ? null : (0, _Utilities.getMathJax)(prompt),
         stage === _InputConsts.CONST_CREATE_OBJECT ? this.createObject() // if True then render create object button i.e. "Create Vector"
         : stage === _InputConsts.CONST_SELECT_DIMENSION ? this.selectDimension() // if True then render dimensions selector i.e. "Row: _____ Column: _______"
         : stage === _InputConsts.CONST_INPUT_PHASE ? this.inputPhase() // If True then render fields for the student to fill in
@@ -49158,9 +49170,9 @@ var ButtonInput = function (_React$Component) {
     key: 'renderServerToLatex',
     value: function renderServerToLatex() {
       // takes the values from server and renders them into latex String
-      var _state = this.state,
-          type = _state.type,
-          previousAnswer = _state.previousAnswer;
+      var _state2 = this.state,
+          type = _state2.type,
+          previousAnswer = _state2.previousAnswer;
 
       if (previousAnswer === undefined || previousAnswer.length === 0) {
         return "";
@@ -49184,9 +49196,9 @@ var ButtonInput = function (_React$Component) {
   }, {
     key: 'createObject',
     value: function createObject() {
-      var _state2 = this.state,
-          type = _state2.type,
-          disabled = _state2.disabled;
+      var _state3 = this.state,
+          type = _state3.type,
+          disabled = _state3.disabled;
 
       return _react2.default.createElement(
         _Grid2.default,
@@ -49233,9 +49245,9 @@ var ButtonInput = function (_React$Component) {
     value: function showObject() {
       var _this2 = this;
 
-      var _state3 = this.state,
-          type = _state3.type,
-          previousAnswer = _state3.previousAnswer;
+      var _state4 = this.state,
+          type = _state4.type,
+          previousAnswer = _state4.previousAnswer;
 
       console.log("showObject previousAnswer", previousAnswer);
       // CASE 0: We have a previous answer so just process it and display it
@@ -49418,9 +49430,9 @@ var ButtonInput = function (_React$Component) {
 
       // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
       // Stores the data in latex and in a form that the server likes
-      var _state4 = this.state,
-          latexString = _state4.latexString,
-          disabled = _state4.disabled;
+      var _state5 = this.state,
+          latexString = _state5.latexString,
+          disabled = _state5.disabled;
 
 
       return _react2.default.createElement(
@@ -49656,9 +49668,9 @@ var ButtonInput = function (_React$Component) {
 
       // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
       // Stores the data in latex and in a form that the server likes
-      var _state5 = this.state,
-          latexString = _state5.latexString,
-          disabled = _state5.disabled;
+      var _state6 = this.state,
+          latexString = _state6.latexString,
+          disabled = _state6.disabled;
 
 
       return _react2.default.createElement(
@@ -49921,9 +49933,9 @@ var ButtonInput = function (_React$Component) {
 
       // SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
       // Stores the data in latex and in a form that the server likes
-      var _state6 = this.state,
-          latexString = _state6.latexString,
-          disabled = _state6.disabled;
+      var _state7 = this.state,
+          latexString = _state7.latexString,
+          disabled = _state7.disabled;
 
       return _react2.default.createElement(
         _Grid2.default,
@@ -50044,9 +50056,9 @@ var ButtonInput = function (_React$Component) {
     value: function parseAnswerForLatexServer() {
       // sets dataForServer: '', latexString: '', in state where dataForServer is what we want to send and latexString
       // is what we display
-      var _state7 = this.state,
-          dimensionStorage = _state7.dimensionStorage,
-          type = _state7.type;
+      var _state8 = this.state,
+          dimensionStorage = _state8.dimensionStorage,
+          type = _state8.type;
       // CASE 0: Vector input
 
       if (type === _InputConsts.CONST_VECTOR || type === _InputConsts.CONST_VECTOR_LINEAR_EXPRESSION) {
@@ -50142,12 +50154,12 @@ var ButtonInput = function (_React$Component) {
   }, {
     key: 'allFieldsFilled',
     value: function allFieldsFilled() {
-      var _state8 = this.state,
-          dimensionStorage = _state8.dimensionStorage,
-          totalFields = _state8.totalFields,
-          type = _state8.type,
-          matrixColLength = _state8.matrixColLength,
-          matrixRowLength = _state8.matrixRowLength;
+      var _state9 = this.state,
+          dimensionStorage = _state9.dimensionStorage,
+          totalFields = _state9.totalFields,
+          type = _state9.type,
+          matrixColLength = _state9.matrixColLength,
+          matrixRowLength = _state9.matrixRowLength;
       // CASE 0: It's a vector and the user did not input any object or it's not the right size
 
       if (type === _InputConsts.CONST_VECTOR || type === _InputConsts.CONST_VECTOR_LINEAR_EXPRESSION) {

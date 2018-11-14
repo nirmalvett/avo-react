@@ -56,9 +56,13 @@ export function getMathJax(text, variant='body2') {
 
 export function validateNumber(text) {
     // Remove whitespace and check if string is empty
-    if (text === undefined || text.replace(/ /g, '').length === 0)
-        return 'No answer given';
-
+    if (text === undefined || text.replace(/ /g, '').length === 0){
+         return 'No answer given';
+    }
+    else { // TODO remove this when the issue of order mismatch is fixed. For now we're bypassing all checks
+        return [text]
+    }
+    // TODO fix up the parsing for this so 1 + cos(2) works
     // Split string into tokens
     let regex = '\\d+(?:\\.\\d+)?|(sqrt|sin|cos|tan|arcsin|arccos|arctan)\\(|[()+\\-*/^]';
     text = text.replace(/ /g, '').replace(new RegExp(regex, 'g'), ' $& ').trim().replace(/ {2,}/g, ' ');

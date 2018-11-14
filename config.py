@@ -1,3 +1,4 @@
+# noinspection PyUnresolvedReferences
 from os.path import abspath, dirname, join
 from git import Repo
 
@@ -30,14 +31,11 @@ SECURITY_PASSWORD_SALT = \
 
 # ===================================================================================================================
 # Database URI location on server. One of these needs to be commented out.
-# Running MySQL Locally
-#SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root@localhost/dev'
-
-# Running SQLite Locally (Probably what you want if not sure)
-#SQLALCHEMY_DATABASE_URI = 'sqlite:///' + join(_cwd, 'avo.db')
+# Running MySQL Locally, if you are not sure then this is the correct choice
+# SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root@localhost/dev'
 
 # For APP and DEV
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://avocado:uw%J@%$n5C15q8Xswv@localhost/' + branch  
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://avocado:uw%J@%$n5C15q8Xswv@localhost/' + branch
 # ===================================================================================================================
 
 SQLALCHEMY_ECHO = False
@@ -45,10 +43,9 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Gzip Settings
 COMPRESS_MIMETYPES = [
-'text/html',
-'text/css',
-'application/json',
-'application/javascript',
-'image/svg'
+    'text/html',
+    'text/css',
+    'application/json',
+    'application/javascript',
+    'image/svg'
 ]
-

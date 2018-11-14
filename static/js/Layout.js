@@ -29,7 +29,6 @@ import Build from '@material-ui/icons/Build';
 import Class from '@material-ui/icons/Class';
 import Settings from '@material-ui/icons/Settings';
 import ExitToApp from '@material-ui/icons/ExitToApp';
-import { isNotChromeAlert } from "./helpers";
 import { uniqueKey } from "./helpers";
 
 const drawerWidth = 240;
@@ -80,7 +79,7 @@ const styles = theme => ({
 class Layout extends React.Component {
     constructor(props) {
         super(props);
-        let avoGreen = {'200': '#f8ee7b', '500': '#399103'}; // this our default AVO colors
+        let avoGreen = {'100': 'b8e8b8', '200': '#f8ee7b', '500': '#399103'}; // this our default AVO colors
         this.colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal,
             avoGreen, green, lightGreen, amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
         Http.getUserInfo( // get our user info
@@ -175,17 +174,14 @@ class Layout extends React.Component {
         return (
             <ListItem 
                 button
-                classes={{
-                    root : 'avo-menu__item',
-                    selected : 'selected'
-                }} 
+                classes={{root: 'avo-menu__item'}}
                 selected={selected} 
                 onClick={() => this.setState({section: text})} 
                 style={style}
                 key = {key}
             >
                 {React.createElement(icon,
-                    {nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' },
+                    {color: selected && theme === 'light' ? 'primary' : 'action' },
                     {key: key})}
                 <ListItemText primary={text} key = {key}/>
             </ListItem>
