@@ -10,11 +10,15 @@ class AvoQuestion:
     def __init__(self, question: str, seed=0):
         """
         Takes in question specifications, initializes object with relevant properties to display
+        'self' --> the object the method is called on (think variable.lower(), 'variable' would be 'self')
+        'question: str' --> tells compiler a string is being taken in so it can give warnings/suggestions accordingly
+        'seed' --> number the random generator uses as a starting point
         """
-        question = question.split('；')
-        if len(question) != 5:
+        question = question.split('；')  # splits question string at each ';' into list of strings
+        if len(question) != 5:      # ensures the list of strings is 6 parts
             raise SyntaxError(f'Received wrong number of parts: {len(question)}')
         self.steps, self.prompts, self.types, self.notes, _ = map(lambda x: x.split('，'), question)
+        # puts each string from the split string list into variables before the equals sign
 
         self.random = AvoRandom(seed)
         self.score = 0
@@ -25,22 +29,25 @@ class AvoQuestion:
         self.ans_list = []
         self.totals = []
 
-        while len(self.steps) > 0 and '@' not in self.steps[0]:
+        while len(self.steps) > 0 and '@' not in self.steps[0]:     # '@' doesnt execute until answers are evaluated
             self.step(self.steps.pop(0))
 
         try:
             self.prompts = tuple(map(lambda prompt: prompt.format(*self.str_list), self.prompts))
             self.notes = list(map(lambda prompt: prompt.format(*self.str_list), self.notes))
+
         except IndexError:
             raise SyntaxError("Error: undefined string variable reference")
         self.prompt, self.prompts = self.prompts[0], self.prompts[1:]
 
-        if len(self.prompts) != len(self.types):
+        if len(self.prompts) != len(self.types):    # ensures there are the same number of prompts as answer fields
             raise SyntaxError("The number of prompts and answer fields don't match")
 
     def step(self, token_list):
         """
         Generates a single step/part of the question being generated based on the parameter passed in
+        'self' --> the object the method is called on (think variable.lower(), 'variable' would be 'self')
+        'token_list' --> question in postfix notation form in a list
         """
         token_list = token_list.split(' ')
         stack = []
@@ -171,6 +178,9 @@ class AvoQuestion:
     def increment_score(self, condition, amount):
         """
         Marks a single criteria/part of the generated question
+        'condition' --> true or false object (AvoVariable) to determine whether to give the student points or not
+        --> also contains an explanation for how the answer was reached to generate explanation for question
+        'amount' --> amount of points to be granted, if the student is correct
         """
         if str(self.notes[0]).startswith('/'):
             self.explanation.append(self.notes[0][1:])
@@ -296,7 +306,8 @@ methods = {     # Function calls mapped to abbreviations for simplified calls
 
 def build_number(text: str):
     """
-    Converts string expression into a number
+    Converts string expression into a number (takes string and converts into AvoVariable)
+    'text: str' --> tells compiler a string is being taken in so it can give warnings/suggestions accordingly
     """
     invalid = error('invalid expression')
     regex = r'\d+(?:\.\d+)?|(sqrt|sin|cos|tan|arcsin|arccos|arctan)\(|[()+\-*/^]'
@@ -304,7 +315,7 @@ def build_number(text: str):
     if not all(map(lambda t: fullmatch(regex, t), token_list)):
         return invalid
 
-    for i in range(len(token_list)):
+    for i in range(len(token_list)):    # determines which minus signs are negative signs, and priority of negatives
         if token_list[i] == '-' and (i == 0 or not fullmatch(r'\d+(?:\.\d+)?|\)', token_list[i - 1])):
             if i + 1 == len(token_list):
                 return invalid
@@ -316,7 +327,8 @@ def build_number(text: str):
     brackets = 0
     operations = []
     operators = {"---": 8, "--": 6, "+": 4, "-": 4, "*": 5, "/": 5, "^": 7}
-    for i in range(len(token_list)):
+
+    for i in range(len(token_list)):    # figures out the order of operations
         token = token_list[i]
         if fullmatch(r'-?\d+(?:\.\d+)?', token):
             token_list[i] = float(token)
@@ -339,7 +351,7 @@ def build_number(text: str):
 
     operations.sort(key=lambda item: item[1], reverse=True)
 
-    for i in range(len(operations)):
+    for i in range(len(operations)):    # uses above loop's order of operations to assist in evaluating to a number
         operation = operations[i][0]
         pos = token_list.index(operations[i])
         if operation in ('---', '--'):
