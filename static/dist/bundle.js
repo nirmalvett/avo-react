@@ -56475,7 +56475,6 @@ var ManageClasses = function (_React$Component) {
                                             _react2.default.createElement(_ListItemText2.default, { inset: true, primary: x.name }),
                                             x.open ? _react2.default.createElement(_ExpandLess2.default, { color: x.tests.length === 0 ? 'disabled' : 'action' }) : _react2.default.createElement(_ExpandMore2.default, { color: x.tests.length === 0 ? 'disabled' : 'action' })
                                         ),
-                                        ',',
                                         _react2.default.createElement(
                                             _Collapse2.default,
                                             { 'in': x.open, timeout: 'auto', unmountOnExit: true },

@@ -90,7 +90,7 @@ export default class ManageClasses extends React.Component {
                                         {x.open ?
                                             <ExpandLess color={x.tests.length === 0 ? 'disabled' : 'action'} /> :
                                             <ExpandMore color={x.tests.length === 0 ? 'disabled' : 'action'} />}
-                                    </ListItem>,
+                                    </ListItem>
                                     <Collapse in={x.open} timeout='auto' unmountOnExit><List>
                                         {
                                             // For each test create a menu option
