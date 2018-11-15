@@ -550,7 +550,7 @@ def post_test():
         # If takes cant be found return error JSON
         return jsonify(error='No takes record with that ID')
     # Get data from takes and get test from takes
-    marks, answers, seeds = eval(takes_list.marks), eval(takes_list.answers), eval(takes_list.seeds)
+    marks, answers, seeds, = eval(takes_list.marks), eval(takes_list.answers), eval(takes_list.seeds)
     test = Test.query.get(takes_list.TEST)
     if enrolled_in_class(test.CLASS) or teaches_class(test.CLASS):
         questions = eval(test.question_list)
@@ -560,8 +560,8 @@ def post_test():
             current_question = Question.query.get(questions[i])
             q = AvoQuestion(current_question.string, seeds[i])
             q.get_score(*answers[i])
-            question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation, 'types': q.types,
-                                  'answers': answers[i], 'totals': q.totals, 'scores': q.scores})
+            question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation,
+                                  'types': q.types, 'answers': answers[i], 'totals': q.totals, 'scores': marks[i]})
         return jsonify(questions=question_list)
     else:
         return jsonify(error="User isn't in class")
