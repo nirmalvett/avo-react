@@ -66,7 +66,7 @@ export default class ManageClasses extends React.Component {
                     <Grid item xs={3} style={{ flex: 1, display: 'flex' }}>
                         <Paper classes={{ root: 'avo-sidebar' }} square style={{ width: '100%', flex: 1, display: 'flex' }}>
                             <List style={{ flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' }}>
-                                <Typography variant='h2' color="textPrimary"><center>Manage My Classes</center></Typography>
+                                <Typography variant="bold" color="textPrimary"><center>Manage My Classes</center></Typography>
                                 <br/>
                                 <Divider />
                                 <ListSubheader style={{ 'position': 'relative' }}>Class Creation</ListSubheader>
@@ -316,7 +316,7 @@ export default class ManageClasses extends React.Component {
                     }}
                     title={'Hey there!'}
                 />
-                <Typography variant='body' color="textPrimary" class="avo-padding__16px">
+                <Typography variant='body' color="textPrimary" classes={{root: "avo-padding__16px"}}>
                     Looks like you haven't selected a Class or Test yet!
                 </Typography>
                 <br />

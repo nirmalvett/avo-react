@@ -63,7 +63,7 @@ export default class MyClasses extends React.Component {
                     <Grid item xs={3} style={{ flex: 1, display: 'flex' }}>
                         <Paper classes={{ root : 'avo-sidebar' }} square style={{ width: '100%', flex: 1, display: 'flex' }}>
                             <List style={{ flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' }}>
-                                <Typography variant="h2" color="textPrimary"><center>Welcome to My Classes</center></Typography>
+                                <Typography variant="bold" color="textPrimary"><center>Welcome to My Classes</center></Typography>
                                 <br/>                                
                                 <Divider/>
                                 <ListSubheader style={{ 'position' : 'relative' }}>Analytics & Enrollment</ListSubheader>
@@ -147,7 +147,7 @@ export default class MyClasses extends React.Component {
                 >
                     <React.Fragment>
                         <br/>
-                        <Typography variant='body'>
+                        <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
                             Please enter the course code for the class you want to enroll in!
                         </Typography>
                         <TextField
@@ -231,7 +231,7 @@ export default class MyClasses extends React.Component {
                         }}
                         title={selectedClass.name}
                     />
-                    <Typography variant='body' color="textPrimary" class="avo-padding__16px">
+                    <Typography variant='body' color="textPrimary" classes={{root: "avo-padding__16px"}}>
                         {selectedClass.tests.length == 0 && "This class doesn't have any tests yet!"}
                     </Typography>
                 </React.Fragment>
@@ -245,7 +245,7 @@ export default class MyClasses extends React.Component {
                     }}
                     title={'Hey there!'}
                 />
-                <Typography variant='body' color="textPrimary" class="avo-padding__16px">
+                <Typography variant='body' color="textPrimary" classes={{root: "avo-padding__16px"}}>
                     Looks like you haven't selected a Class or Test yet!
                 </Typography>
                 <br/>
