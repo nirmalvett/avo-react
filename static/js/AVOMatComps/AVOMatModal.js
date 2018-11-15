@@ -53,8 +53,12 @@ export default class AVOModal extends React.Component {
                     color='primary' 
                     className='avo-button' 
                     onClick={() => {
-                        this.props.onAccept();
-                        this.closeModal();
+                        if(this.props.noDefaultClose) {
+                            this.props.onAccept(this.closeModal.bind(this));
+                        }else{
+                            this.props.onAccept();
+                            this.closeModal();
+                        }
                     }}
                 >
                     {this.props.acceptText}

@@ -56,13 +56,9 @@ export function getMathJax(text, variant='body2') {
 
 export function validateNumber(text) {
     // Remove whitespace and check if string is empty
-    if (text === undefined || text.replace(/ /g, '').length === 0){
-         return 'No answer given';
-    }
-    else { // TODO remove this when the issue of order mismatch is fixed. For now we're bypassing all checks
-        return [text]
-    }
-    // TODO fix up the parsing for this so 1 + cos(2) works
+    if (text === undefined || text.replace(/ /g, '').length === 0)
+        return 'No answer given';
+
     // Split string into tokens
     let regex = '\\d+(?:\\.\\d+)?|(sqrt|sin|cos|tan|arcsin|arccos|arctan)\\(|[()+\\-*/^]';
     text = text.replace(/ /g, '').replace(new RegExp(regex, 'g'), ' $& ').trim().replace(/ {2,}/g, ' ');
@@ -113,7 +109,7 @@ export function validateNumber(text) {
     if (bracket_level !== 0)
         return 'Mismatched open bracket';
     // noinspection JSCheckFunctionSignatures
-    operations.sort((a, b) => a[1] < b[1]);
+    operations.sort((a, b) => b[1] - a[1]);
 
     let brackets = (e, p) => e[2] < p ? ' \\left( ' + e[1] + ' \\right) ' : e[1];
     let isVar = i => tokenList[i][0] === '~';
