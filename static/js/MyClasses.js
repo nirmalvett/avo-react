@@ -192,9 +192,9 @@ export default class MyClasses extends React.Component {
                         {selectedTest.current !== null ? 'Resume Test' : 'Start Test'}
                     </Button>
                     <br/>
-                    <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}>Deadline: {getDateString(selectedTest.deadline)}</Typography>
-                    <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}>Time Limit: {selectedTest.timer} minutes</Typography>
-                    <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}>Attempts:
+                    <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}><b>Deadline:</b> {getDateString(selectedTest.deadline)}</Typography>
+                    <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}><b>Time Limit:</b> {selectedTest.timer} minutes</Typography>
+                    <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}><b>Attempts:</b>
                         {
                             selectedTest.attempts === -1
                                 ? " Unlimited"
