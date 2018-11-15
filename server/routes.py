@@ -30,7 +30,7 @@ def change_color():
     color = data['color']
     if not isinstance(color, int):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
 
     # Commit the users's changes to the DB
     current_user.color = color
@@ -53,7 +53,7 @@ def change_theme():
     theme = data['theme']
     if not isinstance(theme, int):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
     # Applies the user's changes to the database
     current_user.theme = theme
     db.session.commit()
@@ -75,7 +75,7 @@ def create_class():
     name = request.json['name']  # Name of the new class
     if not isinstance(name, str):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
     new_class = Class(current_user.USER, name)  # Class to be created
     # Add to database and commit
     db.session.add(new_class)
@@ -173,7 +173,7 @@ def enroll():
     key = request.json['key']  # Data sent from user
     if not isinstance(key, str):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
     try:
         # Find class with said enroll key if no class found return error json
         current_class = Class.query.filter(Class.enroll_key == key).first()
@@ -203,7 +203,7 @@ def open_test():
     test = request.json['test']  # Data from client
     if not isinstance(test, int):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
     current_test = Test.query.get(test)  # Get the test
     if current_test is None:
         # If test cant be found return error json if not set to open and return
@@ -234,7 +234,7 @@ def close_test():
     test = request.json['test']  # Test to close
     if not isinstance(test, int):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
     current_test = Test.query.get(test) # Get the test
     if current_test is None:
         # If test doesn't exist then return error JSON if not close test and return
@@ -263,7 +263,7 @@ def delete_test():
     test = request.json['test']  # Test to be deleted
     if not isinstance(test, int):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
     current_test = Test.query.get(test)  # Get the test
     if current_test is None:
         # If test isn't found return error JSON else set class to none and return
@@ -291,7 +291,7 @@ def get_question():
     question, seed = data['question'], data['seed']  # Data from client
     if not isinstance(question, int) or not isinstance(seed, int):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
     current_question = Question.query.get(question)  # Get question from database
     if current_question is None:
         # If the question isn't found return error json if not return to client
@@ -315,7 +315,7 @@ def get_test():
     test_id = data['test']  # Data of test requested
     if not isinstance(test_id, int):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
     test = Test.query.get(test_id)  # Test requested
     if test is None:
         # If no test found return error json
@@ -411,7 +411,7 @@ def save_test():
             isinstance(timer, str) or not isinstance(attempts, str) or not isinstance(question_list, list) or not \
             isinstance(seed_list, list):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
     if not teaches_class(class_id):
         return jsonify(error="User doesn't teach this class")
     if len(question_list) is 0:
@@ -432,6 +432,36 @@ def save_test():
     return jsonify(test=test.TEST)
 
 
+@routes.route('/changeTest', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def change_test():
+    """
+    Changes the Deadline Timer and Name of specified test
+    :return: Confirmation that data has been updated
+    """
+    if not request.json:
+        # If the request isn't JSON return a 400 error
+        return abort(400)
+    data = request.json # Data from client
+    test, timer, name, deadline = data['test'], data['timer'], data['name'], data['deadline']
+    if not isinstance(test, int) or not isinstance(timer, int) or not isinstance(name, str) or not isinstance(deadline, datetime):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    test = Test.query.get(test) # Gets the test object
+    if not teaches_class(test.CLASS):
+        # If the teacher doesn't teach the class the test is in return error
+        return jsonify(error="User does not teach class")
+    # Updates Test data
+    test.deadline = deadline
+    test.timer = timer
+    test.name = name
+
+    db.session.commit()
+    return jsonify(code="Test Updated")
+
+
 @routes.route('/saveAnswer', methods=['POST'])
 @login_required
 @check_confirmed
@@ -447,7 +477,7 @@ def save_answer():
     takes, question, answer = data['takes'], data['question'], data['answer']  # Data from user
     if not isinstance(takes, int) or not isinstance(question, int) or not isinstance(answer, list):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
     takes_list = Takes.query.get(takes)  # Instance of takes to add answer to
     if takes_list is None or takes_list.USER is not current_user.USER:
         # If takes instance cant be found or is not the same as current user return error JSON
@@ -486,7 +516,7 @@ def submit_test():
     takes = data['takes']  # Data from client
     if not isinstance(takes, int):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
     # Get current takes and update submit time and commit to DataBase
     current_takes = Takes.query.get(takes)
     test = Test.query.get(current_takes.TEST)
@@ -514,7 +544,7 @@ def post_test():
     takes = data['takes']  # Data from client
     if not isinstance(takes, int):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
     takes_list = Takes.query.get(takes)  # Get current instance of takes
     if takes_list is None:
         # If takes cant be found return error JSON
@@ -553,7 +583,7 @@ def get_class_test_results():
     test = data['test']  # Data from client
     if not isinstance(test, int):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
+        return jsonify(error="One or more data is not correct")
     current_test = Test.query.get(test)
     if not teaches_class(current_test.CLASS):
         return jsonify(error="User doesn't teach class")
