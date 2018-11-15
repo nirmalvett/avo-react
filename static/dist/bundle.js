@@ -2940,174 +2940,6 @@ exports.default = _default;
 
 /***/ }),
 /* 32 */
-/***/ (function(module, exports) {
-
-/**
- * Returns a function, that, as long as it continues to be invoked, will not
- * be triggered. The function will be called after it stops being called for
- * N milliseconds. If `immediate` is passed, trigger the function on the
- * leading edge, instead of the trailing. The function also has a property 'clear' 
- * that is a function which will clear the timer to prevent previously scheduled executions. 
- *
- * @source underscore.js
- * @see http://unscriptable.com/2009/03/20/debouncing-javascript-methods/
- * @param {Function} function to wrap
- * @param {Number} timeout in ms (`100`)
- * @param {Boolean} whether to execute at the beginning (`false`)
- * @api public
- */
-function debounce(func, wait, immediate){
-  var timeout, args, context, timestamp, result;
-  if (null == wait) wait = 100;
-
-  function later() {
-    var last = Date.now() - timestamp;
-
-    if (last < wait && last >= 0) {
-      timeout = setTimeout(later, wait - last);
-    } else {
-      timeout = null;
-      if (!immediate) {
-        result = func.apply(context, args);
-        context = args = null;
-      }
-    }
-  };
-
-  var debounced = function(){
-    context = this;
-    args = arguments;
-    timestamp = Date.now();
-    var callNow = immediate && !timeout;
-    if (!timeout) timeout = setTimeout(later, wait);
-    if (callNow) {
-      result = func.apply(context, args);
-      context = args = null;
-    }
-
-    return result;
-  };
-
-  debounced.clear = function() {
-    if (timeout) {
-      clearTimeout(timeout);
-      timeout = null;
-    }
-  };
-  
-  debounced.flush = function() {
-    if (timeout) {
-      result = func.apply(context, args);
-      context = args = null;
-      
-      clearTimeout(timeout);
-      timeout = null;
-    }
-  };
-
-  return debounced;
-};
-
-// Adds compatibility for ES modules
-debounce.debounce = debounce;
-
-module.exports = debounce;
-
-
-/***/ }),
-/* 33 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _interopRequireDefault = __webpack_require__(0);
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.cloneElementWithClassName = cloneElementWithClassName;
-exports.cloneChildrenWithClassName = cloneChildrenWithClassName;
-exports.isMuiElement = isMuiElement;
-exports.isMuiComponent = isMuiComponent;
-
-var _react = _interopRequireDefault(__webpack_require__(1));
-
-var _classnames = _interopRequireDefault(__webpack_require__(7));
-
-/* eslint-disable import/prefer-default-export */
-function cloneElementWithClassName(child, className) {
-  return _react.default.cloneElement(child, {
-    className: (0, _classnames.default)(child.props.className, className)
-  });
-}
-
-function cloneChildrenWithClassName(children, className) {
-  return _react.default.Children.map(children, function (child) {
-    return _react.default.isValidElement(child) && cloneElementWithClassName(child, className);
-  });
-}
-
-function isMuiElement(element, muiNames) {
-  return _react.default.isValidElement(element) && muiNames.indexOf(element.type.muiName) !== -1;
-}
-
-function isMuiComponent(element, muiNames) {
-  return muiNames.indexOf(element.muiName) !== -1;
-}
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-var _interopRequireDefault = __webpack_require__(0);
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.specialProperty = void 0;
-
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(8));
-
-var _extends3 = _interopRequireDefault(__webpack_require__(4));
-
-// This module is based on https://github.com/airbnb/prop-types-exact repository.
-// However, in order to reduce the number of dependencies and to remove some extra safe checks
-// the module was forked.
-// Only exported for test purposes.
-var specialProperty = "exact-prop: \u200B";
-exports.specialProperty = specialProperty;
-
-function exactProp(propTypes) {
-  /* istanbul ignore if */
-  if (process.env.NODE_ENV === 'production') {
-    return propTypes;
-  }
-
-  return (0, _extends3.default)({}, propTypes, (0, _defineProperty2.default)({}, specialProperty, function (props) {
-    var unsupportedProps = Object.keys(props).filter(function (prop) {
-      return !propTypes.hasOwnProperty(prop);
-    });
-
-    if (unsupportedProps.length > 0) {
-      return new Error("The following properties are not supported: ".concat(unsupportedProps.map(function (prop) {
-        return "`".concat(prop, "`");
-      }).join(', '), ". Please remove them."));
-    }
-
-    return null;
-  }));
-}
-
-var _default = exactProp;
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
-
-/***/ }),
-/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3183,6 +3015,174 @@ function isChrome() {
         return false;
     }
 }
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports) {
+
+/**
+ * Returns a function, that, as long as it continues to be invoked, will not
+ * be triggered. The function will be called after it stops being called for
+ * N milliseconds. If `immediate` is passed, trigger the function on the
+ * leading edge, instead of the trailing. The function also has a property 'clear' 
+ * that is a function which will clear the timer to prevent previously scheduled executions. 
+ *
+ * @source underscore.js
+ * @see http://unscriptable.com/2009/03/20/debouncing-javascript-methods/
+ * @param {Function} function to wrap
+ * @param {Number} timeout in ms (`100`)
+ * @param {Boolean} whether to execute at the beginning (`false`)
+ * @api public
+ */
+function debounce(func, wait, immediate){
+  var timeout, args, context, timestamp, result;
+  if (null == wait) wait = 100;
+
+  function later() {
+    var last = Date.now() - timestamp;
+
+    if (last < wait && last >= 0) {
+      timeout = setTimeout(later, wait - last);
+    } else {
+      timeout = null;
+      if (!immediate) {
+        result = func.apply(context, args);
+        context = args = null;
+      }
+    }
+  };
+
+  var debounced = function(){
+    context = this;
+    args = arguments;
+    timestamp = Date.now();
+    var callNow = immediate && !timeout;
+    if (!timeout) timeout = setTimeout(later, wait);
+    if (callNow) {
+      result = func.apply(context, args);
+      context = args = null;
+    }
+
+    return result;
+  };
+
+  debounced.clear = function() {
+    if (timeout) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
+  };
+  
+  debounced.flush = function() {
+    if (timeout) {
+      result = func.apply(context, args);
+      context = args = null;
+      
+      clearTimeout(timeout);
+      timeout = null;
+    }
+  };
+
+  return debounced;
+};
+
+// Adds compatibility for ES modules
+debounce.debounce = debounce;
+
+module.exports = debounce;
+
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(0);
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.cloneElementWithClassName = cloneElementWithClassName;
+exports.cloneChildrenWithClassName = cloneChildrenWithClassName;
+exports.isMuiElement = isMuiElement;
+exports.isMuiComponent = isMuiComponent;
+
+var _react = _interopRequireDefault(__webpack_require__(1));
+
+var _classnames = _interopRequireDefault(__webpack_require__(7));
+
+/* eslint-disable import/prefer-default-export */
+function cloneElementWithClassName(child, className) {
+  return _react.default.cloneElement(child, {
+    className: (0, _classnames.default)(child.props.className, className)
+  });
+}
+
+function cloneChildrenWithClassName(children, className) {
+  return _react.default.Children.map(children, function (child) {
+    return _react.default.isValidElement(child) && cloneElementWithClassName(child, className);
+  });
+}
+
+function isMuiElement(element, muiNames) {
+  return _react.default.isValidElement(element) && muiNames.indexOf(element.type.muiName) !== -1;
+}
+
+function isMuiComponent(element, muiNames) {
+  return muiNames.indexOf(element.muiName) !== -1;
+}
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+var _interopRequireDefault = __webpack_require__(0);
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.specialProperty = void 0;
+
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(8));
+
+var _extends3 = _interopRequireDefault(__webpack_require__(4));
+
+// This module is based on https://github.com/airbnb/prop-types-exact repository.
+// However, in order to reduce the number of dependencies and to remove some extra safe checks
+// the module was forked.
+// Only exported for test purposes.
+var specialProperty = "exact-prop: \u200B";
+exports.specialProperty = specialProperty;
+
+function exactProp(propTypes) {
+  /* istanbul ignore if */
+  if (process.env.NODE_ENV === 'production') {
+    return propTypes;
+  }
+
+  return (0, _extends3.default)({}, propTypes, (0, _defineProperty2.default)({}, specialProperty, function (props) {
+    var unsupportedProps = Object.keys(props).filter(function (prop) {
+      return !propTypes.hasOwnProperty(prop);
+    });
+
+    if (unsupportedProps.length > 0) {
+      return new Error("The following properties are not supported: ".concat(unsupportedProps.map(function (prop) {
+        return "`".concat(prop, "`");
+      }).join(', '), ". Please remove them."));
+    }
+
+    return null;
+  }));
+}
+
+var _default = exactProp;
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
 /* 36 */
@@ -6273,7 +6273,7 @@ var _withStyles = _interopRequireDefault(__webpack_require__(6));
 
 var _ButtonBase = _interopRequireDefault(__webpack_require__(21));
 
-var _reactHelpers = __webpack_require__(33);
+var _reactHelpers = __webpack_require__(34);
 
 var styles = function styles(theme) {
   return {
@@ -35043,7 +35043,7 @@ var _Slide = __webpack_require__(56);
 
 var _Slide2 = _interopRequireDefault(_Slide);
 
-var _helpers = __webpack_require__(35);
+var _helpers = __webpack_require__(32);
 
 var _Logo = __webpack_require__(144);
 
@@ -42245,7 +42245,7 @@ var _propTypes = _interopRequireDefault(__webpack_require__(3));
 
 var _classnames = _interopRequireDefault(__webpack_require__(7));
 
-var _debounce = _interopRequireDefault(__webpack_require__(32));
+var _debounce = _interopRequireDefault(__webpack_require__(33));
 
 var _reactEventListener = _interopRequireDefault(__webpack_require__(27));
 
@@ -43108,7 +43108,7 @@ var _withStyles = _interopRequireDefault(__webpack_require__(6));
 
 var _helpers = __webpack_require__(16);
 
-var _reactHelpers = __webpack_require__(33);
+var _reactHelpers = __webpack_require__(34);
 
 var styles = {
   /* Styles applied to the root element. */
@@ -44311,7 +44311,7 @@ var _reactDom = _interopRequireDefault(__webpack_require__(18));
 
 var _warning = _interopRequireDefault(__webpack_require__(15));
 
-var _debounce = _interopRequireDefault(__webpack_require__(32));
+var _debounce = _interopRequireDefault(__webpack_require__(33));
 
 var _reactEventListener = _interopRequireDefault(__webpack_require__(27));
 
@@ -45412,7 +45412,7 @@ var _reactDom = _interopRequireDefault(__webpack_require__(18));
 
 var _propTypes = _interopRequireDefault(__webpack_require__(3));
 
-var _exactProp = _interopRequireDefault(__webpack_require__(34));
+var _exactProp = _interopRequireDefault(__webpack_require__(35));
 
 function setRef(ref, value) {
   if (typeof ref === 'function') {
@@ -45539,7 +45539,7 @@ var _propTypes = _interopRequireDefault(__webpack_require__(3));
 
 var _ownerDocument = _interopRequireDefault(__webpack_require__(26));
 
-var _exactProp = _interopRequireDefault(__webpack_require__(34));
+var _exactProp = _interopRequireDefault(__webpack_require__(35));
 
 function getContainer(container, defaultContainer) {
   container = typeof container === 'function' ? container() : container;
@@ -47541,7 +47541,7 @@ var _reactDom = _interopRequireDefault(__webpack_require__(18));
 
 var _reactEventListener = _interopRequireDefault(__webpack_require__(27));
 
-var _debounce = _interopRequireDefault(__webpack_require__(32));
+var _debounce = _interopRequireDefault(__webpack_require__(33));
 
 var _Transition = _interopRequireDefault(__webpack_require__(43));
 
@@ -47970,7 +47970,7 @@ var _ExitToAppOutlined = __webpack_require__(369);
 
 var _ExitToAppOutlined2 = _interopRequireDefault(_ExitToAppOutlined);
 
-var _helpers = __webpack_require__(35);
+var _helpers = __webpack_require__(32);
 
 var _TimerComp = __webpack_require__(370);
 
@@ -48125,16 +48125,21 @@ var Layout = function (_React$Component) {
                                     this.listItem(_HomeOutlined2.default, 'Home'),
                                     this.listItem(_ClassOutlined2.default, 'My Classes')
                                 ),
-                                isTeacher ? [_react2.default.createElement(_Divider2.default, null), _react2.default.createElement(
-                                    _List2.default,
-                                    { subheader: _react2.default.createElement(
-                                            _ListSubheader2.default,
-                                            null,
-                                            'Teacher Only'
-                                        ) },
-                                    this.listItem(_ClassOutlined2.default, 'Manage Classes'),
-                                    disabledListItem(_BuildOutlined2.default, 'Build Question')
-                                )] : undefined,
+                                isTeacher ? _react2.default.createElement(
+                                    'div',
+                                    null,
+                                    _react2.default.createElement(_Divider2.default, null),
+                                    _react2.default.createElement(
+                                        _List2.default,
+                                        { subheader: _react2.default.createElement(
+                                                _ListSubheader2.default,
+                                                null,
+                                                'Teacher Only'
+                                            ) },
+                                        this.listItem(_ClassOutlined2.default, 'Manage Classes'),
+                                        disabledListItem(_BuildOutlined2.default, 'Build Question')
+                                    )
+                                ) : undefined,
                                 _react2.default.createElement(_Divider2.default, null),
                                 _react2.default.createElement(
                                     _List2.default,
@@ -48308,7 +48313,7 @@ var _Typography = __webpack_require__(19);
 
 var _Typography2 = _interopRequireDefault(_Typography);
 
-var _helpers = __webpack_require__(35);
+var _helpers = __webpack_require__(32);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -48408,7 +48413,7 @@ var _Typography = __webpack_require__(19);
 
 var _Typography2 = _interopRequireDefault(_Typography);
 
-var _helpers = __webpack_require__(35);
+var _helpers = __webpack_require__(32);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -49126,7 +49131,7 @@ var _Slide = __webpack_require__(56);
 
 var _Slide2 = _interopRequireDefault(_Slide);
 
-var _helpers = __webpack_require__(35);
+var _helpers = __webpack_require__(32);
 
 var _Typography = __webpack_require__(19);
 
@@ -51598,7 +51603,7 @@ var _ListItemSecondaryAction = __webpack_require__(94);
 
 var _ListItemSecondaryAction2 = _interopRequireDefault(_ListItemSecondaryAction);
 
-var _helpers = __webpack_require__(35);
+var _helpers = __webpack_require__(32);
 
 var _Tooltip = __webpack_require__(95);
 
@@ -51669,7 +51674,7 @@ var MyClasses = function (_React$Component) {
                                 { style: { flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' } },
                                 _react2.default.createElement(
                                     _Typography2.default,
-                                    { variant: 'bold', color: 'textPrimary' },
+                                    { variant: 'subheading', color: 'textPrimary' },
                                     _react2.default.createElement(
                                         'center',
                                         null,
@@ -51702,34 +51707,39 @@ var MyClasses = function (_React$Component) {
                                     'Classes'
                                 ),
                                 this.state.classes.map(function (x, y) {
-                                    return [_react2.default.createElement(
-                                        _ListItem2.default,
-                                        { key: (0, _helpers.uniqueKey)(), button: true, onClick: function onClick() {
-                                                var newClassList = (0, _Utilities.copy)(_this3.state.classes);
-                                                if (newClassList[y].tests.length > 0) newClassList[y].open = !newClassList[y].open;
-                                                _this3.setState({ classes: newClassList, c: y, t: null });
-                                            } },
-                                        _react2.default.createElement(_PeopleOutlined2.default, { color: 'action' }),
-                                        _react2.default.createElement(_ListItemText2.default, { inset: true, primary: x.name }),
-                                        x.open ? _react2.default.createElement(_ExpandLess2.default, { color: x.tests.length === 0 ? 'disabled' : 'action' }) : _react2.default.createElement(_ExpandMore2.default, { color: x.tests.length === 0 ? 'disabled' : 'action' })
-                                    ), _react2.default.createElement(
-                                        _Collapse2.default,
-                                        { 'in': x.open, timeout: 'auto', unmountOnExit: true },
+                                    return _react2.default.createElement(
+                                        'div',
+                                        { key: (0, _helpers.uniqueKey)() },
                                         _react2.default.createElement(
-                                            _List2.default,
-                                            null,
-                                            x.tests.map(function (a, b) {
-                                                return _react2.default.createElement(
-                                                    _ListItem2.default,
-                                                    { key: (0, _helpers.uniqueKey)(), button: true, onClick: function onClick() {
-                                                            return _this3.setState({ c: y, t: b });
-                                                        } },
-                                                    _react2.default.createElement(_AssessmentOutlined2.default, { color: a.open ? 'primary' : 'disabled', style: { marginLeft: '10px' } }),
-                                                    _react2.default.createElement(_ListItemText2.default, { inset: true, primary: a.name })
-                                                );
-                                            })
+                                            _ListItem2.default,
+                                            { key: (0, _helpers.uniqueKey)(), button: true, onClick: function onClick() {
+                                                    var newClassList = (0, _Utilities.copy)(_this3.state.classes);
+                                                    if (newClassList[y].tests.length > 0) newClassList[y].open = !newClassList[y].open;
+                                                    _this3.setState({ classes: newClassList, c: y, t: null });
+                                                } },
+                                            _react2.default.createElement(_PeopleOutlined2.default, { color: 'action' }),
+                                            _react2.default.createElement(_ListItemText2.default, { inset: true, primary: x.name }),
+                                            x.open ? _react2.default.createElement(_ExpandLess2.default, { color: x.tests.length === 0 ? 'disabled' : 'action' }) : _react2.default.createElement(_ExpandMore2.default, { color: x.tests.length === 0 ? 'disabled' : 'action' })
+                                        ),
+                                        _react2.default.createElement(
+                                            _Collapse2.default,
+                                            { 'in': x.open, timeout: 'auto', unmountOnExit: true },
+                                            _react2.default.createElement(
+                                                _List2.default,
+                                                null,
+                                                x.tests.map(function (a, b) {
+                                                    return _react2.default.createElement(
+                                                        _ListItem2.default,
+                                                        { key: (0, _helpers.uniqueKey)(), button: true, onClick: function onClick() {
+                                                                return _this3.setState({ c: y, t: b });
+                                                            } },
+                                                        _react2.default.createElement(_AssessmentOutlined2.default, { color: a.open ? 'primary' : 'disabled', style: { marginLeft: '10px' } }),
+                                                        _react2.default.createElement(_ListItemText2.default, { inset: true, primary: a.name })
+                                                    );
+                                                })
+                                            )
                                         )
-                                    )];
+                                    );
                                 })
                             )
                         )
@@ -51788,7 +51798,7 @@ var MyClasses = function (_React$Component) {
                         _react2.default.createElement('br', null),
                         _react2.default.createElement(
                             _Typography2.default,
-                            { variant: 'body', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                            { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
                             'Please enter the course code for the class you want to enroll in!'
                         ),
                         _react2.default.createElement(_TextField2.default, {
@@ -51844,7 +51854,7 @@ var MyClasses = function (_React$Component) {
                     _react2.default.createElement('br', null),
                     _react2.default.createElement(
                         _Typography2.default,
-                        { variant: 'body', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                        { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
                         _react2.default.createElement(
                             'b',
                             null,
@@ -51855,7 +51865,7 @@ var MyClasses = function (_React$Component) {
                     ),
                     _react2.default.createElement(
                         _Typography2.default,
-                        { variant: 'body', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                        { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
                         _react2.default.createElement(
                             'b',
                             null,
@@ -51867,7 +51877,7 @@ var MyClasses = function (_React$Component) {
                     ),
                     _react2.default.createElement(
                         _Typography2.default,
-                        { variant: 'body', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                        { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
                         _react2.default.createElement(
                             'b',
                             null,
@@ -51917,7 +51927,7 @@ var MyClasses = function (_React$Component) {
                     }),
                     _react2.default.createElement(
                         _Typography2.default,
-                        { variant: 'body', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                        { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
                         selectedClass.tests.length == 0 && "This class doesn't have any tests yet!"
                     )
                 );
@@ -51933,7 +51943,7 @@ var MyClasses = function (_React$Component) {
                 }),
                 _react2.default.createElement(
                     _Typography2.default,
-                    { variant: 'body', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                    { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
                     'Looks like you haven\'t selected a Class or Test yet!'
                 ),
                 _react2.default.createElement('br', null)
@@ -52112,7 +52122,7 @@ var _withStyles = _interopRequireDefault(__webpack_require__(6));
 
 var _helpers = __webpack_require__(16);
 
-var _exactProp = _interopRequireDefault(__webpack_require__(34));
+var _exactProp = _interopRequireDefault(__webpack_require__(35));
 
 var _Grow = _interopRequireDefault(__webpack_require__(86));
 
@@ -55536,7 +55546,7 @@ var _FolderOpen = __webpack_require__(330);
 
 var _FolderOpen2 = _interopRequireDefault(_FolderOpen);
 
-var _helpers = __webpack_require__(35);
+var _helpers = __webpack_require__(32);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -56357,6 +56367,8 @@ var _Button = __webpack_require__(41);
 
 var _Button2 = _interopRequireDefault(_Button);
 
+var _helpers = __webpack_require__(32);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -56422,7 +56434,7 @@ var ManageClasses = function (_React$Component) {
                                 { style: { flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' } },
                                 _react2.default.createElement(
                                     _Typography2.default,
-                                    { variant: 'bold', color: 'textPrimary' },
+                                    { variant: 'subheading', color: 'textPrimary' },
                                     _react2.default.createElement(
                                         'center',
                                         null,
@@ -56449,40 +56461,46 @@ var ManageClasses = function (_React$Component) {
                                     'My Classes'
                                 ),
                                 this.state.classes.map(function (x, y) {
-                                    return [_react2.default.createElement(
-                                        _ListItem2.default,
-                                        { button: true, onClick: function onClick() {
-                                                var newClassList = (0, _Utilities.copy)(_this3.state.classes);
-                                                if (newClassList[y].tests.length > 0) newClassList[y].open = !newClassList[y].open;
-                                                _this3.setState({ classes: newClassList, c: y, t: null });
-                                            } },
-                                        _react2.default.createElement(_PeopleOutlined2.default, { color: 'action' }),
-                                        _react2.default.createElement(_ListItemText2.default, { inset: true, primary: x.name }),
-                                        x.open ? _react2.default.createElement(_ExpandLess2.default, { color: x.tests.length === 0 ? 'disabled' : 'action' }) : _react2.default.createElement(_ExpandMore2.default, { color: x.tests.length === 0 ? 'disabled' : 'action' })
-                                    ), _react2.default.createElement(
-                                        _Collapse2.default,
-                                        { 'in': x.open, timeout: 'auto', unmountOnExit: true },
+                                    return _react2.default.createElement(
+                                        'div',
+                                        { key: (0, _helpers.uniqueKey)() },
                                         _react2.default.createElement(
-                                            _List2.default,
-                                            null,
+                                            _ListItem2.default,
+                                            { button: true, onClick: function onClick() {
+                                                    var newClassList = (0, _Utilities.copy)(_this3.state.classes);
+                                                    if (newClassList[y].tests.length > 0) newClassList[y].open = !newClassList[y].open;
+                                                    _this3.setState({ classes: newClassList, c: y, t: null });
+                                                } },
+                                            _react2.default.createElement(_PeopleOutlined2.default, { color: 'action' }),
+                                            _react2.default.createElement(_ListItemText2.default, { inset: true, primary: x.name }),
+                                            x.open ? _react2.default.createElement(_ExpandLess2.default, { color: x.tests.length === 0 ? 'disabled' : 'action' }) : _react2.default.createElement(_ExpandMore2.default, { color: x.tests.length === 0 ? 'disabled' : 'action' })
+                                        ),
+                                        ',',
+                                        _react2.default.createElement(
+                                            _Collapse2.default,
+                                            { 'in': x.open, timeout: 'auto', unmountOnExit: true },
+                                            _react2.default.createElement(
+                                                _List2.default,
+                                                null,
 
-                                            // For each test create a menu option
-                                            x.tests.map(function (a, b) {
-                                                return _react2.default.createElement(
-                                                    _ListItem2.default,
-                                                    { button: true, onClick: function onClick() {
-                                                            _Http2.default.getClassTestResults(_this3.state.classes[y].tests[b].id, function (result) {
-                                                                _this3.setState({ c: y, t: b, results: result.results });
-                                                            }, function () {
-                                                                _this3.setState({ c: y, t: b, results: [] });
-                                                            });
-                                                        } },
-                                                    _react2.default.createElement(_AssessmentOutlined2.default, { color: a.open ? 'primary' : 'disabled', style: { marginLeft: '10px' } }),
-                                                    _react2.default.createElement(_ListItemText2.default, { inset: true, primary: a.name })
-                                                );
-                                            })
+                                                // For each test create a menu option
+                                                x.tests.map(function (a, b) {
+                                                    return _react2.default.createElement(
+                                                        _ListItem2.default,
+                                                        { key: (0, _helpers.uniqueKey)(), button: true, onClick: function onClick() {
+                                                                _Http2.default.getClassTestResults(_this3.state.classes[y].tests[b].id, function (result) {
+                                                                    _this3.setState({ c: y, t: b, results: result.results });
+                                                                }, function () {
+                                                                    _this3.setState({ c: y, t: b, results: [] });
+                                                                });
+                                                            } },
+                                                        _react2.default.createElement(_AssessmentOutlined2.default, { color: a.open ? 'primary' : 'disabled', style: { marginLeft: '10px' } }),
+                                                        _react2.default.createElement(_ListItemText2.default, { inset: true, primary: a.name })
+                                                    );
+                                                })
+                                            )
                                         )
-                                    )];
+                                    );
                                 })
                             )
                         )
@@ -56532,7 +56550,7 @@ var ManageClasses = function (_React$Component) {
                         _react2.default.createElement('br', null),
                         _react2.default.createElement(
                             _Typography2.default,
-                            { variant: 'body', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                            { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
                             'Please enter the desired name of the class you wish to create!'
                         ),
                         _react2.default.createElement(_TextField2.default, {
@@ -56673,7 +56691,7 @@ var ManageClasses = function (_React$Component) {
                             { style: { padding: '10px', height: '6em' } },
                             _react2.default.createElement(
                                 _Typography2.default,
-                                { variant: 'body', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                                { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
                                 'Are you sure you want to delete ',
                                 selectedTest.name,
                                 '? ',
@@ -56752,7 +56770,7 @@ var ManageClasses = function (_React$Component) {
                 }),
                 _react2.default.createElement(
                     _Typography2.default,
-                    { variant: 'body', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                    { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
                     'Looks like you haven\'t selected a Class or Test yet!'
                 ),
                 _react2.default.createElement('br', null)
@@ -57771,7 +57789,7 @@ var _brcast = _interopRequireDefault(__webpack_require__(345));
 
 var _themeListener = _interopRequireWildcard(__webpack_require__(80));
 
-var _exactProp = _interopRequireDefault(__webpack_require__(34));
+var _exactProp = _interopRequireDefault(__webpack_require__(35));
 
 /**
  * This component takes a `theme` property.
@@ -60188,7 +60206,7 @@ var _classnames = _interopRequireDefault(__webpack_require__(7));
 
 var _withStyles = _interopRequireDefault(__webpack_require__(6));
 
-var _reactHelpers = __webpack_require__(33);
+var _reactHelpers = __webpack_require__(34);
 
 __webpack_require__(57);
 
@@ -60831,7 +60849,7 @@ var _propTypes = _interopRequireDefault(__webpack_require__(3));
 
 var _styles = __webpack_require__(100);
 
-var _exactProp = _interopRequireDefault(__webpack_require__(34));
+var _exactProp = _interopRequireDefault(__webpack_require__(35));
 
 /* eslint-disable react/no-unused-prop-types */
 var styles = function styles(theme) {
@@ -61323,7 +61341,7 @@ var _classnames = _interopRequireDefault(__webpack_require__(7));
 
 var _withStyles = _interopRequireDefault(__webpack_require__(6));
 
-var _reactHelpers = __webpack_require__(33);
+var _reactHelpers = __webpack_require__(34);
 
 __webpack_require__(57);
 
@@ -61737,7 +61755,7 @@ var _Paper = _interopRequireDefault(__webpack_require__(23));
 
 var _withStyles = _interopRequireDefault(__webpack_require__(6));
 
-var _reactHelpers = __webpack_require__(33);
+var _reactHelpers = __webpack_require__(34);
 
 // @inheritedComponent Paper
 // Workaround https://github.com/jsdom/jsdom/issues/2026
@@ -62007,7 +62025,7 @@ var _classnames = _interopRequireDefault(__webpack_require__(7));
 
 var _withStyles = _interopRequireDefault(__webpack_require__(6));
 
-var _reactHelpers = __webpack_require__(33);
+var _reactHelpers = __webpack_require__(34);
 
 __webpack_require__(57);
 
@@ -62695,7 +62713,7 @@ var _classnames = _interopRequireDefault(__webpack_require__(7));
 
 var _reactEventListener = _interopRequireDefault(__webpack_require__(27));
 
-var _debounce = _interopRequireDefault(__webpack_require__(32));
+var _debounce = _interopRequireDefault(__webpack_require__(33));
 
 var _withStyles = _interopRequireDefault(__webpack_require__(6));
 
@@ -63288,7 +63306,7 @@ var _createBreakpoints = __webpack_require__(51);
 
 var _withWidth = _interopRequireWildcard(__webpack_require__(105));
 
-var _exactProp = _interopRequireDefault(__webpack_require__(34));
+var _exactProp = _interopRequireDefault(__webpack_require__(35));
 
 /**
  * @ignore - internal component.
@@ -63467,7 +63485,7 @@ var _propTypes = _interopRequireDefault(__webpack_require__(3));
 
 var _reactEventListener = _interopRequireDefault(__webpack_require__(27));
 
-var _debounce = _interopRequireDefault(__webpack_require__(32));
+var _debounce = _interopRequireDefault(__webpack_require__(33));
 
 var _wrapDisplayName = _interopRequireDefault(__webpack_require__(48));
 
@@ -64983,7 +65001,7 @@ var _react = _interopRequireDefault(__webpack_require__(1));
 
 var _propTypes = _interopRequireDefault(__webpack_require__(3));
 
-var _exactProp = _interopRequireDefault(__webpack_require__(34));
+var _exactProp = _interopRequireDefault(__webpack_require__(35));
 
 /**
  * NoSsr purposely removes components from the subject of Server Side Rendering (SSR).
@@ -65371,7 +65389,7 @@ var _ButtonBase = _interopRequireDefault(__webpack_require__(21));
 
 var _StepLabel = _interopRequireDefault(__webpack_require__(168));
 
-var _reactHelpers = __webpack_require__(33);
+var _reactHelpers = __webpack_require__(34);
 
 // @inheritedComponent ButtonBase
 var styles = {
@@ -69125,7 +69143,7 @@ var _classnames = _interopRequireDefault(__webpack_require__(7));
 
 var _reactEventListener = _interopRequireDefault(__webpack_require__(27));
 
-var _debounce = _interopRequireDefault(__webpack_require__(32));
+var _debounce = _interopRequireDefault(__webpack_require__(33));
 
 var _normalizeScrollLeft = __webpack_require__(480);
 
@@ -69833,7 +69851,7 @@ var _propTypes = _interopRequireDefault(__webpack_require__(3));
 
 var _reactEventListener = _interopRequireDefault(__webpack_require__(27));
 
-var _debounce = _interopRequireDefault(__webpack_require__(32));
+var _debounce = _interopRequireDefault(__webpack_require__(33));
 
 // < 1kb payload overhead when lodash/debounce is > 3kb.
 var styles = {
