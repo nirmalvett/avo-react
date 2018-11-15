@@ -63,7 +63,7 @@ export default class MyClasses extends React.Component {
                     <Grid item xs={3} style={{ flex: 1, display: 'flex' }}>
                         <Paper classes={{ root : 'avo-sidebar' }} square style={{ width: '100%', flex: 1, display: 'flex' }}>
                             <List style={{ flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' }}>
-                                <Typography variant="bold" color="textPrimary"><center>Welcome to My Classes</center></Typography>
+                                <Typography variant='subheading' color="textPrimary"><center>Welcome to My Classes</center></Typography>
                                 <br/>                                
                                 <Divider/>
                                 <ListSubheader style={{ 'position' : 'relative' }}>Analytics & Enrollment</ListSubheader>
@@ -77,27 +77,30 @@ export default class MyClasses extends React.Component {
                                 </ListItem>
                                 <Divider/>
                                 <ListSubheader style={{ 'position' : 'relative' }}>Classes</ListSubheader>
-                                {this.state.classes.map((x, y) => [
-                                    <ListItem key={uniqueKey()} button onClick={() => {
-                                        let newClassList = copy(this.state.classes);
-                                        if (newClassList[y].tests.length > 0)
-                                            newClassList[y].open = !newClassList[y].open;
-                                        this.setState({ classes: newClassList, c: y, t: null });
-                                    }}>
-                                        <PeopleOutlinedIcon color='action' />
-                                        <ListItemText inset primary={x.name} />
-                                        {x.open ?
-                                            <ExpandLess color={x.tests.length === 0 ? 'disabled' : 'action'} /> :
-                                            <ExpandMore color={x.tests.length === 0 ? 'disabled' : 'action'} />}
-                                    </ListItem>,
-                                    <Collapse in={x.open} timeout='auto' unmountOnExit><List>{
-                                        x.tests.map((a, b) =>
-                                            <ListItem key={uniqueKey()} button onClick={() => this.setState({ c: y, t: b })}>
-                                                <AssessmentOutlinedIcon color={a.open ? 'primary' : 'disabled'} style={{ marginLeft: '10px' }} />
-                                                <ListItemText inset primary={a.name} />
-                                            </ListItem>)
-                                    }</List></Collapse>
-                                ])}
+                                {this.state.classes.map((x, y) =>
+                                    <div key = {uniqueKey()}>
+                                      <ListItem key={uniqueKey()} button onClick={() => {
+                                          let newClassList = copy(this.state.classes);
+                                          if (newClassList[y].tests.length > 0)
+                                              newClassList[y].open = !newClassList[y].open;
+                                          this.setState({ classes: newClassList, c: y, t: null });
+                                      }}>
+                                          <PeopleOutlinedIcon color='action' />
+                                          <ListItemText inset primary={x.name} />
+                                          {x.open ?
+                                              <ExpandLess color={x.tests.length === 0 ? 'disabled' : 'action'} /> :
+                                              <ExpandMore color={x.tests.length === 0 ? 'disabled' : 'action'} />}
+                                      </ListItem>
+                                      <Collapse in={x.open} timeout='auto' unmountOnExit><List>{
+                                          x.tests.map((a, b) =>
+                                              <ListItem key={uniqueKey()} button onClick={() => this.setState({ c: y, t: b })}>
+                                                  <AssessmentOutlinedIcon color={a.open ? 'primary' : 'disabled'} style={{ marginLeft: '10px' }} />
+                                                  <ListItemText inset primary={a.name} />
+                                              </ListItem>)
+                                      }</List></Collapse>
+                                    </div>
+
+                                )}
                             </List>
                         </Paper>
                     </Grid>
@@ -147,7 +150,7 @@ export default class MyClasses extends React.Component {
                 >
                     <React.Fragment>
                         <br/>
-                        <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
+                        <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
                             Please enter the course code for the class you want to enroll in!
                         </Typography>
                         <TextField
@@ -192,9 +195,9 @@ export default class MyClasses extends React.Component {
                         {selectedTest.current !== null ? 'Resume Test' : 'Start Test'}
                     </Button>
                     <br/>
-                    <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}><b>Deadline:</b> {getDateString(selectedTest.deadline)}</Typography>
-                    <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}><b>Time Limit:</b> {selectedTest.timer} minutes</Typography>
-                    <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}><b>Attempts:</b>
+                    <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}><b>Deadline:</b> {getDateString(selectedTest.deadline)}</Typography>
+                    <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}><b>Time Limit:</b> {selectedTest.timer} minutes</Typography>
+                    <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}><b>Attempts:</b>
                         {
                             selectedTest.attempts === -1
                                 ? " Unlimited"
@@ -231,7 +234,7 @@ export default class MyClasses extends React.Component {
                         }}
                         title={selectedClass.name}
                     />
-                    <Typography variant='body' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
                         {selectedClass.tests.length == 0 && "This class doesn't have any tests yet!"}
                     </Typography>
                 </React.Fragment>
@@ -245,7 +248,7 @@ export default class MyClasses extends React.Component {
                     }}
                     title={'Hey there!'}
                 />
-                <Typography variant='body' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
                     Looks like you haven't selected a Class or Test yet!
                 </Typography>
                 <br/>

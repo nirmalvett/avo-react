@@ -36,7 +36,7 @@ import AVOModal from './AVOMatComps/AVOMatModal';
 import Typography from '@material-ui/core/Typography/Typography';
 import Popper from '@material-ui/core/Popper';
 import Button from '@material-ui/core/Button/Button';
-
+import { uniqueKey } from "./helpers";
 export default class ManageClasses extends React.Component {
     constructor(props) {
         super(props);
@@ -66,7 +66,7 @@ export default class ManageClasses extends React.Component {
                     <Grid item xs={3} style={{ flex: 1, display: 'flex' }}>
                         <Paper classes={{ root: 'avo-sidebar' }} square style={{ width: '100%', flex: 1, display: 'flex' }}>
                             <List style={{ flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' }}>
-                                <Typography variant="bold" color="textPrimary"><center>Manage My Classes</center></Typography>
+                                <Typography variant='subheading' color="textPrimary"><center>Manage My Classes</center></Typography>
                                 <br/>
                                 <Divider />
                                 <ListSubheader style={{ 'position': 'relative' }}>Class Creation</ListSubheader>
@@ -77,7 +77,8 @@ export default class ManageClasses extends React.Component {
                                 <Divider />
                                 <ListSubheader style={{ 'position': 'relative' }}>My Classes</ListSubheader>
                                 {/* For each Class create a menu option */}
-                                {this.state.classes.map((x, y) => [
+                                {this.state.classes.map((x, y) =>
+                                    <div key = { uniqueKey() }>
                                     <ListItem button onClick={() => {
                                         let newClassList = copy(this.state.classes);
                                         if (newClassList[y].tests.length > 0)
@@ -94,7 +95,7 @@ export default class ManageClasses extends React.Component {
                                         {
                                             // For each test create a menu option
                                             x.tests.map((a, b) =>
-                                                <ListItem button onClick={() => {
+                                                <ListItem key = {uniqueKey()} button onClick={() => {
                                                     Http.getClassTestResults(this.state.classes[y].tests[b].id, result => {
                                                         this.setState({ c: y, t: b, results: result.results });
                                                     }, () => {
@@ -107,7 +108,8 @@ export default class ManageClasses extends React.Component {
                                         }
                                     </List>
                                     </Collapse>
-                                ])}
+                                </div>
+                                )}
                             </List>
                         </Paper>
                     </Grid>
@@ -146,7 +148,7 @@ export default class ManageClasses extends React.Component {
                 >
                     <React.Fragment>
                         <br/>
-                        <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
+                        <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
                             Please enter the desired name of the class you wish to create!
                         </Typography>
                         <TextField
@@ -259,7 +261,7 @@ export default class ManageClasses extends React.Component {
                             }}
                         >
                             <Paper style={{ padding : '10px', height : '6em' }}>
-                                <Typography variant='body' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
+                                <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
                                     Are you sure you want to delete {selectedTest.name}? <br/>
                                     Once a test has been deleted it can not be recovered!
                                 </Typography>
@@ -316,7 +318,7 @@ export default class ManageClasses extends React.Component {
                     }}
                     title={'Hey there!'}
                 />
-                <Typography variant='body' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
                     Looks like you haven't selected a Class or Test yet!
                 </Typography>
                 <br />

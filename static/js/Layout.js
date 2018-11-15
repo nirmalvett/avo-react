@@ -142,13 +142,18 @@ class Layout extends React.Component {
                                     {this.listItem(HomeOutlinedIcon, 'Home')}
                                     {this.listItem(ClassOutlinedIcon, 'My Classes')}
                                 </List>
-                                {isTeacher ? [
-                                    <Divider/>,
-                                    <List subheader={<ListSubheader>Teacher Only</ListSubheader>}>
-                                        {this.listItem(ClassOutlinedIcon, 'Manage Classes')}
-                                        {disabledListItem(BuildOutlinedIcon, 'Build Question')}
-                                    </List>
-                                ] : undefined}
+                                {
+                                isTeacher
+                                    ?
+                                        <div>
+                                            <Divider/>
+                                            <List subheader={<ListSubheader>Teacher Only</ListSubheader>}>
+                                                {this.listItem(ClassOutlinedIcon, 'Manage Classes')}
+                                                {disabledListItem(BuildOutlinedIcon, 'Build Question')}
+                                            </List>
+                                        </div>
+                                    : undefined
+                                }
                                 <Divider/>
                                 <List>
                                     {this.listItem(SettingsOutlinedIcon, 'Preferences')}
