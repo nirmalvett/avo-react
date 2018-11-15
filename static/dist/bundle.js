@@ -3296,13 +3296,8 @@ function getMathJax(text) {
 
 function validateNumber(text) {
     // Remove whitespace and check if string is empty
-    if (text === undefined || text.replace(/ /g, '').length === 0) {
-        return 'No answer given';
-    } else {
-        // TODO remove this when the issue of order mismatch is fixed. For now we're bypassing all checks
-        return [text];
-    }
-    // TODO fix up the parsing for this so 1 + cos(2) works
+    if (text === undefined || text.replace(/ /g, '').length === 0) return 'No answer given';
+
     // Split string into tokens
     var regex = '\\d+(?:\\.\\d+)?|(sqrt|sin|cos|tan|arcsin|arccos|arctan)\\(|[()+\\-*/^]';
     text = text.replace(/ /g, '').replace(new RegExp(regex, 'g'), ' $& ').trim().replace(/ {2,}/g, ' ');
@@ -3345,7 +3340,7 @@ function validateNumber(text) {
     if (bracket_level !== 0) return 'Mismatched open bracket';
     // noinspection JSCheckFunctionSignatures
     operations.sort(function (a, b) {
-        return a[1] < b[1];
+        return b[1] - a[1];
     });
 
     var brackets = function brackets(e, p) {
