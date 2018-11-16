@@ -23,12 +23,14 @@ import Typography from '@material-ui/core/Typography';
 import ListItem from '@material-ui/core/ListItem/ListItem';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
-import Home from '@material-ui/icons/Home';
+import HomeOutlinedIcon from '@material-ui/icons/HomeOutlined';
 import Menu from '@material-ui/icons/Menu';
-import Build from '@material-ui/icons/Build';
-import Class from '@material-ui/icons/Class';
-import Settings from '@material-ui/icons/Settings';
-import ExitToApp from '@material-ui/icons/ExitToApp';
+import BuildOutlinedIcon from '@material-ui/icons/BuildOutlined';
+import ClassOutlinedIcon from '@material-ui/icons/ClassOutlined';
+import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
+import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
+import { isNotChromeAlert } from "./helpers";
+import TimerComp from "./TimerComp";
 import { uniqueKey } from "./helpers";
 
 const drawerWidth = 240;
@@ -123,30 +125,51 @@ class Layout extends React.Component {
         return (
             <MuiThemeProvider theme={createMuiTheme({palette: {primary: color, type: theme}})}>
                 <div style={{display: 'flex', width: '100%', height: '100%',
-                    backgroundColor: theme === 'dark' ? '#303030' : '#fafafa'}}>
-                    <Drawer variant='persistent' anchor='left' open={open} classes={{paper: classes.drawerPaper}}>
-                        <Logo theme={theme} color={color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
-                        <Divider key = {uniqueKey()}/>
-                        <div style={{overflowY: 'auto'}}>
-                            <List key = {uniqueKey()} subheader={isTeacher ? <ListSubheader>Student & Teacher</ListSubheader> : undefined}>
-                                {this.listItem(Home, 'Home')}
-                                {this.listItem(Class, 'My Classes')}
-                            </List>
-                            {isTeacher ? [
-                                <Divider key = {uniqueKey()}/>,
-                                <List key = {uniqueKey()} subheader={<ListSubheader>Teacher Only</ListSubheader>}>
-                                    {this.listItem(Class, 'Manage Classes')}
-                                    {disabledListItem(Build, 'Build Question')}
+                    backgroundColor: theme === 'dark' ? '#303030' : '#fff'}}>
+                    <Drawer 
+                        variant='persistent' 
+                        anchor='left' 
+                        open={open} 
+                        classes={{
+                            paper: classes.drawerPaper
+                        }}
+                    >
+                        <div className='avo-drawer__with-logo'>
+                            <Logo theme={theme} color={color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
+                            <Divider/>
+                            <div style={{overflowY: 'auto'}}>
+                                <List subheader={isTeacher ? <ListSubheader>Student & Teacher</ListSubheader> : undefined}>
+                                    {this.listItem(HomeOutlinedIcon, 'Home')}
+                                    {this.listItem(ClassOutlinedIcon, 'My Classes')}
                                 </List>
-                            ] : undefined}
-                              <Divider key = {uniqueKey()}/>
-                            <List key = {uniqueKey()} >
-                                {this.listItem(Settings, 'Preferences')}
-                                <ListItem button onClick={() => this.logout()}>
-                                    <ExitToApp color='action'/>
-                                    <ListItemText primary='Logout'/>
-                                </ListItem>
-                            </List>
+                                {
+                                isTeacher
+                                    ?
+                                        <div>
+                                            <Divider/>
+                                            <List subheader={<ListSubheader>Teacher Only</ListSubheader>}>
+                                                {this.listItem(ClassOutlinedIcon, 'Manage Classes')}
+                                                {disabledListItem(BuildOutlinedIcon, 'Build Question')}
+                                            </List>
+                                        </div>
+                                    : undefined
+                                }
+                                <Divider/>
+                                <List>
+                                    {this.listItem(SettingsOutlinedIcon, 'Preferences')}
+                                    <ListItem 
+                                        button 
+                                        onClick={() => this.logout()}
+                                        classes={{
+                                            root : 'avo-menu__item',
+                                            selected : 'selected'
+                                        }} 
+                                    >
+                                        <ExitToAppOutlinedIcon color='action'/>
+                                        <ListItemText primary='Logout'/>
+                                    </ListItem>
+                                </List>
+                            </div>
                         </div>
                     </Drawer>
                     <AppBar className={classNames(classes.appBar, {[classes.appBarShift]: open})}>
@@ -156,6 +179,7 @@ class Layout extends React.Component {
                                 <Menu/>
                             </IconButton>
                             <Typography variant='title' style={{ color : 'white' }} noWrap>{this.state.name}</Typography>
+                            {this.state.section == 'Take Test' && <TimerComp time={this.state.test.timer} uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />}
                         </Toolbar>
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
@@ -169,21 +193,17 @@ class Layout extends React.Component {
     listItem(icon, text) {
         let {color, theme} = this.state;
         let selected = this.state.section === text;
-        let style = {backgroundColor: selected ? color[theme === 'light' ? '100' : '500'] : undefined};
-        const key = "layout-list-item" + uniqueKey();
         return (
             <ListItem 
                 button
                 classes={{root: 'avo-menu__item'}}
                 selected={selected} 
                 onClick={() => this.setState({section: text})} 
-                style={style}
-                key = {key}
+                style={{ backgroundColor: selected ? color.main : undefined }}
             >
                 {React.createElement(icon,
-                    {color: selected && theme === 'light' ? 'primary' : 'action' },
-                    {key: key})}
-                <ListItemText primary={text} key = {key}/>
+                    {nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' })}
+                <ListItemText primary={<div style={{ color : selected ? 'white' : '' }}>{text}</div>} />
             </ListItem>
         );
     }
@@ -204,7 +224,7 @@ class Layout extends React.Component {
         if (section === 'Build Question')
             return null;
         if (section === 'Take Test')
-            return (<TakeTest testID={this.state.test}
+            return (<TakeTest testID={this.state.test.id}
                               submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);
         if (section === 'Preferences')
             return (<Preferences colorList={this.colorList}
