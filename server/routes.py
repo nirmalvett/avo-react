@@ -136,9 +136,9 @@ def get_classes():
                             'submitted': submitted,
                             'current': current,
                             'classAverage': random.uniform(58, 90),  # TODO make these actually get the real values
-                            'classMedium': random.uniform(50, 69),
+                            'classMedian': random.uniform(50, 69),
                             'classSize': round(random.uniform(40, 90)),
-                            'standardDeviation': random.uniform(2, 5)
+                                'standardDeviation': random.uniform(2, 13)
 
                         }
                     )
@@ -155,9 +155,9 @@ def get_classes():
                             'submitted': submitted,
                             'current': current,
                             'classAverage': random.uniform(58, 90),  # TODO make these actually get the real values
-                            'classMedium': random.uniform(50, 69),
+                            'classMedian': random.uniform(50, 69),
                             'classSize': round(random.uniform(40, 90)),
-                            'standardDeviation': random.uniform(2, 5)
+                            'standardDeviation': random.uniform(2, 13)
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
