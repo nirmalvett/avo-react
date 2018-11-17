@@ -31,6 +31,7 @@ import { removeDuplicateClasses } from "./helpers";
 import { uniqueKey } from "./helpers";
 import Tooltip from '@material-ui/core/Tooltip';
 import AVOModal from './AVOMatComps/AVOMatModal';
+import Chart from "react-apexcharts";
 
 export default class MyClasses extends React.Component {
     constructor(props) {
@@ -38,10 +39,25 @@ export default class MyClasses extends React.Component {
         this.loadClasses();
         this.state = {
             classes: [],
+            apexChartEl: undefined,            
             c: null, // Selected class
             t: null, // Selected test
             startTest: this.props.startTest,
             enrollErrorMessage : '',
+            options: {
+                chart: {
+                    id: "basic-bar"
+                },
+                    xaxis: {
+                    categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
+                }
+            },
+            series: [
+                {
+                    name: "series-1",
+                    data: [30, 40, 45, 50, 49, 60, 70, 91]
+                }
+            ]
         };
     }
 
@@ -237,6 +253,9 @@ export default class MyClasses extends React.Component {
                     <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
                         {selectedClass.tests.length == 0 && "This class doesn't have any tests yet!"}
                     </Typography>
+                    <div className="mixed-chart" id='avo-apex__chart-container'>
+                        {this.state.apexChartEl}
+                    </div>
                 </React.Fragment>
             );
         }
@@ -265,5 +284,40 @@ export default class MyClasses extends React.Component {
         }
     }
 
+    componentDidUpdate() {
+        if(this.state.c !== null & !this.state.t) {
+            setTimeout(() => {
+                if(this.state.apexChartEl == undefined) {
+                    let apexContainerWidth = parseInt(document.getElementById('avo-apex__chart-container').clientWidth);
+                    this.setState({ apexChartEl : (
+                        <Chart
+                            options={this.state.options}
+                            series={this.state.series}
+                            type="bar"
+                            width={apexContainerWidth}
+                        />
+                    ) });
+                    window.onresize = this.handleResize.bind(this);
+                }                
+            }, 150);
+        }else{
+            if(this.state.apexChartEl) {
+                this.setState({ apexChartEl : undefined });
+            }
+        }
+    };
+
+    handleResize() {
+        this.setState({ apexChartEl : 'loading...' });
+        let apexContainerWidth = parseInt(document.getElementById('avo-apex__chart-container').clientWidth);
+        this.setState({ apexChartEl : (
+            <Chart
+                options={this.state.options}
+                series={this.state.series}
+                type="bar"
+                width={apexContainerWidth}
+            />
+        ) });
+    }
 
 }

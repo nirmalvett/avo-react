@@ -214,6 +214,7 @@ class Layout extends React.Component {
             return (<HomePage/>);
         if (section === 'My Classes')
             return (<MyClasses startTest={cls => this.startTest(cls)}
+                               theme={{ theme : this.state.theme, color : this.state.color }}
                                postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Manage Classes')
             return (<ManageClasses createTest={cls => this.startCreateTest(cls)}
