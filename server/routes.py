@@ -11,7 +11,7 @@ from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class
 
 from server.models import *
-
+import random
 routes = Blueprint('routes', __name__)
 
 
@@ -125,9 +125,20 @@ def get_classes():
                     t.is_open = False
                     db.session.commit()
                     test_list.append(
-                        {'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': time_stamp(t.deadline),
-                         'timer': t.timer,
-                         'attempts': t.attempts, 'total': t.total, 'submitted': submitted, 'current': current})
+                        {
+                            'id': t.TEST,
+                            'name': t.name,
+                            'open': t.is_open,
+                            'deadline': time_stamp(t.deadline),
+                            'timer': t.timer,
+                            'attempts': t.attempts,
+                            'total': t.total,
+                            'submitted': submitted,
+                            'current': current,
+                            'classAverage': random.uniform(t.total/2, t.toal)
+
+                        }
+                    )
                 else:
                     test_list.append(
                         {'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': time_stamp(t.deadline),
