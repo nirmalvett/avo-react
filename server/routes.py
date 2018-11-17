@@ -135,15 +135,30 @@ def get_classes():
                             'total': t.total,
                             'submitted': submitted,
                             'current': current,
-                            'classAverage': random.uniform(t.total/2, t.toal)
+                            'classAverage': random.uniform(58, 90),  # TODO make these actually get the real values
+                            'classMedium': random.uniform(50, 69),
+                            'classSize': round(random.uniform(40, 90)),
+                            'standardDeviation': random.uniform(2, 5)
 
                         }
                     )
                 else:
                     test_list.append(
-                        {'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': time_stamp(t.deadline),
-                         'timer': t.timer,
-                         'attempts': t.attempts, 'total': t.total, 'submitted': submitted, 'current': current})
+                        {
+                            'id': t.TEST,
+                            'name': t.name,
+                            'open': t.is_open,
+                            'deadline': time_stamp(t.deadline),
+                            'timer': t.timer,
+                            'attempts': t.attempts,
+                            'total': t.total,
+                            'submitted': submitted,
+                            'current': current,
+                            'classAverage': random.uniform(58, 90),  # TODO make these actually get the real values
+                            'classMedium': random.uniform(50, 69),
+                            'classSize': round(random.uniform(40, 90)),
+                            'standardDeviation': random.uniform(2, 5)
+                        })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
 
