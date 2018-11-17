@@ -1,6 +1,7 @@
 import React from 'react';
 import Http from './Http';
 import {copy, getMathJax} from './Utilities';
+import { InlineDateTimePicker } from 'material-ui-pickers';
 import AnswerInput from './AVOAnswerInput/AnswerInput';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
@@ -29,7 +30,7 @@ export default class CreateTest extends React.Component {
         this.state = {
             sets: [],
             testQuestions: [],
-            deadline: '',
+            deadline: '2018-01-01T00:00:00.000Z',
         };
     }
 
@@ -137,13 +138,21 @@ export default class CreateTest extends React.Component {
                         <TextField margin='normal' label='Attempts (enter -1 for unlimited)' type='number'
                                    style={{width: '46%', margin: '2%'}}
                                    onChange={e => this.setState({attempts: e.target.value})}/>
-                        <TextField margin='normal' helperText='Deadline' type='datetime-local'
-                                   style={{width: '46%', margin: '2%'}} placeholder='2018-10-31T23:59'
-                                   onChange={e => this.setState({deadline: e.target.value})}/>
+                        <InlineDateTimePicker
+                            margin='normal'
+                            style={{width: '46%', margin: '2%'}}
+                            label="Deadline"
+                            value={this.state.deadline}
+                            onChange={this.handleDateChange.bind(this)}
+                        />
                     </Card>
                 </Grid>
                 <Grid item xs={1} style={{textAlign: 'center', marginTop: '10%'}}/>
             </Grid>
         );
     }
+
+    handleDateChange(date) {
+        this.setState({ deadline: date });
+    };
 }
