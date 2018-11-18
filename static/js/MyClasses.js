@@ -44,35 +44,7 @@ export default class MyClasses extends React.Component {
             t: null, // Selected test
             startTest: this.props.startTest,
             enrollErrorMessage : '',
-            options: {
-                chart: {
-                    fontFamily : 'Roboto',
-                    foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
-                    id: "basic-bar"
-                },
-                xaxis: {
-                    categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999],
-                },
-                fill: {
-                    colors: [
-                        `${this.props.theme.color['500']}`,
-                        `${this.props.theme.color['200']}`,
-                        `${this.props.theme.color['500']}`
-                    ]
-                },
-                dataLabels: {
-                    colors: [
-                        `${this.props.theme.color['500']}`,
-                        `${this.props.theme.color['200']}`,
-                        `${this.props.theme.color['500']}`
-                    ]
-                },
-                markers: {
-                    colors: ['#ffffff']
-                }
-            },
         };
-        console.log(this.props.theme);
     }
 
     loadClasses() {
@@ -306,7 +278,7 @@ export default class MyClasses extends React.Component {
                     let apexContainerWidth = parseInt(document.getElementById('avo-apex__chart-container').clientWidth);
                     this.setState({ apexChartEl : (
                         <Chart
-                            options={this.state.options}
+                            options={this.generateChartOptions()}
                             series={this.processClassChartData()}
                             type="bar"
                             width={apexContainerWidth}
@@ -327,7 +299,7 @@ export default class MyClasses extends React.Component {
         let apexContainerWidth = parseInt(document.getElementById('avo-apex__chart-container').clientWidth);
         this.setState({ apexChartEl : (
             <Chart
-                options={this.state.options}
+                options={this.generateChartOptions()}
                 series={this.processClassChartData()}
                 type="bar"
                 width={apexContainerWidth}
@@ -343,10 +315,8 @@ export default class MyClasses extends React.Component {
             const testObj = selectedClass.tests[i];
             classAvg.push(parseInt(testObj.classAverage));
             let myAvg = 0;
-            console.log(testObj);
             for(let j = 0; j < testObj.submitted.length; j++) {
-                let takeObj = testObj.submitted[i];
-                console.log(takeObj);
+                let takeObj = testObj.submitted[j];
                 myAvg += takeObj.grade;
             } 
             myAvg = myAvg / testObj.total;
@@ -361,6 +331,102 @@ export default class MyClasses extends React.Component {
             type : 'area',
             data : classAvg
         }]
+    }
+
+    generateChartOptions() {
+        let selectedClass = this.state.classes[this.state.c];
+        let xCatagories = [];
+        for(let i = 0; i < selectedClass.tests.length; i++) {
+            xCatagories.push(selectedClass.tests[i].name);
+        }
+        return {
+            chart: {
+                fontFamily : 'Roboto',
+                foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                id: "basic-bar",
+                type: 'bar'
+            },
+            legend : {
+                labels: {
+                    colors: [
+                        `${this.props.theme.color['500']}`,
+                        `${this.props.theme.color['200']}`,
+                        `${this.props.theme.color['500']}`
+                    ],
+                    useSeriesColors: true
+                },
+            },
+            xaxis: {
+                categories: xCatagories,
+            },
+            yaxis: {
+                min: 0,
+                max: 100,
+                tickAmount: 10,
+                catagories: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            },
+            fill: {
+                colors: [
+                    `${this.props.theme.color['500']}`,
+                    `${this.props.theme.color['200']}`,
+                ]
+            },
+            dataLabels: {
+                colors: [
+                    `${this.props.theme.color['500']}`,
+                    `${this.props.theme.color['200']}`,
+                ]
+            },
+            legend: {
+                markers: {
+                    size: 6,
+                    strokeColor: "#fff",
+                    strokeWidth: 0,
+                    offsetX: 0,
+                    offsetY: 0,
+                    radius: 4,
+                    shape: "circle",
+                },
+                itemMargin: {
+                    horizontal: 20,
+                    vertical: 5
+                },
+                containerMargin: {
+                    left: 5,
+                    top: 0,
+                },
+                onItemClick: {
+                    toggleDataSeries: true
+                },
+                onItemHover: {
+                    highlightDataSeries: true
+                },
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) {
+                    return val
+                },
+                textAnchor: 'middle',
+                offsetX: 0,
+                offsetY: 0,
+                style: {
+                    fontSize: '14px',
+                    fontFamily: 'Helvetica, Arial, sans-serif',
+                    colors: [
+                        `#fff`,
+                        `${this.props.theme.color['200']}`,
+                    ]
+                },
+                dropShadow: {
+                    enabled: false,
+                    top: 1,
+                    left: 1,
+                    blur: 1,
+                    opacity: 0.45
+                }
+            }
+        }
     }
 
 }
