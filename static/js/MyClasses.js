@@ -78,7 +78,7 @@ export default class MyClasses extends React.Component {
                                 <Divider/>
                                 <ListSubheader style={{position: 'relative'}}>Classes</ListSubheader>
                                 {this.state.classes.map((cls, cIndex) =>
-                                    <div key={"MyClasses" + cls.id + "-" + cIndex}>
+                                    <Fragment key={"MyClasses" + cls.id + "-" + cIndex}>
                                         <ListItem button onClick={() => this.selectClass(cIndex)}>
                                             <PeopleOutlinedIcon color='action'/>
                                             <ListItemText inset primary={cls.name}/>
@@ -96,7 +96,7 @@ export default class MyClasses extends React.Component {
                                                     <ListItemText inset primary={test.name}/>
                                                 </ListItem>)
                                         }</List></Collapse>
-                                    </div>
+                                    </Fragment>
                                 )}
                             </List>
                         </Paper>
@@ -155,7 +155,7 @@ export default class MyClasses extends React.Component {
                             margin='normal'
                             style={{width: '60%'}}
                             label="Course code"
-                            helperText={this.state.enrollErrorMessage !== '' ? this.state.enrollErrorMessage : ' '}
+                            helperText={this.state.enrollErrorMessage + ' '}
                             error={this.state.enrollErrorMessage !== ''}
                         />
                         <br/>
