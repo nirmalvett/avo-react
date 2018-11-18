@@ -35,6 +35,10 @@ import QuestionBuilder from "./QuestionBuilder";
 
 const drawerWidth = 240;
 
+const avoGreen = {'100': 'b8e8b8', '200': '#f8ee7b', '500': '#399103'}; // this our default AVO colors
+const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
+    amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
+
 const styles = theme => ({
     drawerPaper: {
         position: 'relative',
@@ -81,30 +85,15 @@ const styles = theme => ({
 class Layout extends React.Component {
     constructor(props) {
         super(props);
-        let avoGreen = {'100': 'b8e8b8', '200': '#f8ee7b', '500': '#399103'}; // this our default AVO colors
-        this.colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal,
-            avoGreen, green, lightGreen, amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
-        Http.getUserInfo( // get our user info
-            result => {
-                // noinspection RedundantConditionalExpressionJS, JSUnresolvedVariable
-                this.setState({ // set the state of the profile, theme, color, and whether or not it's teacher account
-                    name: result.first_name + ' ' + result.last_name,
-                    color: this.colorList[result.color],
-                    theme: result.theme ? 'dark' : 'light',
-                    isTeacher: result.is_teacher,
-                    isAdmin: result.is_admin
-                });
-            },
-            () => {this.logout();}
-            );
-        this.state = { // this loading screen if things are still loading
+        this.state = {
+            name: this.props.firstName + ' ' + this.props.lastName,
+            isTeacher: this.props.isTeacher,
+            isAdmin: this.props.isAdmin,
+            color: colorList[this.props.color],
+            theme: this.props.theme,
+
             section: 'Home',
-            isTeacher: false,
-            isAdmin: false,
-            name: 'Loading...',
             open: true,
-            color: this.colorList[9],
-            theme: 'dark',
             testCreator: null,
             postTest: null,
         };
@@ -232,7 +221,7 @@ class Layout extends React.Component {
             return (<TakeTest testID={this.state.test.id}
                               submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);
         if (section === 'Preferences')
-            return (<Preferences colorList={this.colorList}
+            return (<Preferences colorList={colorList}
                                  color={color} changeColor={color => this.setState({color: color})}
                                  theme={theme} changeTheme={theme => this.setState({theme: theme})}/>);
         if (section === 'Post Test')
