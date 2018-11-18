@@ -57,26 +57,20 @@ export default class MyClasses extends React.Component {
                     colors: [
                         `${this.props.theme.color['500']}`,
                         `${this.props.theme.color['200']}`,
-                        `${this.props.theme.color['100']}`
+                        `${this.props.theme.color['500']}`
                     ]
                 },
                 dataLabels: {
                     colors: [
                         `${this.props.theme.color['500']}`,
                         `${this.props.theme.color['200']}`,
-                        `${this.props.theme.color['100']}`
+                        `${this.props.theme.color['500']}`
                     ]
                 },
                 markers: {
                     colors: ['#ffffff']
                 }
             },
-            series: [
-                {
-                    name: "series-1",
-                    data: [30, 40, 45, 50, 49, 60, 70, 91]
-                }
-            ]
         };
         console.log(this.props.theme);
     }
@@ -208,6 +202,7 @@ export default class MyClasses extends React.Component {
 
     detailsCard() {
         let selectedClass = this.state.classes[this.state.c];
+        console.log(selectedClass);
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
             console.log(selectedTest);
@@ -312,7 +307,7 @@ export default class MyClasses extends React.Component {
                     this.setState({ apexChartEl : (
                         <Chart
                             options={this.state.options}
-                            series={this.state.series}
+                            series={this.processClassChartData()}
                             type="bar"
                             width={apexContainerWidth}
                         />
@@ -333,11 +328,39 @@ export default class MyClasses extends React.Component {
         this.setState({ apexChartEl : (
             <Chart
                 options={this.state.options}
-                series={this.state.series}
+                series={this.processClassChartData()}
                 type="bar"
                 width={apexContainerWidth}
             />
         ) });
+    }
+
+    processClassChartData() {
+        let selectedClass = this.state.classes[this.state.c];
+        let classAvg = [];
+        let myMark = [];
+        for(let i = 0; i < selectedClass.tests.length; i++) {
+            const testObj = selectedClass.tests[i];
+            classAvg.push(parseInt(testObj.classAverage));
+            let myAvg = 0;
+            console.log(testObj);
+            for(let j = 0; j < testObj.submitted.length; j++) {
+                let takeObj = testObj.submitted[i];
+                console.log(takeObj);
+                myAvg += takeObj.grade;
+            } 
+            myAvg = myAvg / testObj.total;
+            myMark.push(myAvg);
+        }
+        return [{
+            name : 'My Average',
+            type : 'column',
+            data : myMark
+        }, {
+            name : 'Class Average',
+            type : 'area',
+            data : classAvg
+        }]
     }
 
 }
