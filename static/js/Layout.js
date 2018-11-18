@@ -31,7 +31,7 @@ import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
 import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import { isNotChromeAlert } from "./helpers";
 import TimerComp from "./TimerComp";
-import { uniqueKey } from "./helpers";
+import QuestionBuilder from "./QuestionBuilder";
 
 const drawerWidth = 240;
 
@@ -91,7 +91,8 @@ class Layout extends React.Component {
                     name: result.first_name + ' ' + result.last_name,
                     color: this.colorList[result.color],
                     theme: result.theme ? 'dark' : 'light',
-                    isTeacher: result.is_teacher
+                    isTeacher: result.is_teacher,
+                    isAdmin: result.is_admin
                 });
             },
             () => {this.logout();}
@@ -99,6 +100,7 @@ class Layout extends React.Component {
         this.state = { // this loading screen if things are still loading
             section: 'Home',
             isTeacher: false,
+            isAdmin: false,
             name: 'Loading...',
             open: true,
             color: this.colorList[9],
@@ -110,7 +112,7 @@ class Layout extends React.Component {
 
     render() {
         const {classes} = this.props;
-        const {color, theme, open, isTeacher} = this.state;
+        const {color, theme, open, isTeacher, isAdmin} = this.state;
 
         let disabledListItem = (icon, text) => (
             <ListItem button disabled>
@@ -149,7 +151,10 @@ class Layout extends React.Component {
                                             <Divider/>
                                             <List subheader={<ListSubheader>Teacher Only</ListSubheader>}>
                                                 {this.listItem(ClassOutlinedIcon, 'Manage Classes')}
-                                                {disabledListItem(BuildOutlinedIcon, 'Build Question')}
+                                                {isAdmin
+                                                    ? this.listItem(BuildOutlinedIcon, 'Build Question')
+                                                    : disabledListItem(BuildOutlinedIcon, 'Build Question')
+                                                }
                                             </List>
                                         </div>
                                     : undefined
@@ -179,7 +184,7 @@ class Layout extends React.Component {
                                 <Menu/>
                             </IconButton>
                             <Typography variant='title' style={{ color : 'white' }} noWrap>{this.state.name}</Typography>
-                            {this.state.section == 'Take Test' && <TimerComp time={this.state.test.timer} uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />}
+                            {this.state.section === 'Take Test' && <TimerComp time={this.state.test.timer} uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />}
                         </Toolbar>
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
@@ -223,7 +228,7 @@ class Layout extends React.Component {
             return (<CreateTest classID={this.state.testCreator}
                                 onCreate={() => this.setState({section: 'Manage Classes'})}/>);
         if (section === 'Build Question')
-            return null;
+            return <QuestionBuilder/>;
         if (section === 'Take Test')
             return (<TakeTest testID={this.state.test.id}
                               submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);

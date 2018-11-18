@@ -26,8 +26,8 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background: url('../img/avo_backdrop.png') center/cover;
-    background-position: 50% 70%; background-size: 120%;
+    background: url('../img/avo_backdrop.png') 50% 70%;
+    background-size: 120%;
 }
 
 ::-webkit-scrollbar {
@@ -53,8 +53,7 @@ body {
     display: flex;
     width: 33%;
     height: 90vh;
-    margin: auto;
-    margin-top: 5vh;
+    margin: 5vh auto auto;
     border-radius: 8px !important;
     box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
     overflow-y: auto !important;
@@ -73,18 +72,16 @@ body {
 }
 
 .avo-user__background {
-    height: 100%;
     /* background-color: white; */
     width: 100%;
-    background-position: 0px 0px; background-size: 100%;
-    /* background: url('../img/backdrop_3.svg') center/cover !important; */
+    background-size: 100%;
+    /*background: url('../img/backdrop_3.svg') center !important;*/
 }
 
 .avo-tech__info-card {
     height: 100px;
     width: 100%;
-    background: url('../img/avo-server.svg') center/cover !important;
-    background-position: 0px 0px;
+    background: url('../img/avo-server.svg') center !important;
     background-size: 10%;
 }
 
@@ -116,7 +113,7 @@ body {
 }
 
 .avo-card__header {
-    padding-top: 0px !important;
+    padding-top: 0 !important;
     padding-left: 8px !important;
 }
 
@@ -158,7 +155,7 @@ body {
 }
 
 .avo-menu__item {
-    border-radius: 0px 50px 50px 0px !important;
+    border-radius: 0 50px 50px 0 !important;
     width: 97.5% !important;
 }
 
@@ -261,11 +258,9 @@ body {
 	width: var(--avo-mouth-width);
 	height: var(--avo-mouth-height);
 	background: var(--avo-mouth-bgcol);
-	border-style: solid;
-	border-radius: 75%;
-	border-width: 4px;
-	border-color: var(--avo-mouth-border);
-	position: absolute;
+    border-radius: 75%;
+    border: 4px solid var(--avo-mouth-border);
+    position: absolute;
 	bottom: -1.5em;
 	left: var(--avo-mouth-oleft);
 	transition: width 0.1s ease-in, left 0.1s ease-in;
