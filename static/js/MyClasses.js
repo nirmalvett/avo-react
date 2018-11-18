@@ -46,10 +46,29 @@ export default class MyClasses extends React.Component {
             enrollErrorMessage : '',
             options: {
                 chart: {
+                    fontFamily : 'Roboto',
+                    foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                     id: "basic-bar"
                 },
-                    xaxis: {
-                    categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
+                xaxis: {
+                    categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999],
+                },
+                fill: {
+                    colors: [
+                        `${this.props.theme.color['500']}`,
+                        `${this.props.theme.color['200']}`,
+                        `${this.props.theme.color['100']}`
+                    ]
+                },
+                dataLabels: {
+                    colors: [
+                        `${this.props.theme.color['500']}`,
+                        `${this.props.theme.color['200']}`,
+                        `${this.props.theme.color['100']}`
+                    ]
+                },
+                markers: {
+                    colors: ['#ffffff']
                 }
             },
             series: [
@@ -59,6 +78,7 @@ export default class MyClasses extends React.Component {
                 }
             ]
         };
+        console.log(this.props.theme);
     }
 
     loadClasses() {
