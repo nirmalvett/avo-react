@@ -8,7 +8,7 @@ import sys
 from git import Repo
 
 from server.DecorationFunctions import *
-from server.auth import teaches_class, enrolled_in_class
+from server.auth import teaches_class, enrolled_in_class, able_edit_set
 
 from server.models import *
 import random
@@ -209,6 +209,83 @@ def get_sets():
     return jsonify(sets=set_list)
 
 
+@routes.route('/newSet', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def create_set():
+    """
+    Creates a new set
+    :return: validation that the set has been added
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json  # Data from client
+    name = data['name']
+    if not isinstance(name, str):
+        # If data isn't correct return error JSON
+        return jsonify(error="One or more data is not correct")
+    new_set = Set(name)  # New set to be created
+    user_views_set = UserViewsSet(current_user.USER, set.SET, True)  # New user_views_set to be created
+    # Add data to database
+    db.session.add(new_set)
+    db.session.add(user_views_set)
+    db.session.commit()
+    return jsonify(id=new_set.SET)
+
+
+@routes.route('/renameSet', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def rename_set():
+    """
+    Renames a set
+    :return: validation that the set has been updated
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json  # Data from client
+    id, name = data['id'], data['name']
+    if not isinstance(id, int) or not isinstance(name, str):
+        # If data isn't correct return error JSON
+        return jsonify(error="One or more data is not correct")
+    if not able_edit_set(id):
+        # if the user isn't able to edit this set return an error JSON
+        return jsonify(error="User not able to modify this data")
+    new_set = Set.query.get(id)  # Set to be updated
+    new_set.name = name
+    # Add change to database
+    db.session.commit()
+    return jsonify(code="Updated")
+
+
+@routes.route('/deleteSet', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def delete_set():
+    """
+    Deletes a set
+    :return: validation that the set has been Deleted
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json  # Data from client
+    ID = data['id']
+    if not isinstance(ID, int):
+        # If data isn't correct return error JSON
+        return jsonify(error="One or more data is not correct")
+    user_views_set = UserViewsSet.query.get(ID)  # user_views_set to delete
+    # Add change to database
+    db.session.delete(user_views_set)
+    db.session.commit()
+    return jsonify(code="Updated")
+
+
 @routes.route('/enroll', methods=['POST'])
 @login_required
 @check_confirmed
@@ -348,6 +425,42 @@ def get_question():
         return jsonify(error='No question found')
     q = AvoQuestion(current_question.string, seed)
     return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
+
+
+@routes.route('/newQuestion', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def new_question():
+    """
+    Creates new Question and adds to set
+    :return:
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    data = request.json
+    set_id, name, string, answers, total = data['set'], data['name'], data['string'], data['answers'], data['total']
+    if not isinstance(set_id, int) or not isinstance(name, str) or not isinstance(string, str) or not isinstance(answers, int) or not isinstance(total, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    if not able_edit_set(set_id):
+        # If the user is not allowed to edit the set return error json
+        return jsonify(error="User not able to edit Set")
+    try:
+        # Fill out question
+        q = AvoQuestion(string)
+        answers_array = []
+        for i in range(answers):
+            answers_array.append("")
+        q.get_score(*answers_array)
+    except:
+        return jsonify(error="Question Failed to build")
+    question = Question(set_id, name, string, answers, total)
+    db.session.add(question)
+    db.session.commit()
+
+    return jsonify(id=question.QUESTION)
 
 
 @routes.route('/getTest', methods=['POST'])
