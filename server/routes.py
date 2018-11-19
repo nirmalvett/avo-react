@@ -11,7 +11,7 @@ from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class
 
 from server.models import *
-
+import random
 routes = Blueprint('routes', __name__)
 
 
@@ -125,14 +125,42 @@ def get_classes():
                     t.is_open = False
                     db.session.commit()
                     test_list.append(
-                        {'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': time_stamp(t.deadline),
-                         'timer': t.timer,
-                         'attempts': t.attempts, 'total': t.total, 'submitted': submitted, 'current': current})
+                        {
+                            'id': t.TEST,
+                            'name': t.name,
+                            'open': t.is_open,
+                            'deadline': time_stamp(t.deadline),
+                            'timer': t.timer,
+                            'attempts': t.attempts,
+                            'total': t.total,
+                            'submitted': submitted,
+                            'current': current,
+                            'classAverage': random.uniform(58, 90),  # TODO make these actually get the real values
+                            'classMedian': random.uniform(50, 69),  # TODO make these actually get the real values
+                            'classSize': round(random.uniform(40, 90)),  # TODO make these actually get the real values
+                            'standardDeviation': random.uniform(2, 13),  # TODO make these actually get the real values
+                            'bestAttemptPercent': random.uniform(70, 95)  # this is used for testing only don't actually get this
+
+                        }
+                    )
                 else:
                     test_list.append(
-                        {'id': t.TEST, 'name': t.name, 'open': t.is_open, 'deadline': time_stamp(t.deadline),
-                         'timer': t.timer,
-                         'attempts': t.attempts, 'total': t.total, 'submitted': submitted, 'current': current})
+                        {
+                            'id': t.TEST,
+                            'name': t.name,
+                            'open': t.is_open,
+                            'deadline': time_stamp(t.deadline),
+                            'timer': t.timer,
+                            'attempts': t.attempts,
+                            'total': t.total,
+                            'submitted': submitted,
+                            'current': current,
+                            'classAverage': random.uniform(58, 90),  # TODO make these actually get the real values
+                            'classMedian': random.uniform(50, 69),  # TODO make these actually get the real values
+                            'classSize': round(random.uniform(40, 90)),  # TODO make these actually get the real values
+                            'standardDeviation': random.uniform(2, 13),  # TODO make these actually get the real values
+                            'bestAttemptPercent': random.uniform(70, 95)  # this is used for testing only don't actually get this
+                        })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
 
@@ -330,21 +358,27 @@ def get_test():
             db.session.commit()
             return jsonify(error='The deadline has passed for this test')
         takes = Takes.query.filter((Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (Takes.time_submitted > datetime.now())).first()  # Get the most current takes
+        timer = 0
         if takes is None:
             # If student has not taken the test create a takes instance
             takes = create_takes(test_id, current_user.get_id())
             if takes is None:
                 # If takes still fails return error JSON
                 return jsonify(error="Couldn't start test")
+        else:
+            takes.time_started = datetime.now()
+            db.session.commit()
         questions = []  # Questions in test
         question_ids = eval(test.question_list)  # IDs of questions in test
         seeds = eval(takes.seeds)  # Seeds of questions in test if -1 gen random seed
+        timer = takes.time_submitted - takes.time_started
+        timer = timer.total_seconds() / 60
         for i in range(len(question_ids)):
             # For each question id get the question data and add to question list
             current_question = Question.query.get(question_ids[i])
             q = AvoQuestion(current_question.string, seeds[i])
             questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
-        return jsonify(takes=takes.TAKES, time_submitted=takes.time_submitted, answers=eval(takes.answers), questions=questions)
+        return jsonify(takes=takes.TAKES, timer=timer, time_submitted=takes.time_submitted, answers=eval(takes.answers), questions=questions)
     else:
         return jsonify(error="User doesn't have access to that Class")
 
@@ -446,7 +480,8 @@ def change_test():
         return abort(400)
     data = request.json # Data from client
     test, timer, name, deadline = data['test'], data['timer'], data['name'], data['deadline']
-    if not isinstance(test, int) or not isinstance(timer, int) or not isinstance(name, str) or not isinstance(deadline, datetime):
+    if not isinstance(test, int) or not isinstance(timer, int) or not isinstance(name, str) or not \
+            isinstance(deadline, datetime):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
     test = Test.query.get(test) # Gets the test object
