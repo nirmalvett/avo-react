@@ -321,15 +321,15 @@ export default class MyClasses extends React.Component {
             myMark.push(parseFloat(testObj.bestAttemptPercent).toFixed(2));
         }
         return [{
-            name : 'My Best Attempt(%)',
+            name : 'My Best Attempt (%)',
             type : 'column',
             data : myMark
         }, {
-            name : 'Class Average(%)',
+            name : 'Class Average (%)',
             type : 'column',
             data : classAvg
         }, {
-            name : 'SD for Class Avg(%)',
+            name : 'SD for Class Avg (%)',
             type : 'column',
             data : standardDev
         }]

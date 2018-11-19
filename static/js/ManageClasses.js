@@ -453,15 +453,15 @@ export default class ManageClasses extends React.Component {
             classDev.push(parseFloat(testObj.standardDeviation).toFixed(2));
         }
         return [{
-            name : 'Class Median(%)',
+            name : 'Class Median (%)',
             type : 'column',
             data : classMed
         }, {
-            name : 'Class Average(%)',
+            name : 'Class Average (%)',
             type : 'column',
             data : classAvg
         }, {
-            name : 'SD for Class Avg(%)',
+            name : 'SD for Class Avg (%)',
             type : 'column',
             data : classDev
         }]
@@ -479,7 +479,7 @@ export default class ManageClasses extends React.Component {
                 align: 'left',
             },
             subtitle: {
-                text: `Gain a quick insight into your students progress.`,
+                text: `Gain a quick insight into your students' progress.`,
                 align: 'left',
             },
             chart: {
@@ -508,7 +508,7 @@ export default class ManageClasses extends React.Component {
                     formatter: (val) => {
                         for(let i = 0; i < selectedClass.tests.length; i++) {
                             if(selectedClass.tests[i].name == val) {
-                                return val + `(size : ${selectedClass.tests[i].classSize})`;   
+                                return val + ` (size : ${selectedClass.tests[i].classSize})`;   
                             }
                         }
                     }
