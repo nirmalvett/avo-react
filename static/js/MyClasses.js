@@ -318,7 +318,7 @@ export default class MyClasses extends React.Component {
                 myAvg = takeObj.grade > myAvg ? takeObj.grade : myAvg;
             } 
             myAvg = myAvg / testObj.total;
-            myMark.push(parseFloat(myAvg).toFixed(2));
+            myMark.push(parseFloat(testObj.bestAttemptPercent).toFixed(2));
         }
         return [{
             name : 'My Best Attempt(%)',
@@ -329,7 +329,7 @@ export default class MyClasses extends React.Component {
             type : 'column',
             data : classAvg
         }, {
-            name : 'Standard Deviation(%)',
+            name : 'SD for Class Avg(%)',
             type : 'line',
             data : standardDev
         }]
@@ -373,6 +373,8 @@ export default class MyClasses extends React.Component {
                 catagories: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
             },
             fill: {
+                opacity: 1.0,
+                type: 'solid',
                 colors: [
                     `${this.props.theme.color['500']}`,
                     `${this.props.theme.color['200']}`,
@@ -405,7 +407,7 @@ export default class MyClasses extends React.Component {
                 },
             },
             dataLabels: {
-                enabled: true,
+                enabled: false,
                 formatter: function (val) {
                     return val
                 },
@@ -428,6 +430,9 @@ export default class MyClasses extends React.Component {
                     blur: 1,
                     opacity: 0.45
                 }
+            },
+            tooltip: {
+                theme : this.props.theme.theme
             }
         }
     }
