@@ -1,42 +1,41 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import Http from './Http';
+import Menu from '@material-ui/core/Menu';
+import Popper from '@material-ui/core/Popper';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import List from '@material-ui/core/List/List';
+import Divider from '@material-ui/core/Divider';
+import Tooltip from '@material-ui/core/Tooltip';
 import Paper from '@material-ui/core/Paper/Paper';
+import MenuItem from '@material-ui/core/MenuItem';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button/Button';
 import Collapse from '@material-ui/core/Collapse/Collapse';
 import ListItem from '@material-ui/core/ListItem/ListItem';
 import CardHeader from '@material-ui/core/CardHeader/CardHeader';
 import IconButton from '@material-ui/core/IconButton/IconButton';
+import Typography from '@material-ui/core/Typography/Typography';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
-import Divider from '@material-ui/core/Divider';
+import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import Stop from '@material-ui/icons/Stop';
+import MoreVert from '@material-ui/icons/MoreVert';
+import PlayArrow from '@material-ui/icons/PlayArrow';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
 import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined';
 import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 import GetAppOutlinedIcon from '@material-ui/icons/GetAppOutlined';
 import PeopleOutlinedIcon from '@material-ui/icons/PeopleOutlined';
 import NoteAddOutlinedIcon from '@material-ui/icons/NoteAddOutlined';
-import PlayArrow from '@material-ui/icons/PlayArrow';
-import AssessmentOutlinedIcon from '@material-ui/icons/AssessmentOutlined';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
-import MoreVert from '@material-ui/icons/MoreVert';
-import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
-import AssignmentTurnedIn from "@material-ui/icons/AssignmentTurnedIn";
 import AssignmentNotTurnedIn from "@material-ui/icons/AssignmentLate";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
-import TextField from '@material-ui/core/TextField';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import Chip from '@material-ui/core/Chip';
-import { copy, getDateString } from "./Utilities";
-import Tooltip from '@material-ui/core/Tooltip';
+import AssignmentTurnedIn from "@material-ui/icons/AssignmentTurnedIn";
+import AssessmentOutlinedIcon from '@material-ui/icons/AssessmentOutlined';
+import { copy } from "./Utilities";
 import AVOModal from './AVOMatComps/AVOMatModal';
-import Typography from '@material-ui/core/Typography/Typography';
-import Popper from '@material-ui/core/Popper';
-import Button from '@material-ui/core/Button/Button';
-import { uniqueKey } from "./helpers";
+
+
 export default class ManageClasses extends React.Component {
     constructor(props) {
         super(props);
@@ -58,71 +57,63 @@ export default class ManageClasses extends React.Component {
     }
 
     render() {
-        let cardStyle = { marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column' };
+        let cardStyle = {marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};
         console.log(this.state.classes);
         return (
-            <div style={{ width: '100%', flex: 1, display: 'flex' }}>
-                <Grid container spacing={8} style={{ flex: 1, display: 'flex', paddingBottom: 0 }}>
-                    <Grid item xs={3} style={{ flex: 1, display: 'flex' }}>
-                        <Paper classes={{ root: 'avo-sidebar' }} square style={{ width: '100%', flex: 1, display: 'flex' }}>
-                            <List style={{ flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' }}>
-                                <Typography variant='subheading' color="textPrimary"><center>Manage My Classes</center></Typography>
+            <div style={{width: '100%', flex: 1, display: 'flex'}}>
+                <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
+                    <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
+                        <Paper classes={{root: 'avo-sidebar'}} square style={{width: '100%', flex: 1, display: 'flex'}}>
+                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
+                                <Typography variant='subheading' color="textPrimary" align='center'>
+                                    Manage My Classes
+                                </Typography>
                                 <br/>
-                                <Divider />
-                                <ListSubheader style={{ 'position': 'relative' }}>Class Creation</ListSubheader>
+                                <Divider/>
+                                <ListSubheader style={{position: 'relative'}}>Class Creation</ListSubheader>
                                 <ListItem button id='avo-manageclasses__create-button'>
-                                    <AddBoxOutlinedIcon color='action' />
-                                    <ListItemText inset primary='Create Class' />
+                                    <AddBoxOutlinedIcon color='action'/>
+                                    <ListItemText inset primary='Create Class'/>
                                 </ListItem>
-                                <Divider />
-                                <ListSubheader style={{ 'position': 'relative' }}>My Classes</ListSubheader>
+                                <Divider/>
+                                <ListSubheader style={{position: 'relative'}}>My Classes</ListSubheader>
                                 {/* For each Class create a menu option */}
-                                {this.state.classes.map((x, y) =>
-                                    <div key = { uniqueKey() }>
-                                    <ListItem button onClick={() => {
-                                        let newClassList = copy(this.state.classes);
-                                        if (newClassList[y].tests.length > 0)
-                                            newClassList[y].open = !newClassList[y].open;
-                                        this.setState({ classes: newClassList, c: y, t: null });
-                                    }}>
-                                        <PeopleOutlinedIcon color='action' />
-                                        <ListItemText inset primary={x.name} />
-                                        {x.open ?
-                                            <ExpandLess color={x.tests.length === 0 ? 'disabled' : 'action'} /> :
-                                            <ExpandMore color={x.tests.length === 0 ? 'disabled' : 'action'} />}
-                                    </ListItem>
-                                    <Collapse in={x.open} timeout='auto' unmountOnExit><List>
-                                        {
+                                {this.state.classes.map((cls, cIndex) =>
+                                    <Fragment key = {"ManageClasses" + cls.id + "-" + cIndex}>
+                                        <ListItem button onClick={() => this.selectClass(cIndex)}>
+                                            <PeopleOutlinedIcon color='action'/>
+                                            <ListItemText inset primary={cls.name}/>
+                                            {cls.open
+                                                ? <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
+                                                : <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
+                                            }
+                                        </ListItem>
+                                        <Collapse in={cls.open} timeout='auto' unmountOnExit><List>{
                                             // For each test create a menu option
-                                            x.tests.map((a, b) =>
-                                                <ListItem key = {uniqueKey()} button onClick={() => {
-                                                    Http.getClassTestResults(this.state.classes[y].tests[b].id, result => {
-                                                        this.setState({ c: y, t: b, results: result.results });
-                                                    }, () => {
-                                                        this.setState({ c: y, t: b, results: [] });
-                                                    });
-                                                }}>
-                                                    <AssessmentOutlinedIcon color={a.open ? 'primary' : 'disabled'} style={{ marginLeft: '10px' }} />
-                                                    <ListItemText inset primary={a.name} />
-                                                </ListItem>)
-                                        }
-                                    </List>
-                                    </Collapse>
-                                </div>
+                                            cls.tests.map((test, tIndex) =>
+                                                <ListItem key={'ManageClasses'+cls.id+'-'+cIndex+'-'+test.id+'-'+tIndex}
+                                                          button onClick={() => this.selectTest(cIndex, tIndex)}>
+                                                    <AssessmentOutlinedIcon color={test.open ? 'primary' : 'disabled'}
+                                                                            style={{ marginLeft: '10px' }}/>
+                                                    <ListItemText inset primary={test.name}/>
+                                                </ListItem>
+                                            )
+                                        }</List></Collapse>
+                                    </Fragment>
                                 )}
                             </List>
                         </Paper>
                     </Grid>
-                    <Grid item xs={1} />
-                    <Grid item xs={7} style={{ display: 'flex' }}>
-                        <Card classes={{ root: 'avo-card' }} style={cardStyle}>{this.detailsCard()}</Card>
+                    <Grid item xs={1}/>
+                    <Grid item xs={7} style={{display: 'flex'}}>
+                        <Card classes={{root: 'avo-card'}} style={cardStyle}>{this.detailsCard()}</Card>
                     </Grid>
                 </Grid>
                 <AVOModal
                     title='Create a class'
                     target="avo-manageclasses__create-button"
                     acceptText='Create'
-                    declineText='Nevermind'
+                    declineText='Never mind'
                     noDefaultClose={true}
                     onAccept={(closeFunc) => {
                         const name = document.getElementById('avo-manageclasses__creation-textfield').value;
@@ -131,22 +122,20 @@ export default class ManageClasses extends React.Component {
                                 name,
                                 () => {
                                     this.loadClasses();
-                                    this.setState({ createClassErrorMessage : '' });
+                                    this.setState({createClassErrorMessage : ''});
                                     closeFunc();
                                 },
-                                () => this.setState({ 
-                                    createClassErrorMessage : 'Something went wrong :( try again later.' 
-                                })
+                                () => this.setState({createClassErrorMessage: 'Something went wrong :( try again later.'})
                             );
                         }else{
                             this.setState({
-                                createClassErrorMessage : 'Your class must have a name, if it doesn\'t how is anyone going to find it?'
+                                createClassErrorMessage : "Your class must have a name, if it doesn't how is anyone going to find it?"
                             });
                         }
                     }}
                     onDecline={() => {}}
                 >
-                    <React.Fragment>
+                    <Fragment>
                         <br/>
                         <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
                             Please enter the desired name of the class you wish to create!
@@ -154,13 +143,13 @@ export default class ManageClasses extends React.Component {
                         <TextField
                             id='avo-manageclasses__creation-textfield'
                             margin='normal'
-                            style={{ width: '60%' }}
+                            style={{width: '60%'}}
                             label="Class name"
+                            helperText={this.state.createClassErrorMessage + ' '}
+                            error={this.state.createClassErrorMessage !== ''}
                         />
                         <br/>
-                        <div style={{ color: 'red', fontSize : '0.75em' }}>{this.state.createClassErrorMessage}</div>
-                        <br/>
-                    </React.Fragment>
+                    </Fragment>
                 </AVOModal>
             </div>
         );
@@ -171,75 +160,74 @@ export default class ManageClasses extends React.Component {
         if (this.state.t !== null) {
             const { anchorEl } = this.state;
             let selectedTest = selectedClass.tests[this.state.t];
-            return [
-                <CardHeader
-                    classes={{
-                        root: 'avo-card__header'
-                    }}
-                    title={selectedTest.name} 
-                    action={[
-                        selectedTest.open ? (
-                            <Tooltip title="Stop the test">
-                                <IconButton onClick={() => this.closeTest()}>
-                                    <Stop />
-                                </IconButton>
-                            </Tooltip>
-                        ) : (
-                            <Tooltip title="Start the test">
-                                <IconButton onClick={() => this.openTest()}>
-                                    <PlayArrow />
-                                </IconButton>
-                            </Tooltip>
-                        ),
-                        <Tooltip title="Delete the test(This cannot be undone)">
-                            <IconButton onClick={() => this.setState({ deleteTestPopperOpen : true })} id="avo-manageclasses__delete-button"><DeleteOutlinedIcon /></IconButton>
-                        </Tooltip>
-                    ]} 
-                />,
-
-                <List style={{ flex: 1, overflowY: 'auto' }} dense>
-                    { /* Show all the students that are in the class*/
-                        this.state.results.map((x, idx) => [
-                            <ListItem disabled={x.tests.length === 0}>
-                                {x.tests.length === 0 ? <AssignmentNotTurnedIn color='action' /> : <AssignmentTurnedIn color='action' />}
-                                <ListItemText 
-                                    primary={`${x.firstName} ${x.lastName}`} 
-                                    secondary={
-                                        x.tests[x.tests.length - 1] ? (
-                                            x.tests[x.tests.length - 1].grade + '/' + selectedTest.total
-                                        ) : (
-                                            'This user has not taken any tests yet.'
-                                        )
-                                    } 
-                                />
-                                <ListItemSecondaryAction>
-                                    <IconButton
-                                        aria-owns={anchorEl ? 'simple-menu' : null}
-                                        aria-haspopup="true"
-                                        student-index={`${idx}`}
-                                        disabled={x.tests.length === 0}
-                                        onClick={(event) => this.setState({ anchorEl: event.currentTarget })}
-                                    >
-                                        <MoreVert/>
+            return (
+                <Fragment>
+                    <CardHeader
+                        classes={{root: 'avo-card__header'}}
+                        title={selectedTest.name}
+                        action={
+                            <Fragment>
+                                {selectedTest.open
+                                    ? <Tooltip title="Stop the test">
+                                        <IconButton onClick={() => this.closeTest()}><Stop/></IconButton>
+                                    </Tooltip>
+                                    : <Tooltip title="Start the test">
+                                        <IconButton onClick={() => this.openTest()}><PlayArrow/></IconButton>
+                                    </Tooltip>
+                                }
+                                <Tooltip title="Delete the test(This cannot be undone)">
+                                    <IconButton onClick={() => this.setState({deleteTestPopperOpen: true})}
+                                                id="avo-manageclasses__delete-button">
+                                        <DeleteOutlinedIcon/>
                                     </IconButton>
-                                </ListItemSecondaryAction>
-                            </ListItem>
-                        ])}
+                                </Tooltip>
+                            </Fragment>
+                        }
+                    />
+                    <List style={{ flex: 1, overflowY: 'auto' }} dense>
+                        { /* Show all the students that are in the class*/
+                            this.state.results.map((x, idx) => <Fragment>
+                                <ListItem disabled={x.tests.length === 0}>
+                                    {x.tests.length === 0
+                                        ? <AssignmentNotTurnedIn color='action'/>
+                                        : <AssignmentTurnedIn color='action'/>
+                                    }
+                                    <ListItemText
+                                        primary={`${x.firstName} ${x.lastName}`}
+                                        secondary={x.tests[x.tests.length - 1]
+                                            ? x.tests[x.tests.length - 1].grade + '/' + selectedTest.total
+                                            : 'This user has not taken any tests yet.'
+                                        }
+                                    />
+                                    <ListItemSecondaryAction>
+                                        <IconButton
+                                            aria-owns={anchorEl ? 'simple-menu' : null}
+                                            aria-haspopup="true"
+                                            student-index={`${idx}`}
+                                            disabled={x.tests.length === 0}
+                                            onClick={(event) => this.setState({ anchorEl: event.currentTarget })}
+                                        >
+                                            <MoreVert/>
+                                        </IconButton>
+                                    </ListItemSecondaryAction>
+                                </ListItem>
+                            </Fragment>)
+                        }
                         <Menu
                               id="simple-menu"
-                                anchorEl={anchorEl}
-                                open={Boolean(anchorEl)}
-                                onClose={() => this.handleVertClose()}
+                              anchorEl={anchorEl}
+                              open={Boolean(anchorEl)}
+                              onClose={() => this.handleVertClose()}
                         >
                             {/* <MenuItem disabled={true} value={10}>View all submissions</MenuItem> */}
-                            <MenuItem 
-                                value={20} 
-                                onClick={() => { 
+                            <MenuItem
+                                value={20}
+                                onClick={() => {
                                     this.props.postTest(
-                                        this.state.results[anchorEl.getAttribute('student-index')].tests[ 
+                                        this.state.results[anchorEl.getAttribute('student-index')].tests[
                                             this.state.results[anchorEl.getAttribute('student-index')].tests.length - 1
                                         ].takes
-                                    ); 
+                                    );
                                 }}
                             >
                                  View Most Recent Submission
@@ -261,68 +249,76 @@ export default class ManageClasses extends React.Component {
                             }}
                         >
                             <Paper style={{ padding : '10px', height : '6em' }}>
-                                <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
-                                    Are you sure you want to delete {selectedTest.name}? <br/>
+                                <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                    Are you sure you want to delete {selectedTest.name}?<br/>
                                     Once a test has been deleted it can not be recovered!
                                 </Typography>
                                 <br/>
                                 <div style={{ float : 'right', position : 'relative' }}>
-                                    <Button 
+                                    <Button
                                         classes={{ root : 'avo-button' }}
-                                        onClick={() => this.setState({ deleteTestPopperOpen : false }) } 
+                                        onClick={() => this.setState({ deleteTestPopperOpen : false }) }
                                         color="primary"
-                                    >
-                                        Nevermind
-                                    </Button>
-                                    <Button 
-                                        classes={{ root : 'avo-button' }} 
+                                    >Never mind</Button>
+                                    <Button
+                                        classes={{ root : 'avo-button' }}
                                         onClick={() => {
                                             this.setState({ deleteTestPopperOpen : false });
                                             this.deleteTest();
                                         }}
                                         color="primary"
-                                    >
-                                        Delete
-                                    </Button>
+                                    >Delete</Button>
                                 </div>
                             </Paper>
                         </Popper>
-                </List>
-            ];
+                    </List>
+                </Fragment>
+            );
         }
         if (this.state.c !== null) {
             return <CardHeader
                 title={selectedClass.name}
-                classes={{
-                    root: 'avo-card__header'
-                }}
+                classes={{root: 'avo-card__header'}}
                 subheader={'Enroll Key: ' + selectedClass.enrollKey}
                 action={[
                     <Tooltip title="Create a new Test">
                         <IconButton onClick={() => this.state.createTest(selectedClass.id)}>
-                            <NoteAddOutlinedIcon />
+                            <NoteAddOutlinedIcon/>
                         </IconButton>
                     </Tooltip>,
                     <Tooltip title="Download CSV">
                         <IconButton onClick={() => alert('CSV download coming soon!')}>
-                            <GetAppOutlinedIcon />
+                            <GetAppOutlinedIcon/>
                         </IconButton>
                     </Tooltip>
-                ]} />;
+                ]}
+            />;
         }
         return (
-            <React.Fragment>
+            <Fragment>
                 <CardHeader
-                    classes={{
-                        root: 'avo-card__header'
-                    }}
+                    classes={{root: 'avo-card__header'}}
                     title={'Hey there!'}
                 />
                 <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
                     Looks like you haven't selected a Class or Test yet!
                 </Typography>
-                <br />
-            </React.Fragment>
+                <br/>
+            </Fragment>
+        );
+    }
+
+    selectClass(index) {
+        let newClassList = copy(this.state.classes);
+        if (newClassList[index].tests.length > 0)
+            newClassList[index].open = !newClassList[index].open;
+        this.setState({classes: newClassList, c: index, t: null});
+    }
+
+    selectTest(cIndex, tIndex) {
+        Http.getClassTestResults(this.state.classes[cIndex].tests[tIndex].id,
+            (result) => this.setState({ c: cIndex, t: tIndex, results: result.results }),
+            () => this.setState({ c: cIndex, t: tIndex, results: [] })
         );
     }
 
@@ -330,8 +326,8 @@ export default class ManageClasses extends React.Component {
         let name = prompt('Class Name:');
         if (name !== null && name !== '') {
             Http.createClass(name,
-                () => this.loadClasses(), // we don't need to alert to refresh anymore
-                () => alert('Something went wrong :\'('));
+                () => this.loadClasses(),
+                () => alert("Something went wrong :'("));
         }
     }
 
@@ -340,9 +336,9 @@ export default class ManageClasses extends React.Component {
         let newClasses = copy(this.state.classes);
         Http.openTest(selectedTest.id, () => {
             newClasses[this.state.c].tests[this.state.t].open = true;
-            this.setState({ 
-                classes: newClasses, 
-                studentNameSearchLabels : this.genStudentNameSearchLabels() 
+            this.setState({
+                classes: newClasses,
+                studentNameSearchLabels : this.genStudentNameSearchLabels()
             });
         }, () => { });
     }
@@ -368,11 +364,10 @@ export default class ManageClasses extends React.Component {
     }
 
     genStudentNameSearchLabels() {
-        const outArray = [];
-        for(let i = 0; i < this.state.results.length; i++) {
-            outArray.push({ label : `${this.state.results[i].firstName} ${this.state.results[i].lastName}` });
-        }
-        return(outArray);
+        let outArray = [];
+        for(let i = 0; i < this.state.results.length; i++)
+            outArray.push({label: `${this.state.results[i].firstName} ${this.state.results[i].lastName}`});
+        return outArray;
     };
 
     renderSuggestion({ suggestion, index, itemProps, highlightedIndex, selectedItem }) {
@@ -385,12 +380,8 @@ export default class ManageClasses extends React.Component {
                 key={suggestion.label}
                 selected={isHighlighted}
                 component="div"
-                style={{
-                    fontWeight: isSelected ? 500 : 400,
-                }}
-            >
-                {suggestion.label}
-            </MenuItem>
+                style={{fontWeight: isSelected ? 500 : 400}}
+            >{suggestion.label}</MenuItem>
         );
     }
 

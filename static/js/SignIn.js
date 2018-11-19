@@ -10,6 +10,10 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Slide from '@material-ui/core/Slide';
 import { isChrome, notChromeMessage } from "./helpers";
 import Logo from "./Logo"
+import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
+import {createMuiTheme} from "@material-ui/core";
+
+
 export default class SignIn extends React.Component {
     constructor(props) {
         super(props);
@@ -32,7 +36,7 @@ export default class SignIn extends React.Component {
 
     componentDidMount(){
       /* This runs after the component is rendered */
-      this.confirmedAccountAlert();
+      SignIn.confirmedAccountAlert();
     }
 
     render() {
@@ -59,6 +63,7 @@ export default class SignIn extends React.Component {
 
 
         return (
+            <MuiThemeProvider theme={createMuiTheme({palette: {primary: {'200': '#f8ee7b', '500': '#399103'}, type: 'light'}})}>
             <Slide in={true} direction={'up'}>
             <Card className='LoginCard' id='avo-registrator'>
                 <Grid container spacing={8} style={{'margin': '5%', 'width': '100%', 'height': '90%'}}>
@@ -256,6 +261,7 @@ export default class SignIn extends React.Component {
                 </Grid>
             </Card>
             </Slide>
+            </MuiThemeProvider>
         );
     }
 
@@ -311,11 +317,9 @@ export default class SignIn extends React.Component {
 
     // noinspection JSMethodCanBeStatic
     signIn() {
-        Http.login(this.state.username, this.state.password, () => {
-            this.props.login(this.state.username, this.state.password);
-            }, (result) => {
-                this.setState({ signInError : result.error });
-            }
+        Http.login(this.state.username, this.state.password,
+                result => this.props.login(this.state.username, this.state.password, result),
+                result => this.setState({signInError: result.error})
         );
     };
 
@@ -404,17 +408,17 @@ export default class SignIn extends React.Component {
         );
     };
 
-    componentDidMount() {
-      /* Mascot is currently not aligning properly with the logo so this is commented out for now */
-        // this.initMascot();
-    };
+    // componentDidMount() {
+    //     // Mascot is currently not aligning properly with the logo so this is commented out for now
+    //     // this.initMascot();
+    // };
 
-    componentDidUpdate() {
-        if(this.state.isSigningIn) {
-          /* Mascot is currently not aligning properly with the logo so this is commented out for now */
-            // this.initMascot();
-        }
-    };
+    // componentDidUpdate() {
+    //     if(this.state.isSigningIn) {
+    //         // Mascot is currently not aligning properly with the logo so this is commented out for now
+    //         // this.initMascot();
+    //     }
+    // };
 
     initMascot() {
         const eye_0 = document.getElementsByClassName('eye')[0];
@@ -522,9 +526,8 @@ export default class SignIn extends React.Component {
         browR.style.setProperty('--avo-eyebrow-angle', '10deg');
     };
 
-    confirmedAccountAlert(){
-      const containsConfirmInUrl = window.location.href.includes('/confirm/');
-      if (containsConfirmInUrl){
+    static confirmedAccountAlert(){
+      if (window.location.href.includes('/confirm/')){
         alert("Your account was successfully confirmed! You may now log in and begin using AVO.")
       }
     };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import Http from './Http';
 import { copy, getDateString } from "./Utilities";
 import Card from '@material-ui/core/Card/Card';
@@ -17,21 +17,17 @@ import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import Button from '@material-ui/core/Button/Button';
 import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined';
 import BarChartOutlinedIcon from '@material-ui/icons/BarChartOutlined';
-import Create from '@material-ui/icons/Create';
 import PeopleOutlinedIcon from '@material-ui/icons/PeopleOutlined';
 import AssessmentOutlinedIcon from '@material-ui/icons/AssessmentOutlined';
-import Assignment from '@material-ui/icons/Assignment';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
-import AssignmentLate from '@material-ui/icons/AssignmentLate';
-import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedInOutlined';
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import { removeDuplicateClasses } from "./helpers";
-import { uniqueKey } from "./helpers";
 import Tooltip from '@material-ui/core/Tooltip';
 import AVOModal from './AVOMatComps/AVOMatModal';
 import Chart from "react-apexcharts";
+
 
 export default class MyClasses extends React.Component {
     constructor(props) {
@@ -51,63 +47,67 @@ export default class MyClasses extends React.Component {
         /* Loads the classes into the state */
         Http.getClasses(
             (result) => {
-                this.setState({ classes: removeDuplicateClasses(result.classes) });
+                // Todo: removing duplicates should be unnecessary
+                this.setState({classes: removeDuplicateClasses(result.classes)});
             },
             (result) => {
                 console.log(result)
             }
         );
     }
+
     render() {
         return (
-            <div className='avo-user__background' style={{ width: '100%', flex: 1, display: 'flex' }}>
-                <Grid container spacing={8} style={{ flex: 1, display: 'flex', paddingBottom: 0 }}>
-                    <Grid item xs={3} style={{ flex: 1, display: 'flex' }}>
-                        <Paper classes={{ root : 'avo-sidebar' }} square style={{ width: '100%', flex: 1, display: 'flex' }}>
-                            <List style={{ flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px' }}>
-                                <Typography variant='subheading' color="textPrimary"><center>Welcome to My Classes</center></Typography>
-                                <br/>                                
+            <div className='avo-user__background' style={{width: '100%', flex: 1, display: 'flex'}}>
+                <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
+                    <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
+                        <Paper classes={{root : 'avo-sidebar'}} square style={{width: '100%', flex: 1, display: 'flex'}}>
+                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
+                                <Typography variant='subheading' color="textPrimary" align='center'>
+                                    Welcome to My Classes
+                                </Typography>
+                                <br/>
                                 <Divider/>
-                                <ListSubheader style={{ 'position' : 'relative' }}>Analytics & Enrollment</ListSubheader>
+                                <ListSubheader style={{position: 'relative'}}>Analytics & Enrollment</ListSubheader>
                                 <ListItem button disabled>
-                                    <BarChartOutlinedIcon color='action' />
-                                    <ListItemText inset primary='My Analytics' />
+                                    <BarChartOutlinedIcon color='action'/>
+                                    <ListItemText inset primary='My Analytics'/>
                                 </ListItem>
                                 <ListItem button id="avo-myclasses__enroll-button">
-                                    <AddBoxOutlinedIcon color='action' />
-                                    <ListItemText inset primary='Enroll in Class' />
+                                    <AddBoxOutlinedIcon color='action'/>
+                                    <ListItemText inset primary='Enroll in Class'/>
                                 </ListItem>
                                 <Divider/>
-                                <ListSubheader style={{ 'position' : 'relative' }}>Classes</ListSubheader>
-                                {this.state.classes.map((x, y) =>
-                                    <div key = {uniqueKey()}>
-                                      <ListItem key={uniqueKey()} button onClick={() => {
-                                          let newClassList = copy(this.state.classes);
-                                          if (newClassList[y].tests.length > 0)
-                                              newClassList[y].open = !newClassList[y].open;
-                                          this.setState({ classes: newClassList, c: y, t: null });
-                                      }}>
-                                          <PeopleOutlinedIcon color='action' />
-                                          <ListItemText inset primary={x.name} />
-                                          {x.open ?
-                                              <ExpandLess color={x.tests.length === 0 ? 'disabled' : 'action'} /> :
-                                              <ExpandMore color={x.tests.length === 0 ? 'disabled' : 'action'} />}
-                                      </ListItem>
-                                      <Collapse in={x.open} timeout='auto' unmountOnExit><List>{
-                                          x.tests.map((a, b) =>
-                                              <ListItem key={uniqueKey()} button onClick={() => this.setState({ c: y, t: b })}>
-                                                  <AssessmentOutlinedIcon color={a.open ? 'primary' : 'disabled'} style={{ marginLeft: '10px' }} />
-                                                  <ListItemText inset primary={a.name} />
-                                              </ListItem>)
-                                      }</List></Collapse>
-                                    </div>
-
+                                <ListSubheader style={{position: 'relative'}}>Classes</ListSubheader>
+                                {this.state.classes.map((cls, cIndex) =>
+                                    <Fragment key={"MyClasses" + cls.id + "-" + cIndex}>
+                                        <ListItem button onClick={() => {
+                                            this.selectClass(cIndex);
+                                            this.handleClassListItemClick();
+                                        }}>
+                                            <PeopleOutlinedIcon color='action'/>
+                                            <ListItemText inset primary={cls.name}/>
+                                            {cls.open
+                                                ? <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
+                                                : <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
+                                            }
+                                        </ListItem>
+                                        <Collapse in={cls.open} timeout='auto' unmountOnExit><List>{
+                                            cls.tests.map((test, tIndex) =>
+                                                <ListItem key={'MyClasses'+cls.id+'-'+cIndex+'-'+test.id+'-'+tIndex}
+                                                          button onClick={() => this.setState({c: cIndex, t: tIndex})}>
+                                                    <AssessmentOutlinedIcon color={test.open ? 'primary' : 'disabled'}
+                                                                            style={{marginLeft: '10px'}}/>
+                                                    <ListItemText inset primary={test.name}/>
+                                                </ListItem>)
+                                        }</List></Collapse>
+                                    </Fragment>
                                 )}
                             </List>
                         </Paper>
                     </Grid>
-                    <Grid item xs={1} />
-                    <Grid item xs={7} style={{ display: 'flex' }}>
+                    <Grid item xs={1}/>
+                    <Grid item xs={7} style={{display: 'flex'}}>
                         <Card
                             className='avo-card'
                             style={{
@@ -126,7 +126,7 @@ export default class MyClasses extends React.Component {
                     title='Enroll into a class'
                     target="avo-myclasses__enroll-button"
                     acceptText='Enroll'
-                    declineText='Nevermind'
+                    declineText='Never mind'
                     noDefaultClose={true}
                     onAccept={(closeFunc) => {
                         const key = document.getElementById('avo-myclasses__enroll-textfield').value;
@@ -135,51 +135,57 @@ export default class MyClasses extends React.Component {
                                 key,
                                 () => {
                                     this.loadClasses();
-                                    this.setState({ enrollErrorMessage : '' });
+                                    this.setState({enrollErrorMessage : ''});
                                     closeFunc();
                                 },
-                                () => this.setState({ 
-                                    enrollErrorMessage : `Invalid code, no courses with code: ${key} available.` 
+                                () => this.setState({
+                                    enrollErrorMessage : 'Invalid code'
                                 }),
                             )
-                        }else{
-                            this.setState({ 
-                                enrollErrorMessage : 'Field cannot be blank. Please enter a code to join a class.' 
+                        } else {
+                            this.setState({
+                                enrollErrorMessage : 'Field cannot be blank. Please enter a code to join a class.'
                             });
                         }
                     }}
                     onDecline={() => {}}
                 >
-                    <React.Fragment>
+                    <Fragment>
                         <br/>
-                        <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
+                        <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
                             Please enter the course code for the class you want to enroll in!
                         </Typography>
                         <TextField
                             id='avo-myclasses__enroll-textfield'
                             margin='normal'
-                            style={{ width: '60%' }}
+                            style={{width: '60%'}}
                             label="Course code"
+                            helperText={this.state.enrollErrorMessage + ' '}
+                            error={this.state.enrollErrorMessage !== ''}
                         />
                         <br/>
-                        <div style={{ color: 'red', fontSize : '0.75em' }}>{this.state.enrollErrorMessage}</div>
-                        <br/>
-                    </React.Fragment>
+                    </Fragment>
                 </AVOModal>
             </div>
         );
     }
 
-
+    selectClass(index) {
+        let newClassList = copy(this.state.classes);
+        if (newClassList[index].tests.length > 0)
+            newClassList[index].open = !newClassList[index].open;
+        this.setState({classes: newClassList, c: index, t: null});
+    }
 
     detailsCard() {
         let selectedClass = this.state.classes[this.state.c];
         console.log(selectedClass);
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
-            console.log(selectedTest);
+            let disableStartTest = !selectedTest.open
+                && (selectedTest.attempts === -1 || selectedTest.submitted.length < selectedTest.attempts);
             return (
-                <React.Fragment>
+                <Fragment>
                     <CardHeader
                         classes={{
                             root: 'avo-card__header'
@@ -193,44 +199,42 @@ export default class MyClasses extends React.Component {
                             disabled: 'disabled'
                         }}
                         onClick={() => this.state.startTest(selectedTest)}
-                        disabled={!selectedTest.open && (selectedTest.attempts == -1 || selectedTest.submitted.length < selectedTest.attempts)}
+                        disabled={disableStartTest}
                     >
-                        {selectedTest.current !== null ? 'Resume Test' : 'Start Test'}
+                        {selectedTest.current === null ? 'Start Test' : 'Resume Test'}
                     </Button>
                     <br/>
-                    <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}><b>Deadline:</b> {getDateString(selectedTest.deadline)}</Typography>
-                    <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}><b>Time Limit:</b> {selectedTest.timer} minutes</Typography>
-                    <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}><b>Attempts:</b>
-                        {
-                            selectedTest.attempts === -1
-                                ? " Unlimited"
-                                : " " + selectedTest.attempts
-                        }
+                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                        <b>Deadline:</b> {getDateString(selectedTest.deadline)}
+                    </Typography>
+                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                        <b>Time Limit:</b> {selectedTest.timer} minutes
+                    </Typography>
+                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                        <b>Attempts:</b> {selectedTest.attempts === -1 ? " Unlimited" : " " + selectedTest.attempts}
                     </Typography>
                     <br/>
-                    <List style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
-                        {[
-                            selectedTest.submitted.map((x, y) => (
-                                <ListItem key={uniqueKey()}>
-                                    <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
-                                        secondary={'Submitted on ' + getDateString(x.timeSubmitted)} />
-                                    <ListItemSecondaryAction>
-                                        <Tooltip title="View previous test results">
-                                            <IconButton onClick={() => { this.props.postTest(x.takes) }}>
-                                                <DescriptionOutlinedIcon />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </ListItemSecondaryAction>
-                                </ListItem>
-                            ))
-                        ]}
+                    <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
+                        {selectedTest.submitted.map((x, y) => (
+                            <ListItem key={'MyClasses' + x.id}>
+                                <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
+                                    secondary={'Submitted on ' + getDateString(x.timeSubmitted)}/>
+                                <ListItemSecondaryAction>
+                                    <Tooltip title="View previous test results">
+                                        <IconButton onClick={() => {this.props.postTest(x.takes)}}>
+                                            <DescriptionOutlinedIcon/>
+                                        </IconButton>
+                                    </Tooltip>
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                        ))}
                     </List>
-                </React.Fragment>
+                </Fragment>
             );
         }
         if (this.state.c !== null) {
             return (
-                <React.Fragment>
+                <Fragment>
                     <CardHeader
                         classes={{
                             root: 'avo-card__header'
@@ -238,16 +242,16 @@ export default class MyClasses extends React.Component {
                         title={selectedClass.name}
                     />
                     <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
-                        {selectedClass.tests.length == 0 && "This class doesn't have any tests yet!"}
+                        {selectedClass.tests.length === 0 && "This class doesn't have any tests yet!"}
                     </Typography>
                     <div className="mixed-chart" id='avo-apex__chart-container'>
                         {this.state.apexChartEl}
                     </div>
-                </React.Fragment>
+                </Fragment>
             );
         }
         return (
-            <React.Fragment>
+            <Fragment>
                 <CardHeader
                     classes={{
                         root: 'avo-card__header'
@@ -258,7 +262,7 @@ export default class MyClasses extends React.Component {
                     Looks like you haven't selected a Class or Test yet!
                 </Typography>
                 <br/>
-            </React.Fragment>
+            </Fragment>
         );
     }
 
@@ -271,27 +275,20 @@ export default class MyClasses extends React.Component {
         }
     }
 
-    componentDidUpdate() {
-        if(this.state.c !== null && !this.state.t) {
-            setTimeout(() => {
-                if(this.state.apexChartEl == undefined) {
-                    let apexContainerWidth = parseInt(document.getElementById('avo-apex__chart-container').clientWidth);
-                    this.setState({ apexChartEl : (
-                        <Chart
-                            options={this.generateChartOptions()}
-                            series={this.processClassChartData()}
-                            type="bar"
-                            width={apexContainerWidth}
-                        />
-                    ) });
-                    window.onresize = this.handleResize.bind(this);
-                }                
-            }, 150);
-        }else{
-            if(this.state.apexChartEl) {
-                this.setState({ apexChartEl : undefined });
-            }
-        }
+    handleClassListItemClick() {
+        this.setState({ apexChartEl : undefined });
+        setTimeout(() => {
+            let apexContainerWidth = parseInt(document.getElementById('avo-apex__chart-container').clientWidth);
+            this.setState({ apexChartEl : (
+                <Chart
+                    options={this.generateChartOptions()}
+                    series={this.processClassChartData()}
+                    type="bar"
+                    width={apexContainerWidth}
+                />
+            ) });
+            window.onresize = this.handleResize.bind(this);
+        }, 50);
     };
 
     handleResize() {
@@ -335,9 +332,9 @@ export default class MyClasses extends React.Component {
 
     generateChartOptions() {
         let selectedClass = this.state.classes[this.state.c];
-        let xCatagories = [];
+        let xCategories = [];
         for(let i = 0; i < selectedClass.tests.length; i++) {
-            xCatagories.push(selectedClass.tests[i].name);
+            xCategories.push(selectedClass.tests[i].name);
         }
         return {
             chart: {
@@ -360,7 +357,7 @@ export default class MyClasses extends React.Component {
                 },
             },
             xaxis: {
-                categories: xCatagories,
+                categories: xCategories,
             },
             yaxis: {
                 min: 0,
@@ -374,12 +371,12 @@ export default class MyClasses extends React.Component {
                     `${this.props.theme.color['200']}`,
                 ]
             },
-            dataLabels: {
-                colors: [
-                    `${this.props.theme.color['500']}`,
-                    `${this.props.theme.color['200']}`,
-                ]
-            },
+            // dataLabels: {
+            //     colors: [
+            //         `${this.props.theme.color['500']}`,
+            //         `${this.props.theme.color['200']}`,
+            //     ]
+            // },
             legend: {
                 markers: {
                     size: 6,
@@ -431,5 +428,4 @@ export default class MyClasses extends React.Component {
             }
         }
     }
-
 }
