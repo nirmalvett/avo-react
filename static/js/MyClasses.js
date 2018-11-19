@@ -372,6 +372,15 @@ export default class MyClasses extends React.Component {
                 },
             },
             xaxis: {
+                labels: {
+                    formatter: (val) => {
+                        for(let i = 0; i < selectedClass.tests.length; i++) {
+                            if(selectedClass.tests[i].name == val) {
+                                return val + ` (size : ${selectedClass.tests[i].classSize})`;   
+                            }
+                        }
+                    }
+                },
                 categories: xCategories,
             },
             yaxis: {
