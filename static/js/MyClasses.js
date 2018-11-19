@@ -318,7 +318,7 @@ export default class MyClasses extends React.Component {
                 myAvg = takeObj.grade > myAvg ? takeObj.grade : myAvg;
             } 
             myAvg = myAvg / testObj.total;
-            myMark.push(parseFloat(testObj.bestAttemptPercent).toFixed(2));
+            myMark.push(parseFloat(myAvg).toFixed(2));
         }
         return [{
             name : 'My Best Attempt (%)',
