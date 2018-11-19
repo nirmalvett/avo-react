@@ -12,6 +12,7 @@ from server.auth import teaches_class, enrolled_in_class
 
 from server.models import *
 import random
+import statistics
 routes = Blueprint('routes', __name__)
 
 
@@ -103,6 +104,7 @@ def get_classes():
         for c in classes:
             # for every class get the tests and takes and append them
             tests = Test.query.filter(Test.CLASS == c.CLASS).all()
+            student_list = User.query.filter((User.USER == enrolled.c.USER) & (c.CLASS == enrolled.c.CLASS)).all() # Get all users in class
             test_list = []  # List of tests in the class
             time = datetime.now()  # Current time
             for t in tests:
@@ -120,6 +122,26 @@ def get_classes():
                             current = {'timeStarted': time_stamp(ta.time_started), 'timeSubmitted': time_stamp(ta.time_submitted)}
                         else:
                             submitted.append({'takes': ta.TAKES, 'timeSubmitted': time_stamp(ta.time_submitted), 'grade': ta.grade})
+                marks_array = []  # Array of marks to sort to find Median
+                for s in student_list:
+                    # For each student get best takes and calculate averages
+                    takes = Takes.query.order_by(Takes.grade).filter(
+                        (Takes.TEST == t.TEST) & (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
+                    if len(takes) is not 0:
+                        # If the student has taken the test then add best instance to mean and median
+                        marks_array.append(takes[len(takes) - 1].grade)  # Add mark to mark array
+                # Calculate the data
+                if len(marks_array) is 0:
+                    # If there are no marks in the test set values to 0 else calculate values
+                    class_median, class_mean, class_stdev = 0, 0, 0
+                else:
+                    # Calculate the values
+                    class_median = statistics.median(marks_array)
+                    class_mean = statistics.mean(marks_array)
+                    class_stdev = 0
+                    if len(marks_array) > 1:
+                        # If there are more then two marks a stdev will be calculated
+                        class_stdev = statistics.stdev(marks_array)
                 if t.deadline < datetime.now():
                     # If the deadline has passed then set the is_open value to False
                     t.is_open = False
@@ -135,10 +157,10 @@ def get_classes():
                             'total': t.total,
                             'submitted': submitted,
                             'current': current,
-                            'classAverage': random.uniform(58, 90),  # TODO make these actually get the real values
-                            'classMedian': random.uniform(50, 69),  # TODO make these actually get the real values
-                            'classSize': round(random.uniform(40, 90)),  # TODO make these actually get the real values
-                            'standardDeviation': random.uniform(2, 13),  # TODO make these actually get the real values
+                            'classAverage': class_mean,
+                            'classMedian': class_median,
+                            'classSize': len(student_list),
+                            'standardDeviation': class_stdev,
                             'bestAttemptPercent': random.uniform(70, 95)  # this is used for testing only don't actually get this
 
                         }
@@ -155,10 +177,10 @@ def get_classes():
                             'total': t.total,
                             'submitted': submitted,
                             'current': current,
-                            'classAverage': random.uniform(58, 90),  # TODO make these actually get the real values
-                            'classMedian': random.uniform(50, 69),  # TODO make these actually get the real values
-                            'classSize': round(random.uniform(40, 90)),  # TODO make these actually get the real values
-                            'standardDeviation': random.uniform(2, 13),  # TODO make these actually get the real values
+                            'classAverage': class_mean,
+                            'classMedian': class_median,
+                            'classSize': len(student_list),
+                            'standardDeviation': class_stdev,
                             'bestAttemptPercent': random.uniform(70, 95)  # this is used for testing only don't actually get this
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
