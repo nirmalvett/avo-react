@@ -179,7 +179,6 @@ export default class MyClasses extends React.Component {
 
     detailsCard() {
         let selectedClass = this.state.classes[this.state.c];
-        console.log(selectedClass);
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
             let disableStartTest = !selectedTest.open
@@ -283,7 +282,7 @@ export default class MyClasses extends React.Component {
                 <Chart
                     options={this.generateChartOptions()}
                     series={this.processClassChartData()}
-                    type="bar"
+                    type="line"
                     width={apexContainerWidth}
                 />
             ) });
@@ -298,7 +297,7 @@ export default class MyClasses extends React.Component {
             <Chart
                 options={this.generateChartOptions()}
                 series={this.processClassChartData()}
-                type="bar"
+                type="line"
                 width={apexContainerWidth}
             />
         ) });
@@ -308,25 +307,31 @@ export default class MyClasses extends React.Component {
         let selectedClass = this.state.classes[this.state.c];
         let classAvg = [];
         let myMark = [];
+        let standardDev = [];
         for(let i = 0; i < selectedClass.tests.length; i++) {
             const testObj = selectedClass.tests[i];
-            classAvg.push(parseInt(testObj.classAverage));
+            classAvg.push(parseFloat(testObj.classAverage).toFixed(2));
+            standardDev.push(parseFloat(testObj.standardDeviation).toFixed(2));
             let myAvg = 0;
             for(let j = 0; j < testObj.submitted.length; j++) {
                 let takeObj = testObj.submitted[j];
-                myAvg += takeObj.grade;
+                myAvg = takeObj.grade > myAvg ? takeObj.grade : myAvg;
             } 
             myAvg = myAvg / testObj.total;
-            myMark.push(myAvg + 30);
+            myMark.push(parseFloat(myAvg).toFixed(2));
         }
         return [{
-            name : 'My Average',
+            name : 'My Best Attempt(%)',
             type : 'column',
             data : myMark
         }, {
-            name : 'Class Average',
-            type : 'area',
+            name : 'Class Average(%)',
+            type : 'column',
             data : classAvg
+        }, {
+            name : 'Standard Deviation(%)',
+            type : 'line',
+            data : standardDev
         }]
     }
 
@@ -341,17 +346,19 @@ export default class MyClasses extends React.Component {
                 fontFamily : 'Roboto',
                 foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                 id: "basic-bar",
-                type: 'bar',
+                type: 'line',
             },
             colors: [
                 `${this.props.theme.color['500']}`,
                 `${this.props.theme.color['200']}`,
+                `${this.props.theme.color['100']}`,
             ],
             legend : {
                 labels: {
                     colors: [
                         `${this.props.theme.color['500']}`,
                         `${this.props.theme.color['200']}`,
+                        `${this.props.theme.color['100']}`,
                     ],
                     useSeriesColors: true
                 },
@@ -369,14 +376,9 @@ export default class MyClasses extends React.Component {
                 colors: [
                     `${this.props.theme.color['500']}`,
                     `${this.props.theme.color['200']}`,
+                    `${this.props.theme.color['100']}`,
                 ]
             },
-            // dataLabels: {
-            //     colors: [
-            //         `${this.props.theme.color['500']}`,
-            //         `${this.props.theme.color['200']}`,
-            //     ]
-            // },
             legend: {
                 markers: {
                     size: 6,
@@ -414,8 +416,9 @@ export default class MyClasses extends React.Component {
                     fontSize: '14px',
                     fontFamily: 'Helvetica, Arial, sans-serif',
                     colors: [
-                        `#fff`,
-                        `${this.props.theme.color['200']}`,
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,                        
                     ]
                 },
                 dropShadow: {
