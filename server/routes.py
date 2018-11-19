@@ -434,7 +434,7 @@ def get_question():
 def new_question():
     """
     Creates new Question and adds to set
-    :return:
+    :return: ID of new question
     """
     if not request.json:
         # If the request isn't JSON then return a 400 error
@@ -452,15 +452,151 @@ def new_question():
         q = AvoQuestion(string)
         answers_array = []
         for i in range(answers):
+            # Fill the array with blank answers
             answers_array.append("")
         q.get_score(*answers_array)
     except:
         return jsonify(error="Question Failed to build")
+    # Add Question to database
     question = Question(set_id, name, string, answers, total)
     db.session.add(question)
     db.session.commit()
 
     return jsonify(id=question.QUESTION)
+
+
+@routes.route('/renameQuestion', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def rename_question():
+    """
+    Renames question
+    :return: Confirmation that Question has been updated
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    data = request.json  # Data from client
+    question_id, name = data['id'], data['string']
+    if not isinstance(question_id, int) or not isinstance(name, str):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    question = Question.query.get(question_id)
+    if not able_edit_set(question.SET):
+        return jsonify(error="User not able to edit SET")
+    question.name = name
+    db.session.commit()
+    return jsonify(code="Updated")
+
+
+@routes.route('/editQuestion', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def edit_question():
+    """
+    Update Question data
+    :return: Confirmation that question has been updated
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    data = request.json  # Data from client
+    question_id, string, answers, total = data['id'], data['string'], data['answers'], data['total']
+    if not isinstance(question_id, int) or not isinstance(string, str) or not isinstance(answers, int) or not isinstance(total, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    question = Question.query.get(question_id)
+    if not able_edit_set(question.SET):
+        return jsonify(error="User not able to edit SET")
+    try:
+        # Try to run the question to see if it works
+        q = AvoQuestion(string)
+        answers_array = []
+        for i in range(answers):
+            # Create a blank answer array to test the question
+            answers_array.append("")
+        q.get_score(*answers_array)
+    except:
+        return jsonify(error="Question could not be created")
+    # Update data for database
+    question.string = string
+    question.answers = answers
+    question.total = total
+
+    db.session.commit()
+    return jsonify(code="Question updated")
+
+
+@routes.route('/deleteQuestion', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def delete_question():
+    """
+    Removes Question Set Link
+    :return: Confirmation that question has been removed
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    data = request.json  # Data from client
+    question_id = data['id']
+    if not isinstance(question_id, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    question = Question.query.get(question_id)
+    if not able_edit_set(question.SET):
+        return jsonify(error="User not able to edit SET")
+    question.SET = None
+    db.session.commit()
+    return jsonify(code="Updated")
+
+
+@routes.route('/sampleQuestion', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def sample_question():
+    """
+    Generates sample question
+    :return: data of generated question
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    data = request.json  # Data from client
+    string = data['string']
+    try:
+        # If answers were provided then test answers
+        answers = data['answers'] # answers from client
+        if not isinstance(string, str) or not isinstance(answers, list):
+            # Checks if all data given is of correct type if not return error JSON
+            return jsonify(error="One or more data is not correct")
+        try:
+            # Try to create and mark the question if it fails return error JSON
+            q = AvoQuestion(string)
+            q.get_score(*answers)
+        except:
+            return jsonify(error="Question failed to be created")
+        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, points=q.scores)
+    except:
+        # if no answers were provided make false answers
+        if not isinstance(string, str):
+            # Checks if all data given is of correct type if not return error JSON
+            return jsonify(error="One or more data is not correct")
+        try:
+            # Try to create and mark the question if fails return error JSON
+            q = AvoQuestion(string)
+            answers = []  # Array to hold placeholder answers
+            for i in range(len(answers)):
+                # Fill the array with blank answers
+                answers.append("")
+            q.get_score(*answers)
+        except:
+            return jsonify(error="Question failed to be created")
+        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
 
 
 @routes.route('/getTest', methods=['POST'])
