@@ -272,7 +272,7 @@ export default class MyClasses extends React.Component {
     }
 
     componentDidUpdate() {
-        if(this.state.c !== null & !this.state.t) {
+        if(this.state.c !== null && !this.state.t) {
             setTimeout(() => {
                 if(this.state.apexChartEl == undefined) {
                     let apexContainerWidth = parseInt(document.getElementById('avo-apex__chart-container').clientWidth);
@@ -320,7 +320,7 @@ export default class MyClasses extends React.Component {
                 myAvg += takeObj.grade;
             } 
             myAvg = myAvg / testObj.total;
-            myMark.push(myAvg);
+            myMark.push(myAvg + 30);
         }
         return [{
             name : 'My Average',
@@ -344,14 +344,17 @@ export default class MyClasses extends React.Component {
                 fontFamily : 'Roboto',
                 foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                 id: "basic-bar",
-                type: 'bar'
+                type: 'bar',
             },
+            colors: [
+                `${this.props.theme.color['500']}`,
+                `${this.props.theme.color['200']}`,
+            ],
             legend : {
                 labels: {
                     colors: [
                         `${this.props.theme.color['500']}`,
                         `${this.props.theme.color['200']}`,
-                        `${this.props.theme.color['500']}`
                     ],
                     useSeriesColors: true
                 },
