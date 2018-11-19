@@ -330,7 +330,7 @@ export default class MyClasses extends React.Component {
             data : classAvg
         }, {
             name : 'SD for Class Avg(%)',
-            type : 'line',
+            type : 'column',
             data : standardDev
         }]
     }
@@ -342,6 +342,14 @@ export default class MyClasses extends React.Component {
             xCategories.push(selectedClass.tests[i].name);
         }
         return {
+            title: {
+                text: `Marks for ${selectedClass.name}`,
+                align: 'left',
+            },
+            subtitle: {
+                text: `Gain a quick insight into your progress.`,
+                align: 'left',
+            },
             chart: {
                 fontFamily : 'Roboto',
                 foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
@@ -373,7 +381,7 @@ export default class MyClasses extends React.Component {
                 catagories: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
             },
             fill: {
-                opacity: 1.0,
+                opacity: 1,
                 type: 'solid',
                 colors: [
                     `${this.props.theme.color['500']}`,

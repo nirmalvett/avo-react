@@ -462,7 +462,7 @@ export default class ManageClasses extends React.Component {
             data : classAvg
         }, {
             name : 'SD for Class Avg(%)',
-            type : 'line',
+            type : 'column',
             data : classDev
         }]
     }
@@ -473,8 +473,15 @@ export default class ManageClasses extends React.Component {
         for(let i = 0; i < selectedClass.tests.length; i++) {
             xCategories.push(selectedClass.tests[i].name);
         }
-        console.log(selectedClass);
         return {
+            title: {
+                text: `Marks for ${selectedClass.name}`,
+                align: 'left',
+            },
+            subtitle: {
+                text: `Gain a quick insight into your students progress.`,
+                align: 'left',
+            },
             chart: {
                 fontFamily : 'Roboto',
                 foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
@@ -501,7 +508,7 @@ export default class ManageClasses extends React.Component {
                     formatter: (val) => {
                         for(let i = 0; i < selectedClass.tests.length; i++) {
                             if(selectedClass.tests[i].name == val) {
-                                return `(size : ${selectedClass.tests[i].classSize}) ` + val;   
+                                return val + `(size : ${selectedClass.tests[i].classSize})`;   
                             }
                         }
                     }

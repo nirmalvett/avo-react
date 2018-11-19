@@ -35,7 +35,7 @@ import QuestionBuilder from "./QuestionBuilder";
 
 const drawerWidth = 240;
 
-const avoGreen = {'100': 'rgb(255, 152, 0)', '200': 'rgb(139, 195, 74)', '500': '#399103'}; // this our default AVO colors
+const avoGreen = {'100': '#03A9F4', '200': '#CDDC39', '500': '#399103'}; // this our default AVO colors
 const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
     amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
 
