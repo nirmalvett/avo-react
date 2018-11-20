@@ -306,10 +306,19 @@ export default class ManageClasses extends React.Component {
                     <div className="mixed-chart" id='avo-apex__chart-container'>
                        { // if there is at least one test then display data
                             selectedClass.tests.length !== 0
-                                ? this.state.apexChartEl // render the graph
+                                ?
+                                <React.Fragment>
+                                  { this.state.apexChartEl }
+                                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                                      Average: Based on the average of the best attempts of each student who took the test or assignment.
+                                    </Typography>
+                                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                                      Size: The number of students who has taken the test or assignment.
+                                    </Typography>
+                                </React.Fragment>
                                 : // give message that there's no tests yet
                                     <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
-                                        This class doesn't have any tests yet!
+                                        This class doesn't have any tests or assignments yet!
                                     </Typography>
                         }
                     </div>

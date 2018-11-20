@@ -159,7 +159,7 @@ def get_classes():
                             'current': current,
                             'classAverage': class_mean,
                             'classMedian': class_median,
-                            'classSize': len(student_list),
+                            'classSize': len(marks_array),
                             'standardDeviation': class_stdev,
                         }
                     )
@@ -177,11 +177,51 @@ def get_classes():
                             'current': current,
                             'classAverage': class_mean,
                             'classMedian': class_median,
-                            'classSize': len(student_list),
+                            'classSize': len(marks_array),
                             'standardDeviation': class_stdev,
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
+
+
+@routes.route('/testStats', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def test_stats():
+    """
+    Generate Stats on a per Question basis of a given test
+    :return: Test stats data
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    data = request.json  # Data from client
+    test_id = data['id']
+    if not isinstance(test_id, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    test = Test.query.get(test_id)  # Test to generate questions from
+    if not teaches_class(test.CLASS):
+        # If the user doesnt teach the class then return error JSON
+        return jsonify(error="User doesn't teach this class")
+    students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
+    test_mean, test_median, test_stdev = 0, 0, 0  # Overall test analytics
+    test_marks = []  # List of test marks
+    question_mean, question_medaian, question_stdev = [], [], []  # Per Question analytics
+    test_question_list = eval(test.question_list)  # Question list of test
+
+    for s in students:
+        # For each student get best takes and calculate analytics
+        takes = Takes.query.order_by(Takes.grade).filter(
+            (Takes.TEST == test.TEST) & (Takes.USER == s.USER)).all()  # Get current students takes
+        if len(takes) is not 0:
+            # If the student has taken the test calculate averages
+            takes = takes[len(takes) - 1]  # Get best takes instance
+            test_marks.append(takes.grade / test.total * 100)
+
+
+    return jsonify(error="placeholder")
 
 
 @routes.route('/getSets')
