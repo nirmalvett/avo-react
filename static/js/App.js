@@ -1,6 +1,8 @@
 import React from 'react';
 import Http from './Http';
 import SignIn from './SignIn.js';
+import { MuiPickersUtilsProvider } from 'material-ui-pickers';
+import MomentUtils from '@date-io/moment';
 import Layout from './Layout.js';
 import { unregister } from './registerServiceWorker';
 unregister();
@@ -24,14 +26,16 @@ export default class App extends React.Component {
             return null;
         let u = this.state.user;
         return (
-            this.state.authenticated
-                ? <Layout setTheme={(color, theme) => this.setState({color: color, theme: theme})}
-                          logout={() => this.setState({authenticated: false})}
-                          firstName={u.firstName} lastName={u.lastName} isTeacher={u.isTeacher}
-                          isAdmin={u.isAdmin} color={u.color} theme={u.theme}
-                />
-                : <SignIn login={(u, p, result) => this.updateUser(u, p, result)}
-                          username={this.state.username} password={this.state.password}/>
+            <MuiPickersUtilsProvider utils={MomentUtils}>{
+                this.state.authenticated
+                    ? <Layout setTheme={(color, theme) => this.setState({color: color, theme: theme})}
+                              logout={() => this.setState({authenticated: false})}
+                              firstName={u.firstName} lastName={u.lastName} isTeacher={u.isTeacher}
+                              isAdmin={u.isAdmin} color={u.color} theme={u.theme}
+                    />
+                    : <SignIn login={(u, p, result) => this.updateUser(u, p, result)}
+                              username={this.state.username} password={this.state.password}/>
+            }</MuiPickersUtilsProvider>
         );
     }
 

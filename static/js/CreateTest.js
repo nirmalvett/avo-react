@@ -1,6 +1,7 @@
 import React from 'react';
 import Http from './Http';
 import {copy, getMathJax} from './Utilities';
+import { InlineDateTimePicker } from 'material-ui-pickers';
 import AnswerInput from './AVOAnswerInput/AnswerInput';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
@@ -28,10 +29,10 @@ export default class CreateTest extends React.Component {
         this.state = {
             sets: [],
             testQuestions: [],
+            deadline: '2018-01-01T00:00:00.000Z',
             name: null,
             timeLimit: null,
             attempts: null,
-            deadline: '',
         };
     }
 
@@ -90,23 +91,39 @@ export default class CreateTest extends React.Component {
                         </Card>
                     )}
                     <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
-                        <CardHeader title={'Test Settings'} action={
-                            <IconButton onClick={() => this.saveTest()} color='primary' disabled={disableSubmit}>
-                                <Done/>
-                            </IconButton>
-                        }/>
-                        <TextField style={{width: '46%', margin: '2%'}} margin='normal'
-                                   onChange={e => this.setState({name: e.target.value})}
-                                   label='Name'/>
-                        <TextField style={{width: '46%', margin: '2%'}} margin='normal'
-                                   onChange={e => this.setState({timeLimit: e.target.value})}
-                                   type='number' label='Time Limit (minutes)'/>
-                        <TextField style={{width: '46%', margin: '2%'}} margin='normal'
-                                   onChange={e => this.setState({attempts: e.target.value})}
-                                   type='number' label='Attempts (enter -1 for unlimited)'/>
-                        <TextField style={{width: '46%', margin: '2%'}} margin='normal'
-                                   onChange={e => this.setState({deadline: e.target.value})}
-                                   type='datetime-local' helperText='Deadline' placeholder='2018-12-31T23:59'/>
+                        <CardHeader title={'Test Settings'} action={<IconButton disabled={this.state.testQuestions.length == 0} onClick={() => {
+                            let s = this.state;
+                            let questions = s.testQuestions.map(x => x.id);
+                            let seeds = s.testQuestions.map(x => x.locked ? x.seed : -1);
+                            let deadline = s.deadline.replace(/[\-T:]/g, '');
+                            if (deadline.length !== 12) {
+                                alert('Invalid deadline');
+                                return;
+                            }
+                            if(this.state.testQuestions.length == 0) {
+                                alert('Test must contain 1 or more questions!');
+                                return;
+                            }
+                            Http.saveTest(this.props.classID, s.name, deadline, s.timeLimit, s.attempts,
+                                questions, seeds, () => {this.props.onCreate()},
+                                () => {alert('Something went wrong')});
+                        }} color='primary'><Done/></IconButton>}/>
+                        <TextField margin='normal' label='Name' style={{width: '46%', margin: '2%'}}
+                                   onChange={e => this.setState({name: e.target.value})}/>
+                        <TextField margin='normal' label='Time Limit (minutes)' type='number'
+                                   style={{width: '46%', margin: '2%'}}
+                                   onChange={e => this.setState({timeLimit: e.target.value})}/>
+                        <br/>
+                        <TextField margin='normal' label='Attempts (enter -1 for unlimited)' type='number'
+                                   style={{width: '46%', margin: '2%'}}
+                                   onChange={e => this.setState({attempts: e.target.value})}/>
+                        <InlineDateTimePicker
+                            margin='normal'
+                            style={{width: '46%', margin: '2%'}}
+                            label="Deadline"
+                            value={this.state.deadline}
+                            onChange={this.handleDateChange.bind(this)}
+                        />
                     </Card>
                 </Grid>
                 <Grid item xs={1}/>
@@ -114,6 +131,9 @@ export default class CreateTest extends React.Component {
         );
     }
 
+    handleDateChange(date) {
+        this.setState({ deadline: date });
+    };
     open(y) {
         let newSetList = copy(this.state.sets);
         newSetList[y].open = !newSetList[y].open;
