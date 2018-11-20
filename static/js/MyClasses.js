@@ -321,7 +321,7 @@ export default class MyClasses extends React.Component {
                 myAvg = myAvg / testObj.total;
                 myMark.push(parseFloat(myAvg).toFixed(2));
             }else{
-                myMark.push(-1);
+                myMark.push('Test has not been taken');
             }
         }
         return [{
