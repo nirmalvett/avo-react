@@ -189,6 +189,15 @@ def enrolled_in_class(class_id):
         return False
 
 
+def able_edit_set(setID):
+    try:
+        user_views_set = UserViewsSet.query.filter((setID == UserViewsSet.SET)
+                                               & (current_user.USER == UserViewsSet.USER)).first()
+    except NoResultFound:
+        return False
+    return user_views_set.can_edit
+
+
 def send_email(recipient: str, subject: str, message: str):
     """
     Sends email to a client

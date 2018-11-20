@@ -32,10 +32,11 @@ import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import { isNotChromeAlert } from "./helpers";
 import TimerComp from "./TimerComp";
 import QuestionBuilder from "./QuestionBuilder";
+import { avoGreen } from "./AVOCustomColors";
 
 const drawerWidth = 240;
 
-const avoGreen = {'100': 'b8e8b8', '200': '#f8ee7b', '500': '#399103'}; // this our default AVO colors
+
 const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
     amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
 
@@ -208,9 +209,11 @@ class Layout extends React.Component {
             return (<HomePage/>);
         if (section === 'My Classes')
             return (<MyClasses startTest={cls => this.startTest(cls)}
+                               theme={{ theme : this.state.theme, color : this.state.color }}
                                postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Manage Classes')
             return (<ManageClasses createTest={cls => this.startCreateTest(cls)}
+                                   theme={{ theme : this.state.theme, color : this.state.color }}
                                    postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Create Test')
             return (<CreateTest classID={this.state.testCreator}
