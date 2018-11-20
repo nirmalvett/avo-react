@@ -129,7 +129,7 @@ def get_classes():
                         (Takes.TEST == t.TEST) & (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
                     if len(takes) is not 0:
                         # If the student has taken the test then add best instance to mean and median
-                        marks_array.append(takes[len(takes) - 1].grade)  # Add mark to mark array
+                        marks_array.append(takes[len(takes) - 1].grade / t.total)  # Add mark to mark array
                 # Calculate the data
                 if len(marks_array) is 0:
                     # If there are no marks in the test set values to 0 else calculate values
