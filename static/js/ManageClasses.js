@@ -300,7 +300,14 @@ export default class ManageClasses extends React.Component {
                         ]}
                     />
                     <div className="mixed-chart" id='avo-apex__chart-container'>
-                        {selectedClass.tests.length !== 0 && this.state.apexChartEl}
+                       { // if there is at least one test then display data
+                            selectedClass.tests.length !== 0
+                                ? this.state.apexChartEl // render the graph
+                                : // give message that there's no tests yet
+                                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                                        This class doesn't have any tests yet!
+                                    </Typography>
+                        }
                     </div>
                 </Fragment>
             )
@@ -474,14 +481,6 @@ export default class ManageClasses extends React.Component {
             xCategories.push(selectedClass.tests[i].name);
         }
         return {
-            title: {
-                text: `Marks for ${selectedClass.name}`,
-                align: 'left',
-            },
-            subtitle: {
-                text: `Gain a quick insight into your students' progress.`,
-                align: 'left',
-            },
             chart: {
                 fontFamily : 'Roboto',
                 foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
@@ -493,16 +492,7 @@ export default class ManageClasses extends React.Component {
                 `${this.props.theme.color['200']}`,
                 `${this.props.theme.color['100']}`,
             ],
-            legend : {
-                labels: {
-                    colors: [
-                        `${this.props.theme.color['500']}`,
-                        `${this.props.theme.color['200']}`,
-                        `${this.props.theme.color['100']}`,
-                    ],
-                    useSeriesColors: true
-                },
-            },
+
             xaxis: {
                 labels: {
                     formatter: (val) => {
@@ -546,7 +536,7 @@ export default class ManageClasses extends React.Component {
                 },
                 containerMargin: {
                     left: 5,
-                    top: 0,
+                    top: 12,
                 },
                 onItemClick: {
                     toggleDataSeries: true

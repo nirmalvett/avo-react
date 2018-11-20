@@ -27,6 +27,7 @@ import { removeDuplicateClasses } from "./helpers";
 import Tooltip from '@material-ui/core/Tooltip';
 import AVOModal from './AVOMatComps/AVOMatModal';
 import Chart from "react-apexcharts";
+import { avoGreenGraph } from "./AVOCustomColors";
 
 
 export default class MyClasses extends React.Component {
@@ -244,7 +245,11 @@ export default class MyClasses extends React.Component {
                         {selectedClass.tests.length === 0 && "This class doesn't have any tests yet!"}
                     </Typography>
                     <div className="mixed-chart" id='avo-apex__chart-container'>
-                        {selectedClass.tests.length !== 0 && this.state.apexChartEl}
+                        { // if there is at least one test then display data
+                            selectedClass.tests.length !== 0
+                                ? this.state.apexChartEl
+                                : null
+                        }
                     </div>
                 </Fragment>
             );
@@ -321,7 +326,7 @@ export default class MyClasses extends React.Component {
                 myAvg = myAvg / testObj.total;
                 myMark.push(parseFloat(myAvg).toFixed(2));
             }else{
-                myMark.push('Test has not been taken');
+                myMark.push('Test or Assignment has not been taken');
             }
         }
         return [{
@@ -346,14 +351,6 @@ export default class MyClasses extends React.Component {
             xCategories.push(selectedClass.tests[i].name);
         }
         return {
-            title: {
-                text: `Marks for ${selectedClass.name}`,
-                align: 'left',
-            },
-            subtitle: {
-                text: `Gain a quick insight into your progress.`,
-                align: 'left',
-            },
             chart: {
                 fontFamily : 'Roboto',
                 foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
@@ -365,16 +362,6 @@ export default class MyClasses extends React.Component {
                 `${this.props.theme.color['200']}`,
                 `${this.props.theme.color['100']}`,
             ],
-            legend : {
-                labels: {
-                    colors: [
-                        `${this.props.theme.color['500']}`,
-                        `${this.props.theme.color['200']}`,
-                        `${this.props.theme.color['100']}`,
-                    ],
-                    useSeriesColors: true
-                },
-            },
             xaxis: {
                 labels: {
                     formatter: (val) => {
@@ -403,22 +390,13 @@ export default class MyClasses extends React.Component {
                 ]
             },
             legend: {
-                markers: {
-                    size: 6,
-                    strokeColor: "#fff",
-                    strokeWidth: 0,
-                    offsetX: 0,
-                    offsetY: 0,
-                    radius: 4,
-                    shape: "circle",
-                },
                 itemMargin: {
                     horizontal: 20,
                     vertical: 5
                 },
                 containerMargin: {
                     left: 5,
-                    top: 0,
+                    top: 12,
                 },
                 onItemClick: {
                     toggleDataSeries: true
