@@ -312,13 +312,17 @@ export default class MyClasses extends React.Component {
             const testObj = selectedClass.tests[i];
             classAvg.push(parseFloat(testObj.classAverage).toFixed(2));
             standardDev.push(parseFloat(testObj.standardDeviation).toFixed(2));
-            let myAvg = 0;
+            let myAvg = -1;
             for(let j = 0; j < testObj.submitted.length; j++) {
                 let takeObj = testObj.submitted[j];
                 myAvg = takeObj.grade > myAvg ? takeObj.grade : myAvg;
             } 
-            myAvg = myAvg / testObj.total;
-            myMark.push(parseFloat(myAvg).toFixed(2));
+            if(testObj.submitted.length > 0) {
+                myAvg = myAvg / testObj.total;
+                myMark.push(parseFloat(myAvg).toFixed(2));
+            }else{
+                myMark.push(-1);
+            }
         }
         return [{
             name : 'My Best Attempt (%)',
@@ -449,7 +453,7 @@ export default class MyClasses extends React.Component {
                 }
             },
             tooltip: {
-                theme : this.props.theme.theme
+                theme : this.props.theme.theme,
             }
         }
     }
