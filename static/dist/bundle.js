@@ -17383,7 +17383,7 @@ var Logo = function (_React$Component) {
             var primary = '#399103';
             var secondary = '#f8ee7b';
             var white = '#fff';
-            if (this.props.color !== _AVOCustomColors.avoGreen) {
+            if (this.props.color !== undefined && this.props.color !== _AVOCustomColors.avoGreen) {
                 // if it's a material-UI color i.e. not avoGreen then set up colors
                 primary = this.props.color['500'];
                 secondary = this.props.color['200'];

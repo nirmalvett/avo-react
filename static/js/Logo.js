@@ -9,7 +9,7 @@ export default class Logo extends React.Component {
         let primary = '#399103';
         let secondary = '#f8ee7b';
         let white = '#fff';
-        if (this.props.color !== avoGreen) { // if it's a material-UI color i.e. not avoGreen then set up colors
+        if (this.props.color !== undefined && this.props.color !== avoGreen) { // if it's a material-UI color i.e. not avoGreen then set up colors
             primary = this.props.color['500'];
             secondary = this.props.color['200'];
         }
