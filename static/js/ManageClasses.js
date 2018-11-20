@@ -194,7 +194,7 @@ export default class ManageClasses extends React.Component {
                     <List style={{ flex: 1, overflowY: 'auto' }} dense>
                         { /* Show all the students that are in the class*/
                             this.state.results.map((x, idx) =>
-                                <Fragment key = {`Student-Card-index:${idx}-firstName${x.firstName}`}>
+                                <Fragment key = {`Student-Card-index:${idx}-${uniqueKey1}`}>
                                     <ListItem disabled={x.tests.length === 0}>
                                         {x.tests.length === 0
                                             ? <AssignmentNotTurnedIn color='action'/>
