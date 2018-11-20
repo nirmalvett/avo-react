@@ -8,10 +8,11 @@ import sys
 from git import Repo
 
 from server.DecorationFunctions import *
-from server.auth import teaches_class, enrolled_in_class
+from server.auth import teaches_class, enrolled_in_class, able_edit_set
 
 from server.models import *
 import random
+import statistics
 routes = Blueprint('routes', __name__)
 
 
@@ -103,6 +104,7 @@ def get_classes():
         for c in classes:
             # for every class get the tests and takes and append them
             tests = Test.query.filter(Test.CLASS == c.CLASS).all()
+            student_list = User.query.filter((User.USER == enrolled.c.USER) & (c.CLASS == enrolled.c.CLASS)).all() # Get all users in class
             test_list = []  # List of tests in the class
             time = datetime.now()  # Current time
             for t in tests:
@@ -120,6 +122,26 @@ def get_classes():
                             current = {'timeStarted': time_stamp(ta.time_started), 'timeSubmitted': time_stamp(ta.time_submitted)}
                         else:
                             submitted.append({'takes': ta.TAKES, 'timeSubmitted': time_stamp(ta.time_submitted), 'grade': ta.grade})
+                marks_array = []  # Array of marks to sort to find Median
+                for s in student_list:
+                    # For each student get best takes and calculate averages
+                    takes = Takes.query.order_by(Takes.grade).filter(
+                        (Takes.TEST == t.TEST) & (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
+                    if len(takes) is not 0:
+                        # If the student has taken the test then add best instance to mean and median
+                        marks_array.append(takes[len(takes) - 1].grade)  # Add mark to mark array
+                # Calculate the data
+                if len(marks_array) is 0:
+                    # If there are no marks in the test set values to 0 else calculate values
+                    class_median, class_mean, class_stdev = 0, 0, 0
+                else:
+                    # Calculate the values
+                    class_median = statistics.median(marks_array)
+                    class_mean = statistics.mean(marks_array)
+                    class_stdev = 0
+                    if len(marks_array) > 1:
+                        # If there are more then two marks a stdev will be calculated
+                        class_stdev = statistics.stdev(marks_array)
                 if t.deadline < datetime.now():
                     # If the deadline has passed then set the is_open value to False
                     t.is_open = False
@@ -135,10 +157,10 @@ def get_classes():
                             'total': t.total,
                             'submitted': submitted,
                             'current': current,
-                            'classAverage': random.uniform(58, 90),  # TODO make these actually get the real values
-                            'classMedian': random.uniform(50, 69),  # TODO make these actually get the real values
-                            'classSize': round(random.uniform(40, 90)),  # TODO make these actually get the real values
-                            'standardDeviation': random.uniform(2, 13),  # TODO make these actually get the real values
+                            'classAverage': class_mean,
+                            'classMedian': class_median,
+                            'classSize': len(student_list),
+                            'standardDeviation': class_stdev,
                             'bestAttemptPercent': random.uniform(70, 95)  # this is used for testing only don't actually get this
 
                         }
@@ -155,10 +177,10 @@ def get_classes():
                             'total': t.total,
                             'submitted': submitted,
                             'current': current,
-                            'classAverage': random.uniform(58, 90),  # TODO make these actually get the real values
-                            'classMedian': random.uniform(50, 69),  # TODO make these actually get the real values
-                            'classSize': round(random.uniform(40, 90)),  # TODO make these actually get the real values
-                            'standardDeviation': random.uniform(2, 13),  # TODO make these actually get the real values
+                            'classAverage': class_mean,
+                            'classMedian': class_median,
+                            'classSize': len(student_list),
+                            'standardDeviation': class_stdev,
                             'bestAttemptPercent': random.uniform(70, 95)  # this is used for testing only don't actually get this
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
@@ -185,6 +207,83 @@ def get_sets():
             question_list.append({'id': q.QUESTION, 'name': q.name, 'string': q.string, 'total': q.total})
         set_list.append({'id': s.SET, 'name': s.name, 'questions': question_list})
     return jsonify(sets=set_list)
+
+
+@routes.route('/newSet', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def create_set():
+    """
+    Creates a new set
+    :return: validation that the set has been added
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json  # Data from client
+    name = data['name']
+    if not isinstance(name, str):
+        # If data isn't correct return error JSON
+        return jsonify(error="One or more data is not correct")
+    new_set = Set(name)  # New set to be created
+    user_views_set = UserViewsSet(current_user.USER, set.SET, True)  # New user_views_set to be created
+    # Add data to database
+    db.session.add(new_set)
+    db.session.add(user_views_set)
+    db.session.commit()
+    return jsonify(id=new_set.SET)
+
+
+@routes.route('/renameSet', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def rename_set():
+    """
+    Renames a set
+    :return: validation that the set has been updated
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json  # Data from client
+    id, name = data['id'], data['name']
+    if not isinstance(id, int) or not isinstance(name, str):
+        # If data isn't correct return error JSON
+        return jsonify(error="One or more data is not correct")
+    if not able_edit_set(id):
+        # if the user isn't able to edit this set return an error JSON
+        return jsonify(error="User not able to modify this data")
+    new_set = Set.query.get(id)  # Set to be updated
+    new_set.name = name
+    # Add change to database
+    db.session.commit()
+    return jsonify(code="Updated")
+
+
+@routes.route('/deleteSet', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def delete_set():
+    """
+    Deletes a set
+    :return: validation that the set has been Deleted
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json  # Data from client
+    ID = data['id']
+    if not isinstance(ID, int):
+        # If data isn't correct return error JSON
+        return jsonify(error="One or more data is not correct")
+    user_views_set = UserViewsSet.query.get(ID)  # user_views_set to delete
+    # Add change to database
+    db.session.delete(user_views_set)
+    db.session.commit()
+    return jsonify(code="Updated")
 
 
 @routes.route('/enroll', methods=['POST'])
@@ -326,6 +425,178 @@ def get_question():
         return jsonify(error='No question found')
     q = AvoQuestion(current_question.string, seed)
     return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
+
+
+@routes.route('/newQuestion', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def new_question():
+    """
+    Creates new Question and adds to set
+    :return: ID of new question
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    data = request.json
+    set_id, name, string, answers, total = data['set'], data['name'], data['string'], data['answers'], data['total']
+    if not isinstance(set_id, int) or not isinstance(name, str) or not isinstance(string, str) or not isinstance(answers, int) or not isinstance(total, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    if not able_edit_set(set_id):
+        # If the user is not allowed to edit the set return error json
+        return jsonify(error="User not able to edit Set")
+    try:
+        # Fill out question
+        q = AvoQuestion(string)
+        answers_array = []
+        for i in range(answers):
+            # Fill the array with blank answers
+            answers_array.append("")
+        q.get_score(*answers_array)
+    except:
+        return jsonify(error="Question Failed to build")
+    # Add Question to database
+    question = Question(set_id, name, string, answers, total)
+    db.session.add(question)
+    db.session.commit()
+
+    return jsonify(id=question.QUESTION)
+
+
+@routes.route('/renameQuestion', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def rename_question():
+    """
+    Renames question
+    :return: Confirmation that Question has been updated
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    data = request.json  # Data from client
+    question_id, name = data['id'], data['string']
+    if not isinstance(question_id, int) or not isinstance(name, str):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    question = Question.query.get(question_id)
+    if not able_edit_set(question.SET):
+        return jsonify(error="User not able to edit SET")
+    question.name = name
+    db.session.commit()
+    return jsonify(code="Updated")
+
+
+@routes.route('/editQuestion', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def edit_question():
+    """
+    Update Question data
+    :return: Confirmation that question has been updated
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    data = request.json  # Data from client
+    question_id, string, answers, total = data['id'], data['string'], data['answers'], data['total']
+    if not isinstance(question_id, int) or not isinstance(string, str) or not isinstance(answers, int) or not isinstance(total, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    question = Question.query.get(question_id)
+    if not able_edit_set(question.SET):
+        return jsonify(error="User not able to edit SET")
+    try:
+        # Try to run the question to see if it works
+        q = AvoQuestion(string)
+        answers_array = []
+        for i in range(answers):
+            # Create a blank answer array to test the question
+            answers_array.append("")
+        q.get_score(*answers_array)
+    except:
+        return jsonify(error="Question could not be created")
+    # Update data for database
+    question.string = string
+    question.answers = answers
+    question.total = total
+
+    db.session.commit()
+    return jsonify(code="Question updated")
+
+
+@routes.route('/deleteQuestion', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def delete_question():
+    """
+    Removes Question Set Link
+    :return: Confirmation that question has been removed
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    data = request.json  # Data from client
+    question_id = data['id']
+    if not isinstance(question_id, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    question = Question.query.get(question_id)
+    if not able_edit_set(question.SET):
+        return jsonify(error="User not able to edit SET")
+    question.SET = None
+    db.session.commit()
+    return jsonify(code="Updated")
+
+
+@routes.route('/sampleQuestion', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def sample_question():
+    """
+    Generates sample question
+    :return: data of generated question
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    data = request.json  # Data from client
+    string = data['string']
+    try:
+        # If answers were provided then test answers
+        answers = data['answers'] # answers from client
+        if not isinstance(string, str) or not isinstance(answers, list):
+            # Checks if all data given is of correct type if not return error JSON
+            return jsonify(error="One or more data is not correct")
+        try:
+            # Try to create and mark the question if it fails return error JSON
+            q = AvoQuestion(string)
+            q.get_score(*answers)
+        except:
+            return jsonify(error="Question failed to be created")
+        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, points=q.scores)
+    except:
+        # if no answers were provided make false answers
+        if not isinstance(string, str):
+            # Checks if all data given is of correct type if not return error JSON
+            return jsonify(error="One or more data is not correct")
+        try:
+            # Try to create and mark the question if fails return error JSON
+            q = AvoQuestion(string)
+            answers = []  # Array to hold placeholder answers
+            for i in range(len(answers)):
+                # Fill the array with blank answers
+                answers.append("")
+            q.get_score(*answers)
+        except:
+            return jsonify(error="Question failed to be created")
+        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
 
 
 @routes.route('/getTest', methods=['POST'])
