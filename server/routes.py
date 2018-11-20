@@ -161,8 +161,6 @@ def get_classes():
                             'classMedian': class_median,
                             'classSize': len(student_list),
                             'standardDeviation': class_stdev,
-                            'bestAttemptPercent': random.uniform(70, 95)  # this is used for testing only don't actually get this
-
                         }
                     )
                 else:
@@ -181,7 +179,6 @@ def get_classes():
                             'classMedian': class_median,
                             'classSize': len(student_list),
                             'standardDeviation': class_stdev,
-                            'bestAttemptPercent': random.uniform(70, 95)  # this is used for testing only don't actually get this
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
