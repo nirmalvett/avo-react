@@ -32,10 +32,11 @@ import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import { isNotChromeAlert } from "./helpers";
 import TimerComp from "./TimerComp";
 import QuestionBuilder from "./QuestionBuilder";
+import { avoGreen } from "./AVOCustomColors";
 
 const drawerWidth = 240;
 
-const avoGreen = {'100': '#03A9F4', '200': '#CDDC39', '500': '#399103'}; // this our default AVO colors
+
 const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
     amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
 
