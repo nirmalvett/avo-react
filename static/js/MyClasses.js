@@ -83,7 +83,7 @@ export default class MyClasses extends React.Component {
                                     <Fragment key={"MyClasses" + cls.id + "-" + cIndex}>
                                         <ListItem button onClick={() => {
                                             this.selectClass(cIndex);
-                                            this.handleClassListItemClick();
+                                            this.state.classes[this.state.c].tests.length === 0 && this.handleClassListItemClick();
                                         }}>
                                             <PeopleOutlinedIcon color='action'/>
                                             <ListItemText inset primary={cls.name}/>
