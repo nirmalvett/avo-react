@@ -82,8 +82,8 @@ export default class ManageClasses extends React.Component {
                                 {this.state.classes.map((cls, cIndex) =>
                                     <Fragment key = {"ManageClasses" + cls.id + "-" + cIndex}>
                                         <ListItem button onClick={() => {
-                                            this.selectClass(cIndex);
-                                            this.state.classes[this.state.c].tests.length === 0 && this.handleClassListItemClick();                                                
+                                                this.selectClass(cIndex);
+                                                this.handleClassListItemClick();
                                         }}>
                                             <PeopleOutlinedIcon color='action'/>
                                             <ListItemText inset primary={cls.name}/>
@@ -300,7 +300,7 @@ export default class ManageClasses extends React.Component {
                         ]}
                     />
                     <div className="mixed-chart" id='avo-apex__chart-container'>
-                        {this.state.apexChartEl}
+                        {selectedClass.tests.length !== 0 && this.state.apexChartEl}
                     </div>
                 </Fragment>
             )

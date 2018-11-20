@@ -83,7 +83,7 @@ export default class MyClasses extends React.Component {
                                     <Fragment key={"MyClasses" + cls.id + "-" + cIndex}>
                                         <ListItem button onClick={() => {
                                             this.selectClass(cIndex);
-                                            this.state.classes[this.state.c].tests.length === 0 && this.handleClassListItemClick();
+                                            this.handleClassListItemClick();
                                         }}>
                                             <PeopleOutlinedIcon color='action'/>
                                             <ListItemText inset primary={cls.name}/>
@@ -244,7 +244,7 @@ export default class MyClasses extends React.Component {
                         {selectedClass.tests.length === 0 && "This class doesn't have any tests yet!"}
                     </Typography>
                     <div className="mixed-chart" id='avo-apex__chart-container'>
-                        {this.state.apexChartEl}
+                        {selectedClass.tests.length !== 0 && this.state.apexChartEl}
                     </div>
                 </Fragment>
             );
