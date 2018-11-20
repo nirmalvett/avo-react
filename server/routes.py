@@ -184,7 +184,7 @@ def get_classes():
     return jsonify(classes=class_list)
 
 
-@routes.route('testStats', methods=['POST'])
+@routes.route('/testStats', methods=['POST'])
 @login_required
 @check_confirmed
 @teacher_only
@@ -207,6 +207,7 @@ def test_stats():
         return jsonify(error="User doesn't teach this class")
     students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
     test_mean, test_median, test_stdev = 0, 0, 0  # Overall test analytics
+    test_marks = []  # List of test marks
     question_mean, question_medaian, question_stdev = [], [], []  # Per Question analytics
     test_question_list = eval(test.question_list)  # Question list of test
 
@@ -214,7 +215,12 @@ def test_stats():
         # For each student get best takes and calculate analytics
         takes = Takes.query.order_by(Takes.grade).filter(
             (Takes.TEST == test.TEST) & (Takes.USER == s.USER)).all()  # Get current students takes
-        return jsonify(error="placeholder")
+        if len(takes) is not 0:
+            # If the student has taken the test calculate averages
+            takes = takes[len(takes) - 1]  # Get best takes instance
+            test_marks.append(takes.grade / test.total * 100)
+
+
     return jsonify(error="placeholder")
 
 
