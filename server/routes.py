@@ -207,21 +207,51 @@ def test_stats():
         return jsonify(error="User doesn't teach this class")
     students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
     test_mean, test_median, test_stdev = 0, 0, 0  # Overall test analytics
+    # question_mean, question_median, question_stdev = [], [], []
     test_marks = []  # List of test marks
-    question_mean, question_medaian, question_stdev = [], [], []  # Per Question analytics
-    test_question_list = eval(test.question_list)  # Question list of test
+    question_marks = []  # 2D array with first being student second being question mark
+    question_total_marks = []  # Each students mark per question
+    question_anylitics = []
 
-    for s in students:
-        # For each student get best takes and calculate analytics
+    for s in range(len(students)):
+        # For each student get best takes and add to test_marks array
         takes = Takes.query.order_by(Takes.grade).filter(
-            (Takes.TEST == test.TEST) & (Takes.USER == s.USER)).all()  # Get current students takes
+            (Takes.TEST == test.TEST) & (Takes.USER == students[s].USER)).all()  # Get current students takes
         if len(takes) is not 0:
-            # If the student has taken the test calculate averages
+            # If the student has taken the test get best takes and add to the array of marks
             takes = takes[len(takes) - 1]  # Get best takes instance
             test_marks.append(takes.grade / test.total * 100)
+            question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
 
+    for i in range(len(question_marks[0])):
+        # For the length of the test array go through each student and append the marks to the arrays
+        current_question_mark = []  # Students marks for each question 2D array
+        for j in range(len(question_marks)):
+            # For each question get the max mark
+            student_question_total = 0  # Question total mark
+            for k in range(len(question_marks[0][i])):
+                # Per each student get the question mark and add to question analytics
+                student_question_total += question_marks[j][i][k]
+            current_question_mark.append(student_question_total)
+        question_total_marks.append(current_question_mark)
 
-    return jsonify(error="placeholder")
+    for i in range(len(question_total_marks)):
+        # For each question calculate mean median and stdev
+        current_question = {'questionMean': statistics.mean(question_total_marks[i]),
+                            'questionMedian': statistics.median(question_total_marks[i])
+                            }
+        if len(question_total_marks[i]) > 1:
+            current_question['questionSTDEV'] = statistics.stdev(question_total_marks[i])
+        else:
+            current_question['questionSTDEV'] = 0
+        question_anylitics.append(current_question)
+    if len(test_marks) is not 0:
+        test_mean = statistics.mean(test_marks)
+        test_median = statistics.median(test_marks)
+        if len(test_marks) > 1:
+            test_stdev = statistics.stdev(test_marks)
+
+    return jsonify(testMean=test_mean, testMedian=test_median, testSTDEV=test_stdev, questions=question_anylitics)
 
 
 @routes.route('/getSets')
