@@ -251,7 +251,7 @@ def test_stats():
         if len(test_marks) > 1:
             test_stdev = statistics.stdev(test_marks)
 
-    return jsonify(testMean=test_mean, testMedian=test_median, testSTDEV=test_stdev, questions=question_anylitics)
+    return jsonify(numberStudents=len(test_marks), testMean=test_mean, testMedian=test_median, testSTDEV=test_stdev, questions=question_anylitics)
 
 
 @routes.route('/getSets')
