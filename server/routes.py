@@ -11,7 +11,6 @@ from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
 
 from server.models import *
-import random
 import statistics
 routes = Blueprint('routes', __name__)
 
@@ -206,12 +205,10 @@ def test_stats():
         # If the user doesnt teach the class then return error JSON
         return jsonify(error="User doesn't teach this class")
     students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
-    test_mean, test_median, test_stdev = 0, 0, 0  # Overall test analytics
-    # question_mean, question_median, question_stdev = [], [], []
     test_marks = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
     question_total_marks = []  # Each students mark per question
-    question_analytics = []
+    question_analytics = []  # Array to return to client of analytics
 
     for s in range(len(students)):
         # For each student get best takes and add to test_marks array
@@ -237,21 +234,28 @@ def test_stats():
 
     for i in range(len(question_total_marks)):
         # For each question calculate mean median and stdev
-        current_question = {'questionMean': statistics.mean(question_total_marks[i]),
-                            'questionMedian': statistics.median(question_total_marks[i])
-                            }
+        if len(question_total_marks[i]) > 0:
+            current_question = {'questionMean': statistics.mean(question_total_marks[i]),
+                                'questionMedian': statistics.median(question_total_marks[i])
+                                }
+        else:
+            current_question = {'questionMean': 0,
+                                'questionMedian': 0
+                                }
         if len(question_total_marks[i]) > 1:
             current_question['questionSTDEV'] = statistics.stdev(question_total_marks[i])
         else:
             current_question['questionSTDEV'] = 0
         question_analytics.append(current_question)
+    test_mean, test_median, test_stdev = 0, 0, 0  # Overall test analytics
     if len(test_marks) is not 0:
         test_mean = statistics.mean(test_marks)
         test_median = statistics.median(test_marks)
         if len(test_marks) > 1:
             test_stdev = statistics.stdev(test_marks)
 
-    return jsonify(numberStudents=len(test_marks), testMean=test_mean, testMedian=test_median, testSTDEV=test_stdev, questions=question_analytics)
+    return jsonify(numberStudents=len(test_marks), testMean=test_mean, testMedian=test_median, testSTDEV=test_stdev,
+                   questions=question_analytics)
 
 
 @routes.route('/getSets')
