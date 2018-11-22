@@ -893,9 +893,12 @@ def submit_test():
     # Get current takes and update submit time and commit to DataBase
     current_takes = Takes.query.get(takes)
     test = Test.query.get(current_takes.TEST)
-    if test.deadline < datetime.now():
+    time = datetime.now()
+    if test.deadline < time:
         # If test deadline has passed close test return error JSON
         return jsonify(error="Test deadline has passed")
+    if current_takes.time_submitted < time:
+        return jsonify(error="Test already has been submitted")
     current_takes.time_submitted = time_stamp(datetime.now() - timedelta(seconds=1))
     db.session.commit()
     return jsonify(message='Submitted successfully!')
