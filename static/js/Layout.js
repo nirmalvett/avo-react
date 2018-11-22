@@ -97,6 +97,7 @@ class Layout extends React.Component {
             open: true,
             testCreator: null,
             postTest: null,
+            minutesRemainingUponResumingTest: null
         };
     }
 
@@ -174,7 +175,13 @@ class Layout extends React.Component {
                                 <Menu/>
                             </IconButton>
                             <Typography variant='title' style={{ color : 'white' }} noWrap>{this.state.name}</Typography>
-                            {this.state.section === 'Take Test' && <TimerComp time={this.state.test.timer} uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />}
+                            { // this is timer value at the top of the bar
+                                this.state.section === 'Take Test' && this.state.minutesRemainingUponResumingTest !== null
+                                    ? <TimerComp
+                                        time={this.state.minutesRemainingUponResumingTest}
+                                        uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />
+                                    : null
+                            }
                         </Toolbar>
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
@@ -208,9 +215,10 @@ class Layout extends React.Component {
         if (section === 'Home')
             return (<HomePage/>);
         if (section === 'My Classes')
-            return (<MyClasses startTest={cls => this.startTest(cls)}
-                               theme={{ theme : this.state.theme, color : this.state.color }}
-                               postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
+            return (<MyClasses
+                                startTest={cls => this.startTest(cls)}
+                                theme={{ theme : this.state.theme, color : this.state.color }}
+                                postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Manage Classes')
             return (<ManageClasses createTest={cls => this.startCreateTest(cls)}
                                    theme={{ theme : this.state.theme, color : this.state.color }}
@@ -221,8 +229,10 @@ class Layout extends React.Component {
         if (section === 'Build Question')
             return <QuestionBuilder/>;
         if (section === 'Take Test')
-            return (<TakeTest testID={this.state.test.id}
-                              submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);
+            return (<TakeTest
+                                getTimeRemaining = {(minutes) => this.getTimeRemaining(minutes)}
+                                testID={this.state.test.id}
+                                submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);
         if (section === 'Preferences')
             return (<Preferences colorList={colorList}
                                  color={color} changeColor={color => this.setState({color: color})}
@@ -241,6 +251,12 @@ class Layout extends React.Component {
 
     startTest(test) {
         this.setState({section: 'Take Test', test: test});
+    }
+
+    getTimeRemaining(minutesRemainingUponResumingTest){
+        // When we hit the getTest route we need to know the time remaining
+        this.setState({minutesRemainingUponResumingTest: minutesRemainingUponResumingTest})
+        console.log("timer", minutesRemainingUponResumingTest);
     }
 }
 
