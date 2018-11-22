@@ -129,7 +129,7 @@ def get_classes():
                         (Takes.TEST == t.TEST) & (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
                     if len(takes) is not 0:
                         # If the student has taken the test then add best instance to mean and median
-                        marks_array.append(takes[len(takes) - 1].grade)  # Add mark to mark array
+                        marks_array.append((takes[len(takes) - 1].grade / t.total) * 100)  # Add mark to mark array
                 # Calculate the data
                 if len(marks_array) is 0:
                     # If there are no marks in the test set values to 0 else calculate values
@@ -159,7 +159,7 @@ def get_classes():
                             'current': current,
                             'classAverage': class_mean,
                             'classMedian': class_median,
-                            'classSize': len(student_list),
+                            'classSize': len(marks_array),
                             'standardDeviation': class_stdev,
                         }
                     )
@@ -177,11 +177,81 @@ def get_classes():
                             'current': current,
                             'classAverage': class_mean,
                             'classMedian': class_median,
-                            'classSize': len(student_list),
+                            'classSize': len(marks_array),
                             'standardDeviation': class_stdev,
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
+
+
+@routes.route('/testStats', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def test_stats():
+    """
+    Generate Stats on a per Question basis of a given test
+    :return: Test stats data
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    data = request.json  # Data from client
+    test_id = data['id']
+    if not isinstance(test_id, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    test = Test.query.get(test_id)  # Test to generate questions from
+    if not teaches_class(test.CLASS):
+        # If the user doesnt teach the class then return error JSON
+        return jsonify(error="User doesn't teach this class")
+    students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
+    test_mean, test_median, test_stdev = 0, 0, 0  # Overall test analytics
+    # question_mean, question_median, question_stdev = [], [], []
+    test_marks = []  # List of test marks
+    question_marks = []  # 2D array with first being student second being question mark
+    question_total_marks = []  # Each students mark per question
+    question_analytics = []
+
+    for s in range(len(students)):
+        # For each student get best takes and add to test_marks array
+        takes = Takes.query.order_by(Takes.grade).filter(
+            (Takes.TEST == test.TEST) & (Takes.USER == students[s].USER)).all()  # Get current students takes
+        if len(takes) is not 0:
+            # If the student has taken the test get best takes and add to the array of marks
+            takes = takes[len(takes) - 1]  # Get best takes instance
+            test_marks.append(takes.grade / test.total * 100)
+            question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
+
+    for i in range(len(question_marks[0])):
+        # For the length of the test array go through each student and append the marks to the arrays
+        current_question_mark = []  # Students marks for each question 2D array
+        for j in range(len(question_marks)):
+            # For each question get the max mark
+            student_question_total = 0  # Question total mark
+            for k in range(len(question_marks[0][i])):
+                # Per each student get the question mark and add to question analytics
+                student_question_total += question_marks[j][i][k]
+            current_question_mark.append(student_question_total)
+        question_total_marks.append(current_question_mark)
+
+    for i in range(len(question_total_marks)):
+        # For each question calculate mean median and stdev
+        current_question = {'questionMean': statistics.mean(question_total_marks[i]),
+                            'questionMedian': statistics.median(question_total_marks[i])
+                            }
+        if len(question_total_marks[i]) > 1:
+            current_question['questionSTDEV'] = statistics.stdev(question_total_marks[i])
+        else:
+            current_question['questionSTDEV'] = 0
+        question_analytics.append(current_question)
+    if len(test_marks) is not 0:
+        test_mean = statistics.mean(test_marks)
+        test_median = statistics.median(test_marks)
+        if len(test_marks) > 1:
+            test_stdev = statistics.stdev(test_marks)
+
+    return jsonify(numberStudents=len(test_marks), testMean=test_mean, testMedian=test_median, testSTDEV=test_stdev, questions=question_analytics)
 
 
 @routes.route('/getSets')
@@ -856,6 +926,8 @@ def post_test():
     marks, answers, seeds, = eval(takes_list.marks), eval(takes_list.answers), eval(takes_list.seeds)
     test = Test.query.get(takes_list.TEST)
     if enrolled_in_class(test.CLASS) or teaches_class(test.CLASS):
+        if datetime.now() <= takes_list.time_submitted:
+            return jsonify(error="Test not submitted yet")
         questions = eval(test.question_list)
         question_list = []
         for i in range(len(questions)):
