@@ -750,7 +750,7 @@ def create_takes(test, user):
         # If the user has taken more attempts then allowed return
         return
     test_question_list = eval(x.question_list)  # Question list of test
-    seeds = list(map(lambda seed: randint(0, 65536) if seed == -1 else seed, eval(x.seed_list)))  # Generates seeds of test
+    seeds = list(map(lambda seed: randint(0, 65535) if seed == -1 else seed, eval(x.seed_list)))  # Generates seeds of test
     answer_list = []  # Answers of takes instance
     marks_list = []  # Marks of takes instance
     for i in range(len(test_question_list)):
