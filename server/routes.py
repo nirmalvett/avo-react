@@ -855,6 +855,8 @@ def save_answer():
     if takes_list is None or takes_list.USER is not current_user.USER:
         # If takes instance cant be found or is not the same as current user return error JSON
         return jsonify(error='Invalid takes record')
+    if takes_list.time_submitted < datetime.now():
+        return jsonify(error="Test time has passed")
     test = Test.query.get(takes_list.TEST)  # Test of that instance of takes
     question_id = eval(test.question_list)[question]  # List of question IDs from test
     current_question = Question.query.get(question_id)  # Current question being modified
