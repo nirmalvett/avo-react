@@ -211,7 +211,7 @@ def test_stats():
     test_marks = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
     question_total_marks = []  # Each students mark per question
-    question_anylitics = []
+    question_analytics = []
 
     for s in range(len(students)):
         # For each student get best takes and add to test_marks array
@@ -244,14 +244,14 @@ def test_stats():
             current_question['questionSTDEV'] = statistics.stdev(question_total_marks[i])
         else:
             current_question['questionSTDEV'] = 0
-        question_anylitics.append(current_question)
+        question_analytics.append(current_question)
     if len(test_marks) is not 0:
         test_mean = statistics.mean(test_marks)
         test_median = statistics.median(test_marks)
         if len(test_marks) > 1:
             test_stdev = statistics.stdev(test_marks)
 
-    return jsonify(numberStudents=len(test_marks), testMean=test_mean, testMedian=test_median, testSTDEV=test_stdev, questions=question_anylitics)
+    return jsonify(numberStudents=len(test_marks), testMean=test_mean, testMedian=test_median, testSTDEV=test_stdev, questions=question_analytics)
 
 
 @routes.route('/getSets')
@@ -926,6 +926,8 @@ def post_test():
     marks, answers, seeds, = eval(takes_list.marks), eval(takes_list.answers), eval(takes_list.seeds)
     test = Test.query.get(takes_list.TEST)
     if enrolled_in_class(test.CLASS) or teaches_class(test.CLASS):
+        if datetime.now() <= takes_list.time_submitted:
+            return jsonify(error="Test not submitted yet")
         questions = eval(test.question_list)
         question_list = []
         for i in range(len(questions)):
