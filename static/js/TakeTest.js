@@ -15,12 +15,14 @@ export default class TakeTest extends React.Component {
     constructor(props) {
         super(props);
         Http.getTest(this.props.testID, (result) => {
-            result.newAnswers = copy(result.answers);
-            this.setState(result);
+                result.newAnswers = copy(result.answers);
+                this.setState(result);
+                this.props.getTimeRemaining(result.timer);
             }, (result) => alert(result.error));
         this.state = {
             testID: this.props.testID,
             questions: [],
+
         };
         /* this.state actually looks like this
          {
@@ -29,12 +31,12 @@ export default class TakeTest extends React.Component {
             questions: (6) [{…}, {…}, {…}, {…}, {…}, {…}],
             takes: 92,
             testID: 28,
-            time_submitted: 20181030163809
+            time_submitted: 20181030163809,
+            timer: 9333.94 // i.e. the amount of minutes
          }
         */
 
     }
-
     render() {
         return (
             <Grid container spacing={8}>

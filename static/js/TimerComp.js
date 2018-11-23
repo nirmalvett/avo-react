@@ -1,6 +1,6 @@
 import React from  'react';
 import Typography from '@material-ui/core/Typography/Typography';
-
+import Timer from  '@material-ui/icons/TimerOutlined';
 export default class TimerComp extends React.Component {
     constructor(props = {}) {
         super(props);
@@ -17,7 +17,16 @@ export default class TimerComp extends React.Component {
         this.numberofMinutes     = numberofMinutes;
         this.uponCompleteFunc    = uponCompleteFunc;
         this.notificationMarkers = notificationMarkers;
-        document.getElementById('avo-timer__anchor-el').innerHTML = `${numberofMinutes} : 00`;
+        let minutes = numberofMinutes;
+        let seconds = 0;
+        // There's a case here where the minutes is float meaning that the student is resuming
+        if (minutes % 1 !== minutes){
+            const partsOfMinute = minutes % 1; // This is the remainder
+            minutes = minutes - partsOfMinute; // now we only have whole minutes
+            seconds = Math.round(partsOfMinute*60);
+        }
+
+        document.getElementById('avo-timer__anchor-el').innerHTML = `${minutes}:${this.checkSecond(seconds)}`
         this.startTimer();
     };
 

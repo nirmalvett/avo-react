@@ -26,6 +26,8 @@ import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/L
 import { removeDuplicateClasses } from "./helpers";
 import Tooltip from '@material-ui/core/Tooltip';
 import AVOModal from './AVOMatComps/AVOMatModal';
+import Chart from "react-apexcharts";
+import { avoGreenGraph } from "./AVOCustomColors";
 
 
 export default class MyClasses extends React.Component {
@@ -34,6 +36,7 @@ export default class MyClasses extends React.Component {
         this.loadClasses();
         this.state = {
             classes: [],
+            apexChartEl: undefined,            
             c: null, // Selected class
             t: null, // Selected test
             startTest: this.props.startTest,
@@ -79,7 +82,10 @@ export default class MyClasses extends React.Component {
                                 <ListSubheader style={{position: 'relative'}}>Classes</ListSubheader>
                                 {this.state.classes.map((cls, cIndex) =>
                                     <Fragment key={"MyClasses" + cls.id + "-" + cIndex}>
-                                        <ListItem button onClick={() => this.selectClass(cIndex)}>
+                                        <ListItem button onClick={() => {
+                                            this.selectClass(cIndex);
+                                            this.handleClassListItemClick();
+                                        }}>
                                             <PeopleOutlinedIcon color='action'/>
                                             <ListItemText inset primary={cls.name}/>
                                             {cls.open
@@ -174,6 +180,7 @@ export default class MyClasses extends React.Component {
 
     detailsCard() {
         let selectedClass = this.state.classes[this.state.c];
+        // Class with tests
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
             let disableStartTest = !selectedTest.open
@@ -226,7 +233,8 @@ export default class MyClasses extends React.Component {
                 </Fragment>
             );
         }
-        if (this.state.c !== null) {
+        // Class with no tests
+        else if (this.state.c !== null) {
             return (
                 <Fragment>
                     <CardHeader
@@ -236,11 +244,30 @@ export default class MyClasses extends React.Component {
                         title={selectedClass.name}
                     />
                     <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
-                        {selectedClass.tests.length === 0 && "This class doesn't have any tests yet!"}
+                        {selectedClass.tests.length === 0 && "This class doesn't have any tests or assignments yet!"}
                     </Typography>
+                    <div className="mixed-chart" id='avo-apex__chart-container'>
+                        { // if there is at least one test then display data
+                            selectedClass.tests.length !== 0
+                                ?
+                                <React.Fragment>
+                                  { this.state.apexChartEl }
+                                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                                      Average: Based on the average of the best attempts of each student who took the test or assignment.
+                                    </Typography>
+                                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                                      Size: The number of students who has taken the test or assignment.
+                                    </Typography>
+                                </React.Fragment>
+                                : null
+                        }
+                    </div>
                 </Fragment>
             );
         }
+      // No classes or tests
+        else {
+
         return (
             <Fragment>
                 <CardHeader
@@ -255,5 +282,173 @@ export default class MyClasses extends React.Component {
                 <br/>
             </Fragment>
         );
+        }
+
+    }
+
+    enrollInClass() {
+        let key = prompt('Enroll Key:');
+        if (key !== null && key !== '') {
+            Http.enrollInClass(key,
+                () => this.loadClasses(),
+                () => alert('Looks like you entered an invalid key.'));
+        }
+    }
+
+    handleClassListItemClick() {
+        this.setState({ apexChartEl : undefined });
+        setTimeout(() => {
+            let apexContainerWidth = parseInt(document.getElementById('avo-apex__chart-container').clientWidth);
+            this.setState({ apexChartEl : (
+                <Chart
+                    options={this.generateChartOptions()}
+                    series={this.processClassChartData()}
+                    type="line"
+                    width={apexContainerWidth}
+                />
+            ) });
+            window.onresize = this.handleResize.bind(this);
+        }, 50);
+    };
+
+    handleResize() {
+        this.setState({ apexChartEl : 'loading...' });
+        let apexContainerWidth = parseInt(document.getElementById('avo-apex__chart-container').clientWidth);
+        this.setState({ apexChartEl : (
+            <Chart
+                options={this.generateChartOptions()}
+                series={this.processClassChartData()}
+                type="line"
+                width={apexContainerWidth}
+            />
+        ) });
+    }
+
+    processClassChartData() {
+        let selectedClass = this.state.classes[this.state.c];
+        let classAvg = [];
+        let myMark = [];
+        let standardDev = [];
+        for(let i = 0; i < selectedClass.tests.length; i++) {
+            const testObj = selectedClass.tests[i];
+            classAvg.push(parseFloat(testObj.classAverage).toFixed(2));
+            standardDev.push(parseFloat(testObj.standardDeviation).toFixed(2));
+            let myAvg = -1;
+            for(let j = 0; j < testObj.submitted.length; j++) {
+                let takeObj = testObj.submitted[j];
+                myAvg = takeObj.grade > myAvg ? takeObj.grade : myAvg;
+            } 
+            if(testObj.submitted.length > 0) {
+                myAvg = myAvg / testObj.total;
+                myMark.push(parseFloat(myAvg).toFixed(2));
+            }else{
+                myMark.push('Test or Assignment has not been taken');
+            }
+        }
+        return [{
+            name : 'My Best Attempt (%)',
+            type : 'column',
+            data : myMark
+        }, {
+            name : 'Class Average (%)',
+            type : 'column',
+            data : classAvg
+        }, {
+            name : 'SD for Class Avg (%)',
+            type : 'column',
+            data : standardDev
+        }]
+    }
+
+    generateChartOptions() {
+        let selectedClass = this.state.classes[this.state.c];
+        let xCategories = [];
+        for(let i = 0; i < selectedClass.tests.length; i++) {
+            xCategories.push(selectedClass.tests[i].name);
+        }
+        return {
+            chart: {
+                fontFamily : 'Roboto',
+                foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                id: "basic-bar",
+                type: 'line',
+            },
+            colors: [
+                `${this.props.theme.color['500']}`,
+                `${this.props.theme.color['200']}`,
+                `${this.props.theme.color['100']}`,
+            ],
+            xaxis: {
+                labels: {
+                    formatter: (val) => {
+                        for(let i = 0; i < selectedClass.tests.length; i++) {
+                            if(selectedClass.tests[i].name == val) {
+                                return val + ` (size: ${selectedClass.tests[i].classSize})`;
+                            }
+                        }
+                    }
+                },
+                categories: xCategories,
+            },
+            yaxis: {
+                min: 0,
+                max: 100,
+                tickAmount: 10,
+                catagories: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            },
+            fill: {
+                opacity: 1,
+                type: 'solid',
+                colors: [
+                    `${this.props.theme.color['500']}`,
+                    `${this.props.theme.color['200']}`,
+                    `${this.props.theme.color['100']}`,
+                ]
+            },
+            legend: {
+                itemMargin: {
+                    horizontal: 20,
+                    vertical: 5
+                },
+                containerMargin: {
+                    left: 5,
+                    top: 12,
+                },
+                onItemClick: {
+                    toggleDataSeries: true
+                },
+                onItemHover: {
+                    highlightDataSeries: true
+                },
+            },
+            dataLabels: {
+                enabled: false,
+                formatter: function (val) {
+                    return val
+                },
+                textAnchor: 'middle',
+                offsetX: 0,
+                offsetY: 0,
+                style: {
+                    fontSize: '14px',
+                    fontFamily: 'Helvetica, Arial, sans-serif',
+                    colors: [
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,                        
+                    ]
+                },
+                dropShadow: {
+                    enabled: false,
+                    top: 1,
+                    left: 1,
+                    blur: 1,
+                    opacity: 0.45
+                }
+            },
+            tooltip: {
+                theme : this.props.theme.theme,
+            }
+        }
     }
 }
