@@ -223,11 +223,10 @@ export default class ManageClasses extends React.Component {
                         }
                         <Menu
                               id="simple-menu"
-                              anchorEl={anchorEl}
-                              open={Boolean(anchorEl)}
+                              anchorEl={(anchorEl)}
+                              open={anchorEl != null}
                               onClose={() => this.handleVertClose()}
                         >
-                            {/* <MenuItem disabled={true} value={10}>View all submissions</MenuItem> */}
                             <MenuItem
                                 value={20}
                                 onClick={() => {
@@ -244,7 +243,7 @@ export default class ManageClasses extends React.Component {
                         <Popper
                             placement="left-start"
                             open={this.state.deleteTestPopperOpen}
-                            anchorEl={document.getElementById('avo-manageclasses__delete-button')}
+                            anchorEl={(() => { return document.getElementById('avo-manageclasses__delete-button')})}
                             disablePortal={false}
                             modifiers={{
                                 flip: {
