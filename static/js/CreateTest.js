@@ -30,6 +30,7 @@ export default class CreateTest extends React.Component {
             sets: [],
             testQuestions: [],
             deadline: '2018-01-01T00:00:00.000Z',
+            _deadline: new Date(),
             name: null,
             timeLimit: null,
             attempts: null,
@@ -121,7 +122,7 @@ export default class CreateTest extends React.Component {
                             margin='normal'
                             style={{width: '46%', margin: '2%'}}
                             label="Deadline"
-                            value={this.state.deadline}
+                            value={this.state._deadline}
                             onChange={this.handleDateChange.bind(this)}
                         />
                     </Card>
@@ -132,7 +133,14 @@ export default class CreateTest extends React.Component {
     }
 
     handleDateChange(date) {
-        this.setState({ deadline: date });
+        var d = new Date(date);
+        let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" + 
+        ("00" + d.getDate()).slice(-2) + "" + 
+        ("00" + d.getHours()).slice(-2) + "" + 
+        ("00" + d.getMinutes()).slice(-2) + "";
+        _date = d.getFullYear() + "" + _date;
+        console.log(_date);
+        this.setState({ deadline: _date, _deadline: date });
     };
     open(y) {
         let newSetList = copy(this.state.sets);
@@ -175,6 +183,7 @@ export default class CreateTest extends React.Component {
 
     saveTest() {
         let s = this.state;
+        console.log(s.deadline);
         let questions = s.testQuestions.map(x => x.id);
         let seeds = s.testQuestions.map(x => x.locked ? x.seed : -1);
         let deadline = s.deadline.replace(/[\-T:]/g, '');
