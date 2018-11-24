@@ -180,6 +180,7 @@ export default class MyClasses extends React.Component {
 
     detailsCard() {
         let selectedClass = this.state.classes[this.state.c];
+        // Class with tests
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
             let disableStartTest = !selectedTest.open
@@ -232,7 +233,8 @@ export default class MyClasses extends React.Component {
                 </Fragment>
             );
         }
-        if (this.state.c !== null) {
+        // Class with no tests
+        else if (this.state.c !== null) {
             return (
                 <Fragment>
                     <CardHeader
@@ -263,6 +265,9 @@ export default class MyClasses extends React.Component {
                 </Fragment>
             );
         }
+      // No classes or tests
+        else {
+
         return (
             <Fragment>
                 <CardHeader
@@ -277,6 +282,8 @@ export default class MyClasses extends React.Component {
                 <br/>
             </Fragment>
         );
+        }
+
     }
 
     enrollInClass() {
