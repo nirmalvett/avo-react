@@ -27,6 +27,8 @@ import { removeDuplicateClasses } from "./helpers";
 import Tooltip from '@material-ui/core/Tooltip';
 import AVOModal from './AVOMatComps/AVOMatModal';
 import Chart from "react-apexcharts";
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 import { avoGreenGraph } from "./AVOCustomColors";
 
 
@@ -41,6 +43,9 @@ export default class MyClasses extends React.Component {
             t: null, // Selected test
             startTest: this.props.startTest,
             enrollErrorMessage : '',
+            activeTab : 0,
+            testStats : null,
+            testStatsIdx : undefined,
         };
     }
 
@@ -95,8 +100,12 @@ export default class MyClasses extends React.Component {
                                         </ListItem>
                                         <Collapse in={cls.open} timeout='auto' unmountOnExit><List>{
                                             cls.tests.map((test, tIndex) =>
-                                                <ListItem key={'MyClasses'+cls.id+'-'+cIndex+'-'+test.id+'-'+tIndex}
-                                                          button onClick={() => this.setState({c: cIndex, t: tIndex})}>
+                                                <ListItem 
+                                                    key={'MyClasses'+cls.id+'-'+cIndex+'-'+test.id+'-'+tIndex}
+                                                    button 
+                                                    onClick={() => {
+                                                        this.getTestStats(test.id, cIndex, tIndex);
+                                                    }}>
                                                     <AssessmentOutlinedIcon color={test.open ? 'primary' : 'disabled'}
                                                                             style={{marginLeft: '10px'}}/>
                                                     <ListItemText inset primary={test.name}/>
@@ -205,31 +214,56 @@ export default class MyClasses extends React.Component {
                         {selectedTest.current === null ? 'Start Test' : 'Resume Test'}
                     </Button>
                     <br/>
-                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                        <b>Deadline:</b> {getDateString(selectedTest.deadline)}
-                    </Typography>
-                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                        <b>Time Limit:</b> {selectedTest.timer} minutes
-                    </Typography>
-                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                        <b>Attempts:</b> {selectedTest.attempts === -1 ? " Unlimited" : " " + selectedTest.attempts}
-                    </Typography>
-                    <br/>
-                    <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
-                        {selectedTest.submitted.map((x, y) => (
-                            <ListItem key={'MyClasses' + x.id}>
-                                <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
-                                    secondary={'Submitted on ' + getDateString(x.timeSubmitted)}/>
-                                <ListItemSecondaryAction>
-                                    <Tooltip title="View previous test results">
-                                        <IconButton onClick={() => {this.props.postTest(x.takes)}}>
-                                            <DescriptionOutlinedIcon/>
-                                        </IconButton>
-                                    </Tooltip>
-                                </ListItemSecondaryAction>
-                            </ListItem>
-                        ))}
-                    </List>
+                    <Tabs
+                        value={this.state.activeTab}
+                        onChange={this.handleTabViewChange.bind(this)}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        fullWidth
+                    >
+                        <Tab label="Test Analytics" />
+                        <Tab label="My Attempts" />
+                    </Tabs>
+                    {this.state.activeTab == 0 && (
+                        <React.Fragment>
+                            <Chart
+                                options={this.getTestCardGraphOptions()}
+                                series={this.getTestCardGraphSeries()}
+                                type="line"
+                                width='100%'
+                            />
+                        </React.Fragment>
+                    )}
+                    {this.state.activeTab == 1 && (
+                        <React.Fragment>
+                            <br/>
+                            <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                <b>Deadline:</b> {getDateString(selectedTest.deadline)}
+                            </Typography>
+                            <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                <b>Time Limit:</b> {selectedTest.timer} minutes
+                            </Typography>
+                            <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                <b>Attempts:</b> {selectedTest.attempts === -1 ? " Unlimited" : " " + selectedTest.attempts}
+                            </Typography>
+                            <br/>
+                            <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
+                                {selectedTest.submitted.map((x, y) => (
+                                    <ListItem key={'MyClasses' + x.id}>
+                                        <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
+                                            secondary={'Submitted on ' + getDateString(x.timeSubmitted)}/>
+                                        <ListItemSecondaryAction>
+                                            <Tooltip title="View previous test results">
+                                                <IconButton onClick={() => {this.props.postTest(x.takes)}}>
+                                                    <DescriptionOutlinedIcon/>
+                                                </IconButton>
+                                            </Tooltip>
+                                        </ListItemSecondaryAction>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        </React.Fragment>
+                    )}
                 </Fragment>
             );
         }
@@ -286,6 +320,124 @@ export default class MyClasses extends React.Component {
 
     }
 
+    getTestCardGraphOptions() {
+        let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
+        console.log(selectedTest);
+        return {
+            chart: {
+                fontFamily : 'Roboto',
+                foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                id: "basic-bar",
+                type: 'line',
+            },
+            colors: [
+                `${this.props.theme.color['500']}`,
+                `${this.props.theme.color['200']}`,
+                `${this.props.theme.color['100']}`,
+            ],
+            stroke: {
+                curve: 'smooth'
+            },
+            labels: ['', selectedTest.name, ''],
+            xaxis: {
+            },
+            yaxis: {
+                min: 0,
+                max: 100,
+                tickAmount: 10,
+                catagories: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            },
+            fill: {
+                opacity: 1,
+                type: 'solid',
+                colors: [
+                    `${this.props.theme.color['500']}`,
+                    `${this.props.theme.color['200']}`,
+                    `${this.props.theme.color['100']}`,
+                ]
+            },
+            legend: {
+                itemMargin: {
+                    horizontal: 20,
+                    vertical: 5
+                },
+                containerMargin: {
+                    left: 5,
+                    top: 12,
+                },
+                onItemClick: {
+                    toggleDataSeries: true
+                },
+                onItemHover: {
+                    highlightDataSeries: true
+                },
+            },
+            dataLabels: {
+                enabled: false,
+                formatter: function (val) {
+                    return val
+                },
+                textAnchor: 'middle',
+                offsetX: 0,
+                offsetY: 0,
+                style: {
+                    fontSize: '14px',
+                    fontFamily: 'Helvetica, Arial, sans-serif',
+                    colors: [
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,                        
+                    ]
+                },
+                dropShadow: {
+                    enabled: false,
+                    top: 1,
+                    left: 1,
+                    blur: 1,
+                    opacity: 0.45
+                }
+            },
+            tooltip: {
+                theme : this.props.theme.theme,
+            }
+        }
+    };
+
+    getTestCardGraphSeries() {
+        if(this.state.testStatsIdx == undefined) {
+            return [{
+                name : 'Test Mean',
+                type : 'column',
+                data : ['', this.state.testStats.testMean, '']
+            }, {
+                name : 'Test SD',
+                type : 'column',
+                data : ['', this.state.testStats.testSTDEV, '']
+            }, {
+                name : 'Test Median',
+                type : 'line',
+                data : ['', this.state.testStats.testMedian, '']
+            }, ]
+        }
+        return [{
+            name: 'TEAM A',
+            type: 'column',
+            data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30]
+        }, {
+            name: 'TEAM B',
+            type: 'column',
+            data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43]
+        }, {
+            name: 'TEAM C',
+            type: 'line',
+            data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39]
+        }]
+    };
+
+    handleTabViewChange(event, value) {
+        this.setState({ activeTab : value });
+    };
+
     enrollInClass() {
         let key = prompt('Enroll Key:');
         if (key !== null && key !== '') {
@@ -294,6 +446,17 @@ export default class MyClasses extends React.Component {
                 () => alert('Looks like you entered an invalid key.'));
         }
     }
+
+    getTestStats(testID, cIndex, tIndex) {
+        Http.getTestStats(
+            testID,
+            (result) => { 
+                console.log(result);
+                this.setState({c: cIndex, t: tIndex, testStats: result });
+            },
+            (err) => { console.log(err); }
+        )
+    };
 
     handleClassListItemClick() {
         this.setState({ apexChartEl : undefined });
