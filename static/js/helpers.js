@@ -97,15 +97,18 @@ function convertListFloatToAnalytics(inputList, topMark){
     let countStudentsInGroup = 0;
     // CASE 1: The lower bound is 0 then filter by [min, max)
     if (lowerBound === 0){
-      returnObj[keyString] = inputList.filter(x => x >= 0 && x < upperBound).length;
+      returnObj[keyString] = {
+        numberOfStudents: inputList.filter(x => x >= 0 && x < upperBound).length
+      };
+
     }
     // CASE 2: The upper bound is topMark then filter by [min, max]
     else if (upperBound === topMark){
-      returnObj[keyString] = inputList.filter(x => x >= lowerBound && x <= upperBound).length;
+      returnObj[keyString] = {numberOfStudents: inputList.filter(x => x >= lowerBound && x <= upperBound).length}
     }
     // CASE 3: Otherwise filter by [min, max)
     else {
-        returnObj[keyString] = inputList.filter(x => x >= lowerBound && x < upperBound).length;
+        returnObj[keyString] = {numberOfStudents: inputList.filter(x => x >= lowerBound && x < upperBound).length}
     }
 
     trailingNumber = upperBound;
