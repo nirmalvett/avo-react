@@ -161,12 +161,7 @@ def get_classes():
                             'classMedian': class_median,
                             'classSize': len(marks_array),
                             'standardDeviation': class_stdev,
-                            'testStats': {  # TODO we need to find the correct groups then sort out all the top marks
-                                '0 to 2': random.randint(0, 10),
-                                '2 to 4': random.randint(10, 20),
-                                '4 to 6': random.randint(20, 50),
-                                '6 to 8 (max)': random.randint(1, 4)
-                            }
+                            'topMarksPerStudent': fake_list_top_marks(0, 9)  # TODO remove when we have real marks
                         }
                     )
                 else:
@@ -185,12 +180,7 @@ def get_classes():
                             'classMedian': class_median,
                             'classSize': len(marks_array),
                             'standardDeviation': class_stdev,
-                            'testStats': {  # TODO we need to find the correct groups then sort out all the top marks
-                                '0 to 2': random.randint(0, 10),
-                                '2 to 4': random.randint(10, 20),
-                                '4 to 6': random.randint(20, 50),
-                                '6 to 8 (max)': random.randint(1, 4)
-                            }
+                            'topMarksPerStudent': fake_list_top_marks(0, 9)  # TODO remove when we have real marks
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
@@ -249,8 +239,11 @@ def test_stats():
 
     for i in range(len(question_total_marks)):
         # For each question calculate mean median and stdev
-        current_question = {'questionMean': statistics.mean(question_total_marks[i]),
-                            'questionMedian': statistics.median(question_total_marks[i])
+        current_question = {
+                                'questionMean': statistics.mean(question_total_marks[i]),
+                                'questionMedian': statistics.median(question_total_marks[i]),
+                                'topMarksPerStudent': fake_list_top_marks(0, 3),   # TODO replace with question_total_marks[i],
+                                'totalMark': 3  # TODO with total mark for the question
                             }
         if len(question_total_marks[i]) > 1:
             current_question['questionSTDEV'] = statistics.stdev(question_total_marks[i])
@@ -263,8 +256,50 @@ def test_stats():
         if len(test_marks) > 1:
             test_stdev = statistics.stdev(test_marks)
 
-    return jsonify(numberStudents=len(test_marks), testMean=test_mean, testMedian=test_median, testSTDEV=test_stdev, questions=question_analytics)
+    return jsonify(
+        numberStudents=len(test_marks),
+        testMean=test_mean,
+        testMedian=test_median,
+        testSTDEV=test_stdev,
+        questions=question_analytics,
+        topMarkPerStudent=fake_list_top_marks(0, 9),   # TODO replace with the top marks for each student for this test
+        totalMark=15  # TODO replace with test.total
+    )
 
+
+def fake_list_top_marks(min_int, max_int):
+    return [
+          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
+        ]
 
 @routes.route('/getSets')
 @login_required
