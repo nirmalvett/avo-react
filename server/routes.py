@@ -161,12 +161,6 @@ def get_classes():
                             'classMedian': class_median,
                             'classSize': len(marks_array),
                             'standardDeviation': class_stdev,
-                            'testStats': {  # TODO we need to find the correct groups then sort out all the top marks
-                                '0 to 2': random.randint(0, 10),
-                                '2 to 4': random.randint(10, 20),
-                                '4 to 6': random.randint(20, 50),
-                                '6 to 8 (max)': random.randint(1, 4)
-                            }
                         }
                     )
                 else:
@@ -185,12 +179,6 @@ def get_classes():
                             'classMedian': class_median,
                             'classSize': len(marks_array),
                             'standardDeviation': class_stdev,
-                            'testStats': {  # TODO we need to find the correct groups then sort out all the top marks
-                                '0 to 2': random.randint(0, 10),
-                                '2 to 4': random.randint(10, 20),
-                                '4 to 6': random.randint(20, 50),
-                                '6 to 8 (max)': random.randint(1, 4)
-                            }
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
@@ -249,8 +237,40 @@ def test_stats():
 
     for i in range(len(question_total_marks)):
         # For each question calculate mean median and stdev
-        current_question = {'questionMean': statistics.mean(question_total_marks[i]),
-                            'questionMedian': statistics.median(question_total_marks[i])
+        current_question = {
+                                'questionMean': statistics.mean(question_total_marks[i]),
+                                'questionMedian': statistics.median(question_total_marks[i]),
+                                'topMarksPerStudent': [random.uniform(0, 8), random.uniform(0, 8),
+                                                          random.uniform(0, 8), random.uniform(0, 8),
+                                                          random.uniform(0, 8), random.uniform(0, 8),
+                                                          random.uniform(0, 8), random.uniform(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.uniform(0, 8),
+                                                          random.uniform(0, 8), random.uniform(0, 8),
+                                                          random.uniform(0, 8), random.uniform(0, 8),
+                                                          random.uniform(0, 8), random.uniform(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.uniform(0, 8),
+                                                          random.uniform(0, 8), random.uniform(0, 8),
+                                                          random.uniform(0, 8), random.uniform(0, 8),
+                                                          random.uniform(0, 8), random.uniform(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          random.uniform(0, 8), random.randint(0, 8),
+                                                          ]
                             }
         if len(question_total_marks[i]) > 1:
             current_question['questionSTDEV'] = statistics.stdev(question_total_marks[i])
