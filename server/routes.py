@@ -242,7 +242,8 @@ def test_stats():
         current_question = {
                                 'questionMean': statistics.mean(question_total_marks[i]),
                                 'questionMedian': statistics.median(question_total_marks[i]),
-                                'topMarksPerStudent': fake_list_top_marks(0, 3)  # TODO remove when we have real marks
+                                'topMarksPerStudent': fake_list_top_marks(0, 3),   # TODO replace with question_total_marks[i],
+                                'totalMark': 3  # TODO with total mark for the question
                             }
         if len(question_total_marks[i]) > 1:
             current_question['questionSTDEV'] = statistics.stdev(question_total_marks[i])
@@ -255,7 +256,15 @@ def test_stats():
         if len(test_marks) > 1:
             test_stdev = statistics.stdev(test_marks)
 
-    return jsonify(numberStudents=len(test_marks), testMean=test_mean, testMedian=test_median, testSTDEV=test_stdev, questions=question_analytics)
+    return jsonify(
+        numberStudents=len(test_marks),
+        testMean=test_mean,
+        testMedian=test_median,
+        testSTDEV=test_stdev,
+        questions=question_analytics,
+        topMarkPerStudent=fake_list_top_marks(0, 9),   # TODO replace with the top marks for each student for this test
+        totalMark=15  # TODO replace with test.total
+    )
 
 
 def fake_list_top_marks(min_int, max_int):
