@@ -30,6 +30,12 @@ import Chart from "react-apexcharts";
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { avoGreenGraph } from "./AVOCustomColors";
+import Select from '@material-ui/core/Select';
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
 
 
 export default class MyClasses extends React.Component {
@@ -46,7 +52,14 @@ export default class MyClasses extends React.Component {
             activeTab : 0,
             testStats : null,
             testStatsIdx : undefined,
+            testStatsDataSelectIdx : 0,
+            testStatsDataQuestionIdx : undefined,
         };
+        this.testStatsDataSelectKeys = [
+            'Average Attempt',
+            'Best Attempt',
+            'All Attempts'
+        ];
     }
 
     loadClasses() {
@@ -226,12 +239,27 @@ export default class MyClasses extends React.Component {
                     </Tabs>
                     {this.state.activeTab == 0 && (
                         <React.Fragment>
-                            <Chart
-                                options={this.getTestCardGraphOptions()}
-                                series={this.getTestCardGraphSeries()}
-                                type="line"
-                                width='100%'
-                            />
+                            <div style={{ overflowY : 'auto' }}>
+                                <Chart
+                                    options={this.getTestCardGraphOptions()}
+                                    series={this.getTestCardGraphSeries()}
+                                    type="line"
+                                    width='100%'
+                                />
+                                <FormControl>
+                                    <InputLabel htmlFor="test-stats__data-display">Display Type</InputLabel>
+                                    <Select
+                                        value={this.state.testStatsDataSelectIdx}
+                                        onChange={(evt) => this.setState({ testStatsDataSelectIdx : evt.target.value })}
+                                        input={<Input name="dataSelected" id="test-stats__data-display" />}
+                                    >
+                                        <MenuItem value={0}>{this.testStatsDataSelectKeys[0]}</MenuItem>
+                                        <MenuItem value={1}>{this.testStatsDataSelectKeys[1]}</MenuItem>
+                                        <MenuItem value={2}>{this.testStatsDataSelectKeys[2]}</MenuItem>
+                                    </Select>
+                                    <FormHelperText>Select the data to be dispayed</FormHelperText>
+                                </FormControl>
+                            </div>
                         </React.Fragment>
                     )}
                     {this.state.activeTab == 1 && (
@@ -338,7 +366,13 @@ export default class MyClasses extends React.Component {
             stroke: {
                 curve: 'smooth'
             },
-            labels: ['', selectedTest.name, ''],
+            labels: this.state.testStatsDataSelectIdx == 2 && selectedTest.submitted.length > 0 ? (() => {
+                let attemptArray = [];
+                selectedTest.submitted.forEach((obj, idx) => {
+                    attemptArray.push('Attempt ' + (parseInt(idx) + 1));
+                });
+                return attemptArray;
+            })(): ['', selectedTest.name, ''],
             xaxis: {
             },
             yaxis: {
@@ -404,19 +438,89 @@ export default class MyClasses extends React.Component {
     };
 
     getTestCardGraphSeries() {
-        if(this.state.testStatsIdx == undefined) {
+        let selectedTest = this.state.classes[this.state.c].tests[this.state.t]; 
+        if(this.state.testStatsDataSelectIdx == 0) {
+            let testAverage = 0;
+            selectedTest.submitted.forEach((obj) => {
+                testAverage += obj.grade;
+            });
+            if(testAverage != 0) {
+                testAverage = (testAverage / (selectedTest.total * selectedTest.submitted.length)) * 100
+            }
             return [{
                 name : 'Test Mean',
                 type : 'column',
                 data : ['', this.state.testStats.testMean, '']
             }, {
-                name : 'Test SD',
+                name : 'Test Median',
                 type : 'column',
+                data : ['', this.state.testStats.testMedian, '']
+            }, {
+                name : 'My Average',
+                type : 'column',
+                data : ['', testAverage, '']
+            },{
+                name : 'Test SD',
+                type : 'line',
                 data : ['', this.state.testStats.testSTDEV, '']
+            }, ]
+        }else if (this.state.testStatsDataSelectIdx == 1) {
+            let myBestMark = 0;
+            selectedTest.submitted.forEach((obj) => {
+                myBestMark = obj.grade > myBestMark ? obj.grade : myBestMark;
+            });
+            myBestMark = (myBestMark / selectedTest.total) * 100;
+            return [{
+                name : 'Test Mean',
+                type : 'column',
+                data : ['', this.state.testStats.testMean, '']
             }, {
                 name : 'Test Median',
-                type : 'line',
+                type : 'column',
                 data : ['', this.state.testStats.testMedian, '']
+            }, {
+                name : 'My Best Attempt',
+                type : 'column',
+                data : ['', myBestMark, '']
+            }, {
+                name : 'Test SD',
+                type : 'line',
+                data : ['', this.state.testStats.testSTDEV, '']
+            }, ]
+        }else if (this.state.testStatsDataSelectIdx == 2) {
+            let attemptArray = [];
+            let meanArray    = []; // It isnt a very nice array :\
+            let medianArray  = [];
+            let sdArray      = [];
+            if(selectedTest.submitted.length > 0) {
+                selectedTest.submitted.forEach((obj) => {
+                    attemptArray.push((obj.grade / selectedTest.total) * 100);
+                    meanArray   .push(this.state.testStats.testMean);
+                    medianArray .push(this.state.testStats.testMedian);
+                    sdArray     .push(this.state.testStats.testSTDEV);
+                });
+            }else{
+                attemptArray = ['', 'No Attempts Availible', ''];
+                meanArray    = ['', this.state.testStats.testMean, ''];
+                medianArray  = ['', this.state.testStats.testMedian, ''];
+                sdArray      = ['', this.state.testStats.testSTDEV, ''];
+            }
+            return [{
+                name : 'Test Mean',
+                type : 'column',
+                data : meanArray
+            }, {
+                name : 'Test Median',
+                type : 'column',
+                data : medianArray
+            }, {
+                name : 'Test Attempt',
+                type : 'column',
+                data : attemptArray
+            }, {
+                name : 'Test SD',
+                type : 'line',
+                data : sdArray
             }, ]
         }
         return [{
