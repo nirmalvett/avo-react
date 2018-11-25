@@ -165,7 +165,7 @@ def get_classes():
                                 '0 to 2': random.randint(0, 10),
                                 '2 to 4': random.randint(10, 20),
                                 '4 to 6': random.randint(20, 50),
-                                '6 to 8 (max)': random.randint(1 - 4)
+                                '6 to 8 (max)': random.randint(1, 4)
                             }
                         }
                     )
@@ -189,7 +189,7 @@ def get_classes():
                                 '0 to 2': random.randint(0, 10),
                                 '2 to 4': random.randint(10, 20),
                                 '4 to 6': random.randint(20, 50),
-                                '6 to 8 (max)': random.randint(1 - 4)
+                                '6 to 8 (max)': random.randint(1, 4)
                             }
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
