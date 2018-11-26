@@ -104,7 +104,7 @@ export function convertListFloatToAnalytics(inputList, topMark){
       const numberInGroup = inputList.filter(x => x >= 0 && x < upperBound).length;
       returnObj[keyString] = {
         numberOfStudents: numberInGroup,
-        perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
+        percentOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
       };
 
     }
@@ -113,7 +113,7 @@ export function convertListFloatToAnalytics(inputList, topMark){
       const numberInGroup = inputList.filter(x => x >= lowerBound && x <= upperBound).length;
       returnObj[keyString] = {
         numberOfStudents: numberInGroup,
-        perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
+        percentOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
       }
     }
     // CASE 3: Otherwise filter by [min, max)
@@ -121,7 +121,7 @@ export function convertListFloatToAnalytics(inputList, topMark){
       const numberInGroup = inputList.filter(x => x >= lowerBound && x < upperBound).length;
         returnObj[keyString] = {
           numberOfStudents: inputList.filter(x => x >= lowerBound && x < upperBound).length,
-          perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
+          percentOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
         }
     }
 
