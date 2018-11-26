@@ -68,7 +68,7 @@ export function isChrome(){
     }
 
 
-function convertListFloatToAnalytics(inputList, topMark){
+export function convertListFloatToAnalytics(inputList, topMark){
   // This method takes in a list of ints and the topMark then organizes the data by a group of 6 and outputs an object with the keys as the groups and the count
   const studentSizeWhoTookIt = inputList.length;
   const returnObj = {
@@ -82,21 +82,17 @@ function convertListFloatToAnalytics(inputList, topMark){
   // If it's not a whole number then we truncate and add 1
   if (dividedBy6 % 1 !== 0){ incrementNumber = Math.floor(dividedBy6) + 1; }
 
-  // Stage 2: We'll want our increment number to to be divisable by our top mark
-  while (topMark % incrementNumber !== 0){ incrementNumber ++; }
-
   // Stage 3: We'll want to generate a list of increment Strings
   let trailingNumber = 0;
   while (trailingNumber !== topMark){ // increment by incrementNumber
     const lowerBound = trailingNumber;
     const upperBound = trailingNumber + incrementNumber;
     let keyString = `${lowerBound} to ${upperBound}`;
-    // If it's the last one then we want to add 'max; at the end
-    if (lowerBound === (topMark - incrementNumber)){ keyString += " (max)";}
+    // If it's the last one and it's even then we want to add 'max' at the end
+    if (lowerBound === (topMark - incrementNumber) && topMark % 2 === 0){ keyString += " (max)";}
 
     // Next we will want to go through our list of floats and get range [min, max)
     // For special cases for 0 and topMark where they are included in the first and last
-    let countStudentsInGroup = 0;
     // CASE 1: The lower bound is 0 then filter by [min, max)
     if (lowerBound === 0){
       const numberInGroup = inputList.filter(x => x >= 0 && x < upperBound).length;
@@ -124,6 +120,16 @@ function convertListFloatToAnalytics(inputList, topMark){
     }
 
     trailingNumber = upperBound;
+  }
+
+  // Finally if the end number is odd then we must consider the last
+  if (topMark % 2 !== 0){
+      const numberInGroup = inputList.filter(x => x === topMark).length;
+      returnObj[`${topMark} (max)`] = {
+        numberOfStudents: numberInGroup,
+        perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
+      };
+
   }
 
   return returnObj;
