@@ -68,7 +68,7 @@ export function isChrome(){
     }
 
 
-function convertListFloatToAnalytics(inputList, topMark){
+export function convertListFloatToAnalytics(inputList, topMark){
   // This method takes in a list of ints and the topMark then organizes the data by a group of 6 and outputs an object with the keys as the groups and the count
 
   const returnObj = {}; // we want {'0 to 2': 4, '2 to 4': 6, '4 to 6 (max)': 1}

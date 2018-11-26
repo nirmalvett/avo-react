@@ -36,7 +36,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
-
+import { convertListFloatToAnalyticss } from "./helpers";
 
 export default class MyClasses extends React.Component {
     constructor(props) {
@@ -52,13 +52,14 @@ export default class MyClasses extends React.Component {
             activeTab : 0,
             testStats : null,
             testStatsIdx : undefined,
-            testStatsDataSelectIdx : 0,
+            testStatsDataSelectIdx : 3,
             testStatsDataQuestionIdx : undefined,
         };
         this.testStatsDataSelectKeys = [
             'Average Attempt',
             'Best Attempt',
-            'All Attempts'
+            'All Attempts',
+            'Distribution'
         ];
     }
 
@@ -226,7 +227,15 @@ export default class MyClasses extends React.Component {
                     >
                         {selectedTest.current === null ? 'Start Test' : 'Resume Test'}
                     </Button>
-                    <br/>
+                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                        <b>Deadline:</b> {getDateString(selectedTest.deadline)}
+                    </Typography>
+                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                        <b>Time Limit:</b> {selectedTest.timer} minutes
+                    </Typography>
+                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                        <b>Attempts:</b> {selectedTest.attempts === -1 ? " Unlimited" : " " + selectedTest.attempts}
+                    </Typography>
                     <Tabs
                         value={this.state.activeTab}
                         onChange={this.handleTabViewChange.bind(this)}
@@ -239,7 +248,7 @@ export default class MyClasses extends React.Component {
                     </Tabs>
                     {this.state.activeTab == 0 && (
                         <React.Fragment>
-                            <div style={{ overflowY : 'auto' }}>
+                            <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
                                 <Chart
                                     options={this.getTestCardGraphOptions()}
                                     series={this.getTestCardGraphSeries()}
@@ -256,6 +265,7 @@ export default class MyClasses extends React.Component {
                                         <MenuItem value={0}>{this.testStatsDataSelectKeys[0]}</MenuItem>
                                         <MenuItem value={1}>{this.testStatsDataSelectKeys[1]}</MenuItem>
                                         <MenuItem value={2}>{this.testStatsDataSelectKeys[2]}</MenuItem>
+                                        <MenuItem value={3}>{this.testStatsDataSelectKeys[3]}</MenuItem>
                                     </Select>
                                     <FormHelperText>Select the data to be dispayed</FormHelperText>
                                 </FormControl>
@@ -264,16 +274,6 @@ export default class MyClasses extends React.Component {
                     )}
                     {this.state.activeTab == 1 && (
                         <React.Fragment>
-                            <br/>
-                            <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                                <b>Deadline:</b> {getDateString(selectedTest.deadline)}
-                            </Typography>
-                            <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                                <b>Time Limit:</b> {selectedTest.timer} minutes
-                            </Typography>
-                            <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                                <b>Attempts:</b> {selectedTest.attempts === -1 ? " Unlimited" : " " + selectedTest.attempts}
-                            </Typography>
                             <br/>
                             <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
                                 {selectedTest.submitted.map((x, y) => (
@@ -522,6 +522,8 @@ export default class MyClasses extends React.Component {
                 type : 'line',
                 data : sdArray
             }, ]
+        }else if(this.state.testStatsDataSelectIdx == 3) {
+                
         }
         return [{
             name: 'TEAM A',
