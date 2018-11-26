@@ -36,7 +36,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
-import { convertListFloatToAnalyticss } from "./helpers";
+import { convertListFloatToAnalytics } from "./helpers";
 
 export default class MyClasses extends React.Component {
     constructor(props) {
@@ -206,6 +206,7 @@ export default class MyClasses extends React.Component {
         // Class with tests
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
+            const analyticsDataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
             let disableStartTest = !selectedTest.open
                 && (selectedTest.attempts === -1 || selectedTest.submitted.length < selectedTest.attempts);
             return (
@@ -249,6 +250,17 @@ export default class MyClasses extends React.Component {
                     {this.state.activeTab == 0 && (
                         <React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
+                                <br/>
+                                <center>
+                                    <Typography variant='body1' color="textPrimary">
+                                        <span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Median:</b> {selectedTest.classMedian}%</span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Mean:</b> {selectedTest.classAverage}%</span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Std. Dev:</b> {selectedTest.standardDeviation.toFixed(2)}</span>
+                                        </span>
+                                    </Typography>
+                                </center>
                                 <Chart
                                     options={this.getTestCardGraphOptions()}
                                     series={this.getTestCardGraphSeries()}
@@ -372,14 +384,30 @@ export default class MyClasses extends React.Component {
                     attemptArray.push('Attempt ' + (parseInt(idx) + 1));
                 });
                 return attemptArray;
+            })(): this.state.testStatsDataSelectIdx == 3 ? (() => {
+                const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
+                delete dataObj["studentSizeWhoTookIt"];
+                const dataOutArray = [];
+                for(let key in dataObj) {
+                    dataOutArray.push(key);
+                }
+                return dataOutArray;
             })(): ['', selectedTest.name, ''],
             xaxis: {
+                title: {
+                    text: this.state.testStatsDataSelectIdx == 3 ? 'Marks Scored' : ''
+                },
             },
             yaxis: {
+                title: {
+                    text: this.state.testStatsDataSelectIdx == 3 ? 'Number of Students' : 'Mark(%)'
+                },
                 min: 0,
-                max: 100,
+                max: this.state.testStatsDataSelectIdx == 3 ? (() => {
+                    const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
+                    return dataObj.studentSizeWhoTookIt;
+                })() : 100,
                 tickAmount: 10,
-                catagories: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
             },
             fill: {
                 opacity: 1,
@@ -523,7 +551,17 @@ export default class MyClasses extends React.Component {
                 data : sdArray
             }, ]
         }else if(this.state.testStatsDataSelectIdx == 3) {
-                
+            const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
+            delete dataObj["studentSizeWhoTookIt"];
+            const dataOutArray = [];
+            for(let key in dataObj) {
+                dataOutArray.push(dataObj[key].numberOfStudents);
+            }
+            return [{
+                name: 'Number of Students',
+                type: 'column',
+                data: dataOutArray
+            }]
         }
         return [{
             name: 'TEAM A',
