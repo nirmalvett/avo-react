@@ -156,7 +156,7 @@ export function convertListFloatToAnalytics(inputList, topMark){
       const numberInGroup =
           lowerBoundSpecial !== -1
               ? inputList.filter(x => x === topMark).length
-              : inputList.filter(x => x >= lowerBoundSpecial && x <= upperBound).length;
+              : inputList.filter(x => x >= lowerBoundSpecial && x <= topMark).length;
       returnObj[lastKeyString] = {
         numberOfStudents: numberInGroup,
         perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
