@@ -69,6 +69,7 @@ export function isChrome(){
 
 
 export function convertListFloatToAnalytics(inputList, topMark){
+  if (inputList === undefined || topMark)
   // This method takes in a list of ints and the topMark then organizes the data by a group of 6 and outputs an object with the keys as the groups and the count
   const studentSizeWhoTookIt = inputList.length;
   const returnObj = {
@@ -163,6 +164,8 @@ export function convertListFloatToAnalytics(inputList, topMark){
       };
 
   }
+  returnObj['bottomLabel'] = "Marks Scored";
+  returnObj['leftLabel'] = "Number of Students";
 
   return returnObj;
 }
