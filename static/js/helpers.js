@@ -82,27 +82,29 @@ export function convertListFloatToAnalytics(inputList, topMark){
   // If it's not a whole number then we truncate and add 1
   if (dividedBy6 % 1 !== 0){ incrementNumber = Math.floor(dividedBy6) + 1; }
 
-  // Stage 2: We'll want our increment number to to be divisable by our top mark
-  while (topMark % incrementNumber !== 0){ incrementNumber ++; }
-
   // Stage 3: We'll want to generate a list of increment Strings
   let trailingNumber = 0;
-  while (trailingNumber !== topMark){ // increment by incrementNumber
+  const topMarkEven = topMark % 2 === 0;
+  // this will change if say we're at 24 and the increment is 6 while the topMark is 29
+  let lastKeyString = `${topMark} (max)`;
+  let lowerBoundSpecial = -1; // not needed unless it's a special case
+
+  let continueLooping = true;
+  while (continueLooping){ // increment by incrementNumber
     const lowerBound = trailingNumber;
     const upperBound = trailingNumber + incrementNumber;
     let keyString = `${lowerBound} to ${upperBound}`;
-    // If it's the last one then we want to add 'max; at the end
-    if (lowerBound === (topMark - incrementNumber)){ keyString += " (max)";}
+    // If it's the last one and it's even then we want to add 'max' at the end
+    if (lowerBound === (topMark - incrementNumber) && topMark % 2 === 0){ keyString += " (max)";}
 
     // Next we will want to go through our list of floats and get range [min, max)
     // For special cases for 0 and topMark where they are included in the first and last
-    let countStudentsInGroup = 0;
     // CASE 1: The lower bound is 0 then filter by [min, max)
     if (lowerBound === 0){
       const numberInGroup = inputList.filter(x => x >= 0 && x < upperBound).length;
       returnObj[keyString] = {
         numberOfStudents: numberInGroup,
-        perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
+        percentOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
       };
 
     }
@@ -111,7 +113,7 @@ export function convertListFloatToAnalytics(inputList, topMark){
       const numberInGroup = inputList.filter(x => x >= lowerBound && x <= upperBound).length;
       returnObj[keyString] = {
         numberOfStudents: numberInGroup,
-        perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
+        percentOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
       }
     }
     // CASE 3: Otherwise filter by [min, max)
@@ -119,12 +121,51 @@ export function convertListFloatToAnalytics(inputList, topMark){
       const numberInGroup = inputList.filter(x => x >= lowerBound && x < upperBound).length;
         returnObj[keyString] = {
           numberOfStudents: inputList.filter(x => x >= lowerBound && x < upperBound).length,
-          perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
+          percentOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
         }
     }
 
     trailingNumber = upperBound;
+    if (topMarkEven){ // In this case we want to go all the way to the end
+      if (trailingNumber + incrementNumber > topMark){
+        continueLooping = false;
+        // at this point we might be at 24, increment 6, but top mark is 29
+          lastKeyString = `${trailingNumber} to ${topMark} (max)`;
+          lowerBoundSpecial = trailingNumber; // not needed unless it's a special case
+      }
+      else {
+        continueLooping = trailingNumber <= topMark;
+      }
+
+    }
+    else { // in this case we can go one before the end
+     if (trailingNumber + incrementNumber > topMark){
+        continueLooping = false;
+        // at this point we might be at 24, increment 6, but top mark is 29
+          lastKeyString = `${trailingNumber} to ${topMark} (max)`;
+          lowerBoundSpecial = trailingNumber; // not needed unless it's a special case
+      }
+      else {
+        continueLooping = trailingNumber <= topMark - 1;
+      }
+    }
   }
+
+  // Finally if the end number is odd then we must consider the last
+  if (!topMarkEven){
+      const numberInGroup =
+          lowerBoundSpecial !== -1
+              ? inputList.filter(x => x === topMark).length
+              : inputList.filter(x => x >= lowerBoundSpecial && x <= topMark).length;
+      returnObj[lastKeyString] = {
+        numberOfStudents: numberInGroup,
+        perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
+      };
+
+  }
+
+  returnObj['bottomLabel'] = "Marks Scored";
+  returnObj['leftLabel'] = "Number of Students";
 
   return returnObj;
 }
