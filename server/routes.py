@@ -214,7 +214,6 @@ def test_stats():
         # If the user doesnt teach the class then return error JSON
         return jsonify(error="User doesn't teach this class")
     students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
-    test_marks = []  # List of test marks in percent values
     test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
 
@@ -226,7 +225,6 @@ def test_stats():
             # If the student has taken the test get best takes and add to the array of marks
             takes = takes[len(takes) - 1]  # Get best takes instance
             test_marks_total.append(takes.grade)
-            test_marks.append(takes.grade / test.total * 100)
             question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
             del takes
     del students
@@ -273,14 +271,14 @@ def test_stats():
             current_question['questionSTDEV'] = 0
         question_analytics.append(current_question)
     test_mean, test_median, test_stdev = 0, 0, 0  # Overall test analytics
-    if len(test_marks) is not 0:
-        test_mean = statistics.mean(test_marks)
-        test_median = statistics.median(test_marks)
-        if len(test_marks) > 1:
-            test_stdev = statistics.stdev(test_marks)
+    if len(test_marks_total) is not 0:
+        test_mean = statistics.mean(test_marks_total)
+        test_median = statistics.median(test_marks_total)
+        if len(test_marks_total) > 1:
+            test_stdev = statistics.stdev(test_marks_total)
 
     return jsonify(
-        numberStudents=len(test_marks), testMean=test_mean, testMedian=test_median,
+        numberStudents=len(test_marks_total), testMean=test_mean, testMedian=test_median,
         testSTDEV=test_stdev, questions=question_analytics, topMarkPerStudent=test_marks_total, totalMark=test.total
     )
 
