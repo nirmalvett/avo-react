@@ -111,6 +111,11 @@ def get_classes():
                 takes = Takes.query.order_by(Takes.time_started).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER)).all()
                 submitted = []  # List of takes indexes
                 current = None  # Current instance of takes
+                questions = eval(t.question_list)
+                question_marks = []
+                for i in range(len(questions)):
+                    current_question = Question.query.get(questions[i])
+                    question_marks.append(current_question.total)
                 for ta in takes:
                     # For each instance of takes append the data
                     if ta is not None:
@@ -160,6 +165,7 @@ def get_classes():
                             'classMedian': class_median,
                             'classSize': len(marks_array),
                             'standardDeviation': class_stdev,
+                            'topMarksPerStudent': question_marks
                         }
                     )
                 else:
@@ -178,6 +184,7 @@ def get_classes():
                             'classMedian': class_median,
                             'classSize': len(marks_array),
                             'standardDeviation': class_stdev,
+                            'topMarksPerStudent': question_marks
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
@@ -205,7 +212,8 @@ def test_stats():
         # If the user doesnt teach the class then return error JSON
         return jsonify(error="User doesn't teach this class")
     students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
-    test_marks = []  # List of test marks
+    test_marks = []  # List of test marks in percent values
+    test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
     question_total_marks = []  # Each students mark per question
     question_analytics = []  # Array to return to client of analytics
@@ -217,6 +225,7 @@ def test_stats():
         if len(takes) is not 0:
             # If the student has taken the test get best takes and add to the array of marks
             takes = takes[len(takes) - 1]  # Get best takes instance
+            test_marks_total.append(takes.grade)
             test_marks.append(takes.grade / test.total * 100)
             question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
 
@@ -232,15 +241,25 @@ def test_stats():
             current_question_mark.append(student_question_total)
         question_total_marks.append(current_question_mark)
 
+    test_questions = eval(test.question_list)  # List of questions in test
+    test_question_marks = []
+    for i in range(len(test_questions)):
+        current_question = Question.query.get(test_questions[i])
+        test_question_marks.append(current_question.total)
+
     for i in range(len(question_total_marks)):
         # For each question calculate mean median and stdev
         if len(question_total_marks[i]) > 0:
             current_question = {'questionMean': statistics.mean(question_total_marks[i]),
-                                'questionMedian': statistics.median(question_total_marks[i])
+                                'questionMedian': statistics.median(question_total_marks[i]),
+                                'topMarksPerStudent': question_total_marks[i],
+                                'totalMark': test_question_marks[i]
                                 }
         else:
             current_question = {'questionMean': 0,
-                                'questionMedian': 0
+                                'questionMedian': 0,
+                                'topMarksPerStudent': question_total_marks[i],
+                                'totalMark': test_question_marks[i]
                                 }
         if len(question_total_marks[i]) > 1:
             current_question['questionSTDEV'] = statistics.stdev(question_total_marks[i])
@@ -254,8 +273,15 @@ def test_stats():
         if len(test_marks) > 1:
             test_stdev = statistics.stdev(test_marks)
 
-    return jsonify(numberStudents=len(test_marks), testMean=test_mean, testMedian=test_median, testSTDEV=test_stdev,
-                   questions=question_analytics)
+    return jsonify(
+        numberStudents=len(test_marks),
+        testMean=test_mean,
+        testMedian=test_median,
+        testSTDEV=test_stdev,
+        questions=question_analytics,
+        topMarkPerStudent=test_marks_total,   # TODO replace with the top marks for each student for this test
+        totalMark=test.total
+    )
 
 
 @routes.route('/getSets')

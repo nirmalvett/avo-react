@@ -35649,7 +35649,7 @@ var _App = __webpack_require__(323);
 
 var _App2 = _interopRequireDefault(_App);
 
-__webpack_require__(641);
+__webpack_require__(642);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -56669,7 +56669,7 @@ var _Layout = __webpack_require__(589);
 
 var _Layout2 = _interopRequireDefault(_Layout);
 
-var _registerServiceWorker = __webpack_require__(640);
+var _registerServiceWorker = __webpack_require__(641);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -88759,7 +88759,7 @@ var _TimerComp = __webpack_require__(631);
 
 var _TimerComp2 = _interopRequireDefault(_TimerComp);
 
-var _QuestionBuilder = __webpack_require__(632);
+var _QuestionBuilder = __webpack_require__(633);
 
 var _QuestionBuilder2 = _interopRequireDefault(_QuestionBuilder);
 
@@ -88842,7 +88842,8 @@ var Layout = function (_React$Component) {
             section: 'Home',
             open: true,
             testCreator: null,
-            postTest: null
+            postTest: null,
+            minutesRemainingUponResumingTest: null
         };
         return _this;
     }
@@ -88963,9 +88964,12 @@ var Layout = function (_React$Component) {
                                 { variant: 'title', style: { color: 'white' }, noWrap: true },
                                 this.state.name
                             ),
-                            this.state.section === 'Take Test' && _react2.default.createElement(_TimerComp2.default, { time: this.state.test.timer, uponCompletionFunc: function uponCompletionFunc() {
+                            // this is timer value at the top of the bar
+                            this.state.section === 'Take Test' && this.state.minutesRemainingUponResumingTest !== null ? _react2.default.createElement(_TimerComp2.default, {
+                                time: this.state.minutesRemainingUponResumingTest,
+                                uponCompletionFunc: function uponCompletionFunc() {
                                     return document.getElementById('avo-test__submit-button').click();
-                                } })
+                                } }) : null
                         )
                     ),
                     _react2.default.createElement(
@@ -89016,7 +89020,8 @@ var Layout = function (_React$Component) {
                 theme = _state3.theme;
 
             if (section === 'Home') return _react2.default.createElement(_HomePage2.default, null);
-            if (section === 'My Classes') return _react2.default.createElement(_MyClasses2.default, { startTest: function startTest(cls) {
+            if (section === 'My Classes') return _react2.default.createElement(_MyClasses2.default, {
+                startTest: function startTest(cls) {
                     return _this4.startTest(cls);
                 },
                 theme: { theme: this.state.theme, color: this.state.color },
@@ -89035,7 +89040,11 @@ var Layout = function (_React$Component) {
                     return _this4.setState({ section: 'Manage Classes' });
                 } });
             if (section === 'Build Question') return _react2.default.createElement(_QuestionBuilder2.default, null);
-            if (section === 'Take Test') return _react2.default.createElement(_TakeTest2.default, { testID: this.state.test.id,
+            if (section === 'Take Test') return _react2.default.createElement(_TakeTest2.default, {
+                getTimeRemaining: function getTimeRemaining(minutes) {
+                    return _this4.getTimeRemaining(minutes);
+                },
+                testID: this.state.test.id,
                 submitTest: function submitTest(takes) {
                     return _this4.setState({ postTest: takes, section: 'Post Test' });
                 } });
@@ -89066,6 +89075,13 @@ var Layout = function (_React$Component) {
         key: 'startTest',
         value: function startTest(test) {
             this.setState({ section: 'Take Test', test: test });
+        }
+    }, {
+        key: 'getTimeRemaining',
+        value: function getTimeRemaining(minutesRemainingUponResumingTest) {
+            // When we hit the getTest route we need to know the time remaining
+            this.setState({ minutesRemainingUponResumingTest: minutesRemainingUponResumingTest });
+            console.log("timer", minutesRemainingUponResumingTest);
         }
     }]);
 
@@ -91103,12 +91119,14 @@ var TakeTest = function (_React$Component) {
         _Http2.default.getTest(_this.props.testID, function (result) {
             result.newAnswers = (0, _Utilities.copy)(result.answers);
             _this.setState(result);
+            _this.props.getTimeRemaining(result.timer);
         }, function (result) {
             return alert(result.error);
         });
         _this.state = {
             testID: _this.props.testID,
             questions: []
+
         };
         /* this.state actually looks like this
          {
@@ -91117,7 +91135,8 @@ var TakeTest = function (_React$Component) {
             questions: (6) [{…}, {…}, {…}, {…}, {…}, {…}],
             takes: 92,
             testID: 28,
-            time_submitted: 20181030163809
+            time_submitted: 20181030163809,
+            timer: 9333.94 // i.e. the amount of minutes
          }
         */
 
@@ -91744,6 +91763,7 @@ var MyClasses = function (_React$Component) {
             var _this4 = this;
 
             var selectedClass = this.state.classes[this.state.c];
+            // Class with tests
             if (this.state.t !== null) {
                 var selectedTest = selectedClass.tests[this.state.t];
                 var disableStartTest = !selectedTest.open && (selectedTest.attempts === -1 || selectedTest.submitted.length < selectedTest.attempts);
@@ -91836,45 +91856,64 @@ var MyClasses = function (_React$Component) {
                     )
                 );
             }
-            if (this.state.c !== null) {
-                return _react2.default.createElement(
-                    _react.Fragment,
-                    null,
-                    _react2.default.createElement(_CardHeader2.default, {
-                        classes: {
-                            root: 'avo-card__header'
-                        },
-                        title: selectedClass.name
-                    }),
-                    _react2.default.createElement(
-                        _Typography2.default,
-                        { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
-                        selectedClass.tests.length === 0 && "This class doesn't have any tests yet!"
-                    ),
-                    _react2.default.createElement(
-                        'div',
-                        { className: 'mixed-chart', id: 'avo-apex__chart-container' },
-                        // if there is at least one test then display data
-                        selectedClass.tests.length !== 0 ? this.state.apexChartEl : null
-                    )
-                );
-            }
-            return _react2.default.createElement(
-                _react.Fragment,
-                null,
-                _react2.default.createElement(_CardHeader2.default, {
-                    classes: {
-                        root: 'avo-card__header'
-                    },
-                    title: 'Hey there!'
-                }),
-                _react2.default.createElement(
-                    _Typography2.default,
-                    { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
-                    'Looks like you haven\'t selected a Class or Test yet!'
-                ),
-                _react2.default.createElement('br', null)
-            );
+            // Class with no tests
+            else if (this.state.c !== null) {
+                    return _react2.default.createElement(
+                        _react.Fragment,
+                        null,
+                        _react2.default.createElement(_CardHeader2.default, {
+                            classes: {
+                                root: 'avo-card__header'
+                            },
+                            title: selectedClass.name
+                        }),
+                        _react2.default.createElement(
+                            _Typography2.default,
+                            { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                            selectedClass.tests.length === 0 && "This class doesn't have any tests or assignments yet!"
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'mixed-chart', id: 'avo-apex__chart-container' },
+                            // if there is at least one test then display data
+                            selectedClass.tests.length !== 0 ? _react2.default.createElement(
+                                _react2.default.Fragment,
+                                null,
+                                this.state.apexChartEl,
+                                _react2.default.createElement(
+                                    _Typography2.default,
+                                    { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                                    'Average: Based on the average of the best attempts of each student who took the test or assignment.'
+                                ),
+                                _react2.default.createElement(
+                                    _Typography2.default,
+                                    { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                                    'Size: The number of students who has taken the test or assignment.'
+                                )
+                            ) : null
+                        )
+                    );
+                }
+                // No classes or tests
+                else {
+
+                        return _react2.default.createElement(
+                            _react.Fragment,
+                            null,
+                            _react2.default.createElement(_CardHeader2.default, {
+                                classes: {
+                                    root: 'avo-card__header'
+                                },
+                                title: 'Hey there!'
+                            }),
+                            _react2.default.createElement(
+                                _Typography2.default,
+                                { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                                'Looks like you haven\'t selected a Class or Test yet!'
+                            ),
+                            _react2.default.createElement('br', null)
+                        );
+                    }
         }
     }, {
         key: 'enrollInClass',
@@ -91977,7 +92016,7 @@ var MyClasses = function (_React$Component) {
                         formatter: function formatter(val) {
                             for (var _i = 0; _i < selectedClass.tests.length; _i++) {
                                 if (selectedClass.tests[_i].name == val) {
-                                    return val + (' (size : ' + selectedClass.tests[_i].classSize + ')');
+                                    return val + (' (size: ' + selectedClass.tests[_i].classSize + ')');
                                 }
                             }
                         }
@@ -92226,6 +92265,7 @@ var CreateTest = function (_React$Component) {
             sets: [],
             testQuestions: [],
             deadline: '2018-01-01T00:00:00.000Z',
+            _deadline: new Date(),
             name: null,
             timeLimit: null,
             attempts: null
@@ -92385,7 +92425,7 @@ var CreateTest = function (_React$Component) {
                             margin: 'normal',
                             style: { width: '46%', margin: '2%' },
                             label: 'Deadline',
-                            value: this.state.deadline,
+                            value: this.state._deadline,
                             onChange: this.handleDateChange.bind(this)
                         })
                     )
@@ -92396,7 +92436,11 @@ var CreateTest = function (_React$Component) {
     }, {
         key: 'handleDateChange',
         value: function handleDateChange(date) {
-            this.setState({ deadline: date });
+            var d = new Date(date);
+            var _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" + ("00" + d.getDate()).slice(-2) + "" + ("00" + d.getHours()).slice(-2) + "" + ("00" + d.getMinutes()).slice(-2) + "";
+            _date = d.getFullYear() + "" + _date;
+            console.log(_date);
+            this.setState({ deadline: _date, _deadline: date });
         }
     }, {
         key: 'open',
@@ -93182,7 +93226,7 @@ var ManageClasses = function (_React$Component) {
                         this.state.results.map(function (x, idx) {
                             return _react2.default.createElement(
                                 _react.Fragment,
-                                { key: 'Student-Card-index:' + idx + '-firstName' + x.firstName },
+                                { key: 'Student-Card-index:' + idx + '-' + uniqueKey1 },
                                 _react2.default.createElement(
                                     _ListItem2.default,
                                     { disabled: x.tests.length === 0 },
@@ -93328,12 +93372,25 @@ var ManageClasses = function (_React$Component) {
                         'div',
                         { className: 'mixed-chart', id: 'avo-apex__chart-container' },
                         // if there is at least one test then display data
-                        selectedClass.tests.length !== 0 ? this.state.apexChartEl // render the graph
-                        : // give message that there's no tests yet
+                        selectedClass.tests.length !== 0 ? _react2.default.createElement(
+                            _react2.default.Fragment,
+                            null,
+                            this.state.apexChartEl,
+                            _react2.default.createElement(
+                                _Typography2.default,
+                                { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                                'Average: Based on the average of the best attempts of each student who took the test or assignment.'
+                            ),
+                            _react2.default.createElement(
+                                _Typography2.default,
+                                { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
+                                'Size: The number of students who has taken the test or assignment.'
+                            )
+                        ) : // give message that there's no tests yet
                         _react2.default.createElement(
                             _Typography2.default,
                             { variant: 'body1', color: 'textPrimary', classes: { root: "avo-padding__16px" } },
-                            'This class doesn\'t have any tests yet!'
+                            'This class doesn\'t have any tests or assignments yet!'
                         )
                     )
                 );
@@ -93551,7 +93608,7 @@ var ManageClasses = function (_React$Component) {
                         formatter: function formatter(val) {
                             for (var _i = 0; _i < selectedClass.tests.length; _i++) {
                                 if (selectedClass.tests[_i].name == val) {
-                                    return val + (' (size : ' + selectedClass.tests[_i].classSize + ')');
+                                    return val + (' (size: ' + selectedClass.tests[_i].classSize + ')');
                                 }
                             }
                         }
@@ -94030,6 +94087,10 @@ var _Typography = __webpack_require__(20);
 
 var _Typography2 = _interopRequireDefault(_Typography);
 
+var _TimerOutlined = __webpack_require__(632);
+
+var _TimerOutlined2 = _interopRequireDefault(_TimerOutlined);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -94066,7 +94127,16 @@ var TimerComp = function (_React$Component) {
             }
 
             this.notificationMarkers = notificationMarkers;
-            document.getElementById('avo-timer__anchor-el').innerHTML = numberofMinutes + ' : 00';
+            var minutes = numberofMinutes;
+            var seconds = 0;
+            // There's a case here where the minutes is float meaning that the student is resuming
+            if (minutes % 1 !== minutes) {
+                var partsOfMinute = minutes % 1; // This is the remainder
+                minutes = minutes - partsOfMinute; // now we only have whole minutes
+                seconds = Math.round(partsOfMinute * 60);
+            }
+
+            document.getElementById('avo-timer__anchor-el').innerHTML = minutes + ':' + this.checkSecond(seconds);
             this.startTimer();
         }
     }, {
@@ -94123,6 +94193,33 @@ exports.default = TimerComp;
 "use strict";
 
 
+var _interopRequireDefault = __webpack_require__(0);
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(__webpack_require__(1));
+
+var _createSvgIcon = _interopRequireDefault(__webpack_require__(15));
+
+var _default = (0, _createSvgIcon.default)(_react.default.createElement(_react.default.Fragment, null, _react.default.createElement("path", {
+  fill: "none",
+  d: "M0 0h24v24H0V0z"
+}), _react.default.createElement("g", null, _react.default.createElement("path", {
+  d: "M15.07 1.01h-6v2h6v-2zm-4 13h2v-6h-2v6zm8.03-6.62l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42C16.14 4.74 14.19 4 12.07 4c-4.97 0-9 4.03-9 9s4.02 9 9 9 9-4.03 9-9c0-2.11-.74-4.06-1.97-5.61zm-7.03 12.62c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"
+}))), 'TimerOutlined');
+
+exports.default = _default;
+
+/***/ }),
+/* 633 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
@@ -94161,31 +94258,31 @@ var _Folder = __webpack_require__(312);
 
 var _Folder2 = _interopRequireDefault(_Folder);
 
-var _CreateNewFolder = __webpack_require__(633);
+var _CreateNewFolder = __webpack_require__(634);
 
 var _CreateNewFolder2 = _interopRequireDefault(_CreateNewFolder);
 
-var _TextFormat = __webpack_require__(634);
+var _TextFormat = __webpack_require__(635);
 
 var _TextFormat2 = _interopRequireDefault(_TextFormat);
 
-var _DeleteSweep = __webpack_require__(635);
+var _DeleteSweep = __webpack_require__(636);
 
 var _DeleteSweep2 = _interopRequireDefault(_DeleteSweep);
 
-var _Subject = __webpack_require__(636);
+var _Subject = __webpack_require__(637);
 
 var _Subject2 = _interopRequireDefault(_Subject);
 
-var _Add = __webpack_require__(637);
+var _Add = __webpack_require__(638);
 
 var _Add2 = _interopRequireDefault(_Add);
 
-var _Edit = __webpack_require__(638);
+var _Edit = __webpack_require__(639);
 
 var _Edit2 = _interopRequireDefault(_Edit);
 
-var _FileCopy = __webpack_require__(639);
+var _FileCopy = __webpack_require__(640);
 
 var _FileCopy2 = _interopRequireDefault(_FileCopy);
 
@@ -94409,7 +94506,7 @@ var QuestionBuilder = function (_React$Component) {
 exports.default = QuestionBuilder;
 
 /***/ }),
-/* 633 */
+/* 634 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -94436,7 +94533,7 @@ var _default = (0, _createSvgIcon.default)(_react.default.createElement(_react.d
 exports.default = _default;
 
 /***/ }),
-/* 634 */
+/* 635 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -94463,7 +94560,7 @@ var _default = (0, _createSvgIcon.default)(_react.default.createElement(_react.d
 exports.default = _default;
 
 /***/ }),
-/* 635 */
+/* 636 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -94490,7 +94587,7 @@ var _default = (0, _createSvgIcon.default)(_react.default.createElement(_react.d
 exports.default = _default;
 
 /***/ }),
-/* 636 */
+/* 637 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -94517,7 +94614,7 @@ var _default = (0, _createSvgIcon.default)(_react.default.createElement(_react.d
 exports.default = _default;
 
 /***/ }),
-/* 637 */
+/* 638 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -94544,7 +94641,7 @@ var _default = (0, _createSvgIcon.default)(_react.default.createElement(_react.d
 exports.default = _default;
 
 /***/ }),
-/* 638 */
+/* 639 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -94571,7 +94668,7 @@ var _default = (0, _createSvgIcon.default)(_react.default.createElement(_react.d
 exports.default = _default;
 
 /***/ }),
-/* 639 */
+/* 640 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -94598,7 +94695,7 @@ var _default = (0, _createSvgIcon.default)(_react.default.createElement(_react.d
 exports.default = _default;
 
 /***/ }),
-/* 640 */
+/* 641 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -94712,7 +94809,7 @@ function unregister() {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 641 */
+/* 642 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
