@@ -84,7 +84,9 @@ export function convertListFloatToAnalytics(inputList, topMark){
 
   // Stage 3: We'll want to generate a list of increment Strings
   let trailingNumber = 0;
-  while (trailingNumber !== topMark){ // increment by incrementNumber
+  const topMarkEven = topMark % 2 === 0;
+  let continueLooping = true;
+  while (continueLooping){ // increment by incrementNumber
     const lowerBound = trailingNumber;
     const upperBound = trailingNumber + incrementNumber;
     let keyString = `${lowerBound} to ${upperBound}`;
@@ -120,10 +122,16 @@ export function convertListFloatToAnalytics(inputList, topMark){
     }
 
     trailingNumber = upperBound;
+    if (topMarkEven){ // In this case we want to go all the way to the end
+      continueLooping = trailingNumber <= topMark;
+    }
+    else { // in this case we can go one before the end
+      continueLooping = trailingNumber <= topMark - 1;
+    }
   }
 
   // Finally if the end number is odd then we must consider the last
-  if (topMark % 2 !== 0){
+  if (!topMarkEven){
       const numberInGroup = inputList.filter(x => x === topMark).length;
       returnObj[`${topMark} (max)`] = {
         numberOfStudents: numberInGroup,
