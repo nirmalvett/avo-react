@@ -164,8 +164,5 @@ export function convertListFloatToAnalytics(inputList, topMark){
 
   }
 
-  returnObj['bottomLabel'] = "Marks Scored";
-  returnObj['leftLabel'] = "Number of Students";
-
   return returnObj;
 }
