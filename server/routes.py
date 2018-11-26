@@ -208,6 +208,8 @@ def test_stats():
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
     test = Test.query.get(test_id)  # Test to generate questions from
+    del test_id
+    del data
     if not teaches_class(test.CLASS):
         # If the user doesnt teach the class then return error JSON
         return jsonify(error="User doesn't teach this class")
@@ -215,8 +217,6 @@ def test_stats():
     test_marks = []  # List of test marks in percent values
     test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
-    question_total_marks = []  # Each students mark per question
-    question_analytics = []  # Array to return to client of analytics
 
     for s in range(len(students)):
         # For each student get best takes and add to test_marks array
@@ -228,6 +228,9 @@ def test_stats():
             test_marks_total.append(takes.grade)
             test_marks.append(takes.grade / test.total * 100)
             question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
+            del takes
+    del students
+    question_total_marks = []  # Each students mark per question
 
     for i in range(len(question_marks[0])):
         # For the length of the test array go through each student and append the marks to the arrays
@@ -240,12 +243,15 @@ def test_stats():
                 student_question_total += question_marks[j][i][k]
             current_question_mark.append(student_question_total)
         question_total_marks.append(current_question_mark)
+    del question_marks
 
     test_questions = eval(test.question_list)  # List of questions in test
     test_question_marks = []
     for i in range(len(test_questions)):
         current_question = Question.query.get(test_questions[i])
         test_question_marks.append(current_question.total)
+    question_analytics = []  # Array to return to client of analytics
+    del test_questions
 
     for i in range(len(question_total_marks)):
         # For each question calculate mean median and stdev
@@ -274,13 +280,8 @@ def test_stats():
             test_stdev = statistics.stdev(test_marks)
 
     return jsonify(
-        numberStudents=len(test_marks),
-        testMean=test_mean,
-        testMedian=test_median,
-        testSTDEV=test_stdev,
-        questions=question_analytics,
-        topMarkPerStudent=test_marks_total,   # TODO replace with the top marks for each student for this test
-        totalMark=test.total
+        numberStudents=len(test_marks), testMean=test_mean, testMedian=test_median,
+        testSTDEV=test_stdev, questions=question_analytics, topMarkPerStudent=test_marks_total, totalMark=test.total
     )
 
 
