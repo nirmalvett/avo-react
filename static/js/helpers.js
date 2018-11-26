@@ -70,8 +70,10 @@ export function isChrome(){
 
 export function convertListFloatToAnalytics(inputList, topMark){
   // This method takes in a list of ints and the topMark then organizes the data by a group of 6 and outputs an object with the keys as the groups and the count
-
-  const returnObj = {}; // we want {'0 to 2': 4, '2 to 4': 6, '4 to 6 (max)': 1}
+  const studentSizeWhoTookIt = inputList.length;
+  const returnObj = {
+    studentSizeWhoTookIt: studentSizeWhoTookIt
+  }; // we want {'0 to 2': 4, '2 to 4': 6, '4 to 6 (max)': 1}
 
   // STAGE 1: Find an Integer Increment Number
   // 9/6 = 1.5, we want to always go up so we want the increment number to be 2
@@ -90,25 +92,35 @@ export function convertListFloatToAnalytics(inputList, topMark){
     const upperBound = trailingNumber + incrementNumber;
     let keyString = `${lowerBound} to ${upperBound}`;
     // If it's the last one then we want to add 'max; at the end
-    if (lowerBound === (topMark - incrementNumber)){ keyString += " (max)";};
+    if (lowerBound === (topMark - incrementNumber)){ keyString += " (max)";}
 
     // Next we will want to go through our list of floats and get range [min, max)
     // For special cases for 0 and topMark where they are included in the first and last
     let countStudentsInGroup = 0;
     // CASE 1: The lower bound is 0 then filter by [min, max)
     if (lowerBound === 0){
+      const numberInGroup = inputList.filter(x => x >= 0 && x < upperBound).length;
       returnObj[keyString] = {
-        numberOfStudents: inputList.filter(x => x >= 0 && x < upperBound).length
+        numberOfStudents: numberInGroup,
+        perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
       };
 
     }
     // CASE 2: The upper bound is topMark then filter by [min, max]
     else if (upperBound === topMark){
-      returnObj[keyString] = {numberOfStudents: inputList.filter(x => x >= lowerBound && x <= upperBound).length}
+      const numberInGroup = inputList.filter(x => x >= lowerBound && x <= upperBound).length;
+      returnObj[keyString] = {
+        numberOfStudents: numberInGroup,
+        perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
+      }
     }
     // CASE 3: Otherwise filter by [min, max)
     else {
-        returnObj[keyString] = {numberOfStudents: inputList.filter(x => x >= lowerBound && x < upperBound).length}
+      const numberInGroup = inputList.filter(x => x >= lowerBound && x < upperBound).length;
+        returnObj[keyString] = {
+          numberOfStudents: inputList.filter(x => x >= lowerBound && x < upperBound).length,
+          perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
+        }
     }
 
     trailingNumber = upperBound;
