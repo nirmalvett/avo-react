@@ -221,6 +221,7 @@ export default class ManageClasses extends React.Component {
                                 </span>
                          </Typography>
                      </center>
+                    <br/>
                      <Tabs
                         value={this.state.activeTab}
                         onChange={this.handleTabViewChange.bind(this)}
@@ -262,6 +263,19 @@ export default class ManageClasses extends React.Component {
                                 <center>
                                     <Typography variant='body1' color="textPrimary">
                                         <span>
+                                           <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><FormControl>
+                                                {/*<InputLabel htmlFor="test-stats__data-display">Question to display</InputLabel>*/}
+                                                <Select
+                                                    value={this.state.testStatsDataQuestionIdx}
+                                                    onChange={(evt) => this.setState({ testStatsDataQuestionIdx : evt.target.value })}
+                                                    input={<Input name="dataSelected" id="test-stats__data-display" />}
+                                                >
+                                                {this.state.testStats.questions.map((obj, idx) => (
+                                                    <MenuItem value={idx}>{`Question ${idx + 1}`}</MenuItem>
+                                                ))}
+                                                </Select>
+                                                {/*<FormHelperText>Select the data to be displayed</FormHelperText>*/}
+                                            </FormControl></span>
                                             <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
                                             <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Median:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionMedian}%</span>
                                             <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Mean:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionMean}%</span>
@@ -275,19 +289,7 @@ export default class ManageClasses extends React.Component {
                                     type="line"
                                     width='100%'
                                 />
-                                <FormControl>
-                                    <InputLabel htmlFor="test-stats__data-display">Question to display</InputLabel>
-                                    <Select
-                                        value={this.state.testStatsDataQuestionIdx}
-                                        onChange={(evt) => this.setState({ testStatsDataQuestionIdx : evt.target.value })}
-                                        input={<Input name="dataSelected" id="test-stats__data-display" />}
-                                    >
-                                        {this.state.testStats.questions.map((obj, idx) => (
-                                            <MenuItem value={idx}>{`Question ${idx + 1}`}</MenuItem>
-                                        ))}
-                                    </Select>
-                                    <FormHelperText>Select the data to be dispayed</FormHelperText>
-                                </FormControl>
+
                             </div>
                         </React.Fragment>
                     )}
