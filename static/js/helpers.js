@@ -69,14 +69,12 @@ export function isChrome(){
 
 
 export function convertListFloatToAnalytics(inputList, topMark){
-  console.log("convertListFloatToAnalytics inputList", inputList);
-  console.log("convertListFloatToAnalytics topMark", topMark);
   // This method takes in a list of ints and the topMark then organizes the data by a group of 6 and outputs an object with the keys as the groups and the count
   const studentSizeWhoTookIt = inputList.length;
   const returnObj = {
     studentSizeWhoTookIt: studentSizeWhoTookIt
   }; // we want {'0 to 2': 4, '2 to 4': 6, '4 to 6 (max)': 1}
-
+  if (topMark === 0){ return returnObj; } // if topMark is 0 then we should just return the object
   // STAGE 1: Find an Integer Increment Number
   // 9/6 = 1.5, we want to always go up so we want the increment number to be 2
   const dividedBy6 = topMark/6;
