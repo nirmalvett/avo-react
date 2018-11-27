@@ -233,15 +233,20 @@ export default class MyClasses extends React.Component {
                     >
                         {selectedTest.current === null ? 'Start Test' : 'Resume Test'}
                     </Button>
-                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                        <b>Deadline:</b> {getDateString(selectedTest.deadline)}
-                    </Typography>
-                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                        <b>Time Limit:</b> {selectedTest.timer} minutes
-                    </Typography>
-                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                        <b>Attempts:</b> {selectedTest.attempts === -1 ? " Unlimited" : " " + selectedTest.attempts}
-                    </Typography>
+                     <center>
+                         <Typography variant='body1' color="textPrimary">
+                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
+                                <b>Deadline:</b> {getDateString(selectedTest.deadline)}
+                                </span>
+                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
+                                <b>Time Limit:</b> {selectedTest.timer} minutes
+                                </span>
+                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
+                                <b>Attempts:</b> {selectedTest.attempts === -1 ? " Unlimited" : " " + selectedTest.attempts}
+                                </span>
+                         </Typography>
+
+                     </center>
                     <Tabs
                         value={this.state.activeTab}
                         onChange={this.handleTabViewChange.bind(this)}

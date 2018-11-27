@@ -32,7 +32,7 @@ import NoteAddOutlinedIcon from '@material-ui/icons/NoteAddOutlined';
 import AssignmentNotTurnedIn from "@material-ui/icons/AssignmentLate";
 import AssignmentTurnedIn from "@material-ui/icons/AssignmentTurnedIn";
 import AssessmentOutlinedIcon from '@material-ui/icons/AssessmentOutlined';
-import { copy } from "./Utilities";
+import {copy, getDateString} from "./Utilities";
 import AVOModal from './AVOMatComps/AVOMatModal';
 import Chart from "react-apexcharts";
 import { uniqueKey } from "./helpers";
@@ -208,6 +208,19 @@ export default class ManageClasses extends React.Component {
                             </Fragment>
                         }
                     />
+                       <center>
+                         <Typography variant='body1' color="textPrimary">
+                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
+                                <b>Deadline:</b> {getDateString(selectedTest.deadline)}
+                                </span>
+                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
+                                <b>Time Limit:</b> {selectedTest.timer} minutes
+                                </span>
+                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
+                                <b>Attempts:</b> {selectedTest.attempts === -1 ? " Unlimited" : " " + selectedTest.attempts}
+                                </span>
+                         </Typography>
+                     </center>
                      <Tabs
                         value={this.state.activeTab}
                         onChange={this.handleTabViewChange.bind(this)}
