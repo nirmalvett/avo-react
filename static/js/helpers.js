@@ -69,14 +69,12 @@ export function isChrome(){
 
 
 export function convertListFloatToAnalytics(inputList, topMark){
-  console.log("convertListFloatToAnalytics inputList", inputList);
-  console.log("convertListFloatToAnalytics topMark", topMark);
   // This method takes in a list of ints and the topMark then organizes the data by a group of 6 and outputs an object with the keys as the groups and the count
   const studentSizeWhoTookIt = inputList.length;
   const returnObj = {
     studentSizeWhoTookIt: studentSizeWhoTookIt
   }; // we want {'0 to 2': 4, '2 to 4': 6, '4 to 6 (max)': 1}
-
+  if (topMark === 0){ return returnObj; } // if topMark is 0 then we should just return the object
   // STAGE 1: Find an Integer Increment Number
   // 9/6 = 1.5, we want to always go up so we want the increment number to be 2
   const dividedBy6 = topMark/6;
@@ -95,9 +93,9 @@ export function convertListFloatToAnalytics(inputList, topMark){
   while (continueLooping){ // increment by incrementNumber
     const lowerBound = trailingNumber;
     const upperBound = trailingNumber + incrementNumber;
-    let keyString = `${lowerBound} to ${upperBound}`;
-    // If it's the last one and it's even then we want to add 'max' at the end
-    if (lowerBound === (topMark - incrementNumber) && topMark % 2 === 0){ keyString += " (max)";}
+    let keyString = incrementNumber === 1
+        ?`${lowerBound}` // if it's increasing by one then just show the number
+        : `${lowerBound} to ${upperBound}`; // otherwise show a range i.e. 2 to 4
 
     // Next we will want to go through our list of floats and get range [min, max)
     // For special cases for 0 and topMark where they are included in the first and last
@@ -124,7 +122,9 @@ export function convertListFloatToAnalytics(inputList, topMark){
       if (trailingNumber + incrementNumber > topMark){
         continueLooping = false;
         // at this point we might be at 24, increment 6, but top mark is 29
-          lastKeyString = `${trailingNumber} to ${topMark} (max)`;
+          lastKeyString = trailingNumber === topMark
+              ? `${topMark} (max)`
+              : `${trailingNumber} to ${topMark} (max)`;
           lowerBoundSpecial = trailingNumber; // not needed unless it's a special case
       }
       else {
@@ -136,7 +136,9 @@ export function convertListFloatToAnalytics(inputList, topMark){
      if (trailingNumber + incrementNumber > topMark){
         continueLooping = false;
         // at this point we might be at 24, increment 6, but top mark is 29
-          lastKeyString = `${trailingNumber} to ${topMark} (max)`;
+          lastKeyString = trailingNumber === topMark
+              ? `${topMark} (max)`
+              : `${trailingNumber} to ${topMark} (max)`;
           lowerBoundSpecial = trailingNumber; // not needed unless it's a special case
       }
       else {
@@ -144,6 +146,7 @@ export function convertListFloatToAnalytics(inputList, topMark){
       }
     }
   }
+
 
   // We need to get the last grouping
   const numberInGroup =

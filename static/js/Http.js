@@ -1,4 +1,4 @@
-const debugMode = true; // if True it will print off everything
+const debugMode = false; // if True it will print off everything
 
 export default class Http {
     static _request(type, url, success, failure, data = '') {
