@@ -231,7 +231,7 @@ def test_stats():
     question_total_marks = []  # Each students mark per question
 
     if len(question_marks) is 0:
-        # If noone has taken the test return default values
+        # If none has taken the test return default values
         return jsonify(numberStudents=0, testMean=0, testMedian=0, testSTDEV=0, questions=[], topMarkPerStudent=[],
                        totalMark=[])
 
