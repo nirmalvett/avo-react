@@ -66,6 +66,7 @@ export default class ManageClasses extends React.Component {
             testStatsIdx : undefined,
             testStatsDataSelectIdx : 3,
             testStatsDataQuestionIdx : 0,
+            resultsIndexArray : [],
         };
     }
 
@@ -297,6 +298,24 @@ export default class ManageClasses extends React.Component {
                                                     }
                                                 />
                                                 <ListItemSecondaryAction>
+                                                    <FormControl>
+                                                        <InputLabel htmlFor="test-stats__data-display">Attempt</InputLabel>
+                                                        <Select
+                                                            classes={{
+                                                                disabled : 'disabled'
+                                                            }}
+                                                            disabled={x.tests.length === 0}
+                                                            value={this.state.testStatsDataQuestionIdx}
+                                                            onChange={(evt) => {
+                                                                this.setState({ testStatsDataQuestionIdx : evt.target.value })}
+                                                            }
+                                                            input={<Input name="dataSelected" id="test-stats__data-display" />}
+                                                        >
+                                                            {this.state.results[idx].tests.map((obj, idx) => (
+                                                                <MenuItem value={idx}>{`Attempt ${idx + 1}`}</MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
                                                     <Button 
                                                         color="primary"
                                                         classes={{
@@ -311,7 +330,7 @@ export default class ManageClasses extends React.Component {
                                                             );
                                                         }}
                                                     >
-                                                        View Best Attempt
+                                                        View
                                                     </Button>
                                                 </ListItemSecondaryAction>
                                             </ListItem>
@@ -886,7 +905,13 @@ export default class ManageClasses extends React.Component {
             (result) => { 
                 console.log(result);
                 Http.getClassTestResults(this.state.classes[cIndex].tests[tIndex].id,
-                    (_result) => this.setState({ c: cIndex, t: tIndex, results: _result.results, testStats: result  }),
+                    (_result) => {
+                        let resultsIndexArray = [];
+                        for(let i = 0; i < _result.results.length; i++) {
+                            resultsIndexArray.push(0);
+                        }
+                        this.setState({ c: cIndex, t: tIndex, results: _result.results, testStats: result, resultsIndexArray : resultsIndexArray })
+                    },
                     () => this.setState({ c: cIndex, t: tIndex, results: [], testStats: result  })
                 );
             },
