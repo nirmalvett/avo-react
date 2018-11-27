@@ -243,7 +243,7 @@ export default class ManageClasses extends React.Component {
                                             <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
                                             <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Median:</b> {selectedTest.classMedian}%</span>
                                             <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Mean:</b> {selectedTest.classAverage}%</span>
-                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Std. Dev:</b> {selectedTest.standardDeviation.toFixed(2)}</span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Std. Dev:</b> {selectedTest.standardDeviation.toFixed(2)}%</span>
                                         </span>
                                     </Typography>
                                 </center>
@@ -277,9 +277,9 @@ export default class ManageClasses extends React.Component {
                                                 {/*<FormHelperText>Select the data to be displayed</FormHelperText>*/}
                                             </FormControl></span>
                                             <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
-                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Median:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionMedian}%</span>
-                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Mean:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionMean}%</span>
-                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Std. Dev:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionSTDEV.toFixed(2)}</span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Median Score:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionMedian}</span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Mean Score:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionMean}</span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Std. Dev:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionSTDEV.toFixed(2)}%</span>
                                         </span>
                                     </Typography>
                                 </center>
