@@ -230,6 +230,11 @@ def test_stats():
     del students
     question_total_marks = []  # Each students mark per question
 
+    if len(question_marks) is 0:
+        # If noone has taken the test return default values
+        return jsonify(numberStudents=0, testMean=0, testMedian=0, testSTDEV=0, questions=[], topMarkPerStudent=[],
+                       totalMark=[])
+
     for i in range(len(question_marks[0])):
         # For the length of the test array go through each student and append the marks to the arrays
         current_question_mark = []  # Students marks for each question 2D array
