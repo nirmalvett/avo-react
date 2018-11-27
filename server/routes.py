@@ -11,7 +11,6 @@ from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
 
 from server.models import *
-import random
 import statistics
 routes = Blueprint('routes', __name__)
 
@@ -112,6 +111,11 @@ def get_classes():
                 takes = Takes.query.order_by(Takes.time_started).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER)).all()
                 submitted = []  # List of takes indexes
                 current = None  # Current instance of takes
+                questions = eval(t.question_list)
+                question_marks = []
+                for i in range(len(questions)):
+                    current_question = Question.query.get(questions[i])
+                    question_marks.append(current_question.total)
                 for ta in takes:
                     # For each instance of takes append the data
                     if ta is not None:
@@ -161,7 +165,7 @@ def get_classes():
                             'classMedian': class_median,
                             'classSize': len(marks_array),
                             'standardDeviation': class_stdev,
-                            'topMarksPerStudent': fake_list_top_marks(0, 9)  # TODO remove when we have real marks
+                            'topMarksPerStudent': question_marks
                         }
                     )
                 else:
@@ -180,7 +184,7 @@ def get_classes():
                             'classMedian': class_median,
                             'classSize': len(marks_array),
                             'standardDeviation': class_stdev,
-                            'topMarksPerStudent': fake_list_top_marks(0, 9)  # TODO remove when we have real marks
+                            'topMarksPerStudent': question_marks
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
@@ -204,16 +208,14 @@ def test_stats():
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
     test = Test.query.get(test_id)  # Test to generate questions from
+    del test_id
+    del data
     if not teaches_class(test.CLASS):
         # If the user doesnt teach the class then return error JSON
         return jsonify(error="User doesn't teach this class")
     students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
-    test_mean, test_median, test_stdev = 0, 0, 0  # Overall test analytics
-    # question_mean, question_median, question_stdev = [], [], []
-    test_marks = []  # List of test marks
+    test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
-    question_total_marks = []  # Each students mark per question
-    question_analytics = []
 
     for s in range(len(students)):
         # For each student get best takes and add to test_marks array
@@ -222,8 +224,11 @@ def test_stats():
         if len(takes) is not 0:
             # If the student has taken the test get best takes and add to the array of marks
             takes = takes[len(takes) - 1]  # Get best takes instance
-            test_marks.append(takes.grade / test.total * 100)
+            test_marks_total.append(takes.grade)
             question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
+            del takes
+    del students
+    question_total_marks = []  # Each students mark per question
 
     for i in range(len(question_marks[0])):
         # For the length of the test array go through each student and append the marks to the arrays
@@ -236,70 +241,47 @@ def test_stats():
                 student_question_total += question_marks[j][i][k]
             current_question_mark.append(student_question_total)
         question_total_marks.append(current_question_mark)
+    del question_marks
+
+    test_questions = eval(test.question_list)  # List of questions in test
+    test_question_marks = []
+    for i in range(len(test_questions)):
+        current_question = Question.query.get(test_questions[i])
+        test_question_marks.append(current_question.total)
+    question_analytics = []  # Array to return to client of analytics
+    del test_questions
 
     for i in range(len(question_total_marks)):
         # For each question calculate mean median and stdev
-        current_question = {
-                                'questionMean': statistics.mean(question_total_marks[i]),
+        if len(question_total_marks[i]) > 0:
+            current_question = {'questionMean': statistics.mean(question_total_marks[i]),
                                 'questionMedian': statistics.median(question_total_marks[i]),
-                                'topMarksPerStudent': fake_list_top_marks(0, 3),   # TODO replace with question_total_marks[i],
-                                'totalMark': 3  # TODO with total mark for the question
-                            }
+                                'topMarksPerStudent': question_total_marks[i],
+                                'totalMark': test_question_marks[i]
+                                }
+        else:
+            current_question = {'questionMean': 0,
+                                'questionMedian': 0,
+                                'topMarksPerStudent': question_total_marks[i],
+                                'totalMark': test_question_marks[i]
+                                }
         if len(question_total_marks[i]) > 1:
             current_question['questionSTDEV'] = statistics.stdev(question_total_marks[i])
         else:
             current_question['questionSTDEV'] = 0
         question_analytics.append(current_question)
-    if len(test_marks) is not 0:
-        test_mean = statistics.mean(test_marks)
-        test_median = statistics.median(test_marks)
-        if len(test_marks) > 1:
-            test_stdev = statistics.stdev(test_marks)
+    test_mean, test_median, test_stdev = 0, 0, 0  # Overall test analytics
+    if len(test_marks_total) is not 0:
+        test_mean = statistics.mean(test_marks_total)
+        test_median = statistics.median(test_marks_total)
+        if len(test_marks_total) > 1:
+            test_stdev = statistics.stdev(test_marks_total)
 
     return jsonify(
-        numberStudents=len(test_marks),
-        testMean=test_mean,
-        testMedian=test_median,
-        testSTDEV=test_stdev,
-        questions=question_analytics,
-        topMarkPerStudent=fake_list_top_marks(0, 9),   # TODO replace with the top marks for each student for this test
-        totalMark=15  # TODO replace with test.total
+        numberStudents=len(test_marks_total), testMean=test_mean, testMedian=test_median,
+        testSTDEV=test_stdev, questions=question_analytics, topMarkPerStudent=test_marks_total, totalMark=test.total
     )
 
-
-def fake_list_top_marks(min_int, max_int):
-    return [
-          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-          random.uniform(min_int, max_int), random.randint(min_int, max_int), random.uniform(min_int, max_int), random.uniform(min_int, max_int),
-        ]
 
 @routes.route('/getSets')
 @login_required
@@ -793,7 +775,7 @@ def create_takes(test, user):
         # If the user has taken more attempts then allowed return
         return
     test_question_list = eval(x.question_list)  # Question list of test
-    seeds = list(map(lambda seed: randint(0, 65536) if seed == -1 else seed, eval(x.seed_list)))  # Generates seeds of test
+    seeds = list(map(lambda seed: randint(0, 65535) if seed == -1 else seed, eval(x.seed_list)))  # Generates seeds of test
     answer_list = []  # Answers of takes instance
     marks_list = []  # Marks of takes instance
     for i in range(len(test_question_list)):
