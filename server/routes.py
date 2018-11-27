@@ -161,10 +161,10 @@ def get_classes():
                             'total': t.total,
                             'submitted': submitted,
                             'current': current,
-                            'classAverage': class_mean,
-                            'classMedian': class_median,
+                            'classAverage': round(class_mean, 2),
+                            'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
-                            'standardDeviation': class_stdev,
+                            'standardDeviation': round(class_stdev, 2),
                             'topMarksPerStudent': question_marks
                         }
                     )
@@ -180,10 +180,10 @@ def get_classes():
                             'total': t.total,
                             'submitted': submitted,
                             'current': current,
-                            'classAverage': class_mean,
-                            'classMedian': class_median,
+                            'classAverage': round(class_mean, 2),
+                            'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
-                            'standardDeviation': class_stdev,
+                            'standardDeviation': round(class_stdev, 2),
                             'topMarksPerStudent': question_marks
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
@@ -283,8 +283,8 @@ def test_stats():
             test_stdev = statistics.stdev(test_marks_total)
 
     return jsonify(
-        numberStudents=len(test_marks_total), testMean=test_mean, testMedian=test_median,
-        testSTDEV=test_stdev, questions=question_analytics, topMarkPerStudent=test_marks_total, totalMark=test.total
+        numberStudents=len(test_marks_total), testMean=round(test_mean, 2), testMedian=round(test_median, 2),
+        testSTDEV=round(test_stdev, 2), questions=question_analytics, topMarkPerStudent=test_marks_total, totalMark=test.total
     )
 
 
