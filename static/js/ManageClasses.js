@@ -237,13 +237,13 @@ export default class ManageClasses extends React.Component {
                         <React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
                                 <br/>
-                                <center>
+                               <center>
                                     <Typography variant='body1' color="textPrimary">
                                         <span>
-                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
-                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Median Scores:</b> {selectedTest.classMedian}</span>
-                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Mean Scores:</b> {selectedTest.classAverage}</span>
-                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Std. Dev:</b> {selectedTest.standardDeviation.toFixed(2)}%</span>
+                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
+                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Median Scores:</b> {this.state.testStats.testMedian}</span>
+                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Mean Scores:</b> {this.state.testStats.testMean}</span>
+                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Std. Dev:</b> {this.state.testStats.testSTDEV}%</span>
                                         </span>
                                     </Typography>
                                 </center>
