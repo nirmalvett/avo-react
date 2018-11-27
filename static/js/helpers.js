@@ -95,9 +95,9 @@ export function convertListFloatToAnalytics(inputList, topMark){
   while (continueLooping){ // increment by incrementNumber
     const lowerBound = trailingNumber;
     const upperBound = trailingNumber + incrementNumber;
-    let keyString = `${lowerBound} to ${upperBound}`;
-    // If it's the last one and it's even then we want to add 'max' at the end
-    if (lowerBound === (topMark - incrementNumber) && topMark % 2 === 0){ keyString += " (max)";}
+    let keyString = incrementNumber === 1
+        ?`${lowerBound}` // if it's increasing by one then just show the number
+        : `${lowerBound} to ${upperBound}`; // otherwise show a range i.e. 2 to 4
 
     // Next we will want to go through our list of floats and get range [min, max)
     // For special cases for 0 and topMark where they are included in the first and last
@@ -124,7 +124,9 @@ export function convertListFloatToAnalytics(inputList, topMark){
       if (trailingNumber + incrementNumber > topMark){
         continueLooping = false;
         // at this point we might be at 24, increment 6, but top mark is 29
-          lastKeyString = `${trailingNumber} to ${topMark} (max)`;
+          lastKeyString = trailingNumber === topMark
+              ? `${topMark} (max)`
+              : `${trailingNumber} to ${topMark} (max)`;
           lowerBoundSpecial = trailingNumber; // not needed unless it's a special case
       }
       else {
@@ -136,7 +138,9 @@ export function convertListFloatToAnalytics(inputList, topMark){
      if (trailingNumber + incrementNumber > topMark){
         continueLooping = false;
         // at this point we might be at 24, increment 6, but top mark is 29
-          lastKeyString = `${trailingNumber} to ${topMark} (max)`;
+          lastKeyString = trailingNumber === topMark
+              ? `${topMark} (max)`
+              : `${trailingNumber} to ${topMark} (max)`;
           lowerBoundSpecial = trailingNumber; // not needed unless it's a special case
       }
       else {
@@ -144,6 +148,7 @@ export function convertListFloatToAnalytics(inputList, topMark){
       }
     }
   }
+
 
   // We need to get the last grouping
   const numberInGroup =
