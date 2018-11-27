@@ -305,14 +305,16 @@ export default class ManageClasses extends React.Component {
                                                                 disabled : 'disabled'
                                                             }}
                                                             disabled={x.tests.length === 0}
-                                                            value={this.state.testStatsDataQuestionIdx}
+                                                            value={this.state.resultsIndexArray[idx]}
                                                             onChange={(evt) => {
-                                                                this.setState({ testStatsDataQuestionIdx : evt.target.value })}
+                                                                let temptResults = this.state.resultsIndexArray;
+                                                                temptResults[idx] = evt.target.value;
+                                                                this.setState({ resultsIndexArray : tempResults })}
                                                             }
                                                             input={<Input name="dataSelected" id="test-stats__data-display" />}
                                                         >
                                                             {this.state.results[idx].tests.map((obj, idx) => (
-                                                                <MenuItem value={idx}>{`Attempt ${idx + 1}`}</MenuItem>
+                                                                <MenuItem value={idx}>{x.tests.length > 1 ? `Attempt ${idx + 1}` : 'Best Attempt'}</MenuItem>
                                                             ))}
                                                         </Select>
                                                     </FormControl>
@@ -325,7 +327,7 @@ export default class ManageClasses extends React.Component {
                                                         onClick={() => {
                                                             this.props.postTest(
                                                                 this.state.results[idx].tests[
-                                                                    this.state.results[idx].tests.length - 1
+                                                                    this.state.resultsIndexArray[idx]
                                                                 ].takes
                                                             );
                                                         }}

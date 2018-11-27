@@ -206,6 +206,11 @@ export default class MyClasses extends React.Component {
         // Class with tests
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
+            let bestMark = 0;
+            for(let i = 0; i < selectedTest.submitted.length; i++) {
+                if(selectedTest.submitted[i].grade > bestMark) bestMark = selectedTest.submitted[i].grade;
+            }
+            bestMark = (bestMark / selectedTest.total) * 100;
             const analyticsDataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
             let disableStartTest = !selectedTest.open
                 && (selectedTest.attempts === -1 || selectedTest.submitted.length < selectedTest.attempts);
@@ -255,10 +260,11 @@ export default class MyClasses extends React.Component {
                                 <center>
                                     <Typography variant='body1' color="textPrimary">
                                         <span>
-                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
-                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Median of Marks:</b> {selectedTest.classMedian}</span>
-                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Mean of Marks:</b> {selectedTest.classAverage}</span>
-                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Std. Dev:</b> {selectedTest.standardDeviation.toFixed(2)}</span>
+                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
+                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Median of Marks:</b> {selectedTest.classMedian}</span>
+                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Mean of Marks:</b> {selectedTest.classAverage}</span>
+                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Std. Dev:</b> {selectedTest.standardDeviation.toFixed(2)}</span>
+                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>My Best Attempt:</b> {bestMark}%</span>
                                         </span>
                                     </Typography>
                                 </center>
