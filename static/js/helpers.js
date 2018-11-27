@@ -145,18 +145,16 @@ export function convertListFloatToAnalytics(inputList, topMark){
     }
   }
 
-  // Finally if the end number is odd then we must consider the last
-  if (!topMarkEven){
-      const numberInGroup =
-          lowerBoundSpecial !== -1
-              ? inputList.filter(x => x === topMark).length
-              : inputList.filter(x => x >= lowerBoundSpecial && x <= topMark).length;
-      returnObj[lastKeyString] = {
-        numberOfStudents: numberInGroup,
-        perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
-      };
+  // We need to get the last grouping
+  const numberInGroup =
+      lowerBoundSpecial !== -1
+          ? inputList.filter(x => x === topMark).length
+          : inputList.filter(x => x >= lowerBoundSpecial && x <= topMark).length;
+  returnObj[lastKeyString] = {
+    numberOfStudents: numberInGroup,
+    perfectOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
+  };
 
-  }
 
   return returnObj;
 }
