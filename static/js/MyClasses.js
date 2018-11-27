@@ -53,7 +53,7 @@ export default class MyClasses extends React.Component {
             testStats : null,
             testStatsIdx : undefined,
             testStatsDataSelectIdx : 3,
-            testStatsDataQuestionIdx : undefined,
+            testStatsDataQuestionIdx : 0,
         };
         this.testStatsDataSelectKeys = [
             'Average Attempt',
@@ -244,7 +244,8 @@ export default class MyClasses extends React.Component {
                         textColor="primary"
                         fullWidth
                     >
-                        <Tab label="Test Analytics" />
+                        <Tab label="Overall Analytics" />
+                        <Tab label="Per Question Analytics" />
                         <Tab label="My Attempts" />
                     </Tabs>
                     {this.state.activeTab == 0 && (
@@ -267,7 +268,7 @@ export default class MyClasses extends React.Component {
                                     type="line"
                                     width='100%'
                                 />
-                                <FormControl>
+                                {/* <FormControl>
                                     <InputLabel htmlFor="test-stats__data-display">Display Type</InputLabel>
                                     <Select
                                         value={this.state.testStatsDataSelectIdx}
@@ -280,11 +281,47 @@ export default class MyClasses extends React.Component {
                                         <MenuItem value={3}>{this.testStatsDataSelectKeys[3]}</MenuItem>
                                     </Select>
                                     <FormHelperText>Select the data to be dispayed</FormHelperText>
-                                </FormControl>
+                                </FormControl> */}
                             </div>
                         </React.Fragment>
                     )}
                     {this.state.activeTab == 1 && (
+                        <React.Fragment>
+                            <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
+                                <br/>
+                                <center>
+                                    <Typography variant='body1' color="textPrimary">
+                                        <span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Median:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionMedian}%</span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Mean:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionMean}%</span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Std. Dev:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionSTDEV.toFixed(2)}</span>
+                                        </span>
+                                    </Typography>
+                                </center>
+                                <Chart
+                                    options={this.getPerQuestionGraphOptions()}
+                                    series={this.getPerQuestionGraphData()}
+                                    type="line"
+                                    width='100%'
+                                />
+                                <FormControl>
+                                    <InputLabel htmlFor="test-stats__data-display">Question to display</InputLabel>
+                                    <Select
+                                        value={this.state.testStatsDataQuestionIdx}
+                                        onChange={(evt) => this.setState({ testStatsDataQuestionIdx : evt.target.value })}
+                                        input={<Input name="dataSelected" id="test-stats__data-display" />}
+                                    >
+                                        {this.state.testStats.questions.map((obj, idx) => (
+                                            <MenuItem value={idx}>{`Question ${idx + 1}`}</MenuItem>
+                                        ))}
+                                    </Select>
+                                    <FormHelperText>Select the data to be dispayed</FormHelperText>
+                                </FormControl>
+                            </div>
+                        </React.Fragment>
+                    )}
+                    {this.state.activeTab == 2 && (
                         <React.Fragment>
                             <br/>
                             <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
@@ -358,6 +395,123 @@ export default class MyClasses extends React.Component {
         );
         }
 
+    }
+
+    getPerQuestionGraphOptions() {
+        let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
+        let dataObj = convertListFloatToAnalytics(
+            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent, 
+            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].totalMark
+        );
+        console.log(dataObj);
+        return {
+            chart: {
+                fontFamily : 'Roboto',
+                foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                id: "basic-bar",
+                type: 'line',
+            },
+            colors: [
+                `${this.props.theme.color['500']}`,
+                `${this.props.theme.color['200']}`,
+                `${this.props.theme.color['100']}`,
+            ],
+            stroke: {
+                curve: 'smooth'
+            },
+            labels: (() => {
+                const dataOutArray = [];
+                for(let key in dataObj) {
+                    if(key != "studentSizeWhoTookIt") dataOutArray.push(key);
+                }
+                return dataOutArray;
+            })(),
+            xaxis: {
+                title: {
+                    text: this.state.testStatsDataSelectIdx == 3 ? 'Marks Scored' : ''
+                },
+            },
+            yaxis: {
+                title: {
+                    text: this.state.testStatsDataSelectIdx == 3 ? 'Number of Students' : 'Mark(%)'
+                },
+                min: 0,
+                max: (() => {
+                    return dataObj.studentSizeWhoTookIt;
+                })(),
+                tickAmount: 10,
+            },
+            fill: {
+                opacity: 1,
+                type: 'solid',
+                colors: [
+                    `${this.props.theme.color['500']}`,
+                    `${this.props.theme.color['200']}`,
+                    `${this.props.theme.color['100']}`,
+                ]
+            },
+            legend: {
+                itemMargin: {
+                    horizontal: 20,
+                    vertical: 5
+                },
+                containerMargin: {
+                    left: 5,
+                    top: 12,
+                },
+                onItemClick: {
+                    toggleDataSeries: true
+                },
+                onItemHover: {
+                    highlightDataSeries: true
+                },
+            },
+            dataLabels: {
+                enabled: false,
+                formatter: function (val) {
+                    return val
+                },
+                textAnchor: 'middle',
+                offsetX: 0,
+                offsetY: 0,
+                style: {
+                    fontSize: '14px',
+                    fontFamily: 'Helvetica, Arial, sans-serif',
+                    colors: [
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,                        
+                    ]
+                },
+                dropShadow: {
+                    enabled: false,
+                    top: 1,
+                    left: 1,
+                    blur: 1,
+                    opacity: 0.45
+                }
+            },
+            tooltip: {
+                theme : this.props.theme.theme,
+            }
+        }
+    }
+
+    getPerQuestionGraphData() {
+        let dataObj = convertListFloatToAnalytics(
+            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent, 
+            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].totalMark
+        );
+        delete dataObj["studentSizeWhoTookIt"];
+        const dataOutArray = [];
+        for(let key in dataObj) {
+            dataOutArray.push(dataObj[key].numberOfStudents);
+        }
+        return [{
+            name: 'Number of Students',
+            type: 'column',
+            data: dataOutArray
+        }];
     }
 
     getTestCardGraphOptions() {
