@@ -69,6 +69,8 @@ export function isChrome(){
 
 
 export function convertListFloatToAnalytics(inputList, topMark){
+  console.log("convertListFloatToAnalytics inputList", inputList);
+  console.log("convertListFloatToAnalytics topMark", topMark);
   // This method takes in a list of ints and the topMark then organizes the data by a group of 6 and outputs an object with the keys as the groups and the count
   const studentSizeWhoTookIt = inputList.length;
   const returnObj = {
@@ -107,14 +109,6 @@ export function convertListFloatToAnalytics(inputList, topMark){
         percentOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
       };
 
-    }
-    // CASE 2: The upper bound is topMark then filter by [min, max]
-    else if (upperBound === topMark){
-      const numberInGroup = inputList.filter(x => x >= lowerBound && x <= upperBound).length;
-      returnObj[keyString] = {
-        numberOfStudents: numberInGroup,
-        percentOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
-      }
     }
     // CASE 3: Otherwise filter by [min, max)
     else {
