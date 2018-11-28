@@ -7,10 +7,16 @@ export function getMathJax(text, variant='body2') {
     // Initialize an empty list of MathJax elements
     let result = [];
     while (true) {
+        let marker0 = text.indexOf('$\\\\$');
         let marker1 = text.indexOf('\\(');
         let marker2 = text.indexOf('\\[');
         // If the first structure is \(
-        if (marker1 !== -1 && (marker2 === -1 || marker1 < marker2)) {
+        if (marker0 !== -1 && (marker1 === -1 || marker0 < marker1) && (marker2 === -1 || marker0 < marker2)) {
+            // Add all the plain text before the math
+            result.push(text.substr(0, marker0));
+            result.push(<br/>);
+            text = text.slice(marker0 + 4);
+        } else if (marker1 !== -1 && (marker2 === -1 || marker1 < marker2)) {
             // Add all the plain text before the math
             result.push(text.substr(0, marker1));
             // Find the \)
