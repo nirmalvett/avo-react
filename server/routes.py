@@ -306,7 +306,7 @@ def get_sets():
         for q in questions:
             # For each question append the data
             question_list.append({'id': q.QUESTION, 'name': q.name, 'string': q.string, 'total': q.total})
-        set_list.append({'id': s.SET, 'name': s.name, 'questions': question_list})
+        set_list.append({'id': s.SET, 'name': s.name, 'can_edit': able_edit_set(s.SET), 'questions': question_list})
     return jsonify(sets=set_list)
 
 
@@ -691,13 +691,13 @@ def sample_question():
             # Try to create and mark the question if fails return error JSON
             q = AvoQuestion(string)
             answers = []  # Array to hold placeholder answers
-            for i in range(len(answers)):
+            for i in range(len(string.split('；')[2].split('，'))):
                 # Fill the array with blank answers
                 answers.append("")
             q.get_score(*answers)
         except:
             return jsonify(error="Question failed to be created")
-        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
+        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, explanation=q.explanation)
 
 
 @routes.route('/getTest', methods=['POST'])

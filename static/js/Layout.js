@@ -10,7 +10,7 @@ import Preferences from './Preferences';
 import ManageClasses from './ManageClasses';
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
-    deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors/';
+    deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors';
 import classNames from 'classnames';
 import {withStyles} from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
@@ -227,7 +227,7 @@ class Layout extends React.Component {
             return (<CreateTest classID={this.state.testCreator}
                                 onCreate={() => this.setState({section: 'Manage Classes'})}/>);
         if (section === 'Build Question')
-            return <QuestionBuilder/>;
+            return <QuestionBuilder theme={createMuiTheme({palette: {primary: color, type: theme}})}/>;
         if (section === 'Take Test')
             return (<TakeTest
                                 getTimeRemaining = {(minutes) => this.getTimeRemaining(minutes)}
@@ -255,7 +255,7 @@ class Layout extends React.Component {
 
     getTimeRemaining(minutesRemainingUponResumingTest){
         // When we hit the getTest route we need to know the time remaining
-        this.setState({minutesRemainingUponResumingTest: minutesRemainingUponResumingTest})
+        this.setState({minutesRemainingUponResumingTest: minutesRemainingUponResumingTest});
         console.log("timer", minutesRemainingUponResumingTest);
     }
 }
