@@ -193,7 +193,6 @@ def get_classes():
 @routes.route('/testStats', methods=['POST'])
 @login_required
 @check_confirmed
-# @teacher_only
 def test_stats():
     """
     Generate Stats on a per Question basis of a given test
@@ -210,9 +209,9 @@ def test_stats():
     test = Test.query.get(test_id)  # Test to generate questions from
     del test_id
     del data
-    # if not teaches_class(test.CLASS):
-    #     # If the user doesnt teach the class then return error JSON
-    #     return jsonify(error="User doesn't teach this class")
+    if not teaches_class(test.CLASS) or not enrolled_in_class(test.CLASS):
+        # If the user doesnt teach the class then return error JSON
+        return jsonify(error="User doesn't teach this class")
     students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
     test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
