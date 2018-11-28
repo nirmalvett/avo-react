@@ -167,7 +167,7 @@ class Layout extends React.Component {
             postTest: null,
             minutesRemainingUponResumingTest: null,
 
-            snackBar_hideDuration: 4500,
+            snackBar_hideDuration: 5000,
             snackBar_isOpen: true,
             snackBar_message: "AVO AI Assistant Online",
             snackBar_variant: "success"
@@ -254,6 +254,7 @@ class Layout extends React.Component {
                             { // this is timer value at the top of the bar
                                 this.state.section === 'Take Test' && this.state.minutesRemainingUponResumingTest !== null
                                     ? <TimerComp
+                                        showSnackBar = {this.showSnackBar.bind(this)}
                                         time={this.state.minutesRemainingUponResumingTest}
                                         uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />
                                     : null
@@ -305,7 +306,7 @@ class Layout extends React.Component {
         const isTeacher = this.state;
         const {section, color, theme} = this.state;
         if (section === 'Home')
-            return (<HomePage/>);
+            return (<HomePage showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}/>);
         if (section === 'My Classes')
             return (<MyClasses
                                 showSnackBar = {this.showSnackBar.bind(this)}
@@ -314,25 +315,36 @@ class Layout extends React.Component {
                                 theme={{ theme : this.state.theme, color : this.state.color }}
                                 postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Manage Classes')
-            return (<ManageClasses createTest={cls => this.startCreateTest(cls)}
+            return (<ManageClasses
+                                  showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+                                  createTest={cls => this.startCreateTest(cls)}
                                    theme={{ theme : this.state.theme, color : this.state.color }}
                                    postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Create Test')
-            return (<CreateTest classID={this.state.testCreator}
+            return (<CreateTest
+                                showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+                                classID={this.state.testCreator}
                                 onCreate={() => this.setState({section: 'Manage Classes'})}/>);
         if (section === 'Build Question')
-            return <QuestionBuilder theme={createMuiTheme({palette: {primary: color, type: theme}})}/>;
+            return <QuestionBuilder
+                howSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+                theme={createMuiTheme({palette: {primary: color, type: theme}})}/>;
         if (section === 'Take Test')
             return (<TakeTest
+                                showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
                                 getTimeRemaining = {(minutes) => this.getTimeRemaining(minutes)}
                                 testID={this.state.test.id}
                                 submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);
         if (section === 'Preferences')
-            return (<Preferences colorList={colorList}
+            return (<Preferences
+                                showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+                                colorList={colorList}
                                  color={color} changeColor={color => this.setState({color: color})}
                                  theme={theme} changeTheme={theme => this.setState({theme: theme})}/>);
         if (section === 'Post Test')
-            return <PostTest takes={this.state.postTest}/>
+            return <PostTest showSnackBar = {this.showSnackBar.bind(this)}
+                             isTeacher = {isTeacher}
+                             takes={this.state.postTest}/>
     }
 
     logout() {
@@ -350,7 +362,6 @@ class Layout extends React.Component {
     getTimeRemaining(minutesRemainingUponResumingTest){
         // When we hit the getTest route we need to know the time remaining
         this.setState({minutesRemainingUponResumingTest: minutesRemainingUponResumingTest});
-        console.log("timer", minutesRemainingUponResumingTest);
     }
 
     showSnackBar(variant, message, hideDuration){
