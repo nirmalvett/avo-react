@@ -208,7 +208,6 @@ export default class ManageClasses extends React.Component {
                             </Fragment>
                         }
                     />
-                    <br/>
                        <center>
                          <Typography variant='body1' color="textPrimary">
                                 <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>

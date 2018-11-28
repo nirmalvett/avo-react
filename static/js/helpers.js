@@ -74,7 +74,7 @@ export function convertListFloatToAnalytics(inputList, topMark){
   const returnObj = {
     studentSizeWhoTookIt: studentSizeWhoTookIt
   }; // we want {'0 to 2': 4, '2 to 4': 6, '4 to 6 (max)': 1}
-  if (topMark === 0){ return returnObj; } // if topMark is 0 then we should just return the object
+  if (topMark === 0 || inputList.length === 0){ return returnObj; } // if topMark is 0 then we should just return the object
   // STAGE 1: Find an Integer Increment Number
   // 9/6 = 1.5, we want to always go up so we want the increment number to be 2
   const dividedBy6 = topMark/6;
