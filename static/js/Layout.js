@@ -33,7 +33,13 @@ import { isNotChromeAlert } from "./helpers";
 import TimerComp from "./TimerComp";
 import QuestionBuilder from "./QuestionBuilder";
 import { avoGreen } from "./AVOCustomColors";
-
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import ErrorIcon from '@material-ui/icons/Error';
+import InfoIcon from '@material-ui/icons/Info';
+import CloseIcon from '@material-ui/icons/Close';
+import Snackbar from '@material-ui/core/Snackbar';
+import SnackbarContent from '@material-ui/core/SnackbarContent';
+import WarningIcon from '@material-ui/icons/Warning'
 const drawerWidth = 240;
 
 
@@ -83,6 +89,68 @@ const styles = theme => ({
     },
 });
 
+/* SnackBar Messages */
+const variantIcon = {
+  success: CheckCircleIcon,
+  warning: WarningIcon,
+  error: ErrorIcon,
+  info: InfoIcon,
+};
+const styles1 = theme => ({
+  success: {
+    backgroundColor: green[600],
+  },
+  error: {
+    backgroundColor: theme.palette.error.dark,
+  },
+  info: {
+    backgroundColor: theme.palette.primary.dark,
+  },
+  warning: {
+    backgroundColor: amber[700],
+  },
+  icon: {
+    fontSize: 20,
+  },
+  iconVariant: {
+    opacity: 0.9,
+    marginRight: theme.spacing.unit,
+  },
+  message: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+});
+const MySnackbarContentWrapper = withStyles(styles1)(MySnackbarContent);
+function MySnackbarContent(props) {
+  const { classes, className, message, onClose, variant } = props;
+  const Icon = variantIcon[variant];
+
+  return (
+    <SnackbarContent
+      className={classNames(classes[variant], className)}
+      aria-describedby="client-snackbar"
+      message={
+        <span id="client-snackbar" className={classes.message}>
+          <Icon className={classNames(classes.icon, classes.iconVariant)} />
+            {message}
+        </span>
+      }
+      action={[
+        <IconButton
+          key="close"
+          aria-label="Close"
+          color="inherit"
+          className={classes.close}
+          onClick={onClose}
+        >
+          <CloseIcon className={classes.icon} />
+        </IconButton>,
+      ]}
+    />
+  );
+}
+
 class Layout extends React.Component {
     constructor(props) {
         super(props);
@@ -97,7 +165,15 @@ class Layout extends React.Component {
             open: true,
             testCreator: null,
             postTest: null,
-            minutesRemainingUponResumingTest: null
+            minutesRemainingUponResumingTest: null,
+
+            snackBar_hideDuration: 4500,
+            snackBar_isOpen: true,
+            snackBar_message: "AVO AI Assistant Online",
+            snackBar_variant: "success"
+
+
+
         };
     }
 
@@ -188,6 +264,21 @@ class Layout extends React.Component {
                         {this.getContent()}
                     </div>
                 </div>
+                <Snackbar
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                  }}
+                  open={this.state.snackBar_isOpen}
+                  autoHideDuration={this.state.snackBar_hideDuration}
+                  onClose={() => this.setState({snackBar_isOpen: false})}
+                >
+                  <MySnackbarContentWrapper
+                    onClose={() => this.setState({snackBar_isOpen: false})}
+                    variant={this.state.snackBar_variant}
+                    message={this.state.snackBar_message}
+                  />
+                </Snackbar>
             </MuiThemeProvider>
         );
     }
@@ -211,11 +302,14 @@ class Layout extends React.Component {
     }
 
     getContent() {
+        const isTeacher = this.state;
         const {section, color, theme} = this.state;
         if (section === 'Home')
             return (<HomePage/>);
         if (section === 'My Classes')
             return (<MyClasses
+                                showSnackBar = {this.showSnackBar.bind(this)}
+                                isTeacher = {isTeacher}
                                 startTest={cls => this.startTest(cls)}
                                 theme={{ theme : this.state.theme, color : this.state.color }}
                                 postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
@@ -258,6 +352,19 @@ class Layout extends React.Component {
         this.setState({minutesRemainingUponResumingTest: minutesRemainingUponResumingTest});
         console.log("timer", minutesRemainingUponResumingTest);
     }
+
+    showSnackBar(variant, message, hideDuration){
+      // variant can be success, warning, error, info
+      // message is the message to display
+      // hideDuration is optional but it's the ms for the snackbar to show
+      this.setState({
+        snackBar_isOpen: true,
+        snackBar_hideDuration: hideDuration === undefined ? this.state.snackBar_hideDuration : hideDuration,
+        snackBar_variant: variant,
+        snackBar_message: message
+      })
+    }
+
 }
 
 export default withStyles(styles)(Layout);

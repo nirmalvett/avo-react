@@ -63,6 +63,12 @@ export default class MyClasses extends React.Component {
         ];
     }
 
+    componentDidMount(){
+        if (this.props.isTeacher){
+            this.props.showSnackBar("info", "Only student account attempts are considered in the analytics")
+        }
+    }
+
     loadClasses() {
         /* Loads the classes into the state */
         Http.getClasses(
@@ -276,9 +282,6 @@ export default class MyClasses extends React.Component {
                                                 <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>My Best Attempt:</b> {Math.round(bestMark/100*this.state.testStats.totalMark, 2)}</span>
                                             </span>
                                         </Typography>
-                                        <Typography variant='body1' color="textPrimary">
-                                        (Attempts from teacher accounts do not count towards the analytics)
-                                        </Typography>
                                     </center>
                                     <br/>
                                     <Chart
@@ -289,8 +292,8 @@ export default class MyClasses extends React.Component {
                                     />
                                 </div>
                             </React.Fragment>)
-                        }
                     }
+
                     {this.state.activeTab === 1 && (
                         <React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
@@ -316,9 +319,6 @@ export default class MyClasses extends React.Component {
                                             <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Mean Score:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionMean}</span>
                                             <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Std. Dev:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionSTDEV.toFixed(2)}%</span>
                                         </span>
-                                    </Typography>
-                                    <Typography variant='body1' color="textPrimary">
-                                        (Attempts from teacher accounts do not count towards the analytics)
                                     </Typography>
                                 </center>
 
@@ -635,7 +635,7 @@ export default class MyClasses extends React.Component {
 
     getTestCardGraphSeries() {
         let selectedTest = this.state.classes[this.state.c].tests[this.state.t]; 
-        if(this.state.testStatsDataSelectIdx == 0) {
+        if(this.state.testStatsDataSelectIdx === 0) {
             let testAverage = 0;
             selectedTest.submitted.forEach((obj) => {
                 testAverage += obj.grade;
@@ -660,7 +660,7 @@ export default class MyClasses extends React.Component {
                 type : 'line',
                 data : ['', this.state.testStats.testSTDEV, '']
             }, ]
-        }else if (this.state.testStatsDataSelectIdx == 1) {
+        }else if (this.state.testStatsDataSelectIdx === 1) {
             let myBestMark = 0;
             selectedTest.submitted.forEach((obj) => {
                 myBestMark = obj.grade > myBestMark ? obj.grade : myBestMark;
@@ -683,7 +683,7 @@ export default class MyClasses extends React.Component {
                 type : 'line',
                 data : ['', this.state.testStats.testSTDEV, '']
             }, ]
-        }else if (this.state.testStatsDataSelectIdx == 2) {
+        }else if (this.state.testStatsDataSelectIdx === 2) {
             let attemptArray = [];
             let meanArray    = []; // It isnt a very nice array :\
             let medianArray  = [];
@@ -718,7 +718,7 @@ export default class MyClasses extends React.Component {
                 type : 'line',
                 data : sdArray
             }, ]
-        }else if(this.state.testStatsDataSelectIdx == 3) {
+        }else if(this.state.testStatsDataSelectIdx === 3) {
             const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
             delete dataObj["studentSizeWhoTookIt"];
             const dataOutArray = [];
