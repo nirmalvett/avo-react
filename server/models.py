@@ -105,8 +105,8 @@ class User(UserMixin, db.Model):
         self.theme = theme
 
     def __repr__(self):
-        return f'<User {self.email} {self.first_name} {self.last_name} {self.password} {self.salt} {self.confirmed} ' \
-               f'{self.is_teacher} {self.is_admin} {self.color} {self.theme}>'
+        return f'<User {self.USER} {self.email} {self.first_name} {self.last_name} {self.password} {self.salt} ' \
+               f'{self.confirmed} {self.is_teacher} {self.is_admin} {self.color} {self.theme}>'
 
     def get_id(self):
         return self.USER

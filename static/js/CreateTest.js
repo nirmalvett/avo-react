@@ -183,6 +183,7 @@ export default class CreateTest extends React.Component {
 
     saveTest() {
         let s = this.state;
+        console.log(s.deadline);
         let questions = s.testQuestions.map(x => x.id);
         let seeds = s.testQuestions.map(x => x.locked ? x.seed : -1);
         let deadline = s.deadline.replace(/[\-T:]/g, '');

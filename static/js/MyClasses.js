@@ -27,8 +27,14 @@ import { removeDuplicateClasses } from "./helpers";
 import Tooltip from '@material-ui/core/Tooltip';
 import AVOModal from './AVOMatComps/AVOMatModal';
 import Chart from "react-apexcharts";
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 import { avoGreenGraph } from "./AVOCustomColors";
-
+import Select from '@material-ui/core/Select';
+import Input from '@material-ui/core/Input';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import { convertListFloatToAnalytics } from "./helpers";
 
 export default class MyClasses extends React.Component {
     constructor(props) {
@@ -41,7 +47,24 @@ export default class MyClasses extends React.Component {
             t: null, // Selected test
             startTest: this.props.startTest,
             enrollErrorMessage : '',
+            activeTab : 0,
+            testStats : null,
+            testStatsIdx : undefined,
+            testStatsDataSelectIdx : 3,
+            testStatsDataQuestionIdx : 0,
         };
+        this.testStatsDataSelectKeys = [
+            'Average Attempt',
+            'Best Attempt',
+            'All Attempts',
+            'Distribution'
+        ];
+    }
+
+    componentDidMount(){
+        if (this.props.isTeacher){
+            this.props.showSnackBar("info", "Only student account attempts are considered in the analytics")
+        }
     }
 
     loadClasses() {
@@ -61,6 +84,7 @@ export default class MyClasses extends React.Component {
         return (
             <div className='avo-user__background' style={{width: '100%', flex: 1, display: 'flex'}}>
                 <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
+                    {/* Side Menu*/}
                     <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
                         <Paper classes={{root : 'avo-sidebar'}} square style={{width: '100%', flex: 1, display: 'flex'}}>
                             <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
@@ -95,8 +119,12 @@ export default class MyClasses extends React.Component {
                                         </ListItem>
                                         <Collapse in={cls.open} timeout='auto' unmountOnExit><List>{
                                             cls.tests.map((test, tIndex) =>
-                                                <ListItem key={'MyClasses'+cls.id+'-'+cIndex+'-'+test.id+'-'+tIndex}
-                                                          button onClick={() => this.setState({c: cIndex, t: tIndex})}>
+                                                <ListItem 
+                                                    key={'MyClasses'+cls.id+'-'+cIndex+'-'+test.id+'-'+tIndex}
+                                                    button 
+                                                    onClick={() => {
+                                                        this.getTestStats(test.id, cIndex, tIndex);
+                                                    }}>
                                                     <AssessmentOutlinedIcon color={test.open ? 'primary' : 'disabled'}
                                                                             style={{marginLeft: '10px'}}/>
                                                     <ListItemText inset primary={test.name}/>
@@ -107,7 +135,9 @@ export default class MyClasses extends React.Component {
                             </List>
                         </Paper>
                     </Grid>
+                    {/* Border From Menu To Main*/}
                     <Grid item xs={1}/>
+                    {/* Right hand side cards, see detailsCard() */}
                     <Grid item xs={7} style={{display: 'flex'}}>
                         <Card
                             className='avo-card'
@@ -123,6 +153,7 @@ export default class MyClasses extends React.Component {
                         </Card>
                     </Grid>
                 </Grid>
+                {/* Enroll in class pop up */}
                 <AVOModal
                     title='Enroll into a class'
                     target="avo-myclasses__enroll-button"
@@ -183,6 +214,12 @@ export default class MyClasses extends React.Component {
         // Class with tests
         if (this.state.t !== null) {
             let selectedTest = selectedClass.tests[this.state.t];
+            let bestMark = 0;
+            for(let i = 0; i < selectedTest.submitted.length; i++) {
+                if(selectedTest.submitted[i].grade > bestMark) bestMark = selectedTest.submitted[i].grade;
+            }
+            bestMark = (bestMark / selectedTest.total) * 100;
+            const analyticsDataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
             let disableStartTest = !selectedTest.open
                 && (selectedTest.attempts === -1 || selectedTest.submitted.length < selectedTest.attempts);
             return (
@@ -204,32 +241,115 @@ export default class MyClasses extends React.Component {
                     >
                         {selectedTest.current === null ? 'Start Test' : 'Resume Test'}
                     </Button>
+                     <center>
+                         <Typography variant='body1' color="textPrimary">
+                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
+                                <b>Deadline:</b> {getDateString(selectedTest.deadline)}
+                                </span>
+                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
+                                <b>Time Limit:</b> {selectedTest.timer} minutes
+                                </span>
+                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
+                                <b>Attempts:</b> {selectedTest.attempts === -1 ? " Unlimited" : " " + selectedTest.attempts}
+                                </span>
+                         </Typography>
+                     </center>
                     <br/>
-                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                        <b>Deadline:</b> {getDateString(selectedTest.deadline)}
-                    </Typography>
-                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                        <b>Time Limit:</b> {selectedTest.timer} minutes
-                    </Typography>
-                    <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                        <b>Attempts:</b> {selectedTest.attempts === -1 ? " Unlimited" : " " + selectedTest.attempts}
-                    </Typography>
-                    <br/>
-                    <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
-                        {selectedTest.submitted.map((x, y) => (
-                            <ListItem key={'MyClasses' + x.id}>
-                                <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
-                                    secondary={'Submitted on ' + getDateString(x.timeSubmitted)}/>
-                                <ListItemSecondaryAction>
-                                    <Tooltip title="View previous test results">
-                                        <IconButton onClick={() => {this.props.postTest(x.takes)}}>
-                                            <DescriptionOutlinedIcon/>
-                                        </IconButton>
-                                    </Tooltip>
-                                </ListItemSecondaryAction>
-                            </ListItem>
-                        ))}
-                    </List>
+                    <Tabs
+                        value={this.state.activeTab}
+                        onChange={this.handleTabViewChange.bind(this)}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        fullWidth
+                    >
+                        <Tab label="Overall Analytics" />
+                        <Tab label="Per Question Analytics" />
+                        <Tab label="My Attempts" />
+                    </Tabs>
+                    {this.state.activeTab === 0 &&
+                    (<React.Fragment>
+                                <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
+                                    <br/>
+                                    <center>
+                                        <Typography variant='body1' color="textPrimary">
+                                            <span>
+                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
+                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Median Scores:</b> {this.state.testStats.testMedian}</span>
+                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Mean Scores:</b> {this.state.testStats.testMean}</span>
+                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Std. Dev:</b> {this.state.testStats.testSTDEV}%</span>
+                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>My Best Attempt:</b> {Math.round(bestMark/100*this.state.testStats.totalMark, 2)}</span>
+                                            </span>
+                                        </Typography>
+                                    </center>
+                                    <br/>
+                                    <Chart
+                                        options={this.getTestCardGraphOptions()}
+                                        series={this.getTestCardGraphSeries()}
+                                        type="line"
+                                        width='100%'
+                                    />
+                                </div>
+                            </React.Fragment>)
+                    }
+
+                    {this.state.activeTab === 1 && (
+                        <React.Fragment>
+                            <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
+                                <br/>
+                                <center>
+                                <Typography variant='body1' color="textPrimary">
+                                        <span>
+                                           <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><FormControl>
+                                                {/*<InputLabel htmlFor="test-stats__data-display">Question to display</InputLabel>*/}
+                                                <Select
+                                                    value={this.state.testStatsDataQuestionIdx}
+                                                    onChange={(evt) => this.setState({ testStatsDataQuestionIdx : evt.target.value })}
+                                                    input={<Input name="dataSelected" id="test-stats__data-display" />}
+                                                >
+                                                    {this.state.testStats.questions.map((obj, idx) => (
+                                                        <MenuItem value={idx}>{`Question ${idx + 1}`}</MenuItem>
+                                                    ))}
+                                                </Select>
+                                                {/*<FormHelperText>Select the data to be displayed</FormHelperText>*/}
+                                            </FormControl></span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Median Score:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionMedian}</span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Mean Score:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionMean}</span>
+                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Std. Dev:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionSTDEV.toFixed(2)}%</span>
+                                        </span>
+                                    </Typography>
+                                </center>
+
+                                <Chart
+                                    options={this.getPerQuestionGraphOptions()}
+                                    series={this.getPerQuestionGraphData()}
+                                    type="line"
+                                    width='100%'
+                                />
+
+                            </div>
+                        </React.Fragment>
+                    )}
+                    {this.state.activeTab === 2 && (
+                        <React.Fragment>
+                            <br/>
+                            <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
+                                {selectedTest.submitted.map((x, y) => (
+                                    <ListItem key={'MyClasses' + x.id}>
+                                        <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
+                                            secondary={'Submitted on ' + getDateString(x.timeSubmitted)}/>
+                                        <ListItemSecondaryAction>
+                                            <Tooltip title="View previous test results">
+                                                <IconButton onClick={() => {this.props.postTest(x.takes)}}>
+                                                    <DescriptionOutlinedIcon/>
+                                                </IconButton>
+                                            </Tooltip>
+                                        </ListItemSecondaryAction>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        </React.Fragment>
+                    )}
                 </Fragment>
             );
         }
@@ -286,6 +406,348 @@ export default class MyClasses extends React.Component {
 
     }
 
+    getPerQuestionGraphOptions() {
+        let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
+        let dataObj = convertListFloatToAnalytics(
+            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent, 
+            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].totalMark
+        );
+        return {
+            chart: {
+                fontFamily : 'Roboto',
+                foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                id: "basic-bar",
+                type: 'line',
+            },
+            colors: [
+                `${this.props.theme.color['500']}`,
+                `${this.props.theme.color['200']}`,
+                `${this.props.theme.color['100']}`,
+            ],
+            stroke: {
+                curve: 'smooth'
+            },
+            labels: (() => {
+                const dataOutArray = [];
+                for(let key in dataObj) {
+                    if(key != "studentSizeWhoTookIt") dataOutArray.push(key);
+                }
+                return dataOutArray;
+            })(),
+            xaxis: {
+                title: {
+                    text: this.state.testStatsDataSelectIdx == 3 ? 'Marks Scored' : ''
+                },
+            },
+            yaxis: {
+                title: {
+                    text: this.state.testStatsDataSelectIdx == 3 ? 'Number of Students' : 'Mark(%)'
+                },
+                min: 0,
+                max: (() => {
+                    return dataObj.studentSizeWhoTookIt;
+                })(),
+                tickAmount: (() => {
+                    return dataObj.studentSizeWhoTookIt >= 10 ? 10 : dataObj.studentSizeWhoTookIt;
+                })(),
+            },
+            fill: {
+                opacity: 1,
+                type: 'solid',
+                colors: [
+                    `${this.props.theme.color['500']}`,
+                    `${this.props.theme.color['200']}`,
+                    `${this.props.theme.color['100']}`,
+                ]
+            },
+            legend: {
+                itemMargin: {
+                    horizontal: 20,
+                    vertical: 5
+                },
+                containerMargin: {
+                    left: 5,
+                    top: 12,
+                },
+                onItemClick: {
+                    toggleDataSeries: true
+                },
+                onItemHover: {
+                    highlightDataSeries: true
+                },
+            },
+            dataLabels: {
+                enabled: false,
+                formatter: function (val) {
+                    return val
+                },
+                textAnchor: 'middle',
+                offsetX: 0,
+                offsetY: 0,
+                style: {
+                    fontSize: '14px',
+                    fontFamily: 'Helvetica, Arial, sans-serif',
+                    colors: [
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,                        
+                    ]
+                },
+                dropShadow: {
+                    enabled: false,
+                    top: 1,
+                    left: 1,
+                    blur: 1,
+                    opacity: 0.45
+                }
+            },
+            tooltip: {
+                theme : this.props.theme.theme,
+            }
+        }
+    }
+
+    getPerQuestionGraphData() {
+        let dataObj = convertListFloatToAnalytics(
+            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent, 
+            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].totalMark
+        );
+        delete dataObj["studentSizeWhoTookIt"];
+        const dataOutArray = [];
+        for(let key in dataObj) {
+            dataOutArray.push(dataObj[key].numberOfStudents);
+        }
+        return [{
+            name: 'Number of Students',
+            type: 'column',
+            data: dataOutArray
+        }];
+    }
+
+    getTestCardGraphOptions() {
+        let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
+        return {
+            chart: {
+                fontFamily : 'Roboto',
+                foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                id: "basic-bar",
+                type: 'line',
+            },
+            colors: [
+                `${this.props.theme.color['500']}`,
+                `${this.props.theme.color['200']}`,
+                `${this.props.theme.color['100']}`,
+            ],
+            stroke: {
+                curve: 'smooth'
+            },
+            labels: this.state.testStatsDataSelectIdx == 2 && selectedTest.submitted.length > 0 ? (() => {
+                let attemptArray = [];
+                selectedTest.submitted.forEach((obj, idx) => {
+                    attemptArray.push('Attempt ' + (parseInt(idx) + 1));
+                });
+                return attemptArray;
+            })(): this.state.testStatsDataSelectIdx == 3 ? (() => {
+                const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
+                delete dataObj["studentSizeWhoTookIt"];
+                const dataOutArray = [];
+                for(let key in dataObj) {
+                    dataOutArray.push(key);
+                }
+                return dataOutArray;
+            })(): ['', selectedTest.name, ''],
+            xaxis: {
+                title: {
+                    text: this.state.testStatsDataSelectIdx == 3 ? 'Marks Scored' : ''
+                },
+            },
+            yaxis: {
+                title: {
+                    text: this.state.testStatsDataSelectIdx == 3 ? 'Number of Students' : 'Mark(%)'
+                },
+                min: 0,
+                max: this.state.testStatsDataSelectIdx == 3 ? (() => {
+                    const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
+                    return dataObj.studentSizeWhoTookIt;
+                })() : 100,
+                tickAmount: (() => {
+                    const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
+                    return dataObj.studentSizeWhoTookIt >= 10 ? 10 : dataObj.studentSizeWhoTookIt;
+                })(),
+            },
+            fill: {
+                opacity: 1,
+                type: 'solid',
+                colors: [
+                    `${this.props.theme.color['500']}`,
+                    `${this.props.theme.color['200']}`,
+                    `${this.props.theme.color['100']}`,
+                ]
+            },
+            legend: {
+                itemMargin: {
+                    horizontal: 20,
+                    vertical: 5
+                },
+                containerMargin: {
+                    left: 5,
+                    top: 12,
+                },
+                onItemClick: {
+                    toggleDataSeries: true
+                },
+                onItemHover: {
+                    highlightDataSeries: true
+                },
+            },
+            dataLabels: {
+                enabled: false,
+                formatter: function (val) {
+                    return val
+                },
+                textAnchor: 'middle',
+                offsetX: 0,
+                offsetY: 0,
+                style: {
+                    fontSize: '14px',
+                    fontFamily: 'Helvetica, Arial, sans-serif',
+                    colors: [
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,                        
+                    ]
+                },
+                dropShadow: {
+                    enabled: false,
+                    top: 1,
+                    left: 1,
+                    blur: 1,
+                    opacity: 0.45
+                }
+            },
+            tooltip: {
+                theme : this.props.theme.theme,
+            }
+        }
+    };
+
+    getTestCardGraphSeries() {
+        let selectedTest = this.state.classes[this.state.c].tests[this.state.t]; 
+        if(this.state.testStatsDataSelectIdx === 0) {
+            let testAverage = 0;
+            selectedTest.submitted.forEach((obj) => {
+                testAverage += obj.grade;
+            });
+            if(testAverage != 0) {
+                testAverage = (testAverage / (selectedTest.total * selectedTest.submitted.length)) * 100
+            }
+            return [{
+                name : 'Test Mean',
+                type : 'column',
+                data : ['', this.state.testStats.testMean, '']
+            }, {
+                name : 'Test Median',
+                type : 'column',
+                data : ['', this.state.testStats.testMedian, '']
+            }, {
+                name : 'My Average',
+                type : 'column',
+                data : ['', testAverage, '']
+            },{
+                name : 'Test SD',
+                type : 'line',
+                data : ['', this.state.testStats.testSTDEV, '']
+            }, ]
+        }else if (this.state.testStatsDataSelectIdx === 1) {
+            let myBestMark = 0;
+            selectedTest.submitted.forEach((obj) => {
+                myBestMark = obj.grade > myBestMark ? obj.grade : myBestMark;
+            });
+            myBestMark = (myBestMark / selectedTest.total) * 100;
+            return [{
+                name : 'Test Mean',
+                type : 'column',
+                data : ['', this.state.testStats.testMean, '']
+            }, {
+                name : 'Test Median',
+                type : 'column',
+                data : ['', this.state.testStats.testMedian, '']
+            }, {
+                name : 'My Best Attempt',
+                type : 'column',
+                data : ['', myBestMark, '']
+            }, {
+                name : 'Test SD',
+                type : 'line',
+                data : ['', this.state.testStats.testSTDEV, '']
+            }, ]
+        }else if (this.state.testStatsDataSelectIdx === 2) {
+            let attemptArray = [];
+            let meanArray    = []; // It isnt a very nice array :\
+            let medianArray  = [];
+            let sdArray      = [];
+            if(selectedTest.submitted.length > 0) {
+                selectedTest.submitted.forEach((obj) => {
+                    attemptArray.push((obj.grade / selectedTest.total) * 100);
+                    meanArray   .push(this.state.testStats.testMean);
+                    medianArray .push(this.state.testStats.testMedian);
+                    sdArray     .push(this.state.testStats.testSTDEV);
+                });
+            }else{
+                attemptArray = ['', 'No Attempts Availible', ''];
+                meanArray    = ['', this.state.testStats.testMean, ''];
+                medianArray  = ['', this.state.testStats.testMedian, ''];
+                sdArray      = ['', this.state.testStats.testSTDEV, ''];
+            }
+            return [{
+                name : 'Test Mean',
+                type : 'column',
+                data : meanArray
+            }, {
+                name : 'Test Median',
+                type : 'column',
+                data : medianArray
+            }, {
+                name : 'Test Attempt',
+                type : 'column',
+                data : attemptArray
+            }, {
+                name : 'Test SD',
+                type : 'line',
+                data : sdArray
+            }, ]
+        }else if(this.state.testStatsDataSelectIdx === 3) {
+            const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
+            delete dataObj["studentSizeWhoTookIt"];
+            const dataOutArray = [];
+            for(let key in dataObj) {
+                dataOutArray.push(dataObj[key].numberOfStudents);
+            }
+            return [{
+                name: 'Number of Students',
+                type: 'column',
+                data: dataOutArray
+            }]
+        }
+        return [{
+            name: 'TEAM A',
+            type: 'column',
+            data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30]
+        }, {
+            name: 'TEAM B',
+            type: 'column',
+            data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43]
+        }, {
+            name: 'TEAM C',
+            type: 'line',
+            data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39]
+        }]
+    };
+
+    handleTabViewChange(event, value) {
+        this.setState({ activeTab : value });
+    };
+
     enrollInClass() {
         let key = prompt('Enroll Key:');
         if (key !== null && key !== '') {
@@ -294,6 +756,17 @@ export default class MyClasses extends React.Component {
                 () => alert('Looks like you entered an invalid key.'));
         }
     }
+
+    getTestStats(testID, cIndex, tIndex) {
+        Http.getTestStats(
+            testID,
+            (result) => { 
+                console.log(result);
+                this.setState({c: cIndex, t: tIndex, testStats: result });
+            },
+            (err) => { console.log(err); }
+        )
+    };
 
     handleClassListItemClick() {
         this.setState({ apexChartEl : undefined });

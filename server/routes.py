@@ -11,7 +11,6 @@ from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
 
 from server.models import *
-import random
 import statistics
 routes = Blueprint('routes', __name__)
 
@@ -112,6 +111,11 @@ def get_classes():
                 takes = Takes.query.order_by(Takes.time_started).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER)).all()
                 submitted = []  # List of takes indexes
                 current = None  # Current instance of takes
+                questions = eval(t.question_list)
+                question_marks = []
+                for i in range(len(questions)):
+                    current_question = Question.query.get(questions[i])
+                    question_marks.append(current_question.total)
                 for ta in takes:
                     # For each instance of takes append the data
                     if ta is not None:
@@ -157,10 +161,11 @@ def get_classes():
                             'total': t.total,
                             'submitted': submitted,
                             'current': current,
-                            'classAverage': class_mean,
-                            'classMedian': class_median,
+                            'classAverage': round(class_mean, 2),
+                            'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
-                            'standardDeviation': class_stdev,
+                            'standardDeviation': round(class_stdev, 2),
+                            'topMarksPerStudent': question_marks
                         }
                     )
                 else:
@@ -175,10 +180,11 @@ def get_classes():
                             'total': t.total,
                             'submitted': submitted,
                             'current': current,
-                            'classAverage': class_mean,
-                            'classMedian': class_median,
+                            'classAverage': round(class_mean, 2),
+                            'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
-                            'standardDeviation': class_stdev,
+                            'standardDeviation': round(class_stdev, 2),
+                            'topMarksPerStudent': question_marks
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
@@ -187,7 +193,7 @@ def get_classes():
 @routes.route('/testStats', methods=['POST'])
 @login_required
 @check_confirmed
-@teacher_only
+# @teacher_only
 def test_stats():
     """
     Generate Stats on a per Question basis of a given test
@@ -202,16 +208,14 @@ def test_stats():
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
     test = Test.query.get(test_id)  # Test to generate questions from
-    if not teaches_class(test.CLASS):
-        # If the user doesnt teach the class then return error JSON
-        return jsonify(error="User doesn't teach this class")
+    del test_id
+    del data
+    # if not teaches_class(test.CLASS):
+    #     # If the user doesnt teach the class then return error JSON
+    #     return jsonify(error="User doesn't teach this class")
     students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
-    test_mean, test_median, test_stdev = 0, 0, 0  # Overall test analytics
-    # question_mean, question_median, question_stdev = [], [], []
-    test_marks = []  # List of test marks
+    test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
-    question_total_marks = []  # Each students mark per question
-    question_analytics = []
 
     for s in range(len(students)):
         # For each student get best takes and add to test_marks array
@@ -220,8 +224,32 @@ def test_stats():
         if len(takes) is not 0:
             # If the student has taken the test get best takes and add to the array of marks
             takes = takes[len(takes) - 1]  # Get best takes instance
-            test_marks.append(takes.grade / test.total * 100)
+            test_marks_total.append(takes.grade)
             question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
+            del takes
+    del students
+    question_total_marks = []  # Each students mark per question
+
+    # If none has taken the test return default values
+    if len(question_marks) is 0:
+        test_questions = eval(test.question_list)  # List of questions in test
+        test_question_marks = []
+        for i in range(len(test_questions)): # for each question in the test
+            current_question = Question.query.get(test_questions[i])
+            test_question_marks.append(
+                {
+                    'numberStudents': 0,
+                    'questionMean': 0,
+                    'questionMedian': 0,
+                    'questionSTDEV': 0,
+                    'questionMark': current_question.total,
+                    'topMarksPerStudent': []
+                }
+            )
+        return jsonify(numberStudents=0, testMean=0, testMedian=0, testSTDEV=0, questions=test_question_marks, topMarkPerStudent=[],
+                       totalMark=[])
+        del test_questions
+        del test_question_marks
 
     for i in range(len(question_marks[0])):
         # For the length of the test array go through each student and append the marks to the arrays
@@ -234,24 +262,46 @@ def test_stats():
                 student_question_total += question_marks[j][i][k]
             current_question_mark.append(student_question_total)
         question_total_marks.append(current_question_mark)
+    del question_marks
+
+    test_questions = eval(test.question_list)  # List of questions in test
+    test_question_marks = []
+    for i in range(len(test_questions)):
+        current_question = Question.query.get(test_questions[i])
+        test_question_marks.append(current_question.total)
+    question_analytics = []  # Array to return to client of analytics
+    del test_questions
 
     for i in range(len(question_total_marks)):
         # For each question calculate mean median and stdev
-        current_question = {'questionMean': statistics.mean(question_total_marks[i]),
-                            'questionMedian': statistics.median(question_total_marks[i])
-                            }
+        if len(question_total_marks[i]) > 0:
+            current_question = {'questionMean': statistics.mean(question_total_marks[i]),
+                                'questionMedian': statistics.median(question_total_marks[i]),
+                                'topMarksPerStudent': question_total_marks[i],
+                                'totalMark': test_question_marks[i]
+                                }
+        else:
+            current_question = {'questionMean': 0,
+                                'questionMedian': 0,
+                                'topMarksPerStudent': question_total_marks[i],
+                                'totalMark': test_question_marks[i]
+                                }
         if len(question_total_marks[i]) > 1:
             current_question['questionSTDEV'] = statistics.stdev(question_total_marks[i])
         else:
             current_question['questionSTDEV'] = 0
         question_analytics.append(current_question)
-    if len(test_marks) is not 0:
-        test_mean = statistics.mean(test_marks)
-        test_median = statistics.median(test_marks)
-        if len(test_marks) > 1:
-            test_stdev = statistics.stdev(test_marks)
+    test_mean, test_median, test_stdev = 0, 0, 0  # Overall test analytics
+    if len(test_marks_total) is not 0:
+        test_mean = statistics.mean(test_marks_total)
+        test_median = statistics.median(test_marks_total)
+        if len(test_marks_total) > 1:
+            test_stdev = statistics.stdev(test_marks_total)
 
-    return jsonify(numberStudents=len(test_marks), testMean=test_mean, testMedian=test_median, testSTDEV=test_stdev, questions=question_analytics)
+    return jsonify(
+        numberStudents=len(test_marks_total), testMean=round(test_mean, 2), testMedian=round(test_median, 2),
+        testSTDEV=round(test_stdev, 2), questions=question_analytics, topMarkPerStudent=test_marks_total, totalMark=test.total
+    )
 
 
 @routes.route('/getSets')
@@ -272,7 +322,7 @@ def get_sets():
         for q in questions:
             # For each question append the data
             question_list.append({'id': q.QUESTION, 'name': q.name, 'string': q.string, 'total': q.total})
-        set_list.append({'id': s.SET, 'name': s.name, 'questions': question_list})
+        set_list.append({'id': s.SET, 'name': s.name, 'can_edit': able_edit_set(s.SET), 'questions': question_list})
     return jsonify(sets=set_list)
 
 
@@ -657,13 +707,13 @@ def sample_question():
             # Try to create and mark the question if fails return error JSON
             q = AvoQuestion(string)
             answers = []  # Array to hold placeholder answers
-            for i in range(len(answers)):
+            for i in range(len(string.split('；')[2].split('，'))):
                 # Fill the array with blank answers
                 answers.append("")
             q.get_score(*answers)
         except:
             return jsonify(error="Question failed to be created")
-        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
+        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, explanation=q.explanation)
 
 
 @routes.route('/getTest', methods=['POST'])
@@ -746,7 +796,7 @@ def create_takes(test, user):
         # If the user has taken more attempts then allowed return
         return
     test_question_list = eval(x.question_list)  # Question list of test
-    seeds = list(map(lambda seed: randint(0, 65536) if seed == -1 else seed, eval(x.seed_list)))  # Generates seeds of test
+    seeds = list(map(lambda seed: randint(0, 65535) if seed == -1 else seed, eval(x.seed_list)))  # Generates seeds of test
     answer_list = []  # Answers of takes instance
     marks_list = []  # Marks of takes instance
     for i in range(len(test_question_list)):

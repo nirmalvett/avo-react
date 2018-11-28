@@ -1,6 +1,7 @@
 import React from "react";
 import MathJax from "react-mathjax2";
 import Typography from "@material-ui/core/Typography/Typography";
+import {uniqueKey} from "./helpers";
 
 export function getMathJax(text, variant='body2') {
     // Initialize an empty list of MathJax elements
@@ -17,12 +18,12 @@ export function getMathJax(text, variant='body2') {
             // If there is no \)
             if (endMarker === -1) {
                 // Append the rest of the string as an inline equation
-                result.push(<MathJax.Node inline>{text.slice(marker1 + 2)}</MathJax.Node>);
+                result.push(<MathJax.Node inline key={uniqueKey()}>{text.slice(marker1 + 2)}</MathJax.Node>);
                 console.warn('Invalid LaTeX: Missing closing \\)');
                 break;
             }
             // Add the inline math element
-            result.push(<MathJax.Node inline>{text.slice(marker1 + 2, endMarker)}</MathJax.Node>);
+            result.push(<MathJax.Node inline key={uniqueKey()}>{text.slice(marker1 + 2, endMarker)}</MathJax.Node>);
             // Remove the beginning of the string up to and including the \)
             text = text.slice(endMarker + 2);
         }
@@ -35,12 +36,12 @@ export function getMathJax(text, variant='body2') {
             // If there is no \]
             if (endMarker === -1) {
                 // Append the rest of the string as an block equation
-                result.push(<MathJax.Node>{text.slice(marker2 + 2)}</MathJax.Node>);
+                result.push(<MathJax.Node key={uniqueKey()}>{text.slice(marker2 + 2)}</MathJax.Node>);
                 console.warn('Invalid LaTeX: Missing closing \\]');
                 break;
             }
             // Add the block math element
-            result.push(<MathJax.Node>{text.slice(marker2 + 2, endMarker)}</MathJax.Node>);
+            result.push(<MathJax.Node key={uniqueKey()}>{text.slice(marker2 + 2, endMarker)}</MathJax.Node>);
             // Remove the beginning of the string up to and including the \]
             text = text.slice(endMarker + 2);
         }
