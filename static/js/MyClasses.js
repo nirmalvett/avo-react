@@ -273,7 +273,7 @@ export default class MyClasses extends React.Component {
                                                 <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Median Scores:</b> {this.state.testStats.testMedian}</span>
                                                 <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Mean Scores:</b> {this.state.testStats.testMean}</span>
                                                 <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Std. Dev:</b> {this.state.testStats.testSTDEV}%</span>
-                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>My Best Attempt:</b> {bestMark/100*this.state.testStats.totalMark}</span>
+                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>My Best Attempt:</b> {Math.round(bestMark/100*this.state.testStats.totalMark, 2)}</span>
                                             </span>
                                         </Typography>
                                         <Typography variant='body1' color="textPrimary">
