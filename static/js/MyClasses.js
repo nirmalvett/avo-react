@@ -528,7 +528,6 @@ export default class MyClasses extends React.Component {
 
     getTestCardGraphOptions() {
         let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
-        console.log(selectedTest);
         return {
             chart: {
                 fontFamily : 'Roboto',
