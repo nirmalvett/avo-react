@@ -112,7 +112,7 @@ def get_classes():
                 submitted = []  # List of takes indexes
                 current = None  # Current instance of takes
                 questions = eval(t.question_list)
-                question_marks = []
+                question_marks = []  # What each question in the test is out of
                 for i in range(len(questions)):
                     current_question = Question.query.get(questions[i])
                     question_marks.append(current_question.total)
@@ -165,7 +165,7 @@ def get_classes():
                             'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
                             'standardDeviation': round(class_stdev, 2),
-                            'topMarksPerStudent': question_marks
+                            'topMarksPerStudent': question_marks  # TODO Remove this data as not being used
                         }
                     )
                 else:
@@ -184,7 +184,7 @@ def get_classes():
                             'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
                             'standardDeviation': round(class_stdev, 2),
-                            'topMarksPerStudent': question_marks
+                            'topMarksPerStudent': question_marks  # TODO Remove this data as not being used
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
@@ -281,10 +281,10 @@ def test_stats():
         test_median = statistics.median(test_marks_total)
         if len(test_marks_total) > 1:
             test_stdev = statistics.stdev(test_marks_total)
-
     return jsonify(
         numberStudents=len(test_marks_total), testMean=round(test_mean, 2), testMedian=round(test_median, 2),
-        testSTDEV=round(test_stdev, 2), questions=question_analytics, topMarkPerStudent=test_marks_total, totalMark=test.total
+        testSTDEV=round(test_stdev, 2), questions=question_analytics, topMarkPerStudent=test_marks_total,
+        totalMark=test.total
     )
 
 
