@@ -94,7 +94,7 @@ export default class QuestionBuilder extends React.Component {
                     </Paper>
                 </Grid>
                 <Grid item xs={6} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
-                    <Paper square style={{width: '100%', flex: 1, display: 'flex', flexDirection: 'column',
+                    <Paper square style={{width: '100%', flex: 1, flexDirection: 'column',
                         paddingTop: '5px', paddingBottom: '5px', padding: '20px', overflowY: 'auto'}}>
                         {selectedQ !== null ? <Fragment>
                             {getMathJax(preview.prompt)}
