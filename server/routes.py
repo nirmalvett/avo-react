@@ -246,7 +246,6 @@ def test_stats():
                     'topMarksPerStudent': []
                 }
             )
-        print(test_question_marks)
         return jsonify(numberStudents=0, testMean=0, testMedian=0, testSTDEV=0, questions=test_question_marks, topMarkPerStudent=[],
                        totalMark=[])
         del test_questions
