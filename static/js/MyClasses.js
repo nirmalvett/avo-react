@@ -289,8 +289,8 @@ export default class MyClasses extends React.Component {
                                     />
                                 </div>
                             </React.Fragment>)
-                        }
                     }
+
                     {this.state.activeTab === 1 && (
                         <React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
