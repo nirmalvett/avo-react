@@ -167,7 +167,7 @@ class Layout extends React.Component {
             postTest: null,
             minutesRemainingUponResumingTest: null,
 
-            snackBar_hideDuration: 3000,
+            snackBar_hideDuration: 4500,
             snackBar_isOpen: true,
             snackBar_message: "AVO AI Assistant Online",
             snackBar_variant: "success"
@@ -308,6 +308,7 @@ class Layout extends React.Component {
             return (<HomePage/>);
         if (section === 'My Classes')
             return (<MyClasses
+                                showSnackBar = {this.showSnackBar.bind(this)}
                                 isTeacher = {isTeacher}
                                 startTest={cls => this.startTest(cls)}
                                 theme={{ theme : this.state.theme, color : this.state.color }}
@@ -352,6 +353,17 @@ class Layout extends React.Component {
         console.log("timer", minutesRemainingUponResumingTest);
     }
 
+    showSnackBar(variant, message, hideDuration){
+      // variant can be success, warning, error, info
+      // message is the message to display
+      // hideDuration is optional but it's the ms for the snackbar to show
+      this.setState({
+        snackBar_isOpen: true,
+        snackBar_hideDuration: hideDuration === undefined ? this.state.snackBar_hideDuration : hideDuration,
+        snackBar_variant: variant,
+        snackBar_message: message
+      })
+    }
 
 }
 
