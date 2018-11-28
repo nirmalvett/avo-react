@@ -459,7 +459,9 @@ export default class MyClasses extends React.Component {
                 max: (() => {
                     return dataObj.studentSizeWhoTookIt;
                 })(),
-                tickAmount: 10,
+                tickAmount: (() => {
+                    return dataObj.studentSizeWhoTookIt >= 10 ? 10 : dataObj.studentSizeWhoTookIt;
+                })(),
             },
             fill: {
                 opacity: 1,
@@ -581,7 +583,10 @@ export default class MyClasses extends React.Component {
                     const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
                     return dataObj.studentSizeWhoTookIt;
                 })() : 100,
-                tickAmount: 10,
+                tickAmount: (() => {
+                    const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
+                    return dataObj.studentSizeWhoTookIt >= 10 ? 10 : dataObj.studentSizeWhoTookIt;
+                })(),
             },
             fill: {
                 opacity: 1,
