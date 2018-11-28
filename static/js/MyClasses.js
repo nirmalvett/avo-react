@@ -272,7 +272,11 @@ export default class MyClasses extends React.Component {
                                             <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>My Best Attempt:</b> {bestMark/100*this.state.testStats.totalMark}</span>
                                         </span>
                                     </Typography>
+                                    <Typography variant='body1' color="textPrimary">
+                                    (Attempts from teacher accounts do not count towards the analytics)
+                                    </Typography>
                                 </center>
+                                <br/>
                                 <Chart
                                     options={this.getTestCardGraphOptions()}
                                     series={this.getTestCardGraphSeries()}
@@ -322,7 +326,11 @@ export default class MyClasses extends React.Component {
                                             <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><b>Std. Dev:</b> {this.state.testStats.questions[this.state.testStatsDataQuestionIdx].questionSTDEV.toFixed(2)}%</span>
                                         </span>
                                     </Typography>
+                                    <Typography variant='body1' color="textPrimary">
+                                        (Attempts from teacher accounts do not count towards the analytics)
+                                    </Typography>
                                 </center>
+
                                 <Chart
                                     options={this.getPerQuestionGraphOptions()}
                                     series={this.getPerQuestionGraphData()}
