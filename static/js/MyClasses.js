@@ -32,9 +32,7 @@ import Tab from '@material-ui/core/Tab';
 import { avoGreenGraph } from "./AVOCustomColors";
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import { convertListFloatToAnalytics } from "./helpers";
 
