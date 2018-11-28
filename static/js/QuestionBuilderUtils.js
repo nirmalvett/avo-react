@@ -17,11 +17,11 @@ String.prototype.format = function(...args) {
     return result + str;
 };
 
-const CONSTANTS = {
+export const CONSTANTS = {
     "True": ["*T", "✔", "\\color{green}✔"],
     "False": ["*F", "✘", "\\color{red}✘"],
 };
-const FUNCTIONS = {
+export const FUNCTIONS = {
     "boolean": ["AA", null, null, ""],
     "number": ["AB", null, null, "min, max, zeroes/mod=0"],
     "matrix": ["AC", null, null, "min, max, zeroes/mod=0, rows, cols=1"],
@@ -69,7 +69,7 @@ const FUNCTIONS = {
     "point": ["_E", null, null, "v"],
     "augment": ["_F", null, null, "m, v"],
 };
-const OPERATORS = {
+export const OPERATORS = {
     "or": [0, "BA", "or", "&0 \\text{ or } &1", 0, 0, 0, 0, 0, 0],
     "and": [1, "BB", "and", "&0 \\text{ and } &1", 1, 1, 1, 1, 1, 1],
     "not": [2, "BC", "not", "\\text{not } &0", 2, 2, null, 2, null, 2],
@@ -112,7 +112,7 @@ const unary_regex = "[$@]\\d+|\\d+(?:\\.\\d+)?|[\\)\\]\\}]|" + formatRegex(Objec
     .concat(Object.keys(OPERATORS).filter(x => OPERATORS[x][7] === null))).join("|");
 // noinspection JSCheckFunctionSignatures
 const replace = formatRegex(Object.keys(OPERATORS).filter(x => x.includes("_")));
-const function_regex = "(" + Object.keys(FUNCTIONS).join("|") + ")\\(";
+export const function_regex = "(" + Object.keys(FUNCTIONS).join("|") + ")\\(";
 let part1 = "";  // Contains all remaining multi-character tokens
 let part2 = "|[\\(\\{\\[,;?:";  // Contains all remaining single-character tokens
 for (let o in OPERATORS) {
@@ -196,7 +196,7 @@ export function buildPlainText(mathCode) {
     return stack.map(x => x[0]);
 }
 
-function buildMathCode(text) {
+export function buildMathCode(text) {
     if (text.length === 0)
         return "";
     for (let i = 0; i < this.replace.length; i++)

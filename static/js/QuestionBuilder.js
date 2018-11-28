@@ -44,6 +44,10 @@ export default class QuestionBuilder extends React.Component {
         let {theme} = this.props;
         let {selectedS, selectedQ, preview} = this.state;
         let canEdit = selectedS !== null && this.state.sets[selectedS].can_edit;
+        let inputStyle = {
+            flex: 1, width: '98%', margin: '1%', resize: 'none', background: 'transparent',
+            color: theme.palette.type === 'dark' ? '#ffffff' : '#000000'
+        };
         if (this.state.mode === 0) return (
             <Grid container spacing={8}>
                 <Grid item xs={3} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
@@ -129,24 +133,23 @@ export default class QuestionBuilder extends React.Component {
                         {this.state.qString.split('；')[1].split('，')[0]}
                     </textarea>
                     <div style={{flex: 1, width: '100%'}}>{this.state.questionFields.map(field => (
-                        <div>
-                            <Select value={field.type} onChange={this.handleChange}
+                        <Fragment>
+                            <Select value={field.type}
                                     inputProps={{name: 'age', id: 'age-simple'}}>
                                 <MenuItem value="">-</MenuItem>
                                 <MenuItem value='0'>True/false</MenuItem>
                                 <MenuItem value='1'>Multiple choice</MenuItem>
                                 <MenuItem value='2'>Number</MenuItem>
-                                <MenuItem value='3'>List of numbers</MenuItem>
-                                <MenuItem value='4'>Vector</MenuItem>
-                                <MenuItem value='5'>Matrix</MenuItem>
-                                <MenuItem value='6'>Basis</MenuItem>
+                                <MenuItem value='3'>Linear Expression</MenuItem>
+                                <MenuItem value='5'>Polynomial</MenuItem>
+                                <MenuItem value='6'>Vector</MenuItem>
                                 <MenuItem value='7'>Vector (free vars)</MenuItem>
-                                <MenuItem value='8'>Linear equation</MenuItem>
-                                <MenuItem value='9'>Polynomial</MenuItem>
+                                <MenuItem value='8'>Matrix</MenuItem>
+                                <MenuItem value='9'>Basis</MenuItem>
                             </Select>
                             <TextField/>
                             <TextField/>
-                        </div>
+                        </Fragment>
                     ))}</div>
                 </Grid>
             </Grid>
