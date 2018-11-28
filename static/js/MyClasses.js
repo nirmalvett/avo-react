@@ -233,6 +233,7 @@ export default class MyClasses extends React.Component {
                     >
                         {selectedTest.current === null ? 'Start Test' : 'Resume Test'}
                     </Button>
+                    <br/>
                      <center>
                          <Typography variant='body1' color="textPrimary">
                                 <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
