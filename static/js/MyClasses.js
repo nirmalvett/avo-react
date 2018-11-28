@@ -80,6 +80,7 @@ export default class MyClasses extends React.Component {
         return (
             <div className='avo-user__background' style={{width: '100%', flex: 1, display: 'flex'}}>
                 <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
+                    {/* Side Menu*/}
                     <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
                         <Paper classes={{root : 'avo-sidebar'}} square style={{width: '100%', flex: 1, display: 'flex'}}>
                             <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
@@ -130,7 +131,9 @@ export default class MyClasses extends React.Component {
                             </List>
                         </Paper>
                     </Grid>
+                    {/* Border From Menu To Main*/}
                     <Grid item xs={1}/>
+                    {/* Right hand side cards, see detailsCard() */}
                     <Grid item xs={7} style={{display: 'flex'}}>
                         <Card
                             className='avo-card'
@@ -146,6 +149,7 @@ export default class MyClasses extends React.Component {
                         </Card>
                     </Grid>
                 </Grid>
+                {/* Enroll in class pop up */}
                 <AVOModal
                     title='Enroll into a class'
                     target="avo-myclasses__enroll-button"
@@ -258,49 +262,36 @@ export default class MyClasses extends React.Component {
                         <Tab label="Per Question Analytics" />
                         <Tab label="My Attempts" />
                     </Tabs>
-                    {this.state.activeTab == 0 && (
-                        <React.Fragment>
-                            <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
-                                <br/>
-                                <center>
-                                    <Typography variant='body1' color="textPrimary">
-                                        <span>
-                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
-                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Median Scores:</b> {this.state.testStats.testMedian}</span>
-                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Mean Scores:</b> {this.state.testStats.testMean}</span>
-                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Std. Dev:</b> {this.state.testStats.testSTDEV}%</span>
-                                            <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>My Best Attempt:</b> {bestMark/100*this.state.testStats.totalMark}</span>
-                                        </span>
-                                    </Typography>
-                                    <Typography variant='body1' color="textPrimary">
-                                    (Attempts from teacher accounts do not count towards the analytics)
-                                    </Typography>
-                                </center>
-                                <br/>
-                                <Chart
-                                    options={this.getTestCardGraphOptions()}
-                                    series={this.getTestCardGraphSeries()}
-                                    type="line"
-                                    width='100%'
-                                />
-                                {/* <FormControl>
-                                    <InputLabel htmlFor="test-stats__data-display">Display Type</InputLabel>
-                                    <Select
-                                        value={this.state.testStatsDataSelectIdx}
-                                        onChange={(evt) => this.setState({ testStatsDataSelectIdx : evt.target.value })}
-                                        input={<Input name="dataSelected" id="test-stats__data-display" />}
-                                    >
-                                        <MenuItem value={0}>{this.testStatsDataSelectKeys[0]}</MenuItem>
-                                        <MenuItem value={1}>{this.testStatsDataSelectKeys[1]}</MenuItem>
-                                        <MenuItem value={2}>{this.testStatsDataSelectKeys[2]}</MenuItem>
-                                        <MenuItem value={3}>{this.testStatsDataSelectKeys[3]}</MenuItem>
-                                    </Select>
-                                    <FormHelperText>Select the data to be dispayed</FormHelperText>
-                                </FormControl> */}
-                            </div>
-                        </React.Fragment>
-                    )}
-                    {this.state.activeTab == 1 && (
+                    {this.state.activeTab === 0 &&
+                    (<React.Fragment>
+                                <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
+                                    <br/>
+                                    <center>
+                                        <Typography variant='body1' color="textPrimary">
+                                            <span>
+                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
+                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Median Scores:</b> {this.state.testStats.testMedian}</span>
+                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Mean Scores:</b> {this.state.testStats.testMean}</span>
+                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Std. Dev:</b> {this.state.testStats.testSTDEV}%</span>
+                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>My Best Attempt:</b> {bestMark/100*this.state.testStats.totalMark}</span>
+                                            </span>
+                                        </Typography>
+                                        <Typography variant='body1' color="textPrimary">
+                                        (Attempts from teacher accounts do not count towards the analytics)
+                                        </Typography>
+                                    </center>
+                                    <br/>
+                                    <Chart
+                                        options={this.getTestCardGraphOptions()}
+                                        series={this.getTestCardGraphSeries()}
+                                        type="line"
+                                        width='100%'
+                                    />
+                                </div>
+                            </React.Fragment>)
+                        }
+                    }
+                    {this.state.activeTab === 1 && (
                         <React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
                                 <br/>
@@ -341,7 +332,7 @@ export default class MyClasses extends React.Component {
                             </div>
                         </React.Fragment>
                     )}
-                    {this.state.activeTab == 2 && (
+                    {this.state.activeTab === 2 && (
                         <React.Fragment>
                             <br/>
                             <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
@@ -423,7 +414,6 @@ export default class MyClasses extends React.Component {
             this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent, 
             this.state.testStats.questions[this.state.testStatsDataQuestionIdx].totalMark
         );
-        console.log(dataObj);
         return {
             chart: {
                 fontFamily : 'Roboto',
@@ -459,7 +449,9 @@ export default class MyClasses extends React.Component {
                 max: (() => {
                     return dataObj.studentSizeWhoTookIt;
                 })(),
-                tickAmount: 10,
+                tickAmount: (() => {
+                    return dataObj.studentSizeWhoTookIt >= 10 ? 10 : dataObj.studentSizeWhoTookIt;
+                })(),
             },
             fill: {
                 opacity: 1,
@@ -581,7 +573,10 @@ export default class MyClasses extends React.Component {
                     const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
                     return dataObj.studentSizeWhoTookIt;
                 })() : 100,
-                tickAmount: 10,
+                tickAmount: (() => {
+                    const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
+                    return dataObj.studentSizeWhoTookIt >= 10 ? 10 : dataObj.studentSizeWhoTookIt;
+                })(),
             },
             fill: {
                 opacity: 1,
