@@ -98,24 +98,12 @@ export function convertListFloatToAnalytics(inputList, topMark){
         : `${lowerBound} to ${upperBound}`; // otherwise show a range i.e. 2 to 4
 
     // Next we will want to go through our list of floats and get range [min, max)
-    // For special cases for 0 and topMark where they are included in the first and last
-    // CASE 1: The lower bound is 0 then filter by [min, max)
-    if (lowerBound === 0){
-      const numberInGroup = inputList.filter(x => x >= 0 && x < upperBound).length;
+      const numberInGroup = inputList.filter(x => x >= lowerBound && x < upperBound).length;
       returnObj[keyString] = {
         numberOfStudents: numberInGroup,
         percentOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
       };
 
-    }
-    // CASE 3: Otherwise filter by [min, max)
-    else {
-      const numberInGroup = inputList.filter(x => x >= lowerBound && x < upperBound).length;
-        returnObj[keyString] = {
-          numberOfStudents: inputList.filter(x => x >= lowerBound && x < upperBound).length,
-          percentOfStudent: (numberInGroup/studentSizeWhoTookIt) * 100,
-        }
-    }
 
     trailingNumber = upperBound;
     if (topMarkEven){ // In this case we want to go all the way to the end
