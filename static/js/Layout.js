@@ -211,11 +211,13 @@ class Layout extends React.Component {
     }
 
     getContent() {
+        const isTeacher = this.state;
         const {section, color, theme} = this.state;
         if (section === 'Home')
             return (<HomePage/>);
         if (section === 'My Classes')
             return (<MyClasses
+                                isTeacher = {isTeacher}
                                 startTest={cls => this.startTest(cls)}
                                 theme={{ theme : this.state.theme, color : this.state.color }}
                                 postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
