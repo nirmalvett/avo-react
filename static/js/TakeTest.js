@@ -75,7 +75,7 @@ export default class TakeTest extends React.Component {
                 alert(result.error);
             });
         };
-        let save = (inputValue) => {
+        let save = (inputValue, y) => {
             let newValue = inputValue === undefined ? this.state.newAnswers[index] : inputValue;
             Http.saveAnswer(this.state.takes, index, newValue, result => {
                 let newAnswers = copy(this.state.answers);
@@ -84,6 +84,7 @@ export default class TakeTest extends React.Component {
             }, result => {
                 alert(result.error);
             });
+
         };
         return (
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
@@ -94,19 +95,20 @@ export default class TakeTest extends React.Component {
                 }/>
                 {question.prompts.map((x, y) => [
                     <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
-                    <AnswerInput type={question.types[y]} value={answer[y]} prompt={x} onBlur={save}
+                    <AnswerInput
+                                type={question.types[y]} value={answer[y]} prompt={x}
+                                 onBlur={save}
                                  onChange={value => {
                                      let newAnswerList = copy(this.state.newAnswers);
                                      newAnswerList[index][y] = value;
                                      this.setState({newAnswers: newAnswerList});
-                                     this.props.showSnackBar("success", `Question ${y+1} Answer Saved`);
                                  }}
                                  buttonSave={value => {
                                      let newAnswerList = copy(this.state.newAnswers);
                                      newAnswerList[index][y] = value;
                                      this.setState({newAnswers: newAnswerList});
                                      saveButtonInput(newAnswerList); // After each change save it
-                                     this.props.showSnackBar("success", `Question ${y+1} Answer Saved`);
+                                    // TODO get this to work this.props.showSnackBar("success", `Answer Saved`);
                                  }}/>
                 ])}
             </Card>
