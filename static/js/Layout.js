@@ -101,13 +101,13 @@ const styles1 = theme => ({
     backgroundColor: green[600],
   },
   error: {
-    backgroundColor: theme.palette.error.dark,
+    backgroundColor:  green[600],
   },
   info: {
-    backgroundColor: theme.palette.primary.dark,
+    backgroundColor:  green[600],
   },
   warning: {
-    backgroundColor: amber[700],
+    backgroundColor:  green[600],
   },
   icon: {
     fontSize: 20,
