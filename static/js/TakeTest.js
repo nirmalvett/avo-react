@@ -37,6 +37,10 @@ export default class TakeTest extends React.Component {
         */
 
     }
+
+    componentDidMount(){
+        this.props.showSnackBar("success", "AVO Anti-Cheating Protocol Activated", 6500)
+    }
     render() {
         return (
             <Grid container spacing={8}>
@@ -95,12 +99,14 @@ export default class TakeTest extends React.Component {
                                      let newAnswerList = copy(this.state.newAnswers);
                                      newAnswerList[index][y] = value;
                                      this.setState({newAnswers: newAnswerList});
+                                     this.props.showSnackBar("success", `Question ${y+1} Answer Saved`);
                                  }}
                                  buttonSave={value => {
                                      let newAnswerList = copy(this.state.newAnswers);
                                      newAnswerList[index][y] = value;
                                      this.setState({newAnswers: newAnswerList});
                                      saveButtonInput(newAnswerList); // After each change save it
+                                     this.props.showSnackBar("success", `Question ${y+1} Answer Saved`);
                                  }}/>
                 ])}
             </Card>

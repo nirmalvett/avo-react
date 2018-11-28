@@ -26,7 +26,7 @@ export default class TimerComp extends React.Component {
             seconds = Math.round(partsOfMinute*60);
         }
 
-        document.getElementById('avo-timer__anchor-el').innerHTML = `${minutes}:${this.checkSecond(seconds)}`
+        document.getElementById('avo-timer__anchor-el').innerHTML = `${minutes}:${this.checkSecond(seconds)}`;
         this.startTimer();
     };
 
@@ -35,6 +35,12 @@ export default class TimerComp extends React.Component {
         let timeArray = presentTime.split(/[:]+/);
         let m = timeArray[0];
         let s = this.checkSecond((timeArray[1] - 1));
+        if (m < 5){
+            this.props.showSnackBar("warning", "5 Minutes Remaining", 10000);
+        }
+        if (m < 2){
+            this.props.showSnackBar("warning", "2 Minutes Remaining");
+        }
         if(s==59){m=m-1}
         if(m<0){
             this.props.uponCompletionFunc();

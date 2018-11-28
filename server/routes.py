@@ -230,10 +230,26 @@ def test_stats():
     del students
     question_total_marks = []  # Each students mark per question
 
+    # If none has taken the test return default values
     if len(question_marks) is 0:
-        # If none has taken the test return default values
-        return jsonify(numberStudents=0, testMean=0, testMedian=0, testSTDEV=0, questions=[], topMarkPerStudent=[],
+        test_questions = eval(test.question_list)  # List of questions in test
+        test_question_marks = []
+        for i in range(len(test_questions)): # for each question in the test
+            current_question = Question.query.get(test_questions[i])
+            test_question_marks.append(
+                {
+                    'numberStudents': 0,
+                    'questionMean': 0,
+                    'questionMedian': 0,
+                    'questionSTDEV': 0,
+                    'questionMark': current_question.total,
+                    'topMarksPerStudent': []
+                }
+            )
+        return jsonify(numberStudents=0, testMean=0, testMedian=0, testSTDEV=0, questions=test_question_marks, topMarkPerStudent=[],
                        totalMark=[])
+        del test_questions
+        del test_question_marks
 
     for i in range(len(question_marks[0])):
         # For the length of the test array go through each student and append the marks to the arrays
