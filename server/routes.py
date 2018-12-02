@@ -1109,7 +1109,7 @@ def create_payment():
         return abort(400)
 
     data = request.json
-    class_id = data['class']
+    class_id = data['classID']
     if not isinstance(class_id, int):
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
@@ -1193,7 +1193,7 @@ def free_trial():
         return abort(400)
 
     data = request.json
-    class_id = data['class']
+    class_id = data['classID']
     if not isinstance(class_id, int):
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
