@@ -29,6 +29,13 @@ SECURITY_PASSWORD_SALT = \
     'PQVVAj8swCr_D?w?Rys%JwSDJz!Gxrw^DZKvwM5ef=Zka-#zSXy_X?rwL5Me694yBA@SFXn#BcjLH*UG*WjgFe*Ya7-@aWCt?xdw=fAA8F=d+dRe' \
     '4Sk-+WGNdbdJW4X!'
 
+# Email Username and Password
+EMAIL = 'no-reply@avocadocore.com'
+EMAIL_PASSWORD = '@henrikiscontributingtoconvo@1'
+
+# Shutdown Route
+SHUTDOWN_TOKEN = 'eXJqUQzlIYbyMBp7rAw2TfqVXG7CuzFB'
+
 # ===================================================================================================================
 if branch == 'app' or branch == 'dev':
     print(f">>> CONNECTING TO {branch.upper()} DATABASE <<<")

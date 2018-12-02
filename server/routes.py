@@ -9,6 +9,7 @@ from git import Repo
 
 from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
+import config
 
 from server.models import *
 import statistics
@@ -112,7 +113,7 @@ def get_classes():
                 submitted = []  # List of takes indexes
                 current = None  # Current instance of takes
                 questions = eval(t.question_list)
-                question_marks = []
+                question_marks = []  # What each question in the test is out of
                 for i in range(len(questions)):
                     current_question = Question.query.get(questions[i])
                     question_marks.append(current_question.total)
@@ -165,7 +166,7 @@ def get_classes():
                             'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
                             'standardDeviation': round(class_stdev, 2),
-                            'topMarksPerStudent': question_marks
+                            'topMarksPerStudent': question_marks  # TODO Remove this data as not being used
                         }
                     )
                 else:
@@ -184,7 +185,7 @@ def get_classes():
                             'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
                             'standardDeviation': round(class_stdev, 2),
-                            'topMarksPerStudent': question_marks
+                            'topMarksPerStudent': question_marks  # TODO Remove this data as not being used
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
@@ -193,7 +194,6 @@ def get_classes():
 @routes.route('/testStats', methods=['POST'])
 @login_required
 @check_confirmed
-# @teacher_only
 def test_stats():
     """
     Generate Stats on a per Question basis of a given test
@@ -210,9 +210,9 @@ def test_stats():
     test = Test.query.get(test_id)  # Test to generate questions from
     del test_id
     del data
-    # if not teaches_class(test.CLASS):
-    #     # If the user doesnt teach the class then return error JSON
-    #     return jsonify(error="User doesn't teach this class")
+    if not teaches_class(test.CLASS) or not enrolled_in_class(test.CLASS):
+        # If the user doesnt teach the class then return error JSON
+        return jsonify(error="User doesn't teach this class")
     students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
     test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
@@ -297,10 +297,10 @@ def test_stats():
         test_median = statistics.median(test_marks_total)
         if len(test_marks_total) > 1:
             test_stdev = statistics.stdev(test_marks_total)
-
     return jsonify(
         numberStudents=len(test_marks_total), testMean=round(test_mean, 2), testMedian=round(test_median, 2),
-        testSTDEV=round(test_stdev, 2), questions=question_analytics, topMarkPerStudent=test_marks_total, totalMark=test.total
+        testSTDEV=round(test_stdev, 2), questions=question_analytics, topMarkPerStudent=test_marks_total,
+        totalMark=test.total
     )
 
 
@@ -1102,7 +1102,7 @@ def shutdown():
         # If the request isn't json return a 400 error
         return abort(400)
 
-    if request.headers['X-Gitlab-Token'] != 'eXJqUQzlIYbyMBp7rAw2TfqVXG7CuzFB':
+    if request.headers['X-Gitlab-Token'] != config.SHUTDOWN_TOKEN:
         return abort(400)
 
     content = request.get_json()
