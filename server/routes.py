@@ -6,6 +6,8 @@ from random import randint
 from datetime import datetime, timedelta
 import sys
 from git import Repo
+import paypalrestsdk
+import config
 
 from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
@@ -13,6 +15,17 @@ from server.auth import teaches_class, enrolled_in_class, able_edit_set
 from server.models import *
 import statistics
 routes = Blueprint('routes', __name__)
+
+# todo not sure if this is the right place for it, just setting up paypal credentials
+paypalrestsdk.configure(
+    {
+        # 'mode': 'live',
+        'mode': 'sandbox',
+        # todo get Frank to set up the account id/secret
+        'client_id': '{CLIENT ID}',
+        'client_secret': '{CLIENT SECRET, ONLY USE SANDBOX SECRETS AND NOT ACTUAL ACCOUNT ONES}'
+    }
+)
 
 
 @routes.route('/changeColor', methods=['POST'])
@@ -1084,6 +1097,109 @@ def csv_class_marks(classid):
     response = make_response(output_string)
     response.headers["Content-Disposition"] = "attachment; filename=" + output_class.name + ".csv"
     return response  # Return the file to the user
+
+
+@routes.route('/pay', methods=['POST'])
+@login_required
+@check_confirmed
+@student_only
+def create_payment():
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+
+    data = request.json
+    class_id = data['class']
+    if not isinstance(class_id, int):
+        # If data isn't correct return error JSON
+        return jsonify(error="One or more data is not correct")
+
+    payment = paypalrestsdk.Payment(
+        {
+            'intent': 'sale',
+            'payer': {
+                'payment_method': 'paypal'
+            },
+            'redirect_urls': {
+                # todo have to enable auto return in the paypal account
+                'return_url': 'http://' + config.HOSTNAME + '/',
+                # todo when cancelled remove tid from mapping table
+                'cancel_url': 'http://' + config.HOSTNAME + '/'
+            },
+            'transactions': [
+                {
+                    'amount': {
+                        # todo put the price from database here
+                        'total': '{PUT THE PRICE HERE}',
+                        'currency': 'CAD'
+                    },
+                    'description': "Description that actually describes the product, don't flake on this because"
+                                   'it can be used against us for charge back cases.',
+                    'item_list': {
+                        'items': [
+                            {
+                                # todo put the class name prefixed by avo
+                                'name': '{PUT SOMETHING LIKE AVO-CLASS_NAME OR SOMETHING}',
+                                # todo put the price from database here
+                                'price': '{PUT THE PRICE HERE AGAIN}',
+                                'currency': 'CAD',
+                                'quantity': 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    )
+
+    if payment.create():
+        # Add tid to class mapping so we can pull it up in confirm payment
+        return jsonify({'tid': payment.id})
+    else:
+        return jsonify(error='Unable to create payment')
+
+
+@routes.route('/postPay', methods=['POST'])
+@login_required
+@check_confirmed
+@student_only
+def confirm_payment():
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+
+    data = request.json
+    tid, payer = data['tid'], data['payerID']
+    if not isinstance(tid, str) or not isinstance(payer, str):
+        # If data isn't correct return error JSON
+        return jsonify(error="One or more data is not correct")
+
+    # todo Check if tid already exists in the transations table (note: not the mapping table)
+    # todo if it exists return an error
+    payment = paypalrestsdk.Payment.find(tid)
+    if not payment.execute({'payer_id': payer}):
+        return jsonify(error=payment.error)
+
+    # todo Add transaction here, remove tid from mapping table
+
+
+@routes.route('/freeTrial', methods=['POST'])
+@login_required
+@check_confirmed
+@student_only
+def free_trial():
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+
+    data = request.json
+    class_id = data['class']
+    if not isinstance(class_id, int):
+        # If data isn't correct return error JSON
+        return jsonify(error="One or more data is not correct")
+
+    # Check transaction table for an entry with USERID and CLASSID
+    # If it exists return error, else return success and add it to transactions
 
 
 # noinspection SpellCheckingInspection
