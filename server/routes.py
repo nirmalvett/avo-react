@@ -9,7 +9,6 @@ from git import Repo
 
 from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
-import config
 
 from server.models import *
 import statistics
@@ -1102,7 +1101,7 @@ def shutdown():
         # If the request isn't json return a 400 error
         return abort(400)
 
-    if request.headers['X-Gitlab-Token'] != config.SHUTDOWN_TOKEN:
+    if request.headers['X-Gitlab-Token'] != 'eXJqUQzlIYbyMBp7rAw2TfqVXG7CuzFB':
         return abort(400)
 
     content = request.get_json()
