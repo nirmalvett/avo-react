@@ -430,6 +430,7 @@ def enroll():
     db.session.commit()
     return jsonify(message='Enrolled!')
 
+
 @routes.route('/changeMark', methods=['POST'])
 @login_required
 @check_confirmed
@@ -449,15 +450,34 @@ def change_mark():
     markArray = data['markArray']
 
     # If any of these fail then return back an error.
+
     # Check if takeId is an int
+    if not isinstance(takeId, int):
+        abort(400)
     # Check if totalMark is a float
+    if not isinstance(totalMark, float) and not isinstance(totalMark, int):
+        abort(400)
     # Check if markArray is an array of marks
+    if not isinstance(markArray, list):
+        abort(400)
     # Check if the takeId is valid
+    question = None
+    try:
+        question = Takes.query.get(takeId)
+    except:
+        abort(400)
     # Check if the test of the take is in the class that the account is teaching
-    # Check if the total mark matches the test mark
-    # Check if the marks array passed back is the correct size
+    classId = Test.query.get(question.test).CLASS
+    if not teaches_class(classId):
+        abort(400)
+    # TODO Check if the total mark matches the test mark
+    # TODO Check if the marks array passed back is the correct size
     # Query to update the mark
+    question.grade = totalMark
+    question.marks = markArray
+    db.session.commit()
     return jsonify(success=True)
+
 
 @routes.route('/openTest', methods=['POST'])
 @login_required
