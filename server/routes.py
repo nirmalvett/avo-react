@@ -430,6 +430,34 @@ def enroll():
     db.session.commit()
     return jsonify(message='Enrolled!')
 
+@routes.route('/changeMark', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def change_mark():
+    """
+    Changes the mark for a given quiz
+    Expects {'takeId': int, 'totalMark': int, 'markArray': int}
+    :return: {success: True} if successful otherwise an error object
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json  # Data from client
+    takeId = data['takeId']
+    totalMark = data['totalMark']
+    markArray = data['markArray']
+
+    # If any of these fail then return back an error.
+    # Check if takeId is an int
+    # Check if totalMark is a float
+    # Check if markArray is an array of marks
+    # Check if the takeId is valid
+    # Check if the test of the take is in the class that the account is teaching
+    # Check if the total mark matches the test mark
+    # Check if the marks array passed back is the correct size
+    # Query to update the mark
+    return jsonify(success=True)
 
 @routes.route('/openTest', methods=['POST'])
 @login_required
