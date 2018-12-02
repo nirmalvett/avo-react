@@ -205,7 +205,7 @@ def send_email(recipient: str, subject: str, message: str):
     :param subject: The subject of the email
     :param message: HTML of the email
     """
-    sender = config.EMAIL # Sets the sender of no-reply
+    sender = 'no-reply@avocadocore.com' # Sets the sender of no-reply
     msg = MIMEMultipart()
     msg['From'], msg['To'], msg['Subject'] = sender, recipient, subject # Sets To From Subject values
     msg.attach(MIMEText(message, 'html'))
@@ -215,5 +215,5 @@ def send_email(recipient: str, subject: str, message: str):
     server.ehlo()
     server.starttls()
     server.ehlo()
-    server.login(sender, config.EMAIL_PASSWORD)
+    server.login(sender, '@henrikiscontributingtoconvo@1')
     server.sendmail(sender, recipient, msg.as_string())
