@@ -812,7 +812,7 @@ export default class MyClasses extends React.Component {
                 myAvg = takeObj.grade > myAvg ? takeObj.grade : myAvg;
             } 
             if(testObj.submitted.length > 0) {
-                myAvg = myAvg / testObj.total;
+                myAvg = (myAvg / testObj.total)*100;
                 myMark.push(parseFloat(myAvg).toFixed(2));
             }else{
                 myMark.push('Test or Assignment has not been taken');
@@ -821,7 +821,7 @@ export default class MyClasses extends React.Component {
         return [{
             name : 'My Best Attempt (%)',
             type : 'column',
-            data : myMark * 100
+            data : myMark
         }, {
             name : 'Class Average (%)',
             type : 'column',
