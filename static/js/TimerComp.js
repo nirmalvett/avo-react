@@ -17,6 +17,7 @@ export default class TimerComp extends React.Component {
         this.numberofMinutes     = numberofMinutes;
         this.uponCompleteFunc    = uponCompleteFunc;
         this.notificationMarkers = notificationMarkers;
+
         let minutes = numberofMinutes;
         let seconds = 0;
         // There's a case here where the minutes is float meaning that the student is resuming
@@ -48,7 +49,7 @@ export default class TimerComp extends React.Component {
         }
         // Parses through all the notificationMarkers and executes an associative function based on if it matches
         for(let i = 0; i < this.notificationMarkers.length; i++) {
-            if(this.notificationMarkers[i][0].time == m && s == 59) {
+            if(this.notificationMarkers[i][0].time === m && s === 59) {
                 this.notificationMarkers[i][0].func();
             }
         }

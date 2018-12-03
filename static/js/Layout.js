@@ -191,7 +191,6 @@ class Layout extends React.Component {
                 <ListItemText primary={text}/>
             </ListItem>
         );
-        console.log("minutesRemainingUponResumingTest", minutesRemainingUponResumingTest);
 
         return (
             <MuiThemeProvider theme={createMuiTheme({palette: {primary: color, type: theme}})}>
@@ -254,9 +253,9 @@ class Layout extends React.Component {
                             </IconButton>
                             <Typography variant='title' style={{ color : 'white' }} noWrap>{this.state.name}</Typography>
                             { // this is timer value at the top of the bar
-                                section === 'Take Test' &&
-                                minutesRemainingUponResumingTest !== null &&
-                                minutesRemainingUponResumingTest !== -1
+                                section === 'Take Test' &&  // If the current section is take test
+                                minutesRemainingUponResumingTest !== null && // if the minutesRemaining value exists
+                                minutesRemainingUponResumingTest < 262800000  // if there is less than 5 years left
                                     ?
                                       <TimerComp
                                           showSnackBar = {this.showSnackBar.bind(this)}
