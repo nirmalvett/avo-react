@@ -181,6 +181,7 @@ class Layout extends React.Component {
     render() {
         const {classes} = this.props;
         const {color, theme, open, isTeacher, isAdmin, minutesRemainingUponResumingTest, section} = this.state;
+        console.log("minutesRemainingUponResumingTest < 1051000", minutesRemainingUponResumingTest < 1051000);
 
         let disabledListItem = (icon, text) => (
             <ListItem button disabled>
@@ -253,13 +254,13 @@ class Layout extends React.Component {
                             </IconButton>
                             <Typography variant='title' style={{ color : 'white' }} noWrap>{this.state.name}</Typography>
                             { // this is timer value at the top of the bar
-                                section === 'Take Test' &&  // If the current section is take test
-                                minutesRemainingUponResumingTest !== null && // if the minutesRemaining value exists
-                                minutesRemainingUponResumingTest < 262800000  // if there is less than 5 years left
+                                section === 'Take Test' &&  // if the current section is take test
+                                minutesRemainingUponResumingTest !== null // if the minutesRemaining value exists
                                     ?
                                       <TimerComp
                                           showSnackBar = {this.showSnackBar.bind(this)}
                                           time={this.state.minutesRemainingUponResumingTest}
+                                          testDueDate = {this.state.testDueDate}
                                           uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />
                                     : null
                             }
@@ -336,7 +337,7 @@ class Layout extends React.Component {
         if (section === 'Take Test')
             return (<TakeTest
                                 showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
-                                getTimeRemaining = {(minutes) => this.getTimeRemaining(minutes)}
+                                getTimeRemaining = {(minutes, dueDate) => this.getTimeRemaining(minutes, dueDate)}
                                 testID={this.state.test.id}
                                 submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);
         if (section === 'Preferences')
@@ -363,9 +364,13 @@ class Layout extends React.Component {
         this.setState({section: 'Take Test', test: test});
     }
 
-    getTimeRemaining(minutesRemainingUponResumingTest){
-        // When we hit the getTest route we need to know the time remaining
-        this.setState({minutesRemainingUponResumingTest: minutesRemainingUponResumingTest});
+    getTimeRemaining(minutesRemainingUponResumingTest, testDueDate){
+        // When we hit the getTest route we need to know the time remaining we also have test due date in case
+        // it's an assignment because we would want to display that instead
+        this.setState({
+          minutesRemainingUponResumingTest: minutesRemainingUponResumingTest,
+          testDueDate: testDueDate
+        });
     }
 
     showSnackBar(variant, message, hideDuration){

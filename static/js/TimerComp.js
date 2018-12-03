@@ -12,23 +12,28 @@ export default class TimerComp extends React.Component {
         );
     };
 
-    init(target, numberofMinutes, uponCompleteFunc, ...notificationMarkers) {
+    init(target, numberofMinutes, uponCompleteFunc, testDueDate, ...notificationMarkers) {
         this.target              = target;
         this.numberofMinutes     = numberofMinutes;
         this.uponCompleteFunc    = uponCompleteFunc;
         this.notificationMarkers = notificationMarkers;
+        if (numberofMinutes  > 200000){// if there is more than 20 years left then assume that it's an assignment
+            document.getElementById('avo-timer__anchor-el').innerHTML = `Due: ${testDueDate}`.replace("GMT", "");
+        }
+        else {
+            let minutes = numberofMinutes;
+            let seconds = 0;
+            // There's a case here where the minutes is float meaning that the student is resuming
+            if (minutes % 1 !== minutes){
+                const partsOfMinute = minutes % 1; // This is the remainder
+                minutes = minutes - partsOfMinute; // now we only have whole minutes
+                seconds = Math.round(partsOfMinute*60);
+            }
 
-        let minutes = numberofMinutes;
-        let seconds = 0;
-        // There's a case here where the minutes is float meaning that the student is resuming
-        if (minutes % 1 !== minutes){
-            const partsOfMinute = minutes % 1; // This is the remainder
-            minutes = minutes - partsOfMinute; // now we only have whole minutes
-            seconds = Math.round(partsOfMinute*60);
+            document.getElementById('avo-timer__anchor-el').innerHTML = `${minutes}:${this.checkSecond(seconds)}`;
+            this.startTimer();
         }
 
-        document.getElementById('avo-timer__anchor-el').innerHTML = `${minutes}:${this.checkSecond(seconds)}`;
-        this.startTimer();
     };
 
     startTimer() {
@@ -64,6 +69,6 @@ export default class TimerComp extends React.Component {
     };
 
     componentDidMount() {
-        this.init('avo-timer__anchor-el', this.props.time, this.props.uponCompleteFunc);
+        this.init('avo-timer__anchor-el', this.props.time, this.props.uponCompleteFunc, this.props.testDueDate);
     };
 };

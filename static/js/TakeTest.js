@@ -17,7 +17,7 @@ export default class TakeTest extends React.Component {
         Http.getTest(this.props.testID, (result) => {
                 result.newAnswers = copy(result.answers);
                 this.setState(result);
-                this.props.getTimeRemaining(result.timer);
+                this.props.getTimeRemaining(result.timer, result.deadline);
             }, (result) => alert(result.error));
         this.state = {
             testID: this.props.testID,

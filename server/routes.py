@@ -814,7 +814,14 @@ def get_test():
             current_question = Question.query.get(question_ids[i])
             q = AvoQuestion(current_question.string, seeds[i])
             questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
-        return jsonify(takes=takes.TAKES, timer=timer, time_submitted=takes.time_submitted, answers=eval(takes.answers), questions=questions)
+        return jsonify(
+            takes=takes.TAKES,
+            timer=timer,
+            time_submitted=takes.time_submitted,
+            answers=eval(takes.answers),
+            questions=questions,
+            deadline=test.deadline  # if it's unlimited time then we need deadline
+        )
     else:
         return jsonify(error="User doesn't have access to that Class")
 
