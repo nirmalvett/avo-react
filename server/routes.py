@@ -222,9 +222,10 @@ def test_stats():
     test = Test.query.get(test_id)  # Test to generate questions from
     del test_id
     del data
-    if not teaches_class(test.CLASS) or not enrolled_in_class(test.CLASS):
-        # If the user doesnt teach the class then return error JSON
-        return jsonify(error="User doesn't teach this class")
+
+    # If the user doesnt teach the class then return error JSON
+    if not teaches_class(test.CLASS) and not enrolled_in_class(test.CLASS):
+        return jsonify(error="User doesn't teach this class or the user is not enrolled in the class")
     students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
     test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
@@ -442,6 +443,54 @@ def enroll():
     current_user.CLASS_ENROLLED_RELATION.append(current_class)
     db.session.commit()
     return jsonify(message='Enrolled!')
+
+
+@routes.route('/changeMark', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def change_mark():
+    """
+    Changes the mark for a given quiz
+    Expects {'takeId': int, 'totalMark': int, 'markArray': int}
+    :return: {success: True} if successful otherwise an error object
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json  # Data from client
+    takeId = data['takeId']
+    totalMark = data['totalMark']
+    markArray = data['markArray']
+
+    # If any of these fail then return back an error.
+
+    # Check if takeId is an int
+    if not isinstance(takeId, float):
+        abort(400)
+    # Check if totalMark is a float
+    if not isinstance(totalMark, float) and not isinstance(totalMark, int):
+        abort(400)
+    # Check if markArray is an array of marks
+    if not isinstance(markArray, list):
+        abort(400)
+    # Check if the takeId is valid
+    question = None
+    try:
+        question = Takes.query.get(takeId)
+    except:
+        abort(400)
+    # Check if the test of the take is in the class that the account is teaching
+    classId = Test.query.get(question.test).CLASS
+    if not teaches_class(classId):
+        abort(400)
+    # TODO Check if the total mark matches the test mark
+    # TODO Check if the marks array passed back is the correct size
+    # Query to update the mark
+    question.grade = totalMark
+    question.marks = markArray
+    db.session.commit()
+    return jsonify(success=True)
 
 
 @routes.route('/openTest', methods=['POST'])
@@ -816,8 +865,13 @@ def create_takes(test, user):
         q = Question.query.get(test_question_list[i])  # Current question
         marks_list.append([0] * q.string.split('；')[0].count('%'))
         answer_list.append([''] * q.answers)
+    # We want to figure out what the new time should be
     t = datetime.now()  # Get current time
-    time2 = min(t + timedelta(minutes=x.timer), x.deadline)  # Time submitted based off timer
+    if x.timer == -1:  # CASE 1: We have unlimited time selected, so the deadline is 100 years from now
+        time2 = min(t + timedelta(minutes=52560000), x.deadline) # Time submitted based off timer
+    else:  # CASE 2: We have a limited amount of time so figure out when the end date and time should be
+        time2 = min(t + timedelta(minutes=x.timer), x.deadline) # Time submitted based off timer
+
     # Add all data to takes object and add to database
     takes = Takes(test, user, t, time2, 0, str(marks_list), str(answer_list), str(seeds))
     db.session.add(takes)

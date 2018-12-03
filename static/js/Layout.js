@@ -166,6 +166,7 @@ class Layout extends React.Component {
             testCreator: null,
             postTest: null,
             minutesRemainingUponResumingTest: null,
+            testDueDate: null,
 
             snackBar_hideDuration: 5000,
             snackBar_isOpen: true,
@@ -179,7 +180,7 @@ class Layout extends React.Component {
 
     render() {
         const {classes} = this.props;
-        const {color, theme, open, isTeacher, isAdmin} = this.state;
+        const {color, theme, open, isTeacher, isAdmin, minutesRemainingUponResumingTest, section} = this.state;
 
         let disabledListItem = (icon, text) => (
             <ListItem button disabled>
@@ -252,11 +253,14 @@ class Layout extends React.Component {
                             </IconButton>
                             <Typography variant='title' style={{ color : 'white' }} noWrap>{this.state.name}</Typography>
                             { // this is timer value at the top of the bar
-                                this.state.section === 'Take Test' && this.state.minutesRemainingUponResumingTest !== null
-                                    ? <TimerComp
-                                        showSnackBar = {this.showSnackBar.bind(this)}
-                                        time={this.state.minutesRemainingUponResumingTest}
-                                        uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />
+                                section === 'Take Test' &&  // If the current section is take test
+                                minutesRemainingUponResumingTest !== null && // if the minutesRemaining value exists
+                                minutesRemainingUponResumingTest < 262800000  // if there is less than 5 years left
+                                    ?
+                                      <TimerComp
+                                          showSnackBar = {this.showSnackBar.bind(this)}
+                                          time={this.state.minutesRemainingUponResumingTest}
+                                          uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />
                                     : null
                             }
                         </Toolbar>

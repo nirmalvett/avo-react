@@ -92,7 +92,7 @@ export default class CreateTest extends React.Component {
                         </Card>
                     )}
                     <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
-                        <CardHeader title={'Test Settings'} action={<IconButton disabled={this.state.testQuestions.length == 0} onClick={() => {
+                        <CardHeader title={'Test Settings'} action={<IconButton disabled={this.state.testQuestions.length === 0} onClick={() => {
                             let s = this.state;
                             let questions = s.testQuestions.map(x => x.id);
                             let seeds = s.testQuestions.map(x => x.locked ? x.seed : -1);
@@ -111,11 +111,11 @@ export default class CreateTest extends React.Component {
                         }} color='primary'><Done/></IconButton>}/>
                         <TextField margin='normal' label='Name' style={{width: '46%', margin: '2%'}}
                                    onChange={e => this.setState({name: e.target.value})}/>
-                        <TextField margin='normal' label='Time Limit (minutes)' type='number'
+                        <TextField margin='normal' label='Time Limit in Minutes (-1 for unlimited)' type='number'
                                    style={{width: '46%', margin: '2%'}}
                                    onChange={e => this.setState({timeLimit: e.target.value})}/>
                         <br/>
-                        <TextField margin='normal' label='Attempts (enter -1 for unlimited)' type='number'
+                        <TextField margin='normal' label='Attempts (-1 for unlimited)' type='number'
                                    style={{width: '46%', margin: '2%'}}
                                    onChange={e => this.setState({attempts: e.target.value})}/>
                         <InlineDateTimePicker
