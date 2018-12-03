@@ -214,7 +214,7 @@ export default class ManageClasses extends React.Component {
                                 <b>Deadline:</b> {getDateString(selectedTest.deadline)}
                                 </span>
                                 <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
-                                <b>Time Limit:</b> {selectedTest.timer} minutes
+                                <b>Time Limit:</b> {selectedTest.timer === -1 ? " None" : " " + selectedTest.timer + " minutes"}
                                 </span>
                                 <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
                                 <b>Attempts:</b> {selectedTest.attempts === -1 ? " Unlimited" : " " + selectedTest.attempts}
