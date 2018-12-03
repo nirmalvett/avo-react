@@ -821,7 +821,7 @@ export default class MyClasses extends React.Component {
         return [{
             name : 'My Best Attempt (%)',
             type : 'column',
-            data : myMark
+            data : myMark * 100
         }, {
             name : 'Class Average (%)',
             type : 'column',
