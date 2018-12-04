@@ -459,36 +459,32 @@ def change_mark():
         return abort(400)
 
     data = request.json  # Data from client
-    takeId = data['takeId']
-    totalMark = data['totalMark']
-    markArray = data['markArray']
+    take_id, mark_array = data['takeId'], data['markArray']
 
     # If any of these fail then return back an error.
 
     # Check if takeId is an int
-    if not isinstance(takeId, float):
-        abort(400)
-    # Check if totalMark is a float
-    if not isinstance(totalMark, float) and not isinstance(totalMark, int):
-        abort(400)
-    # Check if markArray is an array of marks
-    if not isinstance(markArray, list):
-        abort(400)
+    if not isinstance(take_id, int) or not  isinstance(mark_array, list):
+        return jsonify(error="one or more invalid data points")
     # Check if the takeId is valid
-    question = None
-    try:
-        question = Takes.query.get(takeId)
-    except:
-        abort(400)
+    takes = Takes.query.get(take_id)
     # Check if the test of the take is in the class that the account is teaching
-    classId = Test.query.get(question.test).CLASS
-    if not teaches_class(classId):
-        abort(400)
+    test = Test.query.get(takes.test)
+    if not teaches_class(test.CLASS):
+        return jsonify(error="User does not teach this class")
+    del test
+    takes_marks_array = takes.marks
+    new_mark = 0
+    if len(takes_marks_array) == len(mark_array):
+        for i in range(len(takes_marks_array)):
+            if not len(takes_marks_array[i]) != len(mark_array[i]):
+                return jsonify(error="Non matching marks")
+            else:
     # TODO Check if the total mark matches the test mark
     # TODO Check if the marks array passed back is the correct size
     # Query to update the mark
-    question.grade = totalMark
-    question.marks = markArray
+    question.grade =
+    question.marks = mark_array
     db.session.commit()
     return jsonify(success=True)
 
