@@ -233,6 +233,8 @@ class Transaction(db.Model):
 
 
 class TransactionProcessing(db.Model):
+    __tablename__ = 'transaction_processing'
+
     TRANSACTIONPROCESSING = db.Column(db.String, primary_key=True)
     CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
 
