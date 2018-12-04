@@ -479,12 +479,10 @@ def change_mark():
         for i in range(len(takes_marks_array)):
             if not len(takes_marks_array[i]) != len(mark_array[i]):
                 return jsonify(error="Non matching marks")
-            else:
     # TODO Check if the total mark matches the test mark
     # TODO Check if the marks array passed back is the correct size
     # Query to update the mark
-    question.grade =
-    question.marks = mark_array
+    takes.marks = mark_array
     db.session.commit()
     return jsonify(success=True)
 
@@ -1166,10 +1164,15 @@ def create_payment():
         return abort(400)
 
     data = request.json
-    class_id = data['classID']
-    if not isinstance(class_id, int):
+    enroll_key = data['enrollKey']
+    if not isinstance(enroll_key, str):
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
+
+    current_class = Class.query.filter(enroll_key == Class.enroll_key).all()
+
+    if len(current_class) is 0:
+        return jsonify(error="No class found")
 
     payment = paypalrestsdk.Payment(
         {
@@ -1186,8 +1189,7 @@ def create_payment():
             'transactions': [
                 {
                     'amount': {
-                        # todo put the price from database here
-                        'total': '{PUT THE PRICE HERE}',
+                        'total': str(current_class[0].price_discount),
                         'currency': 'CAD'
                     },
                     'description': "Description that actually describes the product, don't flake on this because"
@@ -1195,10 +1197,8 @@ def create_payment():
                     'item_list': {
                         'items': [
                             {
-                                # todo put the class name prefixed by avo
-                                'name': '{PUT SOMETHING LIKE AVO-CLASS_NAME OR SOMETHING}',
-                                # todo put the price from database here
-                                'price': '{PUT THE PRICE HERE AGAIN}',
+                                'name': 'Avo ' + current_class[0].name,
+                                'price': str(current_class[0].price_discount),
                                 'currency': 'CAD',
                                 'quantity': 1
                             }
@@ -1211,6 +1211,9 @@ def create_payment():
 
     if payment.create():
         # Add tid to class mapping so we can pull it up in confirm payment
+        new_transaction = TransactionProcessing(payment.id, current_class[0].CLASS)
+        db.session.add(new_transaction)
+        db.session.commit()
         return jsonify({'tid': payment.id})
     else:
         return jsonify(error='Unable to create payment')
@@ -1231,13 +1234,24 @@ def confirm_payment():
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
 
-    # todo Check if tid already exists in the transations table (note: not the mapping table)
-    # todo if it exists return an error
+    transaction = Transaction.query.get(tid)
+    if transaction is not None:
+        return jsonify("User Already Enrolled")
     payment = paypalrestsdk.Payment.find(tid)
     if not payment.execute({'payer_id': payer}):
         return jsonify(error=payment.error)
-
-    # todo Add transaction here, remove tid from mapping table
+    transaction_processing = TransactionProcessing.query.get(tid)
+    if transaction_processing is None:
+        return jsonify(error="No Trans Id Found")
+    time = datetime.now() + timedelta(weeks=32)
+    transaction = Transaction(tid, current_user.USER, transaction_processing.CLASS, time)
+    db.session.add(transaction)
+    db.session.delete(transaction_processing)
+    if not enrolled_in_class(transaction_processing.CLASS):
+        enrolled_relation = Class.query.get(transaction_processing.CLASS)
+        current_user.CLASS_RELATION.append(enrolled_relation)
+    db.session.commit()
+    return jsonify(code="Processed")
 
 
 @routes.route('/freeTrial', methods=['POST'])
@@ -1250,10 +1264,25 @@ def free_trial():
         return abort(400)
 
     data = request.json
-    class_id = data['classID']
-    if not isinstance(class_id, int):
+    enroll_key = data['enrollKey']
+    if not isinstance(enroll_key, str):
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
+    try:
+        current_class = Class.query.filter(Class.enroll_key == enroll_key).one()
+    except:
+        return jsonify(error="No class found")
+    transaction = Transaction.query.filter((current_user.USER == Transaction.USER) &
+                                           (current_class.CLASS == Transaction.CLASS)).all()
+    if len(transaction) > 0:
+        return jsonify(error="Free Trial Already Taken")
+    free_trial_string = "FREETRIAL-" + str(current_class.CLASS) + "-" + str(current_user.USER)
+    time = datetime.now() + timedelta(weeks=2)
+    new_transaction = Transaction(free_trial_string, current_user.USER, current_class.CLASS, time)
+    db.session.add(new_transaction)
+    current_user.CLASS_RELATION.append(current_class)
+    db.session.commit()
+    return jsonify(code="Sucsess")
 
     # Check transaction table for an entry with USERID and CLASSID
     # If it exists return error, else return success and add it to transactions
