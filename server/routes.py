@@ -464,25 +464,43 @@ def change_mark():
     # If any of these fail then return back an error.
 
     # Check if takeId is an int
-    if not isinstance(take_id, int) or not  isinstance(mark_array, list):
+    if not isinstance(take_id, int) or not isinstance(mark_array, list):
+        # If any data is wrong format return error JSON
         return jsonify(error="one or more invalid data points")
-    # Check if the takeId is valid
-    takes = Takes.query.get(take_id)
+    takes = Takes.query.get(take_id)  # takes object to update
     # Check if the test of the take is in the class that the account is teaching
-    test = Test.query.get(takes.test)
+    test = Test.query.get(takes.test)  # Test that takes is apart of
+    question_array = eval(test.question_list)  # List of questions in the test
     if not teaches_class(test.CLASS):
+        # If User does not teach class return error JSON
         return jsonify(error="User does not teach this class")
     del test
     takes_marks_array = takes.marks
     new_mark = 0
     if len(takes_marks_array) == len(mark_array):
+        # If the length of the test are the same compare each question
         for i in range(len(takes_marks_array)):
-            if not len(takes_marks_array[i]) != len(mark_array[i]):
+            # For each question compare the parts match
+            if not len(takes_marks_array[i]) == len(mark_array[i]):
+                # If the length of parts are different return error JSON
                 return jsonify(error="Non matching marks")
-    # TODO Check if the total mark matches the test mark
-    # TODO Check if the marks array passed back is the correct size
-    # Query to update the mark
+            else:
+                # else calculate the total mark and per question mark
+                question_mark = 0  # Mark of the current question
+                for j in range(len(mark_array[i])):
+                    # For each part add up total and compare to question in database
+                    question_mark += mark_array[i][j]
+                current_question = Question.query.get(question_array[i])  # Current question to compare
+                if current_question.total < question_mark:
+                    # If the new total is greater then question total return error JSON
+                    return jsonify(error="Over 100% in a question")
+                else:
+                    # Else add the current question mark to total_mark
+                    new_mark += question_mark
+
+    # Update Data in Database
     takes.marks = mark_array
+    takes.grade = new_mark
     db.session.commit()
     return jsonify(success=True)
 
