@@ -29,7 +29,6 @@ import BuildOutlinedIcon from '@material-ui/icons/BuildOutlined';
 import ClassOutlinedIcon from '@material-ui/icons/ClassOutlined';
 import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
 import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
-import { isNotChromeAlert } from "./helpers";
 import TimerComp from "./TimerComp";
 import QuestionBuilder from "./QuestionBuilder";
 import { avoGreen } from "./AVOCustomColors";
@@ -61,6 +60,7 @@ const styles = theme => ({
             easing: theme.transitions.easing.easeIn,
             duration: theme.transitions.duration.leavingScreen,
         }),
+        display: 'flex',
     },
     appBarShift: {
         width: `calc(100% - ${drawerWidth}px)`,
@@ -91,64 +91,63 @@ const styles = theme => ({
 
 /* SnackBar Messages */
 const variantIcon = {
-  success: CheckCircleIcon,
-  warning: WarningIcon,
-  error: ErrorIcon,
-  info: InfoIcon,
+    success: CheckCircleIcon,
+    warning: WarningIcon,
+    error: ErrorIcon,
+    info: InfoIcon,
 };
 const styles1 = theme => ({
-  success: {
-    backgroundColor: green[600],
-  },
-  error: {
-    backgroundColor:  green[600],
-  },
-  info: {
-    backgroundColor:  green[600],
-  },
-  warning: {
-    backgroundColor:  green[600],
-  },
-  icon: {
-    fontSize: 20,
-  },
-  iconVariant: {
-    opacity: 0.9,
-    marginRight: theme.spacing.unit,
-  },
-  message: {
-    display: 'flex',
-    alignItems: 'center',
-  },
+    success: {
+        backgroundColor: green[600],
+    },
+    error: {
+        backgroundColor:  green[600],
+    },
+    info: {
+        backgroundColor:  green[600],
+    },
+    warning: {
+        backgroundColor:  green[600],
+    },
+    icon: {
+        fontSize: 20,
+    },
+    iconVariant: {
+        opacity: 0.9,
+        marginRight: theme.spacing.unit,
+    },
+    message: {
+        display: 'flex',
+        alignItems: 'center',
+    },
 });
 const MySnackbarContentWrapper = withStyles(styles1)(MySnackbarContent);
 function MySnackbarContent(props) {
-  const { classes, className, message, onClose, variant } = props;
-  const Icon = variantIcon[variant];
-
-  return (
-    <SnackbarContent
-      className={classNames(classes[variant], className)}
-      aria-describedby="client-snackbar"
-      message={
-        <span id="client-snackbar" className={classes.message}>
-          <Icon className={classNames(classes.icon, classes.iconVariant)} />
-            {message}
-        </span>
-      }
-      action={[
-        <IconButton
-          key="close"
-          aria-label="Close"
-          color="inherit"
-          className={classes.close}
-          onClick={onClose}
-        >
-          <CloseIcon className={classes.icon} />
-        </IconButton>,
-      ]}
-    />
-  );
+    const { classes, className, message, onClose, variant } = props;
+    const Icon = variantIcon[variant];
+    return (
+        <SnackbarContent
+            className={classNames(classes[variant], className)}
+            aria-describedby="client-snackbar"
+            message={
+                <span id="client-snackbar" className={classes.message}>
+                    <Icon className={classNames(classes.icon, classes.iconVariant)} />
+                    {message}
+                </span>
+            }
+            action={
+                <IconButton
+                    key="close"
+                    aria-label="Close"
+                    color="inherit"
+                    className={classes.close}
+                    onClick={onClose}
+                >
+                    <CloseIcon className={classes.icon} />
+                </IconButton>
+            }
+        />
+    );
 }
 
 class Layout extends React.Component {
@@ -256,12 +255,11 @@ class Layout extends React.Component {
                             { // this is timer value at the top of the bar
                                 section === 'Take Test' &&  // if the current section is take test
                                 minutesRemainingUponResumingTest !== null // if the minutesRemaining value exists
-                                    ?
-                                      <TimerComp
-                                          showSnackBar = {this.showSnackBar.bind(this)}
-                                          time={this.state.minutesRemainingUponResumingTest}
-                                          testDueDate = {this.state.testDueDate}
-                                          uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />
+                                    ? <TimerComp
+                                        showSnackBar = {this.showSnackBar.bind(this)}
+                                        time={this.state.minutesRemainingUponResumingTest}
+                                        testDueDate = {this.state.testDueDate}
+                                        uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />
                                     : null
                             }
                         </Toolbar>
@@ -271,19 +269,19 @@ class Layout extends React.Component {
                     </div>
                 </div>
                 <Snackbar
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'right',
-                  }}
-                  open={this.state.snackBar_isOpen}
-                  autoHideDuration={this.state.snackBar_hideDuration}
-                  onClose={() => this.setState({snackBar_isOpen: false})}
-                >
-                  <MySnackbarContentWrapper
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                    open={this.state.snackBar_isOpen}
+                    autoHideDuration={this.state.snackBar_hideDuration}
                     onClose={() => this.setState({snackBar_isOpen: false})}
-                    variant={this.state.snackBar_variant}
-                    message={this.state.snackBar_message}
-                  />
+                >
+                    <MySnackbarContentWrapper
+                        onClose={() => this.setState({snackBar_isOpen: false})}
+                        variant={this.state.snackBar_variant}
+                        message={this.state.snackBar_message}
+                    />
                 </Snackbar>
             </MuiThemeProvider>
         );
@@ -313,37 +311,31 @@ class Layout extends React.Component {
         if (section === 'Home')
             return (<HomePage showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}/>);
         if (section === 'My Classes')
-            return (<MyClasses
-                                showSnackBar = {this.showSnackBar.bind(this)}
-                                isTeacher = {isTeacher}
-                                startTest={cls => this.startTest(cls)}
-                                theme={{ theme : this.state.theme, color : this.state.color }}
-                                postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
+            return (<MyClasses showSnackBar = {this.showSnackBar.bind(this)}
+                               isTeacher = {isTeacher}
+                               startTest={cls => this.startTest(cls)}
+                               theme={{ theme : this.state.theme, color : this.state.color }}
+                               postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Manage Classes')
-            return (<ManageClasses
-                                  showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
-                                  createTest={cls => this.startCreateTest(cls)}
+            return (<ManageClasses showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+                                   createTest={cls => this.startCreateTest(cls)}
                                    theme={{ theme : this.state.theme, color : this.state.color }}
                                    postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Create Test')
-            return (<CreateTest
-                                showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+            return (<CreateTest showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
                                 classID={this.state.testCreator}
                                 onCreate={() => this.setState({section: 'Manage Classes'})}/>);
         if (section === 'Build Question')
-            return <QuestionBuilder
-                howSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
-                theme={createMuiTheme({palette: {primary: color, type: theme}})}/>;
+            return <QuestionBuilder showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+                                    theme={createMuiTheme({palette: {primary: color, type: theme}})}/>;
         if (section === 'Take Test')
-            return (<TakeTest
-                                showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
-                                getTimeRemaining = {(minutes, dueDate) => this.getTimeRemaining(minutes, dueDate)}
-                                testID={this.state.test.id}
-                                submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);
+            return (<TakeTest showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+                              getTimeRemaining = {(minutes, dueDate) => this.getTimeRemaining(minutes, dueDate)}
+                              testID={this.state.test.id}
+                              submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);
         if (section === 'Preferences')
-            return (<Preferences
-                                showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
-                                colorList={colorList}
+            return (<Preferences showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+                                 colorList={colorList}
                                  color={color} changeColor={color => this.setState({color: color})}
                                  theme={theme} changeTheme={theme => this.setState({theme: theme})}/>);
         if (section === 'Post Test')
@@ -368,23 +360,24 @@ class Layout extends React.Component {
         // When we hit the getTest route we need to know the time remaining we also have test due date in case
         // it's an assignment because we would want to display that instead
         this.setState({
-          minutesRemainingUponResumingTest: minutesRemainingUponResumingTest,
-          testDueDate: testDueDate
+            minutesRemainingUponResumingTest: minutesRemainingUponResumingTest,
+            testDueDate: testDueDate
         });
     }
 
-    showSnackBar(variant, message, hideDuration){
-      // variant can be success, warning, error, info
-      // message is the message to display
-      // hideDuration is optional but it's the ms for the snackbar to show
-      this.setState({
-        snackBar_isOpen: true,
-        snackBar_hideDuration: hideDuration === undefined ? this.state.snackBar_hideDuration : hideDuration,
-        snackBar_variant: variant,
-        snackBar_message: message
-      })
+    /**
+     * @param variant can be success, warning, error, info
+     * @param message is the message to display
+     * @param hideDuration is optional but it's the ms for the snackbar to show
+     */
+    showSnackBar(variant, message, hideDuration) {
+        this.setState({
+            snackBar_isOpen: true,
+            snackBar_hideDuration: hideDuration === undefined ? this.state.snackBar_hideDuration : hideDuration,
+            snackBar_variant: variant,
+            snackBar_message: message
+        });
     }
-
 }
 
 export default withStyles(styles)(Layout);
