@@ -126,7 +126,9 @@ def login():
     else:
         # Else log the user in
         login_user(user)
-        return jsonify(message='Successfully logged in')
+        return jsonify(first_name=current_user.first_name, last_name=current_user.last_name,
+                       is_teacher=current_user.is_teacher, is_admin=current_user.is_admin,
+                       color=current_user.color, theme=current_user.theme)
 
 
 @UserRoutes.route('/logout')
@@ -185,6 +187,15 @@ def enrolled_in_class(class_id):
         return False
     except NoResultFound:
         return False
+
+
+def able_edit_set(setID):
+    try:
+        user_views_set = UserViewsSet.query.filter((setID == UserViewsSet.SET)
+                                               & (current_user.USER == UserViewsSet.USER)).first()
+    except NoResultFound:
+        return False
+    return user_views_set.can_edit
 
 
 def send_email(recipient: str, subject: str, message: str):

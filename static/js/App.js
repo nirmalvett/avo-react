@@ -1,49 +1,57 @@
 import React from 'react';
 import Http from './Http';
 import SignIn from './SignIn.js';
+import { MuiPickersUtilsProvider } from 'material-ui-pickers';
+import MomentUtils from '@date-io/moment';
 import Layout from './Layout.js';
-import {createMuiTheme, MuiThemeProvider} from '@material-ui/core';
-import {green} from '@material-ui/core/colors';
-import {white} from '@material-ui/core/colors';
 import { unregister } from './registerServiceWorker';
 unregister();
 export default class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            color: green,
-            theme: 'light',
             authenticated: null,
             username: '',
-            password: ''
+            password: '',
+            user: null,
         };
         Http.getUserInfo(
-            () => {this.setState({authenticated: true});},
-            () => {this.setState({authenticated: false});}
+            result => this.updateUser('', '', result),
+            () => {this.setState({authenticated: false, user: null});}
         );
     }
 
     render () {
         if (this.state.authenticated === null)
-            return <p>Loading...</p>;
+            return null;
+        let u = this.state.user;
         return (
-            <MuiThemeProvider 
-                theme={createMuiTheme({
-                    palette: {
-                        primary: this.state.color, 
-                        type: this.state.theme,
-                    }
-                })}
-            >
-                {
-                    this.state.authenticated
-                        ? <Layout setTheme={(color, theme) => this.setState({color: color, theme: theme})}
-                                  logout={() => this.setState({authenticated: false})}
-                                  isTeacher={this.state.user === 1}/>
-                        : <SignIn login={(u, p) => this.setState({authenticated: true, username: u, password: p})}
-                                  username={this.state.username} password={this.state.password}/>
-                }
-            </MuiThemeProvider>
+            <MuiPickersUtilsProvider utils={MomentUtils}>{
+                this.state.authenticated
+                    ? <Layout setTheme={(color, theme) => this.setState({color: color, theme: theme})}
+                              logout={() => this.setState({authenticated: false})}
+                              firstName={u.firstName} lastName={u.lastName} isTeacher={u.isTeacher}
+                              isAdmin={u.isAdmin} color={u.color} theme={u.theme}
+                    />
+                    : <SignIn login={(u, p, result) => this.updateUser(u, p, result)}
+                              username={this.state.username} password={this.state.password}/>
+            }</MuiPickersUtilsProvider>
         );
+    }
+
+    updateUser(u, p, result) {
+        this.setState({
+            authenticated: true,
+            username: u,
+            password: p,
+            user: {
+                firstName: result.first_name,
+                lastName: result.last_name,
+                isTeacher: result.is_teacher,
+                isAdmin: result.is_admin,
+                color: result.color,
+                theme: result.theme ? 'dark' : 'light',
+            }
+        });
     }
 }

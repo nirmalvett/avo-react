@@ -20,7 +20,7 @@ export default class AnswerInput extends React.Component {
             value: this.props.value,
             prompt: this.props.prompt,
             disabled: this.props.disabled,
-            inputMode: MANUAL_INPUT, // should be something from the user later to indicate which mode
+            inputMode: BUTTON_INPUT, // should be something from the user later to indicate which mode
         };
     }
 
@@ -98,6 +98,7 @@ export default class AnswerInput extends React.Component {
           if (inputMode === BUTTON_INPUT){
             return (
                 <ButtonInput
+                  prompt = { this.props.prompt }
                   type = {CONST_VECTOR}  // this is the type
                   disabled={disabled}  // this is whether the input is disabled
                   value={v}  // this is the value if a test is resumed
@@ -130,6 +131,7 @@ export default class AnswerInput extends React.Component {
           if (inputMode === BUTTON_INPUT){
             return(
                 <ButtonInput
+                  prompt = { this.props.prompt }
                   type = {CONST_MATRIX}  // this is the type
                   disabled={disabled}  // this is whether the input is disabled
                   value={v}  // this is the value if a test is resumed
@@ -164,6 +166,7 @@ export default class AnswerInput extends React.Component {
           if (inputMode === BUTTON_INPUT){
             return(
                 <ButtonInput
+                  prompt = { this.props.prompt }
                   type = {CONST_BASIS}  // this is the type
                   disabled={disabled}  // this is whether the input is disabled
                   value={v}  // this is the value if a test is resumed

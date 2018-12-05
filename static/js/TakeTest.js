@@ -15,12 +15,14 @@ export default class TakeTest extends React.Component {
     constructor(props) {
         super(props);
         Http.getTest(this.props.testID, (result) => {
-            result.newAnswers = copy(result.answers);
-            this.setState(result);
+                result.newAnswers = copy(result.answers);
+                this.setState(result);
+                this.props.getTimeRemaining(result.timer, result.deadline);
             }, (result) => alert(result.error));
         this.state = {
             testID: this.props.testID,
             questions: [],
+
         };
         /* this.state actually looks like this
          {
@@ -29,12 +31,16 @@ export default class TakeTest extends React.Component {
             questions: (6) [{…}, {…}, {…}, {…}, {…}, {…}],
             takes: 92,
             testID: 28,
-            time_submitted: 20181030163809
+            time_submitted: 20181030163809,
+            timer: 9333.94 // i.e. the amount of minutes
          }
         */
 
     }
 
+    componentDidMount(){
+        this.props.showSnackBar("success", "AVO Anti-Cheating Protocol Activated", 6500)
+    }
     render() {
         return (
             <Grid container spacing={8}>
@@ -42,14 +48,14 @@ export default class TakeTest extends React.Component {
                 <Grid xs={10} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
                     {this.state.questions.map((x, y) => this.getQuestionCard(x, this.state.answers[y], y))}
                     <div style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px'}}>
-                        <Button color='primary' variant='raised' style={{width: '100%'}} onClick={() => {
+                        <Button color='primary' variant='raised' style={{width: '100%'}} id="avo-test__submit-button" onClick={() => {
                             Http.submitTest(this.state.takes, () => {
                                 this.props.submitTest(this.state.takes);
                             }, () => {
                                 alert('Something went wrong')
                             })
                         }}>
-                            <Typography variant='button'>Submit Test</Typography>
+                            <Typography variant='button' style={{ color : 'white' }}>Submit Test</Typography>
                         </Button>
                     </div>
                 </Grid>
@@ -69,7 +75,7 @@ export default class TakeTest extends React.Component {
                 alert(result.error);
             });
         };
-        let save = (inputValue) => {
+        let save = (inputValue, y) => {
             let newValue = inputValue === undefined ? this.state.newAnswers[index] : inputValue;
             Http.saveAnswer(this.state.takes, index, newValue, result => {
                 let newAnswers = copy(this.state.answers);
@@ -78,6 +84,7 @@ export default class TakeTest extends React.Component {
             }, result => {
                 alert(result.error);
             });
+
         };
         return (
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
@@ -88,7 +95,9 @@ export default class TakeTest extends React.Component {
                 }/>
                 {question.prompts.map((x, y) => [
                     <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
-                    <AnswerInput type={question.types[y]} value={answer[y]} prompt={x} onBlur={save}
+                    <AnswerInput
+                                type={question.types[y]} value={answer[y]} prompt={x}
+                                 onBlur={save}
                                  onChange={value => {
                                      let newAnswerList = copy(this.state.newAnswers);
                                      newAnswerList[index][y] = value;
@@ -99,6 +108,7 @@ export default class TakeTest extends React.Component {
                                      newAnswerList[index][y] = value;
                                      this.setState({newAnswers: newAnswerList});
                                      saveButtonInput(newAnswerList); // After each change save it
+                                    // TODO get this to work this.props.showSnackBar("success", `Answer Saved`);
                                  }}/>
                 ])}
             </Card>

@@ -12,19 +12,22 @@
 }
 
 body {
-    background: #fafafa;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
     position: fixed;
     left: 0;
     top: 0;
-    background-color: #F5F5F5;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background: url('../img/backdrop.svg') center/cover;
-    background-position: 0px 0px; background-size: 100%;
+    background: url('../img/avo_backdrop.png') 50% 70%;
+    background-size: 120%;
 }
 
 ::-webkit-scrollbar {
@@ -50,8 +53,7 @@ body {
     display: flex;
     width: 33%;
     height: 90vh;
-    margin: auto;
-    margin-top: 5vh;
+    margin: 5vh auto auto;
     border-radius: 8px !important;
     box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
     overflow-y: auto !important;
@@ -69,37 +71,65 @@ body {
     transition: color 0.5s ease-in;
 }
 
-.avo-student__background {
-    height: 100%;
-    background-color: #F5F5F5;
+.avo-user__background {
+    /* background-color: white; */
     width: 100%;
-    background-position: 0px 0px; background-size: 100%;
-    background: url('../img/backdrop.svg') center/cover !important;
+    background-size: 100%;
+    /*background: url('../img/backdrop_3.svg') center !important;*/
 }
 
 .avo-tech__info-card {
     height: 100px;
     width: 100%;
-    background: url('../img/avo-server.svg') center/cover !important;
-    background-position: 0px 0px;
+    background: url('../img/avo-server.svg') center !important;
     background-size: 10%;
 }
 
 .avo-card {
     width: 100%;
     margin: 16px;
-    height: auto;
+    height: fit-content;
     max-height: 80%;
     position: relative;
+    border: 1px solid #dadce0;
     border-radius: 8px !important;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
+    box-shadow: none !important;
     padding: 16px;
     overflow-x: hidden;
     overflow-y: auto;
+    color: rgba(0,0,0,.87);
+    transition: box-shadow 0.25s ease-in;
+}
+
+.avo-card > .avo-card__header-button {
+    border-radius: 16px !important;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.avo-card > .avo-card__header-button.disabled {
+    color: var(--dis-theme-color) !important;
+}
+
+.avo-card__header {
+    padding-top: 0 !important;
+    padding-left: 8px !important;
+}
+
+.avo-padding__16px {
+    margin: 0 !important;
+    padding-left: 8px !important;
 }
 
 .avo-card__test-info {
     margin-left: 24px !important;
+}
+
+.avo-sidebar {
+    box-shadow: none !important;
+    border-right: 1px solid #dadce0;
+    transition: box-shadow 0.25s ease-in;
 }
 
 .avo-modal__card {
@@ -125,14 +155,14 @@ body {
 }
 
 .avo-menu__item {
-    border-radius: 0px 50px 50px 0px !important;
+    border-radius: 0 50px 50px 0 !important;
     width: 97.5% !important;
 }
 
 /* Frank: Commented out the line below so that when a user selects a theme the side bar matches the primary color they selected */
-/*.avo-menu__item.selected {*/
-    /*background: var(--pri-theme-color) !important;*/
-/*}*/
+.avo-menu__item.selected {
+    /* background: var(--pri-theme-color) !important; */
+}
 
 .avo-scrollable {
     overflow-y: auto;
@@ -228,12 +258,36 @@ body {
 	width: var(--avo-mouth-width);
 	height: var(--avo-mouth-height);
 	background: var(--avo-mouth-bgcol);
-	border-style: solid;
-	border-radius: 75%;
-	border-width: 4px;
-	border-color: var(--avo-mouth-border);
-	position: absolute;
+    border-radius: 75%;
+    border: 4px solid var(--avo-mouth-border);
+    position: absolute;
 	bottom: -1.5em;
 	left: var(--avo-mouth-oleft);
 	transition: width 0.1s ease-in, left 0.1s ease-in;
+}
+
+.avo-drawer__with-logo {
+    background: url('../img/ic_school.svg') -45px bottom no-repeat; 
+    background-size: 50%; 
+    height: 100%; 
+    overflow-y: auto;
+}
+
+.open-sans__header {
+    font-size: 1.2em;
+    margin-top: 8px;
+    margin-bottom: 16px;
+    font-weight: 300;
+    color: rgba(0,0,0, 0.87);
+    font-family: 'Open Sans', sans-serif;
+}
+
+.open-sans__text {
+    font-weight: 300;
+    color: rgba(0,0,0, 0.87);
+    font-family: 'Open Sans', sans-serif;
+}
+
+.color-white {
+    color: white;
 }

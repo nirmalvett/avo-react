@@ -1,15 +1,22 @@
 import React from "react";
 import MathJax from "react-mathjax2";
 import Typography from "@material-ui/core/Typography/Typography";
+import {uniqueKey} from "./helpers";
 
 export function getMathJax(text, variant='body2') {
     // Initialize an empty list of MathJax elements
     let result = [];
     while (true) {
+        let marker0 = text.indexOf('$\\\\$');
         let marker1 = text.indexOf('\\(');
         let marker2 = text.indexOf('\\[');
         // If the first structure is \(
-        if (marker1 !== -1 && (marker2 === -1 || marker1 < marker2)) {
+        if (marker0 !== -1 && (marker1 === -1 || marker0 < marker1) && (marker2 === -1 || marker0 < marker2)) {
+            // Add all the plain text before the math
+            result.push(text.substr(0, marker0));
+            result.push(<br/>);
+            text = text.slice(marker0 + 4);
+        } else if (marker1 !== -1 && (marker2 === -1 || marker1 < marker2)) {
             // Add all the plain text before the math
             result.push(text.substr(0, marker1));
             // Find the \)
@@ -17,12 +24,12 @@ export function getMathJax(text, variant='body2') {
             // If there is no \)
             if (endMarker === -1) {
                 // Append the rest of the string as an inline equation
-                result.push(<MathJax.Node inline>{text.slice(marker1 + 2)}</MathJax.Node>);
+                result.push(<MathJax.Node inline key={uniqueKey()}>{text.slice(marker1 + 2)}</MathJax.Node>);
                 console.warn('Invalid LaTeX: Missing closing \\)');
                 break;
             }
             // Add the inline math element
-            result.push(<MathJax.Node inline>{text.slice(marker1 + 2, endMarker)}</MathJax.Node>);
+            result.push(<MathJax.Node inline key={uniqueKey()}>{text.slice(marker1 + 2, endMarker)}</MathJax.Node>);
             // Remove the beginning of the string up to and including the \)
             text = text.slice(endMarker + 2);
         }
@@ -35,12 +42,12 @@ export function getMathJax(text, variant='body2') {
             // If there is no \]
             if (endMarker === -1) {
                 // Append the rest of the string as an block equation
-                result.push(<MathJax.Node>{text.slice(marker2 + 2)}</MathJax.Node>);
+                result.push(<MathJax.Node key={uniqueKey()}>{text.slice(marker2 + 2)}</MathJax.Node>);
                 console.warn('Invalid LaTeX: Missing closing \\]');
                 break;
             }
             // Add the block math element
-            result.push(<MathJax.Node>{text.slice(marker2 + 2, endMarker)}</MathJax.Node>);
+            result.push(<MathJax.Node key={uniqueKey()}>{text.slice(marker2 + 2, endMarker)}</MathJax.Node>);
             // Remove the beginning of the string up to and including the \]
             text = text.slice(endMarker + 2);
         }
@@ -109,7 +116,7 @@ export function validateNumber(text) {
     if (bracket_level !== 0)
         return 'Mismatched open bracket';
     // noinspection JSCheckFunctionSignatures
-    operations.sort((a, b) => a[1] < b[1]);
+    operations.sort((a, b) => b[1] - a[1]);
 
     let brackets = (e, p) => e[2] < p ? ' \\left( ' + e[1] + ' \\right) ' : e[1];
     let isVar = i => tokenList[i][0] === '~';

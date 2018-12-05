@@ -10,7 +10,7 @@ import Preferences from './Preferences';
 import ManageClasses from './ManageClasses';
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
-    deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors/';
+    deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors';
 import classNames from 'classnames';
 import {withStyles} from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
@@ -23,15 +23,27 @@ import Typography from '@material-ui/core/Typography';
 import ListItem from '@material-ui/core/ListItem/ListItem';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
-import Home from '@material-ui/icons/Home';
+import HomeOutlinedIcon from '@material-ui/icons/HomeOutlined';
 import Menu from '@material-ui/icons/Menu';
-import Build from '@material-ui/icons/Build';
-import Class from '@material-ui/icons/Class';
-import Settings from '@material-ui/icons/Settings';
-import ExitToApp from '@material-ui/icons/ExitToApp';
-import { uniqueKey } from "./helpers";
-
+import BuildOutlinedIcon from '@material-ui/icons/BuildOutlined';
+import ClassOutlinedIcon from '@material-ui/icons/ClassOutlined';
+import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
+import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
+import TimerComp from "./TimerComp";
+import QuestionBuilder from "./QuestionBuilder";
+import { avoGreen } from "./AVOCustomColors";
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import ErrorIcon from '@material-ui/icons/Error';
+import InfoIcon from '@material-ui/icons/Info';
+import CloseIcon from '@material-ui/icons/Close';
+import Snackbar from '@material-ui/core/Snackbar';
+import SnackbarContent from '@material-ui/core/SnackbarContent';
+import WarningIcon from '@material-ui/icons/Warning'
 const drawerWidth = 240;
+
+
+const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
+    amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
 
 const styles = theme => ({
     drawerPaper: {
@@ -48,6 +60,7 @@ const styles = theme => ({
             easing: theme.transitions.easing.easeIn,
             duration: theme.transitions.duration.leavingScreen,
         }),
+        display: 'flex',
     },
     appBarShift: {
         width: `calc(100% - ${drawerWidth}px)`,
@@ -76,39 +89,98 @@ const styles = theme => ({
     },
 });
 
+/* SnackBar Messages */
+const variantIcon = {
+    success: CheckCircleIcon,
+    warning: WarningIcon,
+    error: ErrorIcon,
+    info: InfoIcon,
+};
+const styles1 = theme => ({
+    success: {
+        backgroundColor: green[600],
+    },
+    error: {
+        backgroundColor:  green[600],
+    },
+    info: {
+        backgroundColor:  green[600],
+    },
+    warning: {
+        backgroundColor:  green[600],
+    },
+    icon: {
+        fontSize: 20,
+    },
+    iconVariant: {
+        opacity: 0.9,
+        marginRight: theme.spacing.unit,
+    },
+    message: {
+        display: 'flex',
+        alignItems: 'center',
+    },
+});
+const MySnackbarContentWrapper = withStyles(styles1)(MySnackbarContent);
+function MySnackbarContent(props) {
+    const { classes, className, message, onClose, variant } = props;
+    const Icon = variantIcon[variant];
+    return (
+        <SnackbarContent
+            className={classNames(classes[variant], className)}
+            aria-describedby="client-snackbar"
+            message={
+                <span id="client-snackbar" className={classes.message}>
+                    <Icon className={classNames(classes.icon, classes.iconVariant)} />
+                    {message}
+                </span>
+            }
+            action={
+                <IconButton
+                    key="close"
+                    aria-label="Close"
+                    color="inherit"
+                    className={classes.close}
+                    onClick={onClose}
+                >
+                    <CloseIcon className={classes.icon} />
+                </IconButton>
+            }
+        />
+    );
+}
+
 class Layout extends React.Component {
     constructor(props) {
         super(props);
-        let avoGreen = {'100': 'b8e8b8', '200': '#f8ee7b', '500': '#399103'}; // this our default AVO colors
-        this.colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal,
-            avoGreen, green, lightGreen, amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
-        Http.getUserInfo( // get our user info
-            result => {
-                // noinspection RedundantConditionalExpressionJS, JSUnresolvedVariable
-                this.setState({ // set the state of the profile, theme, color, and whether or not it's teacher account
-                    name: result.first_name + ' ' + result.last_name,
-                    color: this.colorList[result.color],
-                    theme: result.theme ? 'dark' : 'light',
-                    isTeacher: result.is_teacher
-                });
-            },
-            () => {this.logout();}
-            );
-        this.state = { // this loading screen if things are still loading
+        this.state = {
+            name: this.props.firstName + ' ' + this.props.lastName,
+            isTeacher: this.props.isTeacher,
+            isAdmin: this.props.isAdmin,
+            color: colorList[this.props.color],
+            theme: this.props.theme,
+
             section: 'Home',
-            isTeacher: false,
-            name: 'Loading...',
             open: true,
-            color: this.colorList[9],
-            theme: 'dark',
             testCreator: null,
             postTest: null,
+            minutesRemainingUponResumingTest: null,
+            testDueDate: null,
+
+            snackBar_hideDuration: 5000,
+            snackBar_isOpen: true,
+            snackBar_message: "AVO AI Assistant Online",
+            snackBar_variant: "success"
+
+
+
         };
     }
 
     render() {
         const {classes} = this.props;
-        const {color, theme, open, isTeacher} = this.state;
+        const {color, theme, open, isTeacher, isAdmin, minutesRemainingUponResumingTest, section} = this.state;
+        console.log("minutesRemainingUponResumingTest < 1051000", minutesRemainingUponResumingTest < 1051000);
 
         let disabledListItem = (icon, text) => (
             <ListItem button disabled>
@@ -123,30 +195,54 @@ class Layout extends React.Component {
         return (
             <MuiThemeProvider theme={createMuiTheme({palette: {primary: color, type: theme}})}>
                 <div style={{display: 'flex', width: '100%', height: '100%',
-                    backgroundColor: theme === 'dark' ? '#303030' : '#fafafa'}}>
-                    <Drawer variant='persistent' anchor='left' open={open} classes={{paper: classes.drawerPaper}}>
-                        <Logo theme={theme} color={color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
-                        <Divider key = {uniqueKey()}/>
-                        <div style={{overflowY: 'auto'}}>
-                            <List key = {uniqueKey()} subheader={isTeacher ? <ListSubheader>Student & Teacher</ListSubheader> : undefined}>
-                                {this.listItem(Home, 'Home')}
-                                {this.listItem(Class, 'My Classes')}
-                            </List>
-                            {isTeacher ? [
-                                <Divider key = {uniqueKey()}/>,
-                                <List key = {uniqueKey()} subheader={<ListSubheader>Teacher Only</ListSubheader>}>
-                                    {this.listItem(Class, 'Manage Classes')}
-                                    {disabledListItem(Build, 'Build Question')}
+                    backgroundColor: theme === 'dark' ? '#303030' : '#fff'}}>
+                    <Drawer 
+                        variant='persistent' 
+                        anchor='left' 
+                        open={open} 
+                        classes={{
+                            paper: classes.drawerPaper
+                        }}
+                    >
+                        <div className='avo-drawer__with-logo'>
+                            <Logo theme={theme} color={color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
+                            <Divider/>
+                            <div style={{overflowY: 'auto'}}>
+                                <List subheader={isTeacher ? <ListSubheader>Student & Teacher</ListSubheader> : undefined}>
+                                    {this.listItem(HomeOutlinedIcon, 'Home')}
+                                    {this.listItem(ClassOutlinedIcon, 'My Classes')}
                                 </List>
-                            ] : undefined}
-                              <Divider key = {uniqueKey()}/>
-                            <List key = {uniqueKey()} >
-                                {this.listItem(Settings, 'Preferences')}
-                                <ListItem button onClick={() => this.logout()}>
-                                    <ExitToApp color='action'/>
-                                    <ListItemText primary='Logout'/>
-                                </ListItem>
-                            </List>
+                                {
+                                isTeacher
+                                    ?
+                                        <div>
+                                            <Divider/>
+                                            <List subheader={<ListSubheader>Teacher Only</ListSubheader>}>
+                                                {this.listItem(ClassOutlinedIcon, 'Manage Classes')}
+                                                {isAdmin
+                                                    ? this.listItem(BuildOutlinedIcon, 'Build Question')
+                                                    : disabledListItem(BuildOutlinedIcon, 'Build Question')
+                                                }
+                                            </List>
+                                        </div>
+                                    : undefined
+                                }
+                                <Divider/>
+                                <List>
+                                    {this.listItem(SettingsOutlinedIcon, 'Preferences')}
+                                    <ListItem 
+                                        button 
+                                        onClick={() => this.logout()}
+                                        classes={{
+                                            root : 'avo-menu__item',
+                                            selected : 'selected'
+                                        }} 
+                                    >
+                                        <ExitToAppOutlinedIcon color='action'/>
+                                        <ListItemText primary='Logout'/>
+                                    </ListItem>
+                                </List>
+                            </div>
                         </div>
                     </Drawer>
                     <AppBar className={classNames(classes.appBar, {[classes.appBarShift]: open})}>
@@ -156,12 +252,37 @@ class Layout extends React.Component {
                                 <Menu/>
                             </IconButton>
                             <Typography variant='title' style={{ color : 'white' }} noWrap>{this.state.name}</Typography>
+                            { // this is timer value at the top of the bar
+                                section === 'Take Test' &&  // if the current section is take test
+                                minutesRemainingUponResumingTest !== null // if the minutesRemaining value exists
+                                    ? <TimerComp
+                                        showSnackBar = {this.showSnackBar.bind(this)}
+                                        time={this.state.minutesRemainingUponResumingTest}
+                                        testDueDate = {this.state.testDueDate}
+                                        uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />
+                                    : null
+                            }
                         </Toolbar>
                     </AppBar>
                     <div className={classNames(classes.content, {[classes.contentShift]: open})}>
                         {this.getContent()}
                     </div>
                 </div>
+                <Snackbar
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                    open={this.state.snackBar_isOpen}
+                    autoHideDuration={this.state.snackBar_hideDuration}
+                    onClose={() => this.setState({snackBar_isOpen: false})}
+                >
+                    <MySnackbarContentWrapper
+                        onClose={() => this.setState({snackBar_isOpen: false})}
+                        variant={this.state.snackBar_variant}
+                        message={this.state.snackBar_message}
+                    />
+                </Snackbar>
             </MuiThemeProvider>
         );
     }
@@ -169,49 +290,58 @@ class Layout extends React.Component {
     listItem(icon, text) {
         let {color, theme} = this.state;
         let selected = this.state.section === text;
-        let style = {backgroundColor: selected ? color[theme === 'light' ? '100' : '500'] : undefined};
-        const key = "layout-list-item" + uniqueKey();
         return (
             <ListItem 
                 button
                 classes={{root: 'avo-menu__item'}}
                 selected={selected} 
                 onClick={() => this.setState({section: text})} 
-                style={style}
-                key = {key}
+                style={{ backgroundColor: selected ? color.main : undefined }}
             >
                 {React.createElement(icon,
-                    {color: selected && theme === 'light' ? 'primary' : 'action' },
-                    {key: key})}
-                <ListItemText primary={text} key = {key}/>
+                    {nativeColor: selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' })}
+                <ListItemText primary={<div style={{ color : selected ? 'white' : '' }}>{text}</div>} />
             </ListItem>
         );
     }
 
     getContent() {
+        const isTeacher = this.state;
         const {section, color, theme} = this.state;
         if (section === 'Home')
-            return (<HomePage/>);
+            return (<HomePage showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}/>);
         if (section === 'My Classes')
-            return (<MyClasses startTest={cls => this.startTest(cls)}
+            return (<MyClasses showSnackBar = {this.showSnackBar.bind(this)}
+                               isTeacher = {isTeacher}
+                               startTest={cls => this.startTest(cls)}
+                               theme={{ theme : this.state.theme, color : this.state.color }}
                                postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Manage Classes')
-            return (<ManageClasses createTest={cls => this.startCreateTest(cls)}
+            return (<ManageClasses showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+                                   createTest={cls => this.startCreateTest(cls)}
+                                   theme={{ theme : this.state.theme, color : this.state.color }}
                                    postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Create Test')
-            return (<CreateTest classID={this.state.testCreator}
+            return (<CreateTest showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+                                classID={this.state.testCreator}
                                 onCreate={() => this.setState({section: 'Manage Classes'})}/>);
         if (section === 'Build Question')
-            return null;
+            return <QuestionBuilder showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+                                    theme={createMuiTheme({palette: {primary: color, type: theme}})}/>;
         if (section === 'Take Test')
-            return (<TakeTest testID={this.state.test}
+            return (<TakeTest showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+                              getTimeRemaining = {(minutes, dueDate) => this.getTimeRemaining(minutes, dueDate)}
+                              testID={this.state.test.id}
                               submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);
         if (section === 'Preferences')
-            return (<Preferences colorList={this.colorList}
+            return (<Preferences showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+                                 colorList={colorList}
                                  color={color} changeColor={color => this.setState({color: color})}
                                  theme={theme} changeTheme={theme => this.setState({theme: theme})}/>);
         if (section === 'Post Test')
-            return <PostTest takes={this.state.postTest}/>
+            return <PostTest showSnackBar = {this.showSnackBar.bind(this)}
+                             isTeacher = {isTeacher}
+                             takes={this.state.postTest}/>
     }
 
     logout() {
@@ -224,6 +354,29 @@ class Layout extends React.Component {
 
     startTest(test) {
         this.setState({section: 'Take Test', test: test});
+    }
+
+    getTimeRemaining(minutesRemainingUponResumingTest, testDueDate){
+        // When we hit the getTest route we need to know the time remaining we also have test due date in case
+        // it's an assignment because we would want to display that instead
+        this.setState({
+            minutesRemainingUponResumingTest: minutesRemainingUponResumingTest,
+            testDueDate: testDueDate
+        });
+    }
+
+    /**
+     * @param variant can be success, warning, error, info
+     * @param message is the message to display
+     * @param hideDuration is optional but it's the ms for the snackbar to show
+     */
+    showSnackBar(variant, message, hideDuration) {
+        this.setState({
+            snackBar_isOpen: true,
+            snackBar_hideDuration: hideDuration === undefined ? this.state.snackBar_hideDuration : hideDuration,
+            snackBar_variant: variant,
+            snackBar_message: message
+        });
     }
 }
 
