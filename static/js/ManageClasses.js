@@ -24,6 +24,8 @@ import MoreVert from '@material-ui/icons/MoreVert';
 import PlayArrow from '@material-ui/icons/PlayArrow';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import RemoveRedEyeOutlined from '@material-ui/icons/RemoveRedEyeOutlined';
+import EditOutlined from '@material-ui/icons/EditOutlined';
 import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined';
 import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 import GetAppOutlinedIcon from '@material-ui/icons/GetAppOutlined';
@@ -334,22 +336,26 @@ export default class ManageClasses extends React.Component {
                                                             ))}
                                                         </Select>
                                                     </FormControl>
-                                                    <Button 
-                                                        color="primary"
-                                                        classes={{
-                                                            disabled : 'disabled'
-                                                        }}
-                                                        disabled={x.tests.length === 0}
-                                                        onClick={() => {
-                                                            this.props.postTest(
-                                                                this.state.results[idx].tests[
-                                                                    this.state.resultsIndexArray[idx]
-                                                                ].takes
-                                                            );
-                                                        }}
-                                                    >
-                                                        View
-                                                    </Button>
+                                                    <Tooltip title="View Submission for selected attempt">
+                                                        <IconButton 
+                                                            classes={{
+                                                                disabled : 'disabled'
+                                                            }}
+                                                            disabled={x.tests.length === 0}
+                                                            onClick={() => {
+                                                                this.props.postTest(
+                                                                    this.state.results[idx].tests[
+                                                                        this.state.resultsIndexArray[idx]
+                                                                    ].takes
+                                                                );
+                                                            }}
+                                                        >
+                                                            <RemoveRedEyeOutlined/>
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Edit marks for selected attempt">
+                                                        <IconButton onClick={() => this.closeTest()}><EditOutlined/></IconButton>
+                                                    </Tooltip>
                                                 </ListItemSecondaryAction>
                                             </ListItem>
                                         </Fragment>)

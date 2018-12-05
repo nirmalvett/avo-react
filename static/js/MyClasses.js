@@ -34,7 +34,7 @@ import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
-import { convertListFloatToAnalytics } from "./helpers";
+import { convertListFloatToAnalytics, getDistribution } from "./helpers";
 
 export default class MyClasses extends React.Component {
     constructor(props) {
@@ -721,6 +721,7 @@ export default class MyClasses extends React.Component {
             delete dataObj["studentSizeWhoTookIt"];
             const dataOutArray = [];
             for(let key in dataObj) {
+                getDistribution(this.state.testStats.testSTDEV, this.state.testStats.testMedian, dataOutArray.length);
                 dataOutArray.push(dataObj[key].numberOfStudents);
             }
             return [{
@@ -812,7 +813,7 @@ export default class MyClasses extends React.Component {
                 myAvg = takeObj.grade > myAvg ? takeObj.grade : myAvg;
             } 
             if(testObj.submitted.length > 0) {
-                myAvg = myAvg / testObj.total;
+                myAvg = (myAvg / testObj.total)*100;
                 myMark.push(parseFloat(myAvg).toFixed(2));
             }else{
                 myMark.push('Test or Assignment has not been taken');
@@ -821,7 +822,7 @@ export default class MyClasses extends React.Component {
         return [{
             name : 'My Best Attempt (%)',
             type : 'column',
-            data : myMark * 100
+            data : myMark
         }, {
             name : 'Class Average (%)',
             type : 'column',
