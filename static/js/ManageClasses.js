@@ -367,7 +367,7 @@ export default class ManageClasses extends React.Component {
                         <Popper
                             placement="left-start"
                             open={this.state.deleteTestPopperOpen}
-                            anchorEl={document.getElementById('avo-manageclasses__delete-button')}
+                            anchorEl={(() => { return document.getElementById('avo-manageclasses__delete-button')})}
                             disablePortal={false}
                             modifiers={{
                                 flip: {
