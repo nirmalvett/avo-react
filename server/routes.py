@@ -165,7 +165,7 @@ def get_classes():
                             'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
                             'standardDeviation': round(class_stdev, 2),
-                            'topMarksPerStudent': question_marks  # TODO Remove this data as not being used
+
                         }
                     )
                 else:
@@ -184,7 +184,7 @@ def get_classes():
                             'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
                             'standardDeviation': round(class_stdev, 2),
-                            'topMarksPerStudent': question_marks  # TODO Remove this data as not being used
+                       
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
