@@ -125,10 +125,8 @@ def get_classes():
                 submitted = []  # List of takes indexes
                 current = None  # Current instance of takes
                 questions = eval(t.question_list)
-                question_marks = []  # What each question in the test is out of
                 for i in range(len(questions)):
                     current_question = Question.query.get(questions[i])
-                    question_marks.append(current_question.total)
                 for ta in takes:
                     # For each instance of takes append the data
                     if ta is not None:
@@ -178,7 +176,6 @@ def get_classes():
                             'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
                             'standardDeviation': round(class_stdev, 2),
-                            'topMarksPerStudent': question_marks  # TODO Remove this data as not being used
                         }
                     )
                 else:
@@ -197,7 +194,6 @@ def get_classes():
                             'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
                             'standardDeviation': round(class_stdev, 2),
-                            'topMarksPerStudent': question_marks  # TODO Remove this data as not being used
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
@@ -261,8 +257,6 @@ def test_stats():
             )
         return jsonify(numberStudents=0, testMean=0, testMedian=0, testSTDEV=0, questions=test_question_marks, topMarkPerStudent=[],
                        totalMark=[])
-        del test_questions
-        del test_question_marks
 
     for i in range(len(question_marks[0])):
         # For the length of the test array go through each student and append the marks to the arrays
@@ -461,9 +455,6 @@ def change_mark():
     data = request.json  # Data from client
     take_id, mark_array = data['takeId'], data['markArray']
 
-    # If any of these fail then return back an error.
-
-    # Check if takeId is an int
     if not isinstance(take_id, int) or not isinstance(mark_array, list):
         # If any data is wrong format return error JSON
         return jsonify(error="one or more invalid data points")
