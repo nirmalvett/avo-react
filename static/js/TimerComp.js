@@ -8,7 +8,7 @@ export default class TimerComp extends React.Component {
 
     render() {
         return (
-            <Typography variant='title' id="avo-timer__anchor-el" style={{ color : 'white', marginLeft : '60vw' }}></Typography>
+            <Typography variant='title' id="avo-timer__anchor-el" style={{color:'white', marginLeft:'auto', marginRight: 12}}/>
         );
     };
 
