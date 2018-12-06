@@ -420,7 +420,11 @@ export default class ManageClasses extends React.Component {
                                 </IconButton>
                             </Tooltip>,
                             <Tooltip key = {`CSVToolTip-:${uniqueKey1}`} title="Download CSV">
-                                <IconButton onClick={() => alert('CSV download coming soon!')}>
+                                <IconButton onClick={() => Http.CSVDownload(
+                                    selectedClass.id,
+                                    () => {},
+                                    () => {}
+                                )}>
                                     <GetAppOutlinedIcon/>
                                 </IconButton>
                             </Tooltip>
