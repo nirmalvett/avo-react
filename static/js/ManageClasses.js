@@ -1,6 +1,5 @@
 import React, {Fragment} from 'react';
 import Http from './Http';
-import Menu from '@material-ui/core/Menu';
 import Popper from '@material-ui/core/Popper';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
@@ -20,7 +19,6 @@ import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import Stop from '@material-ui/icons/Stop';
-import MoreVert from '@material-ui/icons/MoreVert';
 import PlayArrow from '@material-ui/icons/PlayArrow';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
@@ -44,7 +42,6 @@ import { avoGreenGraph } from "./AVOCustomColors";
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import { convertListFloatToAnalytics } from "./helpers";
 
@@ -78,7 +75,6 @@ export default class ManageClasses extends React.Component {
 
     render() {
         let cardStyle = {marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};
-        console.log(this.state.classes);
         return (
             <div style={{width: '100%', flex: 1, display: 'flex'}}>
                 <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
