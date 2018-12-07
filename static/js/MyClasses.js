@@ -25,7 +25,6 @@ import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import { removeDuplicateClasses } from "./helpers";
 import Tooltip from '@material-ui/core/Tooltip';
-import AVOModal from './AVOMatComps/AVOMatModal';
 import Chart from "react-apexcharts";
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -57,16 +56,10 @@ export default class MyClasses extends React.Component {
             joinClassPopperOpen: false,
             joinClassPopperIdx: 0
         };
-        this.testStatsDataSelectKeys = [
-            'Average Attempt',
-            'Best Attempt',
-            'All Attempts',
-            'Distribution'
-        ];
     }
 
     componentDidMount(){
-        if (this.props.isTeacher){
+        if (this.props.isTeacher){ // if it's a teacher account
             this.props.showSnackBar("info", "Only student account attempts are considered in the analytics")
         }
     }
@@ -88,56 +81,8 @@ export default class MyClasses extends React.Component {
         return (
             <div className='avo-user__background' style={{width: '100%', flex: 1, display: 'flex'}}>
                 <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
-                    {/* Side Menu*/}
                     <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
-                        <Paper classes={{root : 'avo-sidebar'}} square style={{width: '100%', flex: 1, display: 'flex'}}>
-                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
-                                <Typography variant='subheading' color="textPrimary" align='center'>
-                                    Welcome to My Classes
-                                </Typography>
-                                <br/>
-                                <Divider/>
-                                <ListSubheader style={{position: 'relative'}}>Analytics & Enrollment</ListSubheader>
-                                <ListItem button disabled>
-                                    <BarChartOutlinedIcon color='action'/>
-                                    <ListItemText inset primary='My Analytics'/>
-                                </ListItem>
-                                <ListItem button id="avo-myclasses__enroll-button" onClick={() => this.setState({ joinClassPopperOpen : true })}>
-                                    <AddBoxOutlinedIcon color='action'/>
-                                    <ListItemText inset primary='Enroll in Class'/>
-                                </ListItem>
-                                <Divider/>
-                                <ListSubheader style={{position: 'relative'}}>Classes</ListSubheader>
-                                {this.state.classes.map((cls, cIndex) =>
-                                    <Fragment key={"MyClasses" + cls.id + "-" + cIndex}>
-                                        <ListItem button onClick={() => {
-                                            this.selectClass(cIndex);
-                                            this.handleClassListItemClick();
-                                        }}>
-                                            <PeopleOutlinedIcon color='action'/>
-                                            <ListItemText inset primary={cls.name}/>
-                                            {cls.open
-                                                ? <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
-                                                : <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
-                                            }
-                                        </ListItem>
-                                        <Collapse in={cls.open} timeout='auto' unmountOnExit><List>{
-                                            cls.tests.map((test, tIndex) =>
-                                                <ListItem 
-                                                    key={'MyClasses'+cls.id+'-'+cIndex+'-'+test.id+'-'+tIndex}
-                                                    button 
-                                                    onClick={() => {
-                                                        this.getTestStats(test.id, cIndex, tIndex);
-                                                    }}>
-                                                    <AssessmentOutlinedIcon color={test.open ? 'primary' : 'disabled'}
-                                                                            style={{marginLeft: '10px'}}/>
-                                                    <ListItemText inset primary={test.name}/>
-                                                </ListItem>)
-                                        }</List></Collapse>
-                                    </Fragment>
-                                )}
-                            </List>
-                        </Paper>
+                      { this.sideMenu() }
                     </Grid>
                     {/* Border From Menu To Main*/}
                     <Grid item xs={1}/>
@@ -173,7 +118,7 @@ export default class MyClasses extends React.Component {
                     }}
                 >
                     <Paper style={{ marginLeft: '10em', padding : '10px', height : 'auto' }}>
-                        {this.state.joinClassPopperIdx == 0 && (
+                        {this.state.joinClassPopperIdx === 0 && (
                             <React.Fragment>
                                 <Typography variant='body1' color="textPrimary">
                                     Please enter the course code for the class you want to enroll in!
@@ -299,6 +244,61 @@ export default class MyClasses extends React.Component {
                 </AVOModal> */}
             </div>
         );
+    }
+
+    sideMenu(){
+        // This is the side menu where students can select the class that they are in
+        return (
+            <Paper classes={{root : 'avo-sidebar'}} square style={{width: '100%', flex: 1, display: 'flex'}}>
+                <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
+                    <Typography variant='subheading' color="textPrimary" align='center'>
+                        Welcome to My Classes
+                    </Typography>
+                    <br/>
+                    <Divider/>
+                    <ListSubheader style={{position: 'relative'}}>Analytics & Enrollment</ListSubheader>
+                    <ListItem button disabled>
+                        <BarChartOutlinedIcon color='action'/>
+                        <ListItemText inset primary='My Analytics'/>
+                    </ListItem>
+                    <ListItem button id="avo-myclasses__enroll-button" onClick={() => this.setState({ joinClassPopperOpen : true })}>
+                        <AddBoxOutlinedIcon color='action'/>
+                        <ListItemText inset primary='Enroll in Class'/>
+                    </ListItem>
+                    <Divider/>
+                    <ListSubheader style={{position: 'relative'}}>Classes</ListSubheader>
+                    {this.state.classes.map((cls, cIndex) =>
+                        <Fragment key={"MyClasses" + cls.id + "-" + cIndex}>
+                            <ListItem button onClick={() => {
+                                this.selectClass(cIndex);
+                                this.handleClassListItemClick();
+                            }}>
+                                <PeopleOutlinedIcon color='action'/>
+                                <ListItemText inset primary={cls.name}/>
+                                {cls.open
+                                    ? <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
+                                    : <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
+                                }
+                            </ListItem>
+                            <Collapse in={cls.open} timeout='auto' unmountOnExit><List>{
+                                cls.tests.map((test, tIndex) =>
+                                    <ListItem
+                                        key={'MyClasses'+cls.id+'-'+cIndex+'-'+test.id+'-'+tIndex}
+                                        button
+                                        onClick={() => {
+                                            this.getTestStats(test.id, cIndex, tIndex);
+                                        }}>
+                                        <AssessmentOutlinedIcon color={test.open ? 'primary' : 'disabled'}
+                                                                style={{marginLeft: '10px'}}/>
+                                        <ListItemText inset primary={test.name}/>
+                                    </ListItem>)
+                            }</List></Collapse>
+                        </Fragment>
+                    )}
+                </List>
+            </Paper>
+
+        )
     }
 
     selectClass(index) {
