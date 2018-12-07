@@ -36,8 +36,9 @@ import FormControl from '@material-ui/core/FormControl';
 import Popper from '@material-ui/core/Popper';
 import paypal from 'paypal-checkout';
 import { convertListFloatToAnalytics, getDistribution } from "./helpers";
+import AVOModal from './AVOMatComps/AVOMatModal';
 
-const CONST_ENROLLMENT_PAYMENT = true; // If this is true then it requires students to pay in order to enroll
+const CONST_ENROLLMENT_PAYMENT = false; // If this is true then it requires students to pay in order to enroll
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
 const CONST_TAB_MY_ATTEMPTS = 2;

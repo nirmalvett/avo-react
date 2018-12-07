@@ -45,6 +45,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import { convertListFloatToAnalytics } from "./helpers";
 
+const enableEditMarks = false; // if this is true then editMarks button will appear
+
 export default class ManageClasses extends React.Component {
     constructor(props) {
         super(props);
@@ -349,9 +351,14 @@ export default class ManageClasses extends React.Component {
                                                             <RemoveRedEyeOutlined/>
                                                         </IconButton>
                                                     </Tooltip>
-                                                    <Tooltip title="Edit marks for selected attempt">
-                                                        <IconButton onClick={() => this.closeTest()}><EditOutlined/></IconButton>
-                                                    </Tooltip>
+                                                  { enableEditMarks
+                                                      ?  <Tooltip title="Edit marks for selected attempt">
+                                                              <IconButton
+                                                                  onClick={() => this.closeTest()}><EditOutlined/></IconButton>
+                                                        </Tooltip>
+                                                      : null
+
+                                                  }
                                                 </ListItemSecondaryAction>
                                             </ListItem>
                                         </Fragment>)
