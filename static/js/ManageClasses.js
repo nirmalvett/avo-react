@@ -584,7 +584,7 @@ export default class ManageClasses extends React.Component {
         ) });
     }
 
-       getPerQuestionGraphOptions() {
+    getPerQuestionGraphOptions() {
         let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
         let dataObj = convertListFloatToAnalytics(
             this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent, 

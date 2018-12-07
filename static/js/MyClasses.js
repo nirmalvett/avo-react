@@ -175,7 +175,7 @@ export default class MyClasses extends React.Component {
                     <Paper style={{ marginLeft: '10em', padding : '10px', height : 'auto' }}>
                         {this.state.joinClassPopperIdx == 0 && (
                             <React.Fragment>
-                                <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                <Typography variant='body1' color="textPrimary">
                                     Please enter the course code for the class you want to enroll in!
                                 </Typography>
                                 <TextField
