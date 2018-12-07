@@ -37,6 +37,9 @@ import Popper from '@material-ui/core/Popper';
 import paypal from 'paypal-checkout';
 import { convertListFloatToAnalytics, getDistribution } from "./helpers";
 
+    
+
+
 export default class MyClasses extends React.Component {
     constructor(props) {
         super(props);
@@ -98,7 +101,7 @@ export default class MyClasses extends React.Component {
                                 flexDirection: 'column'
                             }}
                         >
-                            {this.detailsCard()}
+                            { this.detailsCard() }
                         </Card>
                     </Grid>
                 </Grid>
@@ -156,7 +159,7 @@ export default class MyClasses extends React.Component {
                                 >Enroll</Button>
                             </React.Fragment>
                         )}
-                        {this.state.joinClassPopperIdx == 1 && (
+                        {this.state.joinClassPopperIdx === 1 && (
                             <React.Fragment>
                                 <Typography variant='headline4' color="primary" classes={{root : "avo-padding__16px"}}>
                                     Course code is valid!
@@ -165,7 +168,7 @@ export default class MyClasses extends React.Component {
                                     To confirm your selection please Pay via PayPal
                                 </Typography>
                                 <br/>
-                                <center><div id="paypal-button"></div></center>
+                                <center><div id="paypal-button"/></center>
                             
                                 {setTimeout(() => {
                                     paypal.Button.render({
