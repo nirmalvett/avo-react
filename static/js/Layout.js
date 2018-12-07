@@ -180,7 +180,6 @@ class Layout extends React.Component {
     render() {
         const {classes} = this.props;
         const {color, theme, open, isTeacher, isAdmin, minutesRemainingUponResumingTest, section} = this.state;
-        console.log("minutesRemainingUponResumingTest < 1051000", minutesRemainingUponResumingTest < 1051000);
 
         let disabledListItem = (icon, text) => (
             <ListItem button disabled>
