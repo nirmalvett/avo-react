@@ -34,6 +34,8 @@ import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
+import Popper from '@material-ui/core/Popper';
+import paypal from 'paypal-checkout';
 import { convertListFloatToAnalytics, getDistribution } from "./helpers";
 
 export default class MyClasses extends React.Component {
@@ -52,6 +54,8 @@ export default class MyClasses extends React.Component {
             testStatsIdx : undefined,
             testStatsDataSelectIdx : 3,
             testStatsDataQuestionIdx : 0,
+            joinClassPopperOpen: false,
+            joinClassPopperIdx: 0
         };
         this.testStatsDataSelectKeys = [
             'Average Attempt',
@@ -98,7 +102,7 @@ export default class MyClasses extends React.Component {
                                     <BarChartOutlinedIcon color='action'/>
                                     <ListItemText inset primary='My Analytics'/>
                                 </ListItem>
-                                <ListItem button id="avo-myclasses__enroll-button">
+                                <ListItem button id="avo-myclasses__enroll-button" onClick={() => this.setState({ joinClassPopperOpen : true })}>
                                     <AddBoxOutlinedIcon color='action'/>
                                     <ListItemText inset primary='Enroll in Class'/>
                                 </ListItem>
@@ -153,8 +157,103 @@ export default class MyClasses extends React.Component {
                         </Card>
                     </Grid>
                 </Grid>
+                <Popper
+                    placement="right-start"
+                    open={this.state.joinClassPopperOpen}
+                    anchorEl={(() => { return document.getElementById('avo-myclasses__enroll-button')})}
+                    disablePortal={false}
+                    modifiers={{
+                        flip: {
+                            enabled: true,
+                        },
+                        preventOverflow: {
+                            enabled: true,
+                            boundariesElement: 'scrollParent',
+                        },
+                    }}
+                >
+                    <Paper style={{ marginLeft: '10em', padding : '10px', height : 'auto' }}>
+                        {this.state.joinClassPopperIdx == 0 && (
+                            <React.Fragment>
+                                <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                    Please enter the course code for the class you want to enroll in!
+                                </Typography>
+                                <TextField
+                                    id='avo-myclasses__enroll-textfield'
+                                    margin='normal'
+                                    style={{width: '60%'}}
+                                    label="Course code"
+                                    helperText={this.state.enrollErrorMessage + ' '}
+                                    error={this.state.enrollErrorMessage !== ''}
+                                />
+                                <Button
+                                    color="primary"
+                                    onClick={
+                                        () => {
+                                            const key = document.getElementById('avo-myclasses__enroll-textfield').value;
+                                            if (key !== null && key !== '') {
+                                                Http.enrollInClass(
+                                                    key,
+                                                    () => {
+                                                        this.setState({enrollErrorMessage : '', joinClassPopperIdx : 1 });
+                                                    },
+                                                    () => this.setState({
+                                                        enrollErrorMessage : 'Invalid code'
+                                                    }),
+                                                )
+                                            } else {
+                                                this.setState({
+                                                    enrollErrorMessage : 'Field cannot be blank. Please enter a code to join a class.'
+                                                });
+                                            }
+                                        }
+                                    }
+                                >Enroll</Button>
+                            </React.Fragment>
+                        )}
+                        {this.state.joinClassPopperIdx == 1 && (
+                            <React.Fragment>
+                                <Typography variant='headline4' color="primary" classes={{root : "avo-padding__16px"}}>
+                                    Course code is valid!
+                                </Typography>
+                                <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                    To confirm your selection please Pay via PayPal
+                                </Typography>
+                                <br/>
+                                <center><div id="paypal-button"></div></center>
+                            
+                                {setTimeout(() => {
+                                    paypal.Button.render({
+
+                                        env: 'sandbox', // Should be changed to 'production' when in production
+                                        commit: true,
+                                    
+                                        payment: function() {
+                                            return paypal.request.post(window.location.hostname + "/pay", {
+                                                classID: 1
+                                            }).then(function(data) {
+                                                return data.tid;
+                                            });
+                                        },
+                                        onAuthorize: function(data) {
+                                            return paypal.request.post(window.location.hostname + "/postPay", {
+                                                tid: data.paymentID,
+                                                payerID: data.payerID
+                                            }).then(function(res) {
+                                                this.loadClasses();
+                                            }).catch(function (err) {
+                                                // Do stuff
+                                            });
+                                        }
+                                    }, '#paypal-button')
+                                }, 250)
+                                }
+                            </React.Fragment>
+                        )}
+                    </Paper>
+                </Popper>
                 {/* Enroll in class pop up */}
-                <AVOModal
+                {/* <AVOModal
                     title='Enroll into a class'
                     target="avo-myclasses__enroll-button"
                     acceptText='Enroll'
@@ -197,7 +296,7 @@ export default class MyClasses extends React.Component {
                         />
                         <br/>
                     </Fragment>
-                </AVOModal>
+                </AVOModal> */}
             </div>
         );
     }

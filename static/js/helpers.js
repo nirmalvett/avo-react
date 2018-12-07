@@ -151,10 +151,35 @@ export function convertListFloatToAnalytics(inputList, topMark){
 }
 
 export function getDistribution(std_dev, average, idx) {
-  console.log('params', std_dev, average, idx);
-  const seg_amt = std_dev * (6 / 100) * idx;
-  console.log(seg_amt);
-  const num_out = ((1 / std_dev / 4.44)) * Math.pow(2.71, Math.pow(-0.5 * ((average + seg_amt) / std_dev), 2));
-  console.log(num_out);
+
+  function normalcdf(X){   //HASTINGS.  MAX ERROR = .000001
+    var T=1/(1+.2316419*Math.abs(X));
+    var D=.3989423*Math.exp(-X*X/2);
+    var Prob=D*T*(.3193815+T*(-.3565638+T*(1.781478+T*(-1.821256+T*1.330274))));
+    if (X>0) {
+      Prob=1-Prob
+    }
+    return Prob
+  }   
+
+  function compute(form) {
+      Z=idx
+      M=average;
+      SD=std_dev;
+      if (SD<0) {
+        alert("The standard deviation must be nonnegative.")
+      } else if (SD==0) {
+          if (Z<M){
+              Prob=0
+          } else {
+            Prob=1
+        }
+      } else {
+        Prob=normalcdf((Z-M)/SD);
+        Prob=round(100000*Prob)/100000;
+      }
+      return Prob;
+  }
+
   return num_out;
 };
