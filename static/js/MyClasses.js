@@ -526,7 +526,6 @@ export default class MyClasses extends React.Component {
     }
 
     detailsCard_myAttempts(bestMark, analyticsDataObj, selectedClass, selectedTest){
-      console.log("detailsCard_myAttempts selectedTest", selectedTest);
         return (<React.Fragment>
                             <br/>
                             <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
@@ -773,7 +772,6 @@ export default class MyClasses extends React.Component {
     };
 
     getTestCardGraphSeries() {
-      console.log("testStatsIdx", this.state.testStatsIdx);
         let selectedTest = this.state.classes[this.state.c].tests[this.state.t]; 
         if(this.state.testStatsDataSelectIdx === 0) {
             let testAverage = 0;
@@ -860,7 +858,6 @@ export default class MyClasses extends React.Component {
             }, ]
         }else if(this.state.testStatsDataSelectIdx === CONST_OVERALL_ANALYTICS_DEFAULT) { // this is the default value
             const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
-            console.log("dataObj", dataObj);
             delete dataObj["studentSizeWhoTookIt"];
             const dataOutArray = [];
             // TODO make sure the getDistribution is working
