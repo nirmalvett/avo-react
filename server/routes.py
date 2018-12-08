@@ -433,7 +433,7 @@ def enroll():
     if current_class is None:
         # If no class is found return error JSON
         return jsonify(error='Invalid enroll key')
-    if current_class.price_discount > 0:
+    if current_class.price_discount == 0.0:
         # Append current user to the class
         current_user.CLASS_ENROLLED_RELATION.append(current_class)
         db.session.commit()
