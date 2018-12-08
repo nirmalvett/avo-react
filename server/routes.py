@@ -1176,12 +1176,12 @@ def create_payment():
         return abort(400)
 
     data = request.json
-    enroll_key = data['enrollKey']
-    if not isinstance(enroll_key, str):
+    class_id = data['classID']
+    if not isinstance(class_id, str):
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
 
-    current_class = Class.query.filter(enroll_key == Class.enroll_key).all()
+    current_class = Class.query.filter(class_id == Class.CLASS).all()
 
     if len(current_class) is 0:
         return jsonify(error="No class found")
