@@ -20,10 +20,10 @@ routes = Blueprint('routes', __name__)
 paypalrestsdk.configure(
     {
         # 'mode': 'live',
-        'mode': 'sandbox',
+        'mode': config.PAYPAL_MODE,
         # todo get Frank to set up the account id/secret
-        'client_id': '{CLIENT ID}',
-        'client_secret': '{CLIENT SECRET, ONLY USE SANDBOX SECRETS AND NOT ACTUAL ACCOUNT ONES}'
+        'client_id': config.PAYPAL_ID,
+        'client_secret': config.PAYPAL_SECRET
     }
 )
 
@@ -433,10 +433,13 @@ def enroll():
     if current_class is None:
         # If no class is found return error JSON
         return jsonify(error='Invalid enroll key')
-    # Append current user to the class
-    current_user.CLASS_ENROLLED_RELATION.append(current_class)
-    db.session.commit()
-    return jsonify(message='Enrolled!')
+    if current_class.price_discount > 0:
+        # Append current user to the class
+        current_user.CLASS_ENROLLED_RELATION.append(current_class)
+        db.session.commit()
+        return jsonify(message='Enrolled!')
+    else:
+        return jsonify(id=current_class.CLASS, price=current_class.price, discount=current_class.price_discount)
 
 
 @routes.route('/changeMark', methods=['POST'])
@@ -1312,7 +1315,7 @@ def shutdown():
         # If the request isn't json return a 400 error
         return abort(400)
 
-    if request.headers['X-Gitlab-Token'] != 'eXJqUQzlIYbyMBp7rAw2TfqVXG7CuzFB':
+    if request.headers['X-Gitlab-Token'] != config.SHUTDOWN_TOKEN:
         return abort(400)
 
     content = request.get_json()
