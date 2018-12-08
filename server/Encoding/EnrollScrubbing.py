@@ -17,7 +17,7 @@ if __name__ == "main":
             print("No results Found")
 
         if enrolled is None:
-            # if enrolled isnt found move onto the next
+            # if enrolled isn't found move onto the next
             pass
         else:
             # Commit to database
