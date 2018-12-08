@@ -62,7 +62,8 @@ export default class MyClasses extends React.Component {
             testStatsDataSelectIdx : 3,
             testStatsDataQuestionIdx : 0,
             joinClassPopperOpen: false,
-            joinClassPopperIdx: 0
+            joinClassPopperIdx: 0,
+            enrollObj: {},
         };
     }
 
@@ -216,8 +217,9 @@ export default class MyClasses extends React.Component {
                                             if (key !== null && key !== '') {
                                                 Http.enrollInClass(
                                                     key,
-                                                    () => {
-                                                        this.setState({enrollErrorMessage : '', joinClassPopperIdx : 1 });
+                                                    (result) => {
+                                                        console.log(result);
+                                                        this.setState({enrollErrorMessage : '', joinClassPopperIdx : 1, enrollObj : result });
                                                     },
                                                     () => this.setState({
                                                         enrollErrorMessage : 'Invalid code'
@@ -251,14 +253,14 @@ export default class MyClasses extends React.Component {
                                         commit: true,
 
                                         payment: function() {
-                                            return paypal.request.post(window.location.hostname + "/pay", {
-                                                classID: 1
+                                            return paypal.request.post("/pay", {
+                                                classID: this.state.enrollObj.id
                                             }).then(function(data) {
                                                 return data.tid;
                                             });
                                         },
                                         onAuthorize: function(data) {
-                                            return paypal.request.post(window.location.hostname + "/postPay", {
+                                            return paypal.request.post("/postPay", {
                                                 tid: data.paymentID,
                                                 payerID: data.payerID
                                             }).then(function(res) {
