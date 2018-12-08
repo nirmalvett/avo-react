@@ -252,14 +252,14 @@ export default class MyClasses extends React.Component {
                                         commit: true,
 
                                         payment: function() {
-                                            return paypal.request.post(window.location.hostname + "/pay", {
+                                            return paypal.request.post("/pay", {
                                                 classID: 1
                                             }).then(function(data) {
                                                 return data.tid;
                                             });
                                         },
                                         onAuthorize: function(data) {
-                                            return paypal.request.post(window.location.hostname + "/postPay", {
+                                            return paypal.request.post("/postPay", {
                                                 tid: data.paymentID,
                                                 payerID: data.payerID
                                             }).then(function(res) {
