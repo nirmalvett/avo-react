@@ -6,6 +6,8 @@ from random import randint
 from datetime import datetime, timedelta
 import sys
 from git import Repo
+import paypalrestsdk
+import config
 
 from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
@@ -13,6 +15,17 @@ from server.auth import teaches_class, enrolled_in_class, able_edit_set
 from server.models import *
 import statistics
 routes = Blueprint('routes', __name__)
+
+# todo not sure if this is the right place for it, just setting up paypal credentials
+paypalrestsdk.configure(
+    {
+        # 'mode': 'live',
+        'mode': config.PAYPAL_MODE,
+        # todo get Frank to set up the account id/secret
+        'client_id': config.PAYPAL_ID,
+        'client_secret': config.PAYPAL_SECRET
+    }
+)
 
 
 @routes.route('/changeColor', methods=['POST'])
@@ -112,10 +125,8 @@ def get_classes():
                 submitted = []  # List of takes indexes
                 current = None  # Current instance of takes
                 questions = eval(t.question_list)
-                question_marks = []  # What each question in the test is out of
                 for i in range(len(questions)):
                     current_question = Question.query.get(questions[i])
-                    question_marks.append(current_question.total)
                 for ta in takes:
                     # For each instance of takes append the data
                     if ta is not None:
@@ -165,7 +176,6 @@ def get_classes():
                             'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
                             'standardDeviation': round(class_stdev, 2),
-
                         }
                     )
                 else:
@@ -184,7 +194,6 @@ def get_classes():
                             'classMedian': round(class_median, 2),
                             'classSize': len(marks_array),
                             'standardDeviation': round(class_stdev, 2),
-                       
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
     return jsonify(classes=class_list)
@@ -248,8 +257,6 @@ def test_stats():
             )
         return jsonify(numberStudents=0, testMean=0, testMedian=0, testSTDEV=0, questions=test_question_marks, topMarkPerStudent=[],
                        totalMark=[])
-        del test_questions
-        del test_question_marks
 
     for i in range(len(question_marks[0])):
         # For the length of the test array go through each student and append the marks to the arrays
@@ -426,10 +433,13 @@ def enroll():
     if current_class is None:
         # If no class is found return error JSON
         return jsonify(error='Invalid enroll key')
-    # Append current user to the class
-    current_user.CLASS_ENROLLED_RELATION.append(current_class)
-    db.session.commit()
-    return jsonify(message='Enrolled!')
+    if current_class.price_discount > 0:
+        # Append current user to the class
+        current_user.CLASS_ENROLLED_RELATION.append(current_class)
+        db.session.commit()
+        return jsonify(message='Enrolled!')
+    else:
+        return jsonify(id=current_class.CLASS, price=current_class.price, discount=current_class.price_discount)
 
 
 @routes.route('/changeMark', methods=['POST'])
@@ -446,36 +456,45 @@ def change_mark():
         return abort(400)
 
     data = request.json  # Data from client
-    takeId = data['takeId']
-    totalMark = data['totalMark']
-    markArray = data['markArray']
+    take_id, mark_array = data['takeId'], data['markArray']
 
-    # If any of these fail then return back an error.
-
-    # Check if takeId is an int
-    if not isinstance(takeId, float):
-        abort(400)
-    # Check if totalMark is a float
-    if not isinstance(totalMark, float) and not isinstance(totalMark, int):
-        abort(400)
-    # Check if markArray is an array of marks
-    if not isinstance(markArray, list):
-        abort(400)
-    # Check if the takeId is valid
-    question = None
-    try:
-        question = Takes.query.get(takeId)
-    except:
-        abort(400)
+    if not isinstance(take_id, int) or not isinstance(mark_array, list):
+        # If any data is wrong format return error JSON
+        return jsonify(error="one or more invalid data points")
+    takes = Takes.query.get(take_id)  # takes object to update
     # Check if the test of the take is in the class that the account is teaching
-    classId = Test.query.get(question.test).CLASS
-    if not teaches_class(classId):
-        abort(400)
-    # TODO Check if the total mark matches the test mark
-    # TODO Check if the marks array passed back is the correct size
-    # Query to update the mark
-    question.grade = totalMark
-    question.marks = markArray
+    test = Test.query.get(takes.test)  # Test that takes is apart of
+    question_array = eval(test.question_list)  # List of questions in the test
+    if not teaches_class(test.CLASS):
+        # If User does not teach class return error JSON
+        return jsonify(error="User does not teach this class")
+    del test
+    takes_marks_array = takes.marks
+    new_mark = 0
+    if len(takes_marks_array) == len(mark_array):
+        # If the length of the test are the same compare each question
+        for i in range(len(takes_marks_array)):
+            # For each question compare the parts match
+            if not len(takes_marks_array[i]) == len(mark_array[i]):
+                # If the length of parts are different return error JSON
+                return jsonify(error="Non matching marks")
+            else:
+                # else calculate the total mark and per question mark
+                question_mark = 0  # Mark of the current question
+                for j in range(len(mark_array[i])):
+                    # For each part add up total and compare to question in database
+                    question_mark += mark_array[i][j]
+                current_question = Question.query.get(question_array[i])  # Current question to compare
+                if current_question.total < question_mark:
+                    # If the new total is greater then question total return error JSON
+                    return jsonify(error="Over 100% in a question")
+                else:
+                    # Else add the current question mark to total_mark
+                    new_mark += question_mark
+
+    # Update Data in Database
+    takes.marks = mark_array
+    takes.grade = new_mark
     db.session.commit()
     return jsonify(success=True)
 
@@ -1147,6 +1166,140 @@ def csv_class_marks(classid):
     return response  # Return the file to the user
 
 
+@routes.route('/pay', methods=['POST'])
+@login_required
+@check_confirmed
+@student_only
+def create_payment():
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+
+    data = request.json
+    enroll_key = data['enrollKey']
+    if not isinstance(enroll_key, str):
+        # If data isn't correct return error JSON
+        return jsonify(error="One or more data is not correct")
+
+    current_class = Class.query.filter(enroll_key == Class.enroll_key).all()
+
+    if len(current_class) is 0:
+        return jsonify(error="No class found")
+
+    payment = paypalrestsdk.Payment(
+        {
+            'intent': 'sale',
+            'payer': {
+                'payment_method': 'paypal'
+            },
+            'redirect_urls': {
+                # todo have to enable auto return in the paypal account
+                'return_url': 'http://' + config.HOSTNAME + '/',
+                # todo when cancelled remove tid from mapping table
+                'cancel_url': 'http://' + config.HOSTNAME + '/'
+            },
+            'transactions': [
+                {
+                    'amount': {
+                        'total': str(current_class[0].price_discount),
+                        'currency': 'CAD'
+                    },
+                    'description': "Description that actually describes the product, don't flake on this because"
+                                   'it can be used against us for charge back cases.',
+                    'item_list': {
+                        'items': [
+                            {
+                                'name': 'Avo ' + current_class[0].name,
+                                'price': str(current_class[0].price_discount),
+                                'currency': 'CAD',
+                                'quantity': 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    )
+
+    if payment.create():
+        # Add tid to class mapping so we can pull it up in confirm payment
+        new_transaction = TransactionProcessing(payment.id, current_class[0].CLASS)
+        db.session.add(new_transaction)
+        db.session.commit()
+        return jsonify({'tid': payment.id})
+    else:
+        return jsonify(error='Unable to create payment')
+
+
+@routes.route('/postPay', methods=['POST'])
+@login_required
+@check_confirmed
+@student_only
+def confirm_payment():
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+
+    data = request.json
+    tid, payer = data['tid'], data['payerID']
+    if not isinstance(tid, str) or not isinstance(payer, str):
+        # If data isn't correct return error JSON
+        return jsonify(error="One or more data is not correct")
+
+    transaction = Transaction.query.get(tid)
+    if transaction is not None:
+        return jsonify("User Already Enrolled")
+    payment = paypalrestsdk.Payment.find(tid)
+    if not payment.execute({'payer_id': payer}):
+        return jsonify(error=payment.error)
+    transaction_processing = TransactionProcessing.query.get(tid)
+    if transaction_processing is None:
+        return jsonify(error="No Trans Id Found")
+    time = datetime.now() + timedelta(weeks=32)
+    transaction = Transaction(tid, current_user.USER, transaction_processing.CLASS, time)
+    db.session.add(transaction)
+    db.session.delete(transaction_processing)
+    if not enrolled_in_class(transaction_processing.CLASS):
+        enrolled_relation = Class.query.get(transaction_processing.CLASS)
+        current_user.CLASS_RELATION.append(enrolled_relation)
+    db.session.commit()
+    return jsonify(code="Processed")
+
+
+@routes.route('/freeTrial', methods=['POST'])
+@login_required
+@check_confirmed
+@student_only
+def free_trial():
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+
+    data = request.json
+    enroll_key = data['enrollKey']
+    if not isinstance(enroll_key, str):
+        # If data isn't correct return error JSON
+        return jsonify(error="One or more data is not correct")
+    try:
+        current_class = Class.query.filter(Class.enroll_key == enroll_key).one()
+    except:
+        return jsonify(error="No class found")
+    transaction = Transaction.query.filter((current_user.USER == Transaction.USER) &
+                                           (current_class.CLASS == Transaction.CLASS)).all()
+    if len(transaction) > 0:
+        return jsonify(error="Free Trial Already Taken")
+    free_trial_string = "FREETRIAL-" + str(current_class.CLASS) + "-" + str(current_user.USER)
+    time = datetime.now() + timedelta(weeks=2)
+    new_transaction = Transaction(free_trial_string, current_user.USER, current_class.CLASS, time)
+    db.session.add(new_transaction)
+    current_user.CLASS_RELATION.append(current_class)
+    db.session.commit()
+    return jsonify(code="Sucsess")
+
+    # Check transaction table for an entry with USERID and CLASSID
+    # If it exists return error, else return success and add it to transactions
+
+
 # noinspection SpellCheckingInspection
 @routes.route('/irNAcxNHEb8IAS2xrvkqYk5sGVRjT3GA', methods=['POST'])
 def shutdown():
@@ -1162,7 +1315,7 @@ def shutdown():
         # If the request isn't json return a 400 error
         return abort(400)
 
-    if request.headers['X-Gitlab-Token'] != 'eXJqUQzlIYbyMBp7rAw2TfqVXG7CuzFB':
+    if request.headers['X-Gitlab-Token'] != config.SHUTDOWN_TOKEN:
         return abort(400)
 
     content = request.get_json()

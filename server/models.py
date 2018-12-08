@@ -21,15 +21,21 @@ class Class(db.Model):
     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
     name = db.Column(db.String, nullable=False)
     enroll_key = db.Column(db.String, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    price_discount = db.Column(db.Float, nullable=False)
 
     USER_RELATION = db.relationship("User", back_populates="CLASS_RELATION")
     USER_ENROLLED_RELATION = db.relationship("User", secondary=enrolled, back_populates="CLASS_ENROLLED_RELATION")
     TEST_RELATION = db.relationship("Test", back_populates="CLASS_RELATION")
+    TRANSACTION_RELATION = db.relationship("Transaction", back_populates="CLASS_RELATION")
+    TRANSACTION_PROCESSING_RELATION = db.relationship("TransactionProcessing", back_populates="CLASS_RELATION")
 
     # noinspection PyPep8Naming
-    def __init__(self, USER, name):
+    def __init__(self, USER, name, price=69.99):
         self.USER = USER
         self.name = name
+        self.price = price
+        self.price_discount = price
         self.enroll_key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
         enroll_key_class = Class.query.filter(Class.enroll_key == self.enroll_key).all()
         while len(enroll_key_class) is not 0:
@@ -90,6 +96,7 @@ class User(UserMixin, db.Model):
     CLASS_ENROLLED_RELATION = db.relationship("Class", secondary=enrolled, back_populates="USER_ENROLLED_RELATION")
     TAKES_RELATION = db.relationship("Takes", back_populates="USER_RELATION")
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
+    TRANSACTION_RELATION = db.relationship("Transaction", back_populates="USER_RELATION")
 
     # noinspection PyPep8Naming
     def __init__(self, email, first_name, last_name, password, is_teacher, color, theme):
@@ -202,3 +209,39 @@ class UserViewsSet(db.Model):
 
     def __repr__(self):
         return  f'UserViewsSet {self.USER_VIEWS_SET} {self.USER} {self.SET} {self.can_edit}'
+
+
+class Transaction(db.Model):
+    __tablename__ = 'transaction'
+
+    TRANSACTION = db.Column(db.String, primary_key=True)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+    expiration = db.Column(db.DATETIME, nullable=False)
+    expired = db.Column(db.Boolean, nullable=False, default=False)
+
+    USER_RELATION = db.relationship("User", back_populates="TRANSACTION_RELATION")
+    CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_RELATION")
+
+    def __init__(self, TRANSACTION, USER, CLASS, expiration):
+        self.TRANSACTION = TRANSACTION
+        self.USER = USER
+        self.CLASS = CLASS
+        self.expiration = expiration
+        self.expired = False
+
+    def __reduce__(self):
+        return f'Transaction {self.TRANSACTION} {self.USER} {self.CLASS} {self.expiration}'
+
+
+class TransactionProcessing(db.Model):
+    __tablename__ = 'transaction_processing'
+
+    TRANSACTIONPROCESSING = db.Column(db.String, primary_key=True)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+
+    CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_PROCESSING_RELATION")
+
+    def __init__(self, TransactionProcessing, CLASS):
+        self.TRANSACTIONPROCESSING = TransactionProcessing
+        self.CLASS = CLASS
