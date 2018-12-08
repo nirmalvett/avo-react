@@ -62,7 +62,8 @@ export default class MyClasses extends React.Component {
             testStatsDataSelectIdx : 3,
             testStatsDataQuestionIdx : 0,
             joinClassPopperOpen: false,
-            joinClassPopperIdx: 0
+            joinClassPopperIdx: 0,
+            enrollObj: {},
         };
     }
 
@@ -218,7 +219,7 @@ export default class MyClasses extends React.Component {
                                                     key,
                                                     (result) => {
                                                         console.log(result);
-                                                        this.setState({enrollErrorMessage : '', joinClassPopperIdx : 1 });
+                                                        this.setState({enrollErrorMessage : '', joinClassPopperIdx : 1, enrollObj : result });
                                                     },
                                                     () => this.setState({
                                                         enrollErrorMessage : 'Invalid code'
@@ -253,7 +254,7 @@ export default class MyClasses extends React.Component {
 
                                         payment: function() {
                                             return paypal.request.post("/pay", {
-                                                classID: 1
+                                                classID: this.state.enrollObj.id
                                             }).then(function(data) {
                                                 return data.tid;
                                             });
