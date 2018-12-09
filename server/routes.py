@@ -435,7 +435,7 @@ def enroll():
         return jsonify(error='Invalid enroll key')
     if current_user.is_teacher:
         # If the user is a teacher enroll them into the class
-        current_user.CLASS_RELATION.append(current_class)
+        current_user.CLASS_ENROLLED_RELATION.append(current_class)
         return jsonify(message='Enrolled')
     if current_class.price_discount == 0.0:
         # Append current user to the class
@@ -1191,7 +1191,7 @@ def create_payment():
     if len(current_class) is 0:
         return jsonify(error="No class found")
 
-    if enrolled_in_class(current_class.CLASS):
+    if enrolled_in_class(current_class[0].CLASS):
         return jsonify(error="User Already In Class")
 
     payment = paypalrestsdk.Payment(
@@ -1270,7 +1270,8 @@ def confirm_payment():
     if not enrolled_in_class(transaction_processing.CLASS):
         print("I got here")
         enrolled_relation = Class.query.get(transaction_processing.CLASS)
-        current_user.CLASS_RELATION.append(enrolled_relation)
+        print(enrolled_relation)
+        current_user.CLASS_ENROLLED_RELATION.append(enrolled_relation)
     db.session.commit()
     return jsonify(code="Processed")
 
