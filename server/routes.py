@@ -15,7 +15,7 @@ from server.auth import teaches_class, enrolled_in_class, able_edit_set
 from server.models import *
 import statistics
 routes = Blueprint('routes', __name__)
-runPaypal = False
+runPaypal = True # Leave this here so we don't get merge conflicts later on with the others working on web
 
 if (runPaypal):
     # todo not sure if this is the right place for it, just setting up paypal credentials

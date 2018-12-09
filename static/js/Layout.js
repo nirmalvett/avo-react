@@ -34,6 +34,8 @@ import QuestionBuilder from "./QuestionBuilder";
 import { avoGreen } from "./AVOCustomColors";
 import Snackbar from '@material-ui/core/Snackbar';
 import { MySnackbarContentWrapper } from "./AVOSnackBar";
+import AVOInClassTools from "./AVOInClassTools/AVOInClassTools"
+import AVOExplanations from "./AVOExplanations/AVOExplanations"
 const drawerWidth = 240;
 const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
     amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
@@ -81,7 +83,7 @@ const styles = theme => ({
     },
 });
 
-
+const showTestFeatures = false;
 class Layout extends React.Component {
     constructor(props) {
         super(props);
@@ -217,6 +219,19 @@ class Layout extends React.Component {
                                         </div>
                                     : undefined
                                 }
+                                {
+
+                                    showTestFeatures
+                                        ?   <React.Fragment>
+                                            <Divider/>
+                                                <List subheader={<ListSubheader>Experimental Features</ListSubheader>}>
+                                                    { this.listItem(BuildOutlinedIcon, 'In Class Tools') }
+                                                    { this.listItem(BuildOutlinedIcon, 'Explanations') }
+                                                </List>
+                                            </React.Fragment>
+                                        : null
+
+                                }
                                 <Divider/>
                                 <List>
                                     {this.listItem(SettingsOutlinedIcon, 'Preferences')}
@@ -294,6 +309,10 @@ class Layout extends React.Component {
             return <PostTest showSnackBar = {this.showSnackBar.bind(this)}
                              isTeacher = {isTeacher}
                              takes={this.state.postTest}/>
+        if (section === 'In Class Tools')
+            return <AVOInClassTools />
+        if (section === 'Explanations')
+            return <AVOExplanations />
     }
 
     timerInTopBar(){
