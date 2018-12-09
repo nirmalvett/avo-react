@@ -433,7 +433,7 @@ def enroll():
     if current_class is None:
         # If no class is found return error JSON
         return jsonify(error='Invalid enroll key')
-    if current_class.price_discount > 0:
+    if current_class.price_discount == 0.0:
         # Append current user to the class
         current_user.CLASS_ENROLLED_RELATION.append(current_class)
         db.session.commit()
@@ -1176,12 +1176,12 @@ def create_payment():
         return abort(400)
 
     data = request.json
-    enroll_key = data['enrollKey']
-    if not isinstance(enroll_key, str):
+    class_id = data['classID']
+    if not isinstance(class_id, str):
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
 
-    current_class = Class.query.filter(enroll_key == Class.enroll_key).all()
+    current_class = Class.query.filter(class_id == Class.CLASS).all()
 
     if len(current_class) is 0:
         return jsonify(error="No class found")
