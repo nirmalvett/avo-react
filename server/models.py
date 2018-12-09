@@ -43,7 +43,7 @@ class Class(db.Model):
             enroll_key_class = Class.query.filter(Class.enroll_key == self.enroll_key).all()
 
     def __repr__(self):
-        return f'<Class {self.USER} {self.name} {self.enroll_key}>'
+        return f'<Class {self.CLASS} {self.USER} {self.name} {self.enroll_key}>'
 
 
 class Takes(db.Model):
