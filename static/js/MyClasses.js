@@ -223,26 +223,30 @@ export default class MyClasses extends React.Component {
                                                         setTimeout(() => {
                                                             paypal.Button.render({
 
-                                                                env: 'sandbox', // Should be changed to 'production' when in production
-                                                                commit: true,
+                                                               env: 'sandbox', // Should be changed to 'production' when in production
+                                                               commit: true,
 
-                                                                payment: function() {
-                                                                    return paypal.request.post("/pay", {
-                                                                        classID: result.id
-                                                                    }).then(function(data) {
-                                                                        return data.tid;
-                                                                    });
-                                                                },
-                                                                onAuthorize: function(data) {
-                                                                    return paypal.request.post("/postPay", {
-                                                                        tid: data.paymentID,
-                                                                        payerID: data.payerID
-                                                                    }).then(function(res) {
-                                                                    }).catch(function (err) {
-                                                                        // Do stuff
-                                                                    });
-                                                                }
-                                                            }, '#paypal-button')
+                                                               payment: function() {
+                                                                   return paypal.request({
+                                                                       method: 'post',
+                                                                       url: 'pay',
+                                                                       json: {
+                                                                           classID: result.id
+                                                                       }
+                                                                   }).then(function(data) {
+                                                                       return data.tid;
+                                                                   });
+                                                               },
+                                                               onAuthorize: function(data) {
+                                                                   return paypal.request.post("/postPay", {
+                                                                       tid: data.paymentID,
+                                                                       payerID: data.payerID
+                                                                   }).then(function(res) {
+                                                                   }).catch(function (err) {
+                                                                       // Do stuff
+                                                                   });
+                                                               }
+                                                           }, '#paypal-button')
                                                         }, 250)
                                                     },
                                                     () => this.setState({
@@ -261,7 +265,7 @@ export default class MyClasses extends React.Component {
                         )}
                         {this.state.joinClassPopperIdx === 1 && (
                             <React.Fragment>
-                                <Typography component={'span'} variant='headline4' color="primary" classes={{root : "avo-padding__16px"}}>
+                                <Typography component={'span'} variant='display4' color="primary" classes={{root : "avo-padding__16px"}}>
                                     Course code is valid!
                                 </Typography>
                                 <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
