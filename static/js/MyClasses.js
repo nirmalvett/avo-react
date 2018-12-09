@@ -219,7 +219,13 @@ export default class MyClasses extends React.Component {
                                                     key,
                                                     (result) => {
                                                         console.log(result);
+                                                        if(result.message && result.message == 'enrolled') {
+                                                            this.setState({enrollErrorMessage : '', joinClassPopperOpen: false });
+                                                            this.loadClasses();
+                                                            return;
+                                                        }
                                                         this.setState({enrollErrorMessage : '', joinClassPopperIdx : 1, enrollObj : result });
+                                                        var _this = this;
                                                         setTimeout(() => {
                                                             paypal.Button.render({
 
@@ -238,13 +244,21 @@ export default class MyClasses extends React.Component {
                                                                     });
                                                                 },
                                                                 onAuthorize: function(data) {
-                                                                    return paypal.request.post("/postPay", {
-                                                                        tid: data.paymentID,
-                                                                        payerID: data.payerID
-                                                                    }).then(function(res) {
+                                                                    return paypal.request({
+                                                                        method: 'post',
+                                                                        url: '/postPay',
+                                                                        json: {
+                                                                            tid: data.paymentID,
+                                                                            payerID: data.payerID
+                                                                        }
+                                                                    }).then(function(data) {
+                                                                        console.log(data);
+                                                                        _this.setState({enrollErrorMessage : '', joinClassPopperOpen: false });
+                                                                        _this.loadClasses();
+                                                                        alert('successfully enrolled!');
                                                                     }).catch(function (err) {
-                                                                        // Do stuff
-                                                                    });
+                                                                        alert('error');
+                                                                    });;
                                                                 }
                                                             }, '#paypal-button')
                                                         }, 250)
@@ -261,16 +275,26 @@ export default class MyClasses extends React.Component {
                                         }
                                     }
                                 >Enroll</Button>
+                                <Button color="primary" onClick={() => { this.setState({ joinClassPopperOpen: false }) }}>Close</Button>
                             </React.Fragment>
                         )}
                         {this.state.joinClassPopperIdx === 1 && (
                             <React.Fragment>
-                                <Typography component={'span'} variant='headline4' color="primary" classes={{root : "avo-padding__16px"}}>
+                                <Typography component={'span'} variant='display1' color="primary" classes={{root : "avo-padding__16px"}}>
                                     Course code is valid!
                                 </Typography>
                                 <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
                                     To confirm your selection please Pay via PayPal
                                 </Typography>
+                                <br/>
+                                <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                    <span style={{ 'float' : 'left' }}>Price:</span><span style={{ 'float' : 'right' }}>${this.state.enrollObj.price}</span>
+                                </Typography>
+                                <br/>
+                                <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                    <span style={{ 'float' : 'left' }}>Discounted price:</span><span style={{ 'float' : 'right' }}>${this.state.enrollObj.discount}</span>
+                                </Typography>
+                                <br/>
                                 <br/>
                                 <center><div id="paypal-button"/></center>
                             </React.Fragment>
