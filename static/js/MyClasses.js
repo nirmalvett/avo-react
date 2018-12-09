@@ -219,7 +219,7 @@ export default class MyClasses extends React.Component {
                                                     key,
                                                     (result) => {
                                                         console.log(result);
-                                                        if(result.message && result.message == 'enrolled') {
+                                                        if(result.message && result.message == "Enrolled") {
                                                             this.setState({enrollErrorMessage : '', joinClassPopperOpen: false });
                                                             this.loadClasses();
                                                             return;
