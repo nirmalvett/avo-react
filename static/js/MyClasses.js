@@ -220,6 +220,34 @@ export default class MyClasses extends React.Component {
                                                     (result) => {
                                                         console.log(result);
                                                         this.setState({enrollErrorMessage : '', joinClassPopperIdx : 1, enrollObj : result });
+                                                        setTimeout(() => {
+                                                            paypal.Button.render({
+
+                                                                env: 'sandbox', // Should be changed to 'production' when in production
+                                                                commit: true,
+
+                                                                payment: function() {
+                                                                    return paypal.request({
+                                                                        method: 'post',
+                                                                        url: 'pay',
+                                                                        json: {
+                                                                            classID: result.id
+                                                                        }
+                                                                    }).then(function(data) {
+                                                                        return data.tid;
+                                                                    });
+                                                                },
+                                                                onAuthorize: function(data) {
+                                                                    return paypal.request.post("/postPay", {
+                                                                        tid: data.paymentID,
+                                                                        payerID: data.payerID
+                                                                    }).then(function(res) {
+                                                                    }).catch(function (err) {
+                                                                        // Do stuff
+                                                                    });
+                                                                }
+                                                            }, '#paypal-button')
+                                                        }, 250)
                                                     },
                                                     () => this.setState({
                                                         enrollErrorMessage : 'Invalid code'
@@ -245,33 +273,6 @@ export default class MyClasses extends React.Component {
                                 </Typography>
                                 <br/>
                                 <center><div id="paypal-button"/></center>
-
-                                {setTimeout(() => {
-                                    paypal.Button.render({
-
-                                        env: 'sandbox', // Should be changed to 'production' when in production
-                                        commit: true,
-
-                                        payment: function() {
-                                            return paypal.request.post("/pay", {
-                                                classID: this.state.enrollObj.id
-                                            }).then(function(data) {
-                                                return data.tid;
-                                            });
-                                        },
-                                        onAuthorize: function(data) {
-                                            return paypal.request.post("/postPay", {
-                                                tid: data.paymentID,
-                                                payerID: data.payerID
-                                            }).then(function(res) {
-                                                this.loadClasses();
-                                            }).catch(function (err) {
-                                                // Do stuff
-                                            });
-                                        }
-                                    }, '#paypal-button')
-                                }, 250)
-                                }
                             </React.Fragment>
                         )}
                     </Paper>
