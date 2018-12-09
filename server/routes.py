@@ -1177,7 +1177,8 @@ def create_payment():
 
     data = request.json
     class_id = data['classID']
-    if not isinstance(class_id, str):
+    if not isinstance(class_id, int):
+        print("I got here")
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
 
