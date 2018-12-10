@@ -1179,9 +1179,17 @@ def create_payment():
     data = request.json
     class_id = data['classID']
     if not isinstance(class_id, int):
-        print("I got here")
-        # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
+
+    existing_tid = TransactionProcessing.query.filter((class_id == TransactionProcessing.CLASS) &
+                                                      (current_user.USER == TransactionProcessing.USER)).first()
+    if existing_tid is not None:
+        try:
+            paypalrestsdk.Payment.find(existing_tid.TRANSACTIONPROCESSING)
+            return jsonify({'tid': existing_tid.TRANSACTIONPROCESSING})
+        except paypalrestsdk.ResourceNotFound:
+            db.session.remove(existing_tid)
+            db.session.commit()
 
     current_class = Class.query.filter(class_id == Class.CLASS).all()
 
@@ -1228,7 +1236,7 @@ def create_payment():
 
     if payment.create():
         # Add tid to class mapping so we can pull it up in confirm payment
-        new_transaction = TransactionProcessing(payment.id, current_class[0].CLASS)
+        new_transaction = TransactionProcessing(payment.id, current_class[0].CLASS, current_user.USER)
         db.session.add(new_transaction)
         db.session.commit()
         return jsonify({'tid': payment.id})
@@ -1276,7 +1284,6 @@ def confirm_payment():
 @routes.route('/cancel', methods=['POST'])
 def cancel_order():
     return jsonify(code="hello")
-
 
 
 @routes.route('/freeTrial', methods=['POST'])
