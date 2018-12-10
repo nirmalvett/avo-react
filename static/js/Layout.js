@@ -276,38 +276,38 @@ class Layout extends React.Component {
         const isTeacher = this.state;
         const {section, color, theme} = this.state;
         if (section === 'Home')
-            return (<HomePage showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}/>);
+            return (<HomePage showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {this.state.isTeacher}/>);
         if (section === 'My Classes')
             return (<MyClasses showSnackBar = {this.showSnackBar.bind(this)}
-                               isTeacher = {isTeacher}
+                               isTeacher = {this.state.isTeacher}
                                startTest={cls => this.startTest(cls)}
                                theme={{ theme : this.state.theme, color : this.state.color }}
                                postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Manage Classes')
-            return (<ManageClasses showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+            return (<ManageClasses showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {this.state.isTeacher}
                                    createTest={cls => this.startCreateTest(cls)}
                                    theme={{ theme : this.state.theme, color : this.state.color }}
                                    postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
         if (section === 'Create Test')
-            return (<CreateTest showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+            return (<CreateTest showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {this.state.isTeacher}
                                 classID={this.state.testCreator}
                                 onCreate={() => this.setState({section: 'Manage Classes'})}/>);
         if (section === 'Build Question')
-            return <QuestionBuilder showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+            return <QuestionBuilder showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {this.state.isTeacher}
                                     theme={createMuiTheme({palette: {primary: color, type: theme}})}/>;
         if (section === 'Take Test')
-            return (<TakeTest showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+            return (<TakeTest showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {this.state.isTeacher}
                               getTimeRemaining = {(minutes, dueDate) => this.getTimeRemaining(minutes, dueDate)}
                               testID={this.state.test.id}
                               submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}/>);
         if (section === 'Preferences')
-            return (<Preferences showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {isTeacher}
+            return (<Preferences showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {this.state.isTeacher}
                                  colorList={colorList}
                                  color={color} changeColor={color => this.setState({color: color})}
                                  theme={theme} changeTheme={theme => this.setState({theme: theme})}/>);
         if (section === 'Post Test')
             return <PostTest showSnackBar = {this.showSnackBar.bind(this)}
-                             isTeacher = {isTeacher}
+                             isTeacher = {this.state.isTeacher}
                              takes={this.state.postTest}/>
         if (section === 'In Class Tools')
             return <AVOInClassTools />
