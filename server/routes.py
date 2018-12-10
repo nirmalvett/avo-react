@@ -436,13 +436,22 @@ def enroll():
         # If the user is a teacher enroll them into the class
         current_user.CLASS_ENROLLED_RELATION.append(current_class)
         return jsonify(message='Enrolled')
+    transaction = Transaction.query.filter((Transaction.USER == current_user.USER) &
+                                           (Transaction.CLASS == current_class.CLASS)).all()  # Checks if the user has a free trial
+    free_trial = True
+    for i in range(len(transaction)):
+        # For each transaction see if it starts with a
+        trans_string = transaction[i].TRANSACTION
+        if trans_string.startswith("FREETRIAL-"):
+            free_trial = False
     if current_class.price_discount == 0.0:
         # Append current user to the class
         current_user.CLASS_ENROLLED_RELATION.append(current_class)
         db.session.commit()
         return jsonify(message='Enrolled!')
     else:
-        return jsonify(id=current_class.CLASS, price=current_class.price, discount=current_class.price_discount)
+        return jsonify(id=current_class.CLASS, price=current_class.price, discount=current_class.price_discount,
+                       freeTrial=free_trial)
 
 
 @routes.route('/changeMark', methods=['POST'])
@@ -1302,12 +1311,12 @@ def free_trial():
         return abort(400)
 
     data = request.json
-    enroll_key = data['enrollKey']
-    if not isinstance(enroll_key, str):
+    class_id = data['classID']
+    if not isinstance(class_id, int):
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
     try:
-        current_class = Class.query.filter(Class.enroll_key == enroll_key).one()
+        current_class = Class.query.get(class_id)
     except:
         return jsonify(error="No class found")
     transaction = Transaction.query.filter((current_user.USER == Transaction.USER) &
