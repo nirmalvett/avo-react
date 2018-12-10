@@ -1327,7 +1327,7 @@ def free_trial():
     time = datetime.now() + timedelta(weeks=2)
     new_transaction = Transaction(free_trial_string, current_user.USER, current_class.CLASS, time)
     db.session.add(new_transaction)
-    current_user.CLASS_ENRROLED_RELATION.append(current_class)
+    current_user.CLASS_ENROLLED_RELATION.append(current_class)
     db.session.commit()
     return jsonify(code="Sucsess")
 
