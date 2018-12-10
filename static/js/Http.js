@@ -145,6 +145,10 @@ export default class Http {
     static CSVDownload(classid, success, failure) {
         Http._request('GET', '/CSV/ClassMarks/' + classid, success, failure, {});
     }
+
+    static getFreeTrial(classid, success, failure) {
+        Http._request('POST', '/freeTrial', success, failure, { classID : classid });        
+    }
 }
 
 function debugModeLog(type, url, data = '', http){
