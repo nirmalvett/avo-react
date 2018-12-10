@@ -139,7 +139,8 @@ def get_classes():
                 for s in student_list:
                     # For each student get best takes and calculate averages
                     takes = Takes.query.order_by(Takes.grade).filter(
-                        (Takes.TEST == t.TEST) & (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
+                        (Takes.TEST == t.TEST) &
+                        (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
                     if len(takes) is not 0:
                         # If the student has taken the test then add best instance to mean and median
                         marks_array.append((takes[len(takes) - 1].grade / t.total) * 100)  # Add mark to mark array
@@ -149,9 +150,9 @@ def get_classes():
                     class_median, class_mean, class_stdev = 0, 0, 0
                 else:
                     # Calculate the values
-                    #class_median = statistics.median(marks_array)
-                    #class_mean = statistics.mean(marks_array)
-                    #class_stdev = 0
+                    class_median = statistics.median(marks_array)
+                    class_mean = statistics.mean(marks_array)
+                    class_stdev = 0
                     if len(marks_array) > 1:
                         # If there are more then two marks a stdev will be calculated
                         class_stdev = statistics.stdev(marks_array)
@@ -1313,7 +1314,7 @@ def free_trial():
     time = datetime.now() + timedelta(weeks=2)
     new_transaction = Transaction(free_trial_string, current_user.USER, current_class.CLASS, time)
     db.session.add(new_transaction)
-    current_user.CLASS_RELATION.append(current_class)
+    current_user.CLASS_ENRROLED_RELATION.append(current_class)
     db.session.commit()
     return jsonify(code="Sucsess")
 
