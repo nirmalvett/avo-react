@@ -76,7 +76,7 @@ export default class MyClasses extends React.Component {
         }
     }
 
-    loadClasses() {
+    loadClasses(alertMessage) {
         /* Loads the classes into the state */
         Http.getClasses(
             (result) => {
@@ -87,6 +87,9 @@ export default class MyClasses extends React.Component {
                 console.log(result)
             }
         );
+        if (alertMessage !== undefined){
+            this.props.showSnackBar("success", alertMessage);
+        }
     }
 
     render() {
@@ -129,11 +132,11 @@ export default class MyClasses extends React.Component {
                     </Typography>
                     <br/>
                     <Divider/>
-                    <ListSubheader style={{position: 'relative'}}>Analytics & Enrollment</ListSubheader>
-                    <ListItem button disabled>
-                        <BarChartOutlinedIcon color='action'/>
-                        <ListItemText inset primary='My Analytics'/>
-                    </ListItem>
+                    <ListSubheader style={{position: 'relative'}}>Class Enrollment</ListSubheader>
+                    {/*<ListItem button disabled>*/} 
+                        {/*<BarChartOutlinedIcon color='action'/>*/}
+                        {/*<ListItemText inset primary='My Analytics'/>*/}
+                    {/*</ListItem>*/}
                     <ListItem button id="avo-myclasses__enroll-button" onClick={() => this.setState({ joinClassPopperOpen : true, joinClassPopperIdx : 0 })}>
                         <AddBoxOutlinedIcon color='action'/>
                         <ListItemText inset primary='Enroll in Class'/>
@@ -222,9 +225,10 @@ export default class MyClasses extends React.Component {
                                                     key,
                                                     (result) => {
                                                         console.log(result);
-                                                        if(result.message && result.message == "Enrolled") {
+                                                        if(result.message && result.message === "Enrolled") {
                                                             this.setState({enrollErrorMessage : '', joinClassPopperOpen: false });
-                                                            this.loadClasses();
+                                                            this.loadClasses("Successfully enrolled in the class!");
+                                                            this.props.showSnackBar("success", "Successfully enrolled in the class!");
                                                             return;
                                                         }
                                                         this.setState({enrollErrorMessage : '', joinClassPopperIdx : 1, enrollObj : result });
@@ -257,8 +261,7 @@ export default class MyClasses extends React.Component {
                                                                     }).then(function(data) {
                                                                         console.log(data);
                                                                         _this.setState({enrollErrorMessage : '', joinClassPopperOpen: false });
-                                                                        _this.loadClasses();
-                                                                        alert('successfully enrolled!');
+                                                                        _this.loadClasses("Successfully enrolled in the class!");
                                                                     }).catch(function (err) {
                                                                         alert('error');
                                                                     });
@@ -287,16 +290,12 @@ export default class MyClasses extends React.Component {
                                     Course code is valid!
                                 </Typography>
                                 <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                                    To confirm your selection please Pay via PayPal
+                                    To confirm your selection please pay via PayPal
                                 </Typography>
                                 <br/>
-                                <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                                    <span style={{ 'float' : 'left' }}>Price:</span><span style={{ 'float' : 'right' }}>${this.state.enrollObj.price}</span>
-                                </Typography>
-                                <br/>
-                                <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                                    <span style={{ 'float' : 'left' }}>Discounted price:</span><span style={{ 'float' : 'right' }}>${this.state.enrollObj.discount}</span>
-                                </Typography>
+
+                                { this.enrollInClass_priceDisplay(this.state.enrollObj.price, this.state.enrollObj.discount)}
+
                                 <br/>
                                 <Divider/>
                                 <br/>
@@ -311,7 +310,8 @@ export default class MyClasses extends React.Component {
                                                     this.state.enrollObj.id,
                                                     () => {
                                                         this.setState({ joinClassPopperOpen: false });
-                                                        this.loadClasses();
+                                                        this.loadClasses("Successfully enrolled in the class!");
+
                                                     },
                                                     () => {},
                                                 );
@@ -339,7 +339,7 @@ export default class MyClasses extends React.Component {
                             Http.enrollInClass(
                                 key,
                                 () => {
-                                    this.loadClasses();
+                                    this.loadClasses("Successfully enrolled in the class!");
                                     this.setState({enrollErrorMessage : ''});
                                     closeFunc();
                                 },
@@ -372,6 +372,33 @@ export default class MyClasses extends React.Component {
                     </Fragment>
                 </AVOModal>)
         }
+    }
+
+    enrollInClass_priceDisplay(price, discountPrice){
+      // Displays the price and the discounted price. If price and discounted price is the same then we only show price
+      if (price !== discountPrice){
+           return (
+            <React.Fragment>
+               <s>
+                 <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                  Price: ${price}
+                </Typography>
+               </s>
+              <br/>
+              <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                  Discounted Price: ${discountPrice}
+            </Typography>
+            </React.Fragment>
+          )
+      }
+      else {
+        return (
+             <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                  Price: ${discountPrice}
+              </Typography>
+        )
+      }
+
     }
     
     detailsCard() {
