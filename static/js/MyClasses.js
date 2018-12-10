@@ -258,7 +258,7 @@ export default class MyClasses extends React.Component {
                                                                         alert('successfully enrolled!');
                                                                     }).catch(function (err) {
                                                                         alert('error');
-                                                                    });;
+                                                                    });
                                                                 }
                                                             }, '#paypal-button')
                                                         }, 250)
@@ -295,8 +295,29 @@ export default class MyClasses extends React.Component {
                                     <span style={{ 'float' : 'left' }}>Discounted price:</span><span style={{ 'float' : 'right' }}>${this.state.enrollObj.discount}</span>
                                 </Typography>
                                 <br/>
+                                <Divider/>
                                 <br/>
-                                <center><div id="paypal-button"/></center>
+                                <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                    <center>
+                                        <div id="paypal-button"/>
+                                        <br/>
+                                        {this.state.enrollObj.freeTrial && <a 
+                                            style={{ color : this.props.theme.color['500'], cursor: 'pointer' }}
+                                            onClick={() => {
+                                                Http.getFreeTrial(
+                                                    this.state.enrollObj.id,
+                                                    () => {
+                                                        this.setState({ joinClassPopperOpen: false });
+                                                        this.loadClasses();
+                                                    },
+                                                    () => {},
+                                                );
+                                            }}
+                                        >14 day free trial</a>}
+                                    </center>
+                                    <br/>
+                                </Typography>
+                                <Button color="primary" onClick={() => { this.setState({ joinClassPopperOpen: false }) }}>Close</Button>
                             </React.Fragment>
                         )}
                     </Paper>
