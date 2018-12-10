@@ -179,11 +179,14 @@ def enrolled_in_class(class_id):
     :return: True if the user is enrolled False if not
     """
     try:
-        # If the user is enrolled then return True if not return False
-        current_class = Class.query.filter((enrolled.c.CLASS == class_id) &
-                                           (current_user.USER == enrolled.c.USER)).first()
-        if current_class is not None:
-            return True
+        # Get all calsses user is enroled in
+        current_class = Class.query.filter((Class.CLASS == enrolled.c.CLASS) &
+                                           (current_user.USER == enrolled.c.USER)).all()
+        if len(current_class) is 0:
+            return False
+        for i in range(len(current_class)):
+            if current_class[i].CLASS is class_id:
+                return True
         return False
     except NoResultFound:
         return False

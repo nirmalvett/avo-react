@@ -1,6 +1,7 @@
 from flask import Blueprint, abort, jsonify, request, make_response
 from flask_login import login_required, current_user
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import func
 from server.MathCode.question import AvoQuestion
 from random import randint
 from datetime import datetime, timedelta
@@ -124,9 +125,6 @@ def get_classes():
                 takes = Takes.query.order_by(Takes.time_started).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER)).all()
                 submitted = []  # List of takes indexes
                 current = None  # Current instance of takes
-                questions = eval(t.question_list)
-                for i in range(len(questions)):
-                    current_question = Question.query.get(questions[i])
                 for ta in takes:
                     # For each instance of takes append the data
                     if ta is not None:
@@ -141,7 +139,8 @@ def get_classes():
                 for s in student_list:
                     # For each student get best takes and calculate averages
                     takes = Takes.query.order_by(Takes.grade).filter(
-                        (Takes.TEST == t.TEST) & (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
+                        (Takes.TEST == t.TEST) &
+                        (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
                     if len(takes) is not 0:
                         # If the student has taken the test then add best instance to mean and median
                         marks_array.append((takes[len(takes) - 1].grade / t.total) * 100)  # Add mark to mark array
@@ -282,7 +281,7 @@ def test_stats():
     for i in range(len(question_total_marks)):
         # For each question calculate mean median and stdev
         if len(question_total_marks[i]) > 0:
-            current_question = {'questionMean': statistics.mean(question_total_marks[i]),
+            current_question = {'questionMean': round(statistics.mean(question_total_marks[i]), 2),
                                 'questionMedian': statistics.median(question_total_marks[i]),
                                 'topMarksPerStudent': question_total_marks[i],
                                 'totalMark': test_question_marks[i]
@@ -435,7 +434,7 @@ def enroll():
         return jsonify(error='Invalid enroll key')
     if current_user.is_teacher:
         # If the user is a teacher enroll them into the class
-        current_user.CLASS_RELATION.append(current_class)
+        current_user.CLASS_ENROLLED_RELATION.append(current_class)
         return jsonify(message='Enrolled')
     if current_class.price_discount == 0.0:
         # Append current user to the class
@@ -1182,16 +1181,28 @@ def create_payment():
     data = request.json
     class_id = data['classID']
     if not isinstance(class_id, int):
-        print("I got here")
-        # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
+
+    existing_tid = TransactionProcessing.query.filter((class_id == TransactionProcessing.CLASS) &
+                                                      (current_user.USER == TransactionProcessing.USER)).first()
+    if existing_tid is not None:
+        try:
+            payment = paypalrestsdk.Payment.find(existing_tid.TRANSACTIONPROCESSING)
+            if payment.state == 'created':
+                return jsonify({'tid': existing_tid.TRANSACTIONPROCESSING})
+            else:
+                db.session.remove(existing_tid)
+                db.session.commit()
+        except paypalrestsdk.ResourceNotFound:
+            db.session.remove(existing_tid)
+            db.session.commit()
 
     current_class = Class.query.filter(class_id == Class.CLASS).all()
 
     if len(current_class) is 0:
         return jsonify(error="No class found")
 
-    if enrolled_in_class(current_class.CLASS):
+    if enrolled_in_class(current_class[0].CLASS):
         return jsonify(error="User Already In Class")
 
     payment = paypalrestsdk.Payment(
@@ -1231,7 +1242,7 @@ def create_payment():
 
     if payment.create():
         # Add tid to class mapping so we can pull it up in confirm payment
-        new_transaction = TransactionProcessing(payment.id, current_class[0].CLASS)
+        new_transaction = TransactionProcessing(payment.id, current_class[0].CLASS, current_user.USER)
         db.session.add(new_transaction)
         db.session.commit()
         return jsonify({'tid': payment.id})
@@ -1270,7 +1281,8 @@ def confirm_payment():
     if not enrolled_in_class(transaction_processing.CLASS):
         print("I got here")
         enrolled_relation = Class.query.get(transaction_processing.CLASS)
-        current_user.CLASS_RELATION.append(enrolled_relation)
+        print(enrolled_relation)
+        current_user.CLASS_ENROLLED_RELATION.append(enrolled_relation)
     db.session.commit()
     return jsonify(code="Processed")
 
@@ -1278,7 +1290,6 @@ def confirm_payment():
 @routes.route('/cancel', methods=['POST'])
 def cancel_order():
     return jsonify(code="hello")
-
 
 
 @routes.route('/freeTrial', methods=['POST'])
@@ -1307,7 +1318,7 @@ def free_trial():
     time = datetime.now() + timedelta(weeks=2)
     new_transaction = Transaction(free_trial_string, current_user.USER, current_class.CLASS, time)
     db.session.add(new_transaction)
-    current_user.CLASS_RELATION.append(current_class)
+    current_user.CLASS_ENRROLED_RELATION.append(current_class)
     db.session.commit()
     return jsonify(code="Sucsess")
 

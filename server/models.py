@@ -43,7 +43,7 @@ class Class(db.Model):
             enroll_key_class = Class.query.filter(Class.enroll_key == self.enroll_key).all()
 
     def __repr__(self):
-        return f'<Class {self.USER} {self.name} {self.enroll_key}>'
+        return f'<Class {self.CLASS} {self.USER} {self.name} {self.enroll_key}>'
 
 
 class Takes(db.Model):
@@ -239,9 +239,11 @@ class TransactionProcessing(db.Model):
 
     TRANSACTIONPROCESSING = db.Column(db.String(30), primary_key=True)
     CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
 
     CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_PROCESSING_RELATION")
 
-    def __init__(self, TransactionProcessing, CLASS):
+    def __init__(self, TransactionProcessing, CLASS, USER):
         self.TRANSACTIONPROCESSING = TransactionProcessing
         self.CLASS = CLASS
+        self.USER = USER
