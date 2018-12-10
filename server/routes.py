@@ -1,6 +1,7 @@
 from flask import Blueprint, abort, jsonify, request, make_response
 from flask_login import login_required, current_user
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import func
 from server.MathCode.question import AvoQuestion
 from random import randint
 from datetime import datetime, timedelta
@@ -148,9 +149,9 @@ def get_classes():
                     class_median, class_mean, class_stdev = 0, 0, 0
                 else:
                     # Calculate the values
-                    class_median = statistics.median(marks_array)
-                    class_mean = statistics.mean(marks_array)
-                    class_stdev = 0
+                    #class_median = statistics.median(marks_array)
+                    #class_mean = statistics.mean(marks_array)
+                    #class_stdev = 0
                     if len(marks_array) > 1:
                         # If there are more then two marks a stdev will be calculated
                         class_stdev = statistics.stdev(marks_array)
