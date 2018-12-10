@@ -239,9 +239,11 @@ class TransactionProcessing(db.Model):
 
     TRANSACTIONPROCESSING = db.Column(db.String(30), primary_key=True)
     CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
 
     CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_PROCESSING_RELATION")
 
-    def __init__(self, TransactionProcessing, CLASS):
+    def __init__(self, TransactionProcessing, CLASS, USER):
         self.TRANSACTIONPROCESSING = TransactionProcessing
         self.CLASS = CLASS
+        self.USER = USER
