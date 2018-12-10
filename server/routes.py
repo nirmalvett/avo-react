@@ -279,7 +279,7 @@ def test_stats():
     for i in range(len(question_total_marks)):
         # For each question calculate mean median and stdev
         if len(question_total_marks[i]) > 0:
-            current_question = {'questionMean': statistics.mean(question_total_marks[i]),
+            current_question = {'questionMean': round(statistics.mean(question_total_marks[i]), 2),
                                 'questionMedian': statistics.median(question_total_marks[i]),
                                 'topMarksPerStudent': question_total_marks[i],
                                 'totalMark': test_question_marks[i]
