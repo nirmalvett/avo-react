@@ -15,19 +15,17 @@ from server.auth import teaches_class, enrolled_in_class, able_edit_set
 from server.models import *
 import statistics
 routes = Blueprint('routes', __name__)
-runPaypal = True # Leave this here so we don't get merge conflicts later on with the others working on web
 
-if (runPaypal):
-    # todo not sure if this is the right place for it, just setting up paypal credentials
-    paypalrestsdk.configure(
-        {
-            # 'mode': 'live',
-            'mode': config.PAYPAL_MODE,
-            # todo get Frank to set up the account id/secret
-            'client_id': config.PAYPAL_ID,
-            'client_secret': config.PAYPAL_SECRET
-        }
-    )
+# todo not sure if this is the right place for it, just setting up paypal credentials
+paypalrestsdk.configure(
+    {
+        # 'mode': 'live',
+        'mode': config.PAYPAL_MODE,
+        # todo get Frank to set up the account id/secret
+        'client_id': config.PAYPAL_ID,
+        'client_secret': config.PAYPAL_SECRET
+    }
+)
 
 
 @routes.route('/changeColor', methods=['POST'])
@@ -126,9 +124,6 @@ def get_classes():
                 takes = Takes.query.order_by(Takes.time_started).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER)).all()
                 submitted = []  # List of takes indexes
                 current = None  # Current instance of takes
-                questions = eval(t.question_list)
-                for i in range(len(questions)):
-                    current_question = Question.query.get(questions[i])
                 for ta in takes:
                     # For each instance of takes append the data
                     if ta is not None:

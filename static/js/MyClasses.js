@@ -131,7 +131,7 @@ export default class MyClasses extends React.Component {
                         <BarChartOutlinedIcon color='action'/>
                         <ListItemText inset primary='My Analytics'/>
                     </ListItem>
-                    <ListItem button id="avo-myclasses__enroll-button" onClick={() => this.setState({ joinClassPopperOpen : true })}>
+                    <ListItem button id="avo-myclasses__enroll-button" onClick={() => this.setState({ joinClassPopperOpen : true, joinClassPopperIdx : 0 })}>
                         <AddBoxOutlinedIcon color='action'/>
                         <ListItemText inset primary='Enroll in Class'/>
                     </ListItem>
