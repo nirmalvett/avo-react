@@ -295,8 +295,11 @@ export default class MyClasses extends React.Component {
                                     <span style={{ 'float' : 'left' }}>Discounted price:</span><span style={{ 'float' : 'right' }}>${this.state.enrollObj.discount}</span>
                                 </Typography>
                                 <br/>
+                                <Divider/>
                                 <br/>
                                 <center><div id="paypal-button"/></center>
+                                <br/>
+                                <Button color="primary" onClick={() => { this.setState({ joinClassPopperOpen: false }) }}>Close</Button>
                             </React.Fragment>
                         )}
                     </Paper>
