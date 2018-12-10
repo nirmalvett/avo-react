@@ -1,6 +1,7 @@
 from flask import Blueprint, abort, jsonify, request, make_response
 from flask_login import login_required, current_user
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import func
 from server.MathCode.question import AvoQuestion
 from random import randint
 from datetime import datetime, timedelta
@@ -138,7 +139,8 @@ def get_classes():
                 for s in student_list:
                     # For each student get best takes and calculate averages
                     takes = Takes.query.order_by(Takes.grade).filter(
-                        (Takes.TEST == t.TEST) & (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
+                        (Takes.TEST == t.TEST) &
+                        (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
                     if len(takes) is not 0:
                         # If the student has taken the test then add best instance to mean and median
                         marks_array.append((takes[len(takes) - 1].grade / t.total) * 100)  # Add mark to mark array
@@ -1185,8 +1187,12 @@ def create_payment():
                                                       (current_user.USER == TransactionProcessing.USER)).first()
     if existing_tid is not None:
         try:
-            paypalrestsdk.Payment.find(existing_tid.TRANSACTIONPROCESSING)
-            return jsonify({'tid': existing_tid.TRANSACTIONPROCESSING})
+            payment = paypalrestsdk.Payment.find(existing_tid.TRANSACTIONPROCESSING)
+            if payment.state == 'created':
+                return jsonify({'tid': existing_tid.TRANSACTIONPROCESSING})
+            else:
+                db.session.remove(existing_tid)
+                db.session.commit()
         except paypalrestsdk.ResourceNotFound:
             db.session.remove(existing_tid)
             db.session.commit()
@@ -1312,7 +1318,7 @@ def free_trial():
     time = datetime.now() + timedelta(weeks=2)
     new_transaction = Transaction(free_trial_string, current_user.USER, current_class.CLASS, time)
     db.session.add(new_transaction)
-    current_user.CLASS_RELATION.append(current_class)
+    current_user.CLASS_ENRROLED_RELATION.append(current_class)
     db.session.commit()
     return jsonify(code="Sucsess")
 
