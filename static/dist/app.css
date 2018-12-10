@@ -113,7 +113,7 @@ body {
 }
 
 .avo-card__header {
-    padding-top: 0 !important;
+    /* padding-top: 0 !important; */
     padding-left: 8px !important;
 }
 
