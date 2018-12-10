@@ -15,17 +15,19 @@ from server.auth import teaches_class, enrolled_in_class, able_edit_set
 from server.models import *
 import statistics
 routes = Blueprint('routes', __name__)
+runPaypal = True # Leave this here so we don't get merge conflicts later on with the others working on web
 
-# todo not sure if this is the right place for it, just setting up paypal credentials
-paypalrestsdk.configure(
-    {
-        # 'mode': 'live',
-        'mode': config.PAYPAL_MODE,
-        # todo get Frank to set up the account id/secret
-        'client_id': config.PAYPAL_ID,
-        'client_secret': config.PAYPAL_SECRET
-    }
-)
+if (runPaypal):
+    # todo not sure if this is the right place for it, just setting up paypal credentials
+    paypalrestsdk.configure(
+        {
+            # 'mode': 'live',
+            'mode': config.PAYPAL_MODE,
+            # todo get Frank to set up the account id/secret
+            'client_id': config.PAYPAL_ID,
+            'client_secret': config.PAYPAL_SECRET
+        }
+    )
 
 
 @routes.route('/changeColor', methods=['POST'])
