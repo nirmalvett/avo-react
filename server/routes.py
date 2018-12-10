@@ -436,6 +436,12 @@ def enroll():
         # If the user is a teacher enroll them into the class
         current_user.CLASS_ENROLLED_RELATION.append(current_class)
         return jsonify(message='Enrolled')
+    transaction = Transaction.query.filter((Transaction.USER == current_user.USER) &
+                                           (Transaction.CLASS == current_class.CLASS)).all()  # Checks if the user has a free trial
+    free_trial = False
+    #for i in range(len(transaction)):
+        # For each transaction see if it starts with a
+
     if current_class.price_discount == 0.0:
         # Append current user to the class
         current_user.CLASS_ENROLLED_RELATION.append(current_class)
@@ -1302,7 +1308,7 @@ def free_trial():
         return abort(400)
 
     data = request.json
-    enroll_key = data['enrollKey']
+    enroll_key = data['classID']
     if not isinstance(enroll_key, str):
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
