@@ -1187,8 +1187,12 @@ def create_payment():
                                                       (current_user.USER == TransactionProcessing.USER)).first()
     if existing_tid is not None:
         try:
-            paypalrestsdk.Payment.find(existing_tid.TRANSACTIONPROCESSING)
-            return jsonify({'tid': existing_tid.TRANSACTIONPROCESSING})
+            payment = paypalrestsdk.Payment.find(existing_tid.TRANSACTIONPROCESSING)
+            if payment.state == 'created':
+                return jsonify({'tid': existing_tid.TRANSACTIONPROCESSING})
+            else:
+                db.session.remove(existing_tid)
+                db.session.commit()
         except paypalrestsdk.ResourceNotFound:
             db.session.remove(existing_tid)
             db.session.commit()
