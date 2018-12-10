@@ -43,6 +43,9 @@ const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
 const CONST_TAB_MY_ATTEMPTS = 2;
 
+const CONST_FREE_CLASS = 0;
+const CONST_PAID_CLASS = 1;
+
 const CONST_OVERALL_ANALYTICS_DEFAULT = 3;
 
 export default class MyClasses extends React.Component {
@@ -196,7 +199,7 @@ export default class MyClasses extends React.Component {
                     }}
                 >
                     <Paper style={{ marginLeft: '10em', padding : '10px', height : 'auto' }}>
-                        {this.state.joinClassPopperIdx === 0 && (
+                        {this.state.joinClassPopperIdx === CONST_FREE_CLASS && (
                             <React.Fragment>
                                 <Typography component={'span'} variant='body1' color="textPrimary">
                                     Please enter the course code for the class you want to enroll in!
@@ -278,7 +281,7 @@ export default class MyClasses extends React.Component {
                                 <Button color="primary" onClick={() => { this.setState({ joinClassPopperOpen: false }) }}>Close</Button>
                             </React.Fragment>
                         )}
-                        {this.state.joinClassPopperIdx === 1 && (
+                        {this.state.joinClassPopperIdx === CONST_PAID_CLASS && (
                             <React.Fragment>
                                 <Typography component={'span'} variant='display1' color="primary" classes={{root : "avo-padding__16px"}}>
                                     Course code is valid!
@@ -370,7 +373,7 @@ export default class MyClasses extends React.Component {
                 </AVOModal>)
         }
     }
-
+    
     detailsCard() {
         let selectedClass = this.state.classes[this.state.c];
         // Class with tests
