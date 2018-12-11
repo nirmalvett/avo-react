@@ -205,7 +205,7 @@ export default class MyClasses extends React.Component {
                         {this.state.joinClassPopperIdx === CONST_FREE_CLASS && (
                             <React.Fragment>
                                 <Typography component={'span'} variant='body1' color="textPrimary">
-                                    Please enter the course code for the class you want to enroll in!
+                                    Please enter the course code for the class you want to enroll in.
                                 </Typography>
                                 <TextField
                                     id='avo-myclasses__enroll-textfield'
@@ -287,10 +287,10 @@ export default class MyClasses extends React.Component {
                         {this.state.joinClassPopperIdx === CONST_PAID_CLASS && (
                             <React.Fragment>
                                 <Typography component={'span'} variant='display1' color="primary" classes={{root : "avo-padding__16px"}}>
-                                    Course code is valid!
+                                    Course code is valid.
                                 </Typography>
                                 <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                                    To confirm your selection please pay via PayPal
+                                    To confirm your selection please pay via PayPal.
                                 </Typography>
                                 <br/>
 
