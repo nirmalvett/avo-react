@@ -1,6 +1,5 @@
 import React, {Fragment} from 'react';
 import Http from './Http';
-import Menu from '@material-ui/core/Menu';
 import Popper from '@material-ui/core/Popper';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
@@ -20,10 +19,11 @@ import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import Stop from '@material-ui/icons/Stop';
-import MoreVert from '@material-ui/icons/MoreVert';
 import PlayArrow from '@material-ui/icons/PlayArrow';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import RemoveRedEyeOutlined from '@material-ui/icons/RemoveRedEyeOutlined';
+import EditOutlined from '@material-ui/icons/EditOutlined';
 import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined';
 import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 import GetAppOutlinedIcon from '@material-ui/icons/GetAppOutlined';
@@ -42,9 +42,10 @@ import { avoGreenGraph } from "./AVOCustomColors";
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import { convertListFloatToAnalytics } from "./helpers";
+
+const enableEditMarks = false; // if this is true then editMarks button will appear
 
 export default class ManageClasses extends React.Component {
     constructor(props) {
@@ -76,7 +77,6 @@ export default class ManageClasses extends React.Component {
 
     render() {
         let cardStyle = {marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};
-        console.log(this.state.classes);
         return (
             <div style={{width: '100%', flex: 1, display: 'flex'}}>
                 <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
@@ -186,7 +186,6 @@ export default class ManageClasses extends React.Component {
             return (
                 <Fragment key = {`detailsCard-${uniqueKey1}`}>
                     <CardHeader
-                        classes={{root: 'avo-card__header'}}
                         title={selectedTest.name}
                         action={
                             <Fragment>
@@ -334,22 +333,31 @@ export default class ManageClasses extends React.Component {
                                                             ))}
                                                         </Select>
                                                     </FormControl>
-                                                    <Button 
-                                                        color="primary"
-                                                        classes={{
-                                                            disabled : 'disabled'
-                                                        }}
-                                                        disabled={x.tests.length === 0}
-                                                        onClick={() => {
-                                                            this.props.postTest(
-                                                                this.state.results[idx].tests[
-                                                                    this.state.resultsIndexArray[idx]
-                                                                ].takes
-                                                            );
-                                                        }}
-                                                    >
-                                                        View
-                                                    </Button>
+                                                    <Tooltip title="View Submission for selected attempt">
+                                                        <IconButton 
+                                                            classes={{
+                                                                disabled : 'disabled'
+                                                            }}
+                                                            disabled={x.tests.length === 0}
+                                                            onClick={() => {
+                                                                this.props.postTest(
+                                                                    this.state.results[idx].tests[
+                                                                        this.state.resultsIndexArray[idx]
+                                                                    ].takes
+                                                                );
+                                                            }}
+                                                        >
+                                                            <RemoveRedEyeOutlined/>
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                  { enableEditMarks
+                                                      ?  <Tooltip title="Edit marks for selected attempt">
+                                                              <IconButton
+                                                                  onClick={() => this.closeTest()}><EditOutlined/></IconButton>
+                                                        </Tooltip>
+                                                      : null
+
+                                                  }
                                                 </ListItemSecondaryAction>
                                             </ListItem>
                                         </Fragment>)
@@ -361,7 +369,7 @@ export default class ManageClasses extends React.Component {
                         <Popper
                             placement="left-start"
                             open={this.state.deleteTestPopperOpen}
-                            anchorEl={document.getElementById('avo-manageclasses__delete-button')}
+                            anchorEl={(() => { return document.getElementById('avo-manageclasses__delete-button')})}
                             disablePortal={false}
                             modifiers={{
                                 flip: {
@@ -414,7 +422,7 @@ export default class ManageClasses extends React.Component {
                                 </IconButton>
                             </Tooltip>,
                             <Tooltip key = {`CSVToolTip-:${uniqueKey1}`} title="Download CSV">
-                                <IconButton onClick={() => alert('CSV download coming soon!')}>
+                                <IconButton onClick={() =>  window.location.href = (`/CSV/ClassMarks/${selectedClass.id}`)}>
                                     <GetAppOutlinedIcon/>
                                 </IconButton>
                             </Tooltip>
@@ -578,7 +586,7 @@ export default class ManageClasses extends React.Component {
         ) });
     }
 
-       getPerQuestionGraphOptions() {
+    getPerQuestionGraphOptions() {
         let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
         let dataObj = convertListFloatToAnalytics(
             this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent, 
