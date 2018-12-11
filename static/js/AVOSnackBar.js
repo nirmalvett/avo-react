@@ -3,7 +3,7 @@ import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import WarningIcon from "@material-ui/icons/Warning";
 import ErrorIcon from "@material-ui/icons/Error";
 import InfoIcon from "@material-ui/icons/Info";
-import {green} from "@material-ui/core/colors";
+import {green, yellow, red, orange} from "@material-ui/core/colors";
 import {withStyles} from "@material-ui/core/styles";
 import SnackbarContent from "@material-ui/core/SnackbarContent";
 import classNames from "classnames";
@@ -22,13 +22,13 @@ const styles1 = theme => ({
         backgroundColor: green[600],
     },
     error: {
-        backgroundColor:  green[600],
+        backgroundColor:  red,
     },
     info: {
         backgroundColor:  green[600],
     },
     warning: {
-        backgroundColor:  green[600],
+        backgroundColor:  yellow,
     },
     icon: {
         fontSize: 20,
