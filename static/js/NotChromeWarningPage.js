@@ -29,7 +29,7 @@ export default class NotChromeWarningPage extends React.Component{
                       <br/>
                       <br/>
                       <Typography>
-                          To download Chrome please visit: https://www.google.com/chrome/
+                          To download Chrome <a href="https://www.google.com/chrome/">click here</a>
                       </Typography>
                 </Card>
               </div>

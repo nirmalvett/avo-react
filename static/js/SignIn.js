@@ -29,7 +29,6 @@ export default class SignIn extends React.Component {
             signInError: '',
             hasAgreedToTOS : false
         };
-        if (!isChrome()){ alert(notChromeMessage) }
     }
 
 
