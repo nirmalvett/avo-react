@@ -434,7 +434,9 @@ def enroll():
         return jsonify(error='Invalid enroll key')
     if current_user.is_teacher:
         # If the user is a teacher enroll them into the class
-        current_user.CLASS_ENROLLED_RELATION.append(current_class)
+        if not teaches_class(current_class.CLASS):
+            # If the teacher does not teach the class return JSON of success
+            current_user.CLASS_ENROLLED_RELATION.append(current_class)
         return jsonify(message='Enrolled')
     transaction = Transaction.query.filter((Transaction.USER == current_user.USER) &
                                            (Transaction.CLASS == current_class.CLASS)).all()  # Checks if the user has a free trial
