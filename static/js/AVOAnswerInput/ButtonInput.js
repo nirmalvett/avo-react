@@ -166,7 +166,6 @@ export default class ButtonInput extends React.Component {
     }
     showObject(){
       const {type, previousAnswer} = this.state;
-      console.log("showObject previousAnswer", previousAnswer);
       // CASE 0: We have a previous answer so just process it and display it
       if (previousAnswer !== ""){
            return (
@@ -176,15 +175,7 @@ export default class ButtonInput extends React.Component {
                     alignItems="center">
               { getMathJax(this.renderServerToLatex(), 'body2') }
               <br/> <br/>
-               <Button
-                  variant="extendedFab"
-                  color = "primary"
-                  aria-label="Delete"
-                  onClick = {() => this.resetAll() }
-                  disabled = { this.state.disabled }
-              >
-                 Clear Answer
-             </Button>
+               {this.clearAnswerButton()}
             </Grid>
         )
       }
@@ -192,6 +183,28 @@ export default class ButtonInput extends React.Component {
       if (type === CONST_VECTOR){ return this.vectorShowObject(); }
       else if (type === CONST_MATRIX) { return this.matrixShowObject();  }
       else if (type === CONST_BASIS ) { return this.basisShowObject() }
+    }
+    clearAnswerButton(){
+      // depending on different answer types it will say Clear Answer differently.
+      // So for a matrix it should say Clear Matrix Answer
+      const { type, disabled } = this.state;
+      let buttonText = "Clear Answer";
+      if (type === CONST_BASIS){buttonText = "Clear Basis Answer"}
+      else if (type === CONST_MATRIX){buttonText = "Clear Matrix Answer"}
+      else if (type === CONST_VECTOR_LINEAR_EXPRESSION){buttonText = "Clear Vector Answer"}
+      else if (type === CONST_VECTOR){buttonText = "Clear Vector Answer"}
+      else (console.warn("clearAnswerButton(), type: " + type + " not accounted for in logic"))
+      return (
+           <Button
+                  variant="extendedFab"
+                  color = "primary"
+                  aria-label="Delete"
+                  onClick = {() => this.resetAll() }
+                  disabled = { disabled }
+              >
+              { buttonText }
+             </Button>
+      )
     }
 
     // ================================== Vector Input Logic ===========================================
@@ -293,14 +306,7 @@ export default class ButtonInput extends React.Component {
               Finish Answer
             </Button>
             <br/>
-            <Button
-                variant="extendedFab"
-                color = "primary"
-                aria-label="Delete"
-                onClick = {() => this.resetAll() }
-            >
-               Clear Answer
-           </Button>
+            { this.clearAnswerButton()}
           </Grid>
       )
     }
@@ -317,15 +323,7 @@ export default class ButtonInput extends React.Component {
              { getMathJax(latexString) }
 
             <br/> <br/>
-             <Button
-                variant="extendedFab"
-                color = "primary"
-                aria-label="Delete"
-                disabled = {disabled}
-                onClick = {() => this.resetAll() }
-            >
-               Clear Answer
-           </Button>
+             { this.clearAnswerButton() }
           </Grid>
       )
     }
@@ -486,14 +484,7 @@ export default class ButtonInput extends React.Component {
               Finish Answer
             </Button>
             <br/>
-            <Button
-                variant="extendedFab"
-                color = "primary"
-                aria-label="Delete"
-                onClick = {() => this.resetAll() }
-            >
-               Clear Answer
-           </Button>
+            { this.clearAnswerButton() }
           </Grid>
       )
     }
@@ -509,15 +500,7 @@ export default class ButtonInput extends React.Component {
                   alignItems="center">
             { getMathJax(latexString) }
             <br/> <br/>
-             <Button
-                variant="extendedFab"
-                color = "primary"
-                aria-label="Delete"
-                disabled = {disabled}
-                onClick = {() => this.resetAll() }
-            >
-               Clear Answer
-           </Button>
+            { this.clearAnswerButton() }
           </Grid>
       )
     }
@@ -704,14 +687,7 @@ export default class ButtonInput extends React.Component {
               Finish Answer
             </Button>
             <br/>
-            <Button
-                variant="extendedFab"
-                color = "primary"
-                aria-label="Delete"
-                onClick = {() => this.resetAll() }
-            >
-               Clear Answer
-           </Button>
+            { this.clearAnswerButton() }
           </Grid>
       )
     }
@@ -727,15 +703,7 @@ export default class ButtonInput extends React.Component {
                   alignItems="center">
             { getMathJax(latexString) }
             <br/> <br/>
-             <Button
-                variant="extendedFab"
-                color = "primary"
-                aria-label="Delete"
-                disabled = {disabled}
-                onClick = {() => this.resetAll() }
-            >
-               Clear Answer
-           </Button>
+            { this.clearAnswerButton() }
           </Grid>
       )
     }

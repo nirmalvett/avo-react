@@ -66,6 +66,10 @@ export function isChrome(){
       }
 
     }
+export function isSafari(){
+  return (/^((?!chrome|android).)*safari/i.test(navigator.userAgent));
+
+}
 
 
 export function convertListFloatToAnalytics(inputList, topMark){
