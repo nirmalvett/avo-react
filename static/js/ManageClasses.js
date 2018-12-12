@@ -242,7 +242,6 @@ export default class ManageClasses extends React.Component {
         )
     }
 
-
     detailsCard_selectedClass(selectedClass, uniqueKey1){
         return (
                   <Fragment>
@@ -285,8 +284,6 @@ export default class ManageClasses extends React.Component {
                 </Fragment>
         )
     }
-
-
 
     detailsCard_selectedTest(analyticsDataObj, selectedTest, uniqueKey1){
         return (
@@ -514,9 +511,7 @@ export default class ManageClasses extends React.Component {
                 </Fragment>
             );
     }
-
-
-
+    
     selectClass(index) {
         let newClassList = copy(this.state.classes);
         if (newClassList[index].tests.length > 0)
