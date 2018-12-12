@@ -3,7 +3,7 @@ import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import WarningIcon from "@material-ui/icons/Warning";
 import ErrorIcon from "@material-ui/icons/Error";
 import InfoIcon from "@material-ui/icons/Info";
-import {green, yellow, red, orange} from "@material-ui/core/colors";
+import {green, amber } from "@material-ui/core/colors";
 import {withStyles} from "@material-ui/core/styles";
 import SnackbarContent from "@material-ui/core/SnackbarContent";
 import classNames from "classnames";
@@ -18,29 +18,30 @@ const variantIcon = {
     info: InfoIcon,
 };
 const styles1 = theme => ({
-    success: {
-        backgroundColor: green[600],
-    },
-    error: {
-        backgroundColor:  red,
-    },
-    info: {
-        backgroundColor:  green[600],
-    },
-    warning: {
-        backgroundColor:  yellow,
-    },
-    icon: {
-        fontSize: 20,
-    },
-    iconVariant: {
-        opacity: 0.9,
-        marginRight: theme.spacing.unit,
-    },
-    message: {
-        display: 'flex',
-        alignItems: 'center',
-    },
+  success: {
+    backgroundColor: green[600],
+  },
+  error: {
+    backgroundColor: theme.palette.error.dark,
+  },
+  info: {
+    backgroundColor: theme.palette.primary.dark,
+  },
+  warning: {
+    backgroundColor: amber[700],
+  },
+  icon: {
+    fontSize: 20,
+  },
+  iconVariant: {
+    opacity: 0.9,
+    marginRight: theme.spacing.unit,
+  },
+  message: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+});
 });
 export const MySnackbarContentWrapper = withStyles(styles1)(MySnackbarContent);
 export function MySnackbarContent(props) {
