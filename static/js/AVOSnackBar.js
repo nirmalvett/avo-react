@@ -10,6 +10,7 @@ import classNames from "classnames";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 import React from "react";
+import Typography from "@material-ui/core/Typography/Typography";
 
 const variantIcon = {
     success: CheckCircleIcon,
@@ -25,7 +26,7 @@ const styles1 = theme => ({
     backgroundColor: theme.palette.error.dark,
   },
   info: {
-    backgroundColor: theme.palette.primary.dark,
+    backgroundColor: green[600],
   },
   warning: {
     backgroundColor: amber[700],
@@ -54,7 +55,7 @@ export function MySnackbarContent(props) {
             message={
                 <span id="client-snackbar" className={classes.message}>
                     <Icon className={classNames(classes.icon, classes.iconVariant)} />
-                    {message}
+                  { message }
                 </span>
             }
             action={
