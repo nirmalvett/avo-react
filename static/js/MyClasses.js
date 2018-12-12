@@ -416,13 +416,9 @@ export default class MyClasses extends React.Component {
                 && (selectedTest.attempts === -1 || selectedTest.submitted.length < selectedTest.attempts);
             return (
                 <Fragment>
-                    <CardHeader
-                        classes={{
-                            root: 'avo-card__header'
-                        }}
-                        title={selectedTest.name}
-                    />
-                    <Button
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <Typography variant='title'> { selectedTest.name }</Typography>
+                        <Button
                         color='primary'
                         classes={{
                             root: 'avo-card__header-button',
@@ -433,9 +429,10 @@ export default class MyClasses extends React.Component {
                     >
                         {selectedTest.current === null ? 'Start Test' : 'Resume Test'}
                     </Button>
-                    { this.detailsCard_infoAboutTest(selectedTest) } {/* Display the test attempt, due date, ...etc */}
-                    <br/>
-
+                  </div>
+                  <br/>
+                  { this.detailsCard_infoAboutTest(selectedTest) } {/* Display the test attempt, due date, ...etc */}
+                  <br/>
                   { this.detailsCard_tabs(bestMark, analyticsDataObj, selectedClass, selectedTest) }
                 </Fragment>
             );
