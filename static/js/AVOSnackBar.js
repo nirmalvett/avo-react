@@ -42,7 +42,7 @@ const styles1 = theme => ({
     alignItems: 'center',
   },
 });
-});
+
 export const MySnackbarContentWrapper = withStyles(styles1)(MySnackbarContent);
 export function MySnackbarContent(props) {
     const { classes, className, message, onClose, variant } = props;
