@@ -251,9 +251,9 @@ export default class ManageClasses extends React.Component {
                         subheader={'Enroll Key: ' + selectedClass.enrollKey}
                         action={[
                             <Tooltip key = {`newTestToolTip-:${uniqueKey1}`} title="Create a new Test">
-                                <IconButton onClick={() => this.state.createTest(selectedClass.id)}>
-                                    <NoteAddOutlinedIcon/>
-                                </IconButton>
+                                    <IconButton onClick={() => this.state.createTest(selectedClass.id)}>
+                                        <NoteAddOutlinedIcon/>
+                                    </IconButton>
                             </Tooltip>,
                             <Tooltip key = {`CSVToolTip-:${uniqueKey1}`} title="Download CSV">
                                 <IconButton onClick={() =>  window.location.href = (`/CSV/ClassMarks/${selectedClass.id}`)}>
@@ -437,21 +437,23 @@ export default class ManageClasses extends React.Component {
                                                         </Select>
                                                     </FormControl>
                                                     <Tooltip title="View Submission for selected attempt">
-                                                        <IconButton
-                                                            classes={{
-                                                                disabled : 'disabled'
-                                                            }}
-                                                            disabled={x.tests.length === 0}
-                                                            onClick={() => {
-                                                                this.props.postTest(
-                                                                    this.state.results[idx].tests[
-                                                                        this.state.resultsIndexArray[idx]
-                                                                    ].takes
-                                                                );
-                                                            }}
-                                                        >
-                                                            <RemoveRedEyeOutlined/>
-                                                        </IconButton>
+                                                        <span> {/* All icons that can be disabled need this to prevent warning*/}
+                                                            <IconButton
+                                                                classes={{
+                                                                    disabled : 'disabled'
+                                                                }}
+                                                                disabled={x.tests.length === 0}
+                                                                onClick={() => {
+                                                                    this.props.postTest(
+                                                                        this.state.results[idx].tests[
+                                                                            this.state.resultsIndexArray[idx]
+                                                                        ].takes
+                                                                    );
+                                                                }}
+                                                            >
+                                                                <RemoveRedEyeOutlined/>
+                                                            </IconButton>
+                                                        </span>
                                                     </Tooltip>
                                                   { enableEditMarks
                                                       ?  <Tooltip title="Edit marks for selected attempt">
