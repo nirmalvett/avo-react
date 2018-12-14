@@ -335,7 +335,7 @@ export default class ManageClasses extends React.Component {
                         <Tab label="Per Question Analytics" />
                         <Tab label="Test Submissions" />
                     </Tabs>
-                    {CONST_TAB_OVERALL_ANALYTICS === 0 && (
+                    {this.state.activeTab === CONST_TAB_OVERALL_ANALYTICS && (
                         <React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
                                 <br/>
@@ -358,7 +358,7 @@ export default class ManageClasses extends React.Component {
                             </div>
                         </React.Fragment>
                     )}
-                    {CONST_TAB_PER_QUESTION === 1 && (
+                    {this.state.activeTab === CONST_TAB_PER_QUESTION && (
                         <React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
                                 <br/>
@@ -396,7 +396,7 @@ export default class ManageClasses extends React.Component {
                             </div>
                         </React.Fragment>
                     )}
-                    {CONST_TAB_MY_ATTEMPTS === 2 && (
+                    {this.state.activeTab === CONST_TAB_MY_ATTEMPTS && (
                         <React.Fragment>
                             <br/>
                             <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
