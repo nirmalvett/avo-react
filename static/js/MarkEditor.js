@@ -1,33 +1,17 @@
 import React from 'react';
 import Http from './Http';
+import Button from '@material-ui/core/Button';
 import Grid from "@material-ui/core/Grid/Grid";
-import Card from "@material-ui/core/Card/Card";
-import CardHeader from "@material-ui/core/CardHeader/CardHeader";
-import {getMathJax} from "./Utilities";
-import Divider from "@material-ui/core/Divider/Divider";
-import AnswerInput from "./AVOAnswerInput/AnswerInput";
-import Typography from "@material-ui/core/Typography/Typography";
-import IconButton from '@material-ui/core/IconButton/IconButton';
-import {uniqueKey} from "./helpers";
-import Check from '@material-ui/icons/Check';
-import Close from '@material-ui/icons/Close';
+import Save from '@material-ui/icons/Save';
+import MarkEditorQuestionCard from './MarkEditorQuestionCard';
 
 export default class MarkEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            questions: []
+            questions: [],
         };
-        Http.postTest(this.props.takes, result => {
-            this.setState(result);
-            this.markButtonMarkers = this.state.questions.map((question) => {
-                // {question.scores[y]}/{question.totals[y]}
-                const questionSegments = question.explanation.map((explanation, idx) => {
-                    return question.scores[idx];
-                });
-                return questionSegments;
-            });
-        }, () => {});
+        this.markButtonMarkers = [];
     }
 
     render() {
@@ -35,38 +19,44 @@ export default class MarkEditor extends React.Component {
             <Grid container spacing={8}>
                 <Grid xs={1}/>
                 <Grid xs={10} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
-                    {this.state.questions.map((x, y) => this.getQuestionCard(x, y))}
+                    {this.state.questions.map((x, y) => <MarkEditorQuestionCard 
+                                                            qMarks={this.markButtonMarkers[y]}
+                                                            index={y}
+                                                            question={x}
+                                                            markButtonMarkers={this.markButtonMarkers}
+                                                        />
+                    )}
                 </Grid>
                 <Grid xs={1}/>
+                <div style={{ position : 'relative' }}>
+                    <Button variant="contained" color="primary" classes={{ root : 'avo-generic__low-shadow' }} style={{ position: 'fixed', bottom: '3em', right: '3em', height: '4.5em', width: '4.5em', borderRadius: '50%' }} aria-label="Save" onClick={() => {
+                        Http.changeMark(
+                            this.props.takes,
+                            this.markButtonMarkers,
+                            (result) => {
+                                console.log(result);
+                            },
+                            () => {}
+                        );
+                    }}>
+                        <Save />
+                    </Button>
+                </div>
             </Grid>
         );
     }
 
-    getQuestionCard(question, index) {
-        return (
-            <Card key = { uniqueKey() } style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
-                <CardHeader title={getMathJax(question.prompt)} style={{position: 'relative'}} action={
-                    <Typography variant='headline' color='primary'>
-                        {question.scores.reduce((a, b) => a+b, 0)}/{question.totals.reduce((a, b) => a+b, 0)}
-                    </Typography>
-                }/>
-                {question.prompts.map((x, y) => [
-                    <Divider key = { uniqueKey() } style={{marginTop: '10px', marginBottom: '10px'}}/>,
-                    <AnswerInput key = { uniqueKey() } disabled type={question.types[y]} value={question.answers[y]} prompt={x}/>
-                ])}
-                {question.explanation.map((x, y) => [
-                    <Divider key = { uniqueKey() } style={{marginTop: '10px', marginBottom: '10px'}}/>,
-                    <div key = { uniqueKey() } style={{position: 'absolute', right: '8px', top: '8px'}}>
-                        <IconButton onClick={() => this.handleClick(question.scores[y], index)}>
-                            <Check/>
-                        </IconButton>
-                    </div>
-                ])}
-            </Card>
-        );
-    }
-
-    handleClick(score, index) {
-        console.log(score, index);
+    componentDidMount() {
+        Http.postTest(this.props.takes, result => {
+            this.markButtonMarkers = result.questions.map((question) => {
+                // {question.scores[y]}/{question.totals[y]}
+                const questionSegments = question.explanation.map((explanation, idx) => {
+                    return question.scores[idx];
+                });
+                return questionSegments;
+            });
+            this.setState({ questions : result.questions });
+            console.log(this);
+        }, () => {});
     }
 }

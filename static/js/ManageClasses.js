@@ -45,7 +45,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import { convertListFloatToAnalytics } from "./helpers";
 
-const enableEditMarks = false; // if this is true then editMarks button will appear
+const enableEditMarks = true; // if this is true then editMarks button will appear
 const cardStyle = {marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
@@ -335,7 +335,7 @@ export default class ManageClasses extends React.Component {
                         <Tab label="Per Question Analytics" />
                         <Tab label="Test Submissions" />
                     </Tabs>
-                    {CONST_TAB_OVERALL_ANALYTICS === 0 && (
+                    {this.state.activeTab == 0 && (
                         <React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
                                 <br/>
@@ -358,7 +358,7 @@ export default class ManageClasses extends React.Component {
                             </div>
                         </React.Fragment>
                     )}
-                    {CONST_TAB_PER_QUESTION === 1 && (
+                    {this.state.activeTab == 1 && (
                         <React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
                                 <br/>
@@ -396,7 +396,7 @@ export default class ManageClasses extends React.Component {
                             </div>
                         </React.Fragment>
                     )}
-                    {CONST_TAB_MY_ATTEMPTS === 2 && (
+                    {this.state.activeTab == 2 && (
                         <React.Fragment>
                             <br/>
                             <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
@@ -456,7 +456,18 @@ export default class ManageClasses extends React.Component {
                                                   { enableEditMarks
                                                       ?  <Tooltip title="Edit marks for selected attempt">
                                                               <IconButton
-                                                                  onClick={() => this.closeTest()}><EditOutlined/></IconButton>
+                                                                  classes={{
+                                                                        disabled : 'disabled'
+                                                                    }}
+                                                                    disabled={x.tests.length === 0}
+                                                                    onClick={() => {
+                                                                        this.props.markEditor(
+                                                                            this.state.results[idx].tests[
+                                                                                this.state.resultsIndexArray[idx]
+                                                                            ].takes
+                                                                        );
+                                                                    }}
+                                                                ><EditOutlined/></IconButton>
                                                         </Tooltip>
                                                       : null
 
