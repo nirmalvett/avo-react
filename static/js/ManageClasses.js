@@ -54,7 +54,6 @@ const CONST_TAB_MY_ATTEMPTS = 2;
 export default class ManageClasses extends React.Component {
     constructor(props) {
         super(props);
-        this.loadClasses();
         this.state = {
             classes: [],
             c: null, // Selected class
@@ -73,6 +72,10 @@ export default class ManageClasses extends React.Component {
             testStatsDataQuestionIdx : 0,
             resultsIndexArray : [],
         };
+    }
+
+    componentDidMount(){
+        this.loadClasses();
     }
 
     loadClasses(snackBarString) {
