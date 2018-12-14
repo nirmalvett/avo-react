@@ -477,7 +477,7 @@ def change_mark():
         return jsonify(error="one or more invalid data points")
     takes = Takes.query.get(take_id)  # takes object to update
     # Check if the test of the take is in the class that the account is teaching
-    test = Test.query.get(takes.test)  # Test that takes is apart of
+    test = Test.query.get(takes.TEST)  # Test that takes is apart of
     question_array = eval(test.question_list)  # List of questions in the test
     if not teaches_class(test.CLASS):
         # If User does not teach class return error JSON
@@ -507,7 +507,7 @@ def change_mark():
                     new_mark += question_mark
 
     # Update Data in Database
-    takes.marks = mark_array
+    takes.marks = str(mark_array)
     takes.grade = new_mark
     db.session.commit()
     return jsonify(success=True)

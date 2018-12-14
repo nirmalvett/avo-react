@@ -35,6 +35,7 @@ export default class MarkEditor extends React.Component {
                             this.markButtonMarkers,
                             (result) => {
                                 console.log(result);
+                                this.props.showSnackBar('success', "Marks successfully updated!");
                             },
                             () => {}
                         );
