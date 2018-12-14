@@ -606,7 +606,7 @@ export default class MyClasses extends React.Component {
                             <br/>
                             <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
                                 {selectedTest.submitted.map((x, y) => (
-                                    <ListItem key={'MyClasses' + x.id}>
+                                    <ListItem key={'MyClasses:' + x.id + ", " + y}>
                                         <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
                                             secondary={'Submitted on ' + getDateString(x.timeSubmitted)}/>
                                         <ListItemSecondaryAction>
