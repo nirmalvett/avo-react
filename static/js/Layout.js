@@ -3,6 +3,7 @@ import Http from './Http';
 import Logo from './Logo';
 import HomePage from './HomePage';
 import PostTest from './PostTest';
+import MarkEditor from './MarkEditor';
 import TakeTest from './TakeTest';
 import MyClasses from './MyClasses';
 import CreateTest from './CreateTest';
@@ -36,6 +37,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import { MySnackbarContentWrapper } from "./AVOSnackBar";
 import AVOInClassTools from "./AVOInClassTools/AVOInClassTools"
 import AVOExplanations from "./AVOExplanations/AVOExplanations"
+
 const drawerWidth = 240;
 const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
     amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
@@ -98,6 +100,7 @@ class Layout extends React.Component {
             open: true,
             testCreator: null,
             postTest: null,
+            markEditor: null,
             minutesRemainingUponResumingTest: null,
             testDueDate: null,
 
@@ -282,12 +285,15 @@ class Layout extends React.Component {
                                isTeacher = {this.state.isTeacher}
                                startTest={cls => this.startTest(cls)}
                                theme={{ theme : this.state.theme, color : this.state.color }}
-                               postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
+                               postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}
+                    />);
         if (section === 'Manage Classes')
             return (<ManageClasses showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {this.state.isTeacher}
                                    createTest={cls => this.startCreateTest(cls)}
                                    theme={{ theme : this.state.theme, color : this.state.color }}
-                                   postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}/>);
+                                   postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}
+                                    markEditor={takes => {this.setState({markEditor: takes, section: 'Mark Editor'})}}                                   
+                                />);
         if (section === 'Create Test')
             return (<CreateTest showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {this.state.isTeacher}
                                 classID={this.state.testCreator}
@@ -309,6 +315,15 @@ class Layout extends React.Component {
             return <PostTest showSnackBar = {this.showSnackBar.bind(this)}
                              isTeacher = {this.state.isTeacher}
                              takes={this.state.postTest}/>
+        if(section === 'Mark Editor') {
+            return (
+                <MarkEditor
+                    showSnackBar = {this.showSnackBar.bind(this)}
+                    isTeacher = {this.state.isTeacher}
+                    takes={this.state.markEditor}
+                />
+            );
+        }
         if (section === 'In Class Tools')
             return <AVOInClassTools />
         if (section === 'Explanations')
