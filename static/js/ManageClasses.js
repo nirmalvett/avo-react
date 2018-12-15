@@ -107,7 +107,7 @@ export default class ManageClasses extends React.Component {
         return (
               <React.Fragment>
                 <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
-                    <Typography variant='subheading' color="textPrimary" align='center'>
+                    <Typography component={'span'} variant='subheading' color="textPrimary" align='center'>
                         Manage My Classes
                     </Typography>
                     <br/>
@@ -190,7 +190,7 @@ export default class ManageClasses extends React.Component {
                 >
                     <Fragment>
                         <br/>
-                        <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
+                        <Typography component={'span'} variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
                             Please enter the desired name of the class you wish to create!
                         </Typography>
                         <TextField
@@ -232,7 +232,7 @@ export default class ManageClasses extends React.Component {
                     classes={{root: 'avo-card__header'}}
                     title={'Hey there!'}
                 />
-                <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                <Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
                     Looks like you haven't selected a Class or Test yet!
                 </Typography>
                 <br/>
@@ -251,9 +251,9 @@ export default class ManageClasses extends React.Component {
                         subheader={'Enroll Key: ' + selectedClass.enrollKey}
                         action={[
                             <Tooltip key = {`newTestToolTip-:${uniqueKey1}`} title="Create a new Test">
-                                <IconButton onClick={() => this.state.createTest(selectedClass.id)}>
-                                    <NoteAddOutlinedIcon/>
-                                </IconButton>
+                                    <IconButton onClick={() => this.state.createTest(selectedClass.id)}>
+                                        <NoteAddOutlinedIcon/>
+                                    </IconButton>
                             </Tooltip>,
                             <Tooltip key = {`CSVToolTip-:${uniqueKey1}`} title="Download CSV">
                                 <IconButton onClick={() =>  window.location.href = (`/CSV/ClassMarks/${selectedClass.id}`)}>
@@ -268,15 +268,15 @@ export default class ManageClasses extends React.Component {
                                 ?
                                 <React.Fragment>
                                   { this.state.apexChartEl }
-                                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                                    <Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
                                       Average: Based on the average of the best attempts of each student who took the test or assignment.
                                     </Typography>
-                                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                                    <Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
                                       Size: The number of students who has taken the test or assignment.
                                     </Typography>
                                 </React.Fragment>
                                 : // give message that there's no tests yet
-                                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                                    <Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
                                         This class doesn't have any tests or assignments yet!
                                     </Typography>
                         }
@@ -311,7 +311,7 @@ export default class ManageClasses extends React.Component {
                         }
                     />
                        <center>
-                         <Typography variant='body1' color="textPrimary">
+                         <Typography component={'span'} variant='body1' color="textPrimary">
                                 <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
                                 <b>Deadline:</b> {getDateString(selectedTest.deadline)}
                                 </span>
@@ -335,12 +335,12 @@ export default class ManageClasses extends React.Component {
                         <Tab label="Per Question Analytics" />
                         <Tab label="Test Submissions" />
                     </Tabs>
-                    {this.state.activeTab == 0 && (
+                    {this.state.activeTab === CONST_TAB_OVERALL_ANALYTICS && (
                         <React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
                                 <br/>
                                <center>
-                                    <Typography variant='body1' color="textPrimary">
+                                    <Typography component={'span'} variant='body1' color="textPrimary">
                                         <span>
                                             <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
                                             <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Median Scores:</b> {this.state.testStats.testMedian}</span>
@@ -358,12 +358,12 @@ export default class ManageClasses extends React.Component {
                             </div>
                         </React.Fragment>
                     )}
-                    {this.state.activeTab == 1 && (
+                    {this.state.activeTab === CONST_TAB_PER_QUESTION && (
                         <React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
                                 <br/>
                                 <center>
-                                    <Typography variant='body1' color="textPrimary">
+                                    <Typography component={'span'} variant='body1' color="textPrimary">
                                         <span>
                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}>
                                            <FormControl>
@@ -396,7 +396,7 @@ export default class ManageClasses extends React.Component {
                             </div>
                         </React.Fragment>
                     )}
-                    {this.state.activeTab == 2 && (
+                    {this.state.activeTab === CONST_TAB_MY_ATTEMPTS && (
                         <React.Fragment>
                             <br/>
                             <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
@@ -437,21 +437,23 @@ export default class ManageClasses extends React.Component {
                                                         </Select>
                                                     </FormControl>
                                                     <Tooltip title="View Submission for selected attempt">
-                                                        <IconButton
-                                                            classes={{
-                                                                disabled : 'disabled'
-                                                            }}
-                                                            disabled={x.tests.length === 0}
-                                                            onClick={() => {
-                                                                this.props.postTest(
-                                                                    this.state.results[idx].tests[
-                                                                        this.state.resultsIndexArray[idx]
-                                                                    ].takes
-                                                                );
-                                                            }}
-                                                        >
-                                                            <RemoveRedEyeOutlined/>
-                                                        </IconButton>
+                                                        <span> {/* All icons that can be disabled need this to prevent warning*/}
+                                                            <IconButton
+                                                                classes={{
+                                                                    disabled : 'disabled'
+                                                                }}
+                                                                disabled={x.tests.length === 0}
+                                                                onClick={() => {
+                                                                    this.props.postTest(
+                                                                        this.state.results[idx].tests[
+                                                                            this.state.resultsIndexArray[idx]
+                                                                        ].takes
+                                                                    );
+                                                                }}
+                                                            >
+                                                                <RemoveRedEyeOutlined/>
+                                                            </IconButton>
+                                                        </span>
                                                     </Tooltip>
                                                   { enableEditMarks
                                                       ?  <Tooltip title="Edit marks for selected attempt">
@@ -496,7 +498,7 @@ export default class ManageClasses extends React.Component {
                             }}
                         >
                             <Paper style={{ padding : '10px', height : '6em' }}>
-                                <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                <Typography component={'span'} variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
                                     Are you sure you want to delete {selectedTest.name}?<br/>
                                     Once a test has been deleted it can not be recovered!
                                 </Typography>
