@@ -7,6 +7,7 @@ import AnswerInput from "./AVOAnswerInput/AnswerInput";
 import Typography from "@material-ui/core/Typography/Typography";
 import IconButton from '@material-ui/core/IconButton/IconButton';
 import {uniqueKey} from "./helpers";
+import Tooltip from '@material-ui/core/Tooltip';
 import Check from '@material-ui/icons/Check';
 import Close from '@material-ui/icons/Close';
 
@@ -21,6 +22,7 @@ export default class MarkEditorQuestionCard extends React.Component {
 
     componentDidMount(){
         this.uniqueKey1 = uniqueKey();
+        console.log(this.state);
     }
 
     render() {
@@ -29,7 +31,7 @@ export default class MarkEditorQuestionCard extends React.Component {
             <Card key = { uniqueKey() } style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px', position : 'relative'}}>
                 <CardHeader title={getMathJax(this.props.question.prompt)} style={{position: 'relative'}} action={
                     <Typography variant='headline' color='primary'>
-                        {this.state.buttonMarkValue.reduce((a, b) => a+b, 0)}/{this.props.question.totals.reduce((a, b) => a+b, 0)}
+                        {(this.state.buttonMarkValue.reduce((a, b) => a+b, 0)/this.state.buttonMarkValue.length) * this.props.question.totals.reduce((a, b) => a+b, 0)}/{this.props.question.totals.reduce((a, b) => a+b, 0)}
                     </Typography>
                 }/>
 
@@ -47,13 +49,15 @@ export default class MarkEditorQuestionCard extends React.Component {
 
                         <div key = {  `OuterMarkEditorDiv-Index:${y}Key:${uniqueKey1}`  } style={{position: 'relative'}}>
                             <div style={{position: 'absolute', right: '8px', top: '8px'}}>
-                                <IconButton onClick={() => this.handleClick(this.state.buttonMarkValue[y], this.props.index, y)}>
-                                    {this.state.buttonMarkValue[y] === 1 ? (
-                                        <Check/>
-                                    ) : (
-                                        <Close/>
-                                    )}
-                                </IconButton>
+                                <Tooltip key = {`${uniqueKey1}-:${y}`} title={`${this.state.buttonMarkValue[y] === 1 ? 'Remove a point' : 'Give a point'}`}>
+                                    <IconButton onClick={() => this.handleClick(this.state.buttonMarkValue[y], this.props.index, y)}>
+                                        {this.state.buttonMarkValue[y] === 1 ? (
+                                            <Check/>
+                                        ) : (
+                                            <Close/>
+                                        )}
+                                    </IconButton>
+                                </Tooltip>
                             </div>
                         </div>
                         <div>{getMathJax(x)}</div>
