@@ -57,7 +57,7 @@ export default class MarkEditor extends React.Component {
                 return questionSegments;
             });
             this.setState({ questions : result.questions });
-            console.log(this);
+            this.props.showSnackBar('info', "Note: Click on the X or he checkmark to change the mark!", 4000);
         }, () => {});
     }
 }

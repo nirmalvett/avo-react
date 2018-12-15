@@ -399,7 +399,7 @@ export default class ManageClasses extends React.Component {
                             </div>
                         </React.Fragment>
                     )}
-                    {this.state.activeTab == CONST_TAB_MY_ATTEMPTS && (
+                    {this.state.activeTab === CONST_TAB_MY_ATTEMPTS && (
                         <React.Fragment>
                             <br/>
                             <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
