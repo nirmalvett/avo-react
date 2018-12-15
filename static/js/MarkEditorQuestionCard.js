@@ -18,8 +18,15 @@ export default class MarkEditorQuestionCard extends React.Component {
     super(props);
     this.state = {
       buttonMarkValue: this.props.qMarks,
+      marksScored: this.props.question.scores.reduce(function(acc, val) { return acc + val; }, 0) // marks scored
     };
   };
+
+  componentDidMount(){
+    // get the max marks this never changes so we only calculate this once
+    this.maxMarks =  this.props.question.totals.reduce(function(acc, val) { return acc + val; }, 0);
+
+  }
 
 
   render() {
@@ -32,9 +39,9 @@ export default class MarkEditorQuestionCard extends React.Component {
           padding: '20px',
           position: 'relative'
         }}>
-          <CardHeader title={getMathJax(this.props.question.prompt)} style={{position: 'relative'}} action={
+          <CardHeader title={getMathJax(`(Question ${this.props.index+1}): ${this.props.question.prompt}` )} style={{position: 'relative'}} action={
             <Typography variant='headline' color='primary'>
-              {(this.state.buttonMarkValue.reduce((a, b) => a + b, 0) / this.state.buttonMarkValue.length) * this.props.question.totals.reduce((a, b) => a + b, 0)}/{this.props.question.totals.reduce((a, b) => a + b, 0)}
+              {`${this.state.marksScored}/${this.maxMarks}` }
             </Typography>
           }
           />
@@ -81,7 +88,26 @@ export default class MarkEditorQuestionCard extends React.Component {
         ? 1
         : 0;
     newArray[idx] = newScore;
-    this.setState({buttonMarkValue: newArray});
+    this.setState({
+      buttonMarkValue: newArray,
+      marksScored: this.accumulateCurrentScore()
+    });
     this.props.markButtonMarkers[index] = newArray;
   }
+
+  accumulateCurrentScore(){
+    // we have this.state.buttonMarkValue which [0, 1, 1] where 1 is that it's marked correct and 0 otherwise
+    // we have this.props.question.totals which is an array of ints indicating what each question mark is worth
+    const buttonValueArray = this.state.buttonMarkValue;
+    const totalsArray = this.props.question.totals;
+    let accumulatedValue = 0;
+    for (let i = 0; i < buttonValueArray; i++){
+      const currentButtonValue = buttonValueArray[i];
+      if (currentButtonValue === 1){
+        accumulatedValue += totalsArray[i]
+      }
+    }
+    return accumulatedValue;
+  }
+
 }

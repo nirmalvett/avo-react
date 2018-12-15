@@ -13,8 +13,24 @@ export default class MarkEditor extends React.Component {
         };
         this.markButtonMarkers = [];
     }
+    componentDidMount() {
+        Http.postTest(this.props.takes, result => {
+            this.markButtonMarkers = result.questions.map((question) => {
+                // {question.scores[y]}/{question.totals[y]}
+                const questionSegments = question.explanation.map((explanation, idx) => {
+                    return question.scores[idx];
+                });
+                return questionSegments;
+            });
+            this.setState({
+              questions : result.questions,
+            });
+            this.props.showSnackBar('info', "Click on X or ✔ to change the mark. ", 5000);
+        }, () => {});
+    }
 
     render() {
+      console.log(this.state);
         return (
             <Grid container spacing={8}>
                 <Grid xs={1}/>
@@ -73,17 +89,5 @@ export default class MarkEditor extends React.Component {
       )
     }
 
-    componentDidMount() {
-        Http.postTest(this.props.takes, result => {
-            this.markButtonMarkers = result.questions.map((question) => {
-                // {question.scores[y]}/{question.totals[y]}
-                const questionSegments = question.explanation.map((explanation, idx) => {
-                    return question.scores[idx];
-                });
-                return questionSegments;
-            });
-            this.setState({ questions : result.questions });
-            this.props.showSnackBar('info', "Click on X or ✔ to change the mark. ", 5000);
-        }, () => {});
-    }
+
 }
