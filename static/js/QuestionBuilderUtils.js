@@ -111,7 +111,7 @@ let formatRegex = array => array.map(x => x.replace(/[\[\]\-\\.+*?^$(){}=!<>|:]/
 const unary_regex = "[$@]\\d+|\\d+(?:\\.\\d+)?|[\\)\\]\\}]|" + formatRegex(Object.keys(CONSTANTS)
     .concat(Object.keys(OPERATORS).filter(x => OPERATORS[x][7] === null))).join("|");
 // noinspection JSCheckFunctionSignatures
-const replace = formatRegex(Object.keys(OPERATORS).filter(x => x.includes("_")));
+const REPLACE = formatRegex(Object.keys(OPERATORS).filter(x => x.includes("_")));
 export const function_regex = "(" + Object.keys(FUNCTIONS).join("|") + ")\\(";
 let part1 = "";  // Contains all remaining multi-character tokens
 let part2 = "|[\\(\\{\\[,;?:";  // Contains all remaining single-character tokens
@@ -124,7 +124,7 @@ for (let o in OPERATORS) {
             part2 += x;
     }
 }
-const regex = unary_regex + "|" + function_regex + part1 + part2 + "]";
+const REGEX = unary_regex + "|" + function_regex + part1 + part2 + "]";
 
 export function buildPlainText(mathCode) {
     let stack = [];
@@ -199,17 +199,17 @@ export function buildPlainText(mathCode) {
 export function buildMathCode(text) {
     if (text.length === 0)
         return "";
-    for (let i = 0; i < this.replace.length; i++)
-        text = text.replace(new RegExp(replace[i].replace(/_/g, " "), "g"), replace[i]);
-    text = text.replace(/ /g, "").replace(new RegExp(regex.toString(), "g"), " $& ");
+    for (let i = 0; i < REPLACE.length; i++)
+        text = text.replace(new RegExp(REPLACE[i].replace(/_/g, " "), "g"), REPLACE[i]);
+    text = text.replace(/ /g, "").replace(new RegExp(REGEX.toString(), "g"), " $& ");
 
     // Make '-' a negative sign when appropriate. --- and -- are used as a unary_regex minus, and - is used for subtraction.
     text = text.trim().replace(/ {2,}/g, " ");
 
-    let function_regex = new RegExp(function_regex, "g");
-    for (let m = function_regex.exec(text); m !== null; m = function_regex.exec(text))
-        if (!this.hints.functions.includes(m[0].slice(0, -1)))
-            this.hints.functions.push(m[0].slice(0, -1));
+    // let function_regex = new RegExp(function_regex, "g");
+    // for (let m = function_regex.exec(text); m !== null; m = function_regex.exec(text))
+    //     if (!this.hints.functions.includes(m[0].slice(0, -1)))
+    //         this.hints.functions.push(m[0].slice(0, -1));
 
     let tokens = text.split(" ");
 
@@ -230,7 +230,7 @@ export function buildMathCode(text) {
 
     let str = "";
     for (let i = 0; i < tokens.length; i++) {
-        if (new RegExp("^(?:" + this.regex + ")$").test(tokens[i]) || /^-?\d+(?:\.\d+)?$/.test(tokens[i]))
+        if (new RegExp("^(?:" + REGEX + ")$").test(tokens[i]) || /^-?\d+(?:\.\d+)?$/.test(tokens[i]))
             str += " " + tokens[i];
         else { // noinspection CheckTagEmptyBody
             str += " <span style=\"color: #FF6666\">" + tokens[i] + "</span>";
@@ -304,8 +304,8 @@ export function buildMathCode(text) {
             for (let i = 0; i < args.length; i++)
                 result[2] = result[2].replace("&" + i, tx_p[i] > args[i][4] ? "\\left(" + args[i][2] + "\\right)" : args[i][2]);
             tokens[pos] = result;
-        } else if (o.substr(o.length - 1) === "(" && o.slice(0, -1) in this.functions) {
-            let data = this.functions[o.slice(0, -1)];
+        } else if (o.substr(o.length - 1) === "(" && o.slice(0, -1) in FUNCTIONS) {
+            let data = FUNCTIONS[o.slice(0, -1)];
             let args = [];
             let signature = data[3].split(",").map(x => x.trim()).map(x => x.split("="));
             while (tokens[pos + 1] !== ")") {
@@ -423,6 +423,24 @@ export function buildMathCode(text) {
         return "<span style=\"color: #FF6666\">Expression does not resolve to single term</span>";
 
     tokens = tokens[0];
-    tokens[2] = "$" + tokens[2] + "$";
+    // tokens[2] = "$" + tokens[2] + "$";
     return tokens;
+}
+
+export function varNotation(str, varNames) {
+    let result = "";
+    let re = /{(\d+)}|{{|}}/;
+    for(let m=re.exec(str); m!==null; m=re.exec(str)) {
+        result += str.slice(0, m.index);
+        str = str.slice(m.index + m[0].length);
+        if (m[0] === "{{")
+            result += "{";
+        else if (m[0] === "}}")
+            result += "}";
+        else if (varNames === undefined)
+            result += "$" + (Number(m[1]) + 1);
+        else
+            result += '`' + varNames[Number(m[1])] + '`';
+    }
+    return result + str;
 }
