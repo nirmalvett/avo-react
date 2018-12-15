@@ -54,7 +54,6 @@ const CONST_TAB_MY_ATTEMPTS = 2;
 export default class ManageClasses extends React.Component {
     constructor(props) {
         super(props);
-        this.loadClasses();
         this.state = {
             classes: [],
             c: null, // Selected class
@@ -63,8 +62,8 @@ export default class ManageClasses extends React.Component {
             studentNameSearchLabels : [],
             anchorEl: null,
             createClassErrorMessage : '',
-            apexChartEl: undefined,       
-            results: undefined,     
+            apexChartEl: undefined,
+            results: undefined,
             deleteTestPopperOpen : false,
             activeTab : 0,
             testStats : null,
@@ -73,6 +72,10 @@ export default class ManageClasses extends React.Component {
             testStatsDataQuestionIdx : 0,
             resultsIndexArray : [],
         };
+    }
+
+    componentDidMount(){
+        this.loadClasses();
     }
 
     loadClasses(snackBarString) {
@@ -524,7 +527,7 @@ export default class ManageClasses extends React.Component {
                 </Fragment>
             );
     }
-    
+
     selectClass(index) {
         let newClassList = copy(this.state.classes);
         if (newClassList[index].tests.length > 0)
@@ -650,7 +653,7 @@ export default class ManageClasses extends React.Component {
     getPerQuestionGraphOptions() {
         let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
         let dataObj = convertListFloatToAnalytics(
-            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent, 
+            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent,
             this.state.testStats.questions[this.state.testStatsDataQuestionIdx].totalMark
         );
         console.log(dataObj);
@@ -732,7 +735,7 @@ export default class ManageClasses extends React.Component {
                     colors: [
                         `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                         `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
-                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,                        
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                     ]
                 },
                 dropShadow: {
@@ -751,7 +754,7 @@ export default class ManageClasses extends React.Component {
 
     getPerQuestionGraphData() {
         let dataObj = convertListFloatToAnalytics(
-            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent, 
+            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent,
             this.state.testStats.questions[this.state.testStatsDataQuestionIdx].totalMark
         );
         delete dataObj["studentSizeWhoTookIt"];
@@ -857,7 +860,7 @@ export default class ManageClasses extends React.Component {
                     colors: [
                         `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                         `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
-                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,                        
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                     ]
                 },
                 dropShadow: {
@@ -875,7 +878,7 @@ export default class ManageClasses extends React.Component {
     };
 
     getTestCardGraphSeries() {
-        let selectedTest = this.state.classes[this.state.c].tests[this.state.t]; 
+        let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
         if(this.state.testStatsDataSelectIdx == 0) {
             let testAverage = 0;
             selectedTest.submitted.forEach((obj) => {
@@ -994,7 +997,7 @@ export default class ManageClasses extends React.Component {
     getTestStats(testID, cIndex, tIndex) {
         Http.getTestStats(
             testID,
-            (result) => { 
+            (result) => {
                 console.log(result);
                 Http.getClassTestResults(this.state.classes[cIndex].tests[tIndex].id,
                     (_result) => {
@@ -1122,7 +1125,7 @@ export default class ManageClasses extends React.Component {
                     colors: [
                         `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                         `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
-                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,                        
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                     ]
                 },
                 dropShadow: {
