@@ -52,8 +52,9 @@ export default class MarkEditor extends React.Component {
             console.log(result);
             this.props.showSnackBar('success', "Marks successfully updated!");
         },
-        () => {
-
+        (error) => {
+          console.log(error);
+          this.props.showSnackBar('error', "An issue occurred when saving to the server please try again.");
         }
       );
     }
