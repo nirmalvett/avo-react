@@ -14,8 +14,8 @@ import Typography from '@material-ui/core/Typography';
 import ListItemText from '@material-ui/core/ListItemText';
 import Http from './Http';
 import {uniqueKey} from './helpers';
-import {copy, getMathJax} from './Utilities';
-import {buildMathCode, buildPlainText, varNotation} from './QuestionBuilderUtils';
+import {copy, getMathJax, sleep} from './Utilities';
+import {buildMathCode, buildPlainText, strNotation, varNotation} from './QuestionBuilderUtils';
 import AnswerInput from './AVOAnswerInput/AnswerInput';
 import {
     Folder,
@@ -49,6 +49,7 @@ export default class QuestionBuilder extends React.Component {
                 {criteria: 'criteria 3', points: 3, explanation: 'explanation 3'},
             ],
             currentlyEditing: null,
+            editorSeed: Math.round(65536*Math.random()),
         };
     }
 
@@ -98,8 +99,8 @@ export default class QuestionBuilder extends React.Component {
                                 <TextFormat/></IconButton>
                             <IconButton disabled={!canEdit || selectedQ === null} onClick={() => this.editQuestion()}>
                                 <Edit/></IconButton>
-                            <IconButton disabled={selectedQ === null} onClick={() => this.copyQuestion()}>
-                                <FileCopy/></IconButton>
+                            {/*<IconButton disabled={selectedQ === null} onClick={() => this.copyQuestion()}>*/}
+                                {/*<FileCopy/></IconButton>*/}
                             <IconButton disabled={!canEdit || selectedQ === null} onClick={() => this.deleteQuestion()}>
                                 <Delete/></IconButton>
                         </div>
@@ -170,17 +171,73 @@ export default class QuestionBuilder extends React.Component {
         let {theme} = this.props;
         let cardStyle = {margin: 8, paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10};
         let dividerStyle = {marginTop: 15, marginBottom: 15};
+        if (this.state.currentlyEditing === 'PREVIEW')
+            return (
+                <Fragment>
+                    <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: 5}}>
+                        <IconButton onClick={() => this.returnToManager()}>
+                            <ArrowBack/></IconButton>
+                        <IconButton onClick={() => this.editorSave()}>
+                            <Save/></IconButton>
+                        <IconButton onClick={() => this.editorSaveAs()}>
+                            <Add/></IconButton>
+                        <IconButton onClick={() => this.setState({currentlyEditing: null})}>
+                            <Edit color='primary'/></IconButton>
+                        <IconButton onClick={() => this.editorNewSeed()}>
+                            <Refresh/></IconButton>
+                    </div>
+                    <Grid container spacing={8} style={{flex: 1, margin: 0}}>
+                        <Grid item xs={8} style={{flex: 1, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
+                            <Card style={cardStyle}>
+                                <Typography variant='title' style={{marginTop: 10, marginBottom: 10}}>Math</Typography>
+                                {this.renderMathCard()}
+                                <Divider style={dividerStyle}/>
+                                {this.state.preview.variables.map((x, y) =>
+                                    getMathJax('\\($' + (y+1) + '=' + x + '\\)')
+                                )}
+                            </Card>
+                            <Card style={cardStyle}>
+                                {getMathJax(this.state.preview.prompt)}
+                                {this.state.editorPrompts.map((x, y) =>
+                                    <Fragment>
+                                        <Divider style={dividerStyle}/>
+                                        <AnswerInput type={x.type} disabled prompt={this.state.preview.prompts[y]}/>
+                                    </Fragment>
+                                )}
+                            </Card>
+                            <Card style={cardStyle}>
+                                {this.state.editorCriteria.map((x, y) =>
+                                    <Fragment>
+                                        {y > 0 ? <Divider style={dividerStyle}/> : null}
+                                        {getMathJax(this.state.preview.explanation[y])}
+                                    </Fragment>
+                                )}
+                            </Card>
+                        </Grid>
+                        <Grid item xs={4} style={{flex: 1, display: 'flex', paddingBottom: 0, overflowY: 'auto'}}>
+                            <Card style={{flex: 1, margin: '8%', padding: 20}}>
+                                <Typography>
+                                    This is preview mode! It lets you see the contents of all the variables
+                                    you set, as well as what all the prompts and explanations will look like
+                                    when students see them. If you ever get lost using the question builder,
+                                    just click the preview button to come back here and see what your changes
+                                    are doing!
+                                </Typography>
+                            </Card>
+                        </Grid>
+                    </Grid>
+                </Fragment>
+            );
         return (
             <Fragment>
                 <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: 5}}>
-                    <IconButton><ArrowBack/></IconButton>
-                    <IconButton><Save/></IconButton>
-                    <IconButton><Add/></IconButton>
-                    <IconButton><Assignment/></IconButton>
-                    <IconButton><Refresh/></IconButton>
+                    <IconButton onClick={() => this.returnToManager()}><ArrowBack/></IconButton>
+                    <IconButton onClick={() => this.editorSave()}><Save/></IconButton>
+                    <IconButton onClick={() => this.editorSaveAs()}><Add/></IconButton>
+                    <IconButton onClick={() => this.editorPreview()}><Assignment/></IconButton>
                 </div>
                 <Grid container spacing={8} style={{flex: 1, margin: 0}}>
-                    <Grid item xs={7} style={{flex: 1, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
+                    <Grid item xs={8} style={{flex: 1, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
                         <Card style={cardStyle}>{this.renderMathCard()}</Card>
                         <Divider style={dividerStyle}/>
 
@@ -203,8 +260,8 @@ export default class QuestionBuilder extends React.Component {
                         </div>
 
                     </Grid>
-                    <Grid item xs={5} style={{flex: 1, display: 'flex', paddingBottom: 0, overflowY: 'auto'}}>
-                        <Card style={{flex: 1, margin: '10%', padding: 20}}>
+                    <Grid item xs={4} style={{flex: 1, display: 'flex', paddingBottom: 0, overflowY: 'auto'}}>
+                        <Card style={{flex: 1, margin: '8%', padding: 20}}>
                             <Typography>Some helpful hints could go here</Typography>
                         </Card>
                     </Grid>
@@ -226,7 +283,19 @@ export default class QuestionBuilder extends React.Component {
                                     onChange={v => this.setState({editorMath: v.target.value})}/></div>
                 </Fragment>
             );
-        else {
+        else if (this.state.currentlyEditing === 'PREVIEW') {
+            let steps = this.state.editorMath.split('\n');
+            steps = steps.map(x => {
+                let result = /([^#]+)(?:#(.*))?/.exec(x);
+                if (result === null)
+                    return <Typography color='error'>{x}</Typography>;
+                if (result[2] === undefined)
+                    return getMathJax('\\(\\small ' + buildMathCode(result[1])[2] + "\\)");
+                return getMathJax('\\(\\small ' + buildMathCode(result[1])[2]
+                    + "\\color{grey}{\\text{ # " + result[2] + "}}\\)");
+            });
+            return steps;
+        } else {
             let steps = this.state.editorMath.split('\n');
             // steps = steps.map(x => {
             //     let result = /([A-Z]\w*) ?=([^#]+)(?:#(.*))?/.exec(x);
@@ -277,7 +346,9 @@ export default class QuestionBuilder extends React.Component {
             while (/`.*?`/.test(editorPrompt)) {
                 let match = /`(.*?)`/.exec(editorPrompt);
                 editorPrompt = editorPrompt.slice(0, match.index)
-                    + buildMathCode(match[1])[2]
+                    + '\\color{#5599ff}{'
+                    + buildMathCode(match[1])[2].replace(/\\color{.*?}/g, '')
+                    + '}'
                     + editorPrompt.slice(match.index + match[0].length);
             }
             return (
@@ -307,7 +378,7 @@ export default class QuestionBuilder extends React.Component {
                         <MenuItem value='0'>True/false</MenuItem>
                         <MenuItem value='1'>Multiple choice</MenuItem>
                         <MenuItem value='2'>Number</MenuItem>
-                        <MenuItem value='5' disabled>Polynomial</MenuItem>
+                        {/*<MenuItem value='5' disabled>Polynomial</MenuItem>*/}
                         <MenuItem value='6'>Vector</MenuItem>
                         <MenuItem value='7'>Vector with free variables</MenuItem>
                         <MenuItem value='8'>Matrix</MenuItem>
@@ -389,12 +460,9 @@ export default class QuestionBuilder extends React.Component {
 
     selectQuestion(index) {
         let {sets, selectedS} = this.state;
-        Http.sampleQuestion(sets[selectedS].questions[index].string, undefined,result => {
+        Http.sampleQuestion(sets[selectedS].questions[index].string, 0, undefined,result => {
             this.setState({selectedQ: index, preview: result});
-            console.log(result);
-            }, result => {
-            console.log(result);
-            }
+            }, result => {}
         );
     }
 
@@ -432,15 +500,14 @@ export default class QuestionBuilder extends React.Component {
     }
 
     editQuestion() {
-        let set = this.state.sets[this.state.selectedS];
-        let question = set.questions[this.state.selectedQ];
-        this.initBuilder(question.string);
+        // noinspection JSIgnoredPromiseFromCall
+        this.initBuilder(this.state.sets[this.state.selectedS].questions[this.state.selectedQ].string);
     }
 
     // noinspection JSMethodCanBeStatic
-    copyQuestion() {
-        alert("Copy question");
-    }
+    // copyQuestion() {
+    //     alert("Copy question");
+    // }
 
     deleteQuestion() {
         let set = this.state.sets[this.state.selectedS];
@@ -450,11 +517,11 @@ export default class QuestionBuilder extends React.Component {
             Http.deleteQuestion(question.id, () => this.getSets(), result => alert(result));
     }
 
-    initBuilder(string) {
+    async initBuilder(string) {
+        string = string.toString(); // Yes this does nothing, but now my IDE knows that string is a string
         let sections = string.split('；').map(x => x.split('，'));
         let math = sections[0];
         let types = sections[2];
-        let explanations = sections[3];
         let comments = sections[4].map(x => x.length === 0 ? x : (' # ' + x));
 
         let editorMath = [];
@@ -463,7 +530,10 @@ export default class QuestionBuilder extends React.Component {
 
         let stringEquations = [];
         while (math.length !== 0 && !math[0].includes('%'))
-            stringEquations.push(buildPlainText(math.splice(0,1)[0])[0] + comments.splice(0, 1)[0]);
+            stringEquations.push(buildPlainText(math.splice(0,1)[0])[0]);
+
+        let prompts = sections[1].map(x => varNotation(x, stringEquations));
+        let explanations = sections[3].map(x => varNotation(x, stringEquations));
 
         let editorCriteria = [];
         while (math.length !== 0) {
@@ -475,8 +545,6 @@ export default class QuestionBuilder extends React.Component {
             });
         }
 
-        let prompts = sections[1].map(x => varNotation(x, stringEquations));
-
         this.setState({
             mode: 1,
             editorMath: editorMath.join('\n'),
@@ -485,16 +553,67 @@ export default class QuestionBuilder extends React.Component {
             editorCriteria: editorCriteria,
             currentlyEditing: null
         });
-		// if (this.questionString !== string) {
-		// 	alert("An unexpected error occurred while formatting the question to be editable. The editor fields have " +
-        //         "been filled as best as possible, but some modifications had to be made and the functionality of the " +
-        //         "question may be affected.");
-		// 	console.log("Server: " + string);
-		// 	console.log("Local:  " + this.questionString);
-		// }
+
+        await sleep(100);
+        let initString = string.substr(0, string.lastIndexOf('；'));
+        let compileString = this.compile();
+        compileString = compileString.substr(0, compileString.lastIndexOf('；'));
+        if (initString !== compileString) {
+            console.log("Warning: This question could not be recompiled to its initial state." +
+                " Check the diff below before saving.");
+            console.log("Server: " + initString);
+            console.log("Local:  " + compileString);
+        }
     }
 
     compile() {
-        return this.state.editorPrompt;
+        let qStringMath = [];
+        let comments = [];
+        let editorMath = this.state.editorMath.split('\n');
+        for(let i=0; i<editorMath.length; i++) {
+            let math = editorMath[i].split('#');
+            qStringMath.push(buildMathCode(math[0])[0]);
+            if (math[1] !== undefined)
+                comments.push(math[1].trim());
+            else
+                comments.push('');
+        }
+        let strings = [];
+        let qStringPrompts = strNotation(this.state.editorPrompt, strings);
+        for(let i=0; i<this.state.editorPrompts.length; i++)
+            qStringPrompts += '，' + strNotation(this.state.editorPrompts[i].prompt, strings);
+        let qStringCriteria = [];
+        let qStringExplanations = [];
+        for(let i=0; i<this.state.editorCriteria.length; i++) {
+            let c = this.state.editorCriteria[i];
+            qStringCriteria.push(buildMathCode(c.criteria)[0] + ' ' + c.points + ' %');
+            qStringExplanations.push(strNotation(c.explanation, strings));
+        }
+        return qStringMath.concat(strings).concat(qStringCriteria).join('，')
+            + '；' + qStringPrompts
+            + '；' + this.state.editorPrompts.map(x => x.type).join('，')
+            + '；' + qStringExplanations.join('，')
+            + '；' + comments.join('，');
+    }
+
+    returnToManager() {
+        this.setState({mode: 0});
+    }
+
+    editorSave() {}
+
+    editorSaveAs() {}
+
+    editorPreview() {
+        Http.sampleQuestion(this.compile(), this.state.editorSeed, undefined,result => {
+            this.setState({currentlyEditing: 'PREVIEW', preview: result});
+        });
+    }
+
+    editorNewSeed() {
+        let seed = Math.round(65536*Math.random());
+        Http.sampleQuestion(this.compile(), seed, undefined,result => {
+            this.setState({preview: result, editorSeed: seed});
+        });
     }
 }
