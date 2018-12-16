@@ -40,13 +40,6 @@ export default class ButtonInput extends React.Component {
           latexString: '',
           prompt: this.props.prompt
         };
-
-        // We want to consider whether there is already an answer.
-        // If there is then we want to switch to show object
-      console.log("this.props.value", this.props.value);
-        if (this.props.value !== "" && this.props.value !== undefined && this.props.value !== null){
-          this.state.stage = CONST_SHOW_OBJECT;
-        }
     }
     resetAll(){
       // This method resets the state back to the initial one and should be used once and then whenever user clicks clear
@@ -66,7 +59,15 @@ export default class ButtonInput extends React.Component {
         });
 
     }
+    componentDidMount(){
+        // We want to consider whether there is already an answer.
+        // If there is then we want to switch to show object
+        if (this.props.value !== "" && this.props.value !== undefined && this.props.value !== null){
+          this.setState({stage: CONST_SHOW_OBJECT});
+        }
+    }
     render() {
+
       const { stage, prompt } = this.state;
         return (
               <div>
@@ -110,16 +111,20 @@ export default class ButtonInput extends React.Component {
         const vector = validateVector(previousAnswer);
         return Array.isArray(vector)
             ? '\\(\\begin{bmatrix}' + vector.join('\\\\') + '\\end{bmatrix}\\)'
-            : null
+            : '[Invalid Answer]: ' + previousAnswer
       }
       else if (type === CONST_MATRIX){
         const matrix = validateMatrix(previousAnswer);
         return Array.isArray(matrix)
             ? '\\(\\begin{bmatrix}' + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)'
-            : null
+            : '[Invalid Vector]: ' + previousAnswer
       }
       else if (type === CONST_BASIS){
-        return serverToBasisLatex(previousAnswer);
+          let basis = validateMatrix(input);
+          // Takes server form of a basis and transforms it into latex form
+          return Array.isArray(basis)
+              ? '\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)'
+              : '[Invalid Basis]';
       }
       else {
         return ""
