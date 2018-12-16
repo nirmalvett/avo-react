@@ -766,27 +766,28 @@ def sample_question():
         return abort(400)
     data = request.json  # Data from client
     string = data['string']
+    seed = data['seed']
     try:
         # If answers were provided then test answers
         answers = data['answers'] # answers from client
-        if not isinstance(string, str) or not isinstance(answers, list):
+        if not isinstance(string, str) or not isinstance(seed, int) or not isinstance(answers, list):
             # Checks if all data given is of correct type if not return error JSON
             return jsonify(error="One or more data is not correct")
         try:
             # Try to create and mark the question if it fails return error JSON
-            q = AvoQuestion(string)
+            q = AvoQuestion(string, seed)
             q.get_score(*answers)
         except:
             return jsonify(error="Question failed to be created")
         return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, points=q.scores)
     except:
         # if no answers were provided make false answers
-        if not isinstance(string, str):
+        if not isinstance(string, str) or not isinstance(seed, int):
             # Checks if all data given is of correct type if not return error JSON
             return jsonify(error="One or more data is not correct")
         try:
             # Try to create and mark the question if fails return error JSON
-            q = AvoQuestion(string)
+            q = AvoQuestion(string, seed)
             answers = []  # Array to hold placeholder answers
             for i in range(len(string.split('；')[2].split('，'))):
                 # Fill the array with blank answers
@@ -794,7 +795,8 @@ def sample_question():
             q.get_score(*answers)
         except:
             return jsonify(error="Question failed to be created")
-        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, explanation=q.explanation)
+        var_list = list(map(lambda x: repr(x), q.var_list))
+        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, explanation=q.explanation, variables=var_list)
 
 
 @routes.route('/getTest', methods=['POST'])

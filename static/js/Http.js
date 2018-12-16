@@ -138,8 +138,8 @@ export default class Http {
         Http._request('POST', '/testStats', success, failure, {id: test});
     }
 
-    static sampleQuestion(string, answers, success, failure) {
-        Http._request('POST', '/sampleQuestion', success, failure, {string, answers});
+    static sampleQuestion(string, seed, answers, success, failure) {
+        Http._request('POST', '/sampleQuestion', success, failure, {string, seed, answers});
     }
 
     static CSVDownload(classid, success, failure) {
@@ -147,7 +147,7 @@ export default class Http {
     }
 
     static getFreeTrial(classid, success, failure) {
-        Http._request('POST', '/freeTrial', success, failure, { classID : classid });        
+        Http._request('POST', '/freeTrial', success, failure, { classID : classid });
     }
 }
 
