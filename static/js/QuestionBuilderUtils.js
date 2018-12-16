@@ -155,11 +155,8 @@ export function buildPlainText(mathCode) {
             let cols = stack.splice(-1, 1)[0][0];
             let args = stack.splice(-rows * cols);
             let rowList = [];
-            console.log(rows + ", " + cols);
-            console.log(args.toString());
             for(let r=0; r<rows; r++)
                 rowList.push(args.slice(r * cols, (r + 1) * cols).map(x => x[0]).join(", "));
-            console.log(rowList.toString());
             stack.push(["[" + rowList.join("; ") + "]", 8]);
         } else if (token === "}") {
             let count = stack.splice(-1, 1)[0][0];
@@ -399,10 +396,7 @@ export function buildMathCode(text) {
         } else if (o === "?") {
             if (pos === 0)
                 return "Expression can't start with ternary operator";
-            console.log("pos", pos);
-            console.log("tokens", tokens);
             let args = tokens.slice(pos - 1, pos + 4);
-            console.log("args", args);
             if (!Array.isArray(args[0]) || !Array.isArray(args[2]) || args[3] !== ":" || !Array.isArray(args[4]))
                 return "Invalid ternary operator structure";
             tokens[pos - 1] = [
@@ -443,4 +437,23 @@ export function varNotation(str, varNames) {
             result += '`' + varNames[Number(m[1])] + '`';
     }
     return result + str;
+}
+
+export function strNotation(str, strList) {
+    str = str.replace(/[{}]/g, "$&$&");
+    while (/`.*?`/.test(str)) {
+        let match = /`(.*?)`/.exec(str);
+        let mathCode = buildMathCode(match[1])[0];
+        if (!mathCode.includes('_'))
+            mathCode += ' _A';
+        if (strList.includes(match[1]))
+            str = str.substr(0, match.index) + '{' + strList.indexOf(mathCode) + '}'
+                + str.substr(match.index + match[0].length);
+        else {
+            str = str.substr(0, match.index) + '{' + strList.length + '}'
+                + str.substr(match.index + match[0].length);
+            strList.push(mathCode);
+        }
+    }
+    return str;
 }
