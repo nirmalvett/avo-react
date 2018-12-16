@@ -18,7 +18,7 @@ export default class HomePage extends React.Component {
       if (!isChrome()){
         this.props.showSnackBar("warning", "We have detected that you are currently not using Google Chrome Browser. This " +
           "is not recommended as AVO has not been properly tested in your current browser and many of the basic " +
-          "functionality may not work.", 1000000 )
+          "functionality may not work.", 10000000000000 )
       }
 
     }

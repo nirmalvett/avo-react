@@ -43,7 +43,8 @@ export default class ButtonInput extends React.Component {
 
         // We want to consider whether there is already an answer.
         // If there is then we want to switch to show object
-        if (this.props.value !== ""){
+      console.log("this.props.value", this.props.value);
+        if (this.props.value !== "" && this.props.value !== undefined && this.props.value !== null){
           this.state.stage = CONST_SHOW_OBJECT;
         }
     }
@@ -193,7 +194,7 @@ export default class ButtonInput extends React.Component {
       else if (type === CONST_MATRIX){buttonText = "Clear Matrix Answer"}
       else if (type === CONST_VECTOR_LINEAR_EXPRESSION){buttonText = "Clear Vector Answer"}
       else if (type === CONST_VECTOR){buttonText = "Clear Vector Answer"}
-      else (console.warn("clearAnswerButton(), type: " + type + " not accounted for in logic"))
+      else (console.warn("clearAnswerButton(), type: " + type + " not accounted for in logic"));
       return (
            <Button
                   variant="extendedFab"

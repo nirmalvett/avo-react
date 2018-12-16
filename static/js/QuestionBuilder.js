@@ -1,10 +1,22 @@
 import React, {Fragment} from 'react';
-import Grid from '@material-ui/core/Grid/Grid';
-import Paper from "@material-ui/core/Paper/Paper";
-import List from "@material-ui/core/List/List";
-import ListItem from "@material-ui/core/ListItem/ListItem";
-import ListItemText from "@material-ui/core/ListItemText/ListItemText";
-import Http from "./Http";
+import Card from '@material-ui/core/Card';
+import Grid from '@material-ui/core/Grid';
+import List from '@material-ui/core/List';
+import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
+import Select from '@material-ui/core/Select';
+import Divider from '@material-ui/core/Divider';
+import ListItem from '@material-ui/core/ListItem';
+import MenuItem from '@material-ui/core/MenuItem';
+import TextField from '@material-ui/core/TextField';
+import IconButton from '@material-ui/core/IconButton';
+import Typography from '@material-ui/core/Typography';
+import ListItemText from '@material-ui/core/ListItemText';
+import Http from './Http';
+import {uniqueKey} from './helpers';
+import {copy, getMathJax} from './Utilities';
+import {buildMathCode, buildPlainText, varNotation} from './QuestionBuilderUtils';
+import AnswerInput from './AVOAnswerInput/AnswerInput';
 import {
     Folder,
     CreateNewFolder,
@@ -17,19 +29,6 @@ import {
     Delete,
     Save, ArrowBack, Refresh, Assignment, Done
 } from '@material-ui/icons';
-import IconButton from "@material-ui/core/IconButton/IconButton";
-import TextField from "@material-ui/core/TextField/TextField";
-import Select from "@material-ui/core/Select/Select";
-import MenuItem from "@material-ui/core/MenuItem/MenuItem";
-import {buildPlainText} from "./QuestionBuilderUtils";
-import {getMathJax} from "./Utilities";
-import {uniqueKey} from "./helpers";
-import Typography from "@material-ui/core/Typography/Typography";
-import Divider from "@material-ui/core/Divider/Divider";
-import AnswerInput from "./AVOAnswerInput/AnswerInput";
-import Card from "@material-ui/core/Card";
-import CardHeader from "@material-ui/core/CardHeader";
-import Button from "@material-ui/core/Button";
 
 export default class QuestionBuilder extends React.Component {
     constructor(props) {
@@ -169,11 +168,7 @@ export default class QuestionBuilder extends React.Component {
 
     renderBuilder() {
         let {theme} = this.props;
-        let inputStyle = {
-            flex: 1, width: '98%', margin: '1%', resize: 'none', background: 'transparent',
-            color: theme.palette.type === 'dark' ? '#ffffff' : '#000000'
-        };
-        let cardStyle = {margin: 8, paddingLeft: 10, paddingRight: 10, paddingBottom: 10};
+        let cardStyle = {margin: 8, paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10};
         let dividerStyle = {marginTop: 15, marginBottom: 15};
         return (
             <Fragment>
@@ -185,52 +180,30 @@ export default class QuestionBuilder extends React.Component {
                     <IconButton><Refresh/></IconButton>
                 </div>
                 <Grid container spacing={8} style={{flex: 1, margin: 0}}>
-                    <Grid item xs={6} style={{flex: 1, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
-                        <Card style={cardStyle}>
-                            {this.state.currentlyEditing === 'math'
-                                ? <Fragment>
-                                    <CardHeader title="Math" action={
-                                        <IconButton onClick={() => this.setState({currentlyEditing: null})}>
-                                            <Done/></IconButton>}/>
-                                    <div>
-                                        <TextField multiline value={this.state.editorMath} style={{width: '100%'}}
-                                                   onChange={v => this.setState({editorMath: v.target.value})}/>
-                                    </div>
-                                </Fragment>
-                                : <Fragment>
-                                    <CardHeader title="Math" action={
-                                        <IconButton onClick={() => this.setState({currentlyEditing: 'math'})}>
-                                            <Edit/></IconButton>}/>
-                                    {this.state.editorMath.split("\n").map(x => getMathJax(x))}
-                                </Fragment>
-                            }
-                        </Card>
+                    <Grid item xs={7} style={{flex: 1, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
+                        <Card style={cardStyle}>{this.renderMathCard()}</Card>
                         <Divider style={dividerStyle}/>
-                        <Card style={cardStyle}>
-                            <CardHeader title="Main Prompt" action={<IconButton><Edit/></IconButton>}/>
-                            {getMathJax(this.state.editorPrompt)}
-                        </Card>
+
+                        <Card style={cardStyle}>{this.renderMainPromptCard()}</Card>
                         <Divider style={dividerStyle}/>
-                        {this.state.editorPrompts.map((x, y) => <Card style={cardStyle}>
-                            <CardHeader title={"Prompt " + (y+1)} action={<IconButton><Edit/></IconButton>}/>
-                            <AnswerInput key={x.prompt + x.type} disabled type={x.type} prompt={x.prompt}/>
-                        </Card>)}
+
+                        {this.state.editorPrompts.map((x, y) =>
+                            <Card style={cardStyle}>{this.renderSubPromptCard(x, y)}</Card>
+                        )}
                         <div style={{margin: 8}}>
                             <Button variant='outlined' style={{width: '100%'}}>Add Prompt</Button>
                         </div>
                         <Divider style={dividerStyle}/>
-                        {this.state.editorCriteria.map((x, y) => <Card style={cardStyle}>
-                            <CardHeader title={"Criteria " + (y+1) + " (" + x.points + " points)"}
-                                        action={<IconButton><Edit/></IconButton>}
-                            />
-                            {getMathJax(x.criteria)}
-                            {getMathJax(x.explanation)}
-                        </Card>)}
+
+                        {this.state.editorCriteria.map((x, y) =>
+                            <Card style={cardStyle}>{this.renderCriteriaCard(x, y)}</Card>
+                        )}
                         <div style={{margin: 8}}>
                             <Button variant='outlined' style={{width: '100%'}}>Add Criteria</Button>
                         </div>
+
                     </Grid>
-                    <Grid item xs={6} style={{flex: 1, display: 'flex', paddingBottom: 0, overflowY: 'auto'}}>
+                    <Grid item xs={5} style={{flex: 1, display: 'flex', paddingBottom: 0, overflowY: 'auto'}}>
                         <Card style={{flex: 1, margin: '10%', padding: 20}}>
                             <Typography>Some helpful hints could go here</Typography>
                         </Card>
@@ -238,6 +211,176 @@ export default class QuestionBuilder extends React.Component {
                 </Grid>
             </Fragment>
         );
+    }
+
+    renderMathCard() {
+        if (this.state.currentlyEditing === 'math')
+            return (
+                <Fragment>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <Typography variant='title'>Math</Typography>
+                        <IconButton onClick={() => this.setState({currentlyEditing: null})}>
+                            <Done/></IconButton>
+                    </div>
+                    <div><TextField multiline value={this.state.editorMath} style={{width: '100%'}}
+                                    onChange={v => this.setState({editorMath: v.target.value})}/></div>
+                </Fragment>
+            );
+        else {
+            let steps = this.state.editorMath.split('\n');
+            // steps = steps.map(x => {
+            //     let result = /([A-Z]\w*) ?=([^#]+)(?:#(.*))?/.exec(x);
+            //     if (result === null)
+            //         return <Typography color='error'>{x}</Typography>;
+            //     if (result[3] === undefined)
+            //         return getMathJax('\\(\\small\\text{' + result[1] + '}=' + buildMathCode(result[2])[2] + "\\)");
+            //     return getMathJax('\\(\\small\\text{' + result[1] + '}=' + buildMathCode(result[2])[2]
+            //         + "\\color{grey}{\\text{ # " + result[3] + "}}\\)");
+            // });
+            steps = steps.map(x => {
+                let result = /([^#]+)(?:#(.*))?/.exec(x);
+                if (result === null)
+                    return <Typography color='error'>{x}</Typography>;
+                if (result[2] === undefined)
+                    return getMathJax('\\(\\small ' + buildMathCode(result[1])[2] + "\\)");
+                return getMathJax('\\(\\small ' + buildMathCode(result[1])[2]
+                    + "\\color{grey}{\\text{ # " + result[2] + "}}\\)");
+            });
+            return (
+                <Fragment>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <Typography variant='title'>Math</Typography>
+                        <IconButton onClick={() => this.setState({currentlyEditing: 'math'})}>
+                            <Edit/></IconButton>
+                    </div>
+                    {steps}
+                </Fragment>
+            );
+        }
+    }
+
+    renderMainPromptCard() {
+        if (this.state.currentlyEditing === 'mainPrompt')
+            return (
+                <Fragment>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <Typography variant='title'>Main Prompt</Typography>
+                        <IconButton onClick={() => this.setState({currentlyEditing: null})}>
+                            <Done/></IconButton>
+                    </div>
+                    <div><TextField multiline value={this.state.editorPrompt} style={{width: '100%'}}
+                                    onChange={v => this.setState({editorPrompt: v.target.value})}/></div>
+                </Fragment>
+            );
+        else {
+            let {editorPrompt} = this.state;
+            while (/`.*?`/.test(editorPrompt)) {
+                let match = /`(.*?)`/.exec(editorPrompt);
+                editorPrompt = editorPrompt.slice(0, match.index)
+                    + buildMathCode(match[1])[2]
+                    + editorPrompt.slice(match.index + match[0].length);
+            }
+            return (
+                <Fragment>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <Typography variant='title'>Main Prompt</Typography>
+                        <IconButton onClick={() => this.setState({currentlyEditing: 'mainPrompt'})}>
+                            <Edit/></IconButton>
+                    </div>
+                    {getMathJax(editorPrompt)}
+                </Fragment>
+            );
+        }
+    }
+
+    renderSubPromptCard(x, y) {
+        if (this.state.currentlyEditing === 'prompt' + y)
+            return (
+                <Fragment>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <Typography variant='title'>Prompt {y+1}</Typography>
+                        <IconButton onClick={() => this.setState({currentlyEditing: null})}>
+                            <Done/></IconButton>
+                    </div>
+                    <div><Select value={x.type} style={{width: '100%'}}
+                                 onChange={v => this.updateSubPrompt(y, v.target.value, x.prompt)}>
+                        <MenuItem value='0'>True/false</MenuItem>
+                        <MenuItem value='1'>Multiple choice</MenuItem>
+                        <MenuItem value='2'>Number</MenuItem>
+                        <MenuItem value='5' disabled>Polynomial</MenuItem>
+                        <MenuItem value='6'>Vector</MenuItem>
+                        <MenuItem value='7'>Vector with free variables</MenuItem>
+                        <MenuItem value='8'>Matrix</MenuItem>
+                        <MenuItem value='9'>Basis</MenuItem>
+                    </Select></div>
+                    <div><TextField multiline value={x.prompt} style={{width: '100%'}}
+                                    onChange={v => this.updateSubPrompt(y, x.type, v.target.value)}/></div>
+                </Fragment>
+            );
+        else {
+            let {prompt} = x;
+            while (/`.*?`/.test(prompt)) {
+                let match = /`(.*?)`/.exec(prompt);
+                prompt = prompt.slice(0, match.index)
+                    + buildMathCode(match[1])[2]
+                    + prompt.slice(match.index + match[0].length);
+            }
+            return (
+                <Fragment>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <Typography variant='title'>Prompt {y + 1}</Typography>
+                        <IconButton onClick={() => this.setState({currentlyEditing: 'prompt' + y})}>
+                            <Edit/></IconButton>
+                    </div>
+                    <AnswerInput key={prompt + x.type} disabled type={x.type} prompt={prompt}/>
+                </Fragment>
+            );
+        }
+    }
+
+    updateSubPrompt(y, type, prompt) {
+        let editorPrompts = copy(this.state.editorPrompts);
+        editorPrompts[y] = {type, prompt};
+        this.setState({editorPrompts});
+    }
+
+    renderCriteriaCard(x, y) {
+        if (this.state.currentlyEditing === 'criteria' + y)
+            return (
+                <Fragment>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <Typography variant='title'>Criteria {y+1}</Typography>
+                        <IconButton onClick={() => this.setState({currentlyEditing: null})}>
+                            <Done/></IconButton>
+                    </div>
+                    <div>
+                        <TextField value={x.criteria} style={{width: '100%'}} label='Expression'
+                                   onChange={v => this.updateCriteria(y, v.target.value, x.points, x.explanation)}/>
+                    </div>
+                    <div style={{marginTop: 10}}>
+                        <TextField multiline value={x.explanation} style={{width: '100%'}} label='Explanation'
+                                   onChange={v => this.updateCriteria(y, x.criteria, x.points, v.target.value)}/>
+                    </div>
+                </Fragment>
+            );
+        else
+            return (
+                <Fragment>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <Typography variant='title'>Criteria {y + 1} ({x.points} points)</Typography>
+                        <IconButton onClick={() => this.setState({currentlyEditing: 'criteria' + y})}>
+                            <Edit/></IconButton>
+                    </div>
+                    {getMathJax('\\(' + buildMathCode(x.criteria)[2] + '\\)')}
+                    {getMathJax(x.explanation)}
+                </Fragment>
+            );
+    }
+
+    updateCriteria(y, criteria, points, explanation) {
+        let editorCriteria = copy(this.state.editorCriteria);
+        editorCriteria[y] = {criteria, points, explanation};
+        this.setState({editorCriteria});
     }
 
     selectSet(index) {
@@ -308,8 +451,50 @@ export default class QuestionBuilder extends React.Component {
     }
 
     initBuilder(string) {
-        let n = string.split('；')[2].split('，').map(x => ({type: x}));
-        console.log(n);
-        this.setState({mode: 1});
+        let sections = string.split('；').map(x => x.split('，'));
+        let math = sections[0];
+        let types = sections[2];
+        let explanations = sections[3];
+        let comments = sections[4].map(x => x.length === 0 ? x : (' # ' + x));
+
+        let editorMath = [];
+        while (math.length !== 0 && !math[0].includes('_') && !math[0].endsWith('%'))
+            editorMath.push(buildPlainText(math.splice(0, 1)[0])[0] + comments.splice(0, 1)[0]);
+
+        let stringEquations = [];
+        while (math.length !== 0 && !math[0].includes('%'))
+            stringEquations.push(buildPlainText(math.splice(0,1)[0])[0] + comments.splice(0, 1)[0]);
+
+        let editorCriteria = [];
+        while (math.length !== 0) {
+            let match = /^(.*?) (\d+(?:\.\d+)?) %$/.exec(math.splice(0, 1)[0]);
+            editorCriteria.push({
+                points: match[2],
+                criteria: buildPlainText(match[1])[0] + comments.splice(0, 1)[0],
+                explanation: explanations.splice(0, 1)[0]
+            });
+        }
+
+        let prompts = sections[1].map(x => varNotation(x, stringEquations));
+
+        this.setState({
+            mode: 1,
+            editorMath: editorMath.join('\n'),
+            editorPrompt: prompts[0],
+            editorPrompts: prompts.slice(1).map((x,y) => {return {prompt: x, type: types[y]};}),
+            editorCriteria: editorCriteria,
+            currentlyEditing: null
+        });
+		// if (this.questionString !== string) {
+		// 	alert("An unexpected error occurred while formatting the question to be editable. The editor fields have " +
+        //         "been filled as best as possible, but some modifications had to be made and the functionality of the " +
+        //         "question may be affected.");
+		// 	console.log("Server: " + string);
+		// 	console.log("Local:  " + this.questionString);
+		// }
+    }
+
+    compile() {
+        return this.state.editorPrompt;
     }
 }
