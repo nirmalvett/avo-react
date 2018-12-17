@@ -350,7 +350,7 @@ def create_set():
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
     new_set = Set(name)  # New set to be created
-    user_views_set = UserViewsSet(current_user.USER, set.SET, True)  # New user_views_set to be created
+    user_views_set = UserViewsSet(current_user.USER, new_set.SET, True)  # New user_views_set to be created
     # Add data to database
     db.session.add(new_set)
     db.session.add(user_views_set)
