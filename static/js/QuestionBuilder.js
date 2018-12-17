@@ -28,7 +28,7 @@ import {
     FileCopy,
     Delete,
     Warning,
-    Save, ArrowBack, Refresh, Assignment, Done
+    Save, ArrowBack, Refresh, Assignment, Done, Lock
 } from '@material-ui/icons';
 
 export default class QuestionBuilder extends Component {
@@ -128,7 +128,10 @@ export default class QuestionBuilder extends Component {
         let {selectedS} = this.state;
         return this.state.sets.map((set, index) =>
             <ListItem key = {set.id + '-' + index} button onClick={() => this.selectSet(index)}>
-                <Folder color={selectedS === index ? 'primary' : 'action'}/>
+                {set.can_edit
+                    ? <Folder color={selectedS === index ? 'primary' : 'action'}/>
+                    : <Lock color={selectedS === index ? 'primary' : 'action'}/>
+                }
                 <ListItemText inset primary={set.name}/>
             </ListItem>
         );
