@@ -440,20 +440,20 @@ export function varNotation(str, varNames) {
 }
 
 export function strNotation(str, strList) {
-    str = str.replace(/[{}]/g, "$&$&");
     while (/`.*?`/.test(str)) {
         let match = /`(.*?)`/.exec(str);
         let mathCode = buildMathCode(match[1])[0];
         if (!mathCode.includes('_'))
             mathCode += ' _A';
-        if (strList.includes(match[1]))
-            str = str.substr(0, match.index) + '{' + strList.indexOf(mathCode) + '}'
+        if (strList.includes(mathCode))
+            str = str.substr(0, match.index) + '《' + strList.indexOf(mathCode) + '》'
                 + str.substr(match.index + match[0].length);
         else {
-            str = str.substr(0, match.index) + '{' + strList.length + '}'
+            str = str.substr(0, match.index) + '《' + strList.length + '》'
                 + str.substr(match.index + match[0].length);
             strList.push(mathCode);
         }
     }
+    str = str.replace(/[{}]/g, "$&$&").replace(/《/g, '{').replace(/》/g, '}');
     return str;
 }

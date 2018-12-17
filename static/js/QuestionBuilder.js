@@ -27,6 +27,7 @@ import {
     Edit,
     FileCopy,
     Delete,
+    Warning,
     Save, ArrowBack, Refresh, Assignment, Done
 } from '@material-ui/icons';
 
@@ -50,6 +51,8 @@ export default class QuestionBuilder extends React.Component {
             ],
             currentlyEditing: null,
             editorSeed: Math.round(65536*Math.random()),
+            initError: false,
+            savedString: null,
         };
     }
 
@@ -171,13 +174,14 @@ export default class QuestionBuilder extends React.Component {
         let {theme} = this.props;
         let cardStyle = {margin: 8, paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10};
         let dividerStyle = {marginTop: 15, marginBottom: 15};
+        let disableSave = this.compile() === this.state.savedString;
         if (this.state.currentlyEditing === 'PREVIEW')
             return (
                 <Fragment>
                     <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: 5}}>
                         <IconButton onClick={() => this.returnToManager()}>
                             <ArrowBack/></IconButton>
-                        <IconButton onClick={() => this.editorSave()}>
+                        <IconButton onClick={() => this.editorSave()} disabled={disableSave}>
                             <Save/></IconButton>
                         <IconButton onClick={() => this.editorSaveAs()}>
                             <Add/></IconButton>
@@ -185,6 +189,7 @@ export default class QuestionBuilder extends React.Component {
                             <Edit color='primary'/></IconButton>
                         <IconButton onClick={() => this.editorNewSeed()}>
                             <Refresh/></IconButton>
+                        {this.state.initError ? <IconButton disabled><Warning color='error'/></IconButton> : null}
                     </div>
                     <Grid container spacing={8} style={{flex: 1, margin: 0}}>
                         <Grid item xs={8} style={{flex: 1, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
@@ -232,9 +237,10 @@ export default class QuestionBuilder extends React.Component {
             <Fragment>
                 <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: 5}}>
                     <IconButton onClick={() => this.returnToManager()}><ArrowBack/></IconButton>
-                    <IconButton onClick={() => this.editorSave()}><Save/></IconButton>
+                    <IconButton onClick={() => this.editorSave()} disabled={disableSave}><Save/></IconButton>
                     <IconButton onClick={() => this.editorSaveAs()}><Add/></IconButton>
                     <IconButton onClick={() => this.editorPreview()}><Assignment/></IconButton>
+                    {this.state.initError ? <IconButton disabled><Warning color='error'/></IconButton> : null}
                 </div>
                 <Grid container spacing={8} style={{flex: 1, margin: 0}}>
                     <Grid item xs={8} style={{flex: 1, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
@@ -248,7 +254,12 @@ export default class QuestionBuilder extends React.Component {
                             <Card style={cardStyle}>{this.renderSubPromptCard(x, y)}</Card>
                         )}
                         <div style={{margin: 8}}>
-                            <Button variant='outlined' style={{width: '100%'}}>Add Prompt</Button>
+                            <Button variant='outlined' style={{width: '100%'}} onClick={() => {
+                                let prompts = copy(this.state.editorPrompts);
+                                let editing = 'prompt' + prompts.length;
+                                prompts.push({prompt: '', type: '0'});
+                                this.setState({editorPrompts: prompts, currentlyEditing: editing});
+                            }}>Add Prompt</Button>
                         </div>
                         <Divider style={dividerStyle}/>
 
@@ -256,13 +267,70 @@ export default class QuestionBuilder extends React.Component {
                             <Card style={cardStyle}>{this.renderCriteriaCard(x, y)}</Card>
                         )}
                         <div style={{margin: 8}}>
-                            <Button variant='outlined' style={{width: '100%'}}>Add Criteria</Button>
+                            <Button variant='outlined' style={{width: '100%'}} onClick={() => {
+                                let criteria = copy(this.state.editorCriteria);
+                                let editing = 'criteria' + criteria.length;
+                                criteria.push({criteria: '', points: 1, explanation: ''});
+                                this.setState({editorCriteria: criteria, currentlyEditing: editing});
+                            }}>Add Criteria</Button>
                         </div>
 
                     </Grid>
                     <Grid item xs={4} style={{flex: 1, display: 'flex', paddingBottom: 0, overflowY: 'auto'}}>
                         <Card style={{flex: 1, margin: '8%', padding: 20}}>
-                            <Typography>Some helpful hints could go here</Typography>
+                            {this.state.currentlyEditing === null
+                                ? <Typography>
+                                    Hints will appear here when you start editing something. We are constantly
+                                    working to improve them, so let us know if any part of the question builder
+                                    is unclear and we'll do our best to make it right!
+                                </Typography>
+                            : this.state.currentlyEditing === 'mainPrompt'
+                                ? <Typography>
+                                    Here is where you can enter the main prompt for your question. It will
+                                    appear before all the answer fields, and be the most heavily emphasized.
+                                    <ol>
+                                        <li>\(1+1\) is an inline equation.</li>
+                                        <li>\[1+1\] is a block equation.</li>
+                                        <li>`$1+1` evaluates $1+1, and then substitutes in.</li>
+                                    </ol>
+                                </Typography>
+                            : this.state.currentlyEditing.startsWith('prompt')
+                                ? <Typography>
+                                    Here is where you can customize the answer fields for your question.
+                                    Just choose an answer type, and then enter a prompt. For multiple choice
+                                    questions, put the prompt on the first line, and each consecutive answer
+                                    on its own line.
+                                    <ol>
+                                        <li>\(1+1\) is an inline equation.</li>
+                                        <li>\[1+1\] is a block equation.</li>
+                                        <li>`$1+1` evaluates $1+1, and then substitutes in.</li>
+                                    </ol>
+                                </Typography>
+                            : this.state.currentlyEditing === 'math'
+                                ? <Typography>
+                                    Here, you can create all the variables you need to generate and mark your question.
+                                    The way it works is that each line is its own formula, and the question will
+                                    accumulate a list of variables that can be used anywhere.
+                                    <ol>
+                                        <li>$1 is the result of the first expression.</li>
+                                        <li>@1 is the student's answer to the first part.</li>
+                                    </ol>
+                                    See the documentation tab in the sidebar for the list of available
+                                    operators and functions.
+                                </Typography>
+                            : this.state.currentlyEditing.startsWith('criteria')
+                                ? <Typography>
+                                    Here, you can set the criteria the question will use to mark students' responses.
+                                    The number of points a part is worth can be any number from 0.01 to 99.99, and
+                                    the criteria expression works the same as any other math expression in the builder.
+                                    If you need to mark a true or false question, look at the documentation on the
+                                    tf and mc functions.
+                                    <br/><br/>
+                                    If you want, you can include an additional explanation for how to do the question.
+                                    This follows the same formatting rules as the prompts.
+                                </Typography>
+                            : null
+                            }
                         </Card>
                     </Grid>
                 </Grid>
@@ -365,13 +433,21 @@ export default class QuestionBuilder extends React.Component {
     }
 
     renderSubPromptCard(x, y) {
-        if (this.state.currentlyEditing === 'prompt' + y)
+        if (this.state.currentlyEditing === 'prompt' + y) {
             return (
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <Typography variant='title'>Prompt {y+1}</Typography>
-                        <IconButton onClick={() => this.setState({currentlyEditing: null})}>
-                            <Done/></IconButton>
+                        <Typography variant='title'>Prompt {y + 1}</Typography>
+                        <div>
+                            <IconButton onClick={() => {
+                                let prompts = copy(this.state.editorPrompts);
+                                prompts.splice(Number(this.state.currentlyEditing.slice(6)), 1);
+                                this.setState({editorPrompts: prompts, currentlyEditing: null});
+                            }}>
+                                <Delete/></IconButton>
+                            <IconButton onClick={() => this.setState({currentlyEditing: null})}>
+                                <Done/></IconButton>
+                        </div>
                     </div>
                     <div><Select value={x.type} style={{width: '100%'}}
                                  onChange={v => this.updateSubPrompt(y, v.target.value, x.prompt)}>
@@ -384,11 +460,13 @@ export default class QuestionBuilder extends React.Component {
                         <MenuItem value='8'>Matrix</MenuItem>
                         <MenuItem value='9'>Basis</MenuItem>
                     </Select></div>
-                    <div><TextField multiline value={x.prompt} style={{width: '100%'}}
-                                    onChange={v => this.updateSubPrompt(y, x.type, v.target.value)}/></div>
+                    <div>
+                        <TextField multiline value={x.prompt.replace(/—/g, '\n\n')} style={{width: '100%'}}
+                                   onChange={v => this.updateSubPrompt(y, x.type, v.target.value)}/>
+                    </div>
                 </Fragment>
             );
-        else {
+        } else {
             let {prompt} = x;
             while (/`.*?`/.test(prompt)) {
                 let match = /`(.*?)`/.exec(prompt);
@@ -411,6 +489,7 @@ export default class QuestionBuilder extends React.Component {
 
     updateSubPrompt(y, type, prompt) {
         let editorPrompts = copy(this.state.editorPrompts);
+        prompt = prompt.replace(/\n\n/g, '—');
         editorPrompts[y] = {type, prompt};
         this.setState({editorPrompts});
     }
@@ -421,11 +500,20 @@ export default class QuestionBuilder extends React.Component {
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                         <Typography variant='title'>Criteria {y+1}</Typography>
-                        <IconButton onClick={() => this.setState({currentlyEditing: null})}>
-                            <Done/></IconButton>
+                        <div>
+                            <IconButton onClick={() => {
+                                let criteria = copy(this.state.editorCriteria);
+                                criteria.splice(Number(this.state.currentlyEditing.slice(8)), 1);
+                                this.setState({editorCriteria: criteria, currentlyEditing: null});
+                            }}><Delete/></IconButton>
+                            <IconButton onClick={() => this.setState({currentlyEditing: null})}>
+                                <Done/></IconButton>
+                        </div>
                     </div>
-                    <div>
-                        <TextField value={x.criteria} style={{width: '100%'}} label='Expression'
+                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                        <TextField value={x.points} style={{width: '8%'}} label='Points'
+                                   onChange={v => this.updateCriteria(y, x.criteria, v.target.value, x.explanation)}/>
+                        <TextField value={x.criteria} style={{width: '90%'}} label='Expression'
                                    onChange={v => this.updateCriteria(y, v.target.value, x.points, x.explanation)}/>
                     </div>
                     <div style={{marginTop: 10}}>
@@ -449,6 +537,7 @@ export default class QuestionBuilder extends React.Component {
     }
 
     updateCriteria(y, criteria, points, explanation) {
+        if (!/^\d\d?(\.\d?\d?)?$/.test(points)) return;
         let editorCriteria = copy(this.state.editorCriteria);
         editorCriteria[y] = {criteria, points, explanation};
         this.setState({editorCriteria});
@@ -540,7 +629,7 @@ export default class QuestionBuilder extends React.Component {
             let match = /^(.*?) (\d+(?:\.\d+)?) %$/.exec(math.splice(0, 1)[0]);
             editorCriteria.push({
                 points: match[2],
-                criteria: buildPlainText(match[1])[0] + comments.splice(0, 1)[0],
+                criteria: buildPlainText(match[1])[0],
                 explanation: explanations.splice(0, 1)[0]
             });
         }
@@ -551,7 +640,9 @@ export default class QuestionBuilder extends React.Component {
             editorPrompt: prompts[0],
             editorPrompts: prompts.slice(1).map((x,y) => {return {prompt: x, type: types[y]};}),
             editorCriteria: editorCriteria,
-            currentlyEditing: null
+            currentlyEditing: null,
+            initError: false,
+            savedString: string,
         });
 
         await sleep(100);
@@ -559,6 +650,7 @@ export default class QuestionBuilder extends React.Component {
         let compileString = this.compile();
         compileString = compileString.substr(0, compileString.lastIndexOf('；'));
         if (initString !== compileString) {
+            this.setState({initError: true});
             console.log("Warning: This question could not be recompiled to its initial state." +
                 " Check the diff below before saving.");
             console.log("Server: " + initString);
@@ -569,14 +661,16 @@ export default class QuestionBuilder extends React.Component {
     compile() {
         let qStringMath = [];
         let comments = [];
-        let editorMath = this.state.editorMath.split('\n');
-        for(let i=0; i<editorMath.length; i++) {
-            let math = editorMath[i].split('#');
-            qStringMath.push(buildMathCode(math[0])[0]);
-            if (math[1] !== undefined)
-                comments.push(math[1].trim());
-            else
-                comments.push('');
+        if (this.state.editorMath.trim().length !== 0) {
+            let editorMath = this.state.editorMath.split('\n');
+            for (let i = 0; i < editorMath.length; i++) {
+                let math = editorMath[i].split('#');
+                qStringMath.push(buildMathCode(math[0])[0]);
+                if (math[1] !== undefined)
+                    comments.push(math[1].trim());
+                else
+                    comments.push('');
+            }
         }
         let strings = [];
         let qStringPrompts = strNotation(this.state.editorPrompt, strings);
@@ -600,9 +694,44 @@ export default class QuestionBuilder extends React.Component {
         this.setState({mode: 0});
     }
 
-    editorSave() {}
+    editorSave() {
+        let id = this.state.sets[this.state.selectedS].questions[this.state.selectedQ].id;
+        let answers = this.state.editorPrompts.length;
+        let total = this.state.editorCriteria.map(x => Number(x.points)).reduce((x,y) => x+y, 0);
+        let string = this.compile();
+        Http.editQuestion(id, string, answers, total,
+            () => {
+                let sets = copy(this.state.sets);
+                sets[this.state.selectedS].questions[this.state.selectedQ].string = string;
+                this.setState({sets, savedString: string, initError: false});
+            },
+            (result) => {
+                alert("The question couldn't be saved.");
+                console.warn(result)
+            }
+        );
+    }
 
-    editorSaveAs() {}
+    editorSaveAs() {
+        let name = prompt('What do you want to call your new question?');
+        if (name !== "" && name !== null) {
+            let id = this.state.sets[this.state.selectedS].questions[this.state.selectedQ].id;
+            let answers = this.state.editorPrompts.length;
+            let total = this.state.editorCriteria.map(x => Number(x.points)).reduce((x,y) => x+y, 0);
+            let string = this.compile();
+            Http.newQuestion(set, name, string, answers, total,
+                () => {
+                    let sets = copy(this.state.sets);
+                    sets[this.state.selectedS].questions[this.state.selectedQ].string = string;
+                    this.setState({sets, savedString: string, initError: false});
+                },
+                (result) => {
+                    alert("The question couldn't be saved.");
+                    console.warn(result)
+                }
+            );
+        }
+    }
 
     editorPreview() {
         Http.sampleQuestion(this.compile(), this.state.editorSeed, undefined,result => {
