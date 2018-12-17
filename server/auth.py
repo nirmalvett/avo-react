@@ -98,6 +98,63 @@ def confirm(token):
     return render_template('/index.html')
 
 
+@UserRoutes.route('/requestPasswordReset', methods=['POST'])
+def request_password_reset():
+
+    if not request.json:
+        return abort(400)
+    email = request.data['email']
+    try:
+        user = User.query.filter(User.email == email).first()
+    except NoResultFound:
+        return jsonify(code="email sent")
+    serializer = URLSafeTimedSerializer(config.SECRET_KEY)
+    token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
+    confirm_url = url_for('UserRoutes.password_reset', token=token, _external=True)
+    send_email(user.email, "Password Reset Request",
+               f'<html><body>Hi {user.first_name},<br/><br/>'
+               f'You have requested to change you password Please click <a href="{confirm_url}">here</a> to '
+               f'change your password. If you did not request to change your password please ignore this email'
+               f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
+               )
+
+
+@UserRoutes.route('/passwordReset/<token>', methods=['GET', 'POST'])
+def password_reset(token):
+    """
+    Render Reset page and change users password
+    :param token: gotten from email from user
+    :return: redirect to login
+    """
+    serializer = URLSafeTimedSerializer(config.SECRET_KEY)
+    try:
+        # check if the token is valid if not return error
+        email = serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT)
+    except BadSignature:
+        return "Invalid confirmation link"
+    user = User.query.filter(User.email == email).first()  # get user from the email
+    if user is None:
+        # If there is no user found return an error
+        return "There is no account associated with the email in that token"
+
+    if request.method == 'GET':
+        return render_template('/passwordReset.html')
+    elif request.method == 'POST':
+        password = request.form['password']
+        # Method is POST change password
+        if len(password) < 8:
+            # If the password is les then 8 return error JSON
+            return jsonify(error='Password too short')
+        salt = generate_salt()
+        hashed_password = hash_password(password, salt)
+        user.password = hashed_password
+        user.salt = salt
+        db.session.commit()
+        return redirect(url_for("FileRoutes.serve_sign_in"))
+    else:
+        return "Error"
+
+
 @UserRoutes.route('/login', methods=['POST'])
 def login():
     """
