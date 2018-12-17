@@ -402,7 +402,10 @@ def delete_set():
     if not isinstance(ID, int):
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
-    user_views_set = UserViewsSet.query.get(ID)  # user_views_set to delete
+    try:
+        user_views_set = UserViewsSet.query.filter((UserViewsSet.SET == ID) & (UserViewsSet.USER == current_user.USER)).first()  # user_views_set to delete
+    except NoResultFound:
+        return jsonify(code="Updated")
     # Add change to database
     db.session.delete(user_views_set)
     db.session.commit()

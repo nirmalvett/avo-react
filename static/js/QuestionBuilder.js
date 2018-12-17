@@ -572,7 +572,11 @@ export default class QuestionBuilder extends Component {
         let set = this.state.sets[this.state.selectedS];
         let confirmation = confirm('Are you sure you want to delete this set?');
         if (confirmation)
-            Http.deleteSet(set.id, () => this.getSets(), result => alert(result));
+            Http.deleteSet(set.id, async () => {
+                this.setState({selectedS: null, selectedQ: null});
+                await sleep(100);
+                this.getSets();
+            }, result => alert(result));
     }
 
     // noinspection JSMethodCanBeStatic
