@@ -174,14 +174,14 @@ export default class QuestionBuilder extends React.Component {
         let {theme} = this.props;
         let cardStyle = {margin: 8, paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10};
         let dividerStyle = {marginTop: 15, marginBottom: 15};
+        let disableSave = this.compile() === this.state.savedString;
         if (this.state.currentlyEditing === 'PREVIEW')
             return (
                 <Fragment>
                     <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: 5}}>
                         <IconButton onClick={() => this.returnToManager()}>
                             <ArrowBack/></IconButton>
-                        <IconButton onClick={() => this.editorSave()}
-                                    disabled={this.state.savedString === this.compile()}>
+                        <IconButton onClick={() => this.editorSave()} disabled={disableSave}>
                             <Save/></IconButton>
                         <IconButton onClick={() => this.editorSaveAs()}>
                             <Add/></IconButton>
@@ -237,7 +237,7 @@ export default class QuestionBuilder extends React.Component {
             <Fragment>
                 <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: 5}}>
                     <IconButton onClick={() => this.returnToManager()}><ArrowBack/></IconButton>
-                    <IconButton onClick={() => this.editorSave()}><Save/></IconButton>
+                    <IconButton onClick={() => this.editorSave()} disabled={disableSave}><Save/></IconButton>
                     <IconButton onClick={() => this.editorSaveAs()}><Add/></IconButton>
                     <IconButton onClick={() => this.editorPreview()}><Assignment/></IconButton>
                     {this.state.initError ? <IconButton disabled><Warning color='error'/></IconButton> : null}
@@ -318,9 +318,19 @@ export default class QuestionBuilder extends React.Component {
                                     See the documentation tab in the sidebar for the list of available
                                     operators and functions.
                                 </Typography>
+                            : this.state.currentlyEditing.startsWith('criteria')
+                                ? <Typography>
+                                    Here, you can set the criteria the question will use to mark students' responses.
+                                    The number of points a part is worth can be any number from 0.01 to 99.99, and
+                                    the criteria expression works the same as any other math expression in the builder.
+                                    If you need to mark a true or false question, look at the documentation on the
+                                    tf and mc functions.
+                                    <br/><br/>
+                                    If you want, you can include an additional explanation for how to do the question.
+                                    This follows the same formatting rules as the prompts.
+                                </Typography>
                             : null
                             }
-
                         </Card>
                     </Grid>
                 </Grid>
@@ -500,8 +510,10 @@ export default class QuestionBuilder extends React.Component {
                                 <Done/></IconButton>
                         </div>
                     </div>
-                    <div>
-                        <TextField value={x.criteria} style={{width: '100%'}} label='Expression'
+                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                        <TextField value={x.points} style={{width: '8%'}} label='Points'
+                                   onChange={v => this.updateCriteria(y, x.criteria, v.target.value, x.explanation)}/>
+                        <TextField value={x.criteria} style={{width: '90%'}} label='Expression'
                                    onChange={v => this.updateCriteria(y, v.target.value, x.points, x.explanation)}/>
                     </div>
                     <div style={{marginTop: 10}}>
@@ -525,6 +537,7 @@ export default class QuestionBuilder extends React.Component {
     }
 
     updateCriteria(y, criteria, points, explanation) {
+        if (!/^\d\d?(\.\d?\d?)?$/.test(points)) return;
         let editorCriteria = copy(this.state.editorCriteria);
         editorCriteria[y] = {criteria, points, explanation};
         this.setState({editorCriteria});
@@ -648,14 +661,16 @@ export default class QuestionBuilder extends React.Component {
     compile() {
         let qStringMath = [];
         let comments = [];
-        let editorMath = this.state.editorMath.split('\n');
-        for(let i=0; i<editorMath.length; i++) {
-            let math = editorMath[i].split('#');
-            qStringMath.push(buildMathCode(math[0])[0]);
-            if (math[1] !== undefined)
-                comments.push(math[1].trim());
-            else
-                comments.push('');
+        if (this.state.editorMath.trim().length !== 0) {
+            let editorMath = this.state.editorMath.split('\n');
+            for (let i = 0; i < editorMath.length; i++) {
+                let math = editorMath[i].split('#');
+                qStringMath.push(buildMathCode(math[0])[0]);
+                if (math[1] !== undefined)
+                    comments.push(math[1].trim());
+                else
+                    comments.push('');
+            }
         }
         let strings = [];
         let qStringPrompts = strNotation(this.state.editorPrompt, strings);
