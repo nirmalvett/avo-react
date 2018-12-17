@@ -676,7 +676,7 @@ def rename_question():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json  # Data from client
-    question_id, name = data['id'], data['string']
+    question_id, name = data['id'], data['name']
     if not isinstance(question_id, int) or not isinstance(name, str):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")

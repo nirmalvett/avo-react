@@ -1,4 +1,4 @@
-import React, {Fragment} from 'react';
+import React, {Component, Fragment} from 'react';
 import Card from '@material-ui/core/Card';
 import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
@@ -31,7 +31,7 @@ import {
     Save, ArrowBack, Refresh, Assignment, Done
 } from '@material-ui/icons';
 
-export default class QuestionBuilder extends React.Component {
+export default class QuestionBuilder extends Component {
     constructor(props) {
         super(props);
         this.getSets();
@@ -183,8 +183,8 @@ export default class QuestionBuilder extends React.Component {
                             <ArrowBack/></IconButton>
                         <IconButton onClick={() => this.editorSave()} disabled={disableSave}>
                             <Save/></IconButton>
-                        <IconButton onClick={() => this.editorSaveAs()}>
-                            <Add/></IconButton>
+                        {/*<IconButton onClick={() => this.editorSaveAs()}>*/}
+                            {/*<Add/></IconButton>*/}
                         <IconButton onClick={() => this.setState({currentlyEditing: null})}>
                             <Edit color='primary'/></IconButton>
                         <IconButton onClick={() => this.editorNewSeed()}>
@@ -238,7 +238,7 @@ export default class QuestionBuilder extends React.Component {
                 <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: 5}}>
                     <IconButton onClick={() => this.returnToManager()}><ArrowBack/></IconButton>
                     <IconButton onClick={() => this.editorSave()} disabled={disableSave}><Save/></IconButton>
-                    <IconButton onClick={() => this.editorSaveAs()}><Add/></IconButton>
+                    {/*<IconButton onClick={() => this.editorSaveAs()}><Add/></IconButton>*/}
                     <IconButton onClick={() => this.editorPreview()}><Assignment/></IconButton>
                     {this.state.initError ? <IconButton disabled><Warning color='error'/></IconButton> : null}
                 </div>
@@ -577,7 +577,12 @@ export default class QuestionBuilder extends React.Component {
 
     // noinspection JSMethodCanBeStatic
     newQuestion() {
-        alert("New question");
+        Http.newQuestion(this.state.sets[this.state.selectedS].id, 'New question', '-4 4 0 3 1 AC，2 3 0 ' +
+            'AB，-4 4 0 3 1 AC，$0 _A，$1 _A，$2 _A，@0 $0 $1 $2 CD CB CN 1 %；Compute the vector sum \\({0}+{1}{2}\\).' +
+            '，；6；；，，', 1, 1,
+            () => this.getSets(),
+            () => alert("The question couldn't be created.")
+        );
     }
 
     renameQuestion() {
