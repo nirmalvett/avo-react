@@ -25,7 +25,6 @@ import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import { removeDuplicateClasses } from "./helpers";
 import Tooltip from '@material-ui/core/Tooltip';
-import AVOModal from './AVOMatComps/AVOMatModal';
 import Chart from "react-apexcharts";
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -34,7 +33,20 @@ import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
-import { convertListFloatToAnalytics } from "./helpers";
+import Popper from '@material-ui/core/Popper';
+import paypal from 'paypal-checkout';
+import { convertListFloatToAnalytics, getDistribution } from "./helpers";
+import AVOModal from './AVOMatComps/AVOMatModal';
+
+const CONST_ENROLLMENT_PAYMENT = true; // If this is true then it requires students to pay in order to enroll
+const CONST_TAB_OVERALL_ANALYTICS = 0;
+const CONST_TAB_PER_QUESTION = 1;
+const CONST_TAB_MY_ATTEMPTS = 2;
+
+const CONST_FREE_CLASS = 0;
+const CONST_PAID_CLASS = 1;
+
+const CONST_OVERALL_ANALYTICS_DEFAULT = 3;
 
 export default class MyClasses extends React.Component {
     constructor(props) {
@@ -52,22 +64,19 @@ export default class MyClasses extends React.Component {
             testStatsIdx : undefined,
             testStatsDataSelectIdx : 3,
             testStatsDataQuestionIdx : 0,
+            joinClassPopperOpen: false,
+            joinClassPopperIdx: 0,
+            enrollObj: {},
         };
-        this.testStatsDataSelectKeys = [
-            'Average Attempt',
-            'Best Attempt',
-            'All Attempts',
-            'Distribution'
-        ];
     }
 
     componentDidMount(){
-        if (this.props.isTeacher){
+        if (this.props.isTeacher){ // if it's a teacher account
             this.props.showSnackBar("info", "Only student account attempts are considered in the analytics")
         }
     }
 
-    loadClasses() {
+    loadClasses(alertMessage) {
         /* Loads the classes into the state */
         Http.getClasses(
             (result) => {
@@ -78,62 +87,17 @@ export default class MyClasses extends React.Component {
                 console.log(result)
             }
         );
+        if (alertMessage !== undefined){
+            this.props.showSnackBar("success", alertMessage);
+        }
     }
 
     render() {
         return (
             <div className='avo-user__background' style={{width: '100%', flex: 1, display: 'flex'}}>
                 <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
-                    {/* Side Menu*/}
                     <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
-                        <Paper classes={{root : 'avo-sidebar'}} square style={{width: '100%', flex: 1, display: 'flex'}}>
-                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
-                                <Typography variant='subheading' color="textPrimary" align='center'>
-                                    Welcome to My Classes
-                                </Typography>
-                                <br/>
-                                <Divider/>
-                                <ListSubheader style={{position: 'relative'}}>Analytics & Enrollment</ListSubheader>
-                                <ListItem button disabled>
-                                    <BarChartOutlinedIcon color='action'/>
-                                    <ListItemText inset primary='My Analytics'/>
-                                </ListItem>
-                                <ListItem button id="avo-myclasses__enroll-button">
-                                    <AddBoxOutlinedIcon color='action'/>
-                                    <ListItemText inset primary='Enroll in Class'/>
-                                </ListItem>
-                                <Divider/>
-                                <ListSubheader style={{position: 'relative'}}>Classes</ListSubheader>
-                                {this.state.classes.map((cls, cIndex) =>
-                                    <Fragment key={"MyClasses" + cls.id + "-" + cIndex}>
-                                        <ListItem button onClick={() => {
-                                            this.selectClass(cIndex);
-                                            this.handleClassListItemClick();
-                                        }}>
-                                            <PeopleOutlinedIcon color='action'/>
-                                            <ListItemText inset primary={cls.name}/>
-                                            {cls.open
-                                                ? <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
-                                                : <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
-                                            }
-                                        </ListItem>
-                                        <Collapse in={cls.open} timeout='auto' unmountOnExit><List>{
-                                            cls.tests.map((test, tIndex) =>
-                                                <ListItem 
-                                                    key={'MyClasses'+cls.id+'-'+cIndex+'-'+test.id+'-'+tIndex}
-                                                    button 
-                                                    onClick={() => {
-                                                        this.getTestStats(test.id, cIndex, tIndex);
-                                                    }}>
-                                                    <AssessmentOutlinedIcon color={test.open ? 'primary' : 'disabled'}
-                                                                            style={{marginLeft: '10px'}}/>
-                                                    <ListItemText inset primary={test.name}/>
-                                                </ListItem>)
-                                        }</List></Collapse>
-                                    </Fragment>
-                                )}
-                            </List>
-                        </Paper>
+                      { this.sideMenu() }
                     </Grid>
                     {/* Border From Menu To Main*/}
                     <Grid item xs={1}/>
@@ -149,12 +113,221 @@ export default class MyClasses extends React.Component {
                                 flexDirection: 'column'
                             }}
                         >
-                            {this.detailsCard()}
+                            { this.detailsCard() }
                         </Card>
                     </Grid>
                 </Grid>
-                {/* Enroll in class pop up */}
-                <AVOModal
+                { this.enrollInClassPopper() } {/* This manages the enroll in classes button */}
+            </div>
+        );
+    }
+
+    sideMenu(){
+        // This is the side menu where students can select the class that they are in
+        return (
+            <Paper classes={{root : 'avo-sidebar'}} square style={{width: '100%', flex: 1, display: 'flex'}}>
+                <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
+                    <Typography component={'span'} variant='subheading' color="textPrimary" align='center'>
+                        Welcome to My Classes
+                    </Typography>
+                    <br/>
+                    <Divider/>
+                    <ListSubheader style={{position: 'relative'}}>Class Enrollment</ListSubheader>
+                    {/*<ListItem button disabled>*/} 
+                        {/*<BarChartOutlinedIcon color='action'/>*/}
+                        {/*<ListItemText inset primary='My Analytics'/>*/}
+                    {/*</ListItem>*/}
+                    <ListItem button id="avo-myclasses__enroll-button" onClick={() => this.setState({ joinClassPopperOpen : true, joinClassPopperIdx : 0 })}>
+                        <AddBoxOutlinedIcon color='action'/>
+                        <ListItemText inset primary='Enroll in Class'/>
+                    </ListItem>
+                    <Divider/>
+                    <ListSubheader style={{position: 'relative'}}>Classes</ListSubheader>
+                    {this.state.classes.map((cls, cIndex) =>
+                        <Fragment key={"MyClasses" + cls.id + "-" + cIndex}>
+                            <ListItem button onClick={() => {
+                                this.selectClass(cIndex);
+                                this.handleClassListItemClick();
+                            }}>
+                                <PeopleOutlinedIcon color='action'/>
+                                <ListItemText inset primary={cls.name}/>
+                                {cls.open
+                                    ? <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
+                                    : <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
+                                }
+                            </ListItem>
+                            <Collapse in={cls.open} timeout='auto' unmountOnExit><List>{
+                                cls.tests.map((test, tIndex) =>
+                                    <ListItem
+                                        key={'MyClasses'+cls.id+'-'+cIndex+'-'+test.id+'-'+tIndex}
+                                        button
+                                        onClick={() => {
+                                            this.getTestStats(test.id, cIndex, tIndex);
+                                        }}>
+                                        <AssessmentOutlinedIcon color={test.open ? 'primary' : 'disabled'}
+                                                                style={{marginLeft: '10px'}}/>
+                                        <ListItemText inset primary={test.name}/>
+                                    </ListItem>)
+                            }</List></Collapse>
+                        </Fragment>
+                    )}
+                </List>
+            </Paper>
+
+        )
+    }
+
+    selectClass(index) {
+        let newClassList = copy(this.state.classes);
+        if (newClassList[index].tests.length > 0)
+            newClassList[index].open = !newClassList[index].open;
+        this.setState({classes: newClassList, c: index, t: null});
+    }
+
+    enrollInClassPopper(){
+        if (CONST_ENROLLMENT_PAYMENT){
+            return (<Popper
+                    placement="right-start"
+                    open={this.state.joinClassPopperOpen}
+                    anchorEl={(() => { return document.getElementById('avo-myclasses__enroll-button')})}
+                    disablePortal={false}
+                    modifiers={{
+                        flip: {
+                            enabled: true,
+                        },
+                        preventOverflow: {
+                            enabled: true,
+                            boundariesElement: 'scrollParent',
+                        },
+                    }}
+                >
+                    <Paper style={{ marginLeft: '10em', padding : '10px', height : 'auto' }}>
+                        {this.state.joinClassPopperIdx === CONST_FREE_CLASS && (
+                            <React.Fragment>
+                                <Typography component={'span'} variant='body1' color="textPrimary">
+                                    Please enter the course code for the class you want to enroll in.
+                                </Typography>
+                                <TextField
+                                    id='avo-myclasses__enroll-textfield'
+                                    margin='normal'
+                                    style={{width: '60%'}}
+                                    label="Course code"
+                                    helperText={this.state.enrollErrorMessage + ' '}
+                                    error={this.state.enrollErrorMessage !== ''}
+                                />
+                                <Button
+                                    color="primary"
+                                    onClick={
+                                        () => {
+                                            const key = document.getElementById('avo-myclasses__enroll-textfield').value;
+                                            if (key !== null && key !== '') {
+                                                Http.enrollInClass(
+                                                    key,
+                                                    (result) => {
+                                                        console.log(result);
+                                                        if(result.message && result.message === "Enrolled") {
+                                                            this.setState({enrollErrorMessage : '', joinClassPopperOpen: false });
+                                                            this.loadClasses("Successfully enrolled in the class!");
+                                                            this.props.showSnackBar("success", "Successfully enrolled in the class!");
+                                                            return;
+                                                        }
+                                                        this.setState({enrollErrorMessage : '', joinClassPopperIdx : 1, enrollObj : result });
+                                                        var _this = this;
+                                                        setTimeout(() => {
+                                                            paypal.Button.render({
+
+                                                                env: 'sandbox', // Should be changed to 'production' when in production
+                                                                commit: true,
+
+                                                                payment: function() {
+                                                                    return paypal.request({
+                                                                        method: 'post',
+                                                                        url: 'pay',
+                                                                        json: {
+                                                                            classID: result.id
+                                                                        }
+                                                                    }).then(function(data) {
+                                                                        return data.tid;
+                                                                    });
+                                                                },
+                                                                onAuthorize: function(data) {
+                                                                    return paypal.request({
+                                                                        method: 'post',
+                                                                        url: '/postPay',
+                                                                        json: {
+                                                                            tid: data.paymentID,
+                                                                            payerID: data.payerID
+                                                                        }
+                                                                    }).then(function(data) {
+                                                                        console.log(data);
+                                                                        _this.setState({enrollErrorMessage : '', joinClassPopperOpen: false });
+                                                                        _this.loadClasses("Successfully enrolled in the class!");
+                                                                    }).catch(function (err) {
+                                                                        alert('error');
+                                                                    });
+                                                                }
+                                                            }, '#paypal-button')
+                                                        }, 250)
+                                                    },
+                                                    () => this.setState({
+                                                        enrollErrorMessage : 'Invalid code'
+                                                    }),
+                                                )
+                                            } else {
+                                                this.setState({
+                                                    enrollErrorMessage : 'Field cannot be blank. Please enter a code to join a class.'
+                                                });
+                                            }
+                                        }
+                                    }
+                                >Enroll</Button>
+                                <Button color="primary" onClick={() => { this.setState({ joinClassPopperOpen: false }) }}>Close</Button>
+                            </React.Fragment>
+                        )}
+                        {this.state.joinClassPopperIdx === CONST_PAID_CLASS && (
+                            <React.Fragment>
+                                <Typography component={'span'} variant='display1' color="primary" classes={{root : "avo-padding__16px"}}>
+                                    Course code is valid.
+                                </Typography>
+                                <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                    To confirm your selection please pay via PayPal.
+                                </Typography>
+                                <br/>
+
+                                { this.enrollInClass_priceDisplay(this.state.enrollObj.price, this.state.enrollObj.discount)}
+
+                                <br/>
+                                <Divider/>
+                                <br/>
+                                <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                    <center>
+                                        <div id="paypal-button"/>
+                                        <br/>
+                                        {this.state.enrollObj.freeTrial && <a 
+                                            style={{ color : this.props.theme.color['500'], cursor: 'pointer' }}
+                                            onClick={() => {
+                                                Http.getFreeTrial(
+                                                    this.state.enrollObj.id,
+                                                    () => {
+                                                        this.setState({ joinClassPopperOpen: false });
+                                                        this.loadClasses("Successfully enrolled in the class!");
+
+                                                    },
+                                                    () => {},
+                                                );
+                                            }}
+                                        >14 day free trial</a>}
+                                    </center>
+                                    <br/>
+                                </Typography>
+                                <Button color="primary" onClick={() => { this.setState({ joinClassPopperOpen: false }) }}>Close</Button>
+                            </React.Fragment>
+                        )}
+                    </Paper>
+                </Popper>)
+        }
+        else {
+            return (<AVOModal
                     title='Enroll into a class'
                     target="avo-myclasses__enroll-button"
                     acceptText='Enroll'
@@ -166,7 +339,7 @@ export default class MyClasses extends React.Component {
                             Http.enrollInClass(
                                 key,
                                 () => {
-                                    this.loadClasses();
+                                    this.loadClasses("Successfully enrolled in the class!");
                                     this.setState({enrollErrorMessage : ''});
                                     closeFunc();
                                 },
@@ -184,7 +357,7 @@ export default class MyClasses extends React.Component {
                 >
                     <Fragment>
                         <br/>
-                        <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                        <Typography component={'span'} variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
                             Please enter the course code for the class you want to enroll in!
                         </Typography>
                         <TextField
@@ -197,18 +370,37 @@ export default class MyClasses extends React.Component {
                         />
                         <br/>
                     </Fragment>
-                </AVOModal>
-            </div>
-        );
+                </AVOModal>)
+        }
     }
 
-    selectClass(index) {
-        let newClassList = copy(this.state.classes);
-        if (newClassList[index].tests.length > 0)
-            newClassList[index].open = !newClassList[index].open;
-        this.setState({classes: newClassList, c: index, t: null});
-    }
+    enrollInClass_priceDisplay(price, discountPrice){
+      // Displays the price and the discounted price. If price and discounted price is the same then we only show price
+      if (price !== discountPrice){
+           return (
+            <React.Fragment>
+               <s>
+                 <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                  Price: ${price}
+                </Typography>
+               </s>
+              <br/>
+              <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                  Discounted Price: ${discountPrice}
+            </Typography>
+            </React.Fragment>
+          )
+      }
+      else {
+        return (
+             <Typography component={'span'}  variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                  Price: ${discountPrice}
+              </Typography>
+        )
+      }
 
+    }
+    
     detailsCard() {
         let selectedClass = this.state.classes[this.state.c];
         // Class with tests
@@ -224,13 +416,9 @@ export default class MyClasses extends React.Component {
                 && (selectedTest.attempts === -1 || selectedTest.submitted.length < selectedTest.attempts);
             return (
                 <Fragment>
-                    <CardHeader
-                        classes={{
-                            root: 'avo-card__header'
-                        }}
-                        title={selectedTest.name}
-                    />
-                    <Button
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <Typography variant='title'> { selectedTest.name }</Typography>
+                        <Button
                         color='primary'
                         classes={{
                             root: 'avo-card__header-button',
@@ -241,8 +429,70 @@ export default class MyClasses extends React.Component {
                     >
                         {selectedTest.current === null ? 'Start Test' : 'Resume Test'}
                     </Button>
-                     <center>
-                         <Typography variant='body1' color="textPrimary">
+                  </div>
+                  <br/>
+                  { this.detailsCard_infoAboutTest(selectedTest) } {/* Display the test attempt, due date, ...etc */}
+                  <br/>
+                  { this.detailsCard_tabs(bestMark, analyticsDataObj, selectedClass, selectedTest) }
+                </Fragment>
+            );
+        }
+        // Class with no tests
+        else if (this.state.c !== null) {
+            return (
+                <Fragment>
+                    <CardHeader
+                        classes={{
+                            root: 'avo-card__header'
+                        }}
+                        title={selectedClass.name}
+                    />
+                    <Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                        {selectedClass.tests.length === 0 && "This class doesn't have any tests or assignments yet!"}
+                    </Typography>
+                    <div className="mixed-chart" id='avo-apex__chart-container'>
+                        { // if there is at least one test then display data
+                            selectedClass.tests.length !== 0
+                                ?
+                                <React.Fragment>
+                                  { this.state.apexChartEl }
+                                    <Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                                      Average: Based on the average of the best attempts of each student who took the test or assignment.
+                                    </Typography>
+                                    <Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                                      Size: The number of students who has taken the test or assignment.
+                                    </Typography>
+                                </React.Fragment>
+                                : null
+                        }
+                    </div>
+                </Fragment>
+            );
+        }
+      // No classes or tests
+        else {
+
+        return (
+            <Fragment>
+                <CardHeader
+                    classes={{
+                        root: 'avo-card__header'
+                    }}
+                    title={'Hey there!'}
+                />
+                <Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                    Looks like you haven't selected a Class or Test yet!
+                </Typography>
+                <br/>
+            </Fragment>
+        );
+        }
+
+    }
+
+    detailsCard_infoAboutTest(selectedTest){
+        return (      <center>
+                         <Typography component={'span'} variant='body1' color="textPrimary">
                                 <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
                                 <b>Deadline:</b> {getDateString(selectedTest.deadline)}
                                 </span>
@@ -254,50 +504,70 @@ export default class MyClasses extends React.Component {
                                 </span>
                          </Typography>
                      </center>
-                    <br/>
-                    <Tabs
-                        value={this.state.activeTab}
-                        onChange={this.handleTabViewChange.bind(this)}
-                        indicatorColor="primary"
-                        textColor="primary"
-                        fullWidth
-                    >
-                        <Tab label="Overall Analytics" />
-                        <Tab label="Per Question Analytics" />
-                        <Tab label="My Attempts" />
-                    </Tabs>
-                    {this.state.activeTab === 0 &&
-                    (<React.Fragment>
-                                <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
-                                    <br/>
-                                    <center>
-                                        <Typography variant='body1' color="textPrimary">
-                                            <span>
-                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
-                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Median Scores:</b> {this.state.testStats.testMedian}</span>
-                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Mean Scores:</b> {this.state.testStats.testMean}</span>
-                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Std. Dev:</b> {this.state.testStats.testSTDEV}%</span>
-                                                <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>My Best Attempt:</b> {Math.round(bestMark/100*this.state.testStats.totalMark, 2)}</span>
-                                            </span>
-                                        </Typography>
-                                    </center>
-                                    <br/>
-                                    <Chart
-                                        options={this.getTestCardGraphOptions()}
-                                        series={this.getTestCardGraphSeries()}
-                                        type="line"
-                                        width='100%'
-                                    />
-                                </div>
-                            </React.Fragment>)
-                    }
+        )
+    }
 
-                    {this.state.activeTab === 1 && (
-                        <React.Fragment>
+    detailsCard_tabs(bestMark, analyticsDataObj, selectedClass, selectedTest){
+        // this is the information that is displayed under each tab
+      const { activeTab } = this.state;
+      return (
+          <React.Fragment>
+            <Tabs
+                  value={this.state.activeTab}
+                  onChange={this.handleTabViewChange.bind(this)}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  fullWidth
+              >
+                <Tab label="Overall Analytics" />
+                <Tab label="Per Question Analytics" />
+                <Tab label="My Attempts" />
+              </Tabs>
+            { activeTab === CONST_TAB_OVERALL_ANALYTICS
+                ? this.detailsCard_overallAnalytics(bestMark, analyticsDataObj)
+                : activeTab === CONST_TAB_PER_QUESTION
+                    ? this.detailsCard_perQuestion(bestMark, analyticsDataObj)
+                    : activeTab === CONST_TAB_MY_ATTEMPTS
+                        ? this.detailsCard_myAttempts(bestMark, analyticsDataObj, selectedClass, selectedTest)
+                        : null
+
+            }
+          </React.Fragment>
+      )
+    }
+
+    detailsCard_overallAnalytics(bestMark, analyticsDataObj){
+        return ((<React.Fragment>
+                      <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
+                          <br/>
+                          <center>
+                              <Typography component={'span'} variant='body1' color="textPrimary">
+                                  <span>
+                                      <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
+                                      <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Median Scores:</b> {this.state.testStats.testMedian}</span>
+                                      <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Mean Scores:</b> {this.state.testStats.testMean}</span>
+                                      <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Std. Dev:</b> {this.state.testStats.testSTDEV}%</span>
+                                      <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>My Best Attempt:</b> {Math.round(bestMark/100*this.state.testStats.totalMark, 2)}</span>
+                                  </span>
+                              </Typography>
+                          </center>
+                          <br/>
+                          <Chart
+                              options={this.getTestCardGraphOptions()}
+                              series={this.getTestCardGraphSeries()}
+                              type="line"
+                              width='100%'
+                          />
+                      </div>
+                  </React.Fragment>))
+    }
+
+    detailsCard_perQuestion(bestMark, analyticsDataObj){
+        return (<React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
                                 <br/>
                                 <center>
-                                <Typography variant='body1' color="textPrimary">
+                                <Typography component={'span'} variant='body1' color="textPrimary">
                                         <span>
                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}><FormControl>
                                                 {/*<InputLabel htmlFor="test-stats__data-display">Question to display</InputLabel>*/}
@@ -328,14 +598,15 @@ export default class MyClasses extends React.Component {
                                 />
 
                             </div>
-                        </React.Fragment>
-                    )}
-                    {this.state.activeTab === 2 && (
-                        <React.Fragment>
+                </React.Fragment>)
+    }
+
+    detailsCard_myAttempts(bestMark, analyticsDataObj, selectedClass, selectedTest){
+        return (<React.Fragment>
                             <br/>
                             <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
                                 {selectedTest.submitted.map((x, y) => (
-                                    <ListItem key={'MyClasses' + x.id}>
+                                    <ListItem key={'MyClasses:' + x.id + ", " + y}>
                                         <ListItemText primary={'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + selectedTest.total}
                                             secondary={'Submitted on ' + getDateString(x.timeSubmitted)}/>
                                         <ListItemSecondaryAction>
@@ -348,62 +619,7 @@ export default class MyClasses extends React.Component {
                                     </ListItem>
                                 ))}
                             </List>
-                        </React.Fragment>
-                    )}
-                </Fragment>
-            );
-        }
-        // Class with no tests
-        else if (this.state.c !== null) {
-            return (
-                <Fragment>
-                    <CardHeader
-                        classes={{
-                            root: 'avo-card__header'
-                        }}
-                        title={selectedClass.name}
-                    />
-                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
-                        {selectedClass.tests.length === 0 && "This class doesn't have any tests or assignments yet!"}
-                    </Typography>
-                    <div className="mixed-chart" id='avo-apex__chart-container'>
-                        { // if there is at least one test then display data
-                            selectedClass.tests.length !== 0
-                                ?
-                                <React.Fragment>
-                                  { this.state.apexChartEl }
-                                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
-                                      Average: Based on the average of the best attempts of each student who took the test or assignment.
-                                    </Typography>
-                                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
-                                      Size: The number of students who has taken the test or assignment.
-                                    </Typography>
-                                </React.Fragment>
-                                : null
-                        }
-                    </div>
-                </Fragment>
-            );
-        }
-      // No classes or tests
-        else {
-
-        return (
-            <Fragment>
-                <CardHeader
-                    classes={{
-                        root: 'avo-card__header'
-                    }}
-                    title={'Hey there!'}
-                />
-                <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
-                    Looks like you haven't selected a Class or Test yet!
-                </Typography>
-                <br/>
-            </Fragment>
-        );
-        }
-
+                        </React.Fragment>)
     }
 
     getPerQuestionGraphOptions() {
@@ -430,7 +646,7 @@ export default class MyClasses extends React.Component {
             labels: (() => {
                 const dataOutArray = [];
                 for(let key in dataObj) {
-                    if(key != "studentSizeWhoTookIt") dataOutArray.push(key);
+                    if(key !== "studentSizeWhoTookIt") dataOutArray.push(key);
                 }
                 return dataOutArray;
             })(),
@@ -716,11 +932,13 @@ export default class MyClasses extends React.Component {
                 type : 'line',
                 data : sdArray
             }, ]
-        }else if(this.state.testStatsDataSelectIdx === 3) {
+        }else if(this.state.testStatsDataSelectIdx === CONST_OVERALL_ANALYTICS_DEFAULT) { // this is the default value
             const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
             delete dataObj["studentSizeWhoTookIt"];
             const dataOutArray = [];
+            // TODO make sure the getDistribution is working
             for(let key in dataObj) {
+                // getDistribution(this.state.testStats.testSTDEV, this.state.testStats.testMedian, dataOutArray.length);
                 dataOutArray.push(dataObj[key].numberOfStudents);
             }
             return [{
@@ -729,19 +947,7 @@ export default class MyClasses extends React.Component {
                 data: dataOutArray
             }]
         }
-        return [{
-            name: 'TEAM A',
-            type: 'column',
-            data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30]
-        }, {
-            name: 'TEAM B',
-            type: 'column',
-            data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43]
-        }, {
-            name: 'TEAM C',
-            type: 'line',
-            data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39]
-        }]
+        return null;
     };
 
     handleTabViewChange(event, value) {
@@ -760,8 +966,7 @@ export default class MyClasses extends React.Component {
     getTestStats(testID, cIndex, tIndex) {
         Http.getTestStats(
             testID,
-            (result) => { 
-                console.log(result);
+            (result) => {
                 this.setState({c: cIndex, t: tIndex, testStats: result });
             },
             (err) => { console.log(err); }

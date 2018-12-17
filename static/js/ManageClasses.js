@@ -1,6 +1,5 @@
 import React, {Fragment} from 'react';
 import Http from './Http';
-import Menu from '@material-ui/core/Menu';
 import Popper from '@material-ui/core/Popper';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
@@ -20,10 +19,11 @@ import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction/ListItemSecondaryAction";
 import Stop from '@material-ui/icons/Stop';
-import MoreVert from '@material-ui/icons/MoreVert';
 import PlayArrow from '@material-ui/icons/PlayArrow';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import RemoveRedEyeOutlined from '@material-ui/icons/RemoveRedEyeOutlined';
+import EditOutlined from '@material-ui/icons/EditOutlined';
 import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined';
 import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 import GetAppOutlinedIcon from '@material-ui/icons/GetAppOutlined';
@@ -42,9 +42,14 @@ import { avoGreenGraph } from "./AVOCustomColors";
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import { convertListFloatToAnalytics } from "./helpers";
+
+const enableEditMarks = false; // if this is true then editMarks button will appear
+const cardStyle = {marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};
+const CONST_TAB_OVERALL_ANALYTICS = 0;
+const CONST_TAB_PER_QUESTION = 1;
+const CONST_TAB_MY_ATTEMPTS = 2;
 
 export default class ManageClasses extends React.Component {
     constructor(props) {
@@ -58,8 +63,8 @@ export default class ManageClasses extends React.Component {
             studentNameSearchLabels : [],
             anchorEl: null,
             createClassErrorMessage : '',
-            apexChartEl: undefined,       
-            results: undefined,     
+            apexChartEl: undefined,
+            results: undefined,
             deleteTestPopperOpen : false,
             activeTab : 0,
             testStats : null,
@@ -70,79 +75,105 @@ export default class ManageClasses extends React.Component {
         };
     }
 
-    loadClasses() {
+    loadClasses(snackBarString) {
+      // this gets the class results
         Http.getClasses(result => this.setState(result), result => console.log(result));
+        if (snackBarString !== undefined){
+            this.props.showSnackBar("success", snackBarString)
+        }
     }
 
     render() {
-        let cardStyle = {marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};
-        console.log(this.state.classes);
         return (
             <div style={{width: '100%', flex: 1, display: 'flex'}}>
                 <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
                     <Grid item xs={3} style={{flex: 1, display: 'flex'}}>
-                        <Paper classes={{root: 'avo-sidebar'}} square style={{width: '100%', flex: 1, display: 'flex'}}>
-                            <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
-                                <Typography variant='subheading' color="textPrimary" align='center'>
-                                    Manage My Classes
-                                </Typography>
-                                <br/>
-                                <Divider/>
-                                <ListSubheader style={{position: 'relative'}}>Class Creation</ListSubheader>
-                                <ListItem button id='avo-manageclasses__create-button'>
-                                    <AddBoxOutlinedIcon color='action'/>
-                                    <ListItemText inset primary='Create Class'/>
-                                </ListItem>
-                                <Divider/>
-                                <ListSubheader style={{position: 'relative'}}>My Classes</ListSubheader>
-                                {/* For each Class create a menu option */}
-                                {this.state.classes.map((cls, cIndex) =>
-                                    <Fragment key = {"ManageClasses" + cls.id + "-" + cIndex}>
-                                        <ListItem button onClick={() => {
-                                                this.selectClass(cIndex);
-                                                this.handleClassListItemClick();
-                                        }}>
-                                            <PeopleOutlinedIcon color='action'/>
-                                            <ListItemText inset primary={cls.name}/>
-                                            {cls.open
-                                                ? <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
-                                                : <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
-                                            }
-                                        </ListItem>
-                                        <Collapse in={cls.open} timeout='auto' unmountOnExit><List>{
-                                            // For each test create a menu option
-                                            cls.tests.map((test, tIndex) =>
-                                                <ListItem key={'ManageClasses'+cls.id+'-'+cIndex+'-'+test.id+'-'+tIndex}
-                                                          button onClick={() => this.getTestStats(test.id, cIndex, tIndex)}>
-                                                    <AssessmentOutlinedIcon color={test.open ? 'primary' : 'disabled'}
-                                                                            style={{ marginLeft: '10px' }}/>
-                                                    <ListItemText inset primary={test.name}/>
-                                                </ListItem>
-                                            )
-                                        }</List></Collapse>
-                                    </Fragment>
-                                )}
-                            </List>
-                        </Paper>
+                        { this.sideBar() }
                     </Grid>
-                    <Grid item xs={1}/>
+                    <Grid item xs={1}/> {/* Spacing in the middle */}
                     <Grid item xs={7} style={{display: 'flex'}}>
-                        <Card classes={{root: 'avo-card'}} style={cardStyle}>{this.detailsCard()}</Card>
+                        <Card classes={{root: 'avo-card'}} style={cardStyle}>
+                            { this.detailsCard() } {/* This is the card on the right hand side */}
+                        </Card>
                     </Grid>
                 </Grid>
-                <AVOModal
+              { this.createClassModal() } {/* This governs the pop up modal that lets profs make a class */}
+            </div>
+        );
+    }
+
+    sideBar(){
+        // this renders the side bar for manage classes
+        return (
+            <Paper classes={{root: 'avo-sidebar'}} square style={{width: '100%', flex: 1, display: 'flex'}}>
+                <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
+                    <Typography component={'span'} variant='subheading' color="textPrimary" align='center'>
+                        Manage My Classes
+                    </Typography>
+                    <br/>
+                    <Divider/>
+                    <ListSubheader style={{position: 'relative'}}>Class Creation</ListSubheader>
+                    <ListItem button id='avo-manageclasses__create-button'>
+                        <AddBoxOutlinedIcon color='action'/>
+                        <ListItemText inset primary='Create Class'/>
+                    </ListItem>
+                    <Divider/>
+                    <ListSubheader style={{position: 'relative'}}>My Classes</ListSubheader>
+                    { this.sideBar_loadClasses() }{/* For each Class create a menu option */}
+                </List>
+            </Paper>
+        )
+    }
+
+    sideBar_loadClasses(){
+        return (
+            <React.Fragment>
+            {
+                this.state.classes.map((cls, cIndex) =>
+                        <Fragment key = {"ManageClasses" + cls.id + "-" + cIndex}>
+                            <ListItem button onClick={() => {
+                                    this.selectClass(cIndex);
+                                    this.handleClassListItemClick();
+                            }}>
+                                <PeopleOutlinedIcon color='action'/>
+                                <ListItemText inset primary={cls.name}/>
+                                {cls.open
+                                    ? <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
+                                    : <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
+                                }
+                            </ListItem>
+                            <Collapse in={cls.open} timeout='auto' unmountOnExit><List>{
+                                // For each test create a menu option
+                                cls.tests.map((test, tIndex) =>
+                                    <ListItem key={'ManageClasses'+cls.id+'-'+cIndex+'-'+test.id+'-'+tIndex}
+                                              button onClick={() => this.getTestStats(test.id, cIndex, tIndex)}>
+                                        <AssessmentOutlinedIcon color={test.open ? 'primary' : 'disabled'}
+                                                                style={{ marginLeft: '10px' }}/>
+                                        <ListItemText inset primary={test.name}/>
+                                    </ListItem>
+                                )
+                            }</List></Collapse>
+                        </Fragment>
+                    )}
+            </React.Fragment>
+        )
+    }
+
+    createClassModal(){
+        return (
+            <AVOModal
                     title='Create a class'
                     target="avo-manageclasses__create-button"
                     acceptText='Create'
                     declineText='Never mind'
                     noDefaultClose={true}
                     onAccept={(closeFunc) => {
-                        const name = document.getElementById('avo-manageclasses__creation-textfield').value;
+                        const name = document.getElementById('avo-manageclasses__creation-textfield').value; // get the name given
                         if (name !== null && name !== '') {
                             Http.createClass(
                                 name,
                                 () => {
-                                    this.loadClasses();
+                                    this.loadClasses("Class Successfully Created!");
                                     this.setState({createClassErrorMessage : ''});
                                     closeFunc();
                                 },
@@ -154,11 +185,12 @@ export default class ManageClasses extends React.Component {
                             });
                         }
                     }}
-                    onDecline={() => {}}
+                    onDecline={() => {alert("Oops it seems that something went wrong. Please try remaking the class and " +
+                        "if issues persist email us about it. ")}}
                 >
                     <Fragment>
                         <br/>
-                        <Typography variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
+                        <Typography component={'span'} variant='body1' color="textPrimary" classes={{ root : "avo-padding__16px" }}>
                             Please enter the desired name of the class you wish to create!
                         </Typography>
                         <TextField
@@ -172,21 +204,91 @@ export default class ManageClasses extends React.Component {
                         <br/>
                     </Fragment>
                 </AVOModal>
-            </div>
-        );
+        )
     }
 
     detailsCard() {
+
+        // This is the rendering logic for what goes inside the card on the right
         let selectedClass = this.state.classes[this.state.c];
         const uniqueKey1 = uniqueKey();
-        if (this.state.t !== null) {
-            const { anchorEl } = this.state;
+        if (this.state.t !== null) { // If a test is selected
             const analyticsDataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
             let selectedTest = selectedClass.tests[this.state.t];
-            return (
-                <Fragment key = {`detailsCard-${uniqueKey1}`}>
+            return this.detailsCard_selectedTest(analyticsDataObj, selectedTest, uniqueKey1)
+        }
+        if (this.state.c !== null) { // If a class is selected
+            return this.detailsCard_selectedClass(selectedClass, uniqueKey1);
+        }
+        else { // Otherwise display the card that says they haven't selected anything
+            return this.detailsCard_nothingSelected();
+        }
+    }
+
+    detailsCard_nothingSelected(){
+        return (
+            <React.Fragment>
+                 <CardHeader
+                    classes={{root: 'avo-card__header'}}
+                    title={'Hey there!'}
+                />
+                <Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                    Looks like you haven't selected a Class or Test yet!
+                </Typography>
+                <br/>
+            </React.Fragment>
+
+
+        )
+    }
+
+    detailsCard_selectedClass(selectedClass, uniqueKey1){
+        return (
+                  <Fragment>
                     <CardHeader
+                        title={selectedClass.name}
                         classes={{root: 'avo-card__header'}}
+                        subheader={'Enroll Key: ' + selectedClass.enrollKey}
+                        action={[
+                            <Tooltip key = {`newTestToolTip-:${uniqueKey1}`} title="Create a new Test">
+                                    <IconButton onClick={() => this.state.createTest(selectedClass.id)}>
+                                        <NoteAddOutlinedIcon/>
+                                    </IconButton>
+                            </Tooltip>,
+                            <Tooltip key = {`CSVToolTip-:${uniqueKey1}`} title="Download CSV">
+                                <IconButton onClick={() =>  window.location.href = (`/CSV/ClassMarks/${selectedClass.id}`)}>
+                                    <GetAppOutlinedIcon/>
+                                </IconButton>
+                            </Tooltip>
+                        ]}
+                    />
+                    <div className="mixed-chart" id='avo-apex__chart-container'>
+                       { // if there is at least one test then display data
+                            selectedClass.tests.length !== 0
+                                ?
+                                <React.Fragment>
+                                  { this.state.apexChartEl }
+                                    <Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                                      Average: Based on the average of the best attempts of each student who took the test or assignment.
+                                    </Typography>
+                                    <Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                                      Size: The number of students who has taken the test or assignment.
+                                    </Typography>
+                                </React.Fragment>
+                                : // give message that there's no tests yet
+                                    <Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
+                                        This class doesn't have any tests or assignments yet!
+                                    </Typography>
+                        }
+                    </div>
+                </Fragment>
+        )
+    }
+
+    detailsCard_selectedTest(analyticsDataObj, selectedTest, uniqueKey1){
+        return (
+             <Fragment key = {`detailsCard-${uniqueKey1}`}>
+                    <CardHeader
                         title={selectedTest.name}
                         action={
                             <Fragment>
@@ -209,7 +311,7 @@ export default class ManageClasses extends React.Component {
                         }
                     />
                        <center>
-                         <Typography variant='body1' color="textPrimary">
+                         <Typography component={'span'} variant='body1' color="textPrimary">
                                 <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}>
                                 <b>Deadline:</b> {getDateString(selectedTest.deadline)}
                                 </span>
@@ -233,12 +335,12 @@ export default class ManageClasses extends React.Component {
                         <Tab label="Per Question Analytics" />
                         <Tab label="Test Submissions" />
                     </Tabs>
-                    {this.state.activeTab == 0 && (
+                    {this.state.activeTab === CONST_TAB_OVERALL_ANALYTICS && (
                         <React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
                                 <br/>
                                <center>
-                                    <Typography variant='body1' color="textPrimary">
+                                    <Typography component={'span'} variant='body1' color="textPrimary">
                                         <span>
                                             <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}</span>
                                             <span style={{ marginLeft : '0.75em', marginRight : '0.75em' }}><b>Median Scores:</b> {this.state.testStats.testMedian}</span>
@@ -256,12 +358,12 @@ export default class ManageClasses extends React.Component {
                             </div>
                         </React.Fragment>
                     )}
-                    {this.state.activeTab == 1 && (
+                    {this.state.activeTab === CONST_TAB_PER_QUESTION && (
                         <React.Fragment>
                             <div style={{ overflowY : 'auto', overflowX : 'hidden' }}>
                                 <br/>
                                 <center>
-                                    <Typography variant='body1' color="textPrimary">
+                                    <Typography component={'span'} variant='body1' color="textPrimary">
                                         <span>
                                            <span style={{ marginLeft : '1.0em', marginRight : '1.0em' }}>
                                            <FormControl>
@@ -294,7 +396,7 @@ export default class ManageClasses extends React.Component {
                             </div>
                         </React.Fragment>
                     )}
-                    {this.state.activeTab == 2 && (
+                    {this.state.activeTab === CONST_TAB_MY_ATTEMPTS && (
                         <React.Fragment>
                             <br/>
                             <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
@@ -334,22 +436,33 @@ export default class ManageClasses extends React.Component {
                                                             ))}
                                                         </Select>
                                                     </FormControl>
-                                                    <Button 
-                                                        color="primary"
-                                                        classes={{
-                                                            disabled : 'disabled'
-                                                        }}
-                                                        disabled={x.tests.length === 0}
-                                                        onClick={() => {
-                                                            this.props.postTest(
-                                                                this.state.results[idx].tests[
-                                                                    this.state.resultsIndexArray[idx]
-                                                                ].takes
-                                                            );
-                                                        }}
-                                                    >
-                                                        View
-                                                    </Button>
+                                                    <Tooltip title="View Submission for selected attempt">
+                                                        <span> {/* All icons that can be disabled need this to prevent warning*/}
+                                                            <IconButton
+                                                                classes={{
+                                                                    disabled : 'disabled'
+                                                                }}
+                                                                disabled={x.tests.length === 0}
+                                                                onClick={() => {
+                                                                    this.props.postTest(
+                                                                        this.state.results[idx].tests[
+                                                                            this.state.resultsIndexArray[idx]
+                                                                        ].takes
+                                                                    );
+                                                                }}
+                                                            >
+                                                                <RemoveRedEyeOutlined/>
+                                                            </IconButton>
+                                                        </span>
+                                                    </Tooltip>
+                                                  { enableEditMarks
+                                                      ?  <Tooltip title="Edit marks for selected attempt">
+                                                              <IconButton
+                                                                  onClick={() => this.closeTest()}><EditOutlined/></IconButton>
+                                                        </Tooltip>
+                                                      : null
+
+                                                  }
                                                 </ListItemSecondaryAction>
                                             </ListItem>
                                         </Fragment>)
@@ -374,7 +487,7 @@ export default class ManageClasses extends React.Component {
                             }}
                         >
                             <Paper style={{ padding : '10px', height : '6em' }}>
-                                <Typography variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
+                                <Typography component={'span'} variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
                                     Are you sure you want to delete {selectedTest.name}?<br/>
                                     Once a test has been deleted it can not be recovered!
                                 </Typography>
@@ -399,61 +512,6 @@ export default class ManageClasses extends React.Component {
                     </List>
                 </Fragment>
             );
-        }
-        if (this.state.c !== null) {
-            return (
-                <Fragment>
-                    <CardHeader
-                        title={selectedClass.name}
-                        classes={{root: 'avo-card__header'}}
-                        subheader={'Enroll Key: ' + selectedClass.enrollKey}
-                        action={[
-                            <Tooltip key = {`newTestToolTip-:${uniqueKey1}`} title="Create a new Test">
-                                <IconButton onClick={() => this.state.createTest(selectedClass.id)}>
-                                    <NoteAddOutlinedIcon/>
-                                </IconButton>
-                            </Tooltip>,
-                            <Tooltip key = {`CSVToolTip-:${uniqueKey1}`} title="Download CSV">
-                                <IconButton onClick={() => alert('CSV download coming soon!')}>
-                                    <GetAppOutlinedIcon/>
-                                </IconButton>
-                            </Tooltip>
-                        ]}
-                    />
-                    <div className="mixed-chart" id='avo-apex__chart-container'>
-                       { // if there is at least one test then display data
-                            selectedClass.tests.length !== 0
-                                ?
-                                <React.Fragment>
-                                  { this.state.apexChartEl }
-                                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
-                                      Average: Based on the average of the best attempts of each student who took the test or assignment.
-                                    </Typography>
-                                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
-                                      Size: The number of students who has taken the test or assignment.
-                                    </Typography>
-                                </React.Fragment>
-                                : // give message that there's no tests yet
-                                    <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
-                                        This class doesn't have any tests or assignments yet!
-                                    </Typography>
-                        }
-                    </div>
-                </Fragment>
-            )
-        }
-        return (
-            <Fragment>
-                <CardHeader
-                    classes={{root: 'avo-card__header'}}
-                    title={'Hey there!'}
-                />
-                <Typography variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
-                    Looks like you haven't selected a Class or Test yet!
-                </Typography>
-                <br/>
-            </Fragment>
-        );
     }
 
     selectClass(index) {
@@ -578,10 +636,10 @@ export default class ManageClasses extends React.Component {
         ) });
     }
 
-       getPerQuestionGraphOptions() {
+    getPerQuestionGraphOptions() {
         let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
         let dataObj = convertListFloatToAnalytics(
-            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent, 
+            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent,
             this.state.testStats.questions[this.state.testStatsDataQuestionIdx].totalMark
         );
         console.log(dataObj);
@@ -663,7 +721,7 @@ export default class ManageClasses extends React.Component {
                     colors: [
                         `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                         `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
-                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,                        
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                     ]
                 },
                 dropShadow: {
@@ -682,7 +740,7 @@ export default class ManageClasses extends React.Component {
 
     getPerQuestionGraphData() {
         let dataObj = convertListFloatToAnalytics(
-            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent, 
+            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent,
             this.state.testStats.questions[this.state.testStatsDataQuestionIdx].totalMark
         );
         delete dataObj["studentSizeWhoTookIt"];
@@ -788,7 +846,7 @@ export default class ManageClasses extends React.Component {
                     colors: [
                         `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                         `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
-                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,                        
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                     ]
                 },
                 dropShadow: {
@@ -806,7 +864,7 @@ export default class ManageClasses extends React.Component {
     };
 
     getTestCardGraphSeries() {
-        let selectedTest = this.state.classes[this.state.c].tests[this.state.t]; 
+        let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
         if(this.state.testStatsDataSelectIdx == 0) {
             let testAverage = 0;
             selectedTest.submitted.forEach((obj) => {
@@ -925,7 +983,7 @@ export default class ManageClasses extends React.Component {
     getTestStats(testID, cIndex, tIndex) {
         Http.getTestStats(
             testID,
-            (result) => { 
+            (result) => {
                 console.log(result);
                 Http.getClassTestResults(this.state.classes[cIndex].tests[tIndex].id,
                     (_result) => {
@@ -1053,7 +1111,7 @@ export default class ManageClasses extends React.Component {
                     colors: [
                         `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                         `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
-                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,                        
+                        `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
                     ]
                 },
                 dropShadow: {

@@ -19,17 +19,23 @@ class Class(db.Model):
 
     CLASS = db.Column(db.Integer, primary_key=True)
     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
-    name = db.Column(db.String, nullable=False)
-    enroll_key = db.Column(db.String, nullable=False)
+    name = db.Column(db.String(45), nullable=False)
+    enroll_key = db.Column(db.String(10), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    price_discount = db.Column(db.Float, nullable=False)
 
     USER_RELATION = db.relationship("User", back_populates="CLASS_RELATION")
     USER_ENROLLED_RELATION = db.relationship("User", secondary=enrolled, back_populates="CLASS_ENROLLED_RELATION")
     TEST_RELATION = db.relationship("Test", back_populates="CLASS_RELATION")
+    TRANSACTION_RELATION = db.relationship("Transaction", back_populates="CLASS_RELATION")
+    TRANSACTION_PROCESSING_RELATION = db.relationship("TransactionProcessing", back_populates="CLASS_RELATION")
 
     # noinspection PyPep8Naming
-    def __init__(self, USER, name):
+    def __init__(self, USER, name, price=59.99):
         self.USER = USER
         self.name = name
+        self.price = price
+        self.price_discount = price
         self.enroll_key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
         enroll_key_class = Class.query.filter(Class.enroll_key == self.enroll_key).all()
         while len(enroll_key_class) is not 0:
@@ -37,7 +43,7 @@ class Class(db.Model):
             enroll_key_class = Class.query.filter(Class.enroll_key == self.enroll_key).all()
 
     def __repr__(self):
-        return f'<Class {self.USER} {self.name} {self.enroll_key}>'
+        return f'<Class {self.CLASS} {self.USER} {self.name} {self.enroll_key}>'
 
 
 class Takes(db.Model):
@@ -49,9 +55,9 @@ class Takes(db.Model):
     time_started = db.Column(db.DateTime, nullable=False)
     time_submitted = db.Column(db.DateTime, nullable=False)
     grade = db.Column(db.Float, nullable=False)
-    marks = db.Column(db.String, nullable=False)
-    answers = db.Column(db.String, nullable=False)
-    seeds = db.Column(db.String, nullable=False)
+    marks = db.Column(db.String(1500), nullable=False)
+    answers = db.Column(db.String(7500), nullable=False)
+    seeds = db.Column(db.String(5000), nullable=False)
 
     TEST_RELATION = db.relationship("Test", back_populates="TAKES_RELATION")
     USER_RELATION = db.relationship("User", back_populates="TAKES_RELATION")
@@ -75,11 +81,11 @@ class User(UserMixin, db.Model):
     __tablename__ = "USER"
 
     USER = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column(db.String, unique=True, nullable=False)
-    first_name = db.Column(db.String, nullable=False)
-    last_name = db.Column(db.String, nullable=False)
-    password = db.Column(db.String, nullable=False)
-    salt = db.Column(db.String, nullable=False)
+    email = db.Column(db.String(45), unique=True, nullable=False)
+    first_name = db.Column(db.String(45), nullable=False)
+    last_name = db.Column(db.String(45), nullable=False)
+    password = db.Column(db.String(128), nullable=False)
+    salt = db.Column(db.String(45), nullable=False)
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
     is_teacher = db.Column(db.Boolean, nullable=False, default=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
@@ -90,6 +96,7 @@ class User(UserMixin, db.Model):
     CLASS_ENROLLED_RELATION = db.relationship("Class", secondary=enrolled, back_populates="USER_ENROLLED_RELATION")
     TAKES_RELATION = db.relationship("Takes", back_populates="USER_RELATION")
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
+    TRANSACTION_RELATION = db.relationship("Transaction", back_populates="USER_RELATION")
 
     # noinspection PyPep8Naming
     def __init__(self, email, first_name, last_name, password, is_teacher, color, theme):
@@ -117,8 +124,8 @@ class Question(db.Model):
 
     QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
     SET = db.Column(db.Integer, db.ForeignKey("SET.SET"), nullable=False)
-    name = db.Column(db.String, nullable=False)
-    string = db.Column(db.String, nullable=False)
+    name = db.Column(db.String(60), nullable=False)
+    string = db.Column(db.String(5000), nullable=False)
     answers = db.Column(db.Integer, nullable=False)
     total = db.Column(db.Integer, nullable=False)
 
@@ -139,7 +146,7 @@ class Set(db.Model):
     __tablename__ = "SET"
 
     SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String, nullable=False)
+    name = db.Column(db.String(45), nullable=False)
 
     QUESTION_RELATION = db.relationship("Question", back_populates="SET_RELATION")
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="SET_RELATION")
@@ -156,13 +163,13 @@ class Test(db.Model):
 
     TEST = db.Column(db.Integer, primary_key=True, autoincrement=True)
     CLASS = db.Column(db.Integer, db.ForeignKey('CLASS.CLASS'), nullable=True)
-    name = db.Column(db.String, nullable=False)
+    name = db.Column(db.String(45), nullable=False)
     is_open = db.Column(db.Boolean, nullable=False, default=False)
     deadline = db.Column(db.DateTime, nullable=False)
     timer = db.Column(db.Integer, nullable=False, default=15)
     attempts = db.Column(db.Integer, nullable=False, default=1)
-    question_list = db.Column(db.String, nullable=False)
-    seed_list = db.Column(db.String, nullable=False)
+    question_list = db.Column(db.String(5000), nullable=False)
+    seed_list = db.Column(db.String(5000), nullable=False)
     total = db.Column(db.Integer, nullable=False)
 
     TAKES_RELATION = db.relationship("Takes", back_populates="TEST_RELATION")
@@ -202,3 +209,41 @@ class UserViewsSet(db.Model):
 
     def __repr__(self):
         return  f'UserViewsSet {self.USER_VIEWS_SET} {self.USER} {self.SET} {self.can_edit}'
+
+
+class Transaction(db.Model):
+    __tablename__ = 'transaction'
+
+    TRANSACTION = db.Column(db.String(30), primary_key=True)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+    expiration = db.Column(db.DATETIME, nullable=False)
+    expired = db.Column(db.Boolean, nullable=False, default=False)
+
+    USER_RELATION = db.relationship("User", back_populates="TRANSACTION_RELATION")
+    CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_RELATION")
+
+    def __init__(self, TRANSACTION, USER, CLASS, expiration):
+        self.TRANSACTION = TRANSACTION
+        self.USER = USER
+        self.CLASS = CLASS
+        self.expiration = expiration
+        self.expired = False
+
+    def __reduce__(self):
+        return f'Transaction {self.TRANSACTION} {self.USER} {self.CLASS} {self.expiration}'
+
+
+class TransactionProcessing(db.Model):
+    __tablename__ = 'transaction_processing'
+
+    TRANSACTIONPROCESSING = db.Column(db.String(30), primary_key=True)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+
+    CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_PROCESSING_RELATION")
+
+    def __init__(self, TransactionProcessing, CLASS, USER):
+        self.TRANSACTIONPROCESSING = TransactionProcessing
+        self.CLASS = CLASS
+        self.USER = USER
