@@ -155,7 +155,7 @@ export default class Http {
     }
 
     static resetPassword(email, success, failure) {
-        Http._request('POST', '/resetPassword', success, failure, { email : email });
+        Http._request('POST', '/requestPasswordReset', success, failure, { email : email });
     }
 }
 
