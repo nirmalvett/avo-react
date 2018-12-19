@@ -153,6 +153,10 @@ export default class Http {
     static changeMark(takesId, markArray, success, failure) {
         Http._request('POST', '/changeMark', success, failure, { takeId : takesId, markArray : markArray });
     }
+
+    static resetPassword(email, success, failure) {
+        Http._request('POST', '/resetPassword', success, failure, { email : email });
+    }
 }
 
 function debugModeLog(type, url, data = '', http){

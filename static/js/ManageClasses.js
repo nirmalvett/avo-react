@@ -418,6 +418,7 @@ export default class ManageClasses extends React.Component {
                                                         : 'This user has not taken any tests yet.'
                                                     }
                                                 />
+                                                {(() => console.log(x.tests))()}
                                                 <ListItemSecondaryAction>
                                                     <FormControl>
                                                         <InputLabel htmlFor="test-stats__data-display">Attempt</InputLabel>
