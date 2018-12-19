@@ -108,7 +108,7 @@ export default class ManageClasses extends React.Component {
     sideBar(){
         // this renders the side bar for manage classes
         return (
-              <React.Fragment>
+            <Paper classes={{root: 'avo-sidebar'}} square style={{width: '100%', flex: 1, display: 'flex'}}>
                 <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
                     <Typography component={'span'} variant='subheading' color="textPrimary" align='center'>
                         Manage My Classes
@@ -124,7 +124,7 @@ export default class ManageClasses extends React.Component {
                     <ListSubheader style={{position: 'relative'}}>My Classes</ListSubheader>
                     { this.sideBar_loadClasses() }{/* For each Class create a menu option */}
                 </List>
-              </React.Fragment>
+            </Paper>
         )
     }
 
@@ -188,8 +188,7 @@ export default class ManageClasses extends React.Component {
                             });
                         }
                     }}
-                    onDecline={() => {alert("Oops it seems that something went wrong. Please try remaking the class and " +
-                        "if issues persist email us about it. ")}}
+                    onDecline={() => {}}
                 >
                     <Fragment>
                         <br/>

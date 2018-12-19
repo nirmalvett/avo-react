@@ -350,9 +350,9 @@ def create_set():
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
     new_set = Set(name)  # New set to be created
-    user_views_set = UserViewsSet(current_user.USER, set.SET, True)  # New user_views_set to be created
-    # Add data to database
     db.session.add(new_set)
+    db.session.commit()
+    user_views_set = UserViewsSet(current_user.USER, new_set.SET, True)  # New user_views_set to be created
     db.session.add(user_views_set)
     db.session.commit()
     return jsonify(id=new_set.SET)
@@ -402,7 +402,10 @@ def delete_set():
     if not isinstance(ID, int):
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
-    user_views_set = UserViewsSet.query.get(ID)  # user_views_set to delete
+    try:
+        user_views_set = UserViewsSet.query.filter((UserViewsSet.SET == ID) & (UserViewsSet.USER == current_user.USER)).first()  # user_views_set to delete
+    except NoResultFound:
+        return jsonify(code="Updated")
     # Add change to database
     db.session.delete(user_views_set)
     db.session.commit()
@@ -676,7 +679,7 @@ def rename_question():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json  # Data from client
-    question_id, name = data['id'], data['string']
+    question_id, name = data['id'], data['name']
     if not isinstance(question_id, int) or not isinstance(name, str):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
@@ -766,27 +769,28 @@ def sample_question():
         return abort(400)
     data = request.json  # Data from client
     string = data['string']
+    seed = data['seed']
     try:
         # If answers were provided then test answers
         answers = data['answers'] # answers from client
-        if not isinstance(string, str) or not isinstance(answers, list):
+        if not isinstance(string, str) or not isinstance(seed, int) or not isinstance(answers, list):
             # Checks if all data given is of correct type if not return error JSON
             return jsonify(error="One or more data is not correct")
         try:
             # Try to create and mark the question if it fails return error JSON
-            q = AvoQuestion(string)
+            q = AvoQuestion(string, seed)
             q.get_score(*answers)
         except:
             return jsonify(error="Question failed to be created")
         return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, points=q.scores)
     except:
         # if no answers were provided make false answers
-        if not isinstance(string, str):
+        if not isinstance(string, str) or not isinstance(seed, int):
             # Checks if all data given is of correct type if not return error JSON
             return jsonify(error="One or more data is not correct")
         try:
             # Try to create and mark the question if fails return error JSON
-            q = AvoQuestion(string)
+            q = AvoQuestion(string, seed)
             answers = []  # Array to hold placeholder answers
             for i in range(len(string.split('；')[2].split('，'))):
                 # Fill the array with blank answers
@@ -794,7 +798,8 @@ def sample_question():
             q.get_score(*answers)
         except:
             return jsonify(error="Question failed to be created")
-        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, explanation=q.explanation)
+        var_list = list(map(lambda x: repr(x), q.var_list))
+        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, explanation=q.explanation, variables=var_list)
 
 
 @routes.route('/getTest', methods=['POST'])

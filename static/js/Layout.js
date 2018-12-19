@@ -26,17 +26,19 @@ import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import HomeOutlinedIcon from '@material-ui/icons/HomeOutlined';
 import Menu from '@material-ui/icons/Menu';
+import HelpOutline from '@material-ui/icons/HelpOutline';
 import BuildOutlinedIcon from '@material-ui/icons/BuildOutlined';
 import ClassOutlinedIcon from '@material-ui/icons/ClassOutlined';
 import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
 import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import TimerComp from "./TimerComp";
 import QuestionBuilder from "./QuestionBuilder";
+import QuestionBuilderDocs from "./QuestionBuilderDocs";
 import { avoGreen } from "./AVOCustomColors";
 import Snackbar from '@material-ui/core/Snackbar';
 import { MySnackbarContentWrapper } from "./AVOSnackBar";
-import AVOInClassTools from "./AVOInClassTools/AVOInClassTools"
-import AVOExplanations from "./AVOExplanations/AVOExplanations"
+import AVOInClassTools from "./AVOInClassTools/AVOInClassTools";
+import AVOExplanations from "./AVOExplanations/AVOExplanations";
 
 const drawerWidth = 240;
 const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
@@ -108,9 +110,6 @@ class Layout extends React.Component {
             snackBar_isOpen: true,
             snackBar_message: "AVO AI Assistant Online",
             snackBar_variant: "success"
-
-
-
         };
     }
 
@@ -209,31 +208,25 @@ class Layout extends React.Component {
                                 </List>
                                 { // if it is the teacher then we will the buttons that is allowed for teachers
                                 isTeacher
-                                    ?
-                                        <div>
-                                            <Divider/>
+                                    ? <div>
+                                        <Divider/>
                                             <List subheader={<ListSubheader>Teacher Only</ListSubheader>}>
                                                 {this.listItem(ClassOutlinedIcon, 'Manage Classes')}
-                                                {isAdmin
-                                                    ? this.listItem(BuildOutlinedIcon, 'Build Question')
-                                                    : this.disabledListItem(BuildOutlinedIcon, 'Build Question')
-                                                }
+                                                {this.listItem(BuildOutlinedIcon, 'Build Question')}
+                                                {this.listItem(HelpOutline, 'Documentation')}
                                             </List>
                                         </div>
                                     : undefined
                                 }
-                                {
-
-                                    showTestFeatures
-                                        ?   <React.Fragment>
-                                            <Divider/>
-                                                <List subheader={<ListSubheader>Experimental Features</ListSubheader>}>
-                                                    { this.listItem(BuildOutlinedIcon, 'In Class Tools') }
-                                                    { this.listItem(BuildOutlinedIcon, 'Explanations') }
-                                                </List>
-                                            </React.Fragment>
-                                        : null
-
+                                {showTestFeatures
+                                    ? <React.Fragment>
+                                        <Divider/>
+                                        <List subheader={<ListSubheader>Experimental Features</ListSubheader>}>
+                                            { this.listItem(BuildOutlinedIcon, 'In Class Tools') }
+                                            { this.listItem(BuildOutlinedIcon, 'Explanations') }
+                                        </List>
+                                    </React.Fragment>
+                                    : null
                                 }
                                 <Divider/>
                                 <List>
@@ -301,6 +294,8 @@ class Layout extends React.Component {
         if (section === 'Build Question')
             return <QuestionBuilder showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {this.state.isTeacher}
                                     theme={createMuiTheme({palette: {primary: color, type: theme}})}/>;
+        if (section === 'Documentation')
+            return <QuestionBuilderDocs theme={createMuiTheme({palette: {primary: color, type: theme}})}/>;
         if (section === 'Take Test')
             return (<TakeTest showSnackBar = {this.showSnackBar.bind(this)} isTeacher = {this.state.isTeacher}
                               getTimeRemaining = {(minutes, dueDate) => this.getTimeRemaining(minutes, dueDate)}

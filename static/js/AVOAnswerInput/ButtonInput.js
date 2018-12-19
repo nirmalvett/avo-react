@@ -40,12 +40,6 @@ export default class ButtonInput extends React.Component {
           latexString: '',
           prompt: this.props.prompt
         };
-
-        // We want to consider whether there is already an answer.
-        // If there is then we want to switch to show object
-        if (this.props.value !== ""){
-          this.state.stage = CONST_SHOW_OBJECT;
-        }
     }
     resetAll(){
       // This method resets the state back to the initial one and should be used once and then whenever user clicks clear
@@ -65,7 +59,15 @@ export default class ButtonInput extends React.Component {
         });
 
     }
+    componentDidMount(){
+        // We want to consider whether there is already an answer.
+        // If there is then we want to switch to show object
+        if (this.props.value !== "" && this.props.value !== undefined && this.props.value !== null){
+          this.setState({stage: CONST_SHOW_OBJECT});
+        }
+    }
     render() {
+
       const { stage, prompt } = this.state;
         return (
               <div>
@@ -109,16 +111,20 @@ export default class ButtonInput extends React.Component {
         const vector = validateVector(previousAnswer);
         return Array.isArray(vector)
             ? '\\(\\begin{bmatrix}' + vector.join('\\\\') + '\\end{bmatrix}\\)'
-            : null
+            :  '\\(\\begin{bmatrix}' + previousAnswer.split(",").join('\\\\') + '\\end{bmatrix}\\)'
       }
       else if (type === CONST_MATRIX){
         const matrix = validateMatrix(previousAnswer);
         return Array.isArray(matrix)
             ? '\\(\\begin{bmatrix}' + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)'
-            : null
+            : '\\(\\begin{bmatrix}' + stringToMatrixArray(previousAnswer).map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)'
       }
       else if (type === CONST_BASIS){
-        return serverToBasisLatex(previousAnswer);
+          let basis = validateMatrix(previousAnswer);
+          // Takes server form of a basis and transforms it into latex form
+          return Array.isArray(basis)
+              ? '\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)'
+              : '\\(\\left\\{' +  stringToBasisArray(previousAnswer) .map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)';
       }
       else {
         return ""
@@ -193,7 +199,7 @@ export default class ButtonInput extends React.Component {
       else if (type === CONST_MATRIX){buttonText = "Clear Matrix Answer"}
       else if (type === CONST_VECTOR_LINEAR_EXPRESSION){buttonText = "Clear Vector Answer"}
       else if (type === CONST_VECTOR){buttonText = "Clear Vector Answer"}
-      else (console.warn("clearAnswerButton(), type: " + type + " not accounted for in logic"))
+      else (console.warn("clearAnswerButton(), type: " + type + " not accounted for in logic"));
       return (
            <Button
                   variant="extendedFab"
@@ -354,7 +360,7 @@ export default class ButtonInput extends React.Component {
     }
     handleVectorInput(e){
       e.preventDefault();
-      const value = e.target.value.replace(",", "").replace("\n", ""); // We don't want users to input comma or newline
+      const value = replaceImproperValues(e.target.value);
       const name = e.target.name; // if the coordinates are 1, 2 then the string name will be 1-2
       const nameSplit = name.split("-");
       const x_value = parseInt(nameSplit[0]); // this will be the actual index
@@ -554,7 +560,7 @@ export default class ButtonInput extends React.Component {
     }
     handleMatrixInput(e){
       e.preventDefault();
-      const value = e.target.value.replace(",", "").replace("\n", ""); // We don't want users to input comma or newline
+      const value = replaceImproperValues(e.target.value); // We don't want users to input comma or newline
       const name = e.target.name; // if the coordinates are 1, 2 then the string name will be 1-2
       const nameSplit = name.split("-");
       const x_value = parseInt(nameSplit[0]); // this will be the actual index
@@ -757,7 +763,7 @@ export default class ButtonInput extends React.Component {
     }
     handleBasisInput(e){
       e.preventDefault();
-      const value = e.target.value.replace(",", "").replace("\n", ""); // We don't want users to input comma or newline
+      const value = replaceImproperValues(e.target.value); // We don't want users to input comma or newline
       const name = e.target.name; // if the coordinates are 1, 2 then the string name will be 1-2
       const nameSplit = name.split("-");
       const x_value = parseInt(nameSplit[0]); // this will be the actual index
@@ -783,7 +789,8 @@ export default class ButtonInput extends React.Component {
         const { dataForServer } = this.state;
         if (dataForServer !== ""){ // We only want to send it to the server if it's not an empty String
           this.props.buttonSave(this.state.dataForServer);
-        }
+      }
+
 
         this.setState({stage: CONST_SHOW_OBJECT, message: ''})
       }
@@ -959,6 +966,40 @@ function serverToBasisLatex(input){
   let basis = validateMatrix(input);
   // Takes server form of a basis and transforms it into latex form
   return Array.isArray(basis)
-      ? '\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)'
-      : null
- }
+    ? '\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)'
+    : '\\(\\left\\{' +  stringToBasisArray(input) .map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)';
+}
+function replaceImproperValues(input){
+  return input.replace(",", "")
+          .replace("\n", "")
+          .replace("%", "")
+          .replace("\\", "")
+          .replace("#", "")
+          .replace("$", "")
+          .replace("%", "")
+          .replace("&", "")
+          .replace("{", "")
+          .replace("}", "")
+          .replace("@", "")
+          .replace("^^", "^")
+          .replace("!", "")
+          .replace("//", "/")
+          .replace("~", ""); // We don't want users to input comma or newline
+}
+function stringToMatrixArray(input){
+  console.log(input);
+  const finalList = [];
+  const splitByNewLine = input.split("\n");
+  if (splitByNewLine.length === 0){
+    return ["Invalid Matrix"]
+  }
+  else {
+    for (let i = 0; i < splitByNewLine.length; i++){
+      finalList.push(splitByNewLine[i].split(","))
+    }
+  }
+  return finalList;
+}
+function stringToBasisArray(input){
+  return stringToMatrixArray(input);
+}

@@ -29,9 +29,9 @@ export default class MarkEditorQuestionCard extends React.Component {
         const uniqueKey1 = this.uniqueKey1;
         return (
             <Card key = { uniqueKey() } style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px', position : 'relative'}}>
-                <CardHeader title={getMathJax(this.props.question.prompt)} style={{position: 'relative'}} action={
+                <CardHeader title={`Question ${this.props.index + 1}`} subheader={getMathJax(this.props.question.prompt)} style={{position: 'relative'}} action={
                     <Typography variant='headline' color='primary'>
-                        {(this.state.buttonMarkValue.reduce((a, b) => a+b, 0)/this.state.buttonMarkValue.length) * this.props.question.totals.reduce((a, b) => a+b, 0)}/{this.props.question.totals.reduce((a, b) => a+b, 0)}
+                       {(this.state.buttonMarkValue.reduce((a, b) => a+b, 0)/this.state.buttonMarkValue.length) * this.props.question.totals.reduce((a, b) => a+b, 0)}/{this.props.question.totals.reduce((a, b) => a+b, 0)}
                     </Typography>
                 }/>
 

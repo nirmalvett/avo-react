@@ -5,11 +5,11 @@ import Grid from '@material-ui/core/Grid/Grid';
 import Button from '@material-ui/core/Button/Button';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
-import AVOModal from './AVOMatComps/AVOMatModal';
 import Checkbox from '@material-ui/core/Checkbox';
 import Slide from '@material-ui/core/Slide';
 import { isChrome, notChromeMessage } from "./helpers";
 import Logo from "./Logo"
+import AVOModal from './AVOMatComps/AVOMatModal';
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
 import {createMuiTheme} from "@material-ui/core";
 
@@ -255,6 +255,48 @@ export default class SignIn extends React.Component {
                             </a>
                             {'.'}
                         </Typography>
+                        {this.state.isSigningIn && (
+                            <React.Fragment>
+                                <br/>
+                                <Typography variant='caption' id="avo-signin__reset-password">
+                                    Forgot your password?
+                                </Typography>
+                                <AVOModal
+                                    title='Reset Password?'
+                                    target="avo-signin__reset-password"
+                                    acceptText='Reset'
+                                    declineText='Never mind'
+                                    onAccept={() => {
+                                        const name = document.getElementById('avo-signin__reset-email').value; // get the name given
+                                        if (name !== null && name !== '') {
+                                            Http.resetPassword(
+                                                name,
+                                                () => {
+                                                    alert('Success! Expect an email within the next 24 Hours');
+                                                },
+                                                () => { alert('uh oh, something went wrong.') }
+                                            );
+                                        }
+                                    }}
+                                    onDecline={() => {}
+                                    }
+                                >
+                                    <React.Fragment>
+                                        <Typography variant='caption'>
+                                            Enter the email associated to the account and we'll send you a link to reset the password.
+                                        </Typography>
+                                        <TextField
+                                            margin='normal'
+                                            style={{ 'width' : '50%' }}
+                                            label='Email'
+                                            type="email"
+                                            id="avo-signin__reset-email"
+                                        />
+                                        <br/>
+                                    </React.Fragment>
+                                </AVOModal>
+                            </React.Fragment>
+                        )}
                     </footer>
                     </Grid>
                 </Grid>
