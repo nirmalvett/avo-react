@@ -185,7 +185,6 @@ export default class ManageClasses extends React.Component {
                             });
                         }
                     }}
-                    onDecline={}
                 >
                     <Fragment>
                         <br/>
