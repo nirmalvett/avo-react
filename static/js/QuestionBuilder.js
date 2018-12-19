@@ -28,7 +28,7 @@ import {
     FileCopy,
     Delete,
     Warning,
-    Save, ArrowBack, Refresh, Assignment, Done
+    Save, ArrowBack, Refresh, Assignment, Done, Lock
 } from '@material-ui/icons';
 
 export default class QuestionBuilder extends Component {
@@ -54,6 +54,10 @@ export default class QuestionBuilder extends Component {
             initError: false,
             savedString: null,
         };
+    }
+    componentDidMount(){
+        this.props.showSnackBar("info", "Locked sets cannot be edited. Make new sets to build questions!")
+
     }
 
     getSets() {
@@ -128,7 +132,10 @@ export default class QuestionBuilder extends Component {
         let {selectedS} = this.state;
         return this.state.sets.map((set, index) =>
             <ListItem key = {set.id + '-' + index} button onClick={() => this.selectSet(index)}>
-                <Folder color={selectedS === index ? 'primary' : 'action'}/>
+                {set.can_edit
+                    ? <Folder color={selectedS === index ? 'primary' : 'action'}/>
+                    : <Lock color={selectedS === index ? 'primary' : 'action'}/>
+                }
                 <ListItemText inset primary={set.name}/>
             </ListItem>
         );
@@ -572,7 +579,11 @@ export default class QuestionBuilder extends Component {
         let set = this.state.sets[this.state.selectedS];
         let confirmation = confirm('Are you sure you want to delete this set?');
         if (confirmation)
-            Http.deleteSet(set.id, () => this.getSets(), result => alert(result));
+            Http.deleteSet(set.id, async () => {
+                this.setState({selectedS: null, selectedQ: null});
+                await sleep(100);
+                this.getSets();
+            }, result => alert(result));
     }
 
     // noinspection JSMethodCanBeStatic
