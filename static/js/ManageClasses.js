@@ -185,8 +185,7 @@ export default class ManageClasses extends React.Component {
                             });
                         }
                     }}
-                    onDecline={() => {alert("Oops it seems that something went wrong. Please try remaking the class and " +
-                        "if issues persist email us about it. ")}}
+                    onDecline={}
                 >
                     <Fragment>
                         <br/>
