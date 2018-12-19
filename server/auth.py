@@ -108,6 +108,7 @@ def request_password_reset():
         user = User.query.filter(User.email == email).first()
     except NoResultFound:
         return jsonify(code="email sent")
+    print("i got here")
     serializer = URLSafeTimedSerializer(config.SECRET_KEY)
     token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
     confirm_url = url_for('UserRoutes.password_reset', token=token, _external=True)
@@ -117,6 +118,7 @@ def request_password_reset():
                f'change your password. If you did not request to change your password please ignore this email'
                f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
                )
+    return jsonify(code="email sent")
 
 
 @UserRoutes.route('/passwordReset/<token>', methods=['GET', 'POST'])
