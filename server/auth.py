@@ -103,12 +103,11 @@ def request_password_reset():
 
     if not request.json:
         return abort(400)
-    email = request.data['email']
+    email = request.json['email']
     try:
         user = User.query.filter(User.email == email).first()
     except NoResultFound:
         return jsonify(code="email sent")
-    print("i got here")
     serializer = URLSafeTimedSerializer(config.SECRET_KEY)
     token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
     confirm_url = url_for('UserRoutes.password_reset', token=token, _external=True)
@@ -142,7 +141,7 @@ def password_reset(token):
     if request.method == 'GET':
         return render_template('/passwordReset.html')
     elif request.method == 'POST':
-        password = request.form['password']
+        password = request.form['confirmPassword']
         # Method is POST change password
         if len(password) < 8:
             # If the password is les then 8 return error JSON
