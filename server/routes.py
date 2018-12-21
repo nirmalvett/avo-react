@@ -486,7 +486,7 @@ def change_mark():
         # If User does not teach class return error JSON
         return jsonify(error="User does not teach this class")
     del test
-    takes_marks_array = takes.marks
+    takes_marks_array = eval(takes.marks)
     new_mark = 0
     if len(takes_marks_array) == len(mark_array):
         # If the length of the test are the same compare each question
