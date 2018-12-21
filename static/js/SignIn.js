@@ -255,7 +255,7 @@ export default class SignIn extends React.Component {
                             </a>
                             {'.'}
                         </Typography>
-                      { this.passwordReset() }
+                      {/* { this.passwordReset() } */}
                     </footer>
                     </Grid>
                 </Grid>
