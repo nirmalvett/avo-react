@@ -1,28 +1,13 @@
-import React from 'react';
+import React, { Component } from 'react';
 import Http from './Http';
-import {copy, getMathJax} from './Utilities';
+import { copy, getMathJax } from './Utilities';
 import { InlineDateTimePicker } from 'material-ui-pickers';
 import AnswerInput from './AVOAnswerInput/AnswerInput';
-import Card from '@material-ui/core/Card/Card';
-import Grid from '@material-ui/core/Grid/Grid';
-import List from '@material-ui/core/List/List';
-import Paper from '@material-ui/core/Paper/Paper';
-import Collapse from '@material-ui/core/Collapse/Collapse';
-import ListItem from '@material-ui/core/ListItem/ListItem';
-import TextField from '@material-ui/core/TextField/TextField';
-import CardHeader from '@material-ui/core/CardHeader/CardHeader';
-import IconButton from '@material-ui/core/IconButton/IconButton';
-import ListItemText from '@material-ui/core/ListItemText/ListItemText';
-import Done from '@material-ui/icons/Done';
-import Lock from '@material-ui/icons/Lock';
-import Delete from '@material-ui/icons/Delete';
-import Folder from '@material-ui/icons/Folder';
-import Refresh from '@material-ui/icons/Refresh';
-import LockOpen from '@material-ui/icons/LockOpen';
-import FolderOpen from '@material-ui/icons/FolderOpen';
+import { Card, Grid, List, Paper, Collapse, ListItem, TextField, CardHeader, IconButton, ListItemText } from '@material-ui/core';
+import { Done, Lock, Delete, Folder, Refresh, LockOpen, FolderOpen } from '@material-ui/icons';
 
 
-export default class CreateTest extends React.Component {
+export default class CreateTest extends Component {
     constructor(props) {
         super(props);
         Http.getSets((result) => this.setState(result));
@@ -101,7 +86,7 @@ export default class CreateTest extends React.Component {
                                 alert('Invalid deadline');
                                 return;
                             }
-                            if(this.state.testQuestions.length == 0) {
+                            if(this.state.testQuestions.length === 0) {
                                 alert('Test must contain 1 or more questions!');
                                 return;
                             }
@@ -134,10 +119,10 @@ export default class CreateTest extends React.Component {
 
     handleDateChange(date) {
         var d = new Date(date);
-        let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" + 
-        ("00" + d.getDate()).slice(-2) + "" + 
-        ("00" + d.getHours()).slice(-2) + "" + 
-        ("00" + d.getMinutes()).slice(-2) + "";
+        let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" +
+            ("00" + d.getDate()).slice(-2) + "" +
+            ("00" + d.getHours()).slice(-2) + "" +
+            ("00" + d.getMinutes()).slice(-2) + "";
         _date = d.getFullYear() + "" + _date;
         console.log(_date);
         this.setState({ deadline: _date, _deadline: date });
