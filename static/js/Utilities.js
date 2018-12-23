@@ -61,7 +61,7 @@ export function getMathJax(text, variant='body2') {
             break;
         }
     }
-    return <Context input='tex'><Typography variant={variant}>{result}</Typography></Context>
+    return <Context input='tex' key={text}><Typography variant={variant}>{result}</Typography></Context>
 }
 
 export function validateNumber(text) {
