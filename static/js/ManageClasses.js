@@ -12,7 +12,7 @@ import Chart from 'react-apexcharts';
 import { uniqueKey } from './helpers';
 import { convertListFloatToAnalytics } from './helpers';
 
-const enableEditMarks = true; // if this is true then editMarks button will appear
+const enableEditMarks = false; // if this is true then editMarks button will appear
 const cardStyle = {marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
