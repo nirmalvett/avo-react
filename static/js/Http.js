@@ -18,7 +18,7 @@ export default class Http {
                         success(JSON.parse(http.responseText));
                     }
                 }catch(e) {
-                    console.log(http.responseText);
+                    console.warn(`Error on ${url}: ${e}`);
                 }
             }
         };

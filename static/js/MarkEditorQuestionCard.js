@@ -11,13 +11,12 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Check from '@material-ui/icons/Check';
 import Close from '@material-ui/icons/Close';
 
-const CONST_MARKED_CORRECT = 1;
-const CONST_MARKED_INCORRECT = 0;
+export const CONST_MARKED_CORRECT = 1;
+export const CONST_MARKED_INCORRECT = 0;
 export default class MarkEditorQuestionCard extends React.Component {
 
   constructor(props = {}) {
     super(props);
-    console.log(this.props.question.scores);
     this.state = {
       buttonMarkValue: this.props.qMarks,
       marksScored: this.props.question.scores.reduce(function(acc, val) { return acc + val; }, 0) // marks scored
@@ -69,7 +68,7 @@ export default class MarkEditorQuestionCard extends React.Component {
                     <Tooltip key={`Tooltip-QIndex:${this.props.index}-Index:${y}`}
                              title={`${this.state.buttonMarkValue[y] === 1 ? 'Remove a point' : 'Give a point'}`}>
                       <IconButton onClick={() => this.handleClick(this.state.buttonMarkValue[y], this.props.index, y)}>
-                        {this.state.buttonMarkValue[y] === 1 ? (
+                        {this.state.buttonMarkValue[y] === CONST_MARKED_CORRECT ? (
                             <Check/>
                         ) : (
                             <Close/>

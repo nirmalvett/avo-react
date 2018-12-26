@@ -3,7 +3,7 @@ import Http from './Http';
 import Button from '@material-ui/core/Button';
 import Grid from "@material-ui/core/Grid/Grid";
 import Save from '@material-ui/icons/Save';
-import MarkEditorQuestionCard from './MarkEditorQuestionCard';
+import MarkEditorQuestionCard, {CONST_MARKED_CORRECT, CONST_MARKED_INCORRECT} from './MarkEditorQuestionCard';
 
 export default class MarkEditor extends React.Component {
     constructor(props) {
@@ -16,11 +16,17 @@ export default class MarkEditor extends React.Component {
     componentDidMount() {
         Http.postTest(this.props.takes, result => {
             this.markButtonMarkers = result.questions.map((question) => {
-                // {question.scores[y]}/{question.totals[y]}
-                const questionSegments = question.explanation.map((explanation, idx) => {
-                    return question.scores[idx];
-                });
-                return questionSegments;
+                const questionScores = question.scores;
+                const questionTotals = question.totals;
+                const returnList = [];
+                for (let i = 0; i < questionScores.length; i++){
+                  returnList.push(
+                      questionScores[i]/questionTotals[i] === 1 // if the max amount of marks are given then mark it as correct
+                        ? CONST_MARKED_CORRECT
+                        : CONST_MARKED_INCORRECT
+                  )
+                }
+                return returnList;
             });
             this.setState({
               questions : result.questions,
@@ -93,22 +99,31 @@ export default class MarkEditor extends React.Component {
 
 }
 
-function convertArrayForServer(markButtonMarkers, markWorthsArray){
-  /* markButtonMarkers: [1, 0, 0] where 1 means full mark and 0 means not
-  * markWorthsArray: [0.25, 0.25, 0,25] where each array is the worth of the marks
+function convertArrayForServer(markButtonMarkers, questionObjectArray){
+  /* markButtonMarkers: [[1, 0, 0],[1]] where 1 means full mark and 0 means not
+  * questionObjectArray: an array of question objects that contains a key totals which is an array of ints of
+  * how much each question is worth
   *
   * returns an array of of the marks given for example [0.25, 0, 0]*/
-  console.log("markButtonMarkers", markButtonMarkers);
-  console.log("markWorthsArray", markWorthsArray);
-
+  console.log("marksButtonArray", markButtonMarkers);
   const returnArray = [];
-  for (let i = 0; i < markWorthsArray.length; i++){
-    returnArray.push(
-        markButtonMarkers[i] === 1 // if it's marked correctly then get the marks worth otherwise have it return 0
-            ? markWorthsArray[i]
+  let currentQuestionTotals = null;
+  let currentMarkArray = null;
+  for (let i = 0; i < markButtonMarkers.length; i++){
+    const questionSubArray = [];
+    currentQuestionTotals = questionObjectArray[i].totals; // [0.25, 0.25]
+    currentMarkArray = markButtonMarkers[i]; // [1,0]
+    
+    for (let j = 0; j < currentQuestionTotals.length; j++){
+       questionSubArray.push(
+          currentMarkArray[j] === 1 // if it's marked correctly then get the marks worth otherwise have it return 0
+            ? currentQuestionTotals[i]
             : 0
-    )
+      )
+    }
+    returnArray.push(questionSubArray);
   }
+  console.log("convertArrayForServer", returnArray);
   return returnArray;
 }
 
