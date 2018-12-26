@@ -5,7 +5,6 @@ import HomePage from './HomePage';
 import PostTest from './PostTest';
 import MarkEditor from './MarkEditor';
 import TakeTest from './TakeTest';
-import classNames from 'classnames';
 import MyClasses from './MyClasses';
 import TimerComp from "./TimerComp";
 import CreateTest from './CreateTest';
@@ -18,43 +17,13 @@ import { MySnackbarContentWrapper } from "./AVOSnackBar";
 import AVOInClassTools from "./AVOInClassTools/AVOInClassTools";
 import AVOExplanations from "./AVOExplanations/AVOExplanations";
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
-
 import {withStyles, List, AppBar, Drawer, Divider, Toolbar, IconButton,
     Typography, ListItem, ListItemText, ListSubheader, Snackbar } from '@material-ui/core';
-
-import {HelpOutline, HomeOutlined, BuildOutlined,
+import { HomeOutlined, BuildOutlined, HelpOutline,
     ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu } from "@material-ui/icons";
-
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
     deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors';
 import classNames from 'classnames';
-import {withStyles} from '@material-ui/core/styles';
-import List from '@material-ui/core/List';
-import AppBar from '@material-ui/core/AppBar';
-import Drawer from '@material-ui/core/Drawer';
-import Divider from '@material-ui/core/Divider';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
-import ListItem from '@material-ui/core/ListItem/ListItem';
-import ListItemText from '@material-ui/core/ListItemText/ListItemText';
-import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
-import HomeOutlinedIcon from '@material-ui/icons/HomeOutlined';
-import Menu from '@material-ui/icons/Menu';
-import HelpOutline from '@material-ui/icons/HelpOutline';
-import BuildOutlinedIcon from '@material-ui/icons/BuildOutlined';
-import ClassOutlinedIcon from '@material-ui/icons/ClassOutlined';
-import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
-import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
-import TimerComp from "./TimerComp";
-import QuestionBuilder from "./QuestionBuilder";
-import QuestionBuilderDocs from "./QuestionBuilderDocs";
-import { avoGreen } from "./AVOCustomColors";
-import Snackbar from '@material-ui/core/Snackbar';
-import { MySnackbarContentWrapper } from "./AVOSnackBar";
-import AVOInClassTools from "./AVOInClassTools/AVOInClassTools";
-import AVOExplanations from "./AVOExplanations/AVOExplanations";
-
 const drawerWidth = 240;
 const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
     amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
@@ -278,6 +247,7 @@ class Layout extends Component {
                 createTest={cls => this.startCreateTest(cls)}
                 theme={{theme: this.state.theme, color: this.state.color}}
                 postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}
+                markEditor={takes => {this.setState({markEditor: takes, section: 'Mark Editor'})}}
             />);
         if (section === 'Create Test')
             return (<CreateTest

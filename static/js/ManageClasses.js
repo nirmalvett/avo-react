@@ -36,6 +36,7 @@ export default class ManageClasses extends Component {
 
     constructor(props) {
         super(props);
+        this.loadClasses();
         this.state = {
             classes: [],
             c: null, // Selected class
@@ -54,10 +55,6 @@ export default class ManageClasses extends Component {
             testStatsDataQuestionIdx: 0,
             resultsIndexArray: [],
         };
-    }
-
-    componentDidMount(){
-        this.loadClasses();
     }
 
     loadClasses(snackBarString) {
@@ -418,55 +415,33 @@ export default class ManageClasses extends Component {
                                                     temptResults[idx] = evt.target.value;
                                                     this.setState({resultsIndexArray: tempResults})}
                                                 }
-                                                <ListItemText
-                                                    primary={`${x.firstName} ${x.lastName}`}
-                                                    secondary={x.tests[x.tests.length - 1]
-                                                        ? x.tests[x.tests.length - 1].grade + '/' + selectedTest.total
-                                                        : 'This user has not taken any tests yet.'
-                                                    }
-                                                />
-                                                {(() => console.log(x.tests))()}
-                                                <ListItemSecondaryAction>
-                                                    <FormControl>
-                                                        <InputLabel htmlFor="test-stats__data-display">Attempt</InputLabel>
-                                                        <Select
-                                                            classes={{
-                                                                disabled : 'disabled'
-                                                            }}
-                                                            disabled={x.tests.length === 0}
-                                                            value={this.state.resultsIndexArray[idx]}
-                                                            onChange={(evt) => {
-                                                                let temptResults = this.state.resultsIndexArray;
-                                                                temptResults[idx] = evt.target.value;
-                                                                this.setState({ resultsIndexArray : tempResults })}
-                                                            }
-                                                            input={<Input name="dataSelected" id="test-stats__data-display" />}
-                                                        >
-                                                            {this.state.results[idx].tests.map((obj, idx) => (
-                                                                <MenuItem value={idx}>{x.tests.length > 1 ? `Attempt ${idx + 1}` : 'Best Attempt'}</MenuItem>
-                                                            ))}
-                                                        </Select>
-                                                    </FormControl>
-                                                    <Tooltip title="View Submission for selected attempt">
-                                                        <span> {/* All icons that can be disabled need this to prevent warning*/}
-                                                            <IconButton
-                                                                classes={{
-                                                                    disabled : 'disabled'
-                                                                }}
-                                                                disabled={x.tests.length === 0}
-                                                                onClick={() => {
-                                                                    this.props.postTest(
-                                                                        this.state.results[idx].tests[
-                                                                            this.state.resultsIndexArray[idx]
-                                                                        ].takes
-                                                                    );
-                                                                }}
-                                                            >
-                                                                <RemoveRedEyeOutlined/>
-                                                            </IconButton>
-                                                        </span>
-                                                    </Tooltip>
-                                                  { enableEditMarks
+                                                input={<Input name='dataSelected' id='test-stats__data-display' />}
+                                            >
+                                                {this.state.results[idx].tests.map((obj, idx) => (
+                                                    <MenuItem value={idx}>
+                                                        {x.tests.length > 1 ? `Attempt ${idx + 1}` : 'Best Attempt'}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                        <Tooltip title='View Submission for selected attempt'>
+                                            <span> {/* All icons that can be disabled need this to prevent warning*/}
+                                            <IconButton
+                                                classes={{disabled: 'disabled'}}
+                                                disabled={x.tests.length === 0}
+                                                onClick={() => {
+                                                    this.props.postTest(
+                                                        this.state.results[idx].tests[
+                                                            this.state.resultsIndexArray[idx]
+                                                            ].takes
+                                                    );
+                                                }}
+                                            >
+                                                <RemoveRedEyeOutlined/>
+                                                </IconButton>
+                                            </span>
+                                         </Tooltip>
+                                       { enableEditMarks
                                                       ?  <Tooltip title="Edit marks for selected attempt">
                                                               <IconButton
                                                                   classes={{
@@ -484,56 +459,58 @@ export default class ManageClasses extends Component {
                                                         </Tooltip>
                                                       : null
 
-                                                  }
-                                                </ListItemSecondaryAction>
-                                            </ListItem>
-                                        </Fragment>)
-                                }
-                            </List>
-                        </React.Fragment>
-                    )}
-                    <List style={{ flex: 1, overflowY: 'auto' }} dense>
-                        <Popper
-                            placement="left-start"
-                            open={this.state.deleteTestPopperOpen}
-                            anchorEl={(() => { return document.getElementById('avo-manageclasses__delete-button')})}
-                            disablePortal={false}
-                            modifiers={{
-                                flip: {
-                                    enabled: true,
-                                },
-                                preventOverflow: {
-                                    enabled: true,
-                                    boundariesElement: 'scrollParent',
-                                },
-                            }}
-                        >
-                            <Paper style={{ padding : '10px', height : '6em' }}>
-                                <Typography component={'span'} variant='body1' color="textPrimary" classes={{root : "avo-padding__16px"}}>
-                                    Are you sure you want to delete {selectedTest.name}?<br/>
-                                    Once a test has been deleted it can not be recovered!
-                                </Typography>
-                                <br/>
-                                <div style={{ float : 'right', position : 'relative' }}>
-                                    <Button
-                                        classes={{ root : 'avo-button' }}
-                                        onClick={() => this.setState({ deleteTestPopperOpen : false }) }
-                                        color="primary"
-                                    >Never mind</Button>
-                                    <Button
-                                        classes={{ root : 'avo-button' }}
-                                        onClick={() => {
-                                            this.setState({ deleteTestPopperOpen : false });
-                                            this.deleteTest();
-                                        }}
-                                        color="primary"
-                                    >Delete</Button>
-                                </div>
-                            </Paper>
-                        </Popper>
-                    </List>
-                </Fragment>
-            );
+                                        }
+
+                                    </ListItemSecondaryAction>
+                                </ListItem>
+                            )}
+                        </List>
+                    </Fragment>
+                )}
+                <List style={{flex: 1, overflowY: 'auto'}} dense>
+                    <Popper
+                        placement='left-start'
+                        open={this.state.deleteTestPopperOpen}
+                        anchorEl={(() => { return document.getElementById('avo-manageclasses__delete-button')})}
+                        disablePortal={false}
+                        modifiers={{
+                            flip: {
+                                enabled: true,
+                            },
+                            preventOverflow: {
+                                enabled: true,
+                                boundariesElement: 'scrollParent',
+                            },
+                        }}
+                    >
+                        <Paper style={{padding: '10px', height: '6em'}}>
+                            <Typography
+                                component={'span'} variant='body1' color='textPrimary' classes={{root: 'avo-padding__16px'}}
+                            >
+                                Are you sure you want to delete {selectedTest.name}?<br/>
+                                Once a test has been deleted it can not be recovered!
+                            </Typography>
+                            <br/>
+                            <div style={{float: 'right', position: 'relative'}}>
+                                <Button
+                                    classes={{root: 'avo-button'}}
+                                    onClick={() => this.setState({deleteTestPopperOpen: false}) }
+                                    color='primary'
+                                >Never mind</Button>
+                                <Button
+                                    classes={{root: 'avo-button'}}
+                                    onClick={() => {
+                                        this.setState({deleteTestPopperOpen: false});
+                                        this.deleteTest();
+                                    }}
+                                    color='primary'
+                                >Delete</Button>
+                            </div>
+                        </Paper>
+                    </Popper>
+                </List>
+            </Fragment>
+        );
     }
 
     selectClass(index) {
