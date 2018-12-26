@@ -46,8 +46,8 @@ export default class MarkEditor extends React.Component {
 
     saveChanges(){
      Http.changeMark(
-        this.props.takes,
-        this.markButtonMarkers,
+        this.props.takes, // this is the takes number
+        convertArrayForServer(this.markButtonMarkers, this.state.questions), // this needs to be converted so it's not 0,1s but actual marks
         (result) => {
             console.log(result);
             this.props.showSnackBar('success', "Marks successfully updated!");
@@ -92,3 +92,23 @@ export default class MarkEditor extends React.Component {
 
 
 }
+
+function convertArrayForServer(markButtonMarkers, markWorthsArray){
+  /* markButtonMarkers: [1, 0, 0] where 1 means full mark and 0 means not
+  * markWorthsArray: [0.25, 0.25, 0,25] where each array is the worth of the marks
+  *
+  * returns an array of of the marks given for example [0.25, 0, 0]*/
+  console.log("markButtonMarkers", markButtonMarkers);
+  console.log("markWorthsArray", markWorthsArray);
+
+  const returnArray = [];
+  for (let i = 0; i < markWorthsArray.length; i++){
+    returnArray.push(
+        markButtonMarkers[i] === 1 // if it's marked correctly then get the marks worth otherwise have it return 0
+            ? markWorthsArray[i]
+            : 0
+    )
+  }
+  return returnArray;
+}
+

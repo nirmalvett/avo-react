@@ -17,6 +17,7 @@ export default class MarkEditorQuestionCard extends React.Component {
 
   constructor(props = {}) {
     super(props);
+    console.log(this.props.question.scores);
     this.state = {
       buttonMarkValue: this.props.qMarks,
       marksScored: this.props.question.scores.reduce(function(acc, val) { return acc + val; }, 0) // marks scored
@@ -102,8 +103,6 @@ export default class MarkEditorQuestionCard extends React.Component {
     // this method compares the mark value and accumulates the total accordingly by mapping it to the score total
     const buttonValueArray = this.state.buttonMarkValue; // [0, 1] where 0 means marked false, 1 marked true
     const totalsArray = this.props.question.totals; // [0.25, 0.25] where each is the score worth of each part
-    console.log("buttonValueArray", buttonValueArray);
-    console.log("totalsArray", totalsArray);
     let accumulatedValue = 0;
     for (let i = 0; i < buttonValueArray.length; i++){
       const currentButtonValue = buttonValueArray[i];
@@ -111,7 +110,6 @@ export default class MarkEditorQuestionCard extends React.Component {
         accumulatedValue += totalsArray[i]
       }
     }
-    console.log("newTotalScore", accumulatedValue);
     return accumulatedValue;
   }
 
