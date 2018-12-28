@@ -36,7 +36,6 @@ export default class MarkEditor extends React.Component {
     }
 
     render() {
-      console.log(this.state);
         return (
             <Grid container spacing={8}>
                 <Grid xs={1}/>
@@ -59,7 +58,7 @@ export default class MarkEditor extends React.Component {
             this.props.showSnackBar('success', "Marks successfully updated!");
         },
         (error) => {
-          console.log(error);
+          console.warn(error);
           this.props.showSnackBar('error', "An issue occurred when saving to the server please try again.");
         }
       );
@@ -102,10 +101,9 @@ export default class MarkEditor extends React.Component {
 function convertArrayForServer(markButtonMarkers, questionObjectArray){
   /* markButtonMarkers: [[1, 0, 0],[1]] where 1 means full mark and 0 means not
   * questionObjectArray: an array of question objects that contains a key totals which is an array of ints of
-  * how much each question is worth
+  * how much each question is worth [[0.25, 0,25, 0.5],[1]]
   *
-  * returns an array of of the marks given for example [0.25, 0, 0]*/
-  console.log("marksButtonArray", markButtonMarkers);
+  * returns an array of of the marks given for example [[0.25, 0, 0], [1]]*/
   const returnArray = [];
   let currentQuestionTotals = null;
   let currentMarkArray = null;
@@ -117,13 +115,12 @@ function convertArrayForServer(markButtonMarkers, questionObjectArray){
     for (let j = 0; j < currentQuestionTotals.length; j++){
        questionSubArray.push(
           currentMarkArray[j] === 1 // if it's marked correctly then get the marks worth otherwise have it return 0
-            ? currentQuestionTotals[i]
+            ? currentQuestionTotals[j]
             : 0
       )
     }
     returnArray.push(questionSubArray);
   }
-  console.log("convertArrayForServer", returnArray);
   return returnArray;
 }
 
