@@ -1,7 +1,6 @@
 from flask import Blueprint, abort, jsonify, request, make_response
 from flask_login import login_required, current_user
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql import func
 from server.MathCode.question import AvoQuestion
 from random import randint
 from datetime import datetime, timedelta
@@ -852,10 +851,10 @@ def get_test():
         seeds = eval(takes.seeds)  # Seeds of questions in test if -1 gen random seed
         timer = takes.time_submitted - takes.time_started
         timer = timer.total_seconds() / 60
+        questions_in_test = Question.query.filter(Question.QUESTION.in_(question_ids)).all()   # All questions in test
         for i in range(len(question_ids)):
             # For each question id get the question data and add to question list
-            current_question = Question.query.get(question_ids[i])
-            q = AvoQuestion(current_question.string, seeds[i])
+            q = AvoQuestion(questions_in_test[i].string, seeds[i])
             questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
         return jsonify(
             takes=takes.TAKES,
@@ -897,9 +896,10 @@ def create_takes(test, user):
     seeds = list(map(lambda seed: randint(0, 65535) if seed == -1 else seed, eval(x.seed_list)))  # Generates seeds of test
     answer_list = []  # Answers of takes instance
     marks_list = []  # Marks of takes instance
+    questions_in_test = Question.query.filter(Question.QUESTION.in_(test_question_list)).all()  # Questions in test
     for i in range(len(test_question_list)):
         # For each question in test add in mark values per question
-        q = Question.query.get(test_question_list[i])  # Current question
+        q = questions_in_test[i]  # Current question
         marks_list.append([0] * q.string.split('；')[0].count('%'))
         answer_list.append([''] * q.answers)
     # We want to figure out what the new time should be
@@ -944,9 +944,10 @@ def save_test():
     deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
     total = 0  # Total the test is out of
+    questions = Question.query.filter(Question.QUESTION.in_(question_list)).all()  # All question in test
     for q in question_list:
         # For each question calculate the mark and add to the total
-        current_question = Question.query.get(q)  # Get the current question from the database
+        current_question = questions[i]  # Get the current question from the database
         if current_question is None:
             return jsonify(error="Question Not Found PLease Try Again")
         total += current_question.total
@@ -1088,9 +1089,10 @@ def post_test():
             return jsonify(error="Test not submitted yet")
         questions = eval(test.question_list)
         question_list = []
+        question_objects_in_test = Question.query.filter(Question.QUESTION.in_(questions)).all()  # Questions in test
         for i in range(len(questions)):
             # For each question mark question with answer and add to list then return
-            current_question = Question.query.get(questions[i])
+            current_question = question_objects_in_test[i]
             q = AvoQuestion(current_question.string, seeds[i])
             q.get_score(*answers[i])
             question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation,
