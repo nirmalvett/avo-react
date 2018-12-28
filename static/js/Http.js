@@ -18,7 +18,7 @@ export default class Http {
                         success(JSON.parse(http.responseText));
                     }
                 }catch(e) {
-                    console.log(http.responseText);
+                    console.warn(`Error on ${url}: ${e}`);
                 }
             }
         };
@@ -148,6 +148,14 @@ export default class Http {
 
     static getFreeTrial(classid, success, failure) {
         Http._request('POST', '/freeTrial', success, failure, { classID : classid });
+    }
+
+    static changeMark(takesId, markArray, success, failure) {
+        Http._request('POST', '/changeMark', success, failure, { takeId : takesId, markArray : markArray });
+    }
+
+    static resetPassword(email, success, failure) {
+        Http._request('POST', '/requestPasswordReset', success, failure, { email : email });
     }
 }
 

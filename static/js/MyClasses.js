@@ -51,7 +51,6 @@ const CONST_OVERALL_ANALYTICS_DEFAULT = 3;
 export default class MyClasses extends React.Component {
     constructor(props) {
         super(props);
-        this.loadClasses();
         this.state = {
             classes: [],
             apexChartEl: undefined,            
@@ -71,6 +70,7 @@ export default class MyClasses extends React.Component {
     }
 
     componentDidMount(){
+      this.loadClasses();
         if (this.props.isTeacher){ // if it's a teacher account
             this.props.showSnackBar("info", "Only student account attempts are considered in the analytics")
         }
