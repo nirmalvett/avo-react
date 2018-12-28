@@ -33,51 +33,61 @@ export default class MarkEditorQuestionCard extends React.Component {
 
   render() {
     return (
-        <Card key={`QuestionCard-QIndex:${this.props.index}`} style={{
-          marginLeft: '10px',
-          marginRight: '10px',
-          marginTop: '20px',
-          marginBottom: '20px',
-          padding: '20px',
-          position: 'relative'
-        }}>
-          <CardHeader title={getMathJax(`(Question ${this.props.index+1}): ${this.props.question.prompt}` )} style={{position: 'relative'}} action={
+        <Card
+            key={`QuestionCard-QIndex:${this.props.index}`}
+            style={{
+              marginLeft: '10px',
+              marginRight: '10px',
+              marginTop: '20px',
+              marginBottom: '20px',
+              padding: '20px',
+              position: 'relative'
+            }}
+        >
+          <CardHeader
+          title={getMathJax(`(Question ${this.props.index+1}): ${this.props.question.prompt}` )}
+          style={{position: 'relative'}}
+          action={
             <Typography variant='headline' color='primary'>
               {`${this.state.marksScored}/${this.maxMarks}` }
             </Typography>
           }
+          key={`CardHeader-QIndex:${this.props.index}`}
           />
           <br/>
 
           {this.props.question.prompts.map((x, y) =>
-              <React.Fragment>
-                <Divider key={`Divider-QIndex:${this.props.index}-Index:${y}`}
-                         style={{marginTop: '10px', marginBottom: '10px'}}/>
+              <React.Fragment key={`Fragment1-Explanation-QIndex:${this.props.index}-Index:${y}`}>
+                <Divider
+                    key={`Divider-QIndex:${this.props.index}-Index:${y}`}
+                    style={{marginTop: '10px', marginBottom: '10px'}}/>
                 <AnswerInput
                     key={`AnswerInput-QIndex:${this.props.index}-Index:${y}`}
                     disabled type={this.props.question.types[y]} value={this.props.question.answers[y]} prompt={x}/>
               </React.Fragment>
           )}
           {this.props.question.explanation.map((x, y) =>
-              <React.Fragment>
-                <Divider key={`Divider-Explanation-QIndex:${this.props.index}-Index:${y}`}
-                         style={{marginTop: '10px', marginBottom: '10px'}}/>
+              <React.Fragment
+                key={`Fragment2-Explanation-QIndex:${this.props.index}-Index:${y}`}>
+                <Divider
+                    key={`Divider2-Explanation-QIndex:${this.props.index}-Index:${y}`}
+                    style={{marginTop: '10px', marginBottom: '10px'}}/>
 
-                <div key={`IconButton-QIndex:${this.props.index}-Index:${y}`} style={{position: 'relative'}}>
-                  <div style={{position: 'absolute', right: '8px', top: '8px'}}>
+                <div key={`OuterDiv-QIndex:${this.props.index}-Index:${y}`} style={{position: 'relative'}}>
+                  <div key={`InnerDiv-QIndex:${this.props.index}-Index:${y}`}  style={{position: 'absolute', right: '8px', top: '8px'}}>
                     <Tooltip key={`Tooltip-QIndex:${this.props.index}-Index:${y}`}
                              title={`${this.state.buttonMarkValue[y] === 1 ? 'Remove a point' : 'Give a point'}`}>
-                      <IconButton onClick={() => this.handleClick(this.state.buttonMarkValue[y], this.props.index, y)}>
+                      <IconButton key={`IconButton-QIndex:${this.props.index}-Index:${y}`} onClick={() => this.handleClick(this.state.buttonMarkValue[y], this.props.index, y)}>
                         {this.state.buttonMarkValue[y] === CONST_MARKED_CORRECT ? (
-                            <Check/>
+                            <Check key={`IconButton-Check-QIndex:${this.props.index}-Index:${y}`}/>
                         ) : (
-                            <Close/>
+                            <Close key={`IconButton-X-QIndex:${this.props.index}-Index:${y}`}/>
                         )}
                       </IconButton>
                     </Tooltip>
                   </div>
                 </div>
-                <div>{getMathJax(x)}</div>
+                <div key={`MathJax-QIndex:${this.props.index}-Index:${y}`}>{getMathJax(x)}</div>
               </React.Fragment>
           )}
         </Card>
@@ -111,5 +121,7 @@ export default class MarkEditorQuestionCard extends React.Component {
     }
     return accumulatedValue;
   }
+
+
 
 }

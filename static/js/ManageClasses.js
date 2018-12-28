@@ -12,13 +12,14 @@ import Chart from 'react-apexcharts';
 import { uniqueKey } from './helpers';
 import { convertListFloatToAnalytics } from './helpers';
 
-const enableEditMarks = false; // if this is true then editMarks button will appear
 const cardStyle = {marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
 const CONST_TAB_MY_ATTEMPTS = 2;
 
 export default class ManageClasses extends Component {
+
+    // this.props.showSnackBar("success", "it worked", 9000);
     // Defining fields to make the inspections happy
     tests;
     classSize;
@@ -441,25 +442,25 @@ export default class ManageClasses extends Component {
                                                 </IconButton>
                                             </span>
                                          </Tooltip>
-                                       { enableEditMarks
-                                                      ?  <Tooltip title="Edit marks for selected attempt">
-                                                              <IconButton
-                                                                  classes={{
-                                                                        disabled : 'disabled'
-                                                                    }}
-                                                                    disabled={x.tests.length === 0}
-                                                                    onClick={() => {
-                                                                        this.props.markEditor(
-                                                                            this.state.results[idx].tests[
-                                                                                this.state.resultsIndexArray[idx]
-                                                                            ].takes
-                                                                        );
-                                                                    }}
-                                                                ><EditOutlined/></IconButton>
-                                                        </Tooltip>
-                                                      : null
+                                         {/* Edit Marks Button */}
+                                        <Tooltip title="Edit marks for selected attempt">
+                                          <IconButton
+                                              classes={{
+                                                    disabled : 'disabled'
+                                                }}
+                                                disabled={x.tests.length === 0}
+                                                onClick={() => {
+                                                    this.props.markEditor(
+                                                        this.state.results[idx].tests[
+                                                            this.state.resultsIndexArray[idx]
+                                                        ].takes
+                                                    );
+                                                }}
+                                            ><EditOutlined/></IconButton>
+                                        </Tooltip>
 
-                                        }
+
+
 
                                     </ListItemSecondaryAction>
                                 </ListItem>
@@ -511,6 +512,28 @@ export default class ManageClasses extends Component {
                 </List>
             </Fragment>
         );
+    }
+
+    markEditor(){
+        return(
+            <Tooltip title="Edit marks for selected attempt">
+              <IconButton
+                  classes={{
+                        disabled : 'disabled'
+                    }}
+                    disabled={x.tests.length === 0}
+                    onClick={() => {
+                        this.props.markEditor(
+                            this.state.results[idx].tests[
+                                this.state.resultsIndexArray[idx]
+                            ].takes
+                        );
+                    }}
+                >
+                <EditOutlined/>
+                </IconButton>
+            </Tooltip>
+        )
     }
 
     selectClass(index) {
