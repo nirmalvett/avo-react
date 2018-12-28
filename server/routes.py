@@ -238,19 +238,23 @@ def test_stats():
     del students
     question_total_marks = []  # Each students mark per question
 
-    # If none has taken the test return default values
     if len(question_marks) is 0:
+        # If none has taken the test return default values
         test_questions = eval(test.question_list)  # List of questions in test
         test_question_marks = []
-        for i in range(len(test_questions)): # for each question in the test
-            current_question = Question.query.get(test_questions[i])
+        question = Question.query.filter(Question.QUESTION.in_(test_questions)).all()  # Get all questions in the test
+        if len(test_questions) is not len(question):
+            # If a question could not be found return an error
+            return jsonify(error="One or more questions not found")
+        for i in range(len(test_questions)):  # for each question in the test
+            # for each question append the total
             test_question_marks.append(
                 {
                     'numberStudents': 0,
                     'questionMean': 0,
                     'questionMedian': 0,
                     'questionSTDEV': 0,
-                    'questionMark': current_question.total,
+                    'questionMark': question[i].total,
                     'topMarksPerStudent': []
                 }
             )
@@ -272,9 +276,10 @@ def test_stats():
 
     test_questions = eval(test.question_list)  # List of questions in test
     test_question_marks = []
+    question = Question.query.filter(Question.QUESTION.in_(test_questions)).all()  # All questions in test
     for i in range(len(test_questions)):
-        current_question = Question.query.get(test_questions[i])
-        test_question_marks.append(current_question.total)
+        # For each question in the test get the question and append the total
+        test_question_marks.append(question[i].total)
     question_analytics = []  # Array to return to client of analytics
     del test_questions
 
@@ -486,6 +491,7 @@ def change_mark():
         # If User does not teach class return error JSON
         return jsonify(error="User does not teach this class")
     del test
+    question = Question.query.filter(Question.QUESTION.in_(question_array)).all()  # Questions in test
     takes_marks_array = eval(takes.marks)
     new_mark = 0
     if len(takes_marks_array) == len(mark_array):
@@ -501,8 +507,7 @@ def change_mark():
                 for j in range(len(mark_array[i])):
                     # For each part add up total and compare to question in database
                     question_mark += mark_array[i][j]
-                current_question = Question.query.get(question_array[i])  # Current question to compare
-                if current_question.total < question_mark:
+                if question[i].total < question_mark:
                     # If the new total is greater then question total return error JSON
                     return jsonify(error="Over 100% in a question")
                 else:
