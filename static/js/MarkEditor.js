@@ -117,7 +117,7 @@ function convertArrayForServer(markButtonMarkers, questionObjectArray){
     for (let j = 0; j < currentQuestionTotals.length; j++){
        questionSubArray.push(
           currentMarkArray[j] === 1 // if it's marked correctly then get the marks worth otherwise have it return 0
-            ? currentQuestionTotals[i]
+            ? currentQuestionTotals[j]
             : 0
       )
     }
