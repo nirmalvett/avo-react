@@ -28,6 +28,7 @@ class AvoQuestion:
         self.str_list = []
         self.ans_list = []
         self.totals = []
+        self.steps = self._math
 
         while len(self.steps) > 0 and '@' not in self.steps[0]:
             self.step(self.steps.pop(0))
@@ -43,45 +44,46 @@ class AvoQuestion:
             raise SyntaxError("The number of prompts and answer fields don't match")
 
         # evaluates expressions into strings and appends into string list
-        stringList = question[2].split(', ')
+        string_list = question[2].split(', ')
 
-        for i in stringList:
-            toAppend = self.step(stringList[i])
-            self.str_list.append(toAppend)
+        for i in string_list:
+            to_append = self.step(string_list[i])
+            self.str_list.append(to_append)
 
         # turns user inputted string answers into avo variables and appends into answer list
-        answerList = question[3].split(', ')
+        answer_list = question[3].split(', ')
 
-        for i in range(1, len(answerList) - 1):
-            toAppend = self.build_number(answerList[i])
-            self.ans_list.append(toAppend)
+        for i in range(1, len(answer_list) - 1):
+            to_append = self.build_number(answer_list[i])
+            self.ans_list.append(to_append)
 
         # evaluates criteria for whether answer is in/correct, and stores in list for function calls later
-        markingCriteria = question[6].split(', ')
-        criteriaList = []
+        marking_criteria = question[6].split(', ')
+        criteria_list = []
 
-        for i in markingCriteria:
-            toAppend = self.step(markingCriteria[i])
-            criteriaList.append(toAppend)
+        for i in marking_criteria:
+            to_append = self.step(marking_criteria[i])
+            criteria_list.append(to_append)
 
     def step(self, token_list):
         token_list = token_list.split(' ')
         stack = []
         for token in token_list:
             # >> Variable Reference
-            if fullmatch(r'\$\d+', token):
-                index = int(token[1:])
-                if index < len(self.var_list):
+            if fullmatch(r'\$\w+', token):
+                index = token[1:]
+                if index in self.var_list:
                     stack.append(self.var_list[index])
                 else:
-                    raise SyntaxError(f"Error: undefined variable reference: '${index + 1}'")
+                    print(self.var_list)
+                    raise SyntaxError(f"Error: undefined variable reference: '${index}'")
             # >> Answer Reference
             elif fullmatch(r'@\d+', token):
-                index = int(token[1:])
-                if index < len(self.ans_list):
+                index = token[1:]
+                if index in self.ans_list:
                     stack.append(self.ans_list[index])
                 else:
-                    raise SyntaxError(f"Error: undefined answer variable reference: '@{index + 1}'")
+                    raise SyntaxError(f"Error: undefined answer variable reference: '@{index}'")
             # >> Literal Number (Integer)
             elif fullmatch(r'-?\d+(\.\d+)?', token):
                 stack.append(number(float(token)))
@@ -127,7 +129,7 @@ class AvoQuestion:
                     self.str_list.append(result)
             else:
                 raise SyntaxError(token)
-        self.var_list += stack
+        self.var_list[] = [str(stack[0])]
 
     def get_score(self, *answers):
         if len(answers) != len(self.types):
@@ -659,3 +661,14 @@ def build_polynomial(cell: str):
     if len(token_list) > 1:
         return invalid
     return polynomial(token_list[0])
+
+
+q = AvoQuestion(
+            r'2 -1 -1 AF，$m FM；m，a—b—c—d—e—f；$m _A，$a _A，$m FP _A，$b _A；Suppose \(A={0}\). Write each of the'
+            r' eigenvalues in decreasing order, and then their corresponding eigenvectors in the same order. {1}，'
+            r'\(\lambda_1=\)，\(\lambda_2=\)，\(v_1=\)，\(v_2=\)；2，2，6，6；1，1，1，1；@0 $a CN，@1 $b CN，@2 $c GK FC HC FA，'
+            r'@3 $d GK FC HC FA；The eigenvalues can be found by finding the characteristic polynomial of the matrix,'
+            r' and then factoring it to find the roots. In this case, the characteristic polynomial is \({2}\), which can'
+            r' be factored into \((x-({1}))*(x-({3})))\).，，To find the eigenvector corresponding to an eigenvalue, evaluate'
+            r' the following expression: \[\text{{null}}(A-\lambda I)\] This will give you a basis spanning all valid'
+            r' eigenvectors for that eigenvalue.，；...', 0)
