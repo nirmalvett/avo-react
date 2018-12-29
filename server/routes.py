@@ -331,8 +331,19 @@ def get_sets():
         question_list = []  # Question data to return to client
         for q in questions:
             # For each question append the data
-            question_list.append({'id': q.QUESTION, 'name': q.name, 'string': q.string, 'total': q.total})
-        set_list.append({'id': s.SET, 'name': s.name, 'can_edit': able_edit_set(s.SET), 'questions': question_list})
+            question_list.append({
+                'id': q.QUESTION,
+                'name': q.name,
+                'string': q.string,
+                'total': q.total,
+                'answers': q.answers
+            })
+        set_list.append({
+            'id': s.SET,
+            'name': s.name,
+            'can_edit': able_edit_set(s.SET),
+            'questions': question_list
+        })
     return jsonify(sets=set_list)
 
 

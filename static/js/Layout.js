@@ -1,4 +1,4 @@
-import React, { Component, Fragment, createElement } from 'react';
+import React, {Component, Fragment} from 'react';
 import Http from './Http';
 import Logo from './Logo';
 import HomePage from './HomePage';
@@ -111,7 +111,7 @@ class Layout extends Component {
     }
 
     // ============================== Methods that return parts of what is rendered ==========================
-    listItem(icon, text) {
+    listItem(Icon, text) {
         // This method helps return a list of items for the menu
         let {color, theme} = this.state;
         let selected = this.state.section === text;
@@ -123,8 +123,7 @@ class Layout extends Component {
                 onClick={() => this.setState({section: text})}
                 style={{ backgroundColor: selected ? color.main : undefined }}
             >
-                {createElement(icon, {nativeColor:
-                        selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' })}
+                <Icon nativeColor={selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)'}/>
                 <ListItemText primary={<div style={{color: selected ? 'white' : ''}}>{text}</div>} />
             </ListItem>
         );

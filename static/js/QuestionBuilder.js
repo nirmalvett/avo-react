@@ -22,7 +22,8 @@ import {
     CreateNewFolder,
     TextFormat,
     DeleteSweep,
-    Subject,
+    InsertDriveFile as Subject,
+    NoteAdd,
     Add,
     Edit,
     FileCopy,
@@ -39,6 +40,7 @@ export default class QuestionBuilder extends Component {
             mode: 0, // 0 = list of sets/questions, 1 = editor
             selectedS: null, // Selected Set
             selectedQ: null, // Selected Question
+            copiedQ: null, // [Set, Question]
             sets: [],
             preview: {},
             editorMath: 'var1 = equation1 # comment1\nvar2 = equation2 # comment2',
@@ -102,8 +104,8 @@ export default class QuestionBuilder extends Component {
                                 <TextFormat/></IconButton>
                             <IconButton disabled={!canEdit || selectedQ === null} onClick={() => this.editQuestion()}>
                                 <Edit/></IconButton>
-                            {/*<IconButton disabled={selectedQ === null} onClick={() => this.copyQuestion()}>*/}
-                                {/*<FileCopy/></IconButton>*/}
+                            <IconButton disabled={selectedQ === null} onClick={() => this.copyQuestion()}>
+                                <FileCopy/></IconButton>
                             <IconButton disabled={!canEdit || selectedQ === null} onClick={() => this.deleteQuestion()}>
                                 <Delete/></IconButton>
                         </div>
@@ -141,11 +143,28 @@ export default class QuestionBuilder extends Component {
         if (this.state.selectedS === null)
             return undefined;
         else
-            return this.state.sets[this.state.selectedS].questions.map((question, index) =>
-                <ListItem key = {question.id + '-' + index} button onClick={() => this.selectQuestion(index)}>
-                    <Subject color={this.state.selectedQ === index ? 'primary' : 'action'}/>
-                    <ListItemText inset secondary={question.name}/>
-                </ListItem>
+            return (
+                <Fragment>
+                    {this.state.sets[this.state.selectedS].questions.map((question, index) =>
+                        <ListItem key = {question.id + '-' + index} button onClick={() => this.selectQuestion(index)}>
+                            <Subject color={this.state.selectedQ === index ? 'primary' : 'action'}/>
+                            <ListItemText inset secondary={question.name}/>
+                        </ListItem>
+                    )}
+                    {this.state.copiedQ !== null
+                        ? <Fragment>
+                            <Divider/>
+                            <ListItem key='paste' button onClick={this.pasteQuestion.bind(this)}>
+                                <NoteAdd color='action'/>
+                                <ListItemText inset secondary={this.state.sets[this.state.copiedQ[0]].questions[this.state.copiedQ[1]].name}/>
+                            </ListItem>
+                            <ListItem key='clearClipboard' button onClick={() => this.setState({copiedQ: null})}>
+                                <Delete color='action'/><ListItemText inset secondary='Clear Clipboard'/>
+                            </ListItem>
+                        </Fragment>
+                        : null
+                    }
+                </Fragment>
             );
     }
 
@@ -754,5 +773,18 @@ export default class QuestionBuilder extends Component {
         Http.sampleQuestion(this.compile(), seed, undefined,result => {
             this.setState({preview: result, editorSeed: seed});
         });
+    }
+
+    copyQuestion() {
+        this.setState({copiedQ: [this.state.selectedS, this.state.selectedQ]});
+    }
+
+    pasteQuestion() {
+        const question = this.state.sets[this.state.copiedQ[0]].questions[this.state.copiedQ[1]];
+        Http.newQuestion(this.state.sets[this.state.selectedS].id, question.name, question.string,
+            question.answers, question.total,
+            () => this.getSets(),
+            () => alert("The question couldn't be created.")
+        );
     }
 }
