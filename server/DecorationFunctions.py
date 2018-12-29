@@ -1,8 +1,6 @@
 from flask import redirect, url_for, abort
 from functools import wraps
 from flask_login import current_user
-from server.models import User
-from datetime import datetime
 
 
 def check_confirmed(f):
