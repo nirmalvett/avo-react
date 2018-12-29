@@ -55,9 +55,9 @@ export default class QuestionBuilder extends Component {
             savedString: null,
         };
     }
+
     componentDidMount(){
         this.props.showSnackBar("info", "Locked sets cannot be edited. Make new sets to build questions!")
-
     }
 
     getSets() {
