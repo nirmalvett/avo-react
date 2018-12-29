@@ -12,9 +12,10 @@ class AvoQuestion:
         # Math;VariableNames;Comments ; Prompt ; AnswerTypes;Prompts ; Criteria;Points;Explanation
         if len(question) != 9:
             raise SyntaxError(f'Received wrong number of parts: {len(question)}')
-        self._math, _, _, self._strings, self._prompts, self._types, self._criteria, self._points, self._explanations = question
+        self._math, _var_names, self._strings, self._prompts, types, self._points, self._criteria, self._explanations, _ = question
         self._math = self._math.split('，')
-        self._types = self._types.split('，')
+        self._var_names = _var_names.split('，')
+        self.types = types.split('，')
         self._prompts = self._prompts.split('，')
         self._criteria = self._criteria.split('，')
         self._points = self._points.split('，')
@@ -31,16 +32,23 @@ class AvoQuestion:
         self.steps = self._math
 
         while len(self.steps) > 0 and '@' not in self.steps[0]:
-            self.step(self.steps.pop(0))
+            result = self.step(self.steps.pop(0))
+            var_names = self._var_names.pop(0).split('—')
+            for i in range(min(len(result), len(var_names))):
+                self.var_list[var_names[i]] = result[i]
+
+        # Todo: Put some code here to get the string list (expressions in self._strings, store in self.str_list)
 
         try:
-            self.prompts = tuple(map(lambda prompt: prompt.format(*self.str_list), self.prompts))
-            self.notes = list(map(lambda prompt: prompt.format(*self.str_list), self.notes))
+            self.prompts = tuple(map(lambda prompt: prompt.format(*self.str_list), self._prompts))
+            self.notes = list(map(lambda prompt: prompt.format(*self.str_list), self._explanations))
         except IndexError:
             raise SyntaxError("Error: undefined string variable reference")
         self.prompt, self.prompts = self.prompts[0], self.prompts[1:]
 
         if len(self.prompts) != len(self.types):
+            print(self.prompts)
+            print(self.types)
             raise SyntaxError("The number of prompts and answer fields don't match")
 
         # evaluates expressions into strings and appends into string list
@@ -50,11 +58,12 @@ class AvoQuestion:
             to_append = self.step(string_list[i])
             self.str_list.append(to_append)
 
+        # Todo: This code looks like it's for marking, not initialization. Marking code goes in get_score.
         # turns user inputted string answers into avo variables and appends into answer list
         answer_list = question[3].split(', ')
 
         for i in range(1, len(answer_list) - 1):
-            to_append = self.build_number(answer_list[i])
+            to_append = build_number(answer_list[i])
             self.ans_list.append(to_append)
 
         # evaluates criteria for whether answer is in/correct, and stores in list for function calls later
@@ -71,12 +80,12 @@ class AvoQuestion:
         for token in token_list:
             # >> Variable Reference
             if fullmatch(r'\$\w+', token):
-                index = token[1:]
-                if index in self.var_list:
-                    stack.append(self.var_list[index])
+                var_name = token[1:]
+                if var_name in self.var_list:
+                    stack.append(self.var_list[var_name])
                 else:
                     print(self.var_list)
-                    raise SyntaxError(f"Error: undefined variable reference: '${index}'")
+                    raise SyntaxError(f"Error: undefined variable reference: '${var_name}'")
             # >> Answer Reference
             elif fullmatch(r'@\d+', token):
                 index = token[1:]
@@ -129,7 +138,7 @@ class AvoQuestion:
                     self.str_list.append(result)
             else:
                 raise SyntaxError(token)
-        self.var_list[] = [str(stack[0])]
+        return stack
 
     def get_score(self, *answers):
         if len(answers) != len(self.types):
@@ -664,11 +673,11 @@ def build_polynomial(cell: str):
 
 
 q = AvoQuestion(
-            r'2 -1 -1 AF，$m FM；m，a—b—c—d—e—f；$m _A，$a _A，$m FP _A，$b _A；Suppose \(A={0}\). Write each of the'
-            r' eigenvalues in decreasing order, and then their corresponding eigenvectors in the same order. {1}，'
-            r'\(\lambda_1=\)，\(\lambda_2=\)，\(v_1=\)，\(v_2=\)；2，2，6，6；1，1，1，1；@0 $a CN，@1 $b CN，@2 $c GK FC HC FA，'
-            r'@3 $d GK FC HC FA；The eigenvalues can be found by finding the characteristic polynomial of the matrix,'
-            r' and then factoring it to find the roots. In this case, the characteristic polynomial is \({2}\), which can'
-            r' be factored into \((x-({1}))*(x-({3})))\).，，To find the eigenvector corresponding to an eigenvalue, evaluate'
-            r' the following expression: \[\text{{null}}(A-\lambda I)\] This will give you a basis spanning all valid'
-            r' eigenvectors for that eigenvalue.，；...', 0)
+    r'2 -1 -1 AF，$m FM；m，a—b—c—d—e—f；$m _A，$a _A，$m FP _A，$b _A；Suppose \(A={0}\). Write each of the'
+    r' eigenvalues in decreasing order, and then their corresponding eigenvectors in the same order. {1}，'
+    r'\(\lambda_1=\)，\(\lambda_2=\)，\(v_1=\)，\(v_2=\)；2，2，6，6；1，1，1，1；@0 $a CN，@1 $b CN，@2 $c GK FC HC FA，'
+    r'@3 $d GK FC HC FA；The eigenvalues can be found by finding the characteristic polynomial of the matrix,'
+    r' and then factoring it to find the roots. In this case, the characteristic polynomial is \({2}\), which can'
+    r' be factored into \((x-({1}))*(x-({3})))\).，，To find the eigenvector corresponding to an eigenvalue, evaluate'
+    r' the following expression: \[\text{{null}}(A-\lambda I)\] This will give you a basis spanning all valid'
+    r' eigenvectors for that eigenvalue.，；...', 0)
