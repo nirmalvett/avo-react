@@ -17,7 +17,7 @@ class AvoQuestion:
         self.score = 0
         self.scores = []
         self.explanation = []
-        self.var_list = []
+        self.var_list = {}
         self.str_list = []
         self.ans_list = []
         self.totals = []
@@ -34,6 +34,28 @@ class AvoQuestion:
 
         if len(self.prompts) != len(self.types):
             raise SyntaxError("The number of prompts and answer fields don't match")
+
+        # evaluates expressions into strings and appends into string list
+        stringList = question[2].split(', ')
+
+        for i in stringList:
+            toAppend = self.step(stringList[i])
+            self.str_list.append(toAppend)
+
+        # turns user inputted string answers into avo variables and appends into answer list
+        answerList = question[3].split(', ')
+
+        for i in range(1, len(answerList) - 1):
+            toAppend = self.build_number(answerList[i])
+            self.ans_list.append(toAppend)
+
+        # evaluates criteria for whether answer is in/correct, and stores in list for function calls later
+        markingCriteria = question[6].split(', ')
+        criteriaList = []
+
+        for i in markingCriteria:
+            toAppend = self.step(markingCriteria[i])
+            criteriaList.append(toAppend)
 
     def step(self, token_list):
         token_list = token_list.split(' ')
