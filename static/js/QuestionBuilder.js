@@ -14,7 +14,7 @@ import Typography from '@material-ui/core/Typography';
 import ListItemText from '@material-ui/core/ListItemText';
 import Http from './Http';
 import {uniqueKey} from './helpers';
-import {copy, getMathJax, sleep} from './Utilities';
+import {copy, getMathJax} from './Utilities';
 import {buildMathCode, buildPlainText, strNotation, varNotation} from './QuestionBuilderUtils';
 import AnswerInput from './AVOAnswerInput/AnswerInput';
 import {
@@ -41,14 +41,10 @@ export default class QuestionBuilder extends Component {
             selectedQ: null, // Selected Question
             sets: [],
             preview: {},
-            editorMath: 'var1 = equation1 # comment1\nvar2 = equation2 # comment2\nvar3 = equation3 # comment3',
+            editorMath: 'var1 = equation1 # comment1\nvar2 = equation2 # comment2',
             editorPrompt: 'Main prompt',
-            editorPrompts: [{type: '0', prompt: 'Prompt 1'}, {type: '0', prompt: 'Prompt 2'}, {type: '0', prompt: 'Prompt 3'}],
-            editorCriteria: [
-                {criteria: 'criteria 1', points: 1, explanation: 'explanation 1'},
-                {criteria: 'criteria 2', points: 2, explanation: 'explanation 2'},
-                {criteria: 'criteria 3', points: 3, explanation: 'explanation 3'},
-            ],
+            editorPrompts: [{type: '0', prompt: 'Answer prompt'}],
+            editorCriteria: [{criteria: 'criteria 1', points: 1, explanation: 'explanation'}],
             currentlyEditing: null,
             editorSeed: Math.round(65536*Math.random()),
             initError: false,
@@ -580,8 +576,7 @@ export default class QuestionBuilder extends Component {
         let confirmation = confirm('Are you sure you want to delete this set?');
         if (confirmation)
             Http.deleteSet(set.id, async () => {
-                this.setState({selectedS: null, selectedQ: null});
-                await sleep(100);
+                await this.setState({selectedS: null, selectedQ: null});
                 this.getSets();
             }, result => alert(result));
     }
@@ -650,7 +645,7 @@ export default class QuestionBuilder extends Component {
             });
         }
 
-        this.setState({
+        await this.setState({
             mode: 1,
             editorMath: editorMath.join('\n'),
             editorPrompt: prompts[0],
@@ -661,7 +656,6 @@ export default class QuestionBuilder extends Component {
             savedString: string,
         });
 
-        await sleep(100);
         let initString = string.substr(0, string.lastIndexOf('；'));
         let compileString = this.compile();
         compileString = compileString.substr(0, compileString.lastIndexOf('；'));
