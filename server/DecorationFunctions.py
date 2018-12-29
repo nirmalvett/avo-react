@@ -2,6 +2,7 @@ from flask import redirect, url_for, abort
 from functools import wraps
 from flask_login import current_user
 from server.models import User
+from datetime import datetime
 
 
 def check_confirmed(f):
@@ -14,8 +15,7 @@ def check_confirmed(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         # Query the user table and checks there IsConfirmed value
-        user = User.query.filter(User.email == current_user.email).one()
-        if user.confirmed is False:
+        if current_user.confirmed is False:
             # If the user is Unconfirmed then redirect then to the unconfirmed page
             return redirect(url_for('GeneralRoutes.unconfirmed'))
         return f(*args, **kwargs)
@@ -33,8 +33,7 @@ def teacher_only(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         # Query the User table to find if they are a teacher or not
-        user = User.query.filter(User.email == current_user.email).one()
-        if user.is_teacher is False:
+        if current_user.is_teacher is False:
             # If they are not a teacher return a 400 error
             return abort(401)
         return f(*args, **kwargs)
@@ -52,8 +51,7 @@ def student_only(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         # Query the user table to find if they are a student
-        user = User.query.filter(User.email == current_user.email).one()
-        if user.is_teacher is True:
+        if current_user.is_teacher is True:
             # If they are a teacher return a 400 error
             return abort(401)
         return f(*args, **kwargs)
