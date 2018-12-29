@@ -9,9 +9,16 @@ from typing import List, Any
 class AvoQuestion:
     def __init__(self, question: str, seed=0):
         question = question.split('；')
-        if len(question) != 5:
+        # Math;VariableNames;Comments ; Prompt ; AnswerTypes;Prompts ; Criteria;Points;Explanation
+        if len(question) != 9:
             raise SyntaxError(f'Received wrong number of parts: {len(question)}')
-        self.steps, self.prompts, self.types, self.notes, _ = map(lambda x: x.split('，'), question)
+        self._math, _, _, self._strings, self._prompts, self._types, self._criteria, self._points, self._explanations = question
+        self._math = self._math.split('，')
+        self._types = self._types.split('，')
+        self._prompts = self._prompts.split('，')
+        self._criteria = self._criteria.split('，')
+        self._points = self._points.split('，')
+        self._explanations = self._explanations.split('，')
 
         self.random = AvoRandom(seed)
         self.score = 0

@@ -98,6 +98,64 @@ def confirm(token):
     return render_template('/index.html')
 
 
+@UserRoutes.route('/requestPasswordReset', methods=['POST'])
+def request_password_reset():
+
+    if not request.json:
+        return abort(400)
+    email = request.json['email']
+    try:
+        user = User.query.filter(User.email == email).first()
+    except NoResultFound:
+        return jsonify(code="email sent")
+    serializer = URLSafeTimedSerializer(config.SECRET_KEY)
+    token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
+    confirm_url = url_for('UserRoutes.password_reset', token=token, _external=True)
+    send_email(user.email, "Password Reset Request",
+               f'<html><body>Hi {user.first_name},<br/><br/>'
+               f'You have requested to change you password Please click <a href="{confirm_url}">here</a> to '
+               f'change your password. If you did not request to change your password please ignore this email'
+               f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
+               )
+    return jsonify(code="email sent")
+
+
+@UserRoutes.route('/passwordReset/<token>', methods=['GET', 'POST'])
+def password_reset(token):
+    """
+    Render Reset page and change users password
+    :param token: gotten from email from user
+    :return: redirect to login
+    """
+    serializer = URLSafeTimedSerializer(config.SECRET_KEY)
+    try:
+        # check if the token is valid if not return error
+        email = serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT)
+    except BadSignature:
+        return "Invalid confirmation link"
+    user = User.query.filter(User.email == email).first()  # get user from the email
+    if user is None:
+        # If there is no user found return an error
+        return "There is no account associated with the email in that token"
+
+    if request.method == 'GET':
+        return render_template('/passwordReset.html')
+    elif request.method == 'POST':
+        password = request.form['confirmPassword']
+        # Method is POST change password
+        if len(password) < 8:
+            # If the password is les then 8 return error JSON
+            return jsonify(error='Password too short')
+        salt = generate_salt()
+        hashed_password = hash_password(password, salt)
+        user.password = hashed_password
+        user.salt = salt
+        db.session.commit()
+        return redirect(url_for("FileRoutes.serve_sign_in"))
+    else:
+        return "Error"
+
+
 @UserRoutes.route('/login', methods=['POST'])
 def login():
     """
@@ -179,11 +237,14 @@ def enrolled_in_class(class_id):
     :return: True if the user is enrolled False if not
     """
     try:
-        # If the user is enrolled then return True if not return False
-        current_class = Class.query.filter((enrolled.c.CLASS == class_id) &
-                                           (current_user.USER == enrolled.c.USER)).first()
-        if current_class is not None:
-            return True
+        # Get all calsses user is enroled in
+        current_class = Class.query.filter((Class.CLASS == enrolled.c.CLASS) &
+                                           (current_user.USER == enrolled.c.USER)).all()
+        if len(current_class) is 0:
+            return False
+        for i in range(len(current_class)):
+            if current_class[i].CLASS is class_id:
+                return True
         return False
     except NoResultFound:
         return False
@@ -205,7 +266,7 @@ def send_email(recipient: str, subject: str, message: str):
     :param subject: The subject of the email
     :param message: HTML of the email
     """
-    sender = 'no-reply@avocadocore.com' # Sets the sender of no-reply
+    sender = config.EMAIL # Sets the sender of no-reply
     msg = MIMEMultipart()
     msg['From'], msg['To'], msg['Subject'] = sender, recipient, subject # Sets To From Subject values
     msg.attach(MIMEText(message, 'html'))
@@ -215,5 +276,5 @@ def send_email(recipient: str, subject: str, message: str):
     server.ehlo()
     server.starttls()
     server.ehlo()
-    server.login(sender, '@henrikiscontributingtoconvo@1')
+    server.login(sender, config.EMAIL_PASSWORD)
     server.sendmail(sender, recipient, msg.as_string())

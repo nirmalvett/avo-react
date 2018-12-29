@@ -8,13 +8,17 @@ export default class Http {
         http.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
         http.onreadystatechange = () => {
             if (http.readyState === 4 && http.status === 200) {
-                if (JSON.parse(http.responseText).error) {
-                    console.warn('Ajax Error for Route' + url
-                        + '\n Error Message: ' + JSON.stringify(JSON.parse(http.responseText)));
-                    failure(JSON.parse(http.responseText));
-                } else {
-                    debugModeLog(type, url, data, http);
-                    success(JSON.parse(http.responseText));
+                try {
+                    if (JSON.parse(http.responseText).error) {
+                        console.warn('Ajax Error for Route' + url
+                            + '\n Error Message: ' + JSON.stringify(JSON.parse(http.responseText)));
+                        failure(JSON.parse(http.responseText));
+                    } else {
+                        debugModeLog(type, url, data, http);
+                        success(JSON.parse(http.responseText));
+                    }
+                }catch(e) {
+                    console.warn(`Error on ${url}: ${e}`);
                 }
             }
         };
@@ -134,8 +138,24 @@ export default class Http {
         Http._request('POST', '/testStats', success, failure, {id: test});
     }
 
-    static sampleQuestion(string, answers, success, failure) {
-        Http._request('POST', '/sampleQuestion', success, failure, {string, answers});
+    static sampleQuestion(string, seed, answers, success, failure) {
+        Http._request('POST', '/sampleQuestion', success, failure, {string, seed, answers});
+    }
+
+    static CSVDownload(classid, success, failure) {
+        Http._request('GET', '/CSV/ClassMarks/' + classid, success, failure, {});
+    }
+
+    static getFreeTrial(classid, success, failure) {
+        Http._request('POST', '/freeTrial', success, failure, { classID : classid });
+    }
+
+    static changeMark(takesId, markArray, success, failure) {
+        Http._request('POST', '/changeMark', success, failure, { takeId : takesId, markArray : markArray });
+    }
+
+    static resetPassword(email, success, failure) {
+        Http._request('POST', '/requestPasswordReset', success, failure, { email : email });
     }
 }
 

@@ -1,5 +1,5 @@
 from server.MathCode.AvoVariable import AvoVariable, AvoRandom,\
-    MATRIX, error, boolean, number, matrix, basis, mc_ans, tf_ans, vector_free_vars, polynomial
+    MATRIX, BASIS, error, boolean, number, matrix, basis, mc_ans, tf_ans, vector_free_vars, polynomial, get_types
 from inspect import signature
 from math import sqrt, sin, cos, tan, asin, acos, atan, pi
 from re import fullmatch, sub, search
@@ -164,8 +164,9 @@ class AvoQuestion:
                     # Todo: Fix this on the front end so the list doesn't need to be filtered
                     array = list(map(lambda x: x.split(','), answer.split('\n')))
                     rows = len(array[0])
-                    answer = filter(lambda vector: any(map(lambda c: c != '', vector)), array)
                     ans = basis(map(lambda vector: matrix(map(lambda r: [build_number(r)], vector)), array), rows)
+                    if get_types(ans) == BASIS and ans.cols != len(array):
+                        ans = error('Invalid Basis')
             except Exception:
                 pass
             ans.explanation = ([(r'\color{{DarkOrange}}{{\text{{Answer {}}}}}'.format(i + 1), 8),

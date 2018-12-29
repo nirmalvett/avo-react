@@ -35,18 +35,17 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: #BFBFBF;
+    background: transparent;
     border: 3px solid transparent;
     background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #9D9D9D;
-    border-radius: 5px;
+    background: #BBBBBB;
 }
 
 ::-webkit-scrollbar-thumb:active {
-    background: #BBBBBB;
+    background: #dadce0;
 }
 
 .LoginCard {
@@ -205,8 +204,8 @@ body {
 }
 
 .avo-mascot{
-    background: url(098c79c5eb66064e9b76b7d258a94bce.svg) center/cover no-repeat; 
-    width: 100%; 
+    background: url(098c79c5eb66064e9b76b7d258a94bce.svg) center/cover no-repeat;
+    width: 100%;
     height: 15em;
 }
 
@@ -230,7 +229,7 @@ body {
 
 .eye-brow.right {
     left: 44px;
-    transform: rotate( var(--avo-eyebrow-angle) );		
+    transform: rotate( var(--avo-eyebrow-angle) );
 }
 
 .eye {
@@ -267,9 +266,9 @@ body {
 }
 
 .avo-drawer__with-logo {
-    background: url(f86e9b4996434dc979508f6b841ebafd.svg) -45px bottom no-repeat; 
-    background-size: 50%; 
-    height: 100%; 
+    background: url(f86e9b4996434dc979508f6b841ebafd.svg) -45px bottom no-repeat;
+    background-size: 50%;
+    height: 100%;
     overflow-y: auto;
 }
 
@@ -290,4 +289,12 @@ body {
 
 .color-white {
     color: white;
+}
+
+.avo-generic__low-shadow {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
+}
+td {
+    vertical-align: top !important;
+    padding: 16px !important;
 }
