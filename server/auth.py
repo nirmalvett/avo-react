@@ -139,7 +139,7 @@ def password_reset(token):
         return "There is no account associated with the email in that token"
 
     if request.method == 'GET':
-        return render_template('/passwordReset.html')
+        return render_template('/index.html')
     elif request.method == 'POST':
         password = request.form['confirmPassword']
         # Method is POST change password
@@ -172,7 +172,7 @@ def login():
         return jsonify("One or more data is not correct")
     try:
         # Try to create the user from the email if not throw error JSON
-        user = User.query.filter(User.email == username).one()
+        user = User.query.filter(User.email == username).first()
     except NoResultFound:
         return jsonify(error='Account does not exist!')
     if not check_password(password, user.salt, user.password):
@@ -237,7 +237,7 @@ def enrolled_in_class(class_id):
     :return: True if the user is enrolled False if not
     """
     try:
-        # Get all calsses user is enroled in
+        # Get all classes user is enrolled in
         current_class = Class.query.filter((Class.CLASS == enrolled.c.CLASS) &
                                            (current_user.USER == enrolled.c.USER)).all()
         if len(current_class) is 0:

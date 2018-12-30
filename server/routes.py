@@ -449,9 +449,10 @@ def enroll():
                                            (Transaction.CLASS == current_class.CLASS)).all()  # Checks if the user has a free trial
     free_trial = True
     for i in range(len(transaction)):
-        # For each transaction see if it starts with a
+        # For each transaction see if it starts with a free trial string
         trans_string = transaction[i].TRANSACTION
         if trans_string.startswith("FREETRIAL-"):
+            # If the transaction string starts with free trial set the availability of free trail to false
             free_trial = False
     if current_class.price_discount == 0.0:
         # Append current user to the class
