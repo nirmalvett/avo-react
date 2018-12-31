@@ -15,6 +15,7 @@ from server.auth import teaches_class, enrolled_in_class, able_edit_set
 
 from server.models import *
 import statistics
+
 routes = Blueprint('routes', __name__)
 
 yaml_file = open("config.yaml", 'r')
@@ -32,6 +33,7 @@ paypalrestsdk.configure(
     }
 )
 del yaml_obj
+
 
 @routes.route('/changeColor', methods=['POST'])
 @login_required
@@ -109,6 +111,7 @@ def get_classes():
     Get the current users classes available to them
     :return: A list of class data
     """
+    print(datetime.now())
     teach_classes = []  # The classes the current user teaches
     if current_user.is_teacher is True:
         # If the current user is a teacher query the data base for teaching classes
@@ -199,6 +202,7 @@ def get_classes():
                             'standardDeviation': round(class_stdev, 2),
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
+    print(datetime.now())
     return jsonify(classes=class_list)
 
 
