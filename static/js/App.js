@@ -3,7 +3,7 @@ import Http from './Http';
 import Layout from './Layout.js';
 import SignIn from './SignIn.js';
 import MomentUtils from '@date-io/moment';
-import PasswordResetPage from './passwordReset';
+import PasswordResetPage from './PasswordReset';
 import { isChrome, isSafari } from "./helpers";
 import { unregister } from './registerServiceWorker';
 import NotChromeWarningPage from "./NotChromeWarningPage";
