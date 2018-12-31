@@ -270,7 +270,7 @@ export default class SignIn extends React.Component {
                       <React.Fragment>
                           <br/>
                           <Typography variant='caption' id="avo-signin__reset-password">
-                            Forgot your password/Change Password? Click <a className="avo-styles__link"> here </a>
+                            Forgot your password/Want to change password? Click <a className="avo-styles__link"> here </a>
                           </Typography>
                           <AVOModal
                               title='Reset Password?'
@@ -289,8 +289,7 @@ export default class SignIn extends React.Component {
                                       );
                                   }
                               }}
-                              onDecline={() => {alert('uh oh, something went wrong. Please try again later and issue persists then let us know about.')}
-                              }
+                              onDecline={() => {}}
                           >
                               <React.Fragment>
                                   <Typography variant='caption'>
