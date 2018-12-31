@@ -26,25 +26,25 @@ export default class App extends Component {
     }
 
     render () {
+        const urlContainsPasswordRest = window.location.href.indexOf('passwordReset') > -1;
         if (!isChrome() && !isSafari()){
             return (<NotChromeWarningPage/>)
         }
         if (this.state.authenticated === null)
             return null;
         let u = this.state.user;
-        if(window.location.href.indexOf('passwordReset') > -1) {
-            return <PasswordResetPage/>;
-        } 
         return (
             <MuiPickersUtilsProvider utils={MomentUtils}>{
-                this.state.authenticated
-                    ? <Layout setTheme={(color, theme) => this.setState({color: color, theme: theme})}
-                              logout={() => this.setState({authenticated: false})}
-                              firstName={u.firstName} lastName={u.lastName} isTeacher={u.isTeacher}
-                              isAdmin={u.isAdmin} color={u.color} theme={u.theme}
-                    />
-                    : <SignIn login={(u, p, result) => this.updateUser(u, p, result)}
-                              username={this.state.username} password={this.state.password}/>
+                urlContainsPasswordRest
+                    ? <PasswordResetPage/>
+                    : this.state.authenticated
+                        ? <Layout setTheme={(color, theme) => this.setState({color: color, theme: theme})}
+                                  logout={() => this.setState({authenticated: false})}
+                                  firstName={u.firstName} lastName={u.lastName} isTeacher={u.isTeacher}
+                                  isAdmin={u.isAdmin} color={u.color} theme={u.theme}
+                        />
+                        : <SignIn login={(u, p, result) => this.updateUser(u, p, result)}
+                                  username={this.state.username} password={this.state.password}/>
             }</MuiPickersUtilsProvider>
         );
     }
