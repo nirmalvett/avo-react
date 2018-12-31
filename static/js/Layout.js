@@ -27,6 +27,7 @@ import classNames from 'classnames';
 const drawerWidth = 240;
 const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
     amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
+    
 const styles = theme => ({
     drawerPaper: {
         position: 'relative',
