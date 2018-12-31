@@ -70,7 +70,7 @@ export default class PasswordResetPage extends React.Component {
     comparePasswordsForValidation() {
         const newPassword = document.getElementById('avo-passreset__new-password').value;
         const conPassword = document.getElementById('avo-passreset__confirm-password').value;
-        let match = (newPassword == conPassword) && newPassword.length >= 8;
+        let match = (newPassword === conPassword) && newPassword.length >= 8;
         if(!match) {
             this.setState({ errorMessage : 'Passwords do not match!' });
         }else if(newPassword.length < 8){
@@ -85,13 +85,13 @@ export default class PasswordResetPage extends React.Component {
         let starting_index = window.location.href.indexOf('passwordReset') + ('passwordReset').length + 1;
         const token = window.location.href.substring(starting_index);
         const newPassword = document.getElementById('avo-passreset__confirm-password').value;
-        console.log(token);
+        const plainAVOUrl = window.location.href.split("passwordReset")[0]; // i.e. app.avocadocore.com/
         Http.submitPasswordChange(
             token,
             newPassword,
             () => {
-                alert('success');
-                window.location.href = '';
+                alert('Password Successfully Changed!');
+                window.history.pushState("backToLogin", "AvocadoCore", plainAVOUrl);
                 window.location.reload();
             },
             () => {
