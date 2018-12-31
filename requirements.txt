@@ -16,4 +16,5 @@ MarkupSafe==1.0
 GitPython==2.1.11
 itsdangerous==0.24
 paypalrestsdk==1.13.1
+pyYAML==3.13
 

@@ -8,6 +8,7 @@ import sys
 from git import Repo
 import paypalrestsdk
 import config
+from yaml import load
 
 from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
@@ -16,17 +17,21 @@ from server.models import *
 import statistics
 routes = Blueprint('routes', __name__)
 
+yaml_file = open("config.yaml", 'r')
+yaml_obj = load(yaml_file)
+yaml_file.close()
+
 # todo not sure if this is the right place for it, just setting up paypal credentials
 paypalrestsdk.configure(
     {
         # 'mode': 'live',
-        'mode': config.PAYPAL_MODE,
+        'mode': yaml_obj['paypal_mode'],
         # todo get Frank to set up the account id/secret
         'client_id': config.PAYPAL_ID,
         'client_secret': config.PAYPAL_SECRET
     }
 )
-
+del yaml_obj
 
 @routes.route('/changeColor', methods=['POST'])
 @login_required
@@ -946,7 +951,7 @@ def save_test():
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
     total = 0  # Total the test is out of
     questions = Question.query.filter(Question.QUESTION.in_(question_list)).all()  # All question in test
-    for q in question_list:
+    for i in range(len(question_list)):
         # For each question calculate the mark and add to the total
         current_question = questions[i]  # Get the current question from the database
         if current_question is None:
