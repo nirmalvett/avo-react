@@ -31,8 +31,6 @@ export default class SignIn extends React.Component {
         };
     }
 
-
-
     componentDidMount(){
       /* This runs after the component is rendered */
       SignIn.confirmedAccountAlert();
@@ -255,7 +253,7 @@ export default class SignIn extends React.Component {
                             </a>
                             {'.'}
                         </Typography>
-                      {/* { this.passwordReset() } */}
+                       { this.passwordReset() }
                     </footer>
                     </Grid>
                 </Grid>
@@ -267,13 +265,12 @@ export default class SignIn extends React.Component {
 
     passwordReset(){
       return (
-
           <React.Fragment>
              {this.state.isSigningIn && (
                       <React.Fragment>
                           <br/>
                           <Typography variant='caption' id="avo-signin__reset-password">
-                            Forgot your password? Click <a className="avo-styles__link"> here </a>
+                            Forgot your password/Change Password? Click <a className="avo-styles__link"> here </a>
                           </Typography>
                           <AVOModal
                               title='Reset Password?'
