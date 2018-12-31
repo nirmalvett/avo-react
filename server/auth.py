@@ -141,7 +141,7 @@ def password_reset(token):
     if request.method == 'GET':
         return render_template('/index.html')
     elif request.method == 'POST':
-        password = request.form['confirmPassword']
+        password = request.json['password']
         # Method is POST change password
         if len(password) < 8:
             # If the password is les then 8 return error JSON
@@ -151,7 +151,7 @@ def password_reset(token):
         user.password = hashed_password
         user.salt = salt
         db.session.commit()
-        return redirect(url_for("FileRoutes.serve_sign_in"))
+        return jsonify(code="Password Updated")
     else:
         return "Error"
 
