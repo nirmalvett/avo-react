@@ -98,12 +98,12 @@ export default class PasswordResetPage extends React.Component {
             token,
             newPassword,
             () => {
-                alert('Password Successfully Changed!');
+                alert('Password successfully changed!');
                 window.history.pushState("backToLogin", "AvocadoCore", plainAVOUrl);
                 window.location.reload();
             },
-            () => {
-                alert('Something went wrong');
+            (e) => {
+                alert("An error occurred when making the request please try again in 5-10 minutes.");
             }
         );
     };
