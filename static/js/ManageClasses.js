@@ -37,7 +37,6 @@ export default class ManageClasses extends Component {
 
     constructor(props) {
         super(props);
-        this.loadClasses();
         this.state = {
             classes: [],
             c: null, // Selected class
@@ -57,6 +56,10 @@ export default class ManageClasses extends Component {
             resultsIndexArray: [],
         };
     }
+
+    componentDidMount() {
+        this.loadClasses();
+    };
 
     loadClasses(snackBarString) {
         // this gets the class results
@@ -458,10 +461,6 @@ export default class ManageClasses extends Component {
                                                 }}
                                             ><EditOutlined/></IconButton>
                                         </Tooltip>
-
-
-
-
                                     </ListItemSecondaryAction>
                                 </ListItem>
                             )}

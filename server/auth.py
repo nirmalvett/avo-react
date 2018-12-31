@@ -132,11 +132,11 @@ def password_reset(token):
         # check if the token is valid if not return error
         email = serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT)
     except BadSignature:
-        return "Invalid confirmation link"
+        return jsonify(error="Invalid Confirmation Link. Please try requesting password change again.")
     user = User.query.filter(User.email == email).first()  # get user from the email
     if user is None:
         # If there is no user found return an error
-        return "There is no account associated with the email in that token"
+        return jsonify(error="There is no account associated with the email.")
 
     if request.method == 'GET':
         return render_template('/index.html')
@@ -145,15 +145,15 @@ def password_reset(token):
         # Method is POST change password
         if len(password) < 8:
             # If the password is les then 8 return error JSON
-            return jsonify(error='Password too short')
+            return jsonify(error='Password too short! Please ensure the password is at least 8 characters.')
         salt = generate_salt()
         hashed_password = hash_password(password, salt)
         user.password = hashed_password
         user.salt = salt
         db.session.commit()
-        return jsonify(code="Password Updated")
+        return jsonify(code="Password Successfully Updated!")
     else:
-        return "Error"
+        return jsonify(error='An unexpected error occurred. Reference #1j29')
 
 
 @UserRoutes.route('/login', methods=['POST'])

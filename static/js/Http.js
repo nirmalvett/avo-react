@@ -157,6 +157,10 @@ export default class Http {
     static resetPassword(email, success, failure) {
         Http._request('POST', '/requestPasswordReset', success, failure, { email : email });
     }
+
+    static submitPasswordChange(token, password, success, failure) {
+        Http._request('POST', `/passwordReset/${token}`, success, failure, { password : password });
+    };
 }
 
 function debugModeLog(type, url, data = '', http){
