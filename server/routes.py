@@ -19,6 +19,7 @@ routes = Blueprint('routes', __name__)
 
 yaml_file = open("config.yaml", 'r')
 yaml_obj = load(yaml_file)
+yaml_file.close()
 
 # todo not sure if this is the right place for it, just setting up paypal credentials
 paypalrestsdk.configure(
@@ -30,6 +31,7 @@ paypalrestsdk.configure(
         'client_secret': config.PAYPAL_SECRET
     }
 )
+del yaml_obj
 
 @routes.route('/changeColor', methods=['POST'])
 @login_required
