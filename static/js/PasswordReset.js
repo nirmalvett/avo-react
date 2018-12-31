@@ -6,6 +6,9 @@ import Button from '@material-ui/core/Button/Button';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
 import Logo from "./Logo";
+import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
+    deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors';
+import {createMuiTheme, MuiThemeProvider} from "@material-ui/core";
 
 export default class PasswordResetPage extends React.Component {
 
@@ -18,8 +21,8 @@ export default class PasswordResetPage extends React.Component {
     };
 
     render() {
-        console.log(this.state.canSubmitPassword);
         return (
+          <MuiThemeProvider theme={createMuiTheme({palette: {primary: green}})}>
              <div style={{width: '100%', flex: 1, display: 'flex'}}>
                 <Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
                     <Grid item xs={4}/>
@@ -33,6 +36,7 @@ export default class PasswordResetPage extends React.Component {
                                 <TextField
                                     id='avo-passreset__new-password'
                                     margin='normal'
+                                    color='primary'
                                     label='New Password'
                                     type='password'
                                     onChange={() => this.comparePasswordsForValidation()}
@@ -41,21 +45,24 @@ export default class PasswordResetPage extends React.Component {
                                 <TextField
                                     id='avo-passreset__confirm-password'
                                     margin='normal'
+                                    color='primary'
                                     label='Confirm Password'
                                     type='password'
                                     onChange={() => this.comparePasswordsForValidation()}
                                 />
+                                <br/>
                                 <br/>
                                 <Typography variant='caption' className='avo-styles__error'>
                                     {this.state.errorMessage}
                                 </Typography>
                                 <br/>
                                 <Button
+                                    style = {{float: 'right'}}
                                     id='avo-signin__button'
-                                    color='primary'
+                                    color= 'primary'
                                     disabled={!this.state.canSubmitPassword}
-                                    className="avo-button avo-styles__float-right"
-                                    onClick={() => this.sendChangeRequest()}>
+                                    onClick={() => this.sendChangeRequest()}
+                                >
                                     Submit New Password
                                 </Button>
                             </form>
@@ -64,6 +71,7 @@ export default class PasswordResetPage extends React.Component {
                     <Grid item xs={1}/>
                 </Grid>
             </div>
+          </MuiThemeProvider>
         );
     };
 
