@@ -132,11 +132,11 @@ def password_reset(token):
         # check if the token is valid if not return error
         email = serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT)
     except BadSignature:
-        return jsonify(error="Invalid Confirmation Link. Perhaps it expired. Please try requesting password change again!")
+        return jsonify(error="Invalid Confirmation Link. Please try requesting password change again.")
     user = User.query.filter(User.email == email).first()  # get user from the email
     if user is None:
         # If there is no user found return an error
-        return jsonify(error="There is no account associated with the email")
+        return jsonify(error="There is no account associated with the email.")
 
     if request.method == 'GET':
         return render_template('/index.html')
@@ -151,7 +151,7 @@ def password_reset(token):
         user.password = hashed_password
         user.salt = salt
         db.session.commit()
-        return jsonify(code="Password Updated")
+        return jsonify(code="Password Successfully Updated!")
     else:
         return jsonify(error='An unexpected error occurred. Reference #1j29')
 
