@@ -130,7 +130,7 @@ def password_reset(token):
     serializer = URLSafeTimedSerializer(config.SECRET_KEY)
     try:
         # check if the token is valid if not return error
-        email = serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT)
+        email = serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT, max_age=86400)
     except BadSignature:
         return jsonify(error="Invalid Confirmation Link. Please try requesting password change again.")
     user = User.query.filter(User.email == email).first()  # get user from the email
