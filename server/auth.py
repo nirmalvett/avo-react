@@ -114,7 +114,8 @@ def request_password_reset():
     send_email(user.email, "Password Reset Request",
                f'<html><body>Hi {user.first_name},<br/><br/>'
                f'You have requested to change you password Please click <a href="{confirm_url}">here</a> to '
-               f'change your password. If you did not request to change your password please ignore this email'
+               f'change your password. If you did not request to change your password please ignore this email. '
+               f'This link will expire in an hour'
                f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
                )
     return jsonify(code="email sent")
