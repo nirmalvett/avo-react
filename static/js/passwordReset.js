@@ -82,9 +82,22 @@ export default class PasswordResetPage extends React.Component {
     };
 
     sendChangeRequest() {
-        let starting_index;
-        const token = '';
+        let starting_index = window.location.href.indexOf('passwordReset') + ('passwordReset').length + 1;
+        const token = window.location.href.substring(starting_index);
         const newPassword = document.getElementById('avo-passreset__confirm-password').value;
+        console.log(token);
+        Http.submitPasswordChange(
+            token,
+            newPassword,
+            () => {
+                alert('success');
+                window.location.href = '';
+                window.location.reload();
+            },
+            () => {
+                alert('Something went wrong');
+            }
+        );
     };
 
 };
