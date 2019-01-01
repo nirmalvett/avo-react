@@ -366,12 +366,11 @@ export default class ManageClasses extends Component {
 	}
 
 	editTestPopper(selectedTest) {
-		// this.setState({
-		// 	editTest_name: selectedTest.name,
-		// 	editTest_time: selectedTest.timer,
-		// 	editTest_attempts: selectedTest.attempts,
-		// 	editTest_date: selectedTest.deadline,
-		// });
+			this.state.editTest_name = selectedTest.name;
+			this.state.editTest_time = selectedTest.timer;
+			this.state.editTest_attempts = selectedTest.attempts;
+			this.state.editTest_date = selectedTest.deadline;
+
 		return (<React.Fragment>
 			<List style={{flex: 1, overflowY: 'auto'}} dense>
 				<Popper
@@ -398,7 +397,7 @@ export default class ManageClasses extends Component {
 								margin='normal'
 								label='Name'
 								style={{width: '46%', margin: '2%'}}
-								value={selectedTest.name}
+								value={this.state.editTest_name}
 								onChange={e => this.setState({editTest_name: e.target.value})}
 						/>
 						<TextField
@@ -406,20 +405,20 @@ export default class ManageClasses extends Component {
 								label='Time Limit in Minutes'
 								type='number'
 								style={{width: '46%', margin: '2%'}}
-								value={selectedTest.timer}
+								value={this.state.editTest_time}
 								onChange={e => this.setState({editTest_time: e.target.value})}
 						/>
 						<br/>
 						<TextField margin='normal' label='Attempts' type='number'
 						           style={{width: '46%', margin: '2%'}}
-						           value={selectedTest.attempts}
+						           value={this.state.editTest_attempts}
 						           onChange={e => this.setState({editTest_attempts: e.target.value})}
 						/>
 						<InlineDateTimePicker
 								margin='normal'
 								style={{width: '46%', margin: '2%'}}
 								label="Deadline"
-								value={new Date(selectedTest.deadline)}
+								value={new Date(this.state.editTest_date)}
 								onChange={e => this.setState({editTest_date: dateForServer(e.target.value)})}
 						/>
 						<br/>
