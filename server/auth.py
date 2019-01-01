@@ -257,9 +257,14 @@ def enrolled_in_class(class_id):
 
 
 def able_edit_set(setID):
+    """
+    Checks if current_user can edit selected set
+    :param setID: Set to check if user can edit
+    :return: True if user can edit false if not
+    """
     try:
         user_views_set = UserViewsSet.query.filter((setID == UserViewsSet.SET)
-                                               & (current_user.USER == UserViewsSet.USER)).first()
+                                                   & (current_user.USER == UserViewsSet.USER)).first()
     except NoResultFound:
         return False
     return user_views_set.can_edit
