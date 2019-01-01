@@ -440,8 +440,8 @@ export function varNotation(str, varNames) {
 }
 
 export function strNotation(str, strList) {
-    while (/`.*?`/.test(str)) {
-        let match = /`(.*?)`/.exec(str);
+    while (/`.+?`/.test(str)) {
+        let match = /`(.+?)`/.exec(str);
         let mathCode = buildMathCode(match[1])[0];
         if (!mathCode.includes('_'))
             mathCode += ' _A';

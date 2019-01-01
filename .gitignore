@@ -5,5 +5,4 @@
 desktop.ini
 */__pycache__
 __pycache__
-config.py
-avo.db
+config.*

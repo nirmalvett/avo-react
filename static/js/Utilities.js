@@ -233,7 +233,3 @@ export function getDateString(date) {
 export function copy(object) {
     return JSON.parse(JSON.stringify(object));
 }
-
-export function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}

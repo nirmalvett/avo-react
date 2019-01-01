@@ -31,8 +31,6 @@ export default class SignIn extends React.Component {
         };
     }
 
-
-
     componentDidMount(){
       /* This runs after the component is rendered */
       SignIn.confirmedAccountAlert();
@@ -255,7 +253,7 @@ export default class SignIn extends React.Component {
                             </a>
                             {'.'}
                         </Typography>
-                      {/* { this.passwordReset() } */}
+                       { this.passwordReset() }
                     </footer>
                     </Grid>
                 </Grid>
@@ -267,13 +265,12 @@ export default class SignIn extends React.Component {
 
     passwordReset(){
       return (
-
           <React.Fragment>
              {this.state.isSigningIn && (
                       <React.Fragment>
                           <br/>
                           <Typography variant='caption' id="avo-signin__reset-password">
-                            Forgot your password? Click <a className="avo-styles__link"> here </a>
+                            Forgot your password/Want to change your password? Click <a className="avo-styles__link"> here </a>
                           </Typography>
                           <AVOModal
                               title='Reset Password?'
@@ -286,14 +283,13 @@ export default class SignIn extends React.Component {
                                       Http.resetPassword(
                                           name,
                                           () => {
-                                              alert('Success! Expect an email within the next 24 Hours');
+                                              alert('Successfully requested password change. Please check your email in 10-15 minutes.');
                                           },
-                                          () => { alert('uh oh, something went wrong. Please try again later and issue persists then let us know about.') }
+                                          (e) => { alert(e.error) }
                                       );
                                   }
                               }}
-                              onDecline={() => {alert('uh oh, something went wrong. Please try again later and issue persists then let us know about.')}
-                              }
+                              onDecline={() => {}}
                           >
                               <React.Fragment>
                                   <Typography variant='caption'>
