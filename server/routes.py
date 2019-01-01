@@ -8,24 +8,31 @@ import sys
 from git import Repo
 import paypalrestsdk
 import config
+from yaml import load
 
 from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
 
 from server.models import *
 import statistics
+
 routes = Blueprint('routes', __name__)
+
+yaml_file = open("config.yaml", 'r')
+yaml_obj = load(yaml_file)
+yaml_file.close()
 
 # todo not sure if this is the right place for it, just setting up paypal credentials
 paypalrestsdk.configure(
     {
         # 'mode': 'live',
-        'mode': config.PAYPAL_MODE,
+        'mode': yaml_obj['paypal_mode'],
         # todo get Frank to set up the account id/secret
         'client_id': config.PAYPAL_ID,
         'client_secret': config.PAYPAL_SECRET
     }
 )
+del yaml_obj
 
 
 @routes.route('/changeColor', methods=['POST'])
@@ -104,6 +111,7 @@ def get_classes():
     Get the current users classes available to them
     :return: A list of class data
     """
+    print(datetime.now())
     teach_classes = []  # The classes the current user teaches
     if current_user.is_teacher is True:
         # If the current user is a teacher query the data base for teaching classes
@@ -194,6 +202,7 @@ def get_classes():
                             'standardDeviation': round(class_stdev, 2),
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
+    print(datetime.now())
     return jsonify(classes=class_list)
 
 
@@ -460,9 +469,10 @@ def enroll():
                                            (Transaction.CLASS == current_class.CLASS)).all()  # Checks if the user has a free trial
     free_trial = True
     for i in range(len(transaction)):
-        # For each transaction see if it starts with a
+        # For each transaction see if it starts with a free trial string
         trans_string = transaction[i].TRANSACTION
         if trans_string.startswith("FREETRIAL-"):
+            # If the transaction string starts with free trial set the availability of free trail to false
             free_trial = False
     if current_class.price_discount == 0.0:
         # Append current user to the class
@@ -956,7 +966,7 @@ def save_test():
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
     total = 0  # Total the test is out of
     questions = Question.query.filter(Question.QUESTION.in_(question_list)).all()  # All question in test
-    for q in question_list:
+    for i in range(len(question_list)):
         # For each question calculate the mark and add to the total
         current_question = questions[i]  # Get the current question from the database
         if current_question is None:
