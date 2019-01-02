@@ -366,11 +366,14 @@ export default class ManageClasses extends Component {
 	}
 
 	editTestPopper(selectedTest) {
-			this.state.editTest_name = selectedTest.name;
-			this.state.editTest_time = selectedTest.timer;
-			this.state.editTest_attempts = selectedTest.attempts;
-			this.state.editTest_date = selectedTest.deadline;
-
+		if (this.state.editTest_name === null){
+			this.setState({
+				editTest_name: selectedTest.name,
+				editTest_time: selectedTest.timer,
+				editTest_attempts: selectedTest.attempts,
+				editTest_date: selectedTest.deadline,
+			})
+		}
 		return (<React.Fragment>
 			<List style={{flex: 1, overflowY: 'auto'}} dense>
 				<Popper
@@ -418,8 +421,8 @@ export default class ManageClasses extends Component {
 								margin='normal'
 								style={{width: '46%', margin: '2%'}}
 								label="Deadline"
-								value={new Date(this.state.editTest_date)}
-								onChange={e => this.setState({editTest_date: dateForServer(e.target.value)})}
+								value={this.state.editTest_date}
+								onChange={e => this.setState(this.handleDateChange.bind(this))}
 						/>
 						<br/>
 						<div style={{float: 'right', position: 'relative'}}>
@@ -434,9 +437,9 @@ export default class ManageClasses extends Component {
 									onClick={() => {
 										Http.changeTest(
 												selectedTest.id,
-												this.state.editTest_time,
+												parseInt(this.state.editTest_time),
 												this.state.editTest_name,
-												this.state.editTest_date,
+												dateForServer(this.state.editTest_date),
 												this.state.editTest_attempts,
 												() => this.setState({deleteTestPopperOpen: false}) && this.props.showSnackBar("success", "Change successful!"),
 												(e) => this.props.showSnackBar("error", e.error)
@@ -453,6 +456,17 @@ export default class ManageClasses extends Component {
 			</List>
 		</React.Fragment>)
 	}
+	 handleDateChange(date) {
+        var d = new Date(date);
+        let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" +
+            ("00" + d.getDate()).slice(-2) + "" +
+            ("00" + d.getHours()).slice(-2) + "" +
+            ("00" + d.getMinutes()).slice(-2) + "";
+        _date = d.getFullYear() + "" + _date;
+        this.setState({
+	        deadline: _date,
+	        _deadline: date });
+    };
 
 	detailsCard_selectedTest_cardHeader(selectedTest, uniqueKey1) {
 		return (
@@ -1336,7 +1350,7 @@ export default class ManageClasses extends Component {
 
 function dateForServer(date) {
 	/* takes the date from MUI picker and converts it for the server*/
-	var d = new Date(date);
+	const d = new Date(date);
 	let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" +
 			("00" + d.getDate()).slice(-2) + "" +
 			("00" + d.getHours()).slice(-2) + "" +
