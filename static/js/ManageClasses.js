@@ -371,7 +371,8 @@ export default class ManageClasses extends Component {
 				editTest_name: selectedTest.name,
 				editTest_time: selectedTest.timer,
 				editTest_attempts: selectedTest.attempts,
-				editTest_date: selectedTest.deadline,
+				_editTest_date: new Date().toISOString(),
+                editTest_date : new Date()
 			})
 		}
 		return (<React.Fragment>
@@ -421,8 +422,8 @@ export default class ManageClasses extends Component {
 								margin='normal'
 								style={{width: '46%', margin: '2%'}}
 								label="Deadline"
-								value={this.state.editTest_date}
-								onChange={e => this.setState(this.handleDateChange.bind(this))}
+								value={this.state._editTest_date}
+								onChange={e => this.handleDateChange(this.state._editTest_date)}
 						/>
 						<br/>
 						<div style={{float: 'right', position: 'relative'}}>
@@ -464,8 +465,8 @@ export default class ManageClasses extends Component {
             ("00" + d.getMinutes()).slice(-2) + "";
         _date = d.getFullYear() + "" + _date;
         this.setState({
-	        deadline: _date,
-	        _deadline: date });
+	        editTest_date: _date,
+	        _editTest_date: date });
     };
 
 	detailsCard_selectedTest_cardHeader(selectedTest, uniqueKey1) {
