@@ -20,6 +20,7 @@ import Divider from '@material-ui/core/Divider';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
+import { HomeOutlined, BuildOutlined, HelpOutline, ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu } from '@material-ui/icons';
 import ListItem from '@material-ui/core/ListItem/ListItem';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
@@ -321,6 +322,8 @@ class Layout extends React.Component {
       return (
           <React.Fragment>
                {
+                   <HomeOutlined
+                       TimerIcon />
                     section === 'Take Test' &&  // if the current section is take test
                     minutesRemainingUponResumingTest !== null // if the minutesRemaining value exists
                         ? <TimerComp
