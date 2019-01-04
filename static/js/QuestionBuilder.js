@@ -247,11 +247,10 @@ export default class QuestionBuilder extends Component {
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                         <Typography variant='title'>Math</Typography>
-                        <IconButton onClick={() => this.setState({currentlyEditing: null})}>
-                            <Done/></IconButton>
+                        <IconButton onClick={() => this.saveMath()}><Done/></IconButton>
                     </div>
                     <div><TextField multiline value={this.state.editorMath} style={{width: '100%'}}
-                                    onChange={v => this.setState({editorMath: v.target.value})}/></div>
+                                    onChange={this.editMath.bind(this)}/></div>
                 </Fragment>
             );
         else if (this.state.currentlyEditing === 'PREVIEW') {
@@ -272,8 +271,7 @@ export default class QuestionBuilder extends Component {
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                         <Typography variant='title'>Math</Typography>
-                        <IconButton onClick={() => this.setState({currentlyEditing: 'math'})}>
-                            <Edit/></IconButton>
+                        <IconButton onClick={() => this.startEditingMath()}><Edit/></IconButton>
                     </div>
                     {this.state.editorMath.map(x => {
                         if (x.text)
@@ -302,8 +300,7 @@ export default class QuestionBuilder extends Component {
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                         <Typography variant='title'>Main Prompt</Typography>
-                        <IconButton onClick={() => this.setState({currentlyEditing: null})}>
-                            <Done/></IconButton>
+                        <IconButton onClick={() => this.saveMainPrompt()}><Done/></IconButton>
                     </div>
                     <div><TextField multiline value={this.state.editorPrompt} style={{width: '100%'}}
                                     onChange={v => this.setState({editorPrompt: v.target.value})}/></div>
@@ -316,8 +313,7 @@ export default class QuestionBuilder extends Component {
                     <Fragment>
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                             <Typography variant='title'>Main Prompt</Typography>
-                            <IconButton onClick={() => this.setState({currentlyEditing: 'mainPrompt'})}>
-                                <Edit/></IconButton>
+                            <IconButton onClick={() => this.startEditingMainPrompt()}><Edit/></IconButton>
                         </div>
                         {getMathJax(formatString(editorPrompt.prompt, editorPrompt.strings))}
                     </Fragment>
@@ -327,8 +323,7 @@ export default class QuestionBuilder extends Component {
                     <Fragment>
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                             <Typography variant='title'>Main Prompt</Typography>
-                            <IconButton onClick={() => this.setState({currentlyEditing: 'mainPrompt'})}>
-                                <Edit/></IconButton>
+                            <IconButton onClick={() => this.startEditingMainPrompt()}><Edit/></IconButton>
                         </div>
                         {getMathJax(editorPrompt.prompt)}
                     </Fragment>
@@ -350,8 +345,7 @@ export default class QuestionBuilder extends Component {
                                 this.setState({editorPrompts: prompts, currentlyEditing: null});
                             }}>
                                 <Delete/></IconButton>
-                            <IconButton onClick={() => this.setState({currentlyEditing: null})}>
-                                <Done/></IconButton>
+                            <IconButton onClick={() => this.saveSubPrompt()}><Done/></IconButton>
                         </div>
                     </div>
                     <div><Select value={x.type} style={{width: '100%'}}
@@ -378,8 +372,7 @@ export default class QuestionBuilder extends Component {
                     <Fragment>
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                             <Typography variant='title'>Prompt {y + 1}</Typography>
-                            <IconButton onClick={() => this.setState({currentlyEditing: 'prompt' + y})}>
-                                <Edit/></IconButton>
+                            <IconButton onClick={() => this.startEditingSubPrompt(y)}><Edit/></IconButton>
                         </div>
                         <AnswerInput key={prompt + x.type} disabled type={x.type} prompt={prompt}/>
                     </Fragment>
@@ -390,8 +383,7 @@ export default class QuestionBuilder extends Component {
                     <Fragment>
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                             <Typography variant='title'>Prompt {y + 1}</Typography>
-                            <IconButton onClick={() => this.setState({currentlyEditing: 'prompt' + y})}>
-                                <Edit/></IconButton>
+                            <IconButton onClick={() => this.startEditingSubPrompt(y)}><Edit/></IconButton>
                         </div>
                         <AnswerInput key={prompt + x.type} disabled type={x.type} prompt={prompt}/>
                     </Fragment>
@@ -412,7 +404,7 @@ export default class QuestionBuilder extends Component {
                                 criteria.splice(Number(this.state.currentlyEditing.slice(8)), 1);
                                 this.setState({editorCriteria: criteria, currentlyEditing: null});
                             }}><Delete/></IconButton>
-                            <IconButton onClick={() => this.setState({currentlyEditing: null})}>
+                            <IconButton onClick={() => this.saveCriteria()}>
                                 <Done/></IconButton>
                         </div>
                     </div>
@@ -433,7 +425,7 @@ export default class QuestionBuilder extends Component {
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                         <Typography variant='title'>Criteria {y + 1} ({x.points} points)</Typography>
-                        <IconButton onClick={() => this.setState({currentlyEditing: 'criteria' + y})}>
+                        <IconButton onClick={() => this.startEditingCriteria(y)}>
                             <Edit/></IconButton>
                     </div>
                     {getMathJax('\\(' + x.LaTeX + '\\)')}
@@ -595,6 +587,51 @@ export default class QuestionBuilder extends Component {
             + '；' + this.state.editorPrompts.map(x => x.type).join('，')
             + '；' + qStringExplanations.join('，')
             + '；' + comments.join('，');
+    }
+
+    startEditingMath() {
+        this.setState({currentlyEditing: 'math'});
+        // Todo
+    }
+
+    saveMath() {
+        this.setState({currentlyEditing: undefined});
+        // Todo
+    }
+
+    startEditingMainPrompt() {
+        this.setState({currentlyEditing: 'mainPrompt'});
+        // Todo
+    }
+
+    saveMainPrompt() {
+        this.setState({currentlyEditing: undefined});
+        // Todo
+    }
+
+    startEditingSubPrompt(index) {
+        this.setState({currentlyEditing: 'prompt' + index});
+        // Todo
+    }
+
+    saveSubPrompt() {
+        this.setState({currentlyEditing: undefined});
+        // Todo
+    }
+
+    startEditingCriteria(index) {
+        this.setState({currentlyEditing: 'criteria' + index});
+        // Todo
+    }
+
+    saveCriteria() {
+        this.setState({currentlyEditing: undefined});
+        // Todo
+    }
+
+    editMath(event) {
+        this.setState({editorMath: event.target.value});
+        // Todo
     }
 }
 

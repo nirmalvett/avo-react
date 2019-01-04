@@ -9,13 +9,13 @@ from server.MathCode.question2 import AvoQuestion as AvoQuestion2
 
 class AvoQuestion:
     def __init__(self, question: str, seed=0):
-        if question.count('；') == 8:  # 9 segments
-            q = AvoQuestion2(question, seed)
-            self._alternate = True
-            self.prompt = q.prompt
-            self.prompts = q.prompts
-            self.types = q.types
-            self.var_list = q.var_list
+        self._alternate = question.count('；') == 8  # 9 segments
+        if self._alternate:
+            self._q = AvoQuestion2(question, seed)
+            self.prompt = self._q.prompt
+            self.prompts = self._q.prompts
+            self.types = self._q.types
+            self.var_list = self._q.var_list
             return
         question = question.split('；')
         if len(question) != 5:
@@ -110,6 +110,13 @@ class AvoQuestion:
         self.var_list += stack
 
     def get_score(self, *answers):
+        if self._alternate:
+            self.score = self._q.score
+            self.scores = self._q.scores
+            self.totals = self._q.totals
+            self.explanation = self._q.explanation
+            self._q.get_score(*answers)
+            return self.score
         if len(answers) != len(self.types):
             raise ValueError("Wrong number of answers")
         for i in range(len(answers)):
