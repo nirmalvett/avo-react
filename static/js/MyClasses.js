@@ -408,8 +408,9 @@ export default class MyClasses extends React.Component {
 						<Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
 							Tax: ${tax}
 						</Typography>
+						<br/>
 						<Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
-							Total: ${discountPrice + tax}
+							Total: ${(discountPrice + tax).toFixed(2)}
 						</Typography>
 					</React.Fragment>
 			)
@@ -425,7 +426,7 @@ export default class MyClasses extends React.Component {
 						</Typography>
 						<br/>
 						<Typography component={'span'} variant='body1' color="textPrimary" classes={{root: "avo-padding__16px"}}>
-							Total: ${discountPrice + tax}
+							Total: ${(discountPrice + tax).toFixed(2)}
 						</Typography>
 					</React.Fragment>
 
