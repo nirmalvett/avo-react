@@ -470,7 +470,8 @@ def enroll():
         return jsonify(message='Enrolled!')
     else:
         return jsonify(id=current_class.CLASS, price=current_class.price, discount=current_class.price_discount,
-                       freeTrial=free_trial)
+                       tax=round(current_class.price_discount * 0.13, 2),
+                       totalprice=round(current_class.price_discount * 1.13, 2), freeTrial=free_trial)
 
 
 @routes.route('/changeMark', methods=['POST'])
@@ -1267,7 +1268,7 @@ def create_payment():
             'transactions': [
                 {
                     'amount': {
-                        'total': str(current_class[0].price_discount),
+                        'total': str(round(current_class[0].price_discount * 1.13, 2)),
                         'currency': 'CAD'
                     },
                     'description': "Description that actually describes the product, don't flake on this because"
@@ -1276,7 +1277,7 @@ def create_payment():
                         'items': [
                             {
                                 'name': 'Avo ' + current_class[0].name,
-                                'price': str(current_class[0].price_discount),
+                                'price': str(round(current_class[0].price_discount * 1.13, 2)),
                                 'currency': 'CAD',
                                 'quantity': 1
                             }
