@@ -980,7 +980,8 @@ def change_test():
         return abort(400)
     data = request.json  # Data from client
     test, timer, name, deadline = data['test'], data['timer'], data['name'], data['deadline']
-    if not isinstance(test, int) or not isinstance(timer, int) or not isinstance(name, str):
+    if not isinstance(test, int) or not isinstance(timer, int) or not isinstance(name, str) \
+            or not isinstance(deadline, int):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
     deadline = datetime.fromtimestamp(deadline)
