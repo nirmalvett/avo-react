@@ -423,7 +423,7 @@ export default class ManageClasses extends Component {
 								style={{width: '46%', margin: '2%'}}
 								label="Deadline"
 								value={this.state._editTest_date}
-								onChange={e => this.handleDateChange(this.state._editTest_date)}
+								onChange={this.handleDateChange.bind(this)}
 						/>
 						<br/>
 						<div style={{float: 'right', position: 'relative'}}>
