@@ -4,10 +4,19 @@ from inspect import signature
 from math import sqrt, sin, cos, tan, asin, acos, atan, pi
 from re import fullmatch, sub, search
 from typing import List, Any
+from server.MathCode.question2 import AvoQuestion as AvoQuestion2
 
 
 class AvoQuestion:
     def __init__(self, question: str, seed=0):
+        if question.count('；') == 8:  # 9 segments
+            q = AvoQuestion2(question, seed)
+            self._alternate = True
+            self.prompt = q.prompt
+            self.prompts = q.prompts
+            self.types = q.types
+            self.var_list = q.var_list
+            return
         question = question.split('；')
         if len(question) != 5:
             raise SyntaxError(f'Received wrong number of parts: {len(question)}')

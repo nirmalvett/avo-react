@@ -10,7 +10,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import Http from './Http';
 import {copy, getMathJax} from './Utilities';
-import {buildMathCode, buildPlainText, strNotation, varNotation} from './QuestionBuilderUtils';
+import {buildMathCode, buildPlainText, formatString, strNotation, varNotation} from './QuestionBuilderUtils';
 import AnswerInput from './AVOAnswerInput/AnswerInput';
 import Done from '@material-ui/icons/Done';
 import Edit from '@material-ui/icons/Edit';
@@ -20,64 +20,105 @@ import Refresh from '@material-ui/icons/Refresh';
 import Warning from '@material-ui/icons/Warning';
 import ArrowBack from '@material-ui/icons/ArrowBack';
 import Assignment from '@material-ui/icons/Assignment';
-import {array, func} from "prop-types";
+import {object, func} from "prop-types";
 
 export default class QuestionBuilder extends Component {
     constructor(props) {
         super(props);
         let {initWith} = this.props;
-        let string = initWith.sets[initWith.selectedS].questions[initWith.selectedQ].string.toString();
-        let sections = string.split('；').map(x => x.split('，'));
-        let math = sections[0];
-        let types = sections[2];
-        let comments = sections[4].map(x => x.length === 0 ? x : (' # ' + x));
-
-        let editorMath = [];
-        while (math.length !== 0 && !math[0].includes('_') && !math[0].endsWith('%'))
-            editorMath.push(buildPlainText(math.splice(0, 1)[0])[0] + comments.splice(0, 1)[0]);
-
-        let stringEquations = [];
-        while (math.length !== 0 && !math[0].includes('%'))
-            stringEquations.push(buildPlainText(math.splice(0,1)[0])[0]);
-
-        let prompts = sections[1].map(x => varNotation(x, stringEquations));
-        let explanations = sections[3].map(x => varNotation(x, stringEquations));
-
-        let editorCriteria = [];
-        while (math.length !== 0) {
-            let match = /^(.*?) (\d+(?:\.\d+)?) %$/.exec(math.splice(0, 1)[0]);
-            editorCriteria.push({
-                points: match[2],
-                criteria: buildPlainText(match[1])[0],
-                explanation: explanations.splice(0, 1)[0]
-            });
-        }
+        // let string = initWith.sets[initWith.selectedS].questions[initWith.selectedQ].string.toString();
+        // let sections = string.split('；').map(x => x.split('，'));
+        // let math = sections[0];
+        // let types = sections[2];
+        // let comments = sections[4].map(x => x.length === 0 ? x : (' # ' + x));
+        //
+        // let editorMath = [];
+        // while (math.length !== 0 && !math[0].includes('_') && !math[0].endsWith('%'))
+        //     editorMath.push(buildPlainText(math.splice(0, 1)[0])[0] + comments.splice(0, 1)[0]);
+        //
+        // let stringEquations = [];
+        // while (math.length !== 0 && !math[0].includes('%'))
+        //     stringEquations.push(buildPlainText(math.splice(0,1)[0])[0]);
+        //
+        // let prompts = sections[1].map(x => varNotation(x, stringEquations));
+        // let explanations = sections[3].map(x => varNotation(x, stringEquations));
+        //
+        // let editorCriteria = [];
+        // while (math.length !== 0) {
+        //     let match = /^(.*?) (\d+(?:\.\d+)?) %$/.exec(math.splice(0, 1)[0]);
+        //     editorCriteria.push({
+        //         points: match[2],
+        //         criteria: buildPlainText(match[1])[0],
+        //         explanation: explanations.splice(0, 1)[0]
+        //     });
+        // }
 
         this.state = {
             selectedS: initWith.selectedS, // Selected Set
             selectedQ: initWith.selectedQ, // Selected Question
             sets: initWith.sets,
             preview: {},
-            editorMath: editorMath.join('\n'),
-            editorPrompt: prompts[0],
-            editorPrompts: prompts.slice(1).map((x,y) => {return {prompt: x, type: types[y]};}),
-            editorCriteria: editorCriteria,
+            editorMath: [
+                {varName: '1', expr: '$1=1+1', LaTeX: '1+1', comment: '123'},
+                {varName: '2', expr: '2+2', LaTeX: '2+2', comment: ''},
+            ],
+            editorPrompt: {
+                prompt: 'This is the main prompt, it contains \\(<0>\\).',
+                strings: [
+                    {expr: '$1', LaTeX: '$1'},
+                    // {expr: '/', error: 'Missing first operand for /'}
+                ]
+            },
+            editorPrompts: [
+                {
+                    type: '2',
+                    prompt: 'This is the 1st sub-prompt, it contains \\(<0>\\).',
+                    strings: [
+                        {expr: '$1', LaTeX: '$1'},
+                        // {expr: '/', error: 'Missing first operand for /'}
+                    ]
+                },
+                {
+                    type: '6',
+                    prompt: 'This is the 2nd sub-prompt, it contains \\(<0>\\) and \\(<1>\\).',
+                    strings: [
+                        {expr: '$1', LaTeX: '$1'},
+                        {expr: '123', LaTeX: '123'}
+                    ]
+                }
+            ],
+            editorCriteria: [
+                {
+                    expr: '1=1',
+                    points: '1',
+                    explanation: '',
+                    LaTeX: '1=1',
+                    strings: [],
+                },
+                {
+                    expr: '2=2',
+                    points: '2',
+                    explanation: '/You got it right!',
+                    LaTeX: '2=2',
+                    strings: [],
+                },
+            ],
             currentlyEditing: null,
             editorSeed: Math.round(65536*Math.random()),
             initError: false,
             savedString: string,
         };
 
-        let initString = string.substr(0, string.lastIndexOf('；'));
-        let compileString = this.compile();
-        compileString = compileString.substr(0, compileString.lastIndexOf('；'));
-        if (initString !== compileString) {
-            this.state.initError = true;
-            console.log("Warning: This question could not be recompiled to its initial state." +
-                " Check the diff below before saving.");
-            console.log("Server: " + initString);
-            console.log("Local:  " + compileString);
-        }
+        // let initString = string.substr(0, string.lastIndexOf('；'));
+        // let compileString = this.compile();
+        // compileString = compileString.substr(0, compileString.lastIndexOf('；'));
+        // if (initString !== compileString) {
+        //     this.state.initError = true;
+        //     console.log("Warning: This question could not be recompiled to its initial state." +
+        //         " Check the diff below before saving.");
+        //     console.log("Server: " + initString);
+        //     console.log("Local:  " + compileString);
+        // }
     }
 
     render() {
@@ -131,7 +172,7 @@ export default class QuestionBuilder extends Component {
             );
         return (
             <Fragment>
-                {this.renderButtons()}
+                {/*{this.renderButtons()}*/}
                 <Grid container spacing={8} style={{flex: 1, margin: 0}}>
                     <Grid item xs={8} style={{flex: 1, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
                         <Card style={cardStyle}>{this.renderMathCard()}</Card>
@@ -227,26 +268,6 @@ export default class QuestionBuilder extends Component {
             });
             return steps;
         } else {
-            let steps = this.state.editorMath.split('\n');
-            // steps = steps.map(x => {
-            //     let result = /([A-Z]\w*) ?=([^#]+)(?:#(.*))?/.exec(x);
-            //     if (result === null)
-            //         return <Typography color='error'>{x}</Typography>;
-            //     if (result[3] === undefined)
-            //         return getMathJax('\\(\\small\\text{' + result[1] + '}=' + buildMathCode(result[2])[2] + "\\)");
-            //     return getMathJax('\\(\\small\\text{' + result[1] + '}=' + buildMathCode(result[2])[2]
-            //         + "\\color{grey}{\\text{ # " + result[3] + "}}\\)");
-            // });
-            steps = steps.map(x => {
-                let result = /([^#]+)(?:#(.*))?/.exec(x);
-                // noinspection JSValidateTypes
-                if (result === null)
-                    return <Typography color='error'>{x}</Typography>;
-                if (result[2] === undefined)
-                    return getMathJax('\\(\\small ' + buildMathCode(result[1])[2] + "\\)");
-                return getMathJax('\\(\\small ' + buildMathCode(result[1])[2]
-                    + "\\color{grey}{\\text{ # " + result[2] + "}}\\)");
-            });
             return (
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -254,7 +275,22 @@ export default class QuestionBuilder extends Component {
                         <IconButton onClick={() => this.setState({currentlyEditing: 'math'})}>
                             <Edit/></IconButton>
                     </div>
-                    {steps}
+                    {this.state.editorMath.map(x => {
+                        if (x.text)
+                            return <p>{x.text}</p>;
+                        if (x.error)
+                            return (
+                                <Fragment>
+                                    <p>{x.varName} = {x.expr}<span color='#ff0000'>{'\t' + x.error}</span></p>
+                                </Fragment>
+                            );
+                        return (
+                            <Fragment>
+                                {getMathJax('\\(\\small ' + x.varName + '=' + x.LaTeX + '\\)')}
+                                <span color='#808080'>{x.comment}</span>
+                            </Fragment>
+                        );
+                    })}
                 </Fragment>
             );
         }
@@ -275,24 +311,29 @@ export default class QuestionBuilder extends Component {
             );
         else {
             let {editorPrompt} = this.state;
-            while (/`.*?`/.test(editorPrompt)) {
-                let match = /`(.*?)`/.exec(editorPrompt);
-                editorPrompt = editorPrompt.slice(0, match.index)
-                    + '\\color{#5599ff}{'
-                    + buildMathCode(match[1])[2].replace(/\\color{.*?}/g, '')
-                    + '}'
-                    + editorPrompt.slice(match.index + match[0].length);
+            if (editorPrompt.strings) {
+                return (
+                    <Fragment>
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <Typography variant='title'>Main Prompt</Typography>
+                            <IconButton onClick={() => this.setState({currentlyEditing: 'mainPrompt'})}>
+                                <Edit/></IconButton>
+                        </div>
+                        {getMathJax(formatString(editorPrompt.prompt, editorPrompt.strings))}
+                    </Fragment>
+                );
+            } else {
+                return (
+                    <Fragment>
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <Typography variant='title'>Main Prompt</Typography>
+                            <IconButton onClick={() => this.setState({currentlyEditing: 'mainPrompt'})}>
+                                <Edit/></IconButton>
+                        </div>
+                        {getMathJax(editorPrompt.prompt)}
+                    </Fragment>
+                );
             }
-            return (
-                <Fragment>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <Typography variant='title'>Main Prompt</Typography>
-                        <IconButton onClick={() => this.setState({currentlyEditing: 'mainPrompt'})}>
-                            <Edit/></IconButton>
-                    </div>
-                    {getMathJax(editorPrompt)}
-                </Fragment>
-            );
         }
     }
 
@@ -331,23 +372,31 @@ export default class QuestionBuilder extends Component {
                 </Fragment>
             );
         } else {
-            let {prompt} = x;
-            while (/`.*?`/.test(prompt)) {
-                let match = /`(.*?)`/.exec(prompt);
-                prompt = prompt.slice(0, match.index)
-                    + buildMathCode(match[1])[2]
-                    + prompt.slice(match.index + match[0].length);
+            if (x.strings) {
+                let prompt = formatString(x.prompt, x.strings);
+                return (
+                    <Fragment>
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <Typography variant='title'>Prompt {y + 1}</Typography>
+                            <IconButton onClick={() => this.setState({currentlyEditing: 'prompt' + y})}>
+                                <Edit/></IconButton>
+                        </div>
+                        <AnswerInput key={prompt + x.type} disabled type={x.type} prompt={prompt}/>
+                    </Fragment>
+                );
+            } else {
+                let prompt = x.prompt;
+                return (
+                    <Fragment>
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <Typography variant='title'>Prompt {y + 1}</Typography>
+                            <IconButton onClick={() => this.setState({currentlyEditing: 'prompt' + y})}>
+                                <Edit/></IconButton>
+                        </div>
+                        <AnswerInput key={prompt + x.type} disabled type={x.type} prompt={prompt}/>
+                    </Fragment>
+                );
             }
-            return (
-                <Fragment>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <Typography variant='title'>Prompt {y + 1}</Typography>
-                        <IconButton onClick={() => this.setState({currentlyEditing: 'prompt' + y})}>
-                            <Edit/></IconButton>
-                    </div>
-                    <AnswerInput key={prompt + x.type} disabled type={x.type} prompt={prompt}/>
-                </Fragment>
-            );
         }
     }
 
@@ -387,8 +436,8 @@ export default class QuestionBuilder extends Component {
                         <IconButton onClick={() => this.setState({currentlyEditing: 'criteria' + y})}>
                             <Edit/></IconButton>
                     </div>
-                    {getMathJax('\\(' + buildMathCode(x.criteria)[2] + '\\)')}
-                    {getMathJax(x.explanation)}
+                    {getMathJax('\\(' + x.LaTeX + '\\)')}
+                    {getMathJax(formatString(x.explanation, x.strings))}
                 </Fragment>
             );
     }
@@ -551,5 +600,5 @@ export default class QuestionBuilder extends Component {
 
 QuestionBuilder.propTypes = {
     initManager: func.isRequired,
-    initWith: array.isRequired,
+    initWith: object.isRequired,
 };

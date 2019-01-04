@@ -457,3 +457,15 @@ export function strNotation(str, strList) {
     str = str.replace(/[{}]/g, "$&$&").replace(/《/g, '{').replace(/》/g, '}');
     return str;
 }
+
+export function formatString(string, strings) {
+    while (/<\d+>/.test(string)) {
+        let match = /<(\d+)>/.exec(string);
+        string = string.slice(0, match.index)
+            + '\\color{#5599ff}{'
+            + strings[Number(match[1])].LaTeX.replace(/\\color{.*?}/g, '')
+            + '}'
+            + string.slice(match.index + match[0].length);
+    }
+    return string;
+}
