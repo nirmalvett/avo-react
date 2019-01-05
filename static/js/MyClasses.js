@@ -144,34 +144,46 @@ export default class MyClasses extends React.Component {
 						</ListItem>
 						<Divider/>
 						<ListSubheader style={{position: 'relative'}}>Classes</ListSubheader>
-						{this.state.classes.map((cls, cIndex) =>
-								<Fragment key={"MyClasses" + cls.id + "-" + cIndex}>
-									<ListItem button onClick={() => {
-										this.selectClass(cIndex);
-										this.handleClassListItemClick();
-									}}>
-										<PeopleOutlinedIcon color='action'/>
-										<ListItemText inset primary={cls.name}/>
-										{cls.open
-												? <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
-												: <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
-										}
-									</ListItem>
-									<Collapse in={cls.open} timeout='auto' unmountOnExit><List>{
-										cls.tests.map((test, tIndex) =>
-												<ListItem
-														key={'MyClasses' + cls.id + '-' + cIndex + '-' + test.id + '-' + tIndex}
-														button
-														onClick={() => {
-															this.getTestStats(test.id, cIndex, tIndex);
-														}}>
-													<AssessmentOutlinedIcon color={test.open ? 'primary' : 'disabled'}
-													                        style={{marginLeft: '10px'}}/>
-													<ListItemText inset primary={test.name}/>
-												</ListItem>)
-									}</List></Collapse>
-								</Fragment>
-						)}
+                        {this.state.classes.length == 0 ? (
+                            <Fragment>
+                                <div class="avo-loading-icon"></div>
+                                <br/>
+                                <center>
+                                    <Typography component={'span'} variant='body1' color='textPrimary' classes={{root: 'avo-padding__16px'}}>
+                                        Loading...
+                                    </Typography>
+                                </center>
+                            </Fragment>
+                        ) : (
+                            this.state.classes.map((cls, cIndex) =>
+                                    <Fragment key={"MyClasses" + cls.id + "-" + cIndex}>
+                                        <ListItem button onClick={() => {
+                                            this.selectClass(cIndex);
+                                            this.handleClassListItemClick();
+                                        }}>
+                                            <PeopleOutlinedIcon color='action'/>
+                                            <ListItemText inset primary={cls.name}/>
+                                            {cls.open
+                                                    ? <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
+                                                    : <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
+                                            }
+                                        </ListItem>
+                                        <Collapse in={cls.open} timeout='auto' unmountOnExit><List>{
+                                            cls.tests.map((test, tIndex) =>
+                                                    <ListItem
+                                                            key={'MyClasses' + cls.id + '-' + cIndex + '-' + test.id + '-' + tIndex}
+                                                            button
+                                                            onClick={() => {
+                                                                this.getTestStats(test.id, cIndex, tIndex);
+                                                            }}>
+                                                        <AssessmentOutlinedIcon color={test.open ? 'primary' : 'disabled'}
+                                                                                style={{marginLeft: '10px'}}/>
+                                                        <ListItemText inset primary={test.name}/>
+                                                    </ListItem>)
+                                        }</List></Collapse>
+                                    </Fragment>
+                            )
+                        )}
 					</List>
 				</Paper>
 

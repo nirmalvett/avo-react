@@ -298,3 +298,19 @@ td {
     vertical-align: top !important;
     padding: 16px !important;
 }
+
+.avo-loading-icon {
+    height: 150px;
+    width: 100%;
+    background: url(7b1f637ae150f7c9c0bb237f003e2de5.svg) center no-repeat !important;
+    background-size: 60%;
+    opacity:1;  
+    transform: scale(0.5);
+    animation: flickerAnimation 1.5s infinite;
+}
+
+@keyframes flickerAnimation { /* flame pulses */
+  0%   { opacity:1; }
+  50%  { opacity:0.25; }
+  100% { opacity:1; }
+}

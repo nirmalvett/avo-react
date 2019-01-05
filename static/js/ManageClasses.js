@@ -78,7 +78,7 @@ export default class ManageClasses extends Component {
 		const t = this.state.t;
 		const c = this.state.c;
 		// this gets the class results
-		Http.getClasses(result => this.setState(result), result => console.log(result));
+		Http.getClasses(result => {this.setState(result)}, result => console.log(result));
 		if (snackBarString !== undefined)
 			this.props.showSnackBar('success', snackBarString);
 	}
@@ -127,6 +127,19 @@ export default class ManageClasses extends Component {
 	}
 
 	sideBar_loadClasses() {
+        if(this.state.classes.length == 0) {
+            return  (
+                <Fragment>
+                    <div class="avo-loading-icon"></div>
+                    <br/>
+                    <center>
+                        <Typography component={'span'} variant='body1' color='textPrimary' classes={{root: 'avo-padding__16px'}}>
+						    Loading...
+					    </Typography>
+                    </center>
+                </Fragment>
+            );
+        }
 		return (this.state.classes.map((cls, cIndex) =>
 				<Fragment key={'ManageClasses' + cls.id + '-' + cIndex}>
 					<ListItem button onClick={() => {
