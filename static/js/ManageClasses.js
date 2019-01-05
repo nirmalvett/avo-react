@@ -66,6 +66,7 @@ export default class ManageClasses extends Component {
 			editTest_time: null,
 			editTest_date: null,
 			editTest_name: null,
+			editTest_confirm_text: "Confirm" // first time it's Confirm after that it's "Change Again"
 		};
 	}
 
@@ -74,11 +75,14 @@ export default class ManageClasses extends Component {
 	};
 
 	loadClasses(snackBarString) {
+		const t = this.state.t;
+		const c = this.state.c;
 		// this gets the class results
 		Http.getClasses(result => this.setState(result), result => console.log(result));
 		if (snackBarString !== undefined)
 			this.props.showSnackBar('success', snackBarString);
 	}
+
 
 	render() {
 		return (
@@ -430,7 +434,10 @@ export default class ManageClasses extends Component {
 						<div style={{float: 'right', position: 'relative'}}>
 							<Button
 									classes={{root: 'avo-button'}}
-									onClick={() => this.setState({editTestPopperOpen: false})}
+									onClick={() => this.setState({
+										editTestPopperOpen: false,
+										editTest_confirm_text: "Confirm" // set back to default
+									})}
 									color='primary'>
 								Close
 							</Button>
@@ -442,18 +449,20 @@ export default class ManageClasses extends Component {
 												parseInt(this.state.editTest_time),
 												this.state.editTest_name,
 												dateForServer(this.state._editTest_date),
-												this.state.editTest_attempts,
+												parseInt(this.state.editTest_attempts),
 												() => {
-													this.setState({deleteTestPopperOpen: false});
-													this.loadClasses();
-													this.props.showSnackBar("success", "Change successful!");
+													this.setState({
+														deleteTestPopperOpen: false,
+														editTest_confirm_text: "Change again"
+													});
+													this.loadClasses("Change successful!");
 												},
 												(e) => this.props.showSnackBar("error", e.error)
 										)
 
 									}}
 									color='primary'>
-								Confirm Change
+								{ this.state.editTest_confirm_text }
 							</Button>
 						</div>
 					</Card>
