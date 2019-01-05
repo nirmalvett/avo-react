@@ -380,6 +380,7 @@ export default class ManageClasses extends Component {
 
 	loadEditTestPopper(selectedTest) {
 		const currentDate = serverToJSDate(selectedTest.deadline);
+
 		this.setState({
 			editTest_name: selectedTest.name,
 			editTest_time: selectedTest.timer,
@@ -466,12 +467,7 @@ export default class ManageClasses extends Component {
 														deleteTestPopperOpen: false,
 														editTest_confirm_text: "Change again",
 													});
-													this.handleChangeTest(
-															this.state.editTest_name,
-															parseInt(this.state.editTest_time),
-															parseInt(this.state.editTest_attempts),
-															this.state.editTest_date
-													);
+													this.loadClasses();
 													this.props.showSnackBar("success", "Change successful!");
 												},
 												(e) => this.props.showSnackBar("error", e.error)
@@ -1412,22 +1408,10 @@ function serverToJSDate(inputInt) {
 	const year = parseInt(strValue.substring(0, 4));
 	const month = parseInt(strValue.substring(4, 6)) - 1; // Date() is index based.....
 	const day = parseInt(strValue.substring(6, 8));
-	const hours = parseInt(strValue.substring(8, 10));
-	const minutes = parseInt(strValue.substring(10, 12));
-	const seconds = parseInt(strValue.substring(12, 14));
+	const hours = "00" ? 0 : parseInt(strValue.substring(8, 10));
+	const minutes = "00" ? 0 : parseInt(strValue.substring(10, 12));
+	const seconds = "00" ? 0 : parseInt(strValue.substring(12, 14));
 	const miliseconds = 0;
 	const date = new Date(year, month, day, hours, minutes, seconds, miliseconds);
 	return date;
-}
-
-function tConvert(time) {
-	// Check takes in a string time and returns it in 12 hour format with AM/PM
-	time = time.match(/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
-
-	if (time.length > 1) { // If time format correct
-		time = time.slice(1);  // Remove full string match value
-		time[5] = +time[0] < 12 ? 'AM' : 'PM'; // Set AM/PM
-		time[0] = +time[0] % 12 || 12; // Adjust hours
-	}
-	return time.join(''); // return adjusted time or original string
 }
