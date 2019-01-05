@@ -287,7 +287,7 @@ export default class ManageClasses extends Component {
 					<center>
 						<Typography component={'span'} variant='body1' color='textPrimary'>
                         <span style={{marginLeft: '0.75em', marginRight: '0.75em'}}>
-                            <b>Deadline:</b> {getDateString(selectedTest.deadline)}
+                            <b>Deadline: </b>{ getDateString(selectedTest.deadline) }
                         </span>
 							<span style={{marginLeft: '0.75em', marginRight: '0.75em'}}>
                             <b>Time Limit:</b> {selectedTest.timer === -1 ? ' None' : ' ' + selectedTest.timer + ' minutes'}
@@ -453,16 +453,22 @@ export default class ManageClasses extends Component {
 												() => {
 													this.setState({
 														deleteTestPopperOpen: false,
-														editTest_confirm_text: "Change again"
+														editTest_confirm_text: "Change again",
 													});
-													this.loadClasses("Change successful!");
+													this.handleChangeTest(
+															this.state.editTest_name,
+															parseInt(this.state.editTest_time),
+															parseInt(this.state.editTest_attempts),
+															this.state.editTest_date
+													);
+													this.props.showSnackBar("success", "Change successful!");
 												},
 												(e) => this.props.showSnackBar("error", e.error)
 										)
 
 									}}
 									color='primary'>
-								{ this.state.editTest_confirm_text }
+								{this.state.editTest_confirm_text}
 							</Button>
 						</div>
 					</Card>
@@ -471,6 +477,19 @@ export default class ManageClasses extends Component {
 			</List>
 		</React.Fragment>)
 	}
+
+	handleChangeTest(name, timer, attempts, deadline) {
+		const classes = copy(this.state.classes);
+		let selectedClass = classes[this.state.c];
+		let selectedTest = selectedClass.tests[this.state.t];
+		selectedTest.name = name;
+		selectedTest.timer = timer;
+		selectedTest.attempts = attempts;
+		selectedTest.deadline = deadline;
+		this.setState({classes: classes})
+
+	}
+
 
 	handleDateChange(date) {
 		var d = new Date(date);
@@ -1387,4 +1406,16 @@ function serverToJSDate(inputInt) {
 	const miliseconds = 0;
 	const date = new Date(year, month, day, hours, minutes, seconds, miliseconds);
 	return date;
+}
+
+function tConvert (time) {
+  // Check takes in a string time and returns it in 12 hour format with AM/PM
+  time = time.match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+  if (time.length > 1) { // If time format correct
+    time = time.slice (1);  // Remove full string match value
+    time[5] = +time[0] < 12 ? 'AM' : 'PM'; // Set AM/PM
+    time[0] = +time[0] % 12 || 12; // Adjust hours
+  }
+  return time.join (''); // return adjusted time or original string
 }
