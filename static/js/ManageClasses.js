@@ -375,8 +375,6 @@ export default class ManageClasses extends Component {
 				_editTest_date: currentDate.toISOString(),
 				editTest_date: currentDate
 			});
-			console.log("date from server", selectedTest.deadline);
-			console.log("new Date(selectedTest.deadline).toISOString()", new Date(selectedTest.deadline).toISOString())
 		}
 		return (<React.Fragment>
 			<List style={{flex: 1, overflowY: 'auto'}} dense>
@@ -439,7 +437,6 @@ export default class ManageClasses extends Component {
 							<Button
 									classes={{root: 'avo-button'}}
 									onClick={() => {
-										this.setState({deleteTestPopperOpen: false});
 										Http.changeTest(
 												selectedTest.id,
 												parseInt(this.state.editTest_time),
@@ -450,7 +447,7 @@ export default class ManageClasses extends Component {
 													this.setState({deleteTestPopperOpen: false});
 													this.loadClasses();
 													this.props.showSnackBar("success", "Change successful!");
-
+													console.log("State after success", this.state);
 												},
 												(e) => this.props.showSnackBar("error", e.error)
 										)
