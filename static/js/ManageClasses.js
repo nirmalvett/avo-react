@@ -367,13 +367,16 @@ export default class ManageClasses extends Component {
 
 	editTestPopper(selectedTest) {
 		if (this.state.editTest_name === null) {
+			const currentDate = serverToJSDate(selectedTest.deadline);
 			this.setState({
 				editTest_name: selectedTest.name,
 				editTest_time: selectedTest.timer,
 				editTest_attempts: selectedTest.attempts,
-				_editTest_date: new Date().toISOString(),
-				editTest_date: new Date()
-			})
+				_editTest_date: currentDate.toISOString(),
+				editTest_date: currentDate
+			});
+			console.log("date from server", selectedTest.deadline);
+			console.log("new Date(selectedTest.deadline).toISOString()", new Date(selectedTest.deadline).toISOString())
 		}
 		return (<React.Fragment>
 			<List style={{flex: 1, overflowY: 'auto'}} dense>
@@ -443,7 +446,7 @@ export default class ManageClasses extends Component {
 												this.state.editTest_name,
 												dateForServer(this.state._editTest_date),
 												this.state.editTest_attempts,
-												() =>{
+												() => {
 													this.setState({deleteTestPopperOpen: false});
 													this.loadClasses();
 													this.props.showSnackBar("success", "Change successful!");
@@ -1367,4 +1370,20 @@ function dateForServer(date) {
 			("00" + d.getMinutes()).slice(-2) + "";
 	_date = d.getFullYear() + "" + _date;
 	return _date;
+}
+
+function serverToJSDate(inputInt) {
+	// take the int given by the server and return a valid Date object
+	// new Date(year, month, day, hours, minutes, seconds, milliseconds)
+	// 20190112003100
+	const strValue = inputInt.toString();
+	const year = parseInt(strValue.substring(0, 4));
+	const month = parseInt(strValue.substring(4, 6)) - 1; // Date() is index based.....
+	const day = parseInt(strValue.substring(6, 8));
+	const hours = parseInt(strValue.substring(8, 10));
+	const minutes = parseInt(strValue.substring(10, 12));
+	const seconds = parseInt(strValue.substring(12, 14));
+	const miliseconds = 0;
+	const date = new Date(year, month, day, hours, minutes, seconds, miliseconds);
+	return date;
 }
