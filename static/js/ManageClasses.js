@@ -144,7 +144,16 @@ export default class ManageClasses extends Component {
 						// For each test create a menu option
 						cls.tests.map((test, tIndex) =>
 								<ListItem key={'ManageClasses' + cls.id + '-' + cIndex + '-' + test.id + '-' + tIndex}
-								          button onClick={() => this.getTestStats(test.id, cIndex, tIndex)}>
+								          button onClick={
+									() => {
+										this.loadEditTestPopper(test);
+										this.setState({
+											editTestPopperOpen: false,
+											deleteTestPopperOpen: false
+										}); // close the editTest Popper
+										this.getTestStats(test.id, cIndex, tIndex);
+									}
+								}>
 									<AssessmentOutlined color={test.open ? 'primary' : 'disabled'}
 									                    style={{marginLeft: '10px'}}/>
 									<ListItemText inset primary={test.name}/>
@@ -287,7 +296,7 @@ export default class ManageClasses extends Component {
 					<center>
 						<Typography component={'span'} variant='body1' color='textPrimary'>
                         <span style={{marginLeft: '0.75em', marginRight: '0.75em'}}>
-                            <b>Deadline: </b>{ getDateString(selectedTest.deadline) }
+                            <b>Deadline: </b>{getDateString(selectedTest.deadline)}
                         </span>
 							<span style={{marginLeft: '0.75em', marginRight: '0.75em'}}>
                             <b>Time Limit:</b> {selectedTest.timer === -1 ? ' None' : ' ' + selectedTest.timer + ' minutes'}
@@ -369,17 +378,18 @@ export default class ManageClasses extends Component {
 		</React.Fragment>)
 	}
 
+	loadEditTestPopper(selectedTest) {
+		const currentDate = serverToJSDate(selectedTest.deadline);
+		this.setState({
+			editTest_name: selectedTest.name,
+			editTest_time: selectedTest.timer,
+			editTest_attempts: selectedTest.attempts,
+			_editTest_date: currentDate.toISOString(),
+			editTest_date: currentDate
+		});
+	}
+
 	editTestPopper(selectedTest) {
-		if (this.state.editTest_name === null) {
-			const currentDate = serverToJSDate(selectedTest.deadline);
-			this.setState({
-				editTest_name: selectedTest.name,
-				editTest_time: selectedTest.timer,
-				editTest_attempts: selectedTest.attempts,
-				_editTest_date: currentDate.toISOString(),
-				editTest_date: currentDate
-			});
-		}
 		return (<React.Fragment>
 			<List style={{flex: 1, overflowY: 'auto'}} dense>
 				<Popper
@@ -436,7 +446,8 @@ export default class ManageClasses extends Component {
 									classes={{root: 'avo-button'}}
 									onClick={() => this.setState({
 										editTestPopperOpen: false,
-										editTest_confirm_text: "Confirm" // set back to default
+										editTest_confirm_text: "Confirm", // set back to default
+										editTest_name: null,
 									})}
 									color='primary'>
 								Close
@@ -489,7 +500,6 @@ export default class ManageClasses extends Component {
 		this.setState({classes: classes})
 
 	}
-
 
 	handleDateChange(date) {
 		var d = new Date(date);
@@ -752,8 +762,10 @@ export default class ManageClasses extends Component {
 
 	selectTest(cIndex, tIndex) {
 		Http.getClassTestResults(this.state.classes[cIndex].tests[tIndex].id,
-				(result) => this.setState({c: cIndex, t: tIndex, results: result.results}),
-				() => this.setState({c: cIndex, t: tIndex, results: []})
+				(result) => this.setState({
+					c: cIndex, t: tIndex, results: result.results, editTest_name: null, editTestPopperOpen: false
+				}),
+				() => this.setState({c: cIndex, t: tIndex, results: [], editTest_name: null, editTestPopperOpen: false})
 		);
 	}
 
@@ -1408,14 +1420,14 @@ function serverToJSDate(inputInt) {
 	return date;
 }
 
-function tConvert (time) {
-  // Check takes in a string time and returns it in 12 hour format with AM/PM
-  time = time.match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+function tConvert(time) {
+	// Check takes in a string time and returns it in 12 hour format with AM/PM
+	time = time.match(/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
 
-  if (time.length > 1) { // If time format correct
-    time = time.slice (1);  // Remove full string match value
-    time[5] = +time[0] < 12 ? 'AM' : 'PM'; // Set AM/PM
-    time[0] = +time[0] % 12 || 12; // Adjust hours
-  }
-  return time.join (''); // return adjusted time or original string
+	if (time.length > 1) { // If time format correct
+		time = time.slice(1);  // Remove full string match value
+		time[5] = +time[0] < 12 ? 'AM' : 'PM'; // Set AM/PM
+		time[0] = +time[0] % 12 || 12; // Adjust hours
+	}
+	return time.join(''); // return adjusted time or original string
 }
