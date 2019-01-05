@@ -25,7 +25,6 @@ yaml_file.close()
 # todo not sure if this is the right place for it, just setting up paypal credentials
 paypalrestsdk.configure(
     {
-        # 'mode': 'live',
         'mode': yaml_obj['paypal_mode'],
         # todo get Frank to set up the account id/secret
         'client_id': config.PAYPAL_ID,
@@ -1356,11 +1355,23 @@ def confirm_payment():
 @routes.route('/cancel', methods=['POST'])
 def cancel_order():
     """
-    Cancel Payment
-    :return:
+    Cancel Payment by removing from Transaction Processing Table
+    :return: Confirmation
     """
-    # TODO figure out if this still needs to be implimented
-    return jsonify(code="hello")
+    if not request.json:
+        # If the request is not JSON return a 400 error
+        return abort(400)
+
+    tid = request.json['tid']  # Data from client
+    transaction_processing = TransactionProcessing.query.get(tid)
+    if transaction_processing is None:
+        # If transaction is not in database return error json
+        return jsonify(error="Transaction not found")
+
+    # Remove data from database
+    db.session.delete(transaction_processing)
+    db.session.commit()
+    return jsonify(code="Cancelled")
 
 
 @routes.route('/freeTrial', methods=['POST'])

@@ -178,7 +178,7 @@ def login():
         return jsonify("One or more data is not correct")
     try:
         # Try to create the user from the email if not throw error JSON
-        user = User.query.filter(User.email == username).first()
+        user = User.query.filter(User.email == username).one()
     except NoResultFound:
         return jsonify(error='Account does not exist!')
     if not check_password(password, user.salt, user.password):
