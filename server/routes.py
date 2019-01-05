@@ -979,11 +979,17 @@ def change_test():
         # If the request isn't JSON return a 400 error
         return abort(400)
     data = request.json  # Data from client
-    test, timer, name, deadline = data['test'], data['timer'], data['name'], data['deadline']
-    if not isinstance(test, int) or not isinstance(timer, int) or not isinstance(name, str) \
-            or not isinstance(deadline, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
+    test, timer, name, deadline, attempts = data['test'], data['timer'], data['name'], data['deadline'], data['attempts']
+    if not isinstance(test, int):
+        return jsonify(error="Invalid Input: Test needs to be an int, Test is " + str(type(test)))
+    if not isinstance(timer, int):
+        return jsonify(error="Invalid Input: Timer needs to be an int, " + str(type(timer)))
+    if not isinstance(name, str):
+        return jsonify(error="Invalid Input: Name needs to be an int, " + str(type(name)))
+    if not isinstance(deadline, int):
+        return jsonify(error="Invalid Input: Deadline needs to be an int, Deadline is type: " + str(type(deadline)))
+    if not isinstance(attempts, int):
+        return jsonify(error="Invalid Input: Attempts needs to be an int, " + str(type(attempts)))
     deadline = datetime.fromtimestamp(deadline)
     test = Test.query.get(test)  # Gets the test object
     if not teaches_class(test.CLASS):
@@ -993,6 +999,7 @@ def change_test():
     test.deadline = deadline
     test.timer = timer
     test.name = name
+    test.attempts = attempts
 
     db.session.commit()
     return jsonify(code="Test Updated")
