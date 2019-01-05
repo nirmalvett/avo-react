@@ -111,7 +111,6 @@ def get_classes():
     Get the current users classes available to them
     :return: A list of class data
     """
-    print(datetime.now())
     teach_classes = []  # The classes the current user teaches
     if current_user.is_teacher is True:
         # If the current user is a teacher query the data base for teaching classes
@@ -202,7 +201,6 @@ def get_classes():
                             'standardDeviation': round(class_stdev, 2),
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
-    print(datetime.now())
     return jsonify(classes=class_list)
 
 
@@ -981,20 +979,30 @@ def change_test():
     if not request.json:
         # If the request isn't JSON return a 400 error
         return abort(400)
-    data = request.json # Data from client
-    test, timer, name, deadline = data['test'], data['timer'], data['name'], data['deadline']
-    if not isinstance(test, int) or not isinstance(timer, int) or not isinstance(name, str) or not \
-            isinstance(deadline, datetime):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-    test = Test.query.get(test) # Gets the test object
+    data = request.json  # Data from client
+    test, timer, name, deadline, attempts = data['test'], data['timer'], data['name'], data['deadline'], data['attempts']
+    if not isinstance(test, int):
+        return jsonify(error="Invalid Input: Test needs to be an int, Test is " + str(type(test)))
+    if not isinstance(timer, int):
+        return jsonify(error="Invalid Input: Timer needs to be an int, " + str(type(timer)))
+    if not isinstance(name, str):
+        return jsonify(error="Invalid Input: Name needs to be an int, " + str(type(name)))
+    if not isinstance(deadline, str):
+        return jsonify(error="Invalid Input: Deadline needs to be a str, Deadline is type: " + str(type(deadline)))
+    if not isinstance(attempts, int):
+        return jsonify(error="Invalid Input: Attempts needs to be an int, " + str(type(attempts)))
+    deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
+    deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
+    test = Test.query.get(test)  # Gets the test object
     if not teaches_class(test.CLASS):
         # If the teacher doesn't teach the class the test is in return error
         return jsonify(error="User does not teach class")
+
     # Updates Test data
     test.deadline = deadline
     test.timer = timer
     test.name = name
+    test.attempts = attempts
 
     db.session.commit()
     return jsonify(code="Test Updated")
