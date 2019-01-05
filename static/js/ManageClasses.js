@@ -201,7 +201,7 @@ export default class ManageClasses extends Component {
 	detailsCard() {
 		// This is the rendering logic for what goes inside the card on the right
 		let selectedClass = this.state.classes[this.state.c];
-		const uniqueKey1 = uniqueKey();
+		const uniqueKey1 = 1; // This is no longer used instead we use proper keys
 		if (this.state.t !== null) { // If a test is selected
 			let {topMarkPerStudent, totalMark} = this.state.testStats;
 			const analyticsDataObj = convertListFloatToAnalytics(topMarkPerStudent, totalMark);
@@ -233,7 +233,7 @@ export default class ManageClasses extends Component {
 							title={selectedClass.name}
 							classes={{root: 'avo-card__header'}}
 							subheader={'Enroll Key: ' + selectedClass.enrollKey}
-							action={<Fragment key={`Action-:${uniqueKey1}`}>
+							action={<Fragment key={`Action-:${uniqueKey1} ${selectedClass.name}`}>
 								<Tooltip title='Create a new Test'>
 									<IconButton onClick={() => this.state.createTest(selectedClass.id)}>
 										<NoteAddOutlined/>
@@ -447,7 +447,6 @@ export default class ManageClasses extends Component {
 													this.setState({deleteTestPopperOpen: false});
 													this.loadClasses();
 													this.props.showSnackBar("success", "Change successful!");
-													console.log("State after success", this.state);
 												},
 												(e) => this.props.showSnackBar("error", e.error)
 										)
@@ -851,7 +850,6 @@ export default class ManageClasses extends Component {
 				this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent,
 				this.state.testStats.questions[this.state.testStatsDataQuestionIdx].totalMark
 		);
-		console.log(dataObj);
 		return {
 			chart: {
 				fontFamily: 'Roboto',
@@ -967,7 +965,6 @@ export default class ManageClasses extends Component {
 
 	getTestCardGraphOptions() {
 		let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
-		console.log(selectedTest);
 		return {
 			chart: {
 				fontFamily: 'Roboto',
@@ -1206,7 +1203,6 @@ export default class ManageClasses extends Component {
 		Http.getTestStats(
 				testID,
 				(result) => {
-					console.log(result);
 					Http.getClassTestResults(this.state.classes[cIndex].tests[tIndex].id,
 							(_result) => {
 								let resultsIndexArray = [];
@@ -1359,7 +1355,6 @@ export default class ManageClasses extends Component {
 
 function dateForServer(date) {
 	/* takes the date from MUI picker and converts it for the server*/
-	console.log("date in dateForServer()", date);
 	const d = new Date(date);
 	let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" +
 			("00" + d.getDate()).slice(-2) + "" +
