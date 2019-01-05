@@ -7,14 +7,13 @@ from datetime import datetime, timedelta
 import sys
 from git import Repo
 import paypalrestsdk
-import config
 from yaml import load
+import statistics
 
+import config
 from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
-
 from server.models import *
-import statistics
 
 routes = Blueprint('routes', __name__)
 
