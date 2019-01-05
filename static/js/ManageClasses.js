@@ -366,13 +366,13 @@ export default class ManageClasses extends Component {
 	}
 
 	editTestPopper(selectedTest) {
-		if (this.state.editTest_name === null){
+		if (this.state.editTest_name === null) {
 			this.setState({
 				editTest_name: selectedTest.name,
 				editTest_time: selectedTest.timer,
 				editTest_attempts: selectedTest.attempts,
 				_editTest_date: new Date().toISOString(),
-                editTest_date : new Date()
+				editTest_date: new Date()
 			})
 		}
 		return (<React.Fragment>
@@ -440,9 +440,11 @@ export default class ManageClasses extends Component {
 												selectedTest.id,
 												parseInt(this.state.editTest_time),
 												this.state.editTest_name,
-												dateForServer(this.state.editTest_date),
+												dateForServer(this.state._editTest_date),
 												this.state.editTest_attempts,
-												() => this.setState({deleteTestPopperOpen: false}) && this.props.showSnackBar("success", "Change successful!"),
+												() =>
+														this.setState({deleteTestPopperOpen: false}) &&
+														this.props.showSnackBar("success", "Change successful!"),
 												(e) => this.props.showSnackBar("error", e.error)
 										)
 
@@ -457,17 +459,19 @@ export default class ManageClasses extends Component {
 			</List>
 		</React.Fragment>)
 	}
-	 handleDateChange(date) {
-        var d = new Date(date);
-        let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" +
-            ("00" + d.getDate()).slice(-2) + "" +
-            ("00" + d.getHours()).slice(-2) + "" +
-            ("00" + d.getMinutes()).slice(-2) + "";
-        _date = d.getFullYear() + "" + _date;
-        this.setState({
-	        editTest_date: _date,
-	        _editTest_date: date });
-    };
+
+	handleDateChange(date) {
+		var d = new Date(date);
+		let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" +
+				("00" + d.getDate()).slice(-2) + "" +
+				("00" + d.getHours()).slice(-2) + "" +
+				("00" + d.getMinutes()).slice(-2) + "";
+		_date = d.getFullYear() + "" + _date;
+		this.setState({
+			editTest_date: _date,
+			_editTest_date: date
+		});
+	};
 
 	detailsCard_selectedTest_cardHeader(selectedTest, uniqueKey1) {
 		return (
@@ -1351,6 +1355,7 @@ export default class ManageClasses extends Component {
 
 function dateForServer(date) {
 	/* takes the date from MUI picker and converts it for the server*/
+	console.log("date in dateForServer()", date);
 	const d = new Date(date);
 	let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" +
 			("00" + d.getDate()).slice(-2) + "" +

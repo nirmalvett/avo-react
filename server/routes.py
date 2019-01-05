@@ -986,15 +986,17 @@ def change_test():
         return jsonify(error="Invalid Input: Timer needs to be an int, " + str(type(timer)))
     if not isinstance(name, str):
         return jsonify(error="Invalid Input: Name needs to be an int, " + str(type(name)))
-    if not isinstance(deadline, int):
-        return jsonify(error="Invalid Input: Deadline needs to be an int, Deadline is type: " + str(type(deadline)))
+    if not isinstance(deadline, str):
+        return jsonify(error="Invalid Input: Deadline needs to be a str, Deadline is type: " + str(type(deadline)))
     if not isinstance(attempts, int):
         return jsonify(error="Invalid Input: Attempts needs to be an int, " + str(type(attempts)))
-    deadline = datetime.fromtimestamp(deadline)
+    deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
+    deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
     test = Test.query.get(test)  # Gets the test object
     if not teaches_class(test.CLASS):
         # If the teacher doesn't teach the class the test is in return error
         return jsonify(error="User does not teach class")
+
     # Updates Test data
     test.deadline = deadline
     test.timer = timer
