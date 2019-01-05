@@ -431,20 +431,24 @@ export default class ManageClasses extends Component {
 									classes={{root: 'avo-button'}}
 									onClick={() => this.setState({editTestPopperOpen: false})}
 									color='primary'>
-								Never mind
+								Close
 							</Button>
 							<Button
 									classes={{root: 'avo-button'}}
 									onClick={() => {
+										this.setState({deleteTestPopperOpen: false});
 										Http.changeTest(
 												selectedTest.id,
 												parseInt(this.state.editTest_time),
 												this.state.editTest_name,
 												dateForServer(this.state._editTest_date),
 												this.state.editTest_attempts,
-												() =>
-														this.setState({deleteTestPopperOpen: false}) &&
-														this.props.showSnackBar("success", "Change successful!"),
+												() =>{
+													this.setState({deleteTestPopperOpen: false});
+													this.loadClasses();
+													this.props.showSnackBar("success", "Change successful!");
+
+												},
 												(e) => this.props.showSnackBar("error", e.error)
 										)
 
