@@ -135,11 +135,11 @@ export default class ManageClasses extends Component {
         if(!this.state.classesLoaded) {
             return  (
                 <Fragment>
-                    <div class="avo-loading-icon"></div>
+                    <div className="avo-loading-icon" style={{ color : `${this.props.theme.color['500']}`}}></div>
                     <br/>
                     <center>
                         <Typography component={'span'} variant='body1' color='textPrimary' classes={{root: 'avo-padding__16px'}}>
-						    Loading...
+						    Loading your class data...
 					    </Typography>
                     </center>
                 </Fragment>

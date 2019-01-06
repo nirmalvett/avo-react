@@ -150,13 +150,13 @@ export default class MyClasses extends React.Component {
 						<ListSubheader style={{position: 'relative'}}>Classes</ListSubheader>
                         {!this.state.classesLoaded ? (
                             <Fragment>
-                                <div class="avo-loading-icon"></div>
-                                <br/>
-                                <center>
-                                    <Typography component={'span'} variant='body1' color='textPrimary' classes={{root: 'avo-padding__16px'}}>
-                                        Loading...
-                                    </Typography>
-                                </center>
+                                <div className="avo-loading-icon" style={{ color : `${this.props.theme.color['500']}`}}></div>
+								<br/>
+								<center>
+									<Typography component={'span'} variant='body1' color='textPrimary' classes={{root: 'avo-padding__16px'}}>
+										Loading your class data...
+									</Typography>
+								</center>
                             </Fragment>
                         ) : (
                             this.state.classes.map((cls, cIndex) =>
