@@ -44,6 +44,7 @@ export default class ManageClasses extends Component {
 		super(props);
 		this.state = {
 			classes: [],
+            classesLoaded: false,
 			c: null, // Selected class
 			t: null, // Selected test
 			createTest: this.props.createTest,
@@ -78,7 +79,11 @@ export default class ManageClasses extends Component {
 		const t = this.state.t;
 		const c = this.state.c;
 		// this gets the class results
-		Http.getClasses(result => {this.setState(result)}, result => console.log(result));
+		Http.getClasses(result => {
+                console.log(result);
+                this.setState({ classesLoaded : true, classes : result.classes });
+            }, 
+            result => console.log(result));
 		if (snackBarString !== undefined)
 			this.props.showSnackBar('success', snackBarString);
 	}
@@ -127,7 +132,7 @@ export default class ManageClasses extends Component {
 	}
 
 	sideBar_loadClasses() {
-        if(this.state.classes.length == 0) {
+        if(!this.state.classesLoaded) {
             return  (
                 <Fragment>
                     <div class="avo-loading-icon"></div>

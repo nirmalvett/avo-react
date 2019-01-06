@@ -53,6 +53,7 @@ export default class MyClasses extends React.Component {
 		super(props);
 		this.state = {
 			classes: [],
+            classesLoaded : false,
 			apexChartEl: undefined,
 			c: null, // Selected class
 			t: null, // Selected test
@@ -81,7 +82,10 @@ export default class MyClasses extends React.Component {
 		Http.getClasses(
 				(result) => {
 					// Todo: removing duplicates should be unnecessary
-					this.setState({classes: removeDuplicateClasses(result.classes)});
+					this.setState({
+                        classes: removeDuplicateClasses(result.classes), 
+                        classesLoaded : true
+                    });
 				},
 				(result) => {
 					console.log(result)
@@ -144,7 +148,7 @@ export default class MyClasses extends React.Component {
 						</ListItem>
 						<Divider/>
 						<ListSubheader style={{position: 'relative'}}>Classes</ListSubheader>
-                        {this.state.classes.length == 0 ? (
+                        {!this.state.classesLoaded ? (
                             <Fragment>
                                 <div class="avo-loading-icon"></div>
                                 <br/>
