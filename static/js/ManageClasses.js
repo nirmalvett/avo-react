@@ -162,7 +162,16 @@ export default class ManageClasses extends Component {
 						// For each test create a menu option
 						cls.tests.map((test, tIndex) =>
 								<ListItem key={'ManageClasses' + cls.id + '-' + cIndex + '-' + test.id + '-' + tIndex}
-								          button onClick={() => this.getTestStats(test.id, cIndex, tIndex)}>
+								          button onClick={
+									() => {
+										this.loadEditTestPopper(test);
+										this.setState({
+											editTestPopperOpen: false,
+											deleteTestPopperOpen: false
+										}); // close the editTest Popper
+										this.getTestStats(test.id, cIndex, tIndex);
+									}
+								}>
 									<AssessmentOutlined color={test.open ? 'primary' : 'disabled'}
 									                    style={{marginLeft: '10px'}}/>
 									<ListItemText inset primary={test.name}/>
@@ -305,7 +314,7 @@ export default class ManageClasses extends Component {
 					<center>
 						<Typography component={'span'} variant='body1' color='textPrimary'>
                         <span style={{marginLeft: '0.75em', marginRight: '0.75em'}}>
-                            <b>Deadline: </b>{ getDateString(selectedTest.deadline) }
+                            <b>Deadline: </b>{getDateString(selectedTest.deadline)}
                         </span>
 							<span style={{marginLeft: '0.75em', marginRight: '0.75em'}}>
                             <b>Time Limit:</b> {selectedTest.timer === -1 ? ' None' : ' ' + selectedTest.timer + ' minutes'}
@@ -387,17 +396,19 @@ export default class ManageClasses extends Component {
 		</React.Fragment>)
 	}
 
+	loadEditTestPopper(selectedTest) {
+		const currentDate = serverToJSDate(selectedTest.deadline);
+
+		this.setState({
+			editTest_name: selectedTest.name,
+			editTest_time: selectedTest.timer,
+			editTest_attempts: selectedTest.attempts,
+			_editTest_date: currentDate.toISOString(),
+			editTest_date: currentDate
+		});
+	}
+
 	editTestPopper(selectedTest) {
-		if (this.state.editTest_name === null) {
-			const currentDate = serverToJSDate(selectedTest.deadline);
-			this.setState({
-				editTest_name: selectedTest.name,
-				editTest_time: selectedTest.timer,
-				editTest_attempts: selectedTest.attempts,
-				_editTest_date: currentDate.toISOString(),
-				editTest_date: currentDate
-			});
-		}
 		return (<React.Fragment>
 			<List style={{flex: 1, overflowY: 'auto'}} dense>
 				<Popper
@@ -454,7 +465,8 @@ export default class ManageClasses extends Component {
 									classes={{root: 'avo-button'}}
 									onClick={() => this.setState({
 										editTestPopperOpen: false,
-										editTest_confirm_text: "Confirm" // set back to default
+										editTest_confirm_text: "Confirm", // set back to default
+										editTest_name: null,
 									})}
 									color='primary'>
 								Close
@@ -473,12 +485,7 @@ export default class ManageClasses extends Component {
 														deleteTestPopperOpen: false,
 														editTest_confirm_text: "Change again",
 													});
-													this.handleChangeTest(
-															this.state.editTest_name,
-															parseInt(this.state.editTest_time),
-															parseInt(this.state.editTest_attempts),
-															this.state.editTest_date
-													);
+													this.loadClasses();
 													this.props.showSnackBar("success", "Change successful!");
 												},
 												(e) => this.props.showSnackBar("error", e.error)
@@ -507,7 +514,6 @@ export default class ManageClasses extends Component {
 		this.setState({classes: classes})
 
 	}
-
 
 	handleDateChange(date) {
 		var d = new Date(date);
@@ -770,8 +776,10 @@ export default class ManageClasses extends Component {
 
 	selectTest(cIndex, tIndex) {
 		Http.getClassTestResults(this.state.classes[cIndex].tests[tIndex].id,
-				(result) => this.setState({c: cIndex, t: tIndex, results: result.results}),
-				() => this.setState({c: cIndex, t: tIndex, results: []})
+				(result) => this.setState({
+					c: cIndex, t: tIndex, results: result.results, editTest_name: null, editTestPopperOpen: false
+				}),
+				() => this.setState({c: cIndex, t: tIndex, results: [], editTest_name: null, editTestPopperOpen: false})
 		);
 	}
 
@@ -1418,22 +1426,10 @@ function serverToJSDate(inputInt) {
 	const year = parseInt(strValue.substring(0, 4));
 	const month = parseInt(strValue.substring(4, 6)) - 1; // Date() is index based.....
 	const day = parseInt(strValue.substring(6, 8));
-	const hours = parseInt(strValue.substring(8, 10));
-	const minutes = parseInt(strValue.substring(10, 12));
-	const seconds = parseInt(strValue.substring(12, 14));
+	const hours = "00" ? 0 : parseInt(strValue.substring(8, 10));
+	const minutes = "00" ? 0 : parseInt(strValue.substring(10, 12));
+	const seconds = "00" ? 0 : parseInt(strValue.substring(12, 14));
 	const miliseconds = 0;
 	const date = new Date(year, month, day, hours, minutes, seconds, miliseconds);
 	return date;
-}
-
-function tConvert (time) {
-  // Check takes in a string time and returns it in 12 hour format with AM/PM
-  time = time.match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
-
-  if (time.length > 1) { // If time format correct
-    time = time.slice (1);  // Remove full string match value
-    time[5] = +time[0] < 12 ? 'AM' : 'PM'; // Set AM/PM
-    time[0] = +time[0] % 12 || 12; // Adjust hours
-  }
-  return time.join (''); // return adjusted time or original string
 }
