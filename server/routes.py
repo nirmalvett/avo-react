@@ -109,6 +109,33 @@ def get_classes():
     Get the current users classes available to them
     :return: A list of class data
     """
+    """
+    # Gets all user Takes
+    test_query = db.session.execute("SELECT CLASS.CLASS, TEST.TEST, takes.grade, takes.time_started, takes.time_submitted, takes.TAKES"
+                                    " FROM CLASS"
+                                    " INNER JOIN enrolled ON enrolled.CLASS = CLASS.CLASS"
+                                    " INNER JOIN USER ON enrolled.USER = USER.USER"
+                                    " INNER JOIN TEST ON TEST.CLASS = enrolled.CLASS"
+                                    " INNER JOIN takes ON TEST.TEST = takes.TEST AND takes.USER = USER.USER"
+                                    " WHERE USER.USER = " + str(current_user.USER) + ";")
+    # Gets all classes with averages and STDEV
+    test_query_2 = db.session.execute("SELECT CLASS, enroll_key, class_name, TEST, test_name, is_open, deadline, timer, attempts, total, round(AVG(grade / total * 100), 2) as average, round(stddev(grade / total * 100), 2) as stdev"
+               " FROM ("
+               " SELECT CLASS.CLASS, CLASS.enroll_key, CLASS.name as class_name, TEST.TEST, TEST.name as test_name, TEST.is_open, TEST.deadline, TEST.timer, TEST.attempts, TEST.total, MAX(takes.grade) as grade"
+                            " FROM CLASS"
+                            " INNER JOIN enrolled ON enrolled.CLASS = CLASS.CLASS"
+                            " INNER JOIN USER u1 ON enrolled.USER = u1.USER"
+                            " INNER JOIN TEST ON TEST.CLASS = enrolled.CLASS"
+                            " INNER JOIN takes ON takes.TEST = TEST.TEST"
+                            " INNER JOIN USER u2 ON takes.USER = u2.USER AND NOT u2.is_teacher = 1"
+                            " WHERE u1.USER = " + str(current_user.USER) +
+                            " GROUP BY takes.USER, takes.TEST"
+                            " ) as  d"
+                            " GROUP BY TEST;")
+    for row in test_query_2:
+        # Iterate over each result
+        print(row.class_name)
+    """
     teach_classes = []  # The classes the current user teaches
     if current_user.is_teacher is True:
         # If the current user is a teacher query the data base for teaching classes
