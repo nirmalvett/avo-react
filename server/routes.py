@@ -21,11 +21,10 @@ yaml_file = open("config.yaml", 'r')
 yaml_obj = load(yaml_file)
 yaml_file.close()
 
-# todo not sure if this is the right place for it, just setting up paypal credentials
+# PayPal API Configuration
 paypalrestsdk.configure(
     {
         'mode': yaml_obj['paypal_mode'],
-        # todo get Frank to set up the account id/secret
         'client_id': config.PAYPAL_ID,
         'client_secret': config.PAYPAL_SECRET
     }
