@@ -178,7 +178,7 @@ def login():
         return jsonify("One or more data is not correct")
     try:
         # Try to create the user from the email if not throw error JSON
-        user = User.query.filter(User.email == username).first()
+        user = User.query.filter(User.email == username).one()
     except NoResultFound:
         return jsonify(error='Account does not exist!')
     if not check_password(password, user.salt, user.password):
@@ -257,9 +257,14 @@ def enrolled_in_class(class_id):
 
 
 def able_edit_set(setID):
+    """
+    Checks if current_user can edit selected set
+    :param setID: Set to check if user can edit
+    :return: True if user can edit false if not
+    """
     try:
         user_views_set = UserViewsSet.query.filter((setID == UserViewsSet.SET)
-                                               & (current_user.USER == UserViewsSet.USER)).first()
+                                                   & (current_user.USER == UserViewsSet.USER)).first()
     except NoResultFound:
         return False
     return user_views_set.can_edit
