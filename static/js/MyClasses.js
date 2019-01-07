@@ -38,7 +38,6 @@ import paypal from 'paypal-checkout';
 import {convertListFloatToAnalytics, getDistribution} from "./helpers";
 import AVOModal from './AVOMatComps/AVOMatModal';
 
-const CONST_ENROLLMENT_PAYMENT = true; // If this is true then it requires students to pay in order to enroll
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
 const CONST_TAB_MY_ATTEMPTS = 2;
@@ -203,7 +202,7 @@ export default class MyClasses extends React.Component {
 
 	enrollInClassPopper() {
 		console.log(this.state.enrollObj);
-		if (CONST_ENROLLMENT_PAYMENT) {
+		if (this.state.enrollObj !== undefined && this.state.enrollObj.discount > 0) {
 			return (<Popper
 					placement="right-start"
 					open={this.state.joinClassPopperOpen}
@@ -356,7 +355,8 @@ export default class MyClasses extends React.Component {
 					)}
 				</Paper>
 			</Popper>)
-		} else {
+		}
+		else {
 			return (<AVOModal
 					title='Enroll into a class'
 					target="avo-myclasses__enroll-button"
