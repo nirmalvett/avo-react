@@ -20,6 +20,7 @@ routes = Blueprint('routes', __name__)
 yaml_file = open("config.yaml", 'r')
 yaml_obj = load(yaml_file)
 yaml_file.close()
+print(">>> PayPal is set to " + str(yaml_obj['paypal_mode']) + " <<<")
 
 # PayPal API Configuration
 paypalrestsdk.configure(
