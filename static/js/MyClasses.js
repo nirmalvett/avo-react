@@ -203,7 +203,7 @@ export default class MyClasses extends React.Component {
 
 	enrollInClassPopper() {
 		console.log(this.state.enrollObj);
-		if (CONST_ENROLLMENT_PAYMENT) {
+		if (this.state.enrollObj !== undefined && this.state.enrollObj.discount > 0) {
 			return (<Popper
 					placement="right-start"
 					open={this.state.joinClassPopperOpen}
@@ -356,7 +356,8 @@ export default class MyClasses extends React.Component {
 					)}
 				</Paper>
 			</Popper>)
-		} else {
+		}
+		else {
 			return (<AVOModal
 					title='Enroll into a class'
 					target="avo-myclasses__enroll-button"
