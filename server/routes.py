@@ -430,10 +430,12 @@ def enroll():
     Enroll the current user in a class
     :return: Confirmation
     """
+    print("sanity check")
     if not request.json:
         # If the request isn't JSON then return a 400 error
         return abort(400)
     key = request.json['key']  # Data sent from user
+
     if not isinstance(key, str):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
@@ -460,7 +462,7 @@ def enroll():
         if trans_string.startswith("FREETRIAL-"):
             # If the transaction string starts with free trial set the availability of free trail to false
             free_trial = False
-    if current_class.price_discount == 0.0:
+    if current_class.price_discount == 0.00 or current_class.price_discount == 0:
         # Append current user to the class
         current_user.CLASS_ENROLLED_RELATION.append(current_class)
         db.session.commit()
