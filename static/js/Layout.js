@@ -11,7 +11,7 @@ import CreateTest from './CreateTest';
 import Preferences from './Preferences';
 import ManageClasses from './ManageClasses';
 import { avoGreen } from "./AVOCustomColors";
-import QuestionBuilder from "./QuestionBuilder";
+import QuestionBuilder from "./QuestionBuilder/QuestionBuilder";
 import QuestionBuilderDocs from "./QuestionBuilderDocs";
 import { MySnackbarContentWrapper } from "./AVOSnackBar";
 import AVOInClassTools from "./AVOInClassTools/AVOInClassTools";
@@ -28,7 +28,7 @@ import QuestionManager from "./QuestionManager";
 const drawerWidth = 240;
 const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
     amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
-    
+
 const styles = theme => ({
     drawerPaper: {
         position: 'relative',

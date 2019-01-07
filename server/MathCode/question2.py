@@ -83,14 +83,13 @@ class AvoQuestion:
         for token in token_list:
             # >> Variable Reference
             if fullmatch(r'\$\w+', token):
-                var_name = token[1:]
-                if var_name in self.var_list:
-                    stack.append(self.var_list[var_name])
+                if token in self.var_list:
+                    stack.append(self.var_list[token])
                 else:
-                    raise SyntaxError(f"Error: undefined variable reference: '${var_name}'")
+                    raise SyntaxError(f"Error: undefined variable reference: '${token}', in user defined dict {self.var_list}")
             # >> Answer Reference
             elif fullmatch(r'@\d+', token):
-                index = token[1:]
+                index = int(token[1:])
                 if index < len(self.ans_list):
                     stack.append(self.ans_list[index])
                 else:
@@ -140,7 +139,11 @@ class AvoQuestion:
     def get_score(self, *answers):
         # Read in the answer list
         if len(answers) != len(self.types):
-            raise ValueError("Wrong number of answers")
+            if all(map(lambda a: a == '', answers)):
+                print("warning: wrong number of answers.")
+                answers = [''] * len(answers)
+            else:
+                raise ValueError("Wrong number of answers")
         for i in range(len(self.types)):
             answer: Any = answers[i]
             answer_type = self.types[i]
@@ -195,7 +198,7 @@ class AvoQuestion:
 
         # Evaluate the criteria
         while len(self._criteria) != 0:
-            condition = self._step(self._criteria.pop(0))
+            condition = self._step(self._criteria.pop(0))[0]
             amount = self._points.pop(0)
 
             if str(self._explanations[0]).startswith('/'):
@@ -672,7 +675,7 @@ def build_polynomial(cell: str):
 
 
 q = AvoQuestion(
-    r'2 -1 -1 AF，$m FM；m，a—b—c—d—e—f；$m _A，$a _A，$m FP _A，$b _A；Suppose \(A={0}\). Write each of the'
+    r'2 -1 -1 AF，$m FM；$m，$a—$b—$c—$d—$e—$f；$m _A，$a _A，$m FP _A，$b _A；Suppose \(A={0}\). Write each of the'
     r' eigenvalues in decreasing order, and then their corresponding eigenvectors in the same order. {1}，'
     r'\(\lambda_1=\)，\(\lambda_2=\)，\(v_1=\)，\(v_2=\)；2，2，6，6；1，1，1，1；@0 $a CN，@1 $b CN，@2 $c GK FC HC FA，'
     r'@3 $d GK FC HC FA；The eigenvalues can be found by finding the characteristic polynomial of the matrix,'
