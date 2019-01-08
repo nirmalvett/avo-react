@@ -137,12 +137,10 @@ export default class QuestionManager extends Component {
     }
 
     renderQuestionList() {
-        if (this.state.selectedS === null)
-            return undefined;
-        else
+        if (this.state.selectedS !== null)
             return (
                 this.state.sets[this.state.selectedS].questions.map((question, index) =>
-                    <ListItem key = {question.id + '-' + index} button onClick={() => this.selectQuestion(index)}>
+                    <ListItem key={question.id + '-' + index} button onClick={() => this.selectQuestion(index)}>
                         <QuestionIcon color={this.state.selectedQ === index ? 'primary' : 'action'}/>
                         <ListItemText inset secondary={question.name}/>
                     </ListItem>
@@ -152,23 +150,21 @@ export default class QuestionManager extends Component {
 
     renderQuestionPreview() {
         let {preview} = this.state;
-        if (this.state.selectedQ === null)
-            return undefined;
-        else
+        if (this.state.selectedQ !== null)
             return (
-                <Fragment>
+                <Fragment key='ManagerPreview'>
                     {getMathJax(preview.prompt)}
                     {preview.prompts.map((x, y) => (
-                        <Fragment>
-                            <Divider key = { uniqueKey() } style={{marginTop: '10px', marginBottom: '10px'}}/>
-                            <AnswerInput key = { uniqueKey() } disabled type={preview.types[y]} prompt={x}/>
-                            </Fragment>
+                        <Fragment key={uniqueKey()}>
+                            <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>
+                            <AnswerInput disabled type={preview.types[y]} prompt={x}/>
+                        </Fragment>
                     ))}
                     {preview.explanation.map((x) => (
-                        <Fragment>
-                            <Divider key={uniqueKey()} style={{marginTop: '10px', marginBottom: '10px'}}/>
-                            <div key={uniqueKey()} style={{position: 'relative'}}>{getMathJax(x)}</div>
-                            </Fragment>
+                        <Fragment key={uniqueKey()}>
+                            <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>
+                            <div style={{position: 'relative'}}>{getMathJax(x)}</div>
+                        </Fragment>
                     ))}
                 </Fragment>
             );

@@ -1,5 +1,3 @@
-import traceback
-
 from server.MathCode.AvoVariable import AvoVariable, AvoRandom,\
     MATRIX, BASIS, error, boolean, number, matrix, basis, mc_ans, tf_ans, vector_free_vars, polynomial, get_types
 from inspect import signature
@@ -13,16 +11,12 @@ class AvoQuestion:
     def __init__(self, question: str, seed=0):
         self._alternate = question.count('；') == 8  # 9 segments
         if self._alternate:
-            try:
-                self._q = AvoQuestion2(question, seed)
-                self.prompt = self._q.prompt
-                self.prompts = self._q.prompts
-                self.types = self._q.types
-                self.var_list = self._q.var_list
-                return
-            except Exception as e:
-                print(e)
-                raise RuntimeError()
+            self._q = AvoQuestion2(question, seed)
+            self.prompt = self._q.prompt
+            self.prompts = self._q.prompts
+            self.types = self._q.types
+            self.var_list = self._q.var_list
+            return
         question = question.split('；')
         if len(question) != 5:
             raise SyntaxError(f'Received wrong number of parts: {len(question)}')
@@ -117,19 +111,17 @@ class AvoQuestion:
 
     def get_score(self, *answers):
         if self._alternate:
-            try:
-                self.score = self._q.score
-                self.scores = self._q.scores
-                self.totals = self._q.totals
-                self.explanation = self._q.explanation
-                self._q.get_score(*answers)
-                return self.score
-            except Exception as e:
-                traceback.print_tb(e.__traceback__)
-                print(e)
-                raise RuntimeError()
+            self.score = self._q.score
+            self.scores = self._q.scores
+            self.totals = self._q.totals
+            self.explanation = self._q.explanation
+            self._q.get_score(*answers)
+            return self.score
         if len(answers) != len(self.types):
-            raise ValueError("Wrong number of answers")
+            if all(map(lambda a: a == '', answers)):
+                answers = [''] * len(self.types)
+            else:
+                raise ValueError("Wrong number of answers")
         for i in range(len(answers)):
             answer: Any = answers[i]
             answer_type = self.types[i]

@@ -23,6 +23,7 @@ import Refresh from '@material-ui/icons/Refresh';
 import Warning from '@material-ui/icons/Warning';
 import ArrowBack from '@material-ui/icons/ArrowBack';
 import Assignment from '@material-ui/icons/Assignment';
+import Cancel from '@material-ui/icons/CancelOutlined';
 import {object, func} from "prop-types";
 import {Preview, renderHints} from "./QuestionBuilderRender";
 
@@ -39,14 +40,20 @@ export default class QuestionBuilder extends Component {
             preview: {},
             currentlyEditing: null,
             editorSeed: Math.round(65536*Math.random()),
-            initError: false,
+            initError: 0,
             savedString: questionString,
             content: null,
         }, initOld(questionString));
 
         let compileString = compile(this.state);
         if (questionString !== compileString) {
-            this.state.initError = true;
+            this.state.initError = 1;
+            Http.sampleQuestion(questionString, 0, undefined, result1 => {
+                Http.sampleQuestion(compileString, 0, undefined, result2 => {
+                    if (JSON.stringify(result1) !== JSON.stringify(result2))
+                        this.setState({initError: 2});
+                }, () => this.setState({initError: 2}))
+            }, () => this.setState({initError: 2}));
             console.log("Warning: This question could not be recompiled to its initial state." +
                 " Check the diff below before saving.");
             console.log("Server: " + questionString);
@@ -76,8 +83,10 @@ export default class QuestionBuilder extends Component {
                         <Card style={cardStyle}>{this.renderMainPromptCard()}</Card>
                         <Divider style={dividerStyle}/>
 
-                        {this.state.editorPrompts.map(
-                            (x, y) => <Card style={cardStyle}>{this.renderSubPromptCard(x, y)}</Card>
+                        {this.state.editorPrompts.map((x, y) =>
+                            <Card style={cardStyle} key={'prompt' + x.prompt + x.type + y}>
+                                {this.renderSubPromptCard(x, y)}
+                            </Card>
                         )}
                         <div style={{margin: 8}}>
                             <Button variant='outlined' style={{width: '100%'}} onClick={() => this.addPrompt()}>
@@ -86,8 +95,10 @@ export default class QuestionBuilder extends Component {
                         </div>
                         <Divider style={dividerStyle}/>
 
-                        {this.state.editorCriteria.map(
-                            (x, y) => <Card style={cardStyle}>{this.renderCriteriaCard(x, y)}</Card>
+                        {this.state.editorCriteria.map((x, y) =>
+                            <Card style={cardStyle} key={'criteria' + x.points + x.criteria + x.explanation + y}>
+                                {this.renderCriteriaCard(x, y)}
+                            </Card>
                         )}
                         <div style={{margin: 8}}>
                             <Button variant='outlined' style={{width: '100%'}} onClick={() => this.addCriteria()}>
@@ -108,14 +119,19 @@ export default class QuestionBuilder extends Component {
 
     renderButtons() {
         let disableSave = compile(this.state) === this.state.savedString;
+        let warning = [
+            null,
+            <IconButton disabled><Warning style={{color: '#ff8800'}}/></IconButton>,
+            <IconButton disabled><Warning color='error'/></IconButton>,
+        ][this.state.initError];
         if (this.state.currentlyEditing === 'PREVIEW')
             return (
                 <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: 5}}>
                     <IconButton onClick={() => this.returnToManager()}><ArrowBack/></IconButton>
                     <IconButton onClick={() => this.editorSave()} disabled={disableSave}><Save/></IconButton>
-                    <IconButton onClick={() => this.setState({currentlyEditing: null})}><Edit color='primary'/></IconButton>
+                    <IconButton onClick={() => this.cancel()}><Edit color='primary'/></IconButton>
                     <IconButton onClick={() => this.editorNewSeed()}><Refresh/></IconButton>
-                    {this.state.initError ? <IconButton disabled><Warning color='error'/></IconButton> : null}
+                    {warning}
                 </div>
             );
         else
@@ -124,7 +140,7 @@ export default class QuestionBuilder extends Component {
                     <IconButton onClick={() => this.returnToManager()}><ArrowBack/></IconButton>
                     <IconButton onClick={() => this.editorSave()} disabled={disableSave}><Save/></IconButton>
                     <IconButton onClick={() => this.editorPreview()}><Assignment/></IconButton>
-                    {this.state.initError ? <IconButton disabled><Warning color='error'/></IconButton> : null}
+                    {warning}
                 </div>
             );
     }
@@ -152,7 +168,10 @@ export default class QuestionBuilder extends Component {
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                         <Typography variant='title'>Math</Typography>
-                        <IconButton disabled={errors.length > 0} onClick={() => this.saveMath()}><Done/></IconButton>
+                        <div>
+                            <IconButton onClick={() => this.cancel()}><Cancel/></IconButton>
+                            <IconButton disabled={errors.length > 0} onClick={() => this.saveMath()}><Done/></IconButton>
+                        </div>
                     </div>
                     <div><TextField multiline value={this.state.content} style={{width: '100%'}}
                                     onChange={event => this.setState({content: event.target.value})}/></div>
@@ -171,10 +190,10 @@ export default class QuestionBuilder extends Component {
                     <Typography variant='title'>Math</Typography>
                     <IconButton onClick={() => this.startEditingMath()}><Edit/></IconButton>
                 </div>
-                {this.state.editorMath.map(x => (
+                {this.state.editorMath.map((x, y) => (
                     x.comment.length === 0
-                        ? getMathJax('\\(\\small ' + x.varNames.join(', ') + '=' + x.LaTeX + '\\)')
-                        : getMathJax('\\(\\small ' + x.varNames.join(', ') + '=' + x.LaTeX + '\\) # ' + x.comment)
+                        ? getMathJax('\\(\\small ' + x.varNames.join(', ') + '=' + x.LaTeX + '\\)', undefined, y)
+                        : getMathJax('\\(\\small ' + x.varNames.join(', ') + '=' + x.LaTeX + '\\) # ' + x.comment, undefined, y)
                 ))}
             </Fragment>
         );
@@ -187,8 +206,12 @@ export default class QuestionBuilder extends Component {
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                         <Typography variant='title'>Main Prompt</Typography>
-                        <IconButton disabled={errors.length > 0}
-                                    onClick={() => this.saveMainPrompt()}><Done/></IconButton>
+                        <div>
+                            <IconButton onClick={() => this.cancel()}><Cancel/></IconButton>
+                            <IconButton disabled={errors.length > 0} onClick={() => this.saveMainPrompt()}>
+                                <Done/>
+                            </IconButton>
+                        </div>
                     </div>
                     <div><TextField multiline value={this.state.content} style={{width: '100%'}}
                                     onChange={v => this.setState({content: v.target.value})}/></div>
@@ -237,6 +260,7 @@ export default class QuestionBuilder extends Component {
                                 this.setState({editorPrompts: prompts, currentlyEditing: null});
                             }}>
                                 <Delete/></IconButton>
+                            <IconButton onClick={() => this.cancel()}><Cancel/></IconButton>
                             <IconButton disabled={errors.length > 0}
                                         onClick={() => this.saveSubPrompt()}><Done/></IconButton>
                         </div>
@@ -274,7 +298,7 @@ export default class QuestionBuilder extends Component {
                             <Typography variant='title'>Prompt {y + 1}</Typography>
                             <IconButton onClick={() => this.startEditingSubPrompt(y)}><Edit/></IconButton>
                         </div>
-                        <AnswerInput key={prompt + x.type} disabled type={x.type} prompt={prompt}/>
+                        <AnswerInput disabled type={x.type} prompt={prompt}/>
                     </Fragment>
                 );
             } else {
@@ -285,7 +309,7 @@ export default class QuestionBuilder extends Component {
                             <Typography variant='title'>Prompt {y + 1}</Typography>
                             <IconButton onClick={() => this.startEditingSubPrompt(y)}><Edit/></IconButton>
                         </div>
-                        <AnswerInput key={prompt + x.type} disabled type={x.type} prompt={prompt}/>
+                        <AnswerInput disabled type={x.type} prompt={prompt}/>
                     </Fragment>
                 );
             }
@@ -308,6 +332,7 @@ export default class QuestionBuilder extends Component {
                                 criteria.splice(Number(this.state.currentlyEditing.slice(8)), 1);
                                 this.setState({editorCriteria: criteria, currentlyEditing: null});
                             }}><Delete/></IconButton>
+                            <IconButton onClick={() => this.cancel()}><Cancel/></IconButton>
                             <IconButton onClick={() => this.saveCriteria()}>
                                 <Done/></IconButton>
                         </div>
@@ -353,6 +378,10 @@ export default class QuestionBuilder extends Component {
             );
     }
 
+    cancel() {
+        this.setState({currentlyEditing: null});
+    }
+
     returnToManager() {
         let {selectedS, selectedQ, sets} = this.props.initWith;
         this.props.initManager([selectedS, selectedQ, sets]);
@@ -367,7 +396,7 @@ export default class QuestionBuilder extends Component {
             () => {
                 let sets = copy(this.state.sets);
                 sets[this.state.selectedS].questions[this.state.selectedQ].string = string;
-                this.setState({sets, savedString: string, initError: false});
+                this.setState({sets, savedString: string, initError: 0});
             },
             (result) => {
                 alert("The question couldn't be saved.");

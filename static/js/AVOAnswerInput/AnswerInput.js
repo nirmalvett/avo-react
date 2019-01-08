@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import {getMathJax, validateMatrix, validateNumber, validateVector} from '../Utilities';
 import Radio from '@material-ui/core/Radio/Radio';
 import TextField from '@material-ui/core/TextField/TextField';
@@ -29,39 +29,52 @@ export default class AnswerInput extends React.Component {
         let disabled = this.state.disabled;
         const { type, inputMode } = this.state;
         if (type  === CONST_BOOLEAN) {
-            return [
-                getMathJax(this.state.prompt),
-                <FormControlLabel disabled={disabled}
-                                  value={true}
-                                  control={<Radio color='primary' checked={v === true}/>}
-                                  onChange={async () => {
-                                      await this.onChange(true);
-                                      this.props.onBlur();
-                                  }}
-                                  label='True'/>,
-                <FormControlLabel disabled={disabled}
-                                  value={false}
-                                  control={<Radio color='primary' checked={v === false}/>}
-                                  onChange={async () => {
-                                      await this.onChange(false);
-                                      this.props.onBlur();
-                                  }}
-                                  label='False'/>
-            ];
+            return (
+                <Fragment>
+                    {getMathJax(this.state.prompt)}
+                    <FormControlLabel
+                        disabled={disabled}
+                        value={true}
+                        control={<Radio color='primary' checked={v === true}/>}
+                        onChange={async () => {
+                            await this.onChange(true);
+                            this.props.onBlur();
+                        }}
+                        label='True'
+                    />
+                    <FormControlLabel
+                        disabled={disabled}
+                        value={false}
+                        control={<Radio color='primary' checked={v === false}/>}
+                        onChange={async () => {
+                            await this.onChange(false);
+                            this.props.onBlur();
+                        }}
+                        label='False'
+                    />
+                </Fragment>
+            );
         }
         else if (type === CONST_MULTIPLE_CHOICE) {
             let p = this.state.prompt.replace('不都', 'None of the above').replace('都', 'All of the above').split('—');
-            return [
-                getMathJax(p[0])].concat(p.slice(1).map((x, y) => [
-                    <FormControlLabel control={<Radio color='primary' checked={v === y.toString()}/>}
-                                      disabled={disabled}
-                                      onChange={async () => {
-                                          await this.onChange(y.toString());
-                                          this.props.onBlur();
-                                      }}
-                                      label={getMathJax(x)}/>,
-                <br/>
-                ])
+            return (
+                <Fragment>
+                    {getMathJax(p[0])}
+                    {p.slice(1).map((x, y) =>
+                        <Fragment key={x + y}>
+                            <FormControlLabel
+                                control={<Radio color='primary' checked={v === y.toString()}/>}
+                                disabled={disabled}
+                                onChange={async () => {
+                                    await this.onChange(y.toString());
+                                    this.props.onBlur();
+                                }}
+                                label={getMathJax(x)}
+                            />
+                            <br/>
+                        </Fragment>
+                    )}
+                </Fragment>
             );
         }
         else if (type === CONST_NUMBER) {
@@ -82,113 +95,113 @@ export default class AnswerInput extends React.Component {
                 </div>
             );
         }
-        else if (type === CONST_LINEAR_EXPRESSION) {
+        else if (type === CONST_LINEAR_EXPRESSION)
             return null;
-        }
-        else if (type === CONST_MANUAL_INPUT) {
+        else if (type === CONST_MANUAL_INPUT)
             return null;
-        }
-        else if (type === CONST_MANUAL_INPUT_POLYNOMIAL) {
+        else if (type === CONST_MANUAL_INPUT_POLYNOMIAL)
             return null;
-        }
         else if (type === CONST_VECTOR) {
-          if (inputMode === BUTTON_INPUT){
-            return (
-                <ButtonInput
-                  prompt = { this.props.prompt }
-                  type = {CONST_VECTOR}  // this is the type
-                  disabled={disabled}  // this is whether the input is disabled
-                  value={v}  // this is the value if a test is resumed
-                  buttonSave={ this.props.buttonSave } // this essentially submits
-                  onChange={this.props.onChange} // this is the onChange method that modifies the data
-                />
-            )
-          }
-          else if (inputMode === MANUAL_INPUT){
-            let vector = validateVector(v);
-            return (
-                <div>
-                    {getMathJax(this.state.prompt)}
-                    <TextField disabled={disabled} value={v} label='Enter vector'
-                               onChange={e => this.onChange(e.target.value)}
-                               onBlur={() => this.props.onBlur()}
-                               error={!disabled && !Array.isArray(vector)}
-                               helperText={!Array.isArray(vector) ? vector : undefined}/>
-                    <br/><br/>
-                    {Array.isArray(vector) ? getMathJax('\\(\\begin{bmatrix}'
-                        + vector.join('\\\\') + '\\end{bmatrix}\\)', 'body2') : undefined}
-                </div>
-            );
-          }
+            if (inputMode === BUTTON_INPUT){
+                return (
+                    <ButtonInput
+                        prompt = { this.props.prompt }
+                        type = {CONST_VECTOR}  // this is the type
+                        disabled={disabled}  // this is whether the input is disabled
+                        value={v}  // this is the value if a test is resumed
+                        buttonSave={ this.props.buttonSave } // this essentially submits
+                        onChange={this.props.onChange} // this is the onChange method that modifies the data
+                    />
+                )
+            }
+            else if (inputMode === MANUAL_INPUT){
+                let vector = validateVector(v);
+                return (
+                    <div>
+                        {getMathJax(this.state.prompt)}
+                        <TextField
+                            disabled={disabled} value={v} label='Enter vector'
+                            onChange={e => this.onChange(e.target.value)}
+                            onBlur={() => this.props.onBlur()}
+                            error={!disabled && !Array.isArray(vector)}
+                            helperText={!Array.isArray(vector) ? vector : undefined}
+                        />
+                        <br/><br/>
+                        {Array.isArray(vector) ? getMathJax('\\(\\begin{bmatrix}'
+                            + vector.join('\\\\') + '\\end{bmatrix}\\)', 'body2') : undefined}
+                    </div>
+                );
+            }
         }
         else if (type === CONST_VECTOR_LINEAR_EXPRESSION) {
             return null;
         }
         else if (type === CONST_MATRIX) {
-          if (inputMode === BUTTON_INPUT){
-            return(
+            if (inputMode === BUTTON_INPUT) return (
                 <ButtonInput
-                  prompt = { this.props.prompt }
-                  type = {CONST_MATRIX}  // this is the type
-                  disabled={disabled}  // this is whether the input is disabled
-                  value={v}  // this is the value if a test is resumed
-                  buttonSave={ this.props.buttonSave } // this essentially submits
-                  onChange={this.props.onChange} // this is the onChange method that modifies the data
-                  />
-                )
-
-          }
-          else {
-            let matrix = validateMatrix(v);
-            return (
-                <div>
-                    {getMathJax(this.state.prompt)}
-                    <TextField disabled={disabled}
-                               multiline
-                               value={v}
-                               label='Enter matrix'
-                               onChange={e => this.onChange(e.target.value)}
-                               onBlur={() => this.props.onBlur()}
-                               error={!disabled && !Array.isArray(matrix)}
-                               helperText={!Array.isArray(matrix) ? matrix : undefined}/>
-                    <br/><br/>
-                    {Array.isArray(matrix) ? getMathJax('\\(\\begin{bmatrix}'
-                        + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)', 'body2') : undefined}
-                </div>
+                    prompt = { this.props.prompt }
+                    type = {CONST_MATRIX}  // this is the type
+                    disabled={disabled}  // this is whether the input is disabled
+                    value={v}  // this is the value if a test is resumed
+                    buttonSave={ this.props.buttonSave } // this essentially submits
+                    onChange={this.props.onChange} // this is the onChange method that modifies the data
+                />
             );
-          }
-
+            else {
+                let matrix = validateMatrix(v);
+                return (
+                    <div>
+                        {getMathJax(this.state.prompt)}
+                        <TextField
+                            disabled={disabled}
+                            multiline
+                            value={v}
+                            label='Enter matrix'
+                            onChange={e => this.onChange(e.target.value)}
+                            onBlur={() => this.props.onBlur()}
+                            error={!disabled && !Array.isArray(matrix)}
+                            helperText={!Array.isArray(matrix) ? matrix : undefined}
+                        />
+                        <br/><br/>
+                        {Array.isArray(matrix)
+                            ? getMathJax('\\(\\begin{bmatrix}' + matrix.map(x => x.join('&')).join('\\\\')
+                                + '\\end{bmatrix}\\)', 'body2')
+                            : undefined}
+                    </div>
+                );
+            }
         }
         else if (type === CONST_BASIS) {
-          if (inputMode === BUTTON_INPUT){
-            return(
+            if (inputMode === BUTTON_INPUT) return (
                 <ButtonInput
-                  prompt = { this.props.prompt }
-                  type = {CONST_BASIS}  // this is the type
-                  disabled={disabled}  // this is whether the input is disabled
-                  value={v}  // this is the value if a test is resumed
-                  buttonSave={ this.props.buttonSave } // this essentially submits
-                  onChange={this.props.onChange} // this is the onChange method that modifies the data
-                  />
-                )
-            }
+                    prompt = { this.props.prompt }
+                    type = {CONST_BASIS}  // this is the type
+                    disabled={disabled}  // this is whether the input is disabled
+                    value={v}  // this is the value if a test is resumed
+                    buttonSave={ this.props.buttonSave } // this essentially submits
+                    onChange={this.props.onChange} // this is the onChange method that modifies the data
+                />
+            );
             else {
-              let basis = validateMatrix(v);
-              return (
-                  <div>
-                      {getMathJax(this.state.prompt)}
-                      <TextField disabled={disabled} multiline value={v} label='Enter basis'
-                                 onChange={e => this.onChange(e.target.value)}
-                                 onBlur={() => this.props.onBlur()}
-                                 error={!disabled && !Array.isArray(basis)}
-                                 helperText={!Array.isArray(basis) ? basis : undefined}/>
-                      <br/><br/>
-                      {Array.isArray(basis) ? getMathJax('\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}'
-                          + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)', 'body2') : undefined}
+                let basis = validateMatrix(v);
+                return (
+                    <div>
+                        {getMathJax(this.state.prompt)}
+                        <TextField
+                            disabled={disabled} multiline value={v} label='Enter basis'
+                            onChange={e => this.onChange(e.target.value)}
+                            onBlur={() => this.props.onBlur()}
+                            error={!disabled && !Array.isArray(basis)}
+                            helperText={!Array.isArray(basis) ? basis : undefined}
+                        />
+                        <br/><br/>
+                        {Array.isArray(basis) ? getMathJax('\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}'
+                            + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)', 'body2')
+                            : undefined
+                        }
                   </div>
-              );
+                );
             }
-
         }
         return <Typography variant='body2' color='error'>Invalid answer type</Typography>
     }

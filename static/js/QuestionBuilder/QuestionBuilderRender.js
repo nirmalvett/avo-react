@@ -73,29 +73,23 @@ export function Preview(props) {
     let {state} = props;
     let cardStyle = {margin: 8, paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10};
     let dividerStyle = {marginTop: 15, marginBottom: 15};
+    console.log(state.preview.variables);
 
-    let steps = state.editorMath.split('\n');
-    steps = steps.map(x => {
-        let result = /([^#]+)(?:#(.*))?/.exec(x);
-        // noinspection JSValidateTypes
-        if (result === null)
-            return <Typography color='error'>{x}</Typography>;
-        if (result[2] === undefined)
-            return getMathJax('\\(\\small ' + buildMathCode(result[1])[2] + "\\)");
-        return getMathJax('\\(\\small ' + buildMathCode(result[1])[2]
-            + "\\color{grey}{\\text{ # " + result[2] + "}}\\)");
-    });
+    let varList = [];
+    for(let v in state.preview.variables) if (state.preview.variables.hasOwnProperty(v))
+        varList.push([v, state.preview.variables[v]]);
 
     return (
         <Grid container spacing={8} style={{flex: 1, margin: 0}}>
             <Grid item xs={8} style={{flex: 1, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
                 <Card style={cardStyle}>
                     <Typography variant='title' style={{marginTop: 10, marginBottom: 10}}>Math</Typography>
-                    {steps}
-                    <Divider style={dividerStyle}/>
-                    {state.preview.variables.map(
-                        (x, y) => getMathJax('\\($' + (y+1) + '=' + x + '\\)')
+                    {state.editorMath.map(x => x.comment === ''
+                        ? getMathJax('\\(\\small ' + x.LaTeX + "\\)")
+                        : getMathJax('\\(\\small ' + x.LaTeX + "\\color{grey}{\\text{ # " + x.comment + "}}\\)")
                     )}
+                    <Divider style={dividerStyle}/>
+                    {varList.map(x => getMathJax('\\(' + x[0] + '=' + x[1] + '\\)'))}
                 </Card>
                 <Card style={cardStyle}>
                     {getMathJax(state.preview.prompt)}

@@ -571,14 +571,17 @@ export function initOld(string) {
         let match = /^(.*) (\d+(?:\.\d+)?) %$/.exec(step);
         let expr = buildPlainText(match[1])[0];
         let {mathCode, LaTeX} = buildMathCode(expr);
-        editorCriteria.push({expr, mathCode, LaTeX, points: match[2], explanation: sections[3].splice(0, 1)[0], strings});
+        let x = reduceStrings(sections[3].splice(0, 1)[0], strings);
+        editorCriteria.push({expr, mathCode, LaTeX, points: match[2], explanation: x.string, strings: x.strings});
     }
-    let editorPrompt = {prompt: sections[1][0], strings};
+    let x = reduceStrings(sections[1][0], strings);
+    let editorPrompt = {prompt: x.string, strings: x.strings};
     for(i=1; i<sections[1].length; i++) {
+        let x = reduceStrings(sections[1][i], strings);
         editorPrompts.push({
             type: sections[2][i-1],
-            prompt: sections[1][i],
-            strings
+            prompt: x.string,
+            strings: x.strings
         });
     }
     return {editorMath, editorPrompt, editorPrompts, editorCriteria};

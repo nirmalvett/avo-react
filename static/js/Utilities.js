@@ -2,9 +2,10 @@ import React from "react";
 import {Node, Context} from "react-mathjax2";
 import Typography from "@material-ui/core/Typography/Typography";
 
-export function getMathJax(text, variant='body2') {
+export function getMathJax(text, variant='body2', key) {
     // Initialize an empty list of MathJax elements
     let result = [];
+    let counter = 0;
     while (true) {
         let marker0 = text.indexOf('$\\\\$');
         let marker1 = text.indexOf('\\(');
@@ -13,7 +14,7 @@ export function getMathJax(text, variant='body2') {
         if (marker0 !== -1 && (marker1 === -1 || marker0 < marker1) && (marker2 === -1 || marker0 < marker2)) {
             // Add all the plain text before the math
             result.push(text.substr(0, marker0));
-            result.push(<br/>);
+            result.push(<br key={counter++}/>);
             text = text.slice(marker0 + 4);
         } else if (marker1 !== -1 && (marker2 === -1 || marker1 < marker2)) {
             // Add all the plain text before the math
@@ -24,13 +25,13 @@ export function getMathJax(text, variant='body2') {
             if (endMarker === -1) {
                 // Append the rest of the string as an inline equation
                 let content = text.slice(marker1 + 2);
-                result.push(<Node inline key={'(' + content}>{content}</Node>);
+                result.push(<Node inline key={(counter++) + '(' + content}>{content}</Node>);
                 console.warn('Invalid LaTeX: Missing closing \\)');
                 break;
             }
             // Add the inline math element
             let content = text.slice(marker1 + 2, endMarker);
-            result.push(<Node inline key={'(' + content}>{content}</Node>);
+            result.push(<Node inline key={(counter++) + '(' + content}>{content}</Node>);
             // Remove the beginning of the string up to and including the \)
             text = text.slice(endMarker + 2);
         }
@@ -44,13 +45,13 @@ export function getMathJax(text, variant='body2') {
             if (endMarker === -1) {
                 // Append the rest of the string as an block equation
                 let content = text.slice(marker2 + 2);
-                result.push(<Node key={'[' + content}>{content}</Node>);
+                result.push(<Node key={(counter++) + '[' + content}>{content}</Node>);
                 console.warn('Invalid LaTeX: Missing closing \\]');
                 break;
             }
             // Add the block math element
             let content = text.slice(marker2 + 2, endMarker);
-            result.push(<Node key={'[' + content}>{content}</Node>);
+            result.push(<Node key={(counter++) + '[' + content}>{content}</Node>);
             // Remove the beginning of the string up to and including the \]
             text = text.slice(endMarker + 2);
         }
@@ -61,7 +62,7 @@ export function getMathJax(text, variant='body2') {
             break;
         }
     }
-    return <Context input='tex' key={text}><Typography variant={variant}>{result}</Typography></Context>
+    return <Context input='tex' key={text + key}><Typography variant={variant}>{result}</Typography></Context>
 }
 
 export function validateNumber(text) {

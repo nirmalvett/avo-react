@@ -41,7 +41,7 @@ class AvoQuestion:
         _math, _var_names, _strings, _prompts, types, _points, _criteria, _explanations, _ = question
         self._math = _math.split(SEP2)
         self._var_names = _var_names.split(SEP2)
-        self._strings = _strings.split(SEP2)
+        self._strings = [] if _strings == '' else _strings.split(SEP2)
         self.types = types.split(SEP2)
         self._points = _points.split(SEP2)
         self._criteria = _criteria.split(SEP2)
@@ -54,7 +54,7 @@ class AvoQuestion:
         self.str_list = []
         self.ans_list = []
         self.totals = []
-        self.steps = self._math
+        self.steps = [] if self._math == [''] else self._math
 
         while len(self.steps) > 0 and '@' not in self.steps[0]:
             result = self._step(self.steps.pop(0))
@@ -86,7 +86,7 @@ class AvoQuestion:
                 if token in self.var_list:
                     stack.append(self.var_list[token])
                 else:
-                    raise SyntaxError(f"Error: undefined variable reference: '${token}', in user defined dict {self.var_list}")
+                    raise SyntaxError(f"Error: undefined variable reference: '{token}', in user defined dict {self.var_list}")
             # >> Answer Reference
             elif fullmatch(r'@\d+', token):
                 index = int(token[1:])
@@ -140,8 +140,7 @@ class AvoQuestion:
         # Read in the answer list
         if len(answers) != len(self.types):
             if all(map(lambda a: a == '', answers)):
-                print("warning: wrong number of answers.")
-                answers = [''] * len(answers)
+                answers = [''] * len(self.types)
             else:
                 raise ValueError("Wrong number of answers")
         for i in range(len(self.types)):

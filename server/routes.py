@@ -793,9 +793,9 @@ def sample_question():
     data = request.json  # Data from client
     string = data['string']
     seed = data['seed']
-    try:
+    if 'answers' in data:
         # If answers were provided then test answers
-        answers = data['answers'] # answers from client
+        answers = data['answers']  # answers from client
         if not isinstance(string, str) or not isinstance(seed, int) or not isinstance(answers, list):
             # Checks if all data given is of correct type if not return error JSON
             return jsonify(error="One or more data is not correct")
@@ -803,10 +803,10 @@ def sample_question():
             # Try to create and mark the question if it fails return error JSON
             q = AvoQuestion(string, seed)
             q.get_score(*answers)
-        except:
-            return jsonify(error="Question failed to be created")
+        except Exception as e:
+            return jsonify(error="Question failed to be created", message=str(e))
         return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, points=q.scores)
-    except:
+    else:
         # if no answers were provided make false answers
         if not isinstance(string, str) or not isinstance(seed, int):
             # Checks if all data given is of correct type if not return error JSON
@@ -814,14 +814,16 @@ def sample_question():
         try:
             # Try to create and mark the question if fails return error JSON
             q = AvoQuestion(string, seed)
-            answers = []  # Array to hold placeholder answers
-            for i in range(len(string.split('；')[2].split('，'))):
-                # Fill the array with blank answers
-                answers.append("")
-            q.get_score(*answers)
-        except:
-            return jsonify(error="Question failed to be created")
-        var_list = list(map(lambda x: repr(x), q.var_list))
+            q.get_score()
+        except Exception as e:
+            return jsonify(error="Question failed to be created", message=str(e))
+        var_list = {}
+        if isinstance(q.var_list, list):
+            for i in range(len(q.var_list)):
+                var_list['$' + str(i+1)] = repr(q.var_list[i])
+        else:
+            for k in q.var_list:
+                var_list[k] = repr(q.var_list[k])
         return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, explanation=q.explanation, variables=var_list)
 
 
