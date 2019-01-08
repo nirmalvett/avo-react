@@ -57,3 +57,20 @@ def student_only(f):
     return decorated_function
 
 
+def admin_only(f):
+    """
+    Checks if the user is an Admin
+    :param f: Takes the current user
+    :return: If the user is admin allow them if not return error page
+    """
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_admin:
+            # If current user is not an admin return error page
+            return abort(401)
+        return f(*args, **kwargs)
+
+    return decorated_function()
+
+
