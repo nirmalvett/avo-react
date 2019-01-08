@@ -758,10 +758,10 @@ def get_all_questions():
     for q in question_list:
         question_array.append(
             {
-                'ID': q.QUESTION,
+                'QUESTION': q.QUESTION,
                 'SET': q.SET,
                 'name': q.name,
-                'question string': q.string,
+                'string': q.string,
                 'answers': q.answers,
                 'total': q.total
             }
