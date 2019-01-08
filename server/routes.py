@@ -744,6 +744,31 @@ def edit_question():
     return jsonify(code="Question updated")
 
 
+@routes.route('/getAllQuestions', methods=['GET'])
+@login_required
+@check_confirmed
+@admin_only
+def get_all_questions():
+    """
+    Gets all questions in the database and returns
+    :return: List of all questions
+    """
+    question_list = Question.query.all()
+    question_array = []
+    for q in question_list:
+        question_array.append(
+            {
+                'QUESTION': q.QUESTION,
+                'SET': q.SET,
+                'name': q.name,
+                'string': q.string,
+                'answers': q.answers,
+                'total': q.total
+            }
+        )
+    return jsonify(questions=question_array)
+
+
 @routes.route('/deleteQuestion', methods=['POST'])
 @login_required
 @check_confirmed
