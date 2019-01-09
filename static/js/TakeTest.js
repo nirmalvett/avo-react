@@ -5,6 +5,7 @@ import AnswerInput from './AVOAnswerInput/AnswerInput';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import Button from '@material-ui/core/Button/Button';
+import Tooltip from '@material-ui/core/Tooltip/Tooltip';
 import Divider from '@material-ui/core/Divider/Divider';
 import CardHeader from '@material-ui/core/CardHeader/CardHeader';
 import IconButton from '@material-ui/core/IconButton/IconButton';
@@ -89,10 +90,17 @@ export default class TakeTest extends React.Component {
         return (
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
                 <CardHeader title={getMathJax(question.prompt)} action={
-                    <IconButton onClick={save} disabled={disabled} color={disabled ? 'disabled' : 'primary'}>
-                        <Save/>
-                    </IconButton>
-                }/>
+
+                    // Show tooltip if button is disabled, otherwise allow save
+                    disabled
+                        ? <IconButton onClick={save} color='primary'> <Save/> </IconButton>
+                        : <Tooltip title="Save disabled">
+                            <span>
+                                <IconButton disabled={true} color='disabled'> <Save/> </IconButton>
+                            </span>
+                          </Tooltip>
+                 }/>
+
                 {question.prompts.map((x, y) => [
                     <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
                     <AnswerInput
