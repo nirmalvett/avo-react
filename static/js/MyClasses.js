@@ -43,8 +43,8 @@ const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
 const CONST_TAB_MY_ATTEMPTS = 2;
 
-const CONST_FREE_CLASS = 0;
-const CONST_PAID_CLASS = 1;
+const CONST_ENROLL_TAB = 0;
+const CONST_PAYMENT_TAB = 1;
 
 const CONST_OVERALL_ANALYTICS_DEFAULT = 3;
 
@@ -202,8 +202,7 @@ export default class MyClasses extends React.Component {
 	}
 
 	enrollInClassPopper() {
-		console.log(this.state.enrollObj);
-		if (CONST_ENROLLMENT_PAYMENT) {
+		if (this.state.enrollObj !== undefined && this.state.enrollObj.discount > 0) {
 			return (<Popper
 					placement="right-start"
 					open={this.state.joinClassPopperOpen}
@@ -222,7 +221,7 @@ export default class MyClasses extends React.Component {
 					}}
 			>
 				<Paper style={{marginLeft: '10em', padding: '10px', height: 'auto'}}>
-					{this.state.joinClassPopperIdx === CONST_FREE_CLASS && (
+					{this.state.joinClassPopperIdx === CONST_ENROLL_TAB && (
 							<React.Fragment>
 								<Typography component={'span'} variant='body1' color="textPrimary">
 									Please enter the course code for the class you want to enroll in.
@@ -306,7 +305,7 @@ export default class MyClasses extends React.Component {
 								}}>Close</Button>
 							</React.Fragment>
 					)}
-					{this.state.joinClassPopperIdx === CONST_PAID_CLASS && (
+					{this.state.joinClassPopperIdx === CONST_PAYMENT_TAB && (
 							<React.Fragment>
 								<Typography component={'span'} variant='display1' color="primary" classes={{root: "avo-padding__16px"}}>
 									Course code is valid.
@@ -356,8 +355,10 @@ export default class MyClasses extends React.Component {
 					)}
 				</Paper>
 			</Popper>)
-		} else {
-			return (<AVOModal
+		}
+		else {
+			return (
+					<AVOModal
 					title='Enroll into a class'
 					target="avo-myclasses__enroll-button"
 					acceptText='Enroll'
