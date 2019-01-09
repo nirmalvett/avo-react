@@ -3,6 +3,7 @@ import {Node, Context} from "react-mathjax2";
 import Typography from "@material-ui/core/Typography/Typography";
 
 export function getMathJax(text, variant='body2', key) {
+    key = text + key;
     // Initialize an empty list of MathJax elements
     let result = [];
     let counter = 0;
@@ -62,7 +63,7 @@ export function getMathJax(text, variant='body2', key) {
             break;
         }
     }
-    return <Context input='tex' key={text + key}><Typography variant={variant}>{result}</Typography></Context>
+    return <Context input='tex' key={key}><Typography variant={variant}>{result}</Typography></Context>
 }
 
 export function validateNumber(text) {
