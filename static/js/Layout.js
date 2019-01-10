@@ -20,12 +20,11 @@ import Divider from '@material-ui/core/Divider';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-import { HomeOutlined, BuildOutlined, HelpOutline, ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu } from '@material-ui/icons';
+import { HomeOutlined, BuildOutlined, HelpOutline, ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu, Timer } from '@material-ui/icons';
 import ListItem from '@material-ui/core/ListItem/ListItem';
 import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import HomeOutlinedIcon from '@material-ui/icons/HomeOutlined';
-import Menu from '@material-ui/icons/Menu';
 import BuildOutlinedIcon from '@material-ui/icons/BuildOutlined';
 import ClassOutlinedIcon from '@material-ui/icons/ClassOutlined';
 import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
@@ -322,15 +321,16 @@ class Layout extends React.Component {
       return (
           <React.Fragment>
                {
-                   <HomeOutlined
-                       TimerIcon />
                     section === 'Take Test' &&  // if the current section is take test
                     minutesRemainingUponResumingTest !== null // if the minutesRemaining value exists
-                        ? <TimerComp
-                            showSnackBar = {this.showSnackBar.bind(this)}
-                            time={this.state.minutesRemainingUponResumingTest}
-                            testDueDate = {this.state.testDueDate}
-                            uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />
+                        ?   <React.Fragment>
+                                <Timer/>
+                                <TimerComp
+                                    showSnackBar = {this.showSnackBar.bind(this)}
+                                    time={this.state.minutesRemainingUponResumingTest}
+                                    testDueDate = {this.state.testDueDate}
+                                    uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />
+                            </React.Fragment>
                         : null
                 }
           </React.Fragment>
