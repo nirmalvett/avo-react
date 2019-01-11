@@ -5,11 +5,11 @@ import Grid from '@material-ui/core/Grid/Grid';
 import Button from '@material-ui/core/Button/Button';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
-import AVOModal from './AVOMatComps/AVOMatModal';
 import Checkbox from '@material-ui/core/Checkbox';
 import Slide from '@material-ui/core/Slide';
 import { isChrome, notChromeMessage } from "./helpers";
 import Logo from "./Logo"
+import AVOModal from './AVOMatComps/AVOMatModal';
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
 import {createMuiTheme} from "@material-ui/core";
 
@@ -29,10 +29,7 @@ export default class SignIn extends React.Component {
             signInError: '',
             hasAgreedToTOS : false
         };
-        if (!isChrome()){ alert(notChromeMessage) }
     }
-
-
 
     componentDidMount(){
       /* This runs after the component is rendered */
@@ -67,7 +64,7 @@ export default class SignIn extends React.Component {
             <Slide in={true} direction={'up'}>
             <Card className='LoginCard' id='avo-registrator'>
                 <Grid container spacing={8} style={{'margin': '5%', 'width': '100%', 'height': '90%'}}>
-                    <Grid item lg={12} style={{ 'width' : '100%' }}>                    
+                    <Grid item lg={12} style={{ 'width' : '100%' }}>
                     {!this.state.isSigningIn ? (
                         <React.Fragment>
                             <Typography variant='headline'>
@@ -256,6 +253,7 @@ export default class SignIn extends React.Component {
                             </a>
                             {'.'}
                         </Typography>
+                       { this.passwordReset() }
                     </footer>
                     </Grid>
                 </Grid>
@@ -263,6 +261,54 @@ export default class SignIn extends React.Component {
             </Slide>
             </MuiThemeProvider>
         );
+    }
+
+    passwordReset(){
+      return (
+          <React.Fragment>
+             {this.state.isSigningIn && (
+                      <React.Fragment>
+                          <br/>
+                          <Typography variant='caption' id="avo-signin__reset-password">
+                            Forgot your password/Want to change your password? Click <a className="avo-styles__link"> here </a>
+                          </Typography>
+                          <AVOModal
+                              title='Reset Password?'
+                              target="avo-signin__reset-password"
+                              acceptText='Reset'
+                              declineText='Never mind'
+                              onAccept={() => {
+                                  const name = document.getElementById('avo-signin__reset-email').value; // get the name given
+                                  if (name !== null && name !== '') {
+                                      Http.resetPassword(
+                                          name,
+                                          () => {
+                                              alert('Successfully requested password change. Please check your email in 10-15 minutes.');
+                                          },
+                                          (e) => { alert(e.error) }
+                                      );
+                                  }
+                              }}
+                              onDecline={() => {}}
+                          >
+                              <React.Fragment>
+                                  <Typography variant='caption'>
+                                      Enter the email associated to the account and we'll send you a link to reset the password.
+                                  </Typography>
+                                  <TextField
+                                      margin='normal'
+                                      style={{ 'width' : '50%' }}
+                                      label='Email'
+                                      type="email"
+                                      id="avo-signin__reset-email"
+                                  />
+                                  <br/>
+                              </React.Fragment>
+                          </AVOModal>
+                      </React.Fragment>
+                  )}
+          </React.Fragment>
+      )
     }
 
     // noinspection JSMethodCanBeStatic

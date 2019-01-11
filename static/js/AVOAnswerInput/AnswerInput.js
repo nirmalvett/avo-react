@@ -33,7 +33,7 @@ export default class AnswerInput extends React.Component {
                 getMathJax(this.state.prompt),
                 <FormControlLabel disabled={disabled}
                                   value={true}
-                                  control={<Radio color='action' checked={v === true}/>}
+                                  control={<Radio color='primary' checked={v === true}/>}
                                   onChange={async () => {
                                       this.onChange(true);
                                       await sleep(100);
@@ -42,7 +42,7 @@ export default class AnswerInput extends React.Component {
                                   label='True'/>,
                 <FormControlLabel disabled={disabled}
                                   value={false}
-                                  control={<Radio color='action' checked={v === false}/>}
+                                  control={<Radio color='primary' checked={v === false}/>}
                                   onChange={async () => {
                                       this.onChange(false);
                                       await sleep(100);
@@ -55,7 +55,7 @@ export default class AnswerInput extends React.Component {
             let p = this.state.prompt.replace('不都', 'None of the above').replace('都', 'All of the above').split('—');
             return [
                 getMathJax(p[0])].concat(p.slice(1).map((x, y) => [
-                    <FormControlLabel control={<Radio color='action' checked={v === y.toString()}/>}
+                    <FormControlLabel control={<Radio color='primary' checked={v === y.toString()}/>}
                                       disabled={disabled}
                                       onChange={async () => {
                                           this.onChange(y.toString());

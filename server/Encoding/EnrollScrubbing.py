@@ -1,6 +1,6 @@
 from server.models import *
 from datetime import datetime
-
+# TODO Refactor This to work
 if __name__ == "main":
     current_time = datetime.now()  # Current time to delete enrolled from
     expired_transactions = Transaction.query.filter((Transaction.expiration <= current_time) &

@@ -8,26 +8,30 @@ import sys
 from git import Repo
 import paypalrestsdk
 import config
+from yaml import load
 
 from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
 
 from server.models import *
 import statistics
-routes = Blueprint('routes', __name__)
-runPaypal = True # Leave this here so we don't get merge conflicts later on with the others working on web
 
-if (runPaypal):
-    # todo not sure if this is the right place for it, just setting up paypal credentials
-    paypalrestsdk.configure(
-        {
-            # 'mode': 'live',
-            'mode': config.PAYPAL_MODE,
-            # todo get Frank to set up the account id/secret
-            'client_id': config.PAYPAL_ID,
-            'client_secret': config.PAYPAL_SECRET
-        }
-    )
+routes = Blueprint('routes', __name__)
+
+yaml_file = open("config.yaml", 'r')
+yaml_obj = load(yaml_file)
+yaml_file.close()
+
+# todo not sure if this is the right place for it, just setting up paypal credentials
+paypalrestsdk.configure(
+    {
+        'mode': yaml_obj['paypal_mode'],
+        # todo get Frank to set up the account id/secret
+        'client_id': config.PAYPAL_ID,
+        'client_secret': config.PAYPAL_SECRET
+    }
+)
+del yaml_obj
 
 
 @routes.route('/changeColor', methods=['POST'])
@@ -126,9 +130,6 @@ def get_classes():
                 takes = Takes.query.order_by(Takes.time_started).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER)).all()
                 submitted = []  # List of takes indexes
                 current = None  # Current instance of takes
-                questions = eval(t.question_list)
-                for i in range(len(questions)):
-                    current_question = Question.query.get(questions[i])
                 for ta in takes:
                     # For each instance of takes append the data
                     if ta is not None:
@@ -143,7 +144,8 @@ def get_classes():
                 for s in student_list:
                     # For each student get best takes and calculate averages
                     takes = Takes.query.order_by(Takes.grade).filter(
-                        (Takes.TEST == t.TEST) & (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
+                        (Takes.TEST == t.TEST) &
+                        (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
                     if len(takes) is not 0:
                         # If the student has taken the test then add best instance to mean and median
                         marks_array.append((takes[len(takes) - 1].grade / t.total) * 100)  # Add mark to mark array
@@ -241,19 +243,23 @@ def test_stats():
     del students
     question_total_marks = []  # Each students mark per question
 
-    # If none has taken the test return default values
     if len(question_marks) is 0:
+        # If none has taken the test return default values
         test_questions = eval(test.question_list)  # List of questions in test
         test_question_marks = []
-        for i in range(len(test_questions)): # for each question in the test
-            current_question = Question.query.get(test_questions[i])
+        question = Question.query.filter(Question.QUESTION.in_(test_questions)).all()  # Get all questions in the test
+        if len(test_questions) is not len(question):
+            # If a question could not be found return an error
+            return jsonify(error="One or more questions not found")
+        for i in range(len(test_questions)):  # for each question in the test
+            # for each question append the total
             test_question_marks.append(
                 {
                     'numberStudents': 0,
                     'questionMean': 0,
                     'questionMedian': 0,
                     'questionSTDEV': 0,
-                    'questionMark': current_question.total,
+                    'questionMark': question[i].total,
                     'topMarksPerStudent': []
                 }
             )
@@ -275,16 +281,17 @@ def test_stats():
 
     test_questions = eval(test.question_list)  # List of questions in test
     test_question_marks = []
+    question = Question.query.filter(Question.QUESTION.in_(test_questions)).all()  # All questions in test
     for i in range(len(test_questions)):
-        current_question = Question.query.get(test_questions[i])
-        test_question_marks.append(current_question.total)
+        # For each question in the test get the question and append the total
+        test_question_marks.append(question[i].total)
     question_analytics = []  # Array to return to client of analytics
     del test_questions
 
     for i in range(len(question_total_marks)):
         # For each question calculate mean median and stdev
         if len(question_total_marks[i]) > 0:
-            current_question = {'questionMean': statistics.mean(question_total_marks[i]),
+            current_question = {'questionMean': round(statistics.mean(question_total_marks[i]), 2),
                                 'questionMedian': statistics.median(question_total_marks[i]),
                                 'topMarksPerStudent': question_total_marks[i],
                                 'totalMark': test_question_marks[i]
@@ -353,9 +360,9 @@ def create_set():
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
     new_set = Set(name)  # New set to be created
-    user_views_set = UserViewsSet(current_user.USER, set.SET, True)  # New user_views_set to be created
-    # Add data to database
     db.session.add(new_set)
+    db.session.commit()
+    user_views_set = UserViewsSet(current_user.USER, new_set.SET, True)  # New user_views_set to be created
     db.session.add(user_views_set)
     db.session.commit()
     return jsonify(id=new_set.SET)
@@ -405,7 +412,10 @@ def delete_set():
     if not isinstance(ID, int):
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
-    user_views_set = UserViewsSet.query.get(ID)  # user_views_set to delete
+    try:
+        user_views_set = UserViewsSet.query.filter((UserViewsSet.SET == ID) & (UserViewsSet.USER == current_user.USER)).first()  # user_views_set to delete
+    except NoResultFound:
+        return jsonify(code="Updated")
     # Add change to database
     db.session.delete(user_views_set)
     db.session.commit()
@@ -420,10 +430,12 @@ def enroll():
     Enroll the current user in a class
     :return: Confirmation
     """
+    print("sanity check")
     if not request.json:
         # If the request isn't JSON then return a 400 error
         return abort(400)
     key = request.json['key']  # Data sent from user
+
     if not isinstance(key, str):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
@@ -437,15 +449,28 @@ def enroll():
         return jsonify(error='Invalid enroll key')
     if current_user.is_teacher:
         # If the user is a teacher enroll them into the class
-        current_user.CLASS_ENROLLED_RELATION.append(current_class)
+        if not teaches_class(current_class.CLASS):
+            # If the teacher does not teach the class return JSON of success
+            current_user.CLASS_ENROLLED_RELATION.append(current_class)
         return jsonify(message='Enrolled')
-    if current_class.price_discount == 0.0:
+    transaction = Transaction.query.filter((Transaction.USER == current_user.USER) &
+                                           (Transaction.CLASS == current_class.CLASS)).all()  # Checks if the user has a free trial
+    free_trial = True
+    for i in range(len(transaction)):
+        # For each transaction see if it starts with a free trial string
+        trans_string = transaction[i].TRANSACTION
+        if trans_string.startswith("FREETRIAL-"):
+            # If the transaction string starts with free trial set the availability of free trail to false
+            free_trial = False
+    if current_class.price_discount == 0.00 or current_class.price_discount == 0:
         # Append current user to the class
         current_user.CLASS_ENROLLED_RELATION.append(current_class)
         db.session.commit()
         return jsonify(message='Enrolled!')
     else:
-        return jsonify(id=current_class.CLASS, price=current_class.price, discount=current_class.price_discount)
+        return jsonify(id=current_class.CLASS, price=current_class.price, discount=current_class.price_discount,
+                       tax=round(current_class.price_discount * 0.13, 2),
+                       totalprice=round(current_class.price_discount * 1.13, 2), freeTrial=free_trial)
 
 
 @routes.route('/changeMark', methods=['POST'])
@@ -469,13 +494,14 @@ def change_mark():
         return jsonify(error="one or more invalid data points")
     takes = Takes.query.get(take_id)  # takes object to update
     # Check if the test of the take is in the class that the account is teaching
-    test = Test.query.get(takes.test)  # Test that takes is apart of
+    test = Test.query.get(takes.TEST)  # Test that takes is apart of
     question_array = eval(test.question_list)  # List of questions in the test
     if not teaches_class(test.CLASS):
         # If User does not teach class return error JSON
         return jsonify(error="User does not teach this class")
     del test
-    takes_marks_array = takes.marks
+    question = Question.query.filter(Question.QUESTION.in_(question_array)).all()  # Questions in test
+    takes_marks_array = eval(takes.marks)
     new_mark = 0
     if len(takes_marks_array) == len(mark_array):
         # If the length of the test are the same compare each question
@@ -490,8 +516,7 @@ def change_mark():
                 for j in range(len(mark_array[i])):
                     # For each part add up total and compare to question in database
                     question_mark += mark_array[i][j]
-                current_question = Question.query.get(question_array[i])  # Current question to compare
-                if current_question.total < question_mark:
+                if question[i].total < question_mark:
                     # If the new total is greater then question total return error JSON
                     return jsonify(error="Over 100% in a question")
                 else:
@@ -499,7 +524,7 @@ def change_mark():
                     new_mark += question_mark
 
     # Update Data in Database
-    takes.marks = mark_array
+    takes.marks = str(mark_array)
     takes.grade = new_mark
     db.session.commit()
     return jsonify(success=True)
@@ -668,7 +693,7 @@ def rename_question():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json  # Data from client
-    question_id, name = data['id'], data['string']
+    question_id, name = data['id'], data['name']
     if not isinstance(question_id, int) or not isinstance(name, str):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
@@ -719,6 +744,31 @@ def edit_question():
     return jsonify(code="Question updated")
 
 
+@routes.route('/getAllQuestions', methods=['GET'])
+@login_required
+@check_confirmed
+@admin_only
+def get_all_questions():
+    """
+    Gets all questions in the database and returns
+    :return: List of all questions
+    """
+    question_list = Question.query.all()
+    question_array = []
+    for q in question_list:
+        question_array.append(
+            {
+                'QUESTION': q.QUESTION,
+                'SET': q.SET,
+                'name': q.name,
+                'string': q.string,
+                'answers': q.answers,
+                'total': q.total
+            }
+        )
+    return jsonify(questions=question_array)
+
+
 @routes.route('/deleteQuestion', methods=['POST'])
 @login_required
 @check_confirmed
@@ -758,27 +808,28 @@ def sample_question():
         return abort(400)
     data = request.json  # Data from client
     string = data['string']
+    seed = data['seed']
     try:
         # If answers were provided then test answers
         answers = data['answers'] # answers from client
-        if not isinstance(string, str) or not isinstance(answers, list):
+        if not isinstance(string, str) or not isinstance(seed, int) or not isinstance(answers, list):
             # Checks if all data given is of correct type if not return error JSON
             return jsonify(error="One or more data is not correct")
         try:
             # Try to create and mark the question if it fails return error JSON
-            q = AvoQuestion(string)
+            q = AvoQuestion(string, seed)
             q.get_score(*answers)
         except:
             return jsonify(error="Question failed to be created")
         return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, points=q.scores)
     except:
         # if no answers were provided make false answers
-        if not isinstance(string, str):
+        if not isinstance(string, str) or not isinstance(seed, int):
             # Checks if all data given is of correct type if not return error JSON
             return jsonify(error="One or more data is not correct")
         try:
             # Try to create and mark the question if fails return error JSON
-            q = AvoQuestion(string)
+            q = AvoQuestion(string, seed)
             answers = []  # Array to hold placeholder answers
             for i in range(len(string.split('；')[2].split('，'))):
                 # Fill the array with blank answers
@@ -786,7 +837,8 @@ def sample_question():
             q.get_score(*answers)
         except:
             return jsonify(error="Question failed to be created")
-        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, explanation=q.explanation)
+        var_list = list(map(lambda x: repr(x), q.var_list))
+        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, explanation=q.explanation, variables=var_list)
 
 
 @routes.route('/getTest', methods=['POST'])
@@ -834,10 +886,10 @@ def get_test():
         seeds = eval(takes.seeds)  # Seeds of questions in test if -1 gen random seed
         timer = takes.time_submitted - takes.time_started
         timer = timer.total_seconds() / 60
+        questions_in_test = Question.query.filter(Question.QUESTION.in_(question_ids)).all()   # All questions in test
         for i in range(len(question_ids)):
             # For each question id get the question data and add to question list
-            current_question = Question.query.get(question_ids[i])
-            q = AvoQuestion(current_question.string, seeds[i])
+            q = AvoQuestion(questions_in_test[i].string, seeds[i])
             questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
         return jsonify(
             takes=takes.TAKES,
@@ -879,9 +931,10 @@ def create_takes(test, user):
     seeds = list(map(lambda seed: randint(0, 65535) if seed == -1 else seed, eval(x.seed_list)))  # Generates seeds of test
     answer_list = []  # Answers of takes instance
     marks_list = []  # Marks of takes instance
+    questions_in_test = Question.query.filter(Question.QUESTION.in_(test_question_list)).all()  # Questions in test
     for i in range(len(test_question_list)):
         # For each question in test add in mark values per question
-        q = Question.query.get(test_question_list[i])  # Current question
+        q = questions_in_test[i]  # Current question
         marks_list.append([0] * q.string.split('；')[0].count('%'))
         answer_list.append([''] * q.answers)
     # We want to figure out what the new time should be
@@ -926,9 +979,10 @@ def save_test():
     deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
     total = 0  # Total the test is out of
-    for q in question_list:
+    questions = Question.query.filter(Question.QUESTION.in_(question_list)).all()  # All question in test
+    for i in range(len(question_list)):
         # For each question calculate the mark and add to the total
-        current_question = Question.query.get(q)  # Get the current question from the database
+        current_question = questions[i]  # Get the current question from the database
         if current_question is None:
             return jsonify(error="Question Not Found PLease Try Again")
         total += current_question.total
@@ -951,20 +1005,30 @@ def change_test():
     if not request.json:
         # If the request isn't JSON return a 400 error
         return abort(400)
-    data = request.json # Data from client
-    test, timer, name, deadline = data['test'], data['timer'], data['name'], data['deadline']
-    if not isinstance(test, int) or not isinstance(timer, int) or not isinstance(name, str) or not \
-            isinstance(deadline, datetime):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-    test = Test.query.get(test) # Gets the test object
+    data = request.json  # Data from client
+    test, timer, name, deadline, attempts = data['test'], data['timer'], data['name'], data['deadline'], data['attempts']
+    if not isinstance(test, int):
+        return jsonify(error="Invalid Input: Test needs to be an int, Test is " + str(type(test)))
+    if not isinstance(timer, int):
+        return jsonify(error="Invalid Input: Timer needs to be an int, " + str(type(timer)))
+    if not isinstance(name, str):
+        return jsonify(error="Invalid Input: Name needs to be an int, " + str(type(name)))
+    if not isinstance(deadline, str):
+        return jsonify(error="Invalid Input: Deadline needs to be a str, Deadline is type: " + str(type(deadline)))
+    if not isinstance(attempts, int):
+        return jsonify(error="Invalid Input: Attempts needs to be an int, " + str(type(attempts)))
+    deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
+    deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
+    test = Test.query.get(test)  # Gets the test object
     if not teaches_class(test.CLASS):
         # If the teacher doesn't teach the class the test is in return error
         return jsonify(error="User does not teach class")
+
     # Updates Test data
     test.deadline = deadline
     test.timer = timer
     test.name = name
+    test.attempts = attempts
 
     db.session.commit()
     return jsonify(code="Test Updated")
@@ -1070,9 +1134,10 @@ def post_test():
             return jsonify(error="Test not submitted yet")
         questions = eval(test.question_list)
         question_list = []
+        question_objects_in_test = Question.query.filter(Question.QUESTION.in_(questions)).all()  # Questions in test
         for i in range(len(questions)):
             # For each question mark question with answer and add to list then return
-            current_question = Question.query.get(questions[i])
+            current_question = question_objects_in_test[i]
             q = AvoQuestion(current_question.string, seeds[i])
             q.get_score(*answers[i])
             question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation,
@@ -1177,25 +1242,51 @@ def csv_class_marks(classid):
 @check_confirmed
 @student_only
 def create_payment():
+    """
+    Creates PayPal payment in the database for enrolling user in class
+    :return: Transaction ID to the client side PayPal
+    """
     if not request.json:
         # If the request isn't JSON then return a 400 error
         return abort(400)
 
+    # Data from the client
     data = request.json
     class_id = data['classID']
     if not isinstance(class_id, int):
-        print("I got here")
-        # If data isn't correct return error JSON
+        # If data is not correct formatting return error JSON
         return jsonify(error="One or more data is not correct")
 
-    current_class = Class.query.filter(class_id == Class.CLASS).all()
+    existing_tid = TransactionProcessing.query.filter((class_id == TransactionProcessing.CLASS) &
+                                                      (current_user.USER == TransactionProcessing.USER)).first()
+    if existing_tid is not None:
+        # If the user has already tried the payment find payment and return
+        try:
+            # Try to find payment from PayPal
+            payment = paypalrestsdk.Payment.find(existing_tid.TRANSACTIONPROCESSING)
+            if payment.state == 'created':
+                # iF payment is found return Transaction ID
+                return jsonify({'tid': existing_tid.TRANSACTIONPROCESSING})
+            else:
+                # Else remove payment from database
+                db.session.remove(existing_tid)
+                db.session.commit()
+        except paypalrestsdk.ResourceNotFound:
+            # If error is found remove from database
+            db.session.remove(existing_tid)
+            db.session.commit()
+
+    current_class = Class.query.filter(class_id == Class.CLASS).all()  # Get class
 
     if len(current_class) is 0:
+        # If class is not found return error JSON
         return jsonify(error="No class found")
 
     if enrolled_in_class(current_class[0].CLASS):
+        # If user is already enrolled return error JSON
         return jsonify(error="User Already In Class")
 
+    # Create Payment with PayPal
     payment = paypalrestsdk.Payment(
         {
             'intent': 'sale',
@@ -1211,7 +1302,7 @@ def create_payment():
             'transactions': [
                 {
                     'amount': {
-                        'total': str(current_class[0].price_discount),
+                        'total': str(round(current_class[0].price_discount * 1.13, 2)),
                         'currency': 'CAD'
                     },
                     'description': "Description that actually describes the product, don't flake on this because"
@@ -1220,7 +1311,7 @@ def create_payment():
                         'items': [
                             {
                                 'name': 'Avo ' + current_class[0].name,
-                                'price': str(current_class[0].price_discount),
+                                'price': str(round(current_class[0].price_discount * 1.13, 2)),
                                 'currency': 'CAD',
                                 'quantity': 1
                             }
@@ -1232,12 +1323,13 @@ def create_payment():
     )
 
     if payment.create():
-        # Add tid to class mapping so we can pull it up in confirm payment
-        new_transaction = TransactionProcessing(payment.id, current_class[0].CLASS)
+        # If Payment created create new transaction in database and return Transaction ID
+        new_transaction = TransactionProcessing(payment.id, current_class[0].CLASS, current_user.USER)
         db.session.add(new_transaction)
         db.session.commit()
         return jsonify({'tid': payment.id})
     else:
+        # If PayPal encounters error return error JSON
         return jsonify(error='Unable to create payment')
 
 
@@ -1246,33 +1338,42 @@ def create_payment():
 @check_confirmed
 @student_only
 def confirm_payment():
+    """
+    If user pays then enroll them in class
+    :return: confirmation of payment being processed
+    """
     if not request.json:
         # If the request isn't JSON then return a 400 error
         return abort(400)
 
+    # Data from client
     data = request.json
     tid, payer = data['tid'], data['payerID']
     if not isinstance(tid, str) or not isinstance(payer, str):
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
 
-    transaction = Transaction.query.get(tid)
+    transaction = Transaction.query.get(tid)  # Attempt to get transaction from the Transaction ID
     if transaction is not None:
+        # If transaction not found return error JSON
         return jsonify("User Already Enrolled")
-    payment = paypalrestsdk.Payment.find(tid)
+    payment = paypalrestsdk.Payment.find(tid)  # Find payment from PayPal
     if not payment.execute({'payer_id': payer}):
+        # If payment cant be processed return error JSON
         return jsonify(error=payment.error)
-    transaction_processing = TransactionProcessing.query.get(tid)
+    transaction_processing = TransactionProcessing.query.get(tid)  # find transaction in transaction processing table
     if transaction_processing is None:
+        # If not found return error JSON
         return jsonify(error="No Trans Id Found")
-    time = datetime.now() + timedelta(weeks=32)
-    transaction = Transaction(tid, current_user.USER, transaction_processing.CLASS, time)
+    time = datetime.now() + timedelta(weeks=32)  # Create expiration of enrolling
+    transaction = Transaction(tid, current_user.USER,
+                              transaction_processing.CLASS, time)  # Create new transaction in table
+    # commit changes to database
     db.session.add(transaction)
     db.session.delete(transaction_processing)
     if not enrolled_in_class(transaction_processing.CLASS):
-        print("I got here")
+        # If current user user not enrolled in class enroll them in class
         enrolled_relation = Class.query.get(transaction_processing.CLASS)
-        print(enrolled_relation)
         current_user.CLASS_ENROLLED_RELATION.append(enrolled_relation)
     db.session.commit()
     return jsonify(code="Processed")
@@ -1280,8 +1381,24 @@ def confirm_payment():
 
 @routes.route('/cancel', methods=['POST'])
 def cancel_order():
-    return jsonify(code="hello")
+    """
+    Cancel Payment by removing from Transaction Processing Table
+    :return: Confirmation
+    """
+    if not request.json:
+        # If the request is not JSON return a 400 error
+        return abort(400)
 
+    tid = request.json['tid']  # Data from client
+    transaction_processing = TransactionProcessing.query.get(tid)
+    if transaction_processing is None:
+        # If transaction is not in database return error json
+        return jsonify(error="Transaction not found")
+
+    # Remove data from database
+    db.session.delete(transaction_processing)
+    db.session.commit()
+    return jsonify(code="Cancelled")
 
 
 @routes.route('/freeTrial', methods=['POST'])
@@ -1289,33 +1406,42 @@ def cancel_order():
 @check_confirmed
 @student_only
 def free_trial():
+    """
+    Generate free trial for class
+    :return:  Confirmation of free trial
+    """
     if not request.json:
         # If the request isn't JSON then return a 400 error
         return abort(400)
 
+    # Data from client
     data = request.json
-    enroll_key = data['enrollKey']
-    if not isinstance(enroll_key, str):
+    class_id = data['classID']
+    if not isinstance(class_id, int):
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
     try:
-        current_class = Class.query.filter(Class.enroll_key == enroll_key).one()
+        # See if current class exists
+        current_class = Class.query.get(class_id)
     except:
         return jsonify(error="No class found")
+    if current_class is None:
+        return jsonify(error="No class found")
     transaction = Transaction.query.filter((current_user.USER == Transaction.USER) &
-                                           (current_class.CLASS == Transaction.CLASS)).all()
+                                           (current_class.CLASS == Transaction.CLASS)).all()  # Get transaction
     if len(transaction) > 0:
+        # If transaction not found return error JSON
         return jsonify(error="Free Trial Already Taken")
-    free_trial_string = "FREETRIAL-" + str(current_class.CLASS) + "-" + str(current_user.USER)
+    free_trial_string = "FREETRIAL-" + str(current_class.CLASS) \
+                        + "-" + str(current_user.USER)  # Generate free trial string
     time = datetime.now() + timedelta(weeks=2)
-    new_transaction = Transaction(free_trial_string, current_user.USER, current_class.CLASS, time)
+    new_transaction = Transaction(free_trial_string, current_user.USER,
+                                  current_class.CLASS, time)  # create new transaction in database
+    # Commit to database and enroll student
     db.session.add(new_transaction)
-    current_user.CLASS_RELATION.append(current_class)
+    current_user.CLASS_ENROLLED_RELATION.append(current_class)
     db.session.commit()
-    return jsonify(code="Sucsess")
-
-    # Check transaction table for an entry with USERID and CLASSID
-    # If it exists return error, else return success and add it to transactions
+    return jsonify(code="Success")
 
 
 # noinspection SpellCheckingInspection

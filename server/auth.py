@@ -98,6 +98,70 @@ def confirm(token):
     return render_template('/index.html')
 
 
+@UserRoutes.route('/requestPasswordReset', methods=['POST'])
+def request_password_reset():
+
+    if not request.json:
+        return abort(400)
+
+    email = request.json['email']
+    try:
+        user = User.query.filter(User.email == email).first()
+    except NoResultFound:
+        return jsonify(error="The email you requested is not associated with an AVO account. "
+                             "Perhaps it was a typo? Please try again.")
+    if user is None:
+        return jsonify(error="The email you requested is not associated with an AVO account. "
+                             "Perhaps it was a typo? Please try again.")
+    serializer = URLSafeTimedSerializer(config.SECRET_KEY)
+    token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
+    confirm_url = url_for('UserRoutes.password_reset', token=token, _external=True)
+    send_email(user.email, "Password Reset Request",
+               f'<html><body>Hi {user.first_name},<br/><br/>'
+               f'You have requested to change you password. Please click <a href="{confirm_url}">here</a> to '
+               f'change your password. If you did not request to change your password please ignore this email. '
+               f'This link will expire in an hour'
+               f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
+               )
+    return jsonify(code="email sent")
+
+
+@UserRoutes.route('/passwordReset/<token>', methods=['GET', 'POST'])
+def password_reset(token):
+    """
+    Render Reset page and change users password
+    :param token: gotten from email from user
+    :return: redirect to login
+    """
+    serializer = URLSafeTimedSerializer(config.SECRET_KEY)
+    try:
+        # check if the token is valid if not return error
+        email = serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT, max_age=3600)
+    except BadSignature:
+        return "Invalid Confirmation Link. Please try requesting password change again."
+    user = User.query.filter(User.email == email).first()  # get user from the email
+    if user is None:
+        # If there is no user found return an error
+        return "There is no account associated with the email."
+
+    if request.method == 'GET':
+        return render_template('/index.html')
+    elif request.method == 'POST':
+        password = request.json['password']
+        # Method is POST change password
+        if len(password) < 8:
+            # If the password is les then 8 return error JSON
+            return jsonify(error='Password too short! Please ensure the password is at least 8 characters.')
+        salt = generate_salt()
+        hashed_password = hash_password(password, salt)
+        user.password = hashed_password
+        user.salt = salt
+        db.session.commit()
+        return jsonify(code="Password Successfully Updated!")
+    else:
+        return jsonify(error='An unexpected error occurred. Reference #1j29')
+
+
 @UserRoutes.route('/login', methods=['POST'])
 def login():
     """
@@ -179,7 +243,7 @@ def enrolled_in_class(class_id):
     :return: True if the user is enrolled False if not
     """
     try:
-        # Get all calsses user is enroled in
+        # Get all classes user is enrolled in
         current_class = Class.query.filter((Class.CLASS == enrolled.c.CLASS) &
                                            (current_user.USER == enrolled.c.USER)).all()
         if len(current_class) is 0:
@@ -193,9 +257,14 @@ def enrolled_in_class(class_id):
 
 
 def able_edit_set(setID):
+    """
+    Checks if current_user can edit selected set
+    :param setID: Set to check if user can edit
+    :return: True if user can edit false if not
+    """
     try:
         user_views_set = UserViewsSet.query.filter((setID == UserViewsSet.SET)
-                                               & (current_user.USER == UserViewsSet.USER)).first()
+                                                   & (current_user.USER == UserViewsSet.USER)).first()
     except NoResultFound:
         return False
     return user_views_set.can_edit

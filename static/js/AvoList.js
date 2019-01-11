@@ -1,15 +1,10 @@
-import React, {createElement} from 'react';
-import List from '@material-ui/core/List/List';
-import Paper from '@material-ui/core/Paper/Paper';
-import Collapse from '@material-ui/core/Collapse/Collapse';
-import ListItem from '@material-ui/core/ListItem/ListItem';
-import ListItemText from '@material-ui/core/ListItemText/ListItemText';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
-import {copy} from "./Utilities";
+import React, { Component, createElement } from 'react';
+import { List, Paper, Collapse, ListItem, ListItemText } from '@material-ui/core';
+import { ExpandLess, ExpandMore } from '@material-ui/icons';
+import { copy } from "./Utilities";
 import { uniqueKey } from "./helpers";
 
-export default class AvoList extends React.Component {
+export default class AvoList extends Component {
     constructor(props) {
         super(props);
         // this.props.items should be a list of items, where each item is an object with the following properties:

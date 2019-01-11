@@ -31,7 +31,7 @@ class Class(db.Model):
     TRANSACTION_PROCESSING_RELATION = db.relationship("TransactionProcessing", back_populates="CLASS_RELATION")
 
     # noinspection PyPep8Naming
-    def __init__(self, USER, name, price=69.99):
+    def __init__(self, USER, name, price=59.99):
         self.USER = USER
         self.name = name
         self.price = price
@@ -239,9 +239,11 @@ class TransactionProcessing(db.Model):
 
     TRANSACTIONPROCESSING = db.Column(db.String(30), primary_key=True)
     CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
 
     CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_PROCESSING_RELATION")
 
-    def __init__(self, TransactionProcessing, CLASS):
+    def __init__(self, TransactionProcessing, CLASS, USER):
         self.TRANSACTIONPROCESSING = TransactionProcessing
         self.CLASS = CLASS
+        self.USER = USER
