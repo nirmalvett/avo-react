@@ -1060,17 +1060,17 @@ def save_answer():
     question_id = eval(test.question_list)[question]  # List of question IDs from test
     current_question = Question.query.get(question_id)  # Current question being modified
     # Update the question mark and answer in the takes instance
+    answers = eval(takes_list.answers)
+    answers[question] = answer
+    takes_list.answers = str(answers)
+    db.session.commit()
     q = AvoQuestion(current_question.string, eval(takes_list.seeds)[question], answer)
     marks = eval(takes_list.marks)
-    answers = eval(takes_list.answers)
     marks[question] = q.scores
     # Update with new values and commit to DataBase
     takes_list.marks = str(marks)
-    answers[question] = answer
-    takes_list.answers = str(answers)
     takes_list.grade = sum(map(lambda x: sum(x), marks))
     db.session.commit()
-    db.session.close()
     return jsonify(message='Changed successfully!')
 
 
