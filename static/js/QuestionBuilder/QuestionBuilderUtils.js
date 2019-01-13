@@ -25,6 +25,7 @@ export const CONSTANTS = {
     "true": ["*T", "true", "\\color{green}✔"],
     "false": ["*F", "false", "\\color{red}✘"],
 };
+// noinspection SpellCheckingInspection
 export const FUNCTIONS = {
     "boolean": ["AA", null, null, ""],
     "number": ["AB", null, null, "min, max, zeroes/mod=0"],
@@ -589,7 +590,10 @@ export function initOld(string) {
 
 export function init(string) {
     let sections = string.split(SEP1).map(x => x.split(SEP2));
-    let strings = sections[2].map((mathCode) => {
+    if (sections[0].length === 1 && sections[0][0] === '') sections[0] = [];
+    if (sections[2].length === 1 && sections[2][0] === '') sections[2] = [];
+    if (sections[6].length === 1 && sections[6][0] === '') sections[6] = [];
+    let strings = sections[2].filter(x => x.length > 0).map((mathCode) => {
         let expr = buildPlainText(mathCode)[0];
         let {LaTeX} = buildMathCode(expr);
         return {expr, mathCode, LaTeX};
@@ -597,7 +601,7 @@ export function init(string) {
     let editorMath = sections[0].map((mc, i) => {
         let expr = buildPlainText(mc)[0];
         let {mathCode, LaTeX} = buildMathCode(expr);
-        return {varNames: sections[1][i].split(SEP3).map(x => '$' + x), expr, mathCode, LaTeX, comment: sections[8][i]};
+        return {varNames: sections[1][i].split(SEP3), expr, mathCode, LaTeX, comment: sections[8][i]};
     });
     let editorPrompt = {prompt: sections[3].splice(0, 1)[0], strings};
     let editorPrompts = sections[3].map((prompt, index) => {

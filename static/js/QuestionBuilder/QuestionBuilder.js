@@ -12,7 +12,7 @@ import Http from '../Http';
 import {copy, getMathJax} from '../Utilities';
 import {
     buildMathCode, buildPlainText, compile, extractReferences,
-    formatString, formatStringForEditing, initOld, validateString,
+    formatString, formatStringForEditing, init, initOld, validateString,
 } from './QuestionBuilderUtils';
 import AnswerInput from '../AVOAnswerInput/AnswerInput';
 import Done from '@material-ui/icons/Done';
@@ -43,7 +43,7 @@ export default class QuestionBuilder extends Component {
             initError: 0,
             savedString: questionString,
             content: null,
-        }, initOld(questionString));
+        }, questionString.split('；').length === 5 ? initOld(questionString) : init(questionString));
 
         let compileString = compile(this.state);
         if (questionString !== compileString) {
