@@ -1,7 +1,7 @@
 import React from 'react';
 import TextField from "@material-ui/core/TextField/TextField";
 import Button from '@material-ui/core/Button';
-import {getMathJax, sleep, validateMatrix, validateNumber, validateVector} from '../Utilities';
+import {getMathJax, validateMatrix, validateNumber, validateVector} from '../Utilities';
 import Grid from '@material-ui/core/Grid/Grid';
 import { copy } from "../Utilities";
 import { CONST_CREATE_OBJECT, CONST_INPUT_PHASE, CONST_SHOW_OBJECT, CONST_SELECT_DIMENSION, CONST_VECTOR,

@@ -337,8 +337,19 @@ def get_sets():
         question_list = []  # Question data to return to client
         for q in questions:
             # For each question append the data
-            question_list.append({'id': q.QUESTION, 'name': q.name, 'string': q.string, 'total': q.total})
-        set_list.append({'id': s.SET, 'name': s.name, 'can_edit': able_edit_set(s.SET), 'questions': question_list})
+            question_list.append({
+                'id': q.QUESTION,
+                'name': q.name,
+                'string': q.string,
+                'total': q.total,
+                'answers': q.answers
+            })
+        set_list.append({
+            'id': s.SET,
+            'name': s.name,
+            'can_edit': able_edit_set(s.SET),
+            'questions': question_list
+        })
     return jsonify(sets=set_list)
 
 
@@ -663,13 +674,7 @@ def new_question():
         # If the user is not allowed to edit the set return error json
         return jsonify(error="User not able to edit Set")
     try:
-        # Fill out question
-        q = AvoQuestion(string)
-        answers_array = []
-        for i in range(answers):
-            # Fill the array with blank answers
-            answers_array.append("")
-        q.get_score(*answers_array)
+        AvoQuestion(string, 0, [])
     except:
         return jsonify(error="Question Failed to build")
     # Add Question to database
@@ -727,12 +732,7 @@ def edit_question():
         return jsonify(error="User not able to edit SET")
     try:
         # Try to run the question to see if it works
-        q = AvoQuestion(string)
-        answers_array = []
-        for i in range(answers):
-            # Create a blank answer array to test the question
-            answers_array.append("")
-        q.get_score(*answers_array)
+        AvoQuestion(string, 0, [])
     except:
         return jsonify(error="Question could not be created")
     # Update data for database
@@ -809,35 +809,35 @@ def sample_question():
     data = request.json  # Data from client
     string = data['string']
     seed = data['seed']
-    try:
+    if 'answers' in data:
         # If answers were provided then test answers
-        answers = data['answers'] # answers from client
+        answers = data['answers']  # answers from client
         if not isinstance(string, str) or not isinstance(seed, int) or not isinstance(answers, list):
             # Checks if all data given is of correct type if not return error JSON
             return jsonify(error="One or more data is not correct")
         try:
             # Try to create and mark the question if it fails return error JSON
-            q = AvoQuestion(string, seed)
-            q.get_score(*answers)
-        except:
-            return jsonify(error="Question failed to be created")
+            q = AvoQuestion(string, seed, answers)
+        except Exception as e:
+            return jsonify(error="Question failed to be created", message=str(e))
         return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, points=q.scores)
-    except:
+    else:
         # if no answers were provided make false answers
         if not isinstance(string, str) or not isinstance(seed, int):
             # Checks if all data given is of correct type if not return error JSON
             return jsonify(error="One or more data is not correct")
         try:
             # Try to create and mark the question if fails return error JSON
-            q = AvoQuestion(string, seed)
-            answers = []  # Array to hold placeholder answers
-            for i in range(len(string.split('；')[2].split('，'))):
-                # Fill the array with blank answers
-                answers.append("")
-            q.get_score(*answers)
-        except:
-            return jsonify(error="Question failed to be created")
-        var_list = list(map(lambda x: repr(x), q.var_list))
+            q = AvoQuestion(string, seed, [])
+        except Exception as e:
+            return jsonify(error="Question failed to be created", message=str(e))
+        var_list = {}
+        if isinstance(q.var_list, list):
+            for i in range(len(q.var_list)):
+                var_list['$' + str(i+1)] = repr(q.var_list[i])
+        else:
+            for k in q.var_list:
+                var_list[k] = repr(q.var_list[k])
         return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, explanation=q.explanation, variables=var_list)
 
 
@@ -1060,18 +1060,17 @@ def save_answer():
     question_id = eval(test.question_list)[question]  # List of question IDs from test
     current_question = Question.query.get(question_id)  # Current question being modified
     # Update the question mark and answer in the takes instance
-    q = AvoQuestion(current_question.string, eval(takes_list.seeds)[question])
-    q.get_score(*answer)
-    marks = eval(takes_list.marks)
     answers = eval(takes_list.answers)
+    answers[question] = answer
+    takes_list.answers = str(answers)
+    db.session.commit()
+    q = AvoQuestion(current_question.string, eval(takes_list.seeds)[question], answer)
+    marks = eval(takes_list.marks)
     marks[question] = q.scores
     # Update with new values and commit to DataBase
     takes_list.marks = str(marks)
-    answers[question] = answer
-    takes_list.answers = str(answers)
     takes_list.grade = sum(map(lambda x: sum(x), marks))
     db.session.commit()
-    db.session.close()
     return jsonify(message='Changed successfully!')
 
 
@@ -1138,8 +1137,7 @@ def post_test():
         for i in range(len(questions)):
             # For each question mark question with answer and add to list then return
             current_question = question_objects_in_test[i]
-            q = AvoQuestion(current_question.string, seeds[i])
-            q.get_score(*answers[i])
+            q = AvoQuestion(current_question.string, seeds[i], answers[i])
             question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation,
                                   'types': q.types, 'answers': answers[i], 'totals': q.totals, 'scores': marks[i]})
         return jsonify(questions=question_list)

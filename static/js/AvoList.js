@@ -1,4 +1,4 @@
-import React, { Component, createElement } from 'react';
+import React, {Component} from 'react';
 import { List, Paper, Collapse, ListItem, ListItemText } from '@material-ui/core';
 import { ExpandLess, ExpandMore } from '@material-ui/icons';
 import { copy } from "./Utilities";
@@ -34,7 +34,8 @@ export default class AvoList extends Component {
     }
 
     createListItem(item, index, depth, selected) {
-        let {primary, secondary, icon, iconColor, items} = item;
+        let {primary, secondary, iconColor, items} = item;
+        let Icon = item.icon;
         let onClick = () => {
             let selected = copy(this.state.selected).slice(0, depth);
             selected[depth] = index;
@@ -45,14 +46,14 @@ export default class AvoList extends Component {
         if (items === undefined) {
             return (
                 <ListItem key = { uniqueKey() } button onClick={onClick} style={style}>
-                    {createElement(icon, {color: iconColor})}
+                    <Icon color={iconColor}/>
                     <ListItemText inset primary={primary} secondary={secondary}/>
                 </ListItem>
             );
         } else if (items.length === 0) {
             return (
                 <ListItem key = { uniqueKey() } button onClick={onClick} style={style}>
-                    {createElement(icon, {color: iconColor})}
+                    <Icon color={iconColor}/>
                     <ListItemText inset primary={primary} secondary={secondary}/>
                     <ExpandMore color='disabled'/>
                 </ListItem>
@@ -61,7 +62,7 @@ export default class AvoList extends Component {
             let open = selected && this.state.selected[depth] === index;
             return [
                 <ListItem key = { uniqueKey() } button onClick={onClick} style={style}>
-                    {createElement(icon, {color: iconColor})}
+                    <Icon color={iconColor}/>
                     <ListItemText inset primary={primary} secondary={secondary}/>
                     {open
                         ? <ExpandLess color='action'/>
