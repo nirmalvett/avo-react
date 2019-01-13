@@ -50,8 +50,11 @@ export default class QuestionBuilder extends Component {
             this.state.initError = 1;
             Http.sampleQuestion(questionString, 0, undefined, result1 => {
                 Http.sampleQuestion(compileString, 0, undefined, result2 => {
-                    if (JSON.stringify(result1) !== JSON.stringify(result2))
+                    if (JSON.stringify(result1) !== JSON.stringify(result2)) {
+                        console.log(JSON.stringify(result1));
+                        console.log(JSON.stringify(result2));
                         this.setState({initError: 2});
+                    }
                 }, () => this.setState({initError: 2}))
             }, () => this.setState({initError: 2}));
             console.log("Warning: This question could not be recompiled to its initial state." +

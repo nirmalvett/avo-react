@@ -674,13 +674,7 @@ def new_question():
         # If the user is not allowed to edit the set return error json
         return jsonify(error="User not able to edit Set")
     try:
-        # Fill out question
-        q = AvoQuestion(string)
-        answers_array = []
-        for i in range(answers):
-            # Fill the array with blank answers
-            answers_array.append("")
-        q.get_score(*answers_array)
+        AvoQuestion(string, 0, [])
     except:
         return jsonify(error="Question Failed to build")
     # Add Question to database
@@ -738,12 +732,7 @@ def edit_question():
         return jsonify(error="User not able to edit SET")
     try:
         # Try to run the question to see if it works
-        q = AvoQuestion(string)
-        answers_array = []
-        for i in range(answers):
-            # Create a blank answer array to test the question
-            answers_array.append("")
-        q.get_score(*answers_array)
+        AvoQuestion(string, 0, [])
     except:
         return jsonify(error="Question could not be created")
     # Update data for database
@@ -828,8 +817,7 @@ def sample_question():
             return jsonify(error="One or more data is not correct")
         try:
             # Try to create and mark the question if it fails return error JSON
-            q = AvoQuestion(string, seed)
-            q.get_score(*answers)
+            q = AvoQuestion(string, seed, answers)
         except Exception as e:
             return jsonify(error="Question failed to be created", message=str(e))
         return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, points=q.scores)
@@ -840,8 +828,7 @@ def sample_question():
             return jsonify(error="One or more data is not correct")
         try:
             # Try to create and mark the question if fails return error JSON
-            q = AvoQuestion(string, seed)
-            q.get_score()
+            q = AvoQuestion(string, seed, [])
         except Exception as e:
             return jsonify(error="Question failed to be created", message=str(e))
         var_list = {}
@@ -1073,8 +1060,7 @@ def save_answer():
     question_id = eval(test.question_list)[question]  # List of question IDs from test
     current_question = Question.query.get(question_id)  # Current question being modified
     # Update the question mark and answer in the takes instance
-    q = AvoQuestion(current_question.string, eval(takes_list.seeds)[question])
-    q.get_score(*answer)
+    q = AvoQuestion(current_question.string, eval(takes_list.seeds)[question], answer)
     marks = eval(takes_list.marks)
     answers = eval(takes_list.answers)
     marks[question] = q.scores
@@ -1151,8 +1137,7 @@ def post_test():
         for i in range(len(questions)):
             # For each question mark question with answer and add to list then return
             current_question = question_objects_in_test[i]
-            q = AvoQuestion(current_question.string, seeds[i])
-            q.get_score(*answers[i])
+            q = AvoQuestion(current_question.string, seeds[i], answers[i])
             question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation,
                                   'types': q.types, 'answers': answers[i], 'totals': q.totals, 'scores': marks[i]})
         return jsonify(questions=question_list)
