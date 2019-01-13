@@ -294,17 +294,14 @@ body {
 .avo-generic__low-shadow {
     box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
 }
-td {
-    vertical-align: top !important;
-    padding: 16px !important;
-}
+
 
 /* .avo-loading-icon {
     height: 150px;
     width: 100%;
     background: url('../img/avo-loading-icon.svg') center no-repeat !important;
     background-size: 60%;
-    opacity:1;  
+    opacity:1;
     transform: scale(0.5);
     animation: flickerAnimation 1.5s infinite;
 }
@@ -313,7 +310,7 @@ td {
   /* 0%   { opacity:1; }
   50%  { opacity:0.25; }
   100% { opacity:1; }
-} */ 
+} */
 
 .avo-loading-icon {
   font-size: 90px;
@@ -394,3 +391,4 @@ td {
     transform: rotate(360deg);
   }
 }
+
