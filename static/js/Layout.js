@@ -306,7 +306,7 @@ class Layout extends Component {
                     section === 'Take Test' &&  // if the current section is take test
                     minutesRemainingUponResumingTest !== null // if the minutesRemaining value exists
                         ?   <React.Fragment>
-                                <Timer/>
+                                <div style={{ 'position' : 'absolute', 'right' : '32px' }}><Timer/></div>
                                 <TimerComp
                                     showSnackBar = {this.showSnackBar.bind(this)}
                                     time={this.state.minutesRemainingUponResumingTest}
