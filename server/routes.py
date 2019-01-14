@@ -142,27 +142,74 @@ def get_classes():
 
     class_list = []  # Data to return to client
     current_time = datetime.now()  # Current time
-    current_class_id = -1  # The current class to calculate data from
+    class_id = -1
 
-    current = None
-    submitted = []
+    test_list = []
 
-    for result in users_takes:
-        # For each takes result find if its the current attempt or older attempt
-        if result.CLASS is not current_class_id:
-            # If the current result is a different class reset the data points
-            current_class_id = result.CLASS
-            current = None
-            submitted = []
-        if result.time_submitted >= current_time:
-            # If this is the current takes instance make it the current attempt
-            # Else add it to the submitted list
-            current = {'timeStarted': time_stamp(result.time_started),
-                       'timeSubmitted': time_stamp(result.time_submitted)}
+    current_class = users_class_stats.fetchone()  # Get the next row of user_median
+    result_median = users_median.fetchone()
+
+    while current_class is not None:
+        # While there are still results in the test gather data
+        # For each row in both queries get all the stats
+        if result_median.TEST is not current_class.TEST:
+            # If the CLASS IDs are not the same return error JSON
+            return jsonify(error="Query 2 and 3 went wrong")
+        if current_class.deadline < current_time:
+            # If the deadline has passed close the test
+            test = Test.query.get(current_class.TEST)  # Get current test
+            test.is_open = False
+            db.session.commit()
+
+            current_test = {
+                        'id': current_class.TEST,
+                        'name': current_class.name,
+                        'open': False,
+                        'deadline': time_stamp(current_class.deadline),
+                        'timer': current_class.timer,
+                        'attempts': current_class.attempts,
+                        'total': current_class.total,
+                        'classAverage': current_class.average,
+                        'classMedian': current_class.class_median,
+                        'classSize': len(marks_array),
+                        'standardDeviation': current_class.stdev
+                            }
         else:
-            submitted.append({'takes': result.TAKES, 'timeSubmitted': time_stamp(result.time_submitted),
-                              'grade': result.grade})
+            # The test deadline has not passed
+            current_test = {
+                        'id': current_class.TEST,
+                        'name': current_class.name,
+                        'open': False,
+                        'deadline': time_stamp(current_class.deadline),
+                        'timer': current_class.timer,
+                        'attempts': current_class.attempts,
+                        'total': current_class.total,
+                        'classAverage': current_class.average,
+                        'classMedian': current_class.class_median,
+                        'classSize': len(marks_array),
+                        'standardDeviation': current_class.stdev
+            }
+        submitted = []  # Submitted Takes in the test
+        current = None
+        for result_take in users_takes:
+            # For each takes result find if its the current attempt or older attempt
+            if result_take.TEST is result_median.TEST:
+                # If the current result test are the same add data to takes array
+                if current_class.time_submitted >= current_time:
+                    # If this is the current takes instance make it the current attempt
+                    # Else add it to the submitted list
+                    current = {'timeStarted': time_stamp(result_take.time_started),
+                               'timeSubmitted': time_stamp(result_take.time_submitted)}
+                else:
+                    submitted.append({'takes': result_take.TAKES,
+                                      'timeSubmitted': time_stamp(result_take.time_submitted),
+                                      'grade': result_take.grade})
 
+        current_test['submitted'] = submitted
+        current_test['current'] = current
+        test_list.append(current_test)
+
+        if class_id is
 
     return jsonify(classes=class_list)
 
@@ -706,7 +753,7 @@ def edit_question():
 
     db.session.commit()
     return jsonify(code="Question updated")
-/getclasses
+
 
 @routes.route('/getAllQuestions', methods=['GET'])
 @login_required
