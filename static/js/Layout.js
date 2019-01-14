@@ -20,7 +20,7 @@ import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
 import {withStyles, List, AppBar, Drawer, Divider, Toolbar, IconButton,
     Typography, ListItem, ListItemText, ListSubheader, Snackbar } from '@material-ui/core';
 import { HomeOutlined, BuildOutlined, HelpOutline,
-    ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu } from "@material-ui/icons";
+    ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu, Timer } from "@material-ui/icons";
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
     deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors';
 import classNames from 'classnames';
@@ -298,17 +298,26 @@ class Layout extends Component {
     }
 
     timerInTopBar(){
-        // the timer logic is found here
-        const {minutesRemainingUponResumingTest, testDueDate, section} = this.state;
-        // if the current section is take test and the minutesRemaining value exists
-        return (section === 'Take Test' && minutesRemainingUponResumingTest !== null)
-            ? <TimerComp
-                showSnackBar = {this.showSnackBar.bind(this)}
-                time = {minutesRemainingUponResumingTest}
-                testDueDate = {testDueDate}
-                uponCompletionFunc = {() => document.getElementById('avo-test__submit-button').click()}
-            />
-            : null;
+       // the timer logic is found here
+      const { minutesRemainingUponResumingTest, section} = this.state;
+      return (
+          <React.Fragment>
+               {
+                    section === 'Take Test' &&  // if the current section is take test
+                    minutesRemainingUponResumingTest !== null // if the minutesRemaining value exists
+                        ?   <React.Fragment>
+                                <div style={{ 'position' : 'absolute', 'right' : '32px' }}><Timer/></div>
+                                <TimerComp
+                                    showSnackBar = {this.showSnackBar.bind(this)}
+                                    time={this.state.minutesRemainingUponResumingTest}
+                                    testDueDate = {this.state.testDueDate}
+                                    uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />
+                            </React.Fragment>
+                        : null
+                }
+          </React.Fragment>
+      )
+
     }
 
     // ============================== Methods that perform some type of data manipulation =======================
