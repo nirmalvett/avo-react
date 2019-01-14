@@ -935,7 +935,7 @@ def create_takes(test, user):
     for i in range(len(test_question_list)):
         # For each question in test add in mark values per question
         q = questions_in_test[i]  # Current question
-        marks_list.append([0] * q.string.split('；')[0].count('%'))
+        marks_list.append([0] * len(AvoQuestion(q.string, 0, []).totals))
         answer_list.append([''] * q.answers)
     # We want to figure out what the new time should be
     t = datetime.now()  # Get current time
