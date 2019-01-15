@@ -122,8 +122,8 @@ def get_classes():
     # Gets all classes with averages and STDEV
     users_class_stats = db.session.execute("SELECT CLASS, enroll_key, class_name, TEST, test_name, is_open, deadline, timer, "
                                            "attempts,total, round(AVG(grade) / total * 100, 2) AS average,round(STDDEV(grade) / total * 100, 2) AS stdev, "
-                                           "COUNT(grade) AS student_count"
-                                           "FROM   (SELECT CLASS.CLASS, CLASS.enroll_key, CLASS.name AS class_name, TEST.TEST, TEST.name AS test_name, "
+                                           "COUNT(grade) AS student_count "
+                                           "FROM (SELECT CLASS.CLASS, CLASS.enroll_key, CLASS.name AS class_name, TEST.TEST, TEST.name AS test_name, "
                                            "TEST.is_open, TEST.deadline, TEST.timer, TEST.attempts, TEST.total, MAX(takes.grade) AS grade "
                                            "FROM CLASS INNER JOIN enrolled ON enrolled.CLASS = CLASS.CLASS INNER JOIN USER u1 "
                                            "ON enrolled.USER = u1.USER INNER JOIN TEST ON TEST.CLASS = enrolled.CLASS INNER JOIN takes "
@@ -164,7 +164,7 @@ def get_classes():
 
             current_test = {
                         'id': current_class.TEST,
-                        'name': current_class.name,
+                        'name': current_class.class_name,
                         'open': False,
                         'deadline': time_stamp(current_class.deadline),
                         'timer': current_class.timer,
@@ -179,7 +179,7 @@ def get_classes():
             # The test deadline has not passed
             current_test = {
                         'id': current_class.TEST,
-                        'name': current_class.name,
+                        'name': current_class.class_name,
                         'open': False,
                         'deadline': time_stamp(current_class.deadline),
                         'timer': current_class.timer,
