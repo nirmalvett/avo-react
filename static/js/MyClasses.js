@@ -235,6 +235,7 @@ export default class MyClasses extends React.Component {
 										helperText={this.state.enrollErrorMessage + ' '}
 										error={this.state.enrollErrorMessage !== ''}
 								/>
+								<br/>
 								<Button
 										color="primary"
 										onClick={
