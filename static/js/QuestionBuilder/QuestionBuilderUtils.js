@@ -610,7 +610,7 @@ export function init(string) {
     let editorCriteria = sections[6].map((criteria, i) => {
         let expr = buildPlainText(criteria)[0];
         let {mathCode, LaTeX} = buildMathCode(expr);
-        return {points: sections[5][i], criteria, mathCode, LaTeX, explanation: sections[7][i], strings: strings};
+        return {points: sections[5][i], expr, mathCode, LaTeX, explanation: sections[7][i], strings: strings};
     });
     return {editorMath, editorPrompt, editorPrompts, editorCriteria};
 }
