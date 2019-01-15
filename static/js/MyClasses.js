@@ -47,6 +47,7 @@ const CONST_ENROLL_TAB = 0;
 const CONST_PAYMENT_TAB = 1;
 
 const CONST_OVERALL_ANALYTICS_DEFAULT = 3;
+const useNewEnroll = true;
 
 export default class MyClasses extends React.Component {
 	constructor(props) {
@@ -202,7 +203,7 @@ export default class MyClasses extends React.Component {
 	}
 
 	enrollInClassPopper() {
-		if (this.state.enrollObj !== undefined && this.state.enrollObj.discount > 0) {
+		if (useNewEnroll) {
 			return (<Popper
 					placement="right-start"
 					open={this.state.joinClassPopperOpen}
