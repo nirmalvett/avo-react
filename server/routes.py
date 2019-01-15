@@ -462,7 +462,8 @@ def enroll():
         if not teaches_class(current_class.CLASS):
             # If the teacher does not teach the class return JSON of success
             current_user.CLASS_ENROLLED_RELATION.append(current_class)
-        return jsonify(message='Enrolled')  # this message cannot be changed as the frontend relies on it
+            db.session.commit()
+        return jsonify(message='Enrolled')
     transaction = Transaction.query.filter((Transaction.USER == current_user.USER) &
                                            (Transaction.CLASS == current_class.CLASS)).all()  # Checks if the user has a free trial
     free_trial = True
