@@ -1300,7 +1300,7 @@ def create_payment():
             'transactions': [
                 {
                     'amount': {
-                        'total': str(round(current_class[0].price_discount * 1.13, 2)),
+                        'total': "{:10.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
                         'currency': 'CAD'
                     },
                     'description': "Description that actually describes the product, don't flake on this because"
@@ -1309,7 +1309,7 @@ def create_payment():
                         'items': [
                             {
                                 'name': 'Avo ' + current_class[0].name,
-                                'price': str(round(current_class[0].price_discount * 1.13, 2)),
+                                'price': "{:10.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
                                 'currency': 'CAD',
                                 'quantity': 1
                             }
