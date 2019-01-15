@@ -95,7 +95,7 @@ export default class TakeTest extends React.Component {
                     disabled
                         ? <Tooltip title="Save disabled">
                             <span>
-                                <IconButton onClick={save} disabled={true} color='disabled'> <Save/> </IconButton>
+                                <IconButton disabled={true} color='disabled'> <Save/> </IconButton>
                             </span>
                           </Tooltip>
                         : <IconButton onClick={save} color='primary'> <Save/> </IconButton>
