@@ -1,4 +1,4 @@
-import React, { Component, Fragment, createElement } from 'react';
+import React, {Component, Fragment} from 'react';
 import Http from './Http';
 import Logo from './Logo';
 import HomePage from './HomePage';
@@ -11,7 +11,7 @@ import CreateTest from './CreateTest';
 import Preferences from './Preferences';
 import ManageClasses from './ManageClasses';
 import { avoGreen } from "./AVOCustomColors";
-import QuestionBuilder from "./QuestionBuilder";
+import QuestionBuilder from "./QuestionBuilder/QuestionBuilder";
 import QuestionBuilderDocs from "./QuestionBuilderDocs";
 import { MySnackbarContentWrapper } from "./AVOSnackBar";
 import AVOInClassTools from "./AVOInClassTools/AVOInClassTools";
@@ -20,14 +20,15 @@ import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
 import {withStyles, List, AppBar, Drawer, Divider, Toolbar, IconButton,
     Typography, ListItem, ListItemText, ListSubheader, Snackbar } from '@material-ui/core';
 import { HomeOutlined, BuildOutlined, HelpOutline,
-    ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu } from "@material-ui/icons";
+    ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu, Timer } from "@material-ui/icons";
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
     deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors';
 import classNames from 'classnames';
+import QuestionManager from "./QuestionManager";
 const drawerWidth = 240;
 const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
     amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
-    
+
 const styles = theme => ({
     drawerPaper: {
         position: 'relative',
@@ -85,6 +86,7 @@ class Layout extends Component {
             markEditor: null,
             minutesRemainingUponResumingTest: null,
             testDueDate: null,
+            questionManager: [null, null, []],
 
             snackBar_hideDuration: 5000,
             snackBar_isOpen: true,
@@ -112,7 +114,7 @@ class Layout extends Component {
     }
 
     // ============================== Methods that return parts of what is rendered ==========================
-    listItem(icon, text) {
+    listItem(Icon, text) {
         // This method helps return a list of items for the menu
         let {color, theme} = this.state;
         let selected = this.state.section === text;
@@ -124,8 +126,7 @@ class Layout extends Component {
                 onClick={() => this.setState({section: text})}
                 style={{ backgroundColor: selected ? color.main : undefined }}
             >
-                {createElement(icon, {nativeColor:
-                        selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)' })}
+                <Icon nativeColor={selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)'}/>
                 <ListItemText primary={<div style={{color: selected ? 'white' : ''}}>{text}</div>} />
             </ListItem>
         );
@@ -173,7 +174,7 @@ class Layout extends Component {
                                 <Divider/>
                                 <List subheader={<ListSubheader>Teacher Only</ListSubheader>}>
                                     {this.listItem(ClassOutlined, 'Manage Classes')}
-                                    {this.listItem(BuildOutlined, 'Build Question')}
+                                    {this.listItem(BuildOutlined, 'My Questions')}
                                     {this.listItem(HelpOutline, 'Documentation')}
                                 </List>
                             </div>
@@ -228,92 +229,95 @@ class Layout extends Component {
     getContent() {
         // this helper returns the logic for what is loaded in the right side of the menu
         let {isTeacher, section, color, theme} = this.state;
-        if (section === 'Home')
-            return (<HomePage
+        if (section === 'Home') return (<HomePage
                 showSnackBar = {this.showSnackBar.bind(this)}
                 isTeacher = {isTeacher}
-            />);
-        if (section === 'My Classes')
-            return (<MyClasses
-                showSnackBar = {this.showSnackBar.bind(this)}
-                isTeacher = {isTeacher}
-                startTest={cls => this.startTest(cls)}
-                theme={{theme: this.state.theme, color: this.state.color}}
-                postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}
-            />);
-        if (section === 'Manage Classes')
-            return (<ManageClasses
-                showSnackBar = {this.showSnackBar.bind(this)}
-                isTeacher = {isTeacher}
-                createTest={cls => this.startCreateTest(cls)}
-                theme={{theme: this.state.theme, color: this.state.color}}
-                postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}
-                markEditor={takes => {this.setState({markEditor: takes, section: 'Mark Editor'})}}
-            />);
-        if (section === 'Create Test')
-            return (<CreateTest
-                showSnackBar = {this.showSnackBar.bind(this)}
-                isTeacher = {isTeacher}
-                classID={this.state.testCreator}
-                onCreate={() => this.setState({section: 'Manage Classes'})}
-            />);
-        if (section === 'Build Question')
-            return <QuestionBuilder
-                showSnackBar = {this.showSnackBar.bind(this)}
-                isTeacher = {isTeacher}
-                theme={createMuiTheme({palette: {primary: color, type: theme}})}
-            />;
-        if (section === 'Documentation')
-            return <QuestionBuilderDocs
-                theme={createMuiTheme({palette: {primary: color, type: theme}})}
-            />;
-        if (section === 'Take Test')
-            return (<TakeTest
-                showSnackBar = {this.showSnackBar.bind(this)}
-                isTeacher = {isTeacher}
-                getTimeRemaining = {(minutes, dueDate) => this.getTimeRemaining(minutes, dueDate)}
-                testID={this.state.test.id}
-                submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}
-            />);
-        if (section === 'Preferences')
-            return (<Preferences
-                showSnackBar = {this.showSnackBar.bind(this)}
-                isTeacher = {isTeacher}
-                colorList={colorList}
-                color={color} changeColor={color => this.setState({color: color})}
-                theme={theme} changeTheme={theme => this.setState({theme: theme})}
-            />);
-        if (section === 'Post Test')
-            return <PostTest showSnackBar = {this.showSnackBar.bind(this)}
-                             isTeacher = {this.state.isTeacher}
-                             takes={this.state.postTest}/>
-        if(section === 'Mark Editor') {
-            return (
-                <MarkEditor
-                    showSnackBar = {this.showSnackBar.bind(this)}
-                    isTeacher = {this.state.isTeacher}
-                    takes={this.state.markEditor}
-                />
-            );
-        }
-        if (section === 'In Class Tools')
-            return <AVOInClassTools />;
-        if (section === 'Explanations')
-            return <AVOExplanations />;
+        />);
+        if (section === 'My Classes') return (<MyClasses
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {isTeacher}
+            startTest={cls => this.startTest(cls)}
+            theme={{theme: this.state.theme, color: this.state.color}}
+            postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}
+        />);
+        if (section === 'Manage Classes') return (<ManageClasses
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {isTeacher}
+            createTest={cls => this.startCreateTest(cls)}
+            theme={{theme: this.state.theme, color: this.state.color}}
+            postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}
+            markEditor={takes => {this.setState({markEditor: takes, section: 'Mark Editor'})}}
+        />);
+        if (section === 'Create Test') return (<CreateTest
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {isTeacher}
+            classID={this.state.testCreator}
+            onCreate={() => this.setState({section: 'Manage Classes'})}
+        />);
+        if (section === 'My Questions') return (<QuestionManager
+            showSnackBar = {this.showSnackBar.bind(this)}
+            theme={createMuiTheme({palette: {primary: color, type: theme}})}
+            initBuilder={questionBuilder => this.setState({section: 'Build Question', questionBuilder})}
+            initWith={this.state.questionManager}
+        />);
+        if (section === 'Build Question') return (<QuestionBuilder
+            showSnackBar = {this.showSnackBar.bind(this)}
+            theme={createMuiTheme({palette: {primary: color, type: theme}})}
+            initManager={questionManager => this.setState({section: 'My Questions', questionManager})}
+            initWith={this.state.questionBuilder}
+        />);
+        if (section === 'Documentation') return (<QuestionBuilderDocs
+            theme={createMuiTheme({palette: {primary: color, type: theme}})}
+        />);
+        if (section === 'Take Test') return (<TakeTest
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {isTeacher}
+            getTimeRemaining = {(minutes, dueDate) => this.getTimeRemaining(minutes, dueDate)}
+            testID={this.state.test.id}
+            submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}
+        />);
+        if (section === 'Preferences') return (<Preferences
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {isTeacher}
+            colorList={colorList}
+            color={color} changeColor={color => this.setState({color: color})}
+            theme={theme} changeTheme={theme => this.setState({theme: theme})}
+        />);
+        if (section === 'Post Test') return (<PostTest
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {this.state.isTeacher}
+            takes={this.state.postTest}
+        />);
+        if (section === 'Mark Editor') return (<MarkEditor
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {this.state.isTeacher}
+            takes={this.state.markEditor}
+        />);
+        if (section === 'In Class Tools') return (<AVOInClassTools/>);
+        if (section === 'Explanations') return (<AVOExplanations/>);
     }
 
     timerInTopBar(){
-        // the timer logic is found here
-        const {minutesRemainingUponResumingTest, testDueDate, section} = this.state;
-        // if the current section is take test and the minutesRemaining value exists
-        return (section === 'Take Test' && minutesRemainingUponResumingTest !== null)
-            ? <TimerComp
-                showSnackBar = {this.showSnackBar.bind(this)}
-                time = {minutesRemainingUponResumingTest}
-                testDueDate = {testDueDate}
-                uponCompletionFunc = {() => document.getElementById('avo-test__submit-button').click()}
-            />
-            : null;
+       // the timer logic is found here
+      const { minutesRemainingUponResumingTest, section} = this.state;
+      return (
+          <React.Fragment>
+               {
+                    section === 'Take Test' &&  // if the current section is take test
+                    minutesRemainingUponResumingTest !== null // if the minutesRemaining value exists
+                        ?   <React.Fragment>
+                                <div style={{ 'position' : 'absolute', 'right' : '32px' }}><Timer/></div>
+                                <TimerComp
+                                    showSnackBar = {this.showSnackBar.bind(this)}
+                                    time={this.state.minutesRemainingUponResumingTest}
+                                    testDueDate = {this.state.testDueDate}
+                                    uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />
+                            </React.Fragment>
+                        : null
+                }
+          </React.Fragment>
+      )
+
     }
 
     // ============================== Methods that perform some type of data manipulation =======================

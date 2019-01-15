@@ -38,13 +38,14 @@
     "file-loader": "^2.0.0",
     "material-ui-pickers": "^2.0.1",
     "moment": "^2.22.2",
-    "npm": "^6.4.1",
+    "npm": "^6.5.0",
     "paypal-checkout": "^4.0.239",
     "react": "^16.5.0",
     "react-apexcharts": "^1.0.10",
     "react-dom": "^16.5.0",
     "react-mathjax2": "0.0.1",
     "style-loader": "^0.23.0",
-    "webpack": "^3.0.0"
+    "webpack": "^3.0.0",
+    "prop-types": "latest"
   }
 }

@@ -25,7 +25,6 @@ yaml_file.close()
 # todo not sure if this is the right place for it, just setting up paypal credentials
 paypalrestsdk.configure(
     {
-        # 'mode': 'live',
         'mode': yaml_obj['paypal_mode'],
         # todo get Frank to set up the account id/secret
         'client_id': config.PAYPAL_ID,
@@ -111,7 +110,6 @@ def get_classes():
     Get the current users classes available to them
     :return: A list of class data
     """
-    print(datetime.now())
     teach_classes = []  # The classes the current user teaches
     if current_user.is_teacher is True:
         # If the current user is a teacher query the data base for teaching classes
@@ -202,7 +200,6 @@ def get_classes():
                             'standardDeviation': round(class_stdev, 2),
                         })
             class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
-    print(datetime.now())
     return jsonify(classes=class_list)
 
 
@@ -340,8 +337,19 @@ def get_sets():
         question_list = []  # Question data to return to client
         for q in questions:
             # For each question append the data
-            question_list.append({'id': q.QUESTION, 'name': q.name, 'string': q.string, 'total': q.total})
-        set_list.append({'id': s.SET, 'name': s.name, 'can_edit': able_edit_set(s.SET), 'questions': question_list})
+            question_list.append({
+                'id': q.QUESTION,
+                'name': q.name,
+                'string': q.string,
+                'total': q.total,
+                'answers': q.answers
+            })
+        set_list.append({
+            'id': s.SET,
+            'name': s.name,
+            'can_edit': able_edit_set(s.SET),
+            'questions': question_list
+        })
     return jsonify(sets=set_list)
 
 
@@ -433,10 +441,12 @@ def enroll():
     Enroll the current user in a class
     :return: Confirmation
     """
+    print("sanity check")
     if not request.json:
         # If the request isn't JSON then return a 400 error
         return abort(400)
     key = request.json['key']  # Data sent from user
+
     if not isinstance(key, str):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
@@ -463,7 +473,7 @@ def enroll():
         if trans_string.startswith("FREETRIAL-"):
             # If the transaction string starts with free trial set the availability of free trail to false
             free_trial = False
-    if current_class.price_discount == 0.0:
+    if current_class.price_discount == 0.00 or current_class.price_discount == 0:
         # Append current user to the class
         current_user.CLASS_ENROLLED_RELATION.append(current_class)
         db.session.commit()
@@ -664,13 +674,7 @@ def new_question():
         # If the user is not allowed to edit the set return error json
         return jsonify(error="User not able to edit Set")
     try:
-        # Fill out question
-        q = AvoQuestion(string)
-        answers_array = []
-        for i in range(answers):
-            # Fill the array with blank answers
-            answers_array.append("")
-        q.get_score(*answers_array)
+        AvoQuestion(string, 0, [])
     except:
         return jsonify(error="Question Failed to build")
     # Add Question to database
@@ -728,12 +732,7 @@ def edit_question():
         return jsonify(error="User not able to edit SET")
     try:
         # Try to run the question to see if it works
-        q = AvoQuestion(string)
-        answers_array = []
-        for i in range(answers):
-            # Create a blank answer array to test the question
-            answers_array.append("")
-        q.get_score(*answers_array)
+        AvoQuestion(string, 0, [])
     except:
         return jsonify(error="Question could not be created")
     # Update data for database
@@ -743,6 +742,31 @@ def edit_question():
 
     db.session.commit()
     return jsonify(code="Question updated")
+
+
+@routes.route('/getAllQuestions', methods=['GET'])
+@login_required
+@check_confirmed
+@admin_only
+def get_all_questions():
+    """
+    Gets all questions in the database and returns
+    :return: List of all questions
+    """
+    question_list = Question.query.all()
+    question_array = []
+    for q in question_list:
+        question_array.append(
+            {
+                'QUESTION': q.QUESTION,
+                'SET': q.SET,
+                'name': q.name,
+                'string': q.string,
+                'answers': q.answers,
+                'total': q.total
+            }
+        )
+    return jsonify(questions=question_array)
 
 
 @routes.route('/deleteQuestion', methods=['POST'])
@@ -785,35 +809,35 @@ def sample_question():
     data = request.json  # Data from client
     string = data['string']
     seed = data['seed']
-    try:
+    if 'answers' in data:
         # If answers were provided then test answers
-        answers = data['answers'] # answers from client
+        answers = data['answers']  # answers from client
         if not isinstance(string, str) or not isinstance(seed, int) or not isinstance(answers, list):
             # Checks if all data given is of correct type if not return error JSON
             return jsonify(error="One or more data is not correct")
         try:
             # Try to create and mark the question if it fails return error JSON
-            q = AvoQuestion(string, seed)
-            q.get_score(*answers)
-        except:
-            return jsonify(error="Question failed to be created")
+            q = AvoQuestion(string, seed, answers)
+        except Exception as e:
+            return jsonify(error="Question failed to be created", message=str(e))
         return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, points=q.scores)
-    except:
+    else:
         # if no answers were provided make false answers
         if not isinstance(string, str) or not isinstance(seed, int):
             # Checks if all data given is of correct type if not return error JSON
             return jsonify(error="One or more data is not correct")
         try:
             # Try to create and mark the question if fails return error JSON
-            q = AvoQuestion(string, seed)
-            answers = []  # Array to hold placeholder answers
-            for i in range(len(string.split('；')[2].split('，'))):
-                # Fill the array with blank answers
-                answers.append("")
-            q.get_score(*answers)
-        except:
-            return jsonify(error="Question failed to be created")
-        var_list = list(map(lambda x: repr(x), q.var_list))
+            q = AvoQuestion(string, seed, [])
+        except Exception as e:
+            return jsonify(error="Question failed to be created", message=str(e))
+        var_list = {}
+        if isinstance(q.var_list, list):
+            for i in range(len(q.var_list)):
+                var_list['$' + str(i+1)] = repr(q.var_list[i])
+        else:
+            for k in q.var_list:
+                var_list[k] = repr(q.var_list[k])
         return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, explanation=q.explanation, variables=var_list)
 
 
@@ -911,7 +935,7 @@ def create_takes(test, user):
     for i in range(len(test_question_list)):
         # For each question in test add in mark values per question
         q = questions_in_test[i]  # Current question
-        marks_list.append([0] * q.string.split('；')[0].count('%'))
+        marks_list.append([0] * len(AvoQuestion(q.string, 0, []).totals))
         answer_list.append([''] * q.answers)
     # We want to figure out what the new time should be
     t = datetime.now()  # Get current time
@@ -981,20 +1005,30 @@ def change_test():
     if not request.json:
         # If the request isn't JSON return a 400 error
         return abort(400)
-    data = request.json # Data from client
-    test, timer, name, deadline = data['test'], data['timer'], data['name'], data['deadline']
-    if not isinstance(test, int) or not isinstance(timer, int) or not isinstance(name, str) or not \
-            isinstance(deadline, datetime):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-    test = Test.query.get(test) # Gets the test object
+    data = request.json  # Data from client
+    test, timer, name, deadline, attempts = data['test'], data['timer'], data['name'], data['deadline'], data['attempts']
+    if not isinstance(test, int):
+        return jsonify(error="Invalid Input: Test needs to be an int, Test is " + str(type(test)))
+    if not isinstance(timer, int):
+        return jsonify(error="Invalid Input: Timer needs to be an int, " + str(type(timer)))
+    if not isinstance(name, str):
+        return jsonify(error="Invalid Input: Name needs to be an int, " + str(type(name)))
+    if not isinstance(deadline, str):
+        return jsonify(error="Invalid Input: Deadline needs to be a str, Deadline is type: " + str(type(deadline)))
+    if not isinstance(attempts, int):
+        return jsonify(error="Invalid Input: Attempts needs to be an int, " + str(type(attempts)))
+    deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
+    deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
+    test = Test.query.get(test)  # Gets the test object
     if not teaches_class(test.CLASS):
         # If the teacher doesn't teach the class the test is in return error
         return jsonify(error="User does not teach class")
+
     # Updates Test data
     test.deadline = deadline
     test.timer = timer
     test.name = name
+    test.attempts = attempts
 
     db.session.commit()
     return jsonify(code="Test Updated")
@@ -1026,18 +1060,17 @@ def save_answer():
     question_id = eval(test.question_list)[question]  # List of question IDs from test
     current_question = Question.query.get(question_id)  # Current question being modified
     # Update the question mark and answer in the takes instance
-    q = AvoQuestion(current_question.string, eval(takes_list.seeds)[question])
-    q.get_score(*answer)
-    marks = eval(takes_list.marks)
     answers = eval(takes_list.answers)
+    answers[question] = answer
+    takes_list.answers = str(answers)
+    db.session.commit()
+    q = AvoQuestion(current_question.string, eval(takes_list.seeds)[question], answer)
+    marks = eval(takes_list.marks)
     marks[question] = q.scores
     # Update with new values and commit to DataBase
     takes_list.marks = str(marks)
-    answers[question] = answer
-    takes_list.answers = str(answers)
     takes_list.grade = sum(map(lambda x: sum(x), marks))
     db.session.commit()
-    db.session.close()
     return jsonify(message='Changed successfully!')
 
 
@@ -1104,8 +1137,7 @@ def post_test():
         for i in range(len(questions)):
             # For each question mark question with answer and add to list then return
             current_question = question_objects_in_test[i]
-            q = AvoQuestion(current_question.string, seeds[i])
-            q.get_score(*answers[i])
+            q = AvoQuestion(current_question.string, seeds[i], answers[i])
             question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation,
                                   'types': q.types, 'answers': answers[i], 'totals': q.totals, 'scores': marks[i]})
         return jsonify(questions=question_list)
@@ -1348,11 +1380,23 @@ def confirm_payment():
 @routes.route('/cancel', methods=['POST'])
 def cancel_order():
     """
-    Cancel Payment
-    :return:
+    Cancel Payment by removing from Transaction Processing Table
+    :return: Confirmation
     """
-    # TODO figure out if this still needs to be implimented
-    return jsonify(code="hello")
+    if not request.json:
+        # If the request is not JSON return a 400 error
+        return abort(400)
+
+    tid = request.json['tid']  # Data from client
+    transaction_processing = TransactionProcessing.query.get(tid)
+    if transaction_processing is None:
+        # If transaction is not in database return error json
+        return jsonify(error="Transaction not found")
+
+    # Remove data from database
+    db.session.delete(transaction_processing)
+    db.session.commit()
+    return jsonify(code="Cancelled")
 
 
 @routes.route('/freeTrial', methods=['POST'])

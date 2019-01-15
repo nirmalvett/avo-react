@@ -15,11 +15,6 @@ import Save from '@material-ui/icons/Save';
 export default class TakeTest extends React.Component {
     constructor(props) {
         super(props);
-        Http.getTest(this.props.testID, (result) => {
-                result.newAnswers = copy(result.answers);
-                this.setState(result);
-                this.props.getTimeRemaining(result.timer, result.deadline);
-            }, (result) => alert(result.error));
         this.state = {
             testID: this.props.testID,
             questions: [],
@@ -41,6 +36,11 @@ export default class TakeTest extends React.Component {
 
     componentDidMount(){
         this.props.showSnackBar("success", "AVO Anti-Cheating Protocol Activated", 6500)
+        Http.getTest(this.props.testID, (result) => {
+            result.newAnswers = copy(result.answers);
+            this.setState(result);
+            this.props.getTimeRemaining(result.timer, result.deadline);
+        }, (result) => alert(result.error));
     }
     render() {
         return (
