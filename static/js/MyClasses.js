@@ -245,7 +245,7 @@ export default class MyClasses extends React.Component {
 															key,
 															(result) => {
 																console.log(result);
-																if (result.message && result.message === "Enrolled!") {
+																if (result.message && result.message === "Enrolled") {
 																	this.setState({enrollErrorMessage: '', joinClassPopperOpen: false});
 																	this.loadClasses("Successfully enrolled in the class!");
 																	this.props.showSnackBar("success", "Successfully enrolled in the class!");
