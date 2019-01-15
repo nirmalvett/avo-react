@@ -93,13 +93,14 @@ export default class TakeTest extends React.Component {
 
                     // Show tooltip if button is disabled, otherwise allow save
                     disabled
-                        ? <IconButton onClick={save} color='primary'> <Save/> </IconButton>
-                        : <Tooltip title="Save disabled">
+                        ? <Tooltip title="Save disabled">
                             <span>
-                                <IconButton disabled={true} color='disabled'> <Save/> </IconButton>
+                                <IconButton onClick={save} disabled={true} color='disabled'> <Save/> </IconButton>
                             </span>
                           </Tooltip>
+                        : <IconButton onClick={save} color='primary'> <Save/> </IconButton>
                  }/>
+
 
                 {question.prompts.map((x, y) => [
                     <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
