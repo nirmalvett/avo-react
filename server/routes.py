@@ -7,26 +7,25 @@ from datetime import datetime, timedelta
 import sys
 from git import Repo
 import paypalrestsdk
-import config
 from yaml import load
+import statistics
 
+import config
 from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
-
 from server.models import *
-import statistics
 
 routes = Blueprint('routes', __name__)
 
 yaml_file = open("config.yaml", 'r')
 yaml_obj = load(yaml_file)
 yaml_file.close()
+print(">>> PayPal is set to " + str(yaml_obj['paypal_mode']) + " <<<")
 
-# todo not sure if this is the right place for it, just setting up paypal credentials
+# PayPal API Configuration
 paypalrestsdk.configure(
     {
         'mode': yaml_obj['paypal_mode'],
-        # todo get Frank to set up the account id/secret
         'client_id': config.PAYPAL_ID,
         'client_secret': config.PAYPAL_SECRET
     }
@@ -110,96 +109,109 @@ def get_classes():
     Get the current users classes available to them
     :return: A list of class data
     """
-    teach_classes = []  # The classes the current user teaches
-    if current_user.is_teacher is True:
-        # If the current user is a teacher query the data base for teaching classes
-        teach_classes = Class.query.filter(Class.USER == current_user.USER).all()
-    enroll_classes = Class.query.filter((Class.CLASS == enrolled.c.CLASS) & (current_user.USER == enrolled.c.USER)).all()  # Classes the current user is enrolled in
-    classes = teach_classes + enroll_classes  # append the class lists together
-    class_list = []  # List of class data to return to the client
-    if classes is not None:
-        # If the current user has a relation with any class parse the data to lists
-        for c in classes:
-            # for every class get the tests and takes and append them
-            tests = Test.query.filter(Test.CLASS == c.CLASS).all()
-            student_list = User.query.filter((User.USER == enrolled.c.USER) & (c.CLASS == enrolled.c.CLASS)).all() # Get all users in class
-            test_list = []  # List of tests in the class
-            time = datetime.now()  # Current time
-            for t in tests:
-                # For every test get all the takes and append them
-                takes = Takes.query.order_by(Takes.time_started).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER)).all()
-                submitted = []  # List of takes indexes
-                current = None  # Current instance of takes
-                for ta in takes:
-                    # For each instance of takes append the data
-                    if ta is not None:
-                        # If the takes value is not empty append the data if not append a null value
-                        if ta.time_submitted > time:
-                            # If the time submitted in the takes is greater then current time its the current attempt
-                            # Else add it to past attempts
-                            current = {'timeStarted': time_stamp(ta.time_started), 'timeSubmitted': time_stamp(ta.time_submitted)}
-                        else:
-                            submitted.append({'takes': ta.TAKES, 'timeSubmitted': time_stamp(ta.time_submitted), 'grade': ta.grade})
-                marks_array = []  # Array of marks to sort to find Median
-                for s in student_list:
-                    # For each student get best takes and calculate averages
-                    takes = Takes.query.order_by(Takes.grade).filter(
-                        (Takes.TEST == t.TEST) &
-                        (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
-                    if len(takes) is not 0:
-                        # If the student has taken the test then add best instance to mean and median
-                        marks_array.append((takes[len(takes) - 1].grade / t.total) * 100)  # Add mark to mark array
-                # Calculate the data
-                if len(marks_array) is 0:
-                    # If there are no marks in the test set values to 0 else calculate values
-                    class_median, class_mean, class_stdev = 0, 0, 0
-                else:
-                    # Calculate the values
-                    class_median = statistics.median(marks_array)
-                    class_mean = statistics.mean(marks_array)
-                    class_stdev = 0
-                    if len(marks_array) > 1:
-                        # If there are more then two marks a stdev will be calculated
-                        class_stdev = statistics.stdev(marks_array)
-                if t.deadline < datetime.now():
-                    # If the deadline has passed then set the is_open value to False
-                    t.is_open = False
-                    db.session.commit()
-                    test_list.append(
+
+    # Gets all user Takes
+    users_takes = db.session.execute("SELECT CLASS.CLASS, TEST.TEST, takes.grade, takes.time_started, takes.time_submitted, takes.TAKES"
+                                    " FROM CLASS"
+                                    " INNER JOIN enrolled ON enrolled.CLASS = CLASS.CLASS"
+                                    " INNER JOIN USER ON enrolled.USER = USER.USER"
+                                    " INNER JOIN TEST ON TEST.CLASS = enrolled.CLASS"
+                                    " INNER JOIN takes ON TEST.TEST = takes.TEST AND takes.USER = USER.USER"
+                                    " WHERE USER.USER = " + str(current_user.USER) + " ORDER BY TEST.TEST;")
+
+    # Gets all classes with averages and STDEV
+    users_class_stats = db.session.execute("SELECT CLASS, enroll_key, class_name, TEST, test_name, is_open, deadline, timer, "
+                                           "attempts,total, round(AVG(grade) / total * 100, 2) AS average,round(STDDEV(grade) / total * 100, 2) AS stdev, COUNT(grade) AS student_count "
+                                           "FROM   (SELECT CLASS.CLASS, CLASS.enroll_key, CLASS.name AS class_name, TEST.TEST, TEST.name AS test_name, "
+                                           "TEST.is_open, TEST.deadline, TEST.timer, TEST.attempts, TEST.total, MAX(takes.grade) AS grade "
+                                           "FROM CLASS INNER JOIN enrolled ON enrolled.CLASS = CLASS.CLASS INNER JOIN USER u1 "
+                                           "ON enrolled.USER = u1.USER INNER JOIN TEST ON TEST.CLASS = enrolled.CLASS INNER JOIN takes "
+                                           "ON takes.TEST = TEST.TEST INNER JOIN USER u2 ON takes.USER = u2.USER AND NOT CLASS.USER = u2.USER "
+                                           "WHERE  u1.USER = " + str(current_user.USER) + " GROUP  BY takes.USER, takes.TEST, enrolled.CLASS) AS d GROUP  BY TEST; ")
+
+    users_median = db.session.execute("SELECT TEST, AVG(g.grade) AS median FROM (SELECT a.grade AS grade,"
+                                      "TEST, IF(@testindex = TEST, @rowindex:=@rowindex + 1, @rowindex:=0) AS rowindex, "
+                                      "IF(@testindex = TEST, @testindex:=@testindex, @testindex:=TEST) AS testindex "
+                                      "FROM (SELECT takes.TEST, MAX(takes.grade) AS grade FROM CLASS "
+                                      "INNER JOIN enrolled ON enrolled.CLASS = CLASS.CLASS INNER JOIN USER u1 ON enrolled.USER = u1.USER "
+                                      "INNER JOIN TEST ON TEST.CLASS = enrolled.CLASS INNER JOIN takes ON takes.TEST = TEST.TEST "
+                                      "INNER JOIN USER u2 ON takes.USER = u2.USER AND NOT CLASS.USER = u2.USER WHERE "
+                                      "u1.USER = " + str(current_user.USER) + " GROUP BY takes.USER , takes.TEST " 
+                                      "ORDER BY takes.TEST , grade) AS a) AS g, (SELECT @rowindex:=0, @testindex:=- 1) r "
+                                      "WHERE g.rowindex IN (FLOOR(@rowindex / 2) , CEIL(@rowindex / 2)) GROUP BY TEST; ")
+
+    time = datetime.now()
+
+    current_takes = {}
+    takes = {}
+    for takes_row in users_takes:
+        if takes_row.time_submitted > time:
+            current_takes[takes_row.TEST] = {
+                'timeStarted': time_stamp(takes_row.time_started),
+                'timeSubmitted': time_stamp(takes_row.time_submitted)
+            }
+        if takes_row.TEST not in takes:
+            takes[takes_row.TEST] = []
+        takes[takes_row.TEST].append(takes_row)
+
+    medians = {}
+    for median_row in users_median:
+        medians[median_row.TEST] = median_row.median
+
+    classes = {}
+    tests = {}
+    for test_row in users_class_stats:
+        if test_row.deadline < time:
+            test_update = Test.query.get(test_row.TEST)
+            test_update.is_open = False
+            db.session.commit()
+            del test_update
+        if test_row.CLASS not in tests:
+            tests[test_row.CLASS] = []
+        if test_row.CLASS not in classes:
+            classes[test_row.CLASS] = {'enrollKey': test_row.enroll_key, 'name': test_row.class_name}
+        if test_row.TEST not in medians:
+            return jsonify(error="Query 3 went wrong")
+        else:
+            tests[test_row.CLASS].append((test_row, medians[test_row.TEST]))
+
+    class_list = []
+    for class_id, test_rows in tests.items():
+        test_list = []
+        for test in test_rows:
+            median = test[1]
+            test = test[0]
+            submitted_list = []
+            if test.TEST in takes:
+                for take in takes.get(test.TEST):
+                    submitted_list.append(
                         {
-                            'id': t.TEST,
-                            'name': t.name,
-                            'open': t.is_open,
-                            'deadline': time_stamp(t.deadline),
-                            'timer': t.timer,
-                            'attempts': t.attempts,
-                            'total': t.total,
-                            'submitted': submitted,
-                            'current': current,
-                            'classAverage': round(class_mean, 2),
-                            'classMedian': round(class_median, 2),
-                            'classSize': len(marks_array),
-                            'standardDeviation': round(class_stdev, 2),
-                        }
-                    )
-                else:
-                    test_list.append(
-                        {
-                            'id': t.TEST,
-                            'name': t.name,
-                            'open': t.is_open,
-                            'deadline': time_stamp(t.deadline),
-                            'timer': t.timer,
-                            'attempts': t.attempts,
-                            'total': t.total,
-                            'submitted': submitted,
-                            'current': current,
-                            'classAverage': round(class_mean, 2),
-                            'classMedian': round(class_median, 2),
-                            'classSize': len(marks_array),
-                            'standardDeviation': round(class_stdev, 2),
-                        })
-            class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
+                            'takes': take.TAKES, 'timeSubmitted': time_stamp(take.time_submitted), 'grade': take.grade
+                         })
+            test_list.append(
+                {
+                    'id': test.TEST,
+                    'name': test.test_name,
+                    'open': test.is_open,
+                    'deadline': time_stamp(test.deadline),
+                    'timer': test.timer,
+                    'attempts': test.attempts,
+                    'total': test.total,
+                    'submitted': submitted_list,
+                    'current': current_takes.get(test.TEST),
+                    'classAverage': test.average,
+                    'classMedian': median,
+                    'classSize': test.student_count,
+                    'standardDeviation': test.stdev,
+                })
+        class_info = classes.get(class_id)
+        if class_info is None:
+            return jsonify(error="Class data not found")
+        class_list.append(
+            {
+                'id': class_id, 'tests': test_list, 'enrollKey': class_info['enrollKey'], 'name': class_info['name']
+            })
+
     return jsonify(classes=class_list)
 
 
