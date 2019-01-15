@@ -441,7 +441,6 @@ def enroll():
     Enroll the current user in a class
     :return: Confirmation
     """
-    print("sanity check")
     if not request.json:
         # If the request isn't JSON then return a 400 error
         return abort(400)
@@ -1300,7 +1299,7 @@ def create_payment():
             'transactions': [
                 {
                     'amount': {
-                        'total': "{:10.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
+                        'total': "{:4.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
                         'currency': 'CAD'
                     },
                     'description': "Description that actually describes the product, don't flake on this because"
@@ -1309,7 +1308,7 @@ def create_payment():
                         'items': [
                             {
                                 'name': 'Avo ' + current_class[0].name,
-                                'price': "{:10.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
+                                'price': "{:4.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
                                 'currency': 'CAD',
                                 'quantity': 1
                             }
@@ -1327,6 +1326,7 @@ def create_payment():
         db.session.commit()
         return jsonify({'tid': payment.id})
     else:
+        print(payment.error)
         # If PayPal encounters error return error JSON
         return jsonify(error='Unable to create payment')
 
