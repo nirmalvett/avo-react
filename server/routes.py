@@ -121,14 +121,13 @@ def get_classes():
 
     # Gets all classes with averages and STDEV
     users_class_stats = db.session.execute("SELECT CLASS, enroll_key, class_name, TEST, test_name, is_open, deadline, timer, "
-                                           "attempts,total, round(AVG(grade) / total * 100, 2) AS average,round(STDDEV(grade) / total * 100, 2) AS stdev, "
-                                           "COUNT(grade) AS student_count"
+                                           "attempts,total, round(AVG(grade) / total * 100, 2) AS average,round(STDDEV(grade) / total * 100, 2) AS stdev, COUNT(grade) AS student_count "
                                            "FROM   (SELECT CLASS.CLASS, CLASS.enroll_key, CLASS.name AS class_name, TEST.TEST, TEST.name AS test_name, "
                                            "TEST.is_open, TEST.deadline, TEST.timer, TEST.attempts, TEST.total, MAX(takes.grade) AS grade "
                                            "FROM CLASS INNER JOIN enrolled ON enrolled.CLASS = CLASS.CLASS INNER JOIN USER u1 "
                                            "ON enrolled.USER = u1.USER INNER JOIN TEST ON TEST.CLASS = enrolled.CLASS INNER JOIN takes "
                                            "ON takes.TEST = TEST.TEST INNER JOIN USER u2 ON takes.USER = u2.USER AND NOT u2.is_teacher = 1 "
-                                           "WHERE  u1.USER = " + str(current_user.USER) + " GROUP  BY takes.USER, takes.TEST) AS d GROUP  BY TEST; ")
+                                           "WHERE  u1.USER = " + str(current_user.USER) + " GROUP  BY takes.USER, takes.TEST, enrolled.CLASS) AS d GROUP  BY TEST; ")
 
     users_median = db.session.execute("SELECT TEST, AVG(g.grade) AS median FROM (SELECT a.grade AS grade,"
                                       "TEST, IF(@testindex = TEST, @rowindex:=@rowindex + 1, @rowindex:=0) AS rowindex, "
@@ -141,76 +140,75 @@ def get_classes():
                                       "ORDER BY takes.TEST , grade) AS a) AS g, (SELECT @rowindex:=0, @testindex:=- 1) r "
                                       "WHERE g.rowindex IN (FLOOR(@rowindex / 2) , CEIL(@rowindex / 2)) GROUP BY TEST; ")
 
-    class_list = []  # Data to return to client
-    current_time = datetime.now()  # Current time
-    class_id = -1
+    time = datetime.now()
 
-    test_list = []
-
-    current_class = users_class_stats.fetchone()  # Get the next row of user_median
-    result_median = users_median.fetchone()
-
-    while current_class is not None:
-        # While there are still results in the test gather data
-        # For each row in both queries get all the stats
-        if result_median.TEST is not current_class.TEST:
-            # If the CLASS IDs are not the same return error JSON
-            return jsonify(error="Query 2 and 3 went wrong")
-        if current_class.deadline < current_time:
-            # If the deadline has passed close the test
-            test = Test.query.get(current_class.TEST)  # Get current test
-            test.is_open = False
-            db.session.commit()
-
-            current_test = {
-                        'id': current_class.TEST,
-                        'name': current_class.name,
-                        'open': False,
-                        'deadline': time_stamp(current_class.deadline),
-                        'timer': current_class.timer,
-                        'attempts': current_class.attempts,
-                        'total': current_class.total,
-                        'classAverage': current_class.average,
-                        'classMedian': current_class.class_median,
-                        'classSize': current_class.student_count,
-                        'standardDeviation': current_class.stdev
-                            }
-        else:
-            # The test deadline has not passed
-            current_test = {
-                        'id': current_class.TEST,
-                        'name': current_class.name,
-                        'open': False,
-                        'deadline': time_stamp(current_class.deadline),
-                        'timer': current_class.timer,
-                        'attempts': current_class.attempts,
-                        'total': current_class.total,
-                        'classAverage': current_class.average,
-                        'classMedian': current_class.class_median,
-                        'classSize': current_class.student_count,
-                        'standardDeviation': current_class.stdev
+    current_takes = {}
+    takes = {}
+    for takes_row in users_takes:
+        if takes_row.time_submitted > time:
+            current_takes[takes_row.TEST] = {
+                'timeStarted': time_stamp(takes_row.time_started),
+                'timeSubmitted': time_stamp(takes_row.time_submitted)
             }
-        submitted = []  # Submitted Takes in the test
-        current = None
-        for result_take in users_takes:
-            # For each takes result find if its the current attempt or older attempt
-            if result_take.TEST is result_median.TEST:
-                # If the current result test are the same add data to takes array
-                if current_class.time_submitted >= current_time:
-                    # If this is the current takes instance make it the current attempt
-                    # Else add it to the submitted list
-                    current = {'timeStarted': time_stamp(result_take.time_started),
-                               'timeSubmitted': time_stamp(result_take.time_submitted)}
-                else:
-                    submitted.append({'takes': result_take.TAKES,
-                                      'timeSubmitted': time_stamp(result_take.time_submitted),
-                                      'grade': result_take.grade})
+        if takes_row.TEST not in takes:
+            takes[takes_row.TEST] = []
+        takes[takes_row.TEST].append(takes_row)
 
-        current_test['submitted'] = submitted
-        current_test['current'] = current
-        test_list.append(current_test)
+    medians = {}
+    for median_row in users_median:
+        medians[median_row.TEST] = median_row.median
 
+    classes = {}
+    tests = {}
+    for test_row in users_class_stats:
+        if test_row.deadline < time:
+            # TODO If the deadline has passed then set the is_open value to False
+            pass
+        if test_row.CLASS not in tests:
+            tests[test_row.CLASS] = []
+        if test_row.CLASS not in classes:
+            classes[test_row.CLASS] = {'enrollKey': test_row.enroll_key, 'name': test_row.class_name}
+        if test_row.TEST not in medians:
+            return jsonify(error="Query 3 went wrong")
+        else:
+            tests[test_row.CLASS].append((test_row, medians[test_row.TEST]))
 
+    class_list = []
+    for class_id, test_rows in tests.items():
+        test_list = []
+        for test in test_rows:
+            median = test[1]
+            test = test[0]
+            submitted_list = []
+            if test.TEST in takes:
+                for take in takes.get(test.TEST):
+                    submitted_list.append(
+                        {
+                            'takes': take.TAKES, 'timeSubmitted': time_stamp(take.time_submitted), 'grade': take.grade
+                         })
+            test_list.append(
+                {
+                    'id': test.TEST,
+                    'name': test.test_name,
+                    'open': test.is_open,
+                    'deadline': time_stamp(test.deadline),
+                    'timer': test.timer,
+                    'attempts': test.attempts,
+                    'total': test.total,
+                    'submitted': submitted_list,
+                    'current': current_takes.get(test.TEST),
+                    'classAverage': test.average,
+                    'classMedian': median,
+                    'classSize': test.student_count,
+                    'standardDeviation': test.stdev,
+                })
+        class_info = classes.get(class_id)
+        if class_info is None:
+            return jsonify(error="Class data not found")
+        class_list.append(
+            {
+                'id': class_id, 'tests': test_list, 'enrollKey': class_info['enrollKey'], 'name': class_info['name']
+            })
 
     return jsonify(classes=class_list)
 
