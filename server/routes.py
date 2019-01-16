@@ -142,50 +142,64 @@ def get_classes():
                                       "ORDER BY takes.TEST , grade) AS a) AS g, (SELECT @rowindex:=0, @testindex:=- 1) r "
                                       "WHERE g.rowindex IN (FLOOR(@rowindex / 2) , CEIL(@rowindex / 2)) GROUP BY TEST; ")
 
-    time = datetime.now()
+    time = datetime.now()  # Current time
 
-    current_takes = {}
-    takes = {}
+    current_takes = {}  # Current takes to add data to
+    takes = {}  # List of all takes attempts
     for takes_row in users_takes:
+        # For each take the user has take append data
         if takes_row.time_submitted > time:
+            # If the test has been submitted add submitted data
             current_takes[takes_row.TEST] = {
                 'timeStarted': time_stamp(takes_row.time_started),
                 'timeSubmitted': time_stamp(takes_row.time_submitted)
             }
         if takes_row.TEST not in takes:
+            # If the current takes test id is not in the takes dict create a sub list and appendd
             takes[takes_row.TEST] = []
         takes[takes_row.TEST].append(takes_row)
 
-    medians = {}
+    medians = {}  # list of medians of tests
     for median_row in users_median:
+        # For each median query add to median array
         medians[median_row.TEST] = median_row.median
 
-    classes = {}
-    tests = {}
+    classes = {}  # List of classes for the user
+    tests = {}  # List of tests for the user
     for test_row in users_class_stats:
+        # For each test in test query get data
         if test_row.deadline < time:
+            # If the deadline has passed close the test
             test_update = Test.query.get(test_row.TEST)
             test_update.is_open = False
             db.session.commit()
             del test_update
         if test_row.CLASS not in tests:
+            # If the current test class id isnt in the test list append it
             tests[test_row.CLASS] = []
         if test_row.CLASS not in classes:
+            # If the current test class id isnt in the class list append it
             classes[test_row.CLASS] = {'enrollKey': test_row.enroll_key, 'name': test_row.class_name}
         if test_row.TEST not in medians:
+            # If the current test test id is not in the median return error JSON
             return jsonify(error="Query 3 went wrong")
         else:
+            # Else append all the data
             tests[test_row.CLASS].append((test_row, medians[test_row.TEST]))
 
-    class_list = []
+    class_list = []  # LIst of classes
     for class_id, test_rows in tests.items():
-        test_list = []
+        # For each class and test in tests array sort data into return JSON
+        test_list = []  # Test list for the user
         for test in test_rows:
+            # For each test in test query add all the data to the test_list
             median = test[1]
             test = test[0]
             submitted_list = []
             if test.TEST in takes:
+                # If the current test is in the takes list get the submitted list
                 for take in takes.get(test.TEST):
+                    # For each takes in the current test add in the data to submitted list
                     submitted_list.append(
                         {
                             'takes': take.TAKES, 'timeSubmitted': time_stamp(take.time_submitted), 'grade': take.grade
@@ -206,14 +220,15 @@ def get_classes():
                     'classSize': test.student_count,
                     'standardDeviation': test.stdev,
                 })
-        class_info = classes.get(class_id)
+        class_info = classes.get(class_id)  # Get the current class
         if class_info is None:
+            # If calss not found return error JSON
             return jsonify(error="Class data not found")
         class_list.append(
             {
                 'id': class_id, 'tests': test_list, 'enrollKey': class_info['enrollKey'], 'name': class_info['name']
             })
-
+    # Retru ndata to client
     return jsonify(classes=class_list)
 
 
