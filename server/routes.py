@@ -127,7 +127,8 @@ def get_classes():
                                            "FROM CLASS INNER JOIN enrolled ON enrolled.CLASS = CLASS.CLASS INNER JOIN USER u1 "
                                            "ON enrolled.USER = u1.USER INNER JOIN TEST ON TEST.CLASS = enrolled.CLASS INNER JOIN takes "
                                            "ON takes.TEST = TEST.TEST INNER JOIN USER u2 ON takes.USER = u2.USER AND NOT CLASS.USER = u2.USER "
-                                           "WHERE  u1.USER = " + str(current_user.USER) + " GROUP  BY takes.USER, takes.TEST, enrolled.CLASS) AS d GROUP  BY TEST; ")
+                                           "WHERE  u1.USER = " + str(current_user.USER) + " OR CLASS.USER = " + str(current_user.USER) +
+                                           " GROUP  BY takes.USER, takes.TEST, enrolled.CLASS) AS d GROUP  BY TEST; ")
 
     users_median = db.session.execute("SELECT TEST, AVG(g.grade) AS median FROM (SELECT a.grade AS grade,"
                                       "TEST, IF(@testindex = TEST, @rowindex:=@rowindex + 1, @rowindex:=0) AS rowindex, "
@@ -136,7 +137,8 @@ def get_classes():
                                       "INNER JOIN enrolled ON enrolled.CLASS = CLASS.CLASS INNER JOIN USER u1 ON enrolled.USER = u1.USER "
                                       "INNER JOIN TEST ON TEST.CLASS = enrolled.CLASS INNER JOIN takes ON takes.TEST = TEST.TEST "
                                       "INNER JOIN USER u2 ON takes.USER = u2.USER AND NOT CLASS.USER = u2.USER WHERE "
-                                      "u1.USER = " + str(current_user.USER) + " GROUP BY takes.USER , takes.TEST " 
+                                      "u1.USER = " + str(current_user.USER) + " OR CLASS.USER = " + str(current_user.USER) +
+                                      " GROUP BY takes.USER , takes.TEST " 
                                       "ORDER BY takes.TEST , grade) AS a) AS g, (SELECT @rowindex:=0, @testindex:=- 1) r "
                                       "WHERE g.rowindex IN (FLOOR(@rowindex / 2) , CEIL(@rowindex / 2)) GROUP BY TEST; ")
 
