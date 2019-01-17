@@ -1,6 +1,7 @@
 from flask import Blueprint, abort, jsonify, request, make_response
 from flask_login import login_required, current_user
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import text
 from server.MathCode.question import AvoQuestion
 from random import randint
 from datetime import datetime, timedelta
@@ -31,6 +32,24 @@ paypalrestsdk.configure(
     }
 )
 del yaml_obj
+
+# Load sql queries from file
+with open('server/SQL/student_classes.sql', 'r') as sql:
+    student_classes = sql.read()
+with open('server/SQL/student_takes.sql', 'r') as sql:
+    student_takes = sql.read()
+with open('server/SQL/student_tests.sql', 'r') as sql:
+    student_tests = sql.read()
+with open('server/SQL/student_tests_medians.sql', 'r') as sql:
+    student_tests_medians = sql.read()
+with open('server/SQL/teacher_classes.sql', 'r') as sql:
+    teacher_classes = sql.read()
+with open('server/SQL/teacher_takes.sql', 'r') as sql:
+    teacher_takes = sql.read()
+with open('server/SQL/teacher_tests.sql', 'r') as sql:
+    teacher_tests = sql.read()
+with open('server/SQL/teacher_tests_medians.sql', 'r') as sql:
+    teacher_tests_medians = sql.read()
 
 
 @routes.route('/changeColor', methods=['POST'])
@@ -110,82 +129,79 @@ def get_classes():
     :return: A list of class data
     """
 
-    # Gets all user Takes
-    users_takes = db.session.execute("SELECT CLASS.CLASS, TEST.TEST, takes.grade, takes.time_started, takes.time_submitted, takes.TAKES"
-                                    " FROM CLASS"
-                                    " INNER JOIN enrolled ON enrolled.CLASS = CLASS.CLASS"
-                                    " INNER JOIN USER ON enrolled.USER = USER.USER"
-                                    " INNER JOIN TEST ON TEST.CLASS = enrolled.CLASS"
-                                    " INNER JOIN takes ON TEST.TEST = takes.TEST AND takes.USER = USER.USER"
-                                    " WHERE USER.USER = " + str(current_user.USER) + " ORDER BY TEST.TEST;")
+    # Note: adding the teacher data with the student data can sometimes create duplicate entries, we use dictionaries
+    #       to filter duplicates and organize the data
+    users_classes = db.session.execute(text(student_classes), params={'user': current_user.USER}).fetchall()
+    users_takes = db.session.execute(text(student_takes), params={'user': current_user.USER}).fetchall()
+    users_tests = db.session.execute(text(student_tests), params={'user': current_user.USER}).fetchall()
+    users_tests_medians = db.session.execute(text(student_tests_medians), params={'user': current_user.USER}).fetchall()
 
-    # Gets all classes with averages and STDEV
-    users_class_stats = db.session.execute("SELECT CLASS, enroll_key, class_name, TEST, test_name, is_open, deadline, timer, "
-                                           "attempts,total, round(AVG(grade) / total * 100, 2) AS average,round(STDDEV(grade) / total * 100, 2) AS stdev, COUNT(grade) AS student_count "
-                                           "FROM   (SELECT CLASS.CLASS, CLASS.enroll_key, CLASS.name AS class_name, TEST.TEST, TEST.name AS test_name, "
-                                           "TEST.is_open, TEST.deadline, TEST.timer, TEST.attempts, TEST.total, MAX(takes.grade) AS grade "
-                                           "FROM CLASS INNER JOIN enrolled ON enrolled.CLASS = CLASS.CLASS INNER JOIN USER u1 "
-                                           "ON enrolled.USER = u1.USER INNER JOIN TEST ON TEST.CLASS = enrolled.CLASS INNER JOIN takes "
-                                           "ON takes.TEST = TEST.TEST INNER JOIN USER u2 ON takes.USER = u2.USER AND NOT CLASS.USER = u2.USER "
-                                           "WHERE  u1.USER = " + str(current_user.USER) + " OR CLASS.USER = " + str(current_user.USER) +
-                                           " GROUP  BY takes.USER, takes.TEST, enrolled.CLASS) AS d GROUP  BY TEST; ")
+    if current_user.is_teacher:
+        users_classes += db.session.execute(text(teacher_classes), params={'user': current_user.USER}).fetchall()
+        users_takes += db.session.execute(text(teacher_takes), params={'user': current_user.USER}).fetchall()
+        users_tests += db.session.execute(text(teacher_tests), params={'user': current_user.USER}).fetchall()
+        users_tests_medians += db.session.execute(text(teacher_tests_medians), params={'user': current_user.USER}).fetchall()
 
-    users_median = db.session.execute("SELECT TEST, AVG(g.grade) AS median FROM (SELECT a.grade AS grade,"
-                                      "TEST, IF(@testindex = TEST, @rowindex:=@rowindex + 1, @rowindex:=0) AS rowindex, "
-                                      "IF(@testindex = TEST, @testindex:=@testindex, @testindex:=TEST) AS testindex "
-                                      "FROM (SELECT takes.TEST, MAX(takes.grade) AS grade FROM CLASS "
-                                      "INNER JOIN enrolled ON enrolled.CLASS = CLASS.CLASS INNER JOIN USER u1 ON enrolled.USER = u1.USER "
-                                      "INNER JOIN TEST ON TEST.CLASS = enrolled.CLASS INNER JOIN takes ON takes.TEST = TEST.TEST "
-                                      "INNER JOIN USER u2 ON takes.USER = u2.USER AND NOT CLASS.USER = u2.USER WHERE "
-                                      "u1.USER = " + str(current_user.USER) + " OR CLASS.USER = " + str(current_user.USER) +
-                                      " GROUP BY takes.USER , takes.TEST " 
-                                      "ORDER BY takes.TEST , grade) AS a) AS g, (SELECT @rowindex:=0, @testindex:=- 1) r "
-                                      "WHERE g.rowindex IN (FLOOR(@rowindex / 2) , CEIL(@rowindex / 2)) GROUP BY TEST; ")
+    time = datetime.now()  # Current time
 
-    time = datetime.now()
-
-    current_takes = {}
-    takes = {}
+    current_takes = {}  # Current takes to add data to
+    takes = {}  # List of all takes attempts
     for takes_row in users_takes:
+        # For each take the user has take append data
         if takes_row.time_submitted > time:
+            # If the test has been submitted add submitted data
             current_takes[takes_row.TEST] = {
                 'timeStarted': time_stamp(takes_row.time_started),
                 'timeSubmitted': time_stamp(takes_row.time_submitted)
             }
         if takes_row.TEST not in takes:
+            # If the current takes test id is not in the takes dict create a sub list and appendd
             takes[takes_row.TEST] = []
         takes[takes_row.TEST].append(takes_row)
 
     medians = {}
-    for median_row in users_median:
+    for median_row in users_tests_medians:
         medians[median_row.TEST] = median_row.median
 
-    classes = {}
-    tests = {}
-    for test_row in users_class_stats:
+    classes = {}  # List of classes for the user
+    for class_row in users_classes:
+        classes[class_row.CLASS] = {
+                'id': class_row.CLASS, 'enrollKey': class_row.enroll_key, 'name': class_row.name, 'tests': []
+            }
+    tests = {}  # List of tests for the user
+    for test_row in users_tests:
+        # For each test in test query get data
         if test_row.deadline < time:
+            # If the deadline has passed close the test
             test_update = Test.query.get(test_row.TEST)
             test_update.is_open = False
             db.session.commit()
             del test_update
         if test_row.CLASS not in tests:
-            tests[test_row.CLASS] = []
+            # If the current test class id isnt in the test list append it
+            tests[test_row.CLASS] = {}
         if test_row.CLASS not in classes:
+            # If the current test class id isnt in the class list append it
             classes[test_row.CLASS] = {'enrollKey': test_row.enroll_key, 'name': test_row.class_name}
         if test_row.TEST not in medians:
+            # If the current test test id is not in the median return error JSON
             return jsonify(error="Query 3 went wrong")
         else:
-            tests[test_row.CLASS].append((test_row, medians[test_row.TEST]))
+            # Else append all the data
+            tests[test_row.CLASS][test_row.TEST] = (test_row, medians[test_row.TEST])
 
-    class_list = []
     for class_id, test_rows in tests.items():
-        test_list = []
-        for test in test_rows:
+        # For each class and test in tests array sort data into return JSON
+        test_list = []  # Test list for the user
+        for key, test in test_rows.items():
+            # For each test in test query add all the data to the test_list
             median = test[1]
             test = test[0]
             submitted_list = []
             if test.TEST in takes:
+                # If the current test is in the takes list get the submitted list
                 for take in takes.get(test.TEST):
+                    # For each takes in the current test add in the data to submitted list
                     submitted_list.append(
                         {
                             'takes': take.TAKES, 'timeSubmitted': time_stamp(take.time_submitted), 'grade': take.grade
@@ -206,15 +222,9 @@ def get_classes():
                     'classSize': test.student_count,
                     'standardDeviation': test.stdev,
                 })
-        class_info = classes.get(class_id)
-        if class_info is None:
-            return jsonify(error="Class data not found")
-        class_list.append(
-            {
-                'id': class_id, 'tests': test_list, 'enrollKey': class_info['enrollKey'], 'name': class_info['name']
-            })
-
-    return jsonify(classes=class_list)
+        classes[class_id]['tests'] += test_list
+    # Retru ndata to client
+    return jsonify(classes=list(classes.values()))
 
 
 @routes.route('/testStats', methods=['POST'])
@@ -241,19 +251,21 @@ def test_stats():
     if not teaches_class(test.CLASS) and not enrolled_in_class(test.CLASS):
         return jsonify(error="User doesn't teach this class or the user is not enrolled in the class")
     students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
+    current_class = Class.query.get(test.CLASS)
     test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
 
     for s in range(len(students)):
         # For each student get best takes and add to test_marks array
-        takes = Takes.query.order_by(Takes.grade).filter(
-            (Takes.TEST == test.TEST) & (Takes.USER == students[s].USER)).all()  # Get current students takes
-        if len(takes) is not 0:
-            # If the student has taken the test get best takes and add to the array of marks
-            takes = takes[len(takes) - 1]  # Get best takes instance
-            test_marks_total.append(takes.grade)
-            question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
-            del takes
+        if students[s].USER is not current_class.USER:
+            takes = Takes.query.order_by(Takes.grade).filter(
+                (Takes.TEST == test.TEST) & (Takes.USER == students[s].USER)).all()  # Get current students takes
+            if len(takes) is not 0:
+                # If the student has taken the test get best takes and add to the array of marks
+                takes = takes[len(takes) - 1]  # Get best takes instance
+                test_marks_total.append(takes.grade)
+                question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
+                del takes
     del students
     question_total_marks = []  # Each students mark per question
 
