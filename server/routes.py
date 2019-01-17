@@ -251,19 +251,21 @@ def test_stats():
     if not teaches_class(test.CLASS) and not enrolled_in_class(test.CLASS):
         return jsonify(error="User doesn't teach this class or the user is not enrolled in the class")
     students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
+    current_class = Class.query.get(test.CLASS)
     test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
 
     for s in range(len(students)):
         # For each student get best takes and add to test_marks array
-        takes = Takes.query.order_by(Takes.grade).filter(
-            (Takes.TEST == test.TEST) & (Takes.USER == students[s].USER)).all()  # Get current students takes
-        if len(takes) is not 0:
-            # If the student has taken the test get best takes and add to the array of marks
-            takes = takes[len(takes) - 1]  # Get best takes instance
-            test_marks_total.append(takes.grade)
-            question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
-            del takes
+        if students[s].USER is not current_class.USER:
+            takes = Takes.query.order_by(Takes.grade).filter(
+                (Takes.TEST == test.TEST) & (Takes.USER == students[s].USER)).all()  # Get current students takes
+            if len(takes) is not 0:
+                # If the student has taken the test get best takes and add to the array of marks
+                takes = takes[len(takes) - 1]  # Get best takes instance
+                test_marks_total.append(takes.grade)
+                question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
+                del takes
     del students
     question_total_marks = []  # Each students mark per question
 
