@@ -19,6 +19,7 @@ export default class TakeTest extends React.Component {
             questions: [],
 
         };
+
         /* this.state actually looks like this
          {
             answers: (6) [Array(1), Array(1), Array(3), Array(1), Array(4), Array(1)],
@@ -88,15 +89,15 @@ export default class TakeTest extends React.Component {
         };
         return (
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
-                <CardHeader title={getMathJax(question.prompt)} action={
-                    <IconButton onClick={save} disabled={disabled} color={disabled ? 'disabled' : 'primary'}>
-                        <Save/>
-                    </IconButton>
+                <CardHeader title={<Typography variant="body2">{index + 1}.{getMathJax(question.prompt)}</Typography>}
+                            action={<IconButton onClick={save} disabled={disabled} color={disabled ? 'disabled' : 'primary'}>
+                                        <Save/>
+                                    </IconButton>
                 }/>
                 {question.prompts.map((x, y) => [
                     <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
                     <AnswerInput
-                                type={question.types[y]} value={answer[y]} prompt={x}
+                                 type={question.types[y]} value={answer[y]} prompt={x}
                                  onBlur={save}
                                  onChange={value => {
                                      let newAnswerList = copy(this.state.newAnswers);
