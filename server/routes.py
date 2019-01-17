@@ -132,20 +132,15 @@ def get_classes():
     # Note: adding the teacher data with the student data can sometimes create duplicate entries, we use dictionaries
     #       to filter duplicates and organize the data
     users_classes = db.session.execute(text(student_classes), params={'user': current_user.USER}).fetchall()
+    users_takes = db.session.execute(text(student_takes), params={'user': current_user.USER}).fetchall()
+    users_tests = db.session.execute(text(student_tests), params={'user': current_user.USER}).fetchall()
+    users_tests_medians = db.session.execute(text(student_tests_medians), params={'user': current_user.USER}).fetchall()
+
     if current_user.is_teacher:
         users_classes += db.session.execute(text(teacher_classes), params={'user': current_user.USER}).fetchall()
-
-    users_takes = db.session.execute(text(student_takes), params={'user': current_user.USER}).fetchall()
-    if current_user.is_teacher:
         users_takes += db.session.execute(text(teacher_takes), params={'user': current_user.USER}).fetchall()
-
-    users_tests = db.session.execute(text(student_tests), params={'user': current_user.USER}).fetchall()
-    if current_user.is_teacher:
         users_tests += db.session.execute(text(teacher_tests), params={'user': current_user.USER}).fetchall()
-
-    users_tests_medians = db.session.execute(text(student_tests_medians), params={'user': current_user.USER}).fetchall()
-    if current_user.is_teacher:
-        users_tests += db.session.execute(text(teacher_tests_medians), params={'user': current_user.USER}).fetchall()
+        users_tests_medians += db.session.execute(text(teacher_tests_medians), params={'user': current_user.USER}).fetchall()
 
     time = datetime.now()  # Current time
 
