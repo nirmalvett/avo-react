@@ -1274,11 +1274,11 @@ def create_payment():
                 return jsonify({'tid': existing_tid.TRANSACTIONPROCESSING})
             else:
                 # Else remove payment from database
-                db.session.remove(existing_tid)
+                db.session.delete(existing_tid)
                 db.session.commit()
         except paypalrestsdk.ResourceNotFound:
             # If error is found remove from database
-            db.session.remove(existing_tid)
+            db.session.delete(existing_tid)
             db.session.commit()
 
     current_class = Class.query.filter(class_id == Class.CLASS).all()  # Get class
