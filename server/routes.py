@@ -206,7 +206,6 @@ def get_classes():
         classes[c]['tests'] = list(classes[c]['tests'].values())
 
     classes = list(classes.values())
-    print(classes)
 
     return jsonify(classes=classes)
 
