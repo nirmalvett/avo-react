@@ -155,22 +155,26 @@ def get_classes():
         }
 
     for t in users_tests:
-        if t.CLASS in classes:
-            classes[t.CLASS]['tests'][t.TEST] = {
-                'id': t.TEST,
-                'name': t.name,
-                'open': t.is_open,
-                'deadline': time_stamp(t.deadline),
-                'timer': t.timer,
-                'attempts': t.attempts,
-                'total': t.total,
-                'submitted': [],
-                'current': None,
-                'classAverage': 0,
-                'classMedian': 0,
-                'classSize': 0,
-                'standardDeviation': 0,
-            }
+        if t.is_open and t.deadline < now:
+            test_update = Test.query.get(t.TEST)
+            test_update.is_open = False
+            db.session.commit()
+
+        classes[t.CLASS]['tests'][t.TEST] = {
+            'id': t.TEST,
+            'name': t.name,
+            'open': t.is_open,
+            'deadline': time_stamp(t.deadline),
+            'timer': t.timer,
+            'attempts': t.attempts,
+            'total': t.total,
+            'submitted': [],
+            'current': None,
+            'classAverage': 0,
+            'classMedian': 0,
+            'classSize': 0,
+            'standardDeviation': 0,
+        }
 
     for t in users_takes:
         if t.CLASS in classes and t.TEST in classes[t.CLASS]['tests']:
@@ -201,7 +205,6 @@ def get_classes():
         classes[c]['tests'] = list(classes[c]['tests'].values())
 
     classes = list(classes.values())
-
     return jsonify(classes=classes)
 
 
