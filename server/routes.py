@@ -1,5 +1,5 @@
-from flask import Blueprint, abort, jsonify, request, make_response
-from flask_login import login_required, current_user
+from flask import Blueprint, jsonify, request, make_response
+from flask_login import login_required
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import text
 from server.MathCode.question import AvoQuestion
@@ -36,18 +36,22 @@ del yaml_obj
 # Load sql queries from file
 with open('server/SQL/student_classes.sql', 'r') as sql:
     student_classes = sql.read()
-with open('server/SQL/student_takes.sql', 'r') as sql:
-    student_takes = sql.read()
-with open('server/SQL/student_tests.sql', 'r') as sql:
-    student_tests = sql.read()
-with open('server/SQL/student_tests_medians.sql', 'r') as sql:
-    student_tests_medians = sql.read()
 with open('server/SQL/teacher_classes.sql', 'r') as sql:
     teacher_classes = sql.read()
-with open('server/SQL/teacher_takes.sql', 'r') as sql:
-    teacher_takes = sql.read()
+with open('server/SQL/student_tests.sql', 'r') as sql:
+    student_tests = sql.read()
 with open('server/SQL/teacher_tests.sql', 'r') as sql:
     teacher_tests = sql.read()
+with open('server/SQL/student_test_stats.sql', 'r') as sql:
+    student_test_stats = sql.read()
+with open('server/SQL/teacher_test_stats.sql', 'r') as sql:
+    teacher_test_stats = sql.read()
+with open('server/SQL/student_takes.sql', 'r') as sql:
+    student_takes = sql.read()
+with open('server/SQL/teacher_takes.sql', 'r') as sql:
+    teacher_takes = sql.read()
+with open('server/SQL/student_tests_medians.sql', 'r') as sql:
+    student_tests_medians = sql.read()
 with open('server/SQL/teacher_tests_medians.sql', 'r') as sql:
     teacher_tests_medians = sql.read()
 
@@ -86,7 +90,7 @@ def change_theme():
     if not request.json:
         # If the request isn't JSON return a 400 error
         return abort(400)
-    data = request.json # Data from the client
+    data = request.json  # Data from the client
     theme = data['theme']
     if not isinstance(theme, int):
         # Checks if all data given is of correct type if not return error JSON
@@ -129,102 +133,78 @@ def get_classes():
     :return: A list of class data
     """
 
-    # Note: adding the teacher data with the student data can sometimes create duplicate entries, we use dictionaries
-    #       to filter duplicates and organize the data
-    users_classes = db.session.execute(text(student_classes), params={'user': current_user.USER}).fetchall()
-    users_takes = db.session.execute(text(student_takes), params={'user': current_user.USER}).fetchall()
-    users_tests = db.session.execute(text(student_tests), params={'user': current_user.USER}).fetchall()
-    users_tests_medians = db.session.execute(text(student_tests_medians), params={'user': current_user.USER}).fetchall()
+    now = datetime.now()
 
+    # Get data for courses that the user is enrolled in
+    users_classes = db.session.execute(text(student_classes), params={'user': current_user.USER}).fetchall()
+    users_tests = db.session.execute(text(student_tests), params={'user': current_user.USER}).fetchall()
+    users_test_stats = db.session.execute(text(student_test_stats), params={'user': current_user.USER}).fetchall()
+    users_takes = db.session.execute(text(student_takes), params={'user': current_user.USER}).fetchall()
+    users_medians = db.session.execute(text(student_tests_medians), params={'user': current_user.USER}).fetchall()
+
+    # Get data for courses that the user teaches
     if current_user.is_teacher:
         users_classes += db.session.execute(text(teacher_classes), params={'user': current_user.USER}).fetchall()
-        users_takes += db.session.execute(text(teacher_takes), params={'user': current_user.USER}).fetchall()
         users_tests += db.session.execute(text(teacher_tests), params={'user': current_user.USER}).fetchall()
-        users_tests_medians += db.session.execute(text(teacher_tests_medians), params={'user': current_user.USER}).fetchall()
+        users_test_stats += db.session.execute(text(teacher_test_stats), params={'user': current_user.USER}).fetchall()
+        users_takes += db.session.execute(text(teacher_takes), params={'user': current_user.USER}).fetchall()
+        users_medians += db.session.execute(text(teacher_tests_medians), params={'user': current_user.USER}).fetchall()
 
-    time = datetime.now()  # Current time
+    classes = {}
+    for c in users_classes:
+        classes[c.CLASS] = {
+            'id': c.CLASS,
+            'enrollKey': c.enroll_key,
+            'name': c.name,
+            'tests': {}
+        }
 
-    current_takes = {}  # Current takes to add data to
-    takes = {}  # List of all takes attempts
-    for takes_row in users_takes:
-        # For each take the user has take append data
-        if takes_row.time_submitted > time:
-            # If the test has been submitted add submitted data
-            current_takes[takes_row.TEST] = {
-                'timeStarted': time_stamp(takes_row.time_started),
-                'timeSubmitted': time_stamp(takes_row.time_submitted)
-            }
-        if takes_row.TEST not in takes:
-            # If the current takes test id is not in the takes dict create a sub list and appendd
-            takes[takes_row.TEST] = []
-        takes[takes_row.TEST].append(takes_row)
+    for t in users_tests:
+        classes[t.CLASS]['tests'][t.TEST] = {
+            'id': t.TEST,
+            'name': t.name,
+            'open': t.is_open,
+            'deadline': time_stamp(t.deadline),
+            'timer': t.timer,
+            'attempts': t.attempts,
+            'total': t.total,
+            'submitted': [],
+            'current': None,
+            'classAverage': 0,
+            'classMedian': 0,
+            'classSize': 0,
+            'standardDeviation': 0,
+        }
 
-    medians = {}
-    for median_row in users_tests_medians:
-        medians[median_row.TEST] = median_row.median
-
-    classes = {}  # List of classes for the user
-    for class_row in users_classes:
-        classes[class_row.CLASS] = {
-                'id': class_row.CLASS, 'enrollKey': class_row.enroll_key, 'name': class_row.name, 'tests': []
-            }
-    tests = {}  # List of tests for the user
-    for test_row in users_tests:
-        # For each test in test query get data
-        if test_row.deadline < time:
-            # If the deadline has passed close the test
-            test_update = Test.query.get(test_row.TEST)
-            test_update.is_open = False
-            db.session.commit()
-            del test_update
-        if test_row.CLASS not in tests:
-            # If the current test class id isnt in the test list append it
-            tests[test_row.CLASS] = {}
-        if test_row.CLASS not in classes:
-            # If the current test class id isnt in the class list append it
-            classes[test_row.CLASS] = {'enrollKey': test_row.enroll_key, 'name': test_row.class_name}
-        if test_row.TEST not in medians:
-            # If the current test test id is not in the median return error JSON
-            return jsonify(error="Query 3 went wrong")
+    for t in users_takes:
+        if t.time_submitted < now:
+            classes[t.CLASS]['tests'][t.TEST]['submitted'].append({
+                'takes': t.TAKES,
+                'timeSubmitted': time_stamp(t.time_submitted),
+                'grade': t.grade
+            })
         else:
-            # Else append all the data
-            tests[test_row.CLASS][test_row.TEST] = (test_row, medians[test_row.TEST])
+            classes[t.CLASS]['tests'][t.TEST]['current'] = {
+                'timeStarted': time_stamp(t.time_started),
+                'timeSubmitted': time_stamp(t.time_submitted)
+            }
 
-    for class_id, test_rows in tests.items():
-        # For each class and test in tests array sort data into return JSON
-        test_list = []  # Test list for the user
-        for key, test in test_rows.items():
-            # For each test in test query add all the data to the test_list
-            median = test[1]
-            test = test[0]
-            submitted_list = []
-            if test.TEST in takes:
-                # If the current test is in the takes list get the submitted list
-                for take in takes.get(test.TEST):
-                    # For each takes in the current test add in the data to submitted list
-                    submitted_list.append(
-                        {
-                            'takes': take.TAKES, 'timeSubmitted': time_stamp(take.time_submitted), 'grade': take.grade
-                         })
-            test_list.append(
-                {
-                    'id': test.TEST,
-                    'name': test.test_name,
-                    'open': test.is_open,
-                    'deadline': time_stamp(test.deadline),
-                    'timer': test.timer,
-                    'attempts': test.attempts,
-                    'total': test.total,
-                    'submitted': submitted_list,
-                    'current': current_takes.get(test.TEST),
-                    'classAverage': test.average,
-                    'classMedian': median,
-                    'classSize': test.student_count,
-                    'standardDeviation': test.stdev,
-                })
-        classes[class_id]['tests'] += test_list
-    # Retru ndata to client
-    return jsonify(classes=list(classes.values()))
+    for s in users_test_stats:
+        test = classes[s.CLASS]['tests'][s.TEST]
+        test['classAverage'] = float(s.average)
+        test['classSize'] = s.student_count
+        test['standardDeviation'] = s.stdev
+
+    for m in users_medians:
+        classes[m.CLASS]['tests'][m.TEST]['classMedian'] = m.median
+
+    for c in classes:
+        classes[c]['tests'] = list(classes[c]['tests'].values())
+
+    classes = list(classes.values())
+    print(classes)
+
+    return jsonify(classes=classes)
 
 
 @routes.route('/testStats', methods=['POST'])

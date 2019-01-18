@@ -1,5 +1,4 @@
 SELECT CLASS.CLASS, CLASS.enroll_key, CLASS.name
-FROM CLASS
-INNER JOIN enrolled ON enrolled.CLASS = CLASS.CLASS
-INNER JOIN USER ON enrolled.USER = USER.USER
-WHERE USER.USER = :user;
+FROM enrolled
+  INNER JOIN CLASS ON CLASS.CLASS = enrolled.CLASS
+WHERE enrolled.USER = :user;
