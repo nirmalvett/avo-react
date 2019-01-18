@@ -46,6 +46,7 @@
     "react-mathjax2": "0.0.1",
     "style-loader": "0.23.0",
     "webpack": "3.0.0",
-    "prop-types": "latest"
+    "prop-types": "latest",
+    "js-yaml-loader": "1.0.1"
   }
 }
