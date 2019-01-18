@@ -37,6 +37,8 @@ import Popper from '@material-ui/core/Popper';
 import paypal from 'paypal-checkout';
 import {convertListFloatToAnalytics, getDistribution} from "./helpers";
 import AVOModal from './AVOMatComps/AVOMatModal';
+import paypal_mode from 'js-yaml-loader!./../../config.yaml';
+
 
 const CONST_ENROLLMENT_PAYMENT = true; // If this is true then it requires students to pay in order to enroll
 const CONST_TAB_OVERALL_ANALYTICS = 0;
@@ -48,6 +50,8 @@ const CONST_PAYMENT_TAB = 1;
 
 const CONST_OVERALL_ANALYTICS_DEFAULT = 3;
 const useNewEnroll = true;
+const PAYPAL_MODE = JSON.parse(('' + paypal_mode).substring(18, ('' + paypal_mode).length - 2)).paypal_mode;
+console.log(PAYPAL_MODE);
 
 export default class MyClasses extends React.Component {
 	constructor(props) {
@@ -84,7 +88,7 @@ export default class MyClasses extends React.Component {
 				(result) => {
 					// Todo: removing duplicates should be unnecessary
 					this.setState({
-                        classes: removeDuplicateClasses(result.classes), 
+                        classes: removeDuplicateClasses(result.classes),
                         classesLoaded : true
                     });
 				},
@@ -257,7 +261,7 @@ export default class MyClasses extends React.Component {
 																setTimeout(() => {
 																	paypal.Button.render({
 
-																		env: 'sandbox', // Should be changed to 'production' when in production
+																		env: PAYPAL_MODE,
 																		commit: true,
 
 																		payment: function () {
