@@ -1,3 +1,5 @@
-SELECT CLASS, enroll_key, name
-FROM CLASS
-WHERE USER = :user;
+SELECT CLASS.CLASS,
+       CLASS.enroll_key,
+       CLASS.name
+FROM   CLASS
+WHERE  CLASS.USER = :user;
