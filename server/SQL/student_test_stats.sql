@@ -1,8 +1,8 @@
-SELECT CLASS,
-       TEST,
-       round(AVG(grade) / total * 100, 2)    AS average,
-       round(STDDEV(grade) / total * 100, 2) AS stdev,
-       COUNT(grade) AS student_count
+SELECT max_grades.CLASS,
+       max_grades.TEST,
+       ROUND(AVG(max_grades.grade) / max_grades.total * 100, 2)    AS average,
+       ROUND(STDDEV(max_grades.grade) / max_grades.total * 100, 2) AS stdev,
+       COUNT(max_grades.grade)                          AS student_count
 FROM   (SELECT CLASS.CLASS,
                TEST.TEST,
                TEST.total,
@@ -10,17 +10,17 @@ FROM   (SELECT CLASS.CLASS,
         FROM   CLASS
                INNER JOIN enrolled
                        ON enrolled.CLASS = CLASS.CLASS
-               INNER JOIN USER u1
-                       ON enrolled.USER = u1.USER
+               INNER JOIN USER calling_user
+                       ON enrolled.USER = calling_user.USER
                INNER JOIN TEST
                        ON TEST.CLASS = enrolled.CLASS
                INNER JOIN takes
                        ON takes.TEST = TEST.TEST
-               INNER JOIN USER u2
-                       ON takes.USER = u2.USER
-                          AND NOT CLASS.USER = u2.USER
-        WHERE  u1.USER = :user
+               INNER JOIN USER takes_user
+                       ON takes.USER = takes_user.USER
+                          AND NOT CLASS.USER = takes_user.USER
+        WHERE  calling_user.USER = :user
         GROUP  BY takes.USER,
                   takes.TEST,
-                  enrolled.CLASS) AS d
-GROUP  BY TEST;
+                  enrolled.CLASS) AS max_grades
+GROUP  BY max_grades.TEST;
