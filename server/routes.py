@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 import sys
 from git import Repo
 import paypalrestsdk
-from yaml import load
 import statistics
 
 import config
@@ -18,20 +17,16 @@ from server.models import *
 
 routes = Blueprint('routes', __name__)
 
-yaml_file = open("config.yaml", 'r')
-yaml_obj = load(yaml_file)
-yaml_file.close()
-print(">>> PayPal is set to " + str(yaml_obj['paypal_mode']) + " <<<")
+print(">>> PayPal is set to " + config.PAYPAL_MODE + " <<<")
 
 # PayPal API Configuration
 paypalrestsdk.configure(
     {
-        'mode': yaml_obj['paypal_mode'],
+        'mode': config.PAYPAL_MODE,
         'client_id': config.PAYPAL_ID,
         'client_secret': config.PAYPAL_SECRET
     }
 )
-del yaml_obj
 
 # Load sql queries from file
 with open('server/SQL/student_classes.sql', 'r') as sql:
@@ -160,49 +155,52 @@ def get_classes():
         }
 
     for t in users_tests:
-        classes[t.CLASS]['tests'][t.TEST] = {
-            'id': t.TEST,
-            'name': t.name,
-            'open': t.is_open,
-            'deadline': time_stamp(t.deadline),
-            'timer': t.timer,
-            'attempts': t.attempts,
-            'total': t.total,
-            'submitted': [],
-            'current': None,
-            'classAverage': 0,
-            'classMedian': 0,
-            'classSize': 0,
-            'standardDeviation': 0,
-        }
-
-    for t in users_takes:
-        if t.time_submitted < now:
-            classes[t.CLASS]['tests'][t.TEST]['submitted'].append({
-                'takes': t.TAKES,
-                'timeSubmitted': time_stamp(t.time_submitted),
-                'grade': t.grade
-            })
-        else:
-            classes[t.CLASS]['tests'][t.TEST]['current'] = {
-                'timeStarted': time_stamp(t.time_started),
-                'timeSubmitted': time_stamp(t.time_submitted)
+        if t.CLASS in classes:
+            classes[t.CLASS]['tests'][t.TEST] = {
+                'id': t.TEST,
+                'name': t.name,
+                'open': t.is_open,
+                'deadline': time_stamp(t.deadline),
+                'timer': t.timer,
+                'attempts': t.attempts,
+                'total': t.total,
+                'submitted': [],
+                'current': None,
+                'classAverage': 0,
+                'classMedian': 0,
+                'classSize': 0,
+                'standardDeviation': 0,
             }
 
+    for t in users_takes:
+        if t.CLASS in classes and t.TEST in classes[t.CLASS]['tests']:
+            if t.time_submitted < now:
+                classes[t.CLASS]['tests'][t.TEST]['submitted'].append({
+                    'takes': t.TAKES,
+                    'timeSubmitted': time_stamp(t.time_submitted),
+                    'grade': t.grade
+                })
+            else:
+                classes[t.CLASS]['tests'][t.TEST]['current'] = {
+                    'timeStarted': time_stamp(t.time_started),
+                    'timeSubmitted': time_stamp(t.time_submitted)
+                }
+
     for s in users_test_stats:
-        test = classes[s.CLASS]['tests'][s.TEST]
-        test['classAverage'] = float(s.average)
-        test['classSize'] = s.student_count
-        test['standardDeviation'] = s.stdev
+        if s.CLASS in classes and s.TEST in classes[s.CLASS]['tests']:
+            test = classes[s.CLASS]['tests'][s.TEST]
+            test['classAverage'] = float(s.average)
+            test['classSize'] = s.student_count
+            test['standardDeviation'] = s.stdev
 
     for m in users_medians:
-        classes[m.CLASS]['tests'][m.TEST]['classMedian'] = m.median
+        if m.CLASS in classes and m.TEST in classes[m.CLASS]['tests']:
+            classes[m.CLASS]['tests'][m.TEST]['classMedian'] = m.median
 
     for c in classes:
         classes[c]['tests'] = list(classes[c]['tests'].values())
 
     classes = list(classes.values())
-    print(classes)
 
     return jsonify(classes=classes)
 
@@ -1309,8 +1307,7 @@ def create_payment():
                         'total': "{:4.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
                         'currency': 'CAD'
                     },
-                    'description': "Description that actually describes the product, don't flake on this because"
-                                   'it can be used against us for charge back cases.',
+                    'description': "32 Week Subscription to " + str(current_class[0].name) + " Through AVO",
                     'item_list': {
                         'items': [
                             {
