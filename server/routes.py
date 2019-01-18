@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 import sys
 from git import Repo
 import paypalrestsdk
-from yaml import load
 import statistics
 
 import config
@@ -18,20 +17,16 @@ from server.models import *
 
 routes = Blueprint('routes', __name__)
 
-yaml_file = open("config.yaml", 'r')
-yaml_obj = load(yaml_file)
-yaml_file.close()
-print(">>> PayPal is set to " + str(yaml_obj['paypal_mode']) + " <<<")
+print(">>> PayPal is set to " + config.PAYPAL_MODE + " <<<")
 
 # PayPal API Configuration
 paypalrestsdk.configure(
     {
-        'mode': yaml_obj['paypal_mode'],
+        'mode': config.PAYPAL_MODE,
         'client_id': config.PAYPAL_ID,
         'client_secret': config.PAYPAL_SECRET
     }
 )
-del yaml_obj
 
 # Load sql queries from file
 with open('server/SQL/student_classes.sql', 'r') as sql:
@@ -160,22 +155,26 @@ def get_classes():
         }
 
     for t in users_tests:
-        if t.CLASS in classes:
-            classes[t.CLASS]['tests'][t.TEST] = {
-                'id': t.TEST,
-                'name': t.name,
-                'open': t.is_open,
-                'deadline': time_stamp(t.deadline),
-                'timer': t.timer,
-                'attempts': t.attempts,
-                'total': t.total,
-                'submitted': [],
-                'current': None,
-                'classAverage': 0,
-                'classMedian': 0,
-                'classSize': 0,
-                'standardDeviation': 0,
-            }
+        if t.is_open and t.deadline < now:
+            test_update = Test.query.get(t.TEST)
+            test_update.is_open = False
+            db.session.commit()
+
+        classes[t.CLASS]['tests'][t.TEST] = {
+            'id': t.TEST,
+            'name': t.name,
+            'open': t.is_open,
+            'deadline': time_stamp(t.deadline),
+            'timer': t.timer,
+            'attempts': t.attempts,
+            'total': t.total,
+            'submitted': [],
+            'current': None,
+            'classAverage': 0,
+            'classMedian': 0,
+            'classSize': 0,
+            'standardDeviation': 0,
+        }
 
     for t in users_takes:
         if t.CLASS in classes and t.TEST in classes[t.CLASS]['tests']:
@@ -206,7 +205,6 @@ def get_classes():
         classes[c]['tests'] = list(classes[c]['tests'].values())
 
     classes = list(classes.values())
-
     return jsonify(classes=classes)
 
 
@@ -1312,8 +1310,7 @@ def create_payment():
                         'total': "{:4.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
                         'currency': 'CAD'
                     },
-                    'description': "Description that actually describes the product, don't flake on this because"
-                                   'it can be used against us for charge back cases.',
+                    'description': "32 Week Subscription to " + str(current_class[0].name) + " Through AVO",
                     'item_list': {
                         'items': [
                             {
