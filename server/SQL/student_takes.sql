@@ -2,6 +2,7 @@ SELECT TEST.CLASS,
        TEST.TEST,
        takes.TAKES,
        takes.grade,
+       takes.time_started,
        takes.time_submitted
 FROM   takes
        INNER JOIN TEST
