@@ -196,12 +196,12 @@ def get_classes():
         if s.CLASS in classes and s.TEST in classes[s.CLASS]['tests']:
             test = classes[s.CLASS]['tests'][s.TEST]
             test['classAverage'] = float(s.average)
-            test['classSize'] = s.student_count
-            test['standardDeviation'] = s.stdev
+            test['classSize'] = int(s.student_count)
+            test['standardDeviation'] = float(s.stdev)
 
     for m in users_medians:
         if m.CLASS in classes and m.TEST in classes[m.CLASS]['tests']:
-            classes[m.CLASS]['tests'][m.TEST]['classMedian'] = m.median
+            classes[m.CLASS]['tests'][m.TEST]['classMedian'] = float(m.median)
 
     for c in classes:
         classes[c]['tests'] = list(classes[c]['tests'].values())
