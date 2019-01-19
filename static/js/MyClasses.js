@@ -16,7 +16,6 @@ import ListItemText from '@material-ui/core/ListItemText/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader/ListSubheader';
 import Button from '@material-ui/core/Button/Button';
 import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined';
-import BarChartOutlinedIcon from '@material-ui/icons/BarChartOutlined';
 import PeopleOutlinedIcon from '@material-ui/icons/PeopleOutlined';
 import AssessmentOutlinedIcon from '@material-ui/icons/AssessmentOutlined';
 import ExpandLess from '@material-ui/icons/ExpandLess';
@@ -28,7 +27,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Chart from "react-apexcharts";
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import {avoGreenGraph} from "./AVOCustomColors";
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -40,7 +38,6 @@ import AVOModal from './AVOMatComps/AVOMatModal';
 import paypal_mode from 'js-yaml-loader!./../../config.yaml';
 
 
-const CONST_ENROLLMENT_PAYMENT = true; // If this is true then it requires students to pay in order to enroll
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
 const CONST_TAB_MY_ATTEMPTS = 2;
@@ -469,8 +466,7 @@ export default class MyClasses extends React.Component {
 			}
 			bestMark = (bestMark / selectedTest.total) * 100;
 			const analyticsDataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
-			let disableStartTest = !selectedTest.open
-					&& (selectedTest.attempts === -1 || selectedTest.submitted.length < selectedTest.attempts);
+			let disableStartTest = !selectedTest.open || selectedTest.submitted.length >= selectedTest.attempts;
 			return (
 					<Fragment>
 						<div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
