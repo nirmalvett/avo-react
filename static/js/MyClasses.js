@@ -466,7 +466,7 @@ export default class MyClasses extends React.Component {
 			}
 			bestMark = (bestMark / selectedTest.total) * 100;
 			const analyticsDataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
-			let disableStartTest = !selectedTest.open || selectedTest.submitted.length >= selectedTest.attempts;
+			let disableStartTest = !selectedTest.open;
 			return (
 					<Fragment>
 						<div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -1038,15 +1038,6 @@ export default class MyClasses extends React.Component {
 	handleTabViewChange(event, value) {
 		this.setState({activeTab: value});
 	};
-
-	enrollInClass() {
-		let key = prompt('Enroll Key:');
-		if (key !== null && key !== '') {
-			Http.enrollInClass(key,
-					() => this.loadClasses(),
-					() => alert('Looks like you entered an invalid key.'));
-		}
-	}
 
 	getTestStats(testID, cIndex, tIndex) {
 		Http.getTestStats(

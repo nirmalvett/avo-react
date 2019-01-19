@@ -142,7 +142,6 @@ def get_classes():
         users_classes += db.session.execute(text(teacher_classes), params={'user': current_user.USER}).fetchall()
         users_tests += db.session.execute(text(teacher_tests), params={'user': current_user.USER}).fetchall()
         users_test_stats += db.session.execute(text(teacher_test_stats), params={'user': current_user.USER}).fetchall()
-        users_takes += db.session.execute(text(teacher_takes), params={'user': current_user.USER}).fetchall()
         users_medians += db.session.execute(text(teacher_tests_medians), params={'user': current_user.USER}).fetchall()
 
     classes = {}
@@ -163,7 +162,7 @@ def get_classes():
         classes[t.CLASS]['tests'][t.TEST] = {
             'id': t.TEST,
             'name': t.name,
-            'open': t.is_open,
+            'open': t.is_open and t.deadline > now,
             'deadline': time_stamp(t.deadline),
             'timer': t.timer,
             'attempts': t.attempts,
@@ -178,14 +177,17 @@ def get_classes():
 
     for t in users_takes:
         if t.CLASS in classes and t.TEST in classes[t.CLASS]['tests']:
+            test = classes[t.CLASS]['tests'][t.TEST]
             if t.time_submitted < now:
-                classes[t.CLASS]['tests'][t.TEST]['submitted'].append({
+                test['submitted'].append({
                     'takes': t.TAKES,
                     'timeSubmitted': time_stamp(t.time_submitted),
                     'grade': t.grade
                 })
+                if test['attempts'] == len(test['submitted']):
+                    test['open'] = 0
             else:
-                classes[t.CLASS]['tests'][t.TEST]['current'] = {
+                test['current'] = {
                     'timeStarted': time_stamp(t.time_started),
                     'timeSubmitted': time_stamp(t.time_submitted)
                 }
