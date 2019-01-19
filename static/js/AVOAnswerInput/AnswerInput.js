@@ -98,7 +98,14 @@ export default class AnswerInput extends React.Component {
         else if (type === CONST_LINEAR_EXPRESSION)
             return null;
         else if (type === CONST_MANUAL_INPUT)
-            return null;
+            return (
+                <TextField
+                    value={v}
+                    onChange={(e) => this.onChange(e.target.value)}
+                    onBlur={() => this.props.onBlur()}
+                    disabled={disabled}
+                />
+            );
         else if (type === CONST_MANUAL_INPUT_POLYNOMIAL)
             return null;
         else if (type === CONST_VECTOR) {

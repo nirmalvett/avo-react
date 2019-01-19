@@ -377,15 +377,8 @@ def parse_answer(i, answer, answer_type, prompt):
             ans = build_number(answer)
         elif answer_type == '3':  # Linear Expression
             raise NotImplementedError
-        elif answer_type == '4':  # Any, None, or comma-separated list of numbers
-            if answer == 'any':
-                ans = boolean(True)
-            elif answer == 'none':
-                ans = boolean(False)
-            else:
-                x = matrix(map(lambda r: [build_number(r)], answer.split(',')))
-                if x.type == MATRIX:
-                    ans = x
+        elif answer_type == '4':  # Todo - Get rid of this garbage
+            ans = number(len(answer))
         elif answer_type == '5':  # Polynomial
             raise NotImplementedError
         elif answer_type == '6':  # Vector

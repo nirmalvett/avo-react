@@ -1,37 +1,54 @@
-from flask import Blueprint, abort, jsonify, request, make_response
-from flask_login import login_required, current_user
+from flask import Blueprint, jsonify, request, make_response
+from flask_login import login_required
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import text
 from server.MathCode.question import AvoQuestion
 from random import randint
 from datetime import datetime, timedelta
 import sys
 from git import Repo
 import paypalrestsdk
-import config
-from yaml import load
+import statistics
 
+import config
 from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
-
 from server.models import *
-import statistics
 
 routes = Blueprint('routes', __name__)
 
-yaml_file = open("config.yaml", 'r')
-yaml_obj = load(yaml_file)
-yaml_file.close()
+print(">>> PayPal is set to " + config.PAYPAL_MODE + " <<<")
 
-# todo not sure if this is the right place for it, just setting up paypal credentials
+# PayPal API Configuration
 paypalrestsdk.configure(
     {
-        'mode': yaml_obj['paypal_mode'],
-        # todo get Frank to set up the account id/secret
+        'mode': config.PAYPAL_MODE,
         'client_id': config.PAYPAL_ID,
         'client_secret': config.PAYPAL_SECRET
     }
 )
-del yaml_obj
+
+# Load sql queries from file
+with open('server/SQL/student_classes.sql', 'r') as sql:
+    student_classes = sql.read()
+with open('server/SQL/teacher_classes.sql', 'r') as sql:
+    teacher_classes = sql.read()
+with open('server/SQL/student_tests.sql', 'r') as sql:
+    student_tests = sql.read()
+with open('server/SQL/teacher_tests.sql', 'r') as sql:
+    teacher_tests = sql.read()
+with open('server/SQL/student_test_stats.sql', 'r') as sql:
+    student_test_stats = sql.read()
+with open('server/SQL/teacher_test_stats.sql', 'r') as sql:
+    teacher_test_stats = sql.read()
+with open('server/SQL/student_takes.sql', 'r') as sql:
+    student_takes = sql.read()
+with open('server/SQL/teacher_takes.sql', 'r') as sql:
+    teacher_takes = sql.read()
+with open('server/SQL/student_tests_medians.sql', 'r') as sql:
+    student_tests_medians = sql.read()
+with open('server/SQL/teacher_tests_medians.sql', 'r') as sql:
+    teacher_tests_medians = sql.read()
 
 
 @routes.route('/changeColor', methods=['POST'])
@@ -68,7 +85,7 @@ def change_theme():
     if not request.json:
         # If the request isn't JSON return a 400 error
         return abort(400)
-    data = request.json # Data from the client
+    data = request.json  # Data from the client
     theme = data['theme']
     if not isinstance(theme, int):
         # Checks if all data given is of correct type if not return error JSON
@@ -110,97 +127,85 @@ def get_classes():
     Get the current users classes available to them
     :return: A list of class data
     """
-    teach_classes = []  # The classes the current user teaches
-    if current_user.is_teacher is True:
-        # If the current user is a teacher query the data base for teaching classes
-        teach_classes = Class.query.filter(Class.USER == current_user.USER).all()
-    enroll_classes = Class.query.filter((Class.CLASS == enrolled.c.CLASS) & (current_user.USER == enrolled.c.USER)).all()  # Classes the current user is enrolled in
-    classes = teach_classes + enroll_classes  # append the class lists together
-    class_list = []  # List of class data to return to the client
-    if classes is not None:
-        # If the current user has a relation with any class parse the data to lists
-        for c in classes:
-            # for every class get the tests and takes and append them
-            tests = Test.query.filter(Test.CLASS == c.CLASS).all()
-            student_list = User.query.filter((User.USER == enrolled.c.USER) & (c.CLASS == enrolled.c.CLASS)).all() # Get all users in class
-            test_list = []  # List of tests in the class
-            time = datetime.now()  # Current time
-            for t in tests:
-                # For every test get all the takes and append them
-                takes = Takes.query.order_by(Takes.time_started).filter((Takes.TEST == t.TEST) & (Takes.USER == current_user.USER)).all()
-                submitted = []  # List of takes indexes
-                current = None  # Current instance of takes
-                for ta in takes:
-                    # For each instance of takes append the data
-                    if ta is not None:
-                        # If the takes value is not empty append the data if not append a null value
-                        if ta.time_submitted > time:
-                            # If the time submitted in the takes is greater then current time its the current attempt
-                            # Else add it to past attempts
-                            current = {'timeStarted': time_stamp(ta.time_started), 'timeSubmitted': time_stamp(ta.time_submitted)}
-                        else:
-                            submitted.append({'takes': ta.TAKES, 'timeSubmitted': time_stamp(ta.time_submitted), 'grade': ta.grade})
-                marks_array = []  # Array of marks to sort to find Median
-                for s in student_list:
-                    # For each student get best takes and calculate averages
-                    takes = Takes.query.order_by(Takes.grade).filter(
-                        (Takes.TEST == t.TEST) &
-                        (Takes.USER == s.USER)).all()  # Get all takes and sort by greatest grade
-                    if len(takes) is not 0:
-                        # If the student has taken the test then add best instance to mean and median
-                        marks_array.append((takes[len(takes) - 1].grade / t.total) * 100)  # Add mark to mark array
-                # Calculate the data
-                if len(marks_array) is 0:
-                    # If there are no marks in the test set values to 0 else calculate values
-                    class_median, class_mean, class_stdev = 0, 0, 0
-                else:
-                    # Calculate the values
-                    class_median = statistics.median(marks_array)
-                    class_mean = statistics.mean(marks_array)
-                    class_stdev = 0
-                    if len(marks_array) > 1:
-                        # If there are more then two marks a stdev will be calculated
-                        class_stdev = statistics.stdev(marks_array)
-                if t.deadline < datetime.now():
-                    # If the deadline has passed then set the is_open value to False
-                    t.is_open = False
-                    db.session.commit()
-                    test_list.append(
-                        {
-                            'id': t.TEST,
-                            'name': t.name,
-                            'open': t.is_open,
-                            'deadline': time_stamp(t.deadline),
-                            'timer': t.timer,
-                            'attempts': t.attempts,
-                            'total': t.total,
-                            'submitted': submitted,
-                            'current': current,
-                            'classAverage': round(class_mean, 2),
-                            'classMedian': round(class_median, 2),
-                            'classSize': len(marks_array),
-                            'standardDeviation': round(class_stdev, 2),
-                        }
-                    )
-                else:
-                    test_list.append(
-                        {
-                            'id': t.TEST,
-                            'name': t.name,
-                            'open': t.is_open,
-                            'deadline': time_stamp(t.deadline),
-                            'timer': t.timer,
-                            'attempts': t.attempts,
-                            'total': t.total,
-                            'submitted': submitted,
-                            'current': current,
-                            'classAverage': round(class_mean, 2),
-                            'classMedian': round(class_median, 2),
-                            'classSize': len(marks_array),
-                            'standardDeviation': round(class_stdev, 2),
-                        })
-            class_list.append({'id': c.CLASS, 'name': c.name, 'enrollKey': c.enroll_key, 'tests': test_list})
-    return jsonify(classes=class_list)
+
+    now = datetime.now()
+
+    # Get data for courses that the user is enrolled in
+    users_classes = db.session.execute(text(student_classes), params={'user': current_user.USER}).fetchall()
+    users_tests = db.session.execute(text(student_tests), params={'user': current_user.USER}).fetchall()
+    users_test_stats = db.session.execute(text(student_test_stats), params={'user': current_user.USER}).fetchall()
+    users_takes = db.session.execute(text(student_takes), params={'user': current_user.USER}).fetchall()
+    users_medians = db.session.execute(text(student_tests_medians), params={'user': current_user.USER}).fetchall()
+
+    # Get data for courses that the user teaches
+    if current_user.is_teacher:
+        users_classes += db.session.execute(text(teacher_classes), params={'user': current_user.USER}).fetchall()
+        users_tests += db.session.execute(text(teacher_tests), params={'user': current_user.USER}).fetchall()
+        users_test_stats += db.session.execute(text(teacher_test_stats), params={'user': current_user.USER}).fetchall()
+        users_takes += db.session.execute(text(teacher_takes), params={'user': current_user.USER}).fetchall()
+        users_medians += db.session.execute(text(teacher_tests_medians), params={'user': current_user.USER}).fetchall()
+
+    classes = {}
+    for c in users_classes:
+        classes[c.CLASS] = {
+            'id': c.CLASS,
+            'enrollKey': c.enroll_key,
+            'name': c.name,
+            'tests': {}
+        }
+
+    for t in users_tests:
+        if t.is_open and t.deadline < now:
+            test_update = Test.query.get(t.TEST)
+            test_update.is_open = False
+            db.session.commit()
+
+        classes[t.CLASS]['tests'][t.TEST] = {
+            'id': t.TEST,
+            'name': t.name,
+            'open': t.is_open,
+            'deadline': time_stamp(t.deadline),
+            'timer': t.timer,
+            'attempts': t.attempts,
+            'total': t.total,
+            'submitted': [],
+            'current': None,
+            'classAverage': 0,
+            'classMedian': 0,
+            'classSize': 0,
+            'standardDeviation': 0,
+        }
+
+    for t in users_takes:
+        if t.CLASS in classes and t.TEST in classes[t.CLASS]['tests']:
+            if t.time_submitted < now:
+                classes[t.CLASS]['tests'][t.TEST]['submitted'].append({
+                    'takes': t.TAKES,
+                    'timeSubmitted': time_stamp(t.time_submitted),
+                    'grade': t.grade
+                })
+            else:
+                classes[t.CLASS]['tests'][t.TEST]['current'] = {
+                    'timeStarted': time_stamp(t.time_started),
+                    'timeSubmitted': time_stamp(t.time_submitted)
+                }
+
+    for s in users_test_stats:
+        if s.CLASS in classes and s.TEST in classes[s.CLASS]['tests']:
+            test = classes[s.CLASS]['tests'][s.TEST]
+            test['classAverage'] = float(s.average)
+            test['classSize'] = s.student_count
+            test['standardDeviation'] = s.stdev
+
+    for m in users_medians:
+        if m.CLASS in classes and m.TEST in classes[m.CLASS]['tests']:
+            classes[m.CLASS]['tests'][m.TEST]['classMedian'] = m.median
+
+    for c in classes:
+        classes[c]['tests'] = list(classes[c]['tests'].values())
+
+    classes = list(classes.values())
+    return jsonify(classes=classes)
 
 
 @routes.route('/testStats', methods=['POST'])
@@ -227,19 +232,21 @@ def test_stats():
     if not teaches_class(test.CLASS) and not enrolled_in_class(test.CLASS):
         return jsonify(error="User doesn't teach this class or the user is not enrolled in the class")
     students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
+    current_class = Class.query.get(test.CLASS)
     test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
 
     for s in range(len(students)):
         # For each student get best takes and add to test_marks array
-        takes = Takes.query.order_by(Takes.grade).filter(
-            (Takes.TEST == test.TEST) & (Takes.USER == students[s].USER)).all()  # Get current students takes
-        if len(takes) is not 0:
-            # If the student has taken the test get best takes and add to the array of marks
-            takes = takes[len(takes) - 1]  # Get best takes instance
-            test_marks_total.append(takes.grade)
-            question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
-            del takes
+        if students[s].USER is not current_class.USER:
+            takes = Takes.query.order_by(Takes.grade).filter(
+                (Takes.TEST == test.TEST) & (Takes.USER == students[s].USER)).all()  # Get current students takes
+            if len(takes) is not 0:
+                # If the student has taken the test get best takes and add to the array of marks
+                takes = takes[len(takes) - 1]  # Get best takes instance
+                test_marks_total.append(takes.grade)
+                question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
+                del takes
     del students
     question_total_marks = []  # Each students mark per question
 
@@ -441,7 +448,6 @@ def enroll():
     Enroll the current user in a class
     :return: Confirmation
     """
-    print("sanity check")
     if not request.json:
         # If the request isn't JSON then return a 400 error
         return abort(400)
@@ -463,6 +469,7 @@ def enroll():
         if not teaches_class(current_class.CLASS):
             # If the teacher does not teach the class return JSON of success
             current_user.CLASS_ENROLLED_RELATION.append(current_class)
+            db.session.commit()
         return jsonify(message='Enrolled')
     transaction = Transaction.query.filter((Transaction.USER == current_user.USER) &
                                            (Transaction.CLASS == current_class.CLASS)).all()  # Checks if the user has a free trial
@@ -477,7 +484,7 @@ def enroll():
         # Append current user to the class
         current_user.CLASS_ENROLLED_RELATION.append(current_class)
         db.session.commit()
-        return jsonify(message='Enrolled!')
+        return jsonify(message='Enrolled')  # this message cannot be changed as the frontend relies on it
     else:
         return jsonify(id=current_class.CLASS, price=current_class.price, discount=current_class.price_discount,
                        tax=round(current_class.price_discount * 0.13, 2),
@@ -1267,11 +1274,11 @@ def create_payment():
                 return jsonify({'tid': existing_tid.TRANSACTIONPROCESSING})
             else:
                 # Else remove payment from database
-                db.session.remove(existing_tid)
+                db.session.delete(existing_tid)
                 db.session.commit()
         except paypalrestsdk.ResourceNotFound:
             # If error is found remove from database
-            db.session.remove(existing_tid)
+            db.session.delete(existing_tid)
             db.session.commit()
 
     current_class = Class.query.filter(class_id == Class.CLASS).all()  # Get class
@@ -1300,16 +1307,15 @@ def create_payment():
             'transactions': [
                 {
                     'amount': {
-                        'total': str(round(current_class[0].price_discount * 1.13, 2)),
+                        'total': "{:4.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
                         'currency': 'CAD'
                     },
-                    'description': "Description that actually describes the product, don't flake on this because"
-                                   'it can be used against us for charge back cases.',
+                    'description': "32 Week Subscription to " + str(current_class[0].name) + " Through AVO",
                     'item_list': {
                         'items': [
                             {
                                 'name': 'Avo ' + current_class[0].name,
-                                'price': str(round(current_class[0].price_discount * 1.13, 2)),
+                                'price': "{:4.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
                                 'currency': 'CAD',
                                 'quantity': 1
                             }
@@ -1327,6 +1333,7 @@ def create_payment():
         db.session.commit()
         return jsonify({'tid': payment.id})
     else:
+        print(payment.error)
         # If PayPal encounters error return error JSON
         return jsonify(error='Unable to create payment')
 
