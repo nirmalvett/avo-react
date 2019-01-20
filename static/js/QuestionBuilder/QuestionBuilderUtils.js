@@ -467,7 +467,7 @@ export function formatString(str, strings) {
  */
 export function formatStringForEditing(str, strings) {
     let result = "";
-    let re = /{(\d+)}|{{|}}/;
+    let re = /{(\d+)}|{{|}}|\$\\\\\$/;
     // noinspection JSValidateTypes
     for(let m=re.exec(str); m!==null; m=re.exec(str)) {
         result += str.slice(0, m.index);
@@ -476,16 +476,19 @@ export function formatStringForEditing(str, strings) {
             result += "{";
         else if (m[0] === "}}")
             result += "}";
+        else if (m[0] === "$\\\\$")
+            result += "\n";
         else
             result += '`' + strings[Number(m[1])].expr + '`';
     }
-    return (result + str).replace(/—/g, '\n\n');
+    return (result + str).replace(/—/g, '\n@');
 }
 
-export function extractReferences(str) {
+export function extractReferences(str, snackbar=()=>{}) {
     let string = "";
     let strings = [];
-    let re = /`(.+?)`|{|}/;
+    let re = /`(.+?)`|{|}|(\$\w+)/;
+    let didTheDumbImplicitQuoteThing = false;
     // noinspection JSValidateTypes
     for(let m=re.exec(str); m!==null; m=re.exec(str)) {
         string += str.slice(0, m.index);
@@ -496,12 +499,15 @@ export function extractReferences(str) {
             string += "}}";
         else {
             string += '{' + strings.length + '}';
-            let {LaTeX, mathCode} = buildMathCode(m[1]);
+            // noinspection JSValidateTypes
+            didTheDumbImplicitQuoteThing = didTheDumbImplicitQuoteThing || m[1] === undefined;
+            let {LaTeX, mathCode} = buildMathCode(m[1] ? m[1] : m[2]);
             let expr = buildPlainText(mathCode);
             strings.push({expr, LaTeX, mathCode});
         }
     }
-    string = (string + str).replace(/\n\n/g, '—');
+    if (didTheDumbImplicitQuoteThing) snackbar('info', 'Missing quotes implicitly added', 4000);
+    string = (string + str).replace(/\n@/g, '—').replace(/\n/g, '$\\\\$');
     return {string, strings};
 }
 
