@@ -217,6 +217,7 @@ export default class QuestionBuilder extends Component {
                         </div>
                     </div>
                     <div><TextField multiline value={this.state.content} style={{width: '100%'}}
+                                    inputProps={{onKeyDown: QuestionBuilder.editText}}
                                     onChange={v => this.setState({content: v.target.value})}/></div>
                     {errors}
                 </Fragment>
@@ -284,6 +285,7 @@ export default class QuestionBuilder extends Component {
                     </Select></div>
                     <div>
                         <TextField multiline value={this.state.content.prompt} style={{width: '100%'}}
+                                   inputProps={{onKeyDown: QuestionBuilder.editText}}
                                    onChange={v => this.setState(
                                        {content: {type: this.state.content.type, prompt: v.target.value}}
                                    )}
@@ -336,7 +338,8 @@ export default class QuestionBuilder extends Component {
                                 this.setState({editorCriteria: criteria, currentlyEditing: null});
                             }}><Delete/></IconButton>
                             <IconButton onClick={() => this.cancel()}><Cancel/></IconButton>
-                            <IconButton onClick={() => this.saveCriteria()}>
+                            <IconButton disabled={error || errors.length > 0}
+                                        onClick={() => this.saveCriteria()}>
                                 <Done/></IconButton>
                         </div>
                     </div>
@@ -358,6 +361,7 @@ export default class QuestionBuilder extends Component {
                     <div style={{marginTop: 10}}>
                         <TextField
                             multiline value={explanation} style={{width: '100%'}} label='Explanation'
+                            inputProps={{onKeyDown: QuestionBuilder.editText}}
                             onChange={v => this.setState(
                                 {content: {points, criteria, explanation: v.target.value}}
                             )}
@@ -495,12 +499,12 @@ export default class QuestionBuilder extends Component {
     }
 
     saveMainPrompt() {
-        let {string, strings} = extractReferences(this.state.content);
+        let {string, strings} = extractReferences(this.state.content, this.props.showSnackBar);
         this.setState({editorPrompt: {prompt: string, strings}, currentlyEditing: null});
     }
 
     saveSubPrompt() {
-        let {string, strings} = extractReferences(this.state.content.prompt);
+        let {string, strings} = extractReferences(this.state.content.prompt, this.props.showSnackBar);
         let {type} = this.state.content;
         let editorPrompts = copy(this.state.editorPrompts);
         editorPrompts[Number(this.state.currentlyEditing.slice(6))] = {prompt: string, strings, type};
@@ -508,7 +512,7 @@ export default class QuestionBuilder extends Component {
     }
 
     saveCriteria() {
-        let {string, strings} = extractReferences(this.state.content.explanation);
+        let {string, strings} = extractReferences(this.state.content.explanation, this.props.showSnackBar);
         let {criteria, points} = this.state.content;
         let {mathCode, LaTeX} = buildMathCode(criteria);
         let expr = buildPlainText(mathCode)[0];
@@ -517,6 +521,20 @@ export default class QuestionBuilder extends Component {
             {expr, points, explanation: string, mathCode, LaTeX, strings};
         console.log(editorCriteria);
         this.setState({editorCriteria, currentlyEditing: null});
+    }
+
+    static editText(event) {
+        let {key, ctrlKey, target} = event;
+        if (ctrlKey && (key === 'd' || key === 'e')) {
+            let {selectionStart, selectionEnd} = target;
+            event.preventDefault();
+            document.execCommand('insertText', false, key === 'e'
+                ? '\\[' + target.value.substring(selectionStart, selectionEnd) + '\\]'
+                : '\\(' + target.value.substring(selectionStart, selectionEnd) + '\\)'
+            );
+            target.selectionStart = selectionStart + 2;
+            target.selectionEnd = selectionEnd + 2;
+        }
     }
 }
 

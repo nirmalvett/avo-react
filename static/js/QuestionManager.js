@@ -206,9 +206,11 @@ export default class QuestionManager extends Component {
     }
 
     newQuestion() {
-        Http.newQuestion(this.state.sets[this.state.selectedS].id, 'New question', '-4 4 0 3 1 AC，2 3 0 ' +
-            'AB，-4 4 0 3 1 AC，$0 _A，$1 _A，$2 _A，@0 $0 $1 $2 CD CB CN 1 %；Compute the vector sum \\({0}+{1}{2}\\).' +
-            '，；6；；，，', 1, 1,
+        Http.newQuestion(this.state.sets[this.state.selectedS].id, 'New question', '-3 3 1 3 1 AC，2 3 0 ' +
+            'AB，-2 2 1 3 1 AC；$1，$2，$3；$1 _A，$2 _A，$3 _A；Compute the vector sum \\({0}+{1}{2}\\).，；6；1；@0 $1 ' +
+            '$2 $3 CD CB CN；The first step is to multiply the vector by the scalar, which you can do by multiplying ' +
+            'each number in the vector. The second step is to add the result to the other vector, by adding each ' +
+            'corresponding pair of numbers.；，，', 1, 1,
             () => this.getSets(),
             () => alert("The question couldn't be created.")
         );

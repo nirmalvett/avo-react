@@ -82,7 +82,7 @@ export default class ManageClasses extends Component {
 		Http.getClasses(result => {
                 console.log(result);
                 this.setState({ classesLoaded : true, classes : result.classes });
-            }, 
+            },
             result => console.log(result));
 		if (snackBarString !== undefined)
 			this.props.showSnackBar('success', snackBarString);
@@ -541,10 +541,10 @@ export default class ManageClasses extends Component {
 					</Tooltip>
 					{/* Start/Stop Test Button*/}
 					{selectedTest.open
-							? <Tooltip key={`stopTestToolTip-:${uniqueKey1}`} title='Stop the test'>
+							? <Tooltip key={`stopTestToolTip-:${uniqueKey1}`} title='Close the test'>
 								<IconButton onClick={() => this.closeTest()}><Stop/></IconButton>
 							</Tooltip>
-							: <Tooltip key={`playArrow-:${uniqueKey1}`} title='Start the test'>
+							: <Tooltip key={`playArrow-:${uniqueKey1}`} title='Open the test'>
 								<IconButton onClick={() => this.openTest()}><PlayArrow/></IconButton>
 							</Tooltip>
 					}

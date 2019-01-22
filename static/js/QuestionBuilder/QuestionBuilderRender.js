@@ -23,8 +23,8 @@ export function renderHints(currentlyEditing) {
             Here is where you can enter the main prompt for your question. It will
             appear before all the answer fields, and be the most heavily emphasized.
             <ol>
-                <li>\(1+1\) is an inline equation.</li>
-                <li>\[1+1\] is a block equation.</li>
+                <li>\(1+1\) is an inline equation. (ctrl+d to insert)</li>
+                <li>\[1+1\] is a block equation. (ctrl+e to insert)</li>
                 <li>`$1+1` evaluates $1+1, and then substitutes in.</li>
             </ol>
         </Typography>
@@ -36,8 +36,8 @@ export function renderHints(currentlyEditing) {
             questions, put the prompt on the first line, and each consecutive answer
             on its own line.
             <ol>
-                <li>\(1+1\) is an inline equation.</li>
-                <li>\[1+1\] is a block equation.</li>
+                <li>\(1+1\) is an inline equation. (ctrl+d to insert)</li>
+                <li>\[1+1\] is a block equation. (ctrl+e to insert)</li>
                 <li>`$1+1` evaluates $1+1, and then substitutes in.</li>
             </ol>
         </Typography>
