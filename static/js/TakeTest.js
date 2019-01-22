@@ -19,6 +19,7 @@ export default class TakeTest extends Component {
             testID: this.props.testID,
             questions: [],
         };
+
         /* this.state actually looks like this
          {
             answers: (6) [Array(1), Array(1), Array(3), Array(1), Array(4), Array(1)],
@@ -87,7 +88,7 @@ export default class TakeTest extends Component {
         };
         return (
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
-                <CardHeader title={getMathJax(question.prompt)} action={
+                <CardHeader title={getMathJax((index + 1) + '. ' + question.prompt)} action={
                     disabled
                         ? <Tooltip title="Nothing to save">
                             <span><IconButton disabled={true} color='disabled'><Save/></IconButton></span>
