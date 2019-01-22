@@ -89,7 +89,7 @@ export default class TakeTest extends React.Component {
         };
         return (
             <Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
-                <CardHeader title={<Typography variant="body2">{index + 1}.{getMathJax(question.prompt)}</Typography>}
+                <CardHeader title={getMathJax((index + 1) + '. ' + question.prompt)}
                             action={<IconButton onClick={save} disabled={disabled} color={disabled ? 'disabled' : 'primary'}>
                                         <Save/>
                                     </IconButton>
