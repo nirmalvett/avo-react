@@ -233,7 +233,7 @@ def test_stats():
     # If the user doesnt teach the class then return error JSON
     if not teaches_class(test.CLASS) and not enrolled_in_class(test.CLASS):
         return jsonify(error="User doesn't teach this class or the user is not enrolled in the class")
-    students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
+    students = User.query.filter((User.USER == Transaction.USER) & (test.CLASS == Transaction.CLASS)).all()  # All students in the class
     current_class = Class.query.get(test.CLASS)
     test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
@@ -1174,7 +1174,7 @@ def get_class_test_results():
     current_test = Test.query.get(test)
     if not teaches_class(current_test.CLASS):
         return jsonify(error="User doesn't teach class")
-    users = User.query.filter((User.USER == enrolled.c.USER) & (current_test.CLASS == enrolled.c.CLASS)).all()  # All users in class
+    users = User.query.filter((User.USER == Transaction.USER) & (current_test.CLASS == Transaction.CLASS)).all()  # All users in class
     for i in range(len(users)):
         # For each user get user data and best takes instance and present append to list then return
         first_name, last_name = users[i].first_name, users[i].last_name
@@ -1207,8 +1207,7 @@ def csv_class_marks(classid):
         return abort(400)
     # Query the database for data on the test class and students data
     output_class = Class.query.get(classid)
-    student_array = User.query.join(enrolled).join(Class).filter(
-        (enrolled.c.CLASS == classid) & (enrolled.c.USER == User.USER)).all()
+    student_array = User.query.filter((Transaction.CLASS == classid) & (Transaction.USER == User.USER)).all()
     test_array = Test.query.filter(Test.CLASS == classid).all()
     test_name_list = []  # An array of the test names
     output_string = '\"Email\" '  # The output for the file

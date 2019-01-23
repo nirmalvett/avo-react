@@ -6,14 +6,6 @@ from string import ascii_letters, digits
 from server.Encoding.PasswordHash import generate_salt, hash_password
 
 
-enrolled = db.Table(
-    'enrolled',
-    db.metadata,
-    db.Column('USER', db.Integer, db.ForeignKey("USER.USER"), nullable=False),
-    db.Column('CLASS', db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
-)
-
-
 class Class(db.Model):
     __tablename__ = "CLASS"
 
@@ -25,7 +17,6 @@ class Class(db.Model):
     price_discount = db.Column(db.Float, nullable=False)
 
     USER_RELATION = db.relationship("User", back_populates="CLASS_RELATION")
-    USER_ENROLLED_RELATION = db.relationship("User", secondary=enrolled, back_populates="CLASS_ENROLLED_RELATION")
     TEST_RELATION = db.relationship("Test", back_populates="CLASS_RELATION")
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="CLASS_RELATION")
     TRANSACTION_PROCESSING_RELATION = db.relationship("TransactionProcessing", back_populates="CLASS_RELATION")
@@ -93,7 +84,6 @@ class User(UserMixin, db.Model):
     theme = db.Column(db.Boolean, nullable=False, default=False)
 
     CLASS_RELATION = db.relationship("Class", back_populates="USER_RELATION")
-    CLASS_ENROLLED_RELATION = db.relationship("Class", secondary=enrolled, back_populates="USER_ENROLLED_RELATION")
     TAKES_RELATION = db.relationship("Takes", back_populates="USER_RELATION")
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="USER_RELATION")

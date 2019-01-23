@@ -244,8 +244,8 @@ def enrolled_in_class(class_id):
     """
     try:
         # Get all classes user is enrolled in
-        current_class = Class.query.filter((Class.CLASS == enrolled.c.CLASS) &
-                                           (current_user.USER == enrolled.c.USER)).all()
+        current_class = Class.query.filter((Class.CLASS == Transaction.CLASS) &
+                                           (current_user.USER == Transaction.USER)).all()
         if len(current_class) is 0:
             return False
         for i in range(len(current_class)):
