@@ -208,7 +208,6 @@ class Transaction(db.Model):
     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
     CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
     expiration = db.Column(db.DATETIME, nullable=False)
-    expired = db.Column(db.Boolean, nullable=False, default=False)
 
     USER_RELATION = db.relationship("User", back_populates="TRANSACTION_RELATION")
     CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_RELATION")
@@ -218,7 +217,6 @@ class Transaction(db.Model):
         self.USER = USER
         self.CLASS = CLASS
         self.expiration = expiration
-        self.expired = False
 
     def __reduce__(self):
         return f'Transaction {self.TRANSACTION} {self.USER} {self.CLASS} {self.expiration}'
