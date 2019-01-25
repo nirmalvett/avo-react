@@ -96,6 +96,44 @@ def change_theme():
     return jsonify(message='updated')
 
 
+@routes.route('/removeAccount', methods=['POST'])
+@login_required
+@check_confirmed
+@admin_only
+def remove_account():
+    if not request.json:
+        return abort(400)
+    data = request.json
+    user_id = data['userID']
+
+    if not isinstance(user_id, int):
+        return jsonify(error="One or more data types are not correct")
+    try:
+        user = User.query.filter(User.USER == user_id).first()
+    except NoResultFound:
+        return jsonify(error="No user found")
+    if user is None:
+        return jsonify(error="No user found")
+    class_list = Class.query.filter((Class.CLASS == enrolled.c.CLASS) &
+                                    (user.USER == enrolled.c.USER)).all()
+    takes = Takes.query.filter(Takes.USER == user.USER).all()
+    if user.is_teacher:
+        teaches_list = Class.query.filter(Class.USER == user.USER).all()
+        for i in teaches_list:
+            i.USER = None
+        db.session.commit()
+    for i in takes:
+        db.session.delete(i)
+    db.session.commit()
+    for i in class_list:
+        user.CLASS_ENROLLED_RELATION.remove(i)
+    db.session.commit()
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify("All User Data Removed")
+
+
+
 @routes.route('/createClass', methods=['POST'])
 @login_required
 @check_confirmed
