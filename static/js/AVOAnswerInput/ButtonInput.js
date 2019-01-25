@@ -242,7 +242,7 @@ export default class ButtonInput extends React.Component {
                   justify="center"
                   alignItems="center">
               <TextField
-                  label='Enter vector size.'
+                  label='Enter vector size/component.'
                   value = {this.state.vectorSize}
                   onChange = {(e) => this.handleVectorSize(e)}/>
               <br/>
