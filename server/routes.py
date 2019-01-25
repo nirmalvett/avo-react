@@ -493,6 +493,38 @@ def enroll():
                        totalprice=round(current_class.price_discount * 1.13, 2), freeTrial=free_trial)
 
 
+@routes.route('/unenroll', methods=['POST'])
+@login_required
+@check_confirmed
+@admin_only
+def unenroll():
+    """
+    Unenroll student from class
+    :return: COnfirmation of the unenroll
+    """
+    if not request.json:
+        return abort(400)
+    data = request.json
+    user_id, class_id = data['userID'], data['classID']
+
+    if not isinstance(user_id, int) or not isinstance(class_id, int):
+        return jsonify(error="One or more data type is invalid")
+
+    user = User.query.get(user_id)
+    current_class = Class.query.filter((Class.CLASS == enrolled.c.CLASS) &
+                                       (user_id == enrolled.c.USER)).all()
+    if user is None or len(current_class) is 0:
+        # If there is no user found return error JSON
+        return jsonify("No User Found")
+    for i in range(len(current_class)):
+        # For each class check if it is the correct class
+        if current_class[i].CLASS is class_id:
+            user.CLASS_ENROLLED_RELATION.remove(current_class[i])
+            db.session.commit()
+            return jsonify(code="User was removed")
+    return jsonify(error="user is not enrolled in class")
+
+
 @routes.route('/changeMark', methods=['POST'])
 @login_required
 @check_confirmed
