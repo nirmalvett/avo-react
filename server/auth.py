@@ -265,10 +265,13 @@ def access_to_class(class_id):
     """
     if enrolled_in_class(class_id):
         # If the user is enrolled in the class at all see if they have a valid transaction
-        trasaction_list = Transaction.query.filter((Transaction.USER == current_user.USER) &
+        transaction_list = Transaction.query.filter((Transaction.USER == current_user.USER) &
                                                    (Transaction.CLASS == class_id)).all()  # all transaction of user
+        if current_user.is_teacher:
+            # If the current user is a teacher and enrolled then return True as teacher dont pay
+            return True
         time = datetime.now()  # Current time
-        for i in trasaction_list:
+        for i in transaction_list:
             # For each transaction check if they are not expired
             if i.experation is None:
                 # If the transaction has no experation return True

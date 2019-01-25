@@ -12,7 +12,7 @@ import statistics
 
 import config
 from server.DecorationFunctions import *
-from server.auth import teaches_class, enrolled_in_class, able_edit_set
+from server.auth import teaches_class, enrolled_in_class, able_edit_set, access_to_class
 from server.models import *
 
 routes = Blueprint('routes', __name__)
@@ -870,7 +870,7 @@ def get_test():
     if test is None:
         # If no test found return error json
         return jsonify(error='Test not found')
-    if teaches_class(test.CLASS) or enrolled_in_class(test.CLASS):
+    if teaches_class(test.CLASS) or access_to_class(test.CLASS):
         if test.is_open is False:
             # If test is not open then return error JSON
             return jsonify(error='This set of questions has not been opened by your instructor yet')
@@ -909,7 +909,9 @@ def get_test():
             deadline=test.deadline  # if it's unlimited time then we need deadline
         )
     else:
-        return jsonify(error="User doesn't have access to that Class")
+        if access_to_class(test.CLASS):
+            return jsonify(error="User doesn't have access to that Class")
+        return jsonify(error="Free Trial Expired")
 
 
 def time_stamp(t):
