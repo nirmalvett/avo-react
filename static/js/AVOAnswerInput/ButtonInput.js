@@ -352,7 +352,7 @@ export default class ButtonInput extends React.Component {
         this.setState({message: 'You need to indicate a vector size and it must be larger or equal to 1.'})
       }
       else if (totalFields > vectorSizeLimit){
-        this.setState({message: 'Your vector size cannot be larger than 10.'})
+        this.setState({message: 'Your vector size cannot be larger than 5.'})
       }
       else {
         this.setState({message: '', stage: CONST_INPUT_PHASE})
