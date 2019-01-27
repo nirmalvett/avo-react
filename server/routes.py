@@ -1521,6 +1521,46 @@ def free_trial():
     return jsonify(code="Success")
 
 
+@routes.route('/synthesisScenarios ', methods=['GET'])
+@login_required
+@check_confirmed
+@teacher_only
+def sybthesis_scenarios():
+    # TODO put in Synthesis code here
+    return jsonify(scenaios=[])  # TODO replace [] with return data
+
+
+@routes.route('/synthesisPreviewScenario ', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def synthesis_preview_scenario():
+    if not request.json:
+        return abort(400)
+    data = request.json
+    synthesis_id = data['id']
+
+    if not isinstance(synthesis_id, int):
+        return jsonify(error="One or more data point are not correct type")
+    # TODO put in Synthesis code here
+    return jsonify(description=[], graph=[])  # TODO replace [] with return data
+
+
+@routes.route('/synthesisGetTransversal', methods=['POST'])
+@login_required
+@check_confirmed
+@teacher_only
+def synthesis_get_transversal():
+    if not request.json:
+        return abort(400)
+    data = request.json
+    starting_state_id, ending_state_id = data['startingStateid'], data['endingStateid']
+    starting_matrix, ending_matrix, ending_state = data['startingMatrix'], data['endingMatrix'], data['endingState']
+
+    # TODO put in Synthesis code here
+    return jsonify(graph=[], latexProof=[])  # TODO replace [] with return data
+
+
 # noinspection SpellCheckingInspection
 @routes.route('/irNAcxNHEb8IAS2xrvkqYk5sGVRjT3GA', methods=['POST'])
 def shutdown():
