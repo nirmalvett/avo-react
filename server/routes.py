@@ -1525,9 +1525,9 @@ def free_trial():
 @login_required
 @check_confirmed
 @teacher_only
-def sybthesis_scenarios():
+def synthesis_scenarios():
     # TODO put in Synthesis code here
-    return jsonify(scenaios=[])  # TODO replace [] with return data
+    return jsonify(scanerios=[])  # TODO replace [] with return data
 
 
 @routes.route('/synthesisPreviewScenario ', methods=['POST'])
