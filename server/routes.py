@@ -1542,9 +1542,6 @@ def synthesis_preview_scenario():
     data = request.json
     synthesis_id = data['scenarioName']
 
-    if not isinstance(synthesis_id, int):
-        return jsonify(error="One or more data point are not correct type")
-
     fullGraph = Matrices.main(synthesis_id)
 
     nodes = []
