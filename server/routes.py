@@ -1523,7 +1523,7 @@ def free_trial():
     return jsonify(code="Success")
 
 
-@routes.route('/synthesisScenarios ', methods=['GET'])
+@routes.route('/synthesisScenarios', methods=['GET'])
 @login_required
 @check_confirmed
 @teacher_only
@@ -1532,7 +1532,7 @@ def synthesis_scenarios():
     return jsonify(scanerios=[])  # TODO replace [] with return data
 
 
-@routes.route('/synthesisPreviewScenario ', methods=['POST'])
+@routes.route('/synthesisPreviewScenario', methods=['POST'])
 @login_required
 @check_confirmed
 @teacher_only
