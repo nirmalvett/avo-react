@@ -1,7 +1,7 @@
-from theorems import Theorems, Connection
+from synthesis.theorems import Theorems, Connection
 
-import Chapter2
-import Chapter4
+import synthesis.Chapter2 as Chapter2
+import synthesis.Chapter4 as Chapter4
 
 #5.1
 class Orthogonal(Theorems):

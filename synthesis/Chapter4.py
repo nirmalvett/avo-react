@@ -1,6 +1,6 @@
-from theorems import Theorems, Connection
+from synthesis.theorems import Theorems, Connection
 
-import Chapter3
+import synthesis.Chapter3 as Chapter3
 
 #4.1
 class EigenVector(Theorems):

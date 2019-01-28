@@ -3,7 +3,7 @@ def addConnection(fullGraph):
     :param fullGraph Matrices obj:
     :return:
     """
-    import Chapter3
+    import synthesis.Chapter3 as Chapter3
     #conditions here
     if fullGraph == -1:
         raise Exception("addConnections was called from ConnectionTheorems.py - this is an unsupported call")

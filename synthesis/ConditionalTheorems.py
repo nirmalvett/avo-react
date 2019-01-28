@@ -1,7 +1,7 @@
 def addConditions(state):
-    import conditional
-    import Chapter3
-    import Chapter2
+    import synthesis.conditional as conditional
+    import synthesis.Chapter3 as Chapter3
+    import synthesis.Chapter2 as Chapter2
 
     if state == -1:
         raise Exception("addConditions was called from main - this is an unsupported call")

@@ -1,4 +1,4 @@
-from theorems import Theorems, Connection
+from synthesis.theorems import Theorems, Connection
 
 import Chapter2
 

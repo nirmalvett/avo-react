@@ -1581,8 +1581,24 @@ def synthesis_get_transversal():
         data['endingMatrix'], \
         data['endingState']
 
-    # TODO put in Synthesis code here
-    return jsonify(graph=[], latexProof=[])  # TODO replace [] with return data
+    if not request.json:
+        return abort(400)
+    data = request.json
+    starting_state_id, ending_state_id = data['startingStateid'], data['endingStateid']
+    starting_matrix, ending_matrix, ending_state = data['startingMatrix'], data['endingMatrix'], data['endingState']
+
+    fullGraph = Matrices.main(synthesis_id)
+
+    startMat = fullGraph[starting_matrix]
+
+    endMat = fullGraph[ending_matrix]
+
+    if starting_matrix == ending_matrix:
+        ans,thr = startMat.findPath(ending_state,"",{})
+    else:
+        ans,thr = startMat.findPath(ending_state,ending_matrix,endMat.getGraph())
+
+    return jsonify(graph=ans, latexProof=["put proof here"])  # TODO replace [] with return data
 
 
 # noinspection SpellCheckingInspection

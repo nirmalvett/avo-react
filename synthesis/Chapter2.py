@@ -1,4 +1,4 @@
-from theorems import Theorems
+from synthesis.theorems import Theorems
 
 #Section 2.2:
 # class Nxn(theorems.Theorems):
