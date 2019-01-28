@@ -470,7 +470,9 @@ def enroll():
         # If the user is a teacher enroll them into the class
         if not teaches_class(current_class.CLASS):
             # If the teacher does not teach the class return JSON of success
-            current_user.CLASS_ENROLLED_RELATION.append(current_class)
+            new_transaction = Transaction("TEACHER-" + str(current_user.USER) + "-" + str(current_class.CLASS),
+                                          current_user.USER, current_class.CLASS, None)
+            db.session.add(new_transaction)
             db.session.commit()
         return jsonify(message='Enrolled')
     transaction = Transaction.query.filter((Transaction.USER == current_user.USER) &
@@ -484,7 +486,9 @@ def enroll():
             free_trial = False
     if current_class.price_discount == 0.00 or current_class.price_discount == 0:
         # Append current user to the class
-        current_user.CLASS_ENROLLED_RELATION.append(current_class)
+        new_transaction = Transaction("FREECLASS-" + str(current_user.USER) + "-" + str(current_class.CLASS),
+                                      current_user.USER, current_class.CLASS, None)
+        db.session.add(new_transaction)
         db.session.commit()
         return jsonify(message='Enrolled')  # this message cannot be changed as the frontend relies on it
     else:
@@ -1375,14 +1379,10 @@ def confirm_payment():
         return jsonify(error="No Trans Id Found")
     time = datetime.now() + timedelta(weeks=32)  # Create expiration of enrolling
     transaction = Transaction(tid, current_user.USER,
-                              transaction_processing.CLASS, time)  # Create new transaction in table
+                              transaction_processing.CLASS, None)  # Create new transaction in table
     # commit changes to database
     db.session.add(transaction)
     db.session.delete(transaction_processing)
-    if not enrolled_in_class(transaction_processing.CLASS):
-        # If current user user not enrolled in class enroll them in class
-        enrolled_relation = Class.query.get(transaction_processing.CLASS)
-        current_user.CLASS_ENROLLED_RELATION.append(enrolled_relation)
     db.session.commit()
     return jsonify(code="Processed")
 
@@ -1447,7 +1447,6 @@ def free_trial():
                                   current_class.CLASS, time)  # create new transaction in database
     # Commit to database and enroll student
     db.session.add(new_transaction)
-    current_user.CLASS_ENROLLED_RELATION.append(current_class)
     db.session.commit()
     return jsonify(code="Success")
 
