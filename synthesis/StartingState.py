@@ -1,5 +1,5 @@
-import theorems
-from helperClasses.minPriorityQueue import Queue, QueueNode
+import synthesis.theorems
+from synthesis.helperClasses.minPriorityQueue import Queue, QueueNode
 
 class StartingState:
 
