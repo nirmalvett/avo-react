@@ -1,16 +1,16 @@
-def main():
+def main(case):
     # create nodes here
 
     class MultiMatGraph():
         def __init__(self):
             self.matrices = {}
 
-    import Chapter3
-    import Chapter2
-    import Chapter4
-    import Chapter5
+    import synthesis.Chapter3 as Chapter3
+    import synthesis.Chapter2 as Chapter2
+    import synthesis.Chapter4 as Chapter4
+    import synthesis.Chapter5 as Chapter5
 
-    from StartingState import StartingState
+    from synthesis.StartingState import StartingState
 
     # startingNodes = [Chapter3.Identity(),Chapter3.Nxn()]
     # startingTheorems = ["Identity","Nxn"]
@@ -18,6 +18,9 @@ def main():
 
     # startingNodes = [Chapter3.Identity(),Chapter3.ScalarMatrix()]
     # startingTheorems = ["Identity","ScalarMatrix"]
+
+    if case == "A":
+        a = 3
 
     startingNodes = [Chapter3.InverseOfX()]
     startingTheorems = ["InverseOfX"]
@@ -38,12 +41,12 @@ def main():
     full.matrices[other.name] = other
 
 
-    from ConditionalTheorems import addConditions
+    from synthesis.ConditionalTheorems import addConditions
 
     for state in full.matrices:
         addConditions(full.matrices.get(state))
 
-    from ConnectionTheorems import addConnection
+    from synthesis.ConnectionTheorems import addConnection
     addConnection(full)
 
     print(full.matrices["matB"].getGraph())

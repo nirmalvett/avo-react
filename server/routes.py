@@ -15,6 +15,8 @@ from server.DecorationFunctions import *
 from server.auth import teaches_class, enrolled_in_class, able_edit_set
 from server.models import *
 
+from synthesis import Matrices, StartingState
+
 routes = Blueprint('routes', __name__)
 
 print(">>> PayPal is set to " + config.PAYPAL_MODE + " <<<")
@@ -1542,8 +1544,27 @@ def synthesis_preview_scenario():
 
     if not isinstance(synthesis_id, int):
         return jsonify(error="One or more data point are not correct type")
+
+    fullGraph = Matrices.main(synthesis_id)
+
+    nodes = []
+
+    for name,mat in fullGraph.items():
+        for graph in mat.getGraph().keys():
+            nodes.append((name,graph))
+
+    connections = []
+
+    for name,mat in fullGraph.items():
+        for start,info in mat.getGraph().items():
+            for nextNode in info['nextNodes']:
+                connections.append([(name,start),(name,nextNode)])
+
+    ans = {"nodes":nodes,"connections":connections}
+
+
     # TODO put in Synthesis code here
-    return jsonify(description=[], graph=[])  # TODO replace [] with return data
+    return jsonify(description=[], graph={"graph":ans})  # TODO replace [] with return data
 
 
 @routes.route('/synthesisGetTransversal', methods=['POST'])
@@ -1556,6 +1577,10 @@ def synthesis_get_transversal():
     data = request.json
     starting_state_id, ending_state_id = data['startingStateid'], data['endingStateid']
     starting_matrix, ending_matrix, ending_state = data['startingMatrix'], data['endingMatrix'], data['endingState']
+
+
+
+
 
     # TODO put in Synthesis code here
     return jsonify(graph=[], latexProof=[])  # TODO replace [] with return data
