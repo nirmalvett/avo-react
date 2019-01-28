@@ -1560,7 +1560,7 @@ def synthesis_preview_scenario():
             for nextNode in info['nextNodes']:
                 connections.append([(name,start),(name,nextNode)])
 
-    ans = {"nodes":nodes,"connections":connections}
+    ans = {"nodes": nodes,"connections": connections}
 
 
     # TODO put in Synthesis code here
@@ -1575,12 +1575,11 @@ def synthesis_get_transversal():
     if not request.json:
         return abort(400)
     data = request.json
-    starting_state_id, ending_state_id = data['startingStateid'], data['endingStateid']
-    starting_matrix, ending_matrix, ending_state = data['startingMatrix'], data['endingMatrix'], data['endingState']
-
-
-
-
+    scenarioName, starting_matrix, ending_matrix, ending_state = \
+        data['scenarioName'], \
+        data['startingMatrix'], \
+        data['endingMatrix'], \
+        data['endingState']
 
     # TODO put in Synthesis code here
     return jsonify(graph=[], latexProof=[])  # TODO replace [] with return data

@@ -193,8 +193,9 @@ export default class Http {
 				{scenarioName: scenarioName});
 	};
 
-	static synthesisGetTransversal(starting_matrix, ending_matrix, ending_state, success, failure){
+	static synthesisGetTransversal(scenarioName, starting_matrix, ending_matrix, ending_state, success, failure){
 		/* Getting the final graph (a single path) and latex explanation, Screen 2
+		 * scenarioName: the String name of the scenario
 		 * starting_matrix: i.e. 'matA', the string name of the starting state
 		 * ending_matrix: i.e. 'matB', the string name of the end state
 		 * ending_state: i.e. 'invertible', the string name of the destination object for which the endState Node in parameter above belongs
@@ -206,7 +207,13 @@ export default class Http {
 		     }
       */
 		Http._request('POST', `/synthesisPreviewScenario`, success, failure,
-				{starting_matrix: starting_matrix, ending_matrix: ending_matrix, ending_state: ending_state});
+				{
+					scenarioName: scenarioName,
+					starting_matrix: starting_matrix,
+					ending_matrix: ending_matrix,
+					ending_state: ending_state
+				}
+		);
 	}
 
 
