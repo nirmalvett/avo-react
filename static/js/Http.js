@@ -181,7 +181,7 @@ export default class Http {
 
 	static synthesisPreviewScenario(scenarioName, success, failure){
 		/* Getting a preview of a scenario selected, still in screen 1
-		* excepts: scenarioName which is a String of the scenario 
+		* excepts: scenarioName which is a String of the scenario
 		*
 		* returns:
 		*   {

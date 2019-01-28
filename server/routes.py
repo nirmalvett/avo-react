@@ -1540,7 +1540,7 @@ def synthesis_preview_scenario():
     if not request.json:
         return abort(400)
     data = request.json
-    synthesis_id = data['id']
+    synthesis_id = data['scenarioName']
 
     if not isinstance(synthesis_id, int):
         return jsonify(error="One or more data point are not correct type")
