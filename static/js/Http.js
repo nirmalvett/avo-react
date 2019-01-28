@@ -172,24 +172,25 @@ export default class Http {
 		* returns:
 		* {
 		   scenarios: [
-		      { name: "2 matrix inverse", id: 5 }
+		      { name: "2 matrix inverse" }
 	      ]
       }
     */
 		Http._request('POST', `/synthesisScenarios`, success, failure);
 	};
 
-	static synthesisPreviewScenario(id, success, failure){
+	static synthesisPreviewScenario(scenarioName, success, failure){
 		/* Getting a preview of a scenario selected, still in screen 1
+		* excepts: scenarioName which is a String of the scenario 
 		*
 		* returns:
-		* {
-	      description: "A couple sentences describing what the objects are and their relationship",
-	      graph:	json object to shove into the graph API
-			}
-			*/
+		*   {
+	        description: "A couple sentences describing what the objects are and their relationship",
+	        graph:	json object to shove into the graph API
+				}
+		*/
 		Http._request('POST', `/synthesisPreviewScenario`, success, failure,
-				{id: id});
+				{scenarioName: scenarioName});
 	};
 
 	static synthesisGetTransversal(starting_matrix, ending_matrix, ending_state, success, failure){
