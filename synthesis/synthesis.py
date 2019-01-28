@@ -1,6 +1,6 @@
 import Matrices
 
-import networkx as nx
+# import networkx as nx
 import matplotlib.pyplot as plt
 
 mats = Matrices.main()
