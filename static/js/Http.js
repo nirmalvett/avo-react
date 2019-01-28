@@ -203,7 +203,7 @@ export default class Http {
 			     graph: a list of the starting state and ending,
 			     latexProof: latex string that shows the steps to proof everything
 		     }
-*/
+      */
 		Http._request('POST', `/synthesisPreviewScenario`, success, failure,
 				{starting_matrix: starting_matrix, ending_matrix: ending_matrix, ending_state: ending_state});
 	}
