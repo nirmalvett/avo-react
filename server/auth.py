@@ -273,10 +273,10 @@ def access_to_class(class_id):
         time = datetime.now()  # Current time
         for i in transaction_list:
             # For each transaction check if they are not expired
-            if i.experation is None:
+            if i.expiration is None:
                 # If the transaction has no experation return True
                 return True
-            if i.experation > time:
+            if i.expiration > time:
                 # If the transaction has not expired return True
                 return True
     return False
