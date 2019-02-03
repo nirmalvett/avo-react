@@ -220,7 +220,7 @@ class Layout extends Component {
                         <Menu/>
                     </IconButton>
                     <Typography variant='title' style={{color: 'white'}} noWrap>{this.state.name}</Typography>
-                    {/*{this.timerInTopBar()}*/} 
+                    {this.timerInTopBar()}
                 </Toolbar>
             </AppBar>
         );
