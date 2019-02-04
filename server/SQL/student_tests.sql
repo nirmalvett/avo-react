@@ -6,9 +6,9 @@ SELECT TEST.CLASS,
        TEST.timer,
        TEST.attempts,
        TEST.total
-FROM   TRANSACTION
+FROM   transaction
        INNER JOIN CLASS
-               ON CLASS.CLASS = TRANSACTION.CLASS
+               ON CLASS.CLASS = transaction.CLASS
        INNER JOIN TEST
                ON TEST.CLASS = CLASS.CLASS
-WHERE  TRANSACTION.USER = :user;
+WHERE  transaction.USER = :user;
