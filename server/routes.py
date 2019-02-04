@@ -12,7 +12,7 @@ import statistics
 
 import config
 from server.DecorationFunctions import *
-from server.auth import teaches_class, enrolled_in_class, able_edit_set
+from server.auth import teaches_class, enrolled_in_class, able_edit_set, access_to_class
 from server.models import *
 
 routes = Blueprint('routes', __name__)
@@ -271,7 +271,7 @@ def test_stats():
     # If the user doesnt teach the class then return error JSON
     if not teaches_class(test.CLASS) and not enrolled_in_class(test.CLASS):
         return jsonify(error="User doesn't teach this class or the user is not enrolled in the class")
-    students = User.query.filter((User.USER == enrolled.c.USER) & (test.CLASS == enrolled.c.CLASS)).all()  # All students in the class
+    students = User.query.filter((User.USER == Transaction.USER) & (test.CLASS == Transaction.CLASS)).all()  # All students in the class
     current_class = Class.query.get(test.CLASS)
     test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
@@ -508,7 +508,9 @@ def enroll():
         # If the user is a teacher enroll them into the class
         if not teaches_class(current_class.CLASS):
             # If the teacher does not teach the class return JSON of success
-            current_user.CLASS_ENROLLED_RELATION.append(current_class)
+            new_transaction = Transaction("TEACHER-" + str(current_user.USER) + "-" + str(current_class.CLASS),
+                                          current_user.USER, current_class.CLASS, None)
+            db.session.add(new_transaction)
             db.session.commit()
         return jsonify(message='Enrolled')
     transaction = Transaction.query.filter((Transaction.USER == current_user.USER) &
@@ -522,7 +524,9 @@ def enroll():
             free_trial = False
     if current_class.price_discount == 0.00 or current_class.price_discount == 0:
         # Append current user to the class
-        current_user.CLASS_ENROLLED_RELATION.append(current_class)
+        new_transaction = Transaction("FREECLASS-" + str(current_user.USER) + "-" + str(current_class.CLASS),
+                                      current_user.USER, current_class.CLASS, None)
+        db.session.add(new_transaction)
         db.session.commit()
         return jsonify(message='Enrolled')  # this message cannot be changed as the frontend relies on it
     else:
@@ -940,7 +944,7 @@ def get_test():
     if test is None:
         # If no test found return error json
         return jsonify(error='Test not found')
-    if teaches_class(test.CLASS) or enrolled_in_class(test.CLASS):
+    if teaches_class(test.CLASS) or access_to_class(test.CLASS):
         if test.is_open is False:
             # If test is not open then return error JSON
             return jsonify(error='This set of questions has not been opened by your instructor yet')
@@ -979,7 +983,9 @@ def get_test():
             deadline=test.deadline  # if it's unlimited time then we need deadline
         )
     else:
-        return jsonify(error="User doesn't have access to that Class")
+        if access_to_class(test.CLASS):
+            return jsonify(error="User doesn't have access to that Class")
+        return jsonify(error="Free Trial Expired")
 
 
 def time_stamp(t):
@@ -1244,7 +1250,7 @@ def get_class_test_results():
     current_test = Test.query.get(test)
     if not teaches_class(current_test.CLASS):
         return jsonify(error="User doesn't teach class")
-    users = User.query.filter((User.USER == enrolled.c.USER) & (current_test.CLASS == enrolled.c.CLASS)).all()  # All users in class
+    users = User.query.filter((User.USER == Transaction.USER) & (current_test.CLASS == Transaction.CLASS)).all()  # All users in class
     for i in range(len(users)):
         # For each user get user data and best takes instance and present append to list then return
         first_name, last_name = users[i].first_name, users[i].last_name
@@ -1277,8 +1283,7 @@ def csv_class_marks(classid):
         return abort(400)
     # Query the database for data on the test class and students data
     output_class = Class.query.get(classid)
-    student_array = User.query.join(enrolled).join(Class).filter(
-        (enrolled.c.CLASS == classid) & (enrolled.c.USER == User.USER)).all()
+    student_array = User.query.filter((Transaction.CLASS == classid) & (Transaction.USER == User.USER)).all()
     test_array = Test.query.filter(Test.CLASS == classid).all()
     test_name_list = []  # An array of the test names
     output_string = '\"Email\" '  # The output for the file
@@ -1444,14 +1449,10 @@ def confirm_payment():
         return jsonify(error="No Trans Id Found")
     time = datetime.now() + timedelta(weeks=32)  # Create expiration of enrolling
     transaction = Transaction(tid, current_user.USER,
-                              transaction_processing.CLASS, time)  # Create new transaction in table
+                              transaction_processing.CLASS, None)  # Create new transaction in table
     # commit changes to database
     db.session.add(transaction)
     db.session.delete(transaction_processing)
-    if not enrolled_in_class(transaction_processing.CLASS):
-        # If current user user not enrolled in class enroll them in class
-        enrolled_relation = Class.query.get(transaction_processing.CLASS)
-        current_user.CLASS_ENROLLED_RELATION.append(enrolled_relation)
     db.session.commit()
     return jsonify(code="Processed")
 
@@ -1516,7 +1517,6 @@ def free_trial():
                                   current_class.CLASS, time)  # create new transaction in database
     # Commit to database and enroll student
     db.session.add(new_transaction)
-    current_user.CLASS_ENROLLED_RELATION.append(current_class)
     db.session.commit()
     return jsonify(code="Success")
 
