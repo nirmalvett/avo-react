@@ -4,6 +4,8 @@ import Timer from  '@material-ui/icons/TimerOutlined';
 export default class TimerComp extends React.Component {
     constructor(props = {}) {
         super(props);
+        this.showed5Minutes = false;
+        this.show2Minutes = false;
     };
 
     render() {
@@ -42,11 +44,13 @@ export default class TimerComp extends React.Component {
         let timeArray = presentTime.split(/[:]+/);
         let m = timeArray[0];
         let s = this.checkSecond((timeArray[1] - 1));
-        if (m == 5){
+        if (m == 5 && !this.showed5Minutes){
             this.props.showSnackBar("warning", "5 Minutes Remaining", 10000);
+            this.showed5Minutes = true;
         }
-        if (m  == 2){
+        if (m  == 2 && !this.show2Minutes){
             this.props.showSnackBar("warning", "2 Minutes Remaining");
+            this.show2Minutes = true;
         }
         if(s==59){m=m-1}
         if(m<0){
