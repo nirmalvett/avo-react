@@ -949,9 +949,9 @@ def create_takes(test, user):
     # We want to figure out what the new time should be
     t = datetime.now()  # Get current time
     if x.timer == -1:  # CASE 1: We have unlimited time selected, so the deadline is 100 years from now
-        time2 = min(t + timedelta(minutes=52560000), x.deadline) # Time submitted based off timer
+        time2 = x.deadline  # Time submitted based off timer
     else:  # CASE 2: We have a limited amount of time so figure out when the end date and time should be
-        time2 = min(t + timedelta(minutes=x.timer), x.deadline) # Time submitted based off timer
+        time2 = min(t + timedelta(minutes=x.timer), x.deadline)  # Time submitted based off timer
 
     # Add all data to takes object and add to database
     takes = Takes(test, user, t, time2, 0, str(marks_list), str(answer_list), str(seeds))
