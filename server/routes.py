@@ -1552,31 +1552,37 @@ def shutdown():
 
 @routes.route('/validateDatabase')
 def validate():
+    err_invalid_email = []
+    err_missing_pk_user = []
+    err_invalid_password = []
+    err_invalid_salt = []
+    err_not_confirmed = []
+    err_student_teaching = []
     errors = []
 
     users = User.query.all()
-    regex = re.compile(r'[a-z]{2,7}\d{0,3}@uwo\.ca')
+    regex = re.compile(r'[a-z]{2,8}\d{0,4}@uwo\.ca')
     i = 1
     for user in users:
         if not regex.match(user.email):
-            errors.append(f'User {user.USER} has an invalid email address')
+            err_invalid_email.append(user.USER)
         while i < user.USER:
-            errors.append(f'Missing primary key in user table: {i}')
+            err_missing_pk_user.append(i)
             i += 1
         i += 1
         if len(user.password) != 128:
-            errors.append(f'User {user.USER} has an invalid password')
+            err_invalid_password.append(user.USER)
         if len(user.salt) != 32:
-            errors.append(f'User {user.USER} has an invalid salt')
+            err_invalid_salt.append(user.USER)
         if not user.confirmed:
-            errors.append(f'User {user.USER} is not confirmed')
+            err_not_confirmed.append(user.USER)
 
     classes = db.session.execute(
         "SELECT USER.USER, CLASS.CLASS FROM CLASS INNER JOIN USER ON USER.USER = CLASS.USER"
         " WHERE USER.is_teacher = FALSE"
     ).fetchall()
     for c in classes:
-        errors.append(f'Student {c[0]} is teaching class {c[1]}')
+        err_student_teaching.append(c)
 
     classes = Class.query.all()
     i = 1
@@ -1635,36 +1641,39 @@ def validate():
         except IndexError:
             errors.append(f"Test {t.TEST} has a nonexistent question")
 
-    takes = db.session.execute(
-        "SELECT takes.TAKES, takes.time_started, takes.time_submitted, takes.answers, takes.marks, takes.grade,"
-        " takes.seeds, TEST.question_list FROM takes INNER JOIN TEST ON TEST.TEST = takes.TEST"
-    ).fetchall()
-    i = 1
-    for t in takes:
-        takes_id, time_started, time_submitted, answers, marks, grade, seeds, questions = t
-        while i < takes_id:
-            errors.append(f'Missing primary key in takes table: {i}')
-            i += 1
-        i += 1
-        if (time_submitted - time_started).seconds < 30:
-            errors.append(f'Takes {takes_id} is less than 30 seconds')
-        answers = eval(answers)
-        marks = eval(marks)
-        questions = eval(questions)
-        seeds = eval(seeds)
-        if grade != sum(map(lambda x: sum(x), marks)):
-            errors.append(f"Takes {takes_id}'s scores add up to the correct total")
-        if len(answers) != len(marks) or any(map(lambda x: len(answers[x]) != len(marks[x]), range(len(marks)))):
-            errors.append(f"Takes {takes_id}'s answers don't line up with the scores")
-        elif len(answers) != len(questions):
-            errors.append(f"Takes {takes_id}'s has the wrong number of answers")
-        elif any(map(lambda x: len(answers[x]) != q_array[questions[x]].answers, range(len(answers)))):
-            errors.append(f"Takes {takes_id}'s has the wrong number of answers in one of the parts")
-        else:
-            for j in range(len(answers)):
-                if AvoQuestion(q_array[questions[j]].string, seeds[j], answers[j]).scores != marks[j]:
-                    errors.append(f"Takes {takes_id} question {j+1}'s mark has been changed")
-            pass
+    # takes = db.session.execute(
+    #     "SELECT takes.TAKES, takes.time_started, takes.time_submitted, takes.answers, takes.marks, takes.grade,"
+    #     " takes.seeds, TEST.question_list FROM takes INNER JOIN TEST ON TEST.TEST = takes.TEST ORDER BY takes.TAKES"
+    # ).fetchall()
+    # i = 1
+    # for t in takes:
+    #     takes_id, time_started, time_submitted, answers, marks, grade, seeds, questions = t
+    #     while i < takes_id:
+    #         errors.append(f'Missing primary key in takes table: {i}')
+    #         i += 1
+    #     i += 1
+    #     if (time_submitted - time_started).seconds < 30:
+    #         errors.append(f'Takes {takes_id} is less than 30 seconds')
+    #     try:
+    #         answers = eval(answers)
+    #         marks = eval(marks)
+    #         questions = eval(questions)
+    #         seeds = eval(seeds)
+    #         if grade != sum(map(lambda x: sum(x), marks)):
+    #             errors.append(f"Takes {takes_id}'s scores add up to the correct total")
+    #         if len(answers) != len(marks) or any(map(lambda x: len(answers[x]) != len(marks[x]), range(len(marks)))):
+    #             errors.append(f"Takes {takes_id}'s answers don't line up with the scores")
+    #         elif len(answers) != len(questions):
+    #             errors.append(f"Takes {takes_id}'s has the wrong number of answers")
+    #         elif any(map(lambda x: len(answers[x]) != q_array[questions[x]].answers, range(len(answers)))):
+    #             errors.append(f"Takes {takes_id}'s has the wrong number of answers in one of the parts")
+    #         else:
+    #             for j in range(len(answers)):
+    #                 if AvoQuestion(q_array[questions[j]].string, seeds[j], answers[j]).scores != marks[j]:
+    #                     errors.append(f"Takes {takes_id} question {j+1}'s mark has been changed")
+    #             pass
+    #     except Exception:
+    #         errors.append(f"List parsing failed for takes {takes_id}")
 
     sets = Set.query.all()
     i = 1
@@ -1701,4 +1710,19 @@ def validate():
     for e in enrolled_in_multiple_classes:
         errors.append(f'User {e[0]} is enrolled in {e[1]} classes')
 
-    return jsonify(errors)
+    result = {}
+    if len(err_invalid_email) > 0:
+        result["Invalid email"] = err_invalid_email
+    if len(err_invalid_password) > 0:
+        result["Invalid password"] = err_invalid_password
+    if len(err_invalid_salt) > 0:
+        result["Invalid salt"] = err_invalid_salt
+    if len(err_not_confirmed) > 0:
+        result["Not confirmed"] = err_not_confirmed
+    if len(err_missing_pk_user) > 0:
+        result["Missing primary key in USER table"] = err_missing_pk_user
+    if len(err_student_teaching) > 0:
+        result["Student teaching class"] = err_student_teaching
+    if len(errors) > 0:
+        result["Other"] = errors
+    return jsonify(result)
