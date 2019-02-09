@@ -945,9 +945,7 @@ def get_test():
             # If test is not open then return error JSON
             return jsonify(error='This set of questions has not been opened by your instructor yet')
         if test.deadline < datetime.now():
-            # If deadline has passed set test to closed and return error JSON
-            test.is_open = False
-            db.session.commit()
+            # If deadline has passed return error JSON
             return jsonify(error='The deadline has passed for this test')
         takes = Takes.query.filter((Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (Takes.time_submitted > datetime.now())).first()  # Get the most current takes
         timer = 0
@@ -957,9 +955,6 @@ def get_test():
             if takes is None:
                 # If takes still fails return error JSON
                 return jsonify(error="Couldn't start test")
-        else:
-            takes.time_started = datetime.now()
-            db.session.commit()
         questions = []  # Questions in test
         question_ids = eval(test.question_list)  # IDs of questions in test
         seeds = eval(takes.seeds)  # Seeds of questions in test if -1 gen random seed
