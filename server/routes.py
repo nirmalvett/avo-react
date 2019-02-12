@@ -948,7 +948,6 @@ def get_test():
             # If deadline has passed return error JSON
             return jsonify(error='The deadline has passed for this test')
         takes = Takes.query.filter((Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (Takes.time_submitted > datetime.now())).first()  # Get the most current takes
-        timer = 0
         if takes is None:
             # If student has not taken the test create a takes instance
             takes = create_takes(test_id, current_user.get_id())
@@ -958,8 +957,6 @@ def get_test():
         questions = []  # Questions in test
         question_ids = eval(test.question_list)  # IDs of questions in test
         seeds = eval(takes.seeds)  # Seeds of questions in test if -1 gen random seed
-        timer = takes.time_submitted - takes.time_started
-        timer = timer.total_seconds() / 60
         questions_in_test = Question.query.filter(Question.QUESTION.in_(question_ids)).all()   # All questions in test
         for i in range(len(question_ids)):
             # For each question id get the question data and add to question list
@@ -967,11 +964,9 @@ def get_test():
             questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
         return jsonify(
             takes=takes.TAKES,
-            timer=timer,
-            time_submitted=takes.time_submitted,
+            time_submitted=int(takes.time_submitted.timestamp()*1000),
             answers=eval(takes.answers),
-            questions=questions,
-            deadline=test.deadline  # if it's unlimited time then we need deadline
+            questions=questions
         )
     else:
         return jsonify(error="User doesn't have access to that Class")

@@ -3,7 +3,6 @@ import Http from './Http';
 import {copy, getMathJax} from './Utilities';
 import AnswerInput from './AVOAnswerInput/AnswerInput';
 import Card from '@material-ui/core/Card/Card';
-import Grid from '@material-ui/core/Grid/Grid';
 import Button from '@material-ui/core/Button/Button';
 import Tooltip from '@material-ui/core/Tooltip/Tooltip';
 import Divider from '@material-ui/core/Divider/Divider';
@@ -13,17 +12,15 @@ import Typography from '@material-ui/core/Typography/Typography';
 import Save from '@material-ui/icons/Save';
 
 // This is a Card that says the title of the test and tells students to email us if they need help
-function getFirstCard(testName) {
+function getFirstCard() {
 	return (
-			<Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
-				<CardHeader title={testName}/>
-				<ceter>
-					<Typography>
-						If you run into any issues please email <a>contact@avocadocore.com</a>.
-						Our team will be quick to respond and assist you.
-					</Typography>
-				</ceter>
-			</Card>
+		<Card style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
+			{/*<CardHeader title={testName}/>*/}
+			<Typography>
+				If you run into any issues please email <a>contact@avocadocore.com</a>.
+				Our team will be quick to respond and assist you.
+			</Typography>
+		</Card>
 	)
 }
 
@@ -31,11 +28,7 @@ function getFirstCard(testName) {
 export default class TakeTest extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			testID: this.props.testID,
-			questions: [],
-		};
-		console.log(this.state);
+		this.state = this.props.test;
 
 		/* this.state actually looks like this
 		 {
@@ -50,37 +43,36 @@ export default class TakeTest extends Component {
 		*/
 	}
 
-	componentDidMount() {
-		Http.getTest(this.props.testID, (result) => {
-			result.newAnswers = copy(result.answers);
-			this.setState(result);
-			this.props.getTimeRemaining(result.timer, result.deadline);
-		}, (result) => alert(result.error));
-	}
-
 	render() {
 		return (
-				<Grid container spacing={8}>
-					<Grid xs={1}/>
-					<Grid xs={10} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
-						{ getFirstCard("")}
-						{this.state.questions.map((x, y) => this.getQuestionCard(x, this.state.answers[y], y))}
-						<div style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px'}}>
-							<Button color='primary' variant='raised' style={{width: '100%'}} id="avo-test__submit-button"
-							        onClick={() => this.submitTest()}>
-								<Typography variant='button' style={{color: 'white'}}>Submit Test</Typography>
-							</Button>
-						</div>
-					</Grid>
-					<Grid xs={1}/>
-				</Grid>
+			<div style={{
+				flex: 1,
+				paddingLeft: '10%',
+				paddingRight: '10%',
+				paddingTop: '20px',
+				paddingBottom: '20px',
+				overflowY: 'auto'
+			}}>
+				{getFirstCard()}
+				{this.state.questions.map((x, y) => this.getQuestionCard(x, this.state.answers[y], y))}
+				<div style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px'}}>
+					<Button color='primary'
+							variant='raised'
+							style={{width: '100%', color: 'white'}}
+							id="avo-test__submit-button"
+							onClick={() => this.submitTest()}
+					>
+						Submit Test
+					</Button>
+				</div>
+			</div>
 		);
 	}
 
 	submitTest() {
 		Http.submitTest(this.state.takes,
-				() => this.props.submitTest(this.state.takes),
-				() => alert('Something went wrong')
+			() => this.props.submitTest(this.state.takes),
+			() => alert('Something went wrong')
 		);
 	}
 
@@ -98,41 +90,43 @@ export default class TakeTest extends Component {
 		let save = (inputValue) => {
 			let newValue = inputValue === undefined ? this.state.newAnswers[index] : inputValue;
 			Http.saveAnswer(this.state.takes, index, newValue,
-					() => {
-						let newAnswers = copy(this.state.answers);
-						newAnswers[index] = copy(this.state.newAnswers[index]);
-						this.setState({answers: newAnswers});
-					},
-					result => alert(result.error));
+				() => {
+					let newAnswers = copy(this.state.answers);
+					newAnswers[index] = copy(this.state.newAnswers[index]);
+					this.setState({answers: newAnswers});
+				},
+				result => alert(result.error)
+			);
 		};
 		return (
-				<Card
-						style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
-					<CardHeader title={getMathJax((index + 1) + '. ' + question.prompt)} action={
-						disabled
-								? <Tooltip title="Nothing to save">
-									<span><IconButton disabled={true} color='disabled'><Save/></IconButton></span>
-								</Tooltip>
-								: <IconButton onClick={save} color='primary'><Save/></IconButton>
-					}/>
-					{question.prompts.map((x, y) => [
-						<Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
-						<AnswerInput
-								type={question.types[y]} value={answer[y]} prompt={x}
-								onBlur={save}
-								onChange={value => {
-									let newAnswerList = copy(this.state.newAnswers);
-									newAnswerList[index][y] = value;
-									this.setState({newAnswers: newAnswerList});
-								}}
-								buttonSave={value => {
-									let newAnswerList = copy(this.state.newAnswers);
-									newAnswerList[index][y] = value;
-									this.setState({newAnswers: newAnswerList});
-									saveButtonInput(newAnswerList);
-								}}/>
-					])}
-				</Card>
+			<Card
+					style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px', padding: '20px'}}>
+				<CardHeader title={getMathJax((index + 1) + '. ' + question.prompt)} action={
+					disabled
+							? <Tooltip title="Nothing to save">
+								<span><IconButton disabled={true} color='disabled'><Save/></IconButton></span>
+							</Tooltip>
+							: <IconButton onClick={save} color='primary'><Save/></IconButton>
+				}/>
+				{question.prompts.map((x, y) => [
+					<Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
+					<AnswerInput
+						type={question.types[y]} value={answer[y]} prompt={x}
+						onBlur={save}
+						onChange={value => {
+							let newAnswerList = copy(this.state.newAnswers);
+							newAnswerList[index][y] = value;
+							this.setState({newAnswers: newAnswerList});
+						}}
+						buttonSave={value => {
+							let newAnswerList = copy(this.state.newAnswers);
+							newAnswerList[index][y] = value;
+							this.setState({newAnswers: newAnswerList});
+							saveButtonInput(newAnswerList);
+						}}
+					/>
+				])}
+			</Card>
 		);
 	}
 }

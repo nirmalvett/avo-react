@@ -84,9 +84,8 @@ export default class MyClasses extends Component {
 		/* Loads the classes into the state */
 		Http.getClasses(
 			(result) => {
-				// Todo: removing duplicates should be unnecessary
 				this.setState({
-					classes: removeDuplicateClasses(result.classes),
+					classes: result.classes,
 					classesLoaded : true
 				});
 			},
@@ -516,7 +515,6 @@ export default class MyClasses extends Component {
 				<br/>
 			</Fragment>
 		);
-
 	}
 
 	static detailsCard_infoAboutTest(selectedTest) {
