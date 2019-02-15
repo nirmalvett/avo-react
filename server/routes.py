@@ -1539,7 +1539,9 @@ def shutdown():
     else:
         return abort(400)
 
-
+@login_required
+@check_confirmed
+@admin_only
 @routes.route('/validateDatabase')
 def validate():
     err_invalid_email = []
