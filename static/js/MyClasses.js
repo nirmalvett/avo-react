@@ -1,11 +1,10 @@
 import React, {Component, Fragment} from 'react';
 import Http from './Http';
 import {copy, getDateString} from "./Utilities";
-import {convertListFloatToAnalytics, getDistribution, removeDuplicateClasses} from "./helpers";
+import {convertListFloatToAnalytics} from "./helpers";
 import Tab from '@material-ui/core/Tab';
 import Card from '@material-ui/core/Card';
 import Tabs from '@material-ui/core/Tabs';
-import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import Input from '@material-ui/core/Input';
 import Paper from '@material-ui/core/Paper';
@@ -100,14 +99,14 @@ export default class MyClasses extends Component {
 	render() {
 		return (
 			<div className='avo-user__background' style={{width: '100%', flex: 1, display: 'flex'}}>
-				<Grid container spacing={8} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
-					<Grid item xs={3} style={{flex: 1, display: 'flex'}}>
+				<div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
+					<div style={{flex: 3, display: 'flex'}}>
 						{this.sideMenu()}
-					</Grid>
+					</div>
 					{/* Border From Menu To Main*/}
-					<Grid item xs={1}/>
+					<div style={{flex: 1}}/>
 					{/* Right hand side cards, see detailsCard() */}
-					<Grid item xs={7} style={{display: 'flex'}}>
+					<div style={{flex: 7, display: 'flex'}}>
 						<Card
 							className='avo-card'
 							style={{
@@ -120,8 +119,9 @@ export default class MyClasses extends Component {
 						>
 							{this.detailsCard()}
 						</Card>
-					</Grid>
-				</Grid>
+					</div>
+					<div style={{flex: 1}}/>
+				</div>
 				{this.enrollInClassPopper()} {/* This manages the enroll in classes button */}
 			</div>
 		);
@@ -978,11 +978,8 @@ export default class MyClasses extends Component {
 			const dataObj = (convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state.testStats.totalMark));
 			delete dataObj["studentSizeWhoTookIt"];
 			const dataOutArray = [];
-			// TODO make sure the getDistribution is working
-			for (let key in dataObj) if (dataObj.hasOwnProperty(key)) {
-				// getDistribution(this.state.testStats.testSTDEV, this.state.testStats.testMedian, dataOutArray.length);
+			for (let key in dataObj) if (dataObj.hasOwnProperty(key))
 				dataOutArray.push(dataObj[key].numberOfStudents);
-			}
 			return [{
 				name: 'Number of Students',
 				type: 'column',

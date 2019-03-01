@@ -1,20 +1,18 @@
-import React from 'react';
+import React, {Component, Fragment} from 'react';
 import Http from './Http';
 import Card from '@material-ui/core/Card/Card';
-import Grid from '@material-ui/core/Grid/Grid';
 import Button from '@material-ui/core/Button/Button';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
 import Checkbox from '@material-ui/core/Checkbox';
 import Slide from '@material-ui/core/Slide';
-import { isChrome, notChromeMessage } from "./helpers";
 import Logo from "./Logo"
 import AVOModal from './AVOMatComps/AVOMatModal';
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
 import {createMuiTheme} from "@material-ui/core";
 
 
-export default class SignIn extends React.Component {
+export default class SignIn extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -41,10 +39,7 @@ export default class SignIn extends React.Component {
 
         let updateFirstName = (e) => this.setState({rFirstName: e.target.value});
         let updateLastName = (e) => this.setState({rLastName: e.target.value});
-        let updateEmail = (e) => this.setState({
-          rEmail: e.target.value.toLowerCase(),
-          rFirstName: e.target.value.toLowerCase().replace("@uwo.ca", ""),
-        }); // We're setting the email and the first name as the same value here
+        let updateEmail = (e) => this.setState({rEmail: e.target.value.toLowerCase()});
         let updatePassword1 = (e) => this.setState({rPassword1: e.target.value});
         let updatePassword2 = (e) => this.setState({rPassword2: e.target.value});
 
@@ -58,36 +53,33 @@ export default class SignIn extends React.Component {
         let usernameError = this.state.username.length > 0 && !/^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(this.state.username);
         let passwordError = this.state.password.length > 0 && this.state.password.length < 8;
 
-
         return (
             <MuiThemeProvider theme={createMuiTheme({palette: {primary: {'200': '#f8ee7b', '500': '#399103'}, type: 'light'}})}>
             <Slide in={true} direction={'up'}>
             <Card className='LoginCard' id='avo-registrator'>
-                <Grid container spacing={8} style={{'margin': '5%', 'width': '100%', 'height': '90%'}}>
-                    <Grid item lg={12} style={{ 'width' : '100%' }}>
+                <div style={{'margin': '5%', 'width': '100%', 'height': '90%'}}>
                     {!this.state.isSigningIn ? (
-                        <React.Fragment>
+                        <Fragment>
                             <Typography variant='headline'>
                                 Register
                             </Typography>
                             <form style={{'width': '100%'}}>
-                                {/* This is the first and last name field which we will omit for now on Turnbull's request*/}
-                                {/*<TextField*/}
-                                    {/*margin='normal'*/}
-                                    {/*style={style}*/}
-                                    {/*label='First Name'*/}
-                                    {/*onChange={updateFirstName}*/}
-                                    {/*value={this.state.rFirstName}*/}
-                                {/*/>*/}
-                                {/*<br/>*/}
-                                {/*<TextField*/}
-                                    {/*margin='normal'*/}
-                                    {/*style={style}*/}
-                                    {/*label='Last Name'*/}
-                                    {/*onChange={updateLastName}*/}
-                                    {/*value={this.state.rLastName}*/}
-                                {/*/>*/}
-                                {/*<br/>*/}
+                                <TextField
+                                    margin='normal'
+                                    style={style}
+                                    label='First Name'
+                                    onChange={updateFirstName}
+                                    value={this.state.rFirstName}
+                                />
+                                <br/>
+                                <TextField
+                                    margin='normal'
+                                    style={style}
+                                    label='Last Name'
+                                    onChange={updateLastName}
+                                    value={this.state.rLastName}
+                                />
+                                <br/>
                                 <TextField
                                     margin='normal'
                                     style={style}
@@ -124,9 +116,9 @@ export default class SignIn extends React.Component {
                                     />
                                     I agree to the Terms of Service found <a id='ToC-here'>here</a>.
                                     <br/>
-                                    <center style={{ 'color' : 'red' }}>
+                                    <Typography color='error'>
                                         {this.state.messageToUser}
-                                    </center>
+                                    </Typography>
                                 </Typography>
                                 <Button
                                     color='primary'
@@ -155,19 +147,9 @@ export default class SignIn extends React.Component {
                                 {SignIn.getTermsOfService()}
                             </AVOModal>
                             <br/>
-                        </React.Fragment>
+                        </Fragment>
                     ) : (
-                        <React.Fragment>
-                            {/* This is AVO Mascot which includes the logo but isn't aligning properly right now */}
-                            {/*<div className="avo-mascot">*/}
-                                {/*<section className="move-area">*/}
-                                    {/*<div className='eye-brow left'/>*/}
-                                    {/*<div className='eye-brow right'/>*/}
-                                    {/*<div className='eye'/>*/}
-                                    {/*<div className='eye'/>*/}
-                                    {/*<div className='mouth'/>*/}
-                                {/*</section>*/}
-                            {/*</div>*/}
+                        <Fragment>
                             <Logo/>
                             <Typography variant='headline'>
                                 Sign In
@@ -205,41 +187,7 @@ export default class SignIn extends React.Component {
                             </form>
                             <br/>
                             <br/>
-                            {/* We currently don't have the routes for change password */}
-                            {/*<Typography variant='caption' className='avo-styles__text-center'>*/}
-                                {/*{'If you forgot your password click '}*/}
-                                {/*<a*/}
-                                    {/*id="forgot-password__button"*/}
-                                    {/*className="avo-styles__link">*/}
-                                    {/*here.*/}
-                                {/*</a>*/}
-                            {/*</Typography>*/}
-                            {/*<AVOModal*/}
-                                {/*title='Forgot your password?'*/}
-                                {/*target="forgot-password__button"*/}
-                                {/*acceptText='Send It'*/}
-                                {/*declineText='Never mind'*/}
-                                {/*onAccept={() => {}}*/}
-                                {/*onDecline={() => {}}*/}
-                            {/*>*/}
-                                {/*<React.Fragment>*/}
-                                    {/*<br/>*/}
-                                    {/*<Typography variant='body'>*/}
-                                        {/*That's Ok! Just enter in your associated email & we'll send you an email with instructions on how to change it!*/}
-                                    {/*</Typography>*/}
-                                    {/*<TextField*/}
-                                        {/*margin='normal'*/}
-                                        {/*style={{ width: '60%' }}*/}
-                                        {/*label='UWO Email'*/}
-                                        {/*onChange={updateEmail}*/}
-                                        {/*value={this.state.rEmail}*/}
-                                        {/*error={emailError}*/}
-                                        {/*/>*/}
-                                    {/*<br/>*/}
-                                    {/*<br/>*/}
-                                {/*</React.Fragment>*/}
-                            {/*</AVOModal>*/}
-                        </React.Fragment>
+                        </Fragment>
                     )}
                     <footer className='avo-styles__footer'>
                         <Typography variant='caption'>
@@ -255,8 +203,7 @@ export default class SignIn extends React.Component {
                         </Typography>
                        { this.passwordReset() }
                     </footer>
-                    </Grid>
-                </Grid>
+                </div>
             </Card>
             </Slide>
             </MuiThemeProvider>
@@ -264,51 +211,45 @@ export default class SignIn extends React.Component {
     }
 
     passwordReset(){
-      return (
-          <React.Fragment>
-             {this.state.isSigningIn && (
-                      <React.Fragment>
-                          <br/>
-                          <Typography variant='caption' id="avo-signin__reset-password">
-                            Forgot your password/Want to change your password? Click <a className="avo-styles__link"> here </a>
-                          </Typography>
-                          <AVOModal
-                              title='Reset Password?'
-                              target="avo-signin__reset-password"
-                              acceptText='Reset'
-                              declineText='Never mind'
-                              onAccept={() => {
-                                  const name = document.getElementById('avo-signin__reset-email').value; // get the name given
-                                  if (name !== null && name !== '') {
-                                      Http.resetPassword(
-                                          name,
-                                          () => {
-                                              alert('Successfully requested password change. Please check your email in 10-15 minutes.');
-                                          },
-                                          (e) => { alert(e.error) }
-                                      );
-                                  }
-                              }}
-                              onDecline={() => {}}
-                          >
-                              <React.Fragment>
-                                  <Typography variant='caption'>
-                                      Enter the email associated to the account and we'll send you a link to reset the password.
-                                  </Typography>
-                                  <TextField
-                                      margin='normal'
-                                      style={{ 'width' : '50%' }}
-                                      label='Email'
-                                      type="email"
-                                      id="avo-signin__reset-email"
-                                  />
-                                  <br/>
-                              </React.Fragment>
-                          </AVOModal>
-                      </React.Fragment>
-                  )}
-          </React.Fragment>
-      )
+        return (
+            this.state.isSigningIn && (
+                <Fragment>
+                    <br/>
+                    <Typography variant='caption' id="avo-signin__reset-password">
+                        Forgot your password/Want to change your password? Click <a className="avo-styles__link"> here </a>
+                    </Typography>
+                    <AVOModal
+                        title='Reset Password?'
+                        target="avo-signin__reset-password"
+                        acceptText='Reset'
+                        declineText='Never mind'
+                        onAccept={() => {
+                            const name = document.getElementById('avo-signin__reset-email').value; // get the name given
+                            if (name !== null && name !== '') {
+                                Http.resetPassword(
+                                    name,
+                                    () => alert('Successfully requested password change. Please check your email in 10-15 minutes.'),
+                                    (e) => alert(e.error)
+                                );
+                            }
+                        }}
+                        onDecline={() => {}}
+                    >
+                        <Typography variant='caption'>
+                            Enter the email associated to the account and we'll send you a link to reset the password.
+                        </Typography>
+                        <TextField
+                            margin='normal'
+                            style={{ 'width' : '50%' }}
+                            label='Email'
+                            type="email"
+                            id="avo-signin__reset-email"
+                        />
+                        <br/>
+                    </AVOModal>
+                </Fragment>
+            )
+        )
     }
 
     // noinspection JSMethodCanBeStatic
@@ -317,55 +258,40 @@ export default class SignIn extends React.Component {
        let s = this.state;
         if (this.checkInputFields()) {
             Http.register(s.rFirstName, s.rLastName, s.rEmail, s.rPassword1,
-                () => {
-                this.setState({
-                  rFirstName: '',
-                  rLastName: '',
-                  rEmail: '',
-                  rPassword1: '',
-                  rPassword2: '',
-                  username: s.rEmail,
-                  password: s.rPassword1,
-                  hasAgreedToTOS: false,
-                  messageToUser: "Registration successful! To fully activate your account please check your email inbox/spam folder for the activation link."
-                });
-                },
-                (result) => {
-                  this.setState({messageToUser: result.error});
-                },
+                () => this.setState({
+                    rFirstName: '',
+                    rLastName: '',
+                    rEmail: '',
+                    rPassword1: '',
+                    rPassword2: '',
+                    username: s.rEmail,
+                    password: s.rPassword1,
+                    hasAgreedToTOS: false,
+                    messageToUser: "Registration successful! To fully activate your account please check your email" +
+                        " inbox/spam folder for the activation link."
+                }),
+                result => this.setState({messageToUser: result.error}),
             );
         }
     }
-
-    allFieldsValid(){
-        return '/^[a-zA-Z]{2,}\d*@uwo\.ca$/'.test(s.rEmail) && s.rPassword1.length >= 8 && s.rPassword2 === s.rPassword1;
-    };
 
     checkInputFields(){
          let s = this.state;
 
          const isValid = /^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.rEmail) && s.rPassword1.length >= 8 && s.rPassword2 === s.rPassword1;
-         if (isValid && s.hasAgreedToTOS){
+         if (isValid && s.hasAgreedToTOS)
              return true;
-         }
-         else if (!isValid){
-           this.setState({messageToUser: 'Please check you email and password fields again.'})
-         }
-         else if (!s.hasAgreedToTOS){
+         else if (!isValid)
+           this.setState({messageToUser: 'Please check you email and password fields again.'});
+         else if (!s.hasAgreedToTOS)
            this.setState({messageToUser: 'Please click on Terms and Conditions and agree to it before registering'});
-         }
     }
-
-    // noinspection JSMethodCanBeStatic
-    forgotPassword() {
-        alert('Coming Soon!'); // Todo
-    };
 
     // noinspection JSMethodCanBeStatic
     signIn() {
         Http.login(this.state.username, this.state.password,
-                result => this.props.login(this.state.username, this.state.password, result),
-                result => this.setState({signInError: result.error})
+            result => this.props.login(this.state.username, this.state.password, result),
+            result => this.setState({signInError: result.error})
         );
     };
 
@@ -454,127 +380,8 @@ export default class SignIn extends React.Component {
         );
     };
 
-    // componentDidMount() {
-    //     // Mascot is currently not aligning properly with the logo so this is commented out for now
-    //     // this.initMascot();
-    // };
-
-    // componentDidUpdate() {
-    //     if(this.state.isSigningIn) {
-    //         // Mascot is currently not aligning properly with the logo so this is commented out for now
-    //         // this.initMascot();
-    //     }
-    // };
-
-    initMascot() {
-        const eye_0 = document.getElementsByClassName('eye')[0];
-        const eye_1 = document.getElementsByClassName('eye')[1];
-        const browL = document.getElementsByClassName('eye-brow')[0];
-        const browR = document.getElementsByClassName('eye-brow')[1];
-        const mouth = document.getElementsByClassName('mouth')[0];
-        document.addEventListener("mousemove", function (event) {
-            let x = event.pageX - 40;
-            let y = event.pageY - 40;
-            let offsets = eye_0.getBoundingClientRect();
-            let left = (offsets.left - x);
-            let top = (offsets.top - y);
-            let rad = Math.atan2(top, left);
-            let deg = rad * (180 / Math.PI) - 90;
-            document.getElementById('avo-signin__button').addEventListener('mouseover', () => {
-                SignIn.mascotIntriguedExpressionCOM(eye_0, eye_1, mouth, browL, browR);
-            });
-            document.getElementById('avo-signin__button').addEventListener('mouseleave', () => {
-                SignIn.mascotIntriguedExpressionDECOM(eye_0, eye_1, mouth, browL, browR);
-            });
-            document.getElementById('switchRegistration').addEventListener('mouseover', () => {
-                SignIn.mascotShockedExpressionCOM(eye_0, eye_1, mouth, browL, browR);
-            });
-            document.getElementById('switchRegistration').addEventListener('mouseleave', () => {
-                SignIn.mascotShockedExpressionDECOM(eye_0, eye_1, mouth, browL, browR);
-            });
-            document.getElementById('forgot-password__button').addEventListener('mouseover', () => {
-                SignIn.mascotUpsetExpressionCOM(eye_0, eye_1, mouth, browL, browR);
-            });
-            document.getElementById('forgot-password__button').addEventListener('mouseleave', () => {
-                SignIn.mascotUpsetExpressionDECOM(eye_0, eye_1, mouth, browL, browR);
-            });
-            eye_0.style.webkitTransform = "rotate(" + deg + "deg)";
-            eye_1.style.webkitTransform = "rotate(" + deg + "deg)";
-        });
-    };
-
-    static mascotUpsetExpressionCOM(eye_0, eye_1, mouth, browL, browR) {
-        mouth.style.setProperty('--avo-mouth-height', '-30px');
-        mouth.style.setProperty('--avo-mouth-border', 'transparent transparent #000 transparent');
-        mouth.style.setProperty('--avo-mouth-bgcol', 'rgba(0, 0, 0, 0)');
-        browR.style.setProperty('--avo-eyebrow-height', '-10px');
-        browR.style.setProperty('--avo-eyebrow-angle', '15deg');
-        browL.style.setProperty('--avo-eyebrow-height', '-10px');
-        browL.style.setProperty('--avo-eyebrow-angle', '15deg');
-    };
-
-    static mascotUpsetExpressionDECOM(eye_0, eye_1, mouth, browL, browR) {
-        mouth.style.setProperty('--avo-mouth-height', '30px');
-        mouth.style.setProperty('--avo-mouth-border', 'transparent transparent #000 transparent');
-        mouth.style.setProperty('--avo-mouth-bgcol', 'rgba(0, 0, 0, 0)');
-        mouth.style.setProperty('--avo-mouth-bgcol', 'rgba(0, 0, 0, 0)');
-        browL.style.setProperty('--avo-eyebrow-height', '-4px');
-        browL.style.setProperty('--avo-eyebrow-angle', '10deg');
-        browR.style.setProperty('--avo-eyebrow-height', '-4px');
-        browR.style.setProperty('--avo-eyebrow-angle', '10deg');
-    };
-
-    static mascotIntriguedExpressionCOM(eye_0, eye_1, mouth, browL, browR) {
-        mouth.style.setProperty('--avo-mouth-width', '10px');
-        mouth.style.setProperty('--avo-mouth-height', '10px');
-        mouth.style.setProperty('--avo-mouth-oleft', '24px');
-        mouth.style.setProperty('--avo-mouth-border', 'transparent');
-        mouth.style.setProperty('--avo-mouth-bgcol', 'black');
-        browR.style.setProperty('--avo-eyebrow-height', '-8px');
-        browR.style.setProperty('--avo-eyebrow-angle', '15deg');
-    };
-
-    static mascotIntriguedExpressionDECOM(eye_0, eye_1, mouth, browL, browR) {
-        mouth.style.setProperty('--avo-mouth-width', '66px');
-        mouth.style.setProperty('--avo-mouth-height', '30px');
-        mouth.style.setProperty('--avo-mouth-oleft', '0px');
-        mouth.style.setProperty('--avo-mouth-border', 'transparent transparent #000 transparent');
-        mouth.style.setProperty('--avo-mouth-bgcol', 'rgba(0, 0, 0, 0)');
-        browR.style.setProperty('--avo-eyebrow-height', '-4px');
-        browR.style.setProperty('--avo-eyebrow-angle', '10deg');
-    };
-
-    static mascotShockedExpressionCOM(eye_0, eye_1, mouth, browL, browR) {
-        eye_0.style.setProperty('--avo-pupil-size', '13px');
-        eye_1.style.setProperty('--avo-pupil-size', '13px');
-        mouth.style.setProperty('--avo-mouth-width', '15px');
-        mouth.style.setProperty('--avo-mouth-height', '15px');
-        mouth.style.setProperty('--avo-mouth-oleft', '24px');
-        mouth.style.setProperty('--avo-mouth-border', 'transparent');
-        mouth.style.setProperty('--avo-mouth-bgcol', 'black');
-        browL.style.setProperty('--avo-eyebrow-height', '-10px');
-        browL.style.setProperty('--avo-eyebrow-angle', '15deg');
-        browR.style.setProperty('--avo-eyebrow-height', '-10px');
-        browR.style.setProperty('--avo-eyebrow-angle', '15deg');
-    };
-
-    static mascotShockedExpressionDECOM(eye_0, eye_1, mouth, browL, browR) {
-        eye_0.style.setProperty('--avo-pupil-size', '11px');
-        eye_1.style.setProperty('--avo-pupil-size', '11px');
-        mouth.style.setProperty('--avo-mouth-width', '66px');
-        mouth.style.setProperty('--avo-mouth-height', '30px');
-        mouth.style.setProperty('--avo-mouth-oleft', '0px');
-        mouth.style.setProperty('--avo-mouth-border', 'transparent transparent #000 transparent');
-        mouth.style.setProperty('--avo-mouth-bgcol', 'rgba(0, 0, 0, 0)');
-        browL.style.setProperty('--avo-eyebrow-height', '-4px');
-        browL.style.setProperty('--avo-eyebrow-angle', '10deg');
-        browR.style.setProperty('--avo-eyebrow-height', '-4px');
-        browR.style.setProperty('--avo-eyebrow-angle', '10deg');
-    };
-
-    static confirmedAccountAlert(){
-      if (window.location.href.includes('/confirm/')){
-        alert("Your account was successfully confirmed! You may now log in and begin using AVO.")
-      }
+    static confirmedAccountAlert() {
+        if (window.location.href.includes('/confirm/'))
+            alert("Your account was successfully confirmed! You may now log in and begin using AVO.");
     };
 };
