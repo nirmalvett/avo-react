@@ -1,75 +1,69 @@
-import React from  'react';
+import React, {Component, Fragment} from 'react';
 import Typography from '@material-ui/core/Typography/Typography';
-import Timer from  '@material-ui/icons/TimerOutlined';
-export default class TimerComp extends React.Component {
-    constructor(props = {}) {
+import TimerIcon from  '@material-ui/icons/TimerOutlined';
+
+const MONTHS = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+export default class Timer extends Component {
+    constructor(props) {
         super(props);
+        let date = new Date(this.props.deadline);
+        this.month = MONTHS[date.getMonth()];
+        this.day = date.getDay().toString();
+        this.hour = date.getHours();
+        this.minute = date.getMinutes().toString();
+        if (this.minute.length === 1) this.minute = '0' + this.minute;
+        this.am_pm = this.hour > 11 ? 'pm' : 'am';
+        this.hour = (((this.hour + 11) % 12) + 1).toString();
+        this.timeRemaining = Math.floor((new Date(this.props.deadline) - new Date())/1000);
     };
 
     render() {
         return (
-
-            <Typography variant='title' id="avo-timer__anchor-el" style={{color:'white', marginLeft:'auto', marginRight: '64'}}/>
+            <Fragment>
+                <div style={{ 'position' : 'absolute', 'right' : '32px' }}><TimerIcon style={{color: 'white'}}/></div>
+                <Typography
+                    variant='title'
+                    id="avo-timer__anchor-el"
+                    style={{color:'white', marginLeft:'auto', marginRight: '64'}}
+                >
+                    {this.getTime()}
+                </Typography>
+            </Fragment>
         );
     };
 
-    init(target, numberofMinutes, uponCompleteFunc, testDueDate, ...notificationMarkers) {
-        this.target              = target;
-        this.numberofMinutes     = numberofMinutes;
-        this.uponCompleteFunc    = uponCompleteFunc;
-        this.notificationMarkers = notificationMarkers;
-        if (numberofMinutes  > 200000){// if there is more than 20 years left then assume that it's an assignment
-            document.getElementById('avo-timer__anchor-el').innerHTML = `Due: ${testDueDate}`.replace("GMT", "");
-        }
-        else {
-            let minutes = numberofMinutes;
-            let seconds = 0;
-            // There's a case here where the minutes is float meaning that the student is resuming
-            if (minutes % 1 !== minutes){
-                const partsOfMinute = minutes % 1; // This is the remainder
-                minutes = minutes - partsOfMinute; // now we only have whole minutes
-                seconds = Math.round(partsOfMinute*60);
-            }
+    getTime() {
+        if (this.timeRemaining >= 60*60*24)
+            return this.month + ' ' + this.day + ', ' + this.hour + ':' + this.minute + this.am_pm;
+        else if (this.timeRemaining >= 60*60*4)
+            return this.hour + ':' + this.minute + this.am_pm;
+        let h = Math.floor(this.timeRemaining / 3600);
+        let m = Math.floor(this.timeRemaining % 3600 / 60);
+        let s = Math.floor(this.timeRemaining % 60);
+        if (h > 0)
+            return h + 'h ' + m + 'm';
+        else
+            return m + 'm ' + s + 's';
+    }
 
-            document.getElementById('avo-timer__anchor-el').innerHTML = `${minutes}:${this.checkSecond(seconds)}`;
-            this.startTimer();
+    update() {
+        let el = document.getElementById('avo-timer__anchor-el');
+        if (el !== null) {
+            this.timeRemaining--;
+            el.innerHTML = this.getTime();
+            setTimeout(this.update.bind(this), 1000);
+            if (this.timeRemaining === 60*5)
+                this.props.showSnackBar('info', '5 minutes left', 5000);
+            if (this.timeRemaining === 0)
+                this.props.onCompletionFunc();
         }
-
-    };
-
-    startTimer() {
-        let presentTime = document.getElementById('avo-timer__anchor-el').innerHTML;
-        let timeArray = presentTime.split(/[:]+/);
-        let m = timeArray[0];
-        let s = this.checkSecond((timeArray[1] - 1));
-        if (m < 5){
-            this.props.showSnackBar("warning", "5 Minutes Remaining", 10000);
-        }
-        if (m < 2){
-            this.props.showSnackBar("warning", "2 Minutes Remaining");
-        }
-        if(s==59){m=m-1}
-        if(m<0){
-            this.props.uponCompletionFunc();
-            return;
-        }
-        // Parses through all the notificationMarkers and executes an associative function based on if it matches
-        for(let i = 0; i < this.notificationMarkers.length; i++) {
-            if(this.notificationMarkers[i][0].time === m && s === 59) {
-                this.notificationMarkers[i][0].func();
-            }
-        }
-        document.getElementById(this.target).innerHTML = m + ":" + s;
-        setTimeout(this.startTimer.bind(this), 1000);
-    };
-
-    checkSecond(sec) {
-        if (sec < 10 && sec >= 0) {sec = "0" + sec}; // add zero in front of numbers < 10
-        if (sec < 0) {sec = "59"};
-        return sec;
     };
 
     componentDidMount() {
-        this.init('avo-timer__anchor-el', this.props.time, this.props.uponCompleteFunc, this.props.testDueDate);
+        setTimeout(this.update.bind(this), 1000);
     };
 };

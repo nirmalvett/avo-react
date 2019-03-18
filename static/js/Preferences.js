@@ -25,15 +25,13 @@ export default class Preferences extends React.Component {
     }
 
     render() {
-        let color_icon = color => <td style={{padding: '10px'}}><Avatar style={{width: '60px', height: '60px',
-            backgroundColor:color['500']}} onClick={() => this.state.changeColor(color)}/></td>;
         return (
             <div style={{margin: '10px', flex: 1, overflowY: 'auto'}}>
                 <Typography variant={'headline'}>Please select a color</Typography>
                 <table><tbody>
-                    <tr>{this.colorList.slice(0, 6).map(x => color_icon(x))}</tr>
-                    <tr>{this.colorList.slice(6, 12).map(x => color_icon(x))}</tr>
-                    <tr>{this.colorList.slice(12, 18).map(x => color_icon(x))}</tr>
+                    <tr>{this.colorList.slice(0, 6).map((x, y) => this.colorIcon(x, y))}</tr>
+                    <tr>{this.colorList.slice(6, 12).map((x, y) => this.colorIcon(x, y+6))}</tr>
+                    <tr>{this.colorList.slice(12, 18).map((x, y) => this.colorIcon(x, y+12))}</tr>
                 </tbody></table>
                 <Typography variant={'headline'}>Please select a theme</Typography>
                 <RadioGroup name='theme' value={this.props.theme}
@@ -45,9 +43,9 @@ export default class Preferences extends React.Component {
         );
     }
 
-    colorIcon(color) {
+    colorIcon(color, index) {
         return (
-            <td style={{padding: '10px'}}>
+            <td style={{padding: '10px'}} key={'selectColor' + index}>
                 <Avatar style={{width: '60px', height: '60px', backgroundColor:color['500']}}
                         onClick={() => this.state.changeColor(color)}/>
             </td>

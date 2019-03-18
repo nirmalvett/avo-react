@@ -1,6 +1,5 @@
 import React from 'react';
 import Http from './Http';
-import Grid from "@material-ui/core/Grid/Grid";
 import Card from "@material-ui/core/Card/Card";
 import CardHeader from "@material-ui/core/CardHeader/CardHeader";
 import {getMathJax} from "./Utilities";
@@ -22,13 +21,16 @@ export default class PostTest extends React.Component {
 
     render() {
         return (
-            <Grid container spacing={8}>
-                <Grid xs={1}/>
-                <Grid xs={10} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
-                    {this.state.questions.map((x, y) => this.getQuestionCard(x, y))}
-                </Grid>
-                <Grid xs={1}/>
-            </Grid>
+            <div style={{
+				flex: 1,
+				paddingLeft: '10%',
+				paddingRight: '10%',
+				paddingTop: '20px',
+				paddingBottom: '20px',
+				overflowY: 'auto'
+			}}>
+                {this.state.questions.map((x, y) => this.getQuestionCard(x, y))}
+            </div>
         );
     }
 

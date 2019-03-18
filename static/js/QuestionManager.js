@@ -1,5 +1,4 @@
 import React, {Component, Fragment} from 'react';
-import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
@@ -50,8 +49,8 @@ export default class QuestionManager extends Component {
         let {selectedS, selectedQ} = this.state;
         let canEdit = selectedS !== null && this.state.sets[selectedS].can_edit;
         return (
-            <Grid container spacing={8}>
-                <Grid item xs={3} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
+            <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
+                <div style={{flex: 3, display: 'flex'}}>
                     <Paper square style={{
                         width: '100%', flex: 1, display: 'flex', flexDirection: 'column',
                         paddingTop: '5px', paddingBottom: '5px'
@@ -65,8 +64,8 @@ export default class QuestionManager extends Component {
                             {this.renderSetList()}
                         </List>
                     </Paper>
-                </Grid>
-                <Grid item xs={3} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
+                </div>
+                <div style={{flex: 3, display: 'flex', paddingBottom: 0, marginLeft: 8}}>
                     <Paper square style={{
                         width: '100%', flex: 1, display: 'flex', flexDirection: 'column',
                         paddingTop: '5px', paddingBottom: '5px'
@@ -110,16 +109,16 @@ export default class QuestionManager extends Component {
                             : null
                         }
                     </Paper>
-                </Grid>
-                <Grid item xs={6} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
+                </div>
+                <div style={{flex: 6, display: 'flex', paddingBottom: 0, marginLeft: 8}}>
                     <Paper square style={{
                         width: '100%', flex: 1, flexDirection: 'column', paddingTop: '5px',
                         paddingBottom: '5px', padding: '20px', overflowY: 'auto'
                     }}>
                         {this.renderQuestionPreview()}
                     </Paper>
-                </Grid>
-            </Grid>
+                </div>
+            </div>
         );
     }
 
@@ -206,9 +205,11 @@ export default class QuestionManager extends Component {
     }
 
     newQuestion() {
-        Http.newQuestion(this.state.sets[this.state.selectedS].id, 'New question', '-4 4 0 3 1 AC，2 3 0 ' +
-            'AB，-4 4 0 3 1 AC，$0 _A，$1 _A，$2 _A，@0 $0 $1 $2 CD CB CN 1 %；Compute the vector sum \\({0}+{1}{2}\\).' +
-            '，；6；；，，', 1, 1,
+        Http.newQuestion(this.state.sets[this.state.selectedS].id, 'New question', '-3 3 1 3 1 AC，2 3 0 ' +
+            'AB，-2 2 1 3 1 AC；$1，$2，$3；$1 _A，$2 _A，$3 _A；Compute the vector sum \\({0}+{1}{2}\\).，；6；1；@0 $1 ' +
+            '$2 $3 CD CB CN；The first step is to multiply the vector by the scalar, which you can do by multiplying ' +
+            'each number in the vector. The second step is to add the result to the other vector, by adding each ' +
+            'corresponding pair of numbers.；，，', 1, 1,
             () => this.getSets(),
             () => alert("The question couldn't be created.")
         );

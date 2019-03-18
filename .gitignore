@@ -6,3 +6,7 @@ desktop.ini
 */__pycache__
 __pycache__
 config.*
+avo.db
+DS_Store
+*/DS_Store
+static/dist
