@@ -456,7 +456,7 @@ export default class ButtonInput extends React.Component {
                        {
                           rowList.map((fieldString, indexColumn) => {
                             return (
-                              <Grid item>
+                              <Grid item style={{ margin: '1em'}}>
                                 <TextField
                                     id = { fieldString }
                                     name = {`${indexRow}-${indexColumn}` }
