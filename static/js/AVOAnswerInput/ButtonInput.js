@@ -10,6 +10,9 @@ import {
 	CONST_MANUAL_INPUT_POLYNOMIAL, CONST_MATRIX, CONST_MULTIPLE_CHOICE, CONST_NUMBER
 } from "./InputConsts";
 import { DeleteOutlined } from '@material-ui/icons'
+import {
+    IconButton
+} from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar';
 import Slide from '@material-ui/core/Slide';
 import {objectSize} from "../helpers";
@@ -57,8 +60,8 @@ export default class ButtonInput extends React.Component {
 			dataForServer: '',
 			latexString: '',
 			prompt: this.props.prompt,
-			dynamicVectorInputs : [],
-			dynamicVectorIDs : [],
+			dynamicVectorInputs : [0],
+			dynamicVectorIDs : 0,
 		};
 	}
 
@@ -319,7 +322,7 @@ export default class ButtonInput extends React.Component {
 			this.state.dimensionStorage = stateObject;
 		}
 
-		if(this.state.type == CONST_VECTOR_LINEAR_EXPRESSION)
+		if(this.state.type == CONST_VECTOR)
 		{
 			// this.setState({ 
 			// 	dynamicVectorInputs : [], 
@@ -335,28 +338,28 @@ export default class ButtonInput extends React.Component {
 						this.state.dynamicVectorInputs.map((idName, index) => {
 							return (
 									<div>
-										<div style={{ float : 'left' }}>
-											<DeleteOutlined onClick={() => {
-												const newArr = this.state.dynamicVectorInputs;
-												newArr = newArr.splice(index, 1);
-												this.setState({
-													dynamicVectorInputs : newArr, 
-												});
-											}}/>
-										</div>
+										<IconButton style={{ float : 'left' }} onClick={() => {
+											let newArr = this.state.dynamicVectorInputs;
+											newArr = newArr.splice(index, newArr.length - 1);
+											this.setState({
+												dynamicVectorInputs : newArr, 
+											});
+										}}>
+											<DeleteOutlined/>
+										</IconButton>
 										<TextField
-												id={idName}
+												// id={idName}
 												style={{ float : 'right' }}
 												name={`${index}-0`}
-												value={this.state.dimensionStorage[index]}
-												onChange={(e) => this.handleVectorInput(e)}
+												// value={this.state.dimensionStorage[index]}
+												// onChange={(e) => this.handleVectorInput(e)}
 												label={`Vector Parameter ${index + 1}`}
-												error={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))}
-												helperText={
-													!Array.isArray(validateNumber(this.state.dimensionStorage[index]))
-															? validateNumber(this.state.dimensionStorage[index])
-															: undefined
-												}
+												// error={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))}
+												// helperText={
+												// 	!Array.isArray(validateNumber(this.state.dimensionStorage[index]))
+												// 			? validateNumber(this.state.dimensionStorage[index])
+												// 			: undefined
+												// }
 										/>
 										<br/>
 										<br/>
@@ -370,7 +373,7 @@ export default class ButtonInput extends React.Component {
 							color="primary"
 							onClick={(e) => {
 								const newID  = this.state.dynamicVectorIDs + 1;
-								if(newID < MAX_VECTOR_SIZE)
+								if(this.state.dynamicVectorInputs.length < MAX_VECTOR_SIZE)
 								{
 									const newArr = this.state.dynamicVectorInputs;
 									newArr.push(newID);
