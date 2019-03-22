@@ -274,7 +274,7 @@ export default class ButtonInput extends React.Component {
 							disabled={this.state.disabled}
 							variant="extendedFab"
 							color="primary"
-							onClick={() => this.setState({stage: CONST_SELECT_DIMENSION})}
+							onClick={() => this.setState({stage: CONST_INPUT_PHASE})}
 					>
 						Create Vector
 					</Button>
@@ -338,28 +338,32 @@ export default class ButtonInput extends React.Component {
 						this.state.dynamicVectorInputs.map((idName, index) => {
 							return (
 									<div>
-										<IconButton style={{ float : 'left' }} onClick={() => {
-											let newArr = this.state.dynamicVectorInputs;
-											newArr = newArr.splice(index, newArr.length - 1);
-											this.setState({
-												dynamicVectorInputs : newArr, 
-											});
-										}}>
-											<DeleteOutlined/>
-										</IconButton>
+										{index == this.state.dynamicVectorInputs.length - 1 && (
+											<IconButton style={{ float : 'left' }} onClick={() => {
+												let newArr = this.state.dynamicVectorInputs;
+												newArr = newArr.filter((obj, idx) => {
+													return idx != index;
+												});
+												this.setState({
+													dynamicVectorInputs : newArr
+												});
+											}}>
+												<DeleteOutlined/>
+											</IconButton>
+										)}
 										<TextField
-												// id={idName}
+												id={'vector-Input-:' + idName}
 												style={{ float : 'right' }}
 												name={`${index}-0`}
-												// value={this.state.dimensionStorage[index]}
-												// onChange={(e) => this.handleVectorInput(e)}
+												value={this.state.dimensionStorage[index]}
+												onChange={(e) => this.handleVectorInput(e)}
 												label={`Vector Parameter ${index + 1}`}
-												// error={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))}
-												// helperText={
-												// 	!Array.isArray(validateNumber(this.state.dimensionStorage[index]))
-												// 			? validateNumber(this.state.dimensionStorage[index])
-												// 			: undefined
-												// }
+												error={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))}
+												helperText={
+													!Array.isArray(validateNumber(this.state.dimensionStorage[index]))
+															? validateNumber(this.state.dimensionStorage[index])
+															: undefined
+												}
 										/>
 										<br/>
 										<br/>
@@ -397,8 +401,8 @@ export default class ButtonInput extends React.Component {
 					>
 						Finish Answer
 					</Button>
-					<br/>
-					{this.clearAnswerButton()}
+					{/* <br/> */}
+					{/* {this.clearAnswerButton()} */}
 				</Grid>
 			);
 		}
@@ -1042,7 +1046,7 @@ export default class ButtonInput extends React.Component {
 		// CASE 0: It's a vector and the user did not input any object or it's not the right size
 		if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION) {
 			const objectSizeInt = objectSize(dimensionStorage);
-			if (objectSizeInt === 0 || objectSizeInt !== totalFields) {
+			if (objectSizeInt === 0 || objectSizeInt !== this.state.dynamicVectorInputs.length) {
 				return false;
 			}
 		}
@@ -1139,7 +1143,6 @@ function replaceImproperValues(input) {
 }
 
 function stringToMatrixArray(input) {
-	console.log(input);
 	const finalList = [];
 	const splitByNewLine = input.split("\n");
 	if (splitByNewLine.length === 0) {
