@@ -9,7 +9,7 @@ import {
 	CONST_VECTOR_LINEAR_EXPRESSION, CONST_BASIS, CONST_BOOLEAN, CONST_LINEAR_EXPRESSION, CONST_MANUAL_INPUT,
 	CONST_MANUAL_INPUT_POLYNOMIAL, CONST_MATRIX, CONST_MULTIPLE_CHOICE, CONST_NUMBER
 } from "./InputConsts";
-import { DeleteOutlined } from '@material-ui/icons'
+import { DeleteOutlined, Add } from '@material-ui/icons'
 import {
     IconButton
 } from '@material-ui/core';
@@ -372,7 +372,7 @@ export default class ButtonInput extends React.Component {
 						})
 					}
 					<br/>
-					<Button
+					<IconButton
 							variant="extendedFab"
 							color="primary"
 							onClick={(e) => {
@@ -388,8 +388,8 @@ export default class ButtonInput extends React.Component {
 								}
 							}}
 					>
-						Add component
-					</Button>
+						<Add/>
+					</IconButton>
 					<br/>
 					<Button
 							variant="extendedFab"
