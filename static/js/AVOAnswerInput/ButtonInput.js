@@ -1,9 +1,9 @@
 import React from 'react';
 import TextField from "@material-ui/core/TextField/TextField";
 import Button from '@material-ui/core/Button';
-import {getMathJax, validateMatrix, validateNumber, validateVector} from '../Utilities';
+import { getMathJax, validateMatrix, validateNumber, validateVector } from '../Utilities';
 import Grid from '@material-ui/core/Grid/Grid';
-import {copy} from "../Utilities";
+import { copy } from "../Utilities";
 import {
 	CONST_CREATE_OBJECT, CONST_INPUT_PHASE, CONST_SHOW_OBJECT, CONST_SELECT_DIMENSION, CONST_VECTOR,
 	CONST_VECTOR_LINEAR_EXPRESSION, CONST_BASIS, CONST_BOOLEAN, CONST_LINEAR_EXPRESSION, CONST_MANUAL_INPUT,
@@ -11,26 +11,28 @@ import {
 } from "./InputConsts";
 import { DeleteOutlined, Add } from '@material-ui/icons'
 import {
-    IconButton
+	IconButton,
+
 } from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar';
 import Slide from '@material-ui/core/Slide';
-import {objectSize} from "../helpers";
+import { objectSize } from "../helpers";
 import Typography from '@material-ui/core/Typography/Typography';
+import Tooltip from '@material-ui/core/Tooltip';
 
 
 // This is a link that basically says need help inputting an answer? And links to a google doc
 function inputAnswerHelp() {
 	return (
-			<a
-					href="https://docs.google.com/document/d/1m46sbpWg2oTZ4kaQoiy1HYkpc_BgOye9y8mhhUSHi20/edit?usp=sharing"
-					target="_blank">
-				<u color="primary">
-					<Typography component={'span'} variant='body1'>
-						Need help inputting an answer? Click Here.
+		<a
+			href="https://docs.google.com/document/d/1m46sbpWg2oTZ4kaQoiy1HYkpc_BgOye9y8mhhUSHi20/edit?usp=sharing"
+			target="_blank">
+			<u color="primary">
+				<Typography component={'span'} variant='body1'>
+					Need help inputting an answer? Click Here.
 					</Typography>
-				</u>
-			</a>
+			</u>
+		</a>
 
 	)
 }
@@ -60,8 +62,8 @@ export default class ButtonInput extends React.Component {
 			dataForServer: '',
 			latexString: '',
 			prompt: this.props.prompt,
-			dynamicVectorInputs : [0],
-			dynamicVectorIDs : 0,
+			dynamicVectorInputs: [0],
+			dynamicVectorIDs: 0,
 		};
 	}
 
@@ -80,6 +82,8 @@ export default class ButtonInput extends React.Component {
 			previousAnswer: "", // set this to empty if it's been reset
 			dataForServer: '',
 			latexString: '',
+			dynamicVectorInputs: [0],
+			dynamicVectorIDs: 0,
 		});
 
 	}
@@ -88,43 +92,43 @@ export default class ButtonInput extends React.Component {
 		// We want to consider whether there is already an answer.
 		// If there is then we want to switch to show object
 		if (this.props.value !== "" && this.props.value !== undefined && this.props.value !== null) {
-			this.setState({stage: CONST_SHOW_OBJECT});
+			this.setState({ stage: CONST_SHOW_OBJECT });
 		}
 	}
 
 	render() {
 
-		const {stage, prompt} = this.state;
+		const { stage, prompt } = this.state;
 		return (
-				<div>
-					{
-						// If there is no prompt then don't display anything otherwise display the latex this is supposed to
-						// be the prompt before each answer field
-						prompt === undefined || prompt === null || prompt === ""
-								? null
-								: getMathJax(prompt)
-					}
+			<div>
+				{
+					// If there is no prompt then don't display anything otherwise display the latex this is supposed to
+					// be the prompt before each answer field
+					prompt === undefined || prompt === null || prompt === ""
+						? null
+						: getMathJax(prompt)
+				}
 
-					{
-						stage === CONST_CREATE_OBJECT
-								? this.createObject() // if True then render create object button i.e. "Create Vector"
-								: stage === CONST_SELECT_DIMENSION
-								? this.selectDimension() // if True then render dimensions selector i.e. "Row: _____ Column: _______"
-								: stage === CONST_INPUT_PHASE
-										? this.inputPhase() // If True then render fields for the student to fill in
-										: stage === CONST_SHOW_OBJECT
-												? this.showObject() //If true then show the answer in latex
-												: null
-					}
-					<br/>
-					{
-						<Typography color='error'>{this.state.message}</Typography>
-					}
-					<br/>
-					{inputAnswerHelp()}
+				{
+					stage === CONST_CREATE_OBJECT
+						? this.createObject() // if True then render create object button i.e. "Create Vector"
+						: stage === CONST_SELECT_DIMENSION
+							? this.selectDimension() // if True then render dimensions selector i.e. "Row: _____ Column: _______"
+							: stage === CONST_INPUT_PHASE
+								? this.inputPhase() // If True then render fields for the student to fill in
+								: stage === CONST_SHOW_OBJECT
+									? this.showObject() //If true then show the answer in latex
+									: null
+				}
+				<br />
+				{
+					<Typography color='error'>{this.state.message}</Typography>
+				}
+				<br />
+				{inputAnswerHelp()}
 
 
-				</div>
+			</div>
 
 		)
 
@@ -132,26 +136,26 @@ export default class ButtonInput extends React.Component {
 
 	renderServerToLatex() {
 		// takes the values from server and renders them into latex String
-		const {type, previousAnswer} = this.state;
+		const { type, previousAnswer } = this.state;
 		if (previousAnswer === undefined || previousAnswer.length === 0) {
 			return "";
 		}
 		if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION) {
 			const vector = validateVector(previousAnswer);
 			return Array.isArray(vector)
-					? '\\(\\begin{bmatrix}' + vector.join('\\\\') + '\\end{bmatrix}\\)'
-					: '\\(\\begin{bmatrix}' + previousAnswer.split(",").join('\\\\') + '\\end{bmatrix}\\)'
+				? '\\(\\begin{bmatrix}' + vector.join('\\\\') + '\\end{bmatrix}\\)'
+				: '\\(\\begin{bmatrix}' + previousAnswer.split(",").join('\\\\') + '\\end{bmatrix}\\)'
 		} else if (type === CONST_MATRIX) {
 			const matrix = validateMatrix(previousAnswer);
 			return Array.isArray(matrix)
-					? '\\(\\begin{bmatrix}' + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)'
-					: '\\(\\begin{bmatrix}' + stringToMatrixArray(previousAnswer).map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)'
+				? '\\(\\begin{bmatrix}' + matrix.map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)'
+				: '\\(\\begin{bmatrix}' + stringToMatrixArray(previousAnswer).map(x => x.join('&')).join('\\\\') + '\\end{bmatrix}\\)'
 		} else if (type === CONST_BASIS) {
 			let basis = validateMatrix(previousAnswer);
 			// Takes server form of a basis and transforms it into latex form
 			return Array.isArray(basis)
-					? '\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)'
-					: '\\(\\left\\{' + stringToBasisArray(previousAnswer).map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)';
+				? '\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)'
+				: '\\(\\left\\{' + stringToBasisArray(previousAnswer).map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)';
 		} else {
 			return ""
 		}
@@ -159,35 +163,35 @@ export default class ButtonInput extends React.Component {
 
 	// ================================== General Four Phases ===========================================
 	createObject() {
-		const {type, disabled} = this.state;
+		const { type, disabled } = this.state;
 		return (
-				<Grid container
-				      direction="column"
-				      justify="center"
-				      alignItems="center">
-					<br/>
-					{
-						type === CONST_VECTOR
-								? this.vectorCreateObject()
-								: type === CONST_MATRIX
-								? this.matrixCreateObject()
-								: type === CONST_BASIS
-										? this.basisCreateObject()
-										: null
-					}
-					<br/><br/>
-					{ // This condition occurs iff it's a view where a teacher is creating a test or it's a post test
-						disabled === true
-								? getMathJax(this.renderServerToLatex(), 'body2')
+			<Grid container
+				direction="column"
+				justify="center"
+				alignItems="center">
+				<br />
+				{
+					type === CONST_VECTOR
+						? this.vectorCreateObject()
+						: type === CONST_MATRIX
+							? this.matrixCreateObject()
+							: type === CONST_BASIS
+								? this.basisCreateObject()
 								: null
-					}
+				}
+				<br /><br />
+				{ // This condition occurs iff it's a view where a teacher is creating a test or it's a post test
+					disabled === true
+						? getMathJax(this.renderServerToLatex(), 'body2')
+						: null
+				}
 
-				</Grid>
+			</Grid>
 		)
 	}
 
 	selectDimension() {
-		const {type} = this.state;
+		const { type } = this.state;
 		if (type === CONST_VECTOR) {
 			return this.vectorSelectDimension();
 		} else if (type === CONST_MATRIX) {
@@ -198,7 +202,7 @@ export default class ButtonInput extends React.Component {
 	}
 
 	inputPhase() {
-		const {type} = this.state;
+		const { type } = this.state;
 		if (type === CONST_VECTOR) {
 			return this.vectorInputPhase();
 		} else if (type === CONST_MATRIX) {
@@ -209,18 +213,18 @@ export default class ButtonInput extends React.Component {
 	}
 
 	showObject() {
-		const {type, previousAnswer} = this.state;
+		const { type, previousAnswer } = this.state;
 		// CASE 0: We have a previous answer so just process it and display it
 		if (previousAnswer !== "") {
 			return (
-					<Grid container
-					      direction="column"
-					      justify="center"
-					      alignItems="center">
-						{getMathJax(this.renderServerToLatex(), 'body2')}
-						<br/> <br/>
-						{this.clearAnswerButton()}
-					</Grid>
+				<Grid container
+					direction="column"
+					justify="center"
+					alignItems="center">
+					{getMathJax(this.renderServerToLatex(), 'body2')}
+					<br /> <br />
+					{this.clearAnswerButton()}
+				</Grid>
 			)
 		}
 		// CASE 1: We are arriving here because the user filled the fields
@@ -236,7 +240,7 @@ export default class ButtonInput extends React.Component {
 	clearAnswerButton() {
 		// depending on different answer types it will say Clear Answer differently.
 		// So for a matrix it should say Clear Matrix Answer
-		const {type, disabled} = this.state;
+		const { type, disabled } = this.state;
 		let buttonText = "Clear Answer";
 		if (type === CONST_BASIS) {
 			buttonText = "Clear Basis Answer"
@@ -248,15 +252,18 @@ export default class ButtonInput extends React.Component {
 			buttonText = "Clear Vector Answer"
 		} else (console.warn("clearAnswerButton(), type: " + type + " not accounted for in logic"));
 		return (
+			<Tooltip title="Clear this answer to start again">
 				<Button
-						variant="extendedFab"
-						color="primary"
-						aria-label="Delete"
-						onClick={() => this.resetAll()}
-						disabled={disabled}
+					variant="extendedFab"
+					color="primary"
+					aria-label="Delete"
+					onClick={() => this.resetAll()}
+					disabled={disabled}
 				>
 					{buttonText}
 				</Button>
+			</Tooltip>
+
 		)
 	}
 
@@ -265,45 +272,48 @@ export default class ButtonInput extends React.Component {
 	vectorCreateObject() {
 		//  CREATE OBJECT PHASE: | Create Matrix |
 		return (
-				<Grid container
-				      direction="column"
-				      justify="center"
-				      alignItems="center">
-					{/*<br/>*/}
+			<Grid container
+				direction="column"
+				justify="center"
+				alignItems="center">
+				{/*<br/>*/}
+				<Tooltip title="Begin creating a vector answer">
 					<Button
-							disabled={this.state.disabled}
-							variant="extendedFab"
-							color="primary"
-							onClick={() => this.setState({stage: CONST_INPUT_PHASE})}
+						disabled={this.state.disabled}
+						variant="extendedFab"
+						color="primary"
+						onClick={() => this.setState({ stage: CONST_INPUT_PHASE })}
 					>
 						Create Vector
 					</Button>
+				</Tooltip>
 
-				</Grid>
+
+			</Grid>
 		)
 	}
 
 	vectorSelectDimension() {
 		// SELECT DIMENSION: Size of Rows: ___________, Size of Columns: ______________ | Input Values |
 		return (
-				<Grid container
-				      direction="column"
-				      justify="center"
-				      alignItems="center">
-					<TextField
-							label='Vector size/component.'
-							value={this.state.vectorSize}
-							onChange={(e) => this.handleVectorSize(e)}/>
-					<br/>
+			<Grid container
+				direction="column"
+				justify="center"
+				alignItems="center">
+				<TextField
+					label='Vector size/component.'
+					value={this.state.vectorSize}
+					onChange={(e) => this.handleVectorSize(e)} />
+				<br />
 
-					<Button
-							variant="extendedFab"
-							color="primary"
-							onClick={(e) => this.handleVectorDimensionSubmit(e)}
-					>
-						Confirm Dimension
+				<Button
+					variant="extendedFab"
+					color="primary"
+					onClick={(e) => this.handleVectorDimensionSubmit(e)}
+				>
+					Confirm Dimension
 					</Button>
-				</Grid>
+			</Grid>
 		)
 	}
 
@@ -322,85 +332,96 @@ export default class ButtonInput extends React.Component {
 			this.state.dimensionStorage = stateObject;
 		}
 
-		if(this.state.type == CONST_VECTOR)
-		{
+		if (this.state.type == CONST_VECTOR) {
 			// this.setState({ 
 			// 	dynamicVectorInputs : [], 
 			// 	dynamicVectorIDs : 0 
 			// });
 			return (
 				<Grid container
-				      direction="column"
-				      justify="center"
-				      alignItems="center">
+					direction="column"
+					justify="center"
+					alignItems="center">
 
 					{ // We're mapping the vector inputs here
 						this.state.dynamicVectorInputs.map((idName, index) => {
 							return (
-									<div>
-										{index == this.state.dynamicVectorInputs.length - 1 && (
-											<IconButton style={{ float : 'left' }} onClick={() => {
-												let newArr = this.state.dynamicVectorInputs;
-												newArr = newArr.filter((obj, idx) => {
-													return idx != index;
-												});
-												this.setState({
-													dynamicVectorInputs : newArr
-												});
-											}}>
-												<DeleteOutlined/>
-											</IconButton>
-										)}
-										<TextField
-												id={'vector-Input-:' + idName}
-												style={{ float : 'right' }}
-												name={`${index}-0`}
-												value={this.state.dimensionStorage[index]}
-												onChange={(e) => this.handleVectorInput(e)}
-												label={`Vector Parameter ${index + 1}`}
-												error={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))}
-												helperText={
-													!Array.isArray(validateNumber(this.state.dimensionStorage[index]))
-															? validateNumber(this.state.dimensionStorage[index])
-															: undefined
-												}
-										/>
-										<br/>
-										<br/>
-									</div>
+								<div>
+									<TextField
+										id={'vector-Input-:' + idName}
+										style={{ float: 'right' }}
+										name={`${index}-0`}
+										value={this.state.dimensionStorage[index]}
+										onChange={(e) => this.handleVectorInput(e)}
+										label={`Vector Parameter ${index + 1}`}
+										error={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))}
+										helperText={
+											!Array.isArray(validateNumber(this.state.dimensionStorage[index]))
+												? validateNumber(this.state.dimensionStorage[index])
+												: undefined
+										}
+									/>
+									<br />
+									<br />
+								</div>
 							)
 						})
 					}
-					<br/>
-					<IconButton
-							variant="extendedFab"
-							color="primary"
-							onClick={(e) => {
-								const newID  = this.state.dynamicVectorIDs + 1;
-								if(this.state.dynamicVectorInputs.length < MAX_VECTOR_SIZE)
-								{
-									const newArr = this.state.dynamicVectorInputs;
-									newArr.push(newID);
-									this.setState({
-										dynamicVectorInputs : newArr, 
-										dynamicVectorIDs    : newID 
-									});
-								}
-							}}
-					>
-						<Add/>
-					</IconButton>
-					<br/>
-					<Button
+					<br />
+					<div>
+						<Tooltip title="Add new field" placement="top">
+							<IconButton
+								variant="extendedFab"
+								color="primary"
+								onClick={(e) => {
+									const newID = this.state.dynamicVectorIDs + 1;
+									if (this.state.dynamicVectorInputs.length < MAX_VECTOR_SIZE) {
+										const newArr = this.state.dynamicVectorInputs;
+										newArr.push(newID);
+										this.setState({
+											dynamicVectorInputs: newArr,
+											dynamicVectorIDs: newID
+										});
+									}
+								}}
+							>
+
+								<Add />
+							</IconButton>
+						</Tooltip>
+						<Tooltip title="Delete last field" placement="top">
+							<IconButton color="primary" style={{ float: 'right' }} onClick={() => {
+								let newArr = this.state.dynamicVectorInputs;
+								newArr = newArr.filter((obj, idx) => {
+									return idx != this.state.dynamicVectorInputs.length - 1;
+								});
+								let newDimensionStorage = this.state.dimensionStorage
+								delete newDimensionStorage[(this.state.dynamicVectorInputs.length - 1).toString()]
+								this.setState({
+									dynamicVectorInputs: newArr,
+									dimensionStorage: newDimensionStorage
+								});
+							}}>
+								<DeleteOutlined />
+							</IconButton>
+						</Tooltip>
+
+					</div>
+
+					<br />
+					<Tooltip title="Save vector answer" placement="top">
+						<Button
 							variant="extendedFab"
 							color="primary"
 							onClick={(e) => {
 								this.handleFinishAnswer(e);
 							}}
 
-					>
-						Finish Answer
+						>
+							Finish Answer
 					</Button>
+					</Tooltip>
+
 					{/* <br/> */}
 					{/* {this.clearAnswerButton()} */}
 				</Grid>
@@ -408,67 +429,67 @@ export default class ButtonInput extends React.Component {
 		}
 
 		return (
-				<Grid container
-				      direction="column"
-				      justify="center"
-				      alignItems="center">
+			<Grid container
+				direction="column"
+				justify="center"
+				alignItems="center">
 
-					{ // We're mapping the vector inputs here
-						uniqueIds.map((idName, index) => {
-							return (
-									<div>
-										<TextField
-												id={idName}
-												name={`${index}-0`}
-												value={this.state.dimensionStorage[index]}
-												onChange={(e) => this.handleVectorInput(e)}
-												label={`Vector Parameter ${index + 1}`}
-												error={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))}
-												helperText={
-													!Array.isArray(validateNumber(this.state.dimensionStorage[index]))
-															? validateNumber(this.state.dimensionStorage[index])
-															: undefined
-												}
+				{ // We're mapping the vector inputs here
+					uniqueIds.map((idName, index) => {
+						return (
+							<div>
+								<TextField
+									id={idName}
+									name={`${index}-0`}
+									value={this.state.dimensionStorage[index]}
+									onChange={(e) => this.handleVectorInput(e)}
+									label={`Vector Parameter ${index + 1}`}
+									error={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))}
+									helperText={
+										!Array.isArray(validateNumber(this.state.dimensionStorage[index]))
+											? validateNumber(this.state.dimensionStorage[index])
+											: undefined
+									}
 
-										/>
-										<br/>
-										<br/>
-									</div>
-							)
-						})
-					}
-					<br/>
-					<Button
-							variant="extendedFab"
-							color="primary"
-							onClick={(e) => {
-								this.handleFinishAnswer(e);
-							}}
+								/>
+								<br />
+								<br />
+							</div>
+						)
+					})
+				}
+				<br />
+				<Button
+					variant="extendedFab"
+					color="primary"
+					onClick={(e) => {
+						this.handleFinishAnswer(e);
+					}}
 
-					>
-						Finish Answer
+				>
+					Finish Answer
 					</Button>
-					<br/>
-					{this.clearAnswerButton()}
-				</Grid>
+				<br />
+				{this.clearAnswerButton()}
+			</Grid>
 		)
 	}
 
 	vectorShowObject() {
 		// SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
 		// Stores the data in latex and in a form that the server likes
-		const {latexString, disabled} = this.state;
+		const { latexString, disabled } = this.state;
 
 		return (
-				<Grid container
-				      direction="column"
-				      justify="center"
-				      alignItems="center">
-					{getMathJax(latexString)}
+			<Grid container
+				direction="column"
+				justify="center"
+				alignItems="center">
+				{getMathJax(latexString)}
 
-					<br/> <br/>
-					{this.clearAnswerButton()}
-				</Grid>
+				<br /> <br />
+				{this.clearAnswerButton()}
+			</Grid>
 		)
 	}
 
@@ -477,23 +498,23 @@ export default class ButtonInput extends React.Component {
 		const value = e.target.value;
 		// If the value is nothing then set it back
 		if (value === "") {
-			this.setState({vectorSize: "", totalFields: -1})
+			this.setState({ vectorSize: "", totalFields: -1 })
 		}
 		// if only numbers are in the input then update
 		else if (value !== "" && RegExp('^[0-9]*$').test(value)) {
 			const integerValue = parseInt(value);
-			this.setState({vectorSize: integerValue, totalFields: integerValue})
+			this.setState({ vectorSize: integerValue, totalFields: integerValue })
 		}
 	}
 
 	handleVectorDimensionSubmit(e) {
-		const {totalFields} = this.state;
+		const { totalFields } = this.state;
 		if (totalFields <= 0) {
-			this.setState({message: 'You need to indicate a vector size and it must be larger or equal to 1.'})
+			this.setState({ message: 'You need to indicate a vector size and it must be larger or equal to 1.' })
 		} else if (totalFields > vectorSizeLimit) {
-			this.setState({message: 'Your vector size cannot be larger than 5.'})
+			this.setState({ message: 'Your vector size cannot be larger than 5.' })
 		} else {
-			this.setState({message: '', stage: CONST_INPUT_PHASE})
+			this.setState({ message: '', stage: CONST_INPUT_PHASE })
 		}
 	}
 
@@ -514,49 +535,52 @@ export default class ButtonInput extends React.Component {
 	matrixCreateObject() {
 		//  CREATE OBJECT PHASE: | Create Matrix |
 		return (
-				<Grid container
-				      direction="column"
-				      justify="center"
-				      alignItems="center">
-					<br/>
+			<Grid container
+				direction="column"
+				justify="center"
+				alignItems="center">
+				<br />
+				<Tooltip title="Begin creating a matrix answer">
 					<Button
-							disabled={this.state.disabled}
-							variant="extendedFab"
-							color="primary"
-							onClick={() => this.setState({stage: CONST_SELECT_DIMENSION})}
+						disabled={this.state.disabled}
+						variant="extendedFab"
+						color="primary"
+						onClick={() => this.setState({ stage: CONST_SELECT_DIMENSION })}
 					>
 						Create Matrix
 					</Button>
-				</Grid>
+				</Tooltip>
+
+			</Grid>
 		)
 	}
 
 	matrixSelectDimension() {
 		// SELECT DIMENSION: Size of Rows: ___________, Size of Columns: ______________ | Input Values |
 		return (
-				<Grid container
-				      direction="column"
-				      justify="center"
-				      alignItems="center">
-					<TextField
-							label='Enter Number of Columns'
-							value={this.state.matrixColLength}
-							onChange={(e) => this.handleMatrixColLength(e)}/>
-					<br/>
-					<TextField
-							label='Enter Number of Rows'
-							value={this.state.matrixRowLength}
-							onChange={(e) => this.handleMatrixRowLength(e)}/>
-					<br/>
-					<Button
-							variant="extendedFab"
-							color="primary"
-							onClick={(e) => this.handleMatrixDimensionSubmit(e)}
-					>
-						Confirm Dimension
+			<Grid container
+				direction="column"
+				justify="center"
+				alignItems="center">
+				<TextField
+					label='Enter Number of Columns'
+					value={this.state.matrixColLength}
+					onChange={(e) => this.handleMatrixColLength(e)} />
+				<br />
+				<TextField
+					label='Enter Number of Rows'
+					value={this.state.matrixRowLength}
+					onChange={(e) => this.handleMatrixRowLength(e)} />
+				<br />
+				<Button
+					variant="extendedFab"
+					color="primary"
+					onClick={(e) => this.handleMatrixDimensionSubmit(e)}
+				>
+					Confirm Dimension
 					</Button>
-					<br/>
-				</Grid>
+				<br />
+			</Grid>
 		)
 	}
 
@@ -581,77 +605,80 @@ export default class ButtonInput extends React.Component {
 
 		return (
 
-				<Grid container
-				      direction="column"
-				      alignItems="center">
+			<Grid container
+				direction="column"
+				alignItems="center">
 
-					{ // We're mapping the vector inputs here
+				{ // We're mapping the vector inputs here
 
-						uniqueIds.map((rowList, indexRow) => {
-							return (
-									<Grid container
-									      direction="row"
-									      justify="center"
+					uniqueIds.map((rowList, indexRow) => {
+						return (
+							<Grid container
+								direction="row"
+								justify="center"
 
-									>
-										{
-											rowList.map((fieldString, indexColumn) => {
-												return (
-														<Grid item style={{ margin : '1em' }}>
-															<TextField
-																	id={fieldString}
-																	name={`${indexRow}-${indexColumn}`}
-																	value={this.state.dimensionStorage[indexRow][indexColumn]}
-																	onChange={(e) => this.handleMatrixInput(e)}
-																	label={`Row:${indexRow + 1}, Col:${indexColumn + 1}`}
-																	error={!Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))}
-																	helperText={
-																		!Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))
-																				? validateNumber(this.state.dimensionStorage[indexRow][indexColumn])
-																				: undefined
-																	}
+							>
+								{
+									rowList.map((fieldString, indexColumn) => {
+										return (
+											<Grid item style={{ margin: '1em' }}>
+												<TextField
+													id={fieldString}
+													name={`${indexRow}-${indexColumn}`}
+													value={this.state.dimensionStorage[indexRow][indexColumn]}
+													onChange={(e) => this.handleMatrixInput(e)}
+													label={`Row:${indexRow + 1}, Col:${indexColumn + 1}`}
+													error={!Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))}
+													helperText={
+														!Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))
+															? validateNumber(this.state.dimensionStorage[indexRow][indexColumn])
+															: undefined
+													}
 
-															/>
-															<br/><br/>
-														</Grid>
-												)
-											})
-										}
-									</Grid>
-							)
-						})
-					}
-					<br/>
+												/>
+												<br /><br />
+											</Grid>
+										)
+									})
+								}
+							</Grid>
+						)
+					})
+				}
+				<br />
+				<Tooltip title="Save matrix answer" placement="top">
 					<Button
-							variant="extendedFab"
-							color="primary"
-							onClick={(e) => {
-								this.handleFinishAnswer(e);
-							}}
+						variant="extendedFab"
+						color="primary"
+						onClick={(e) => {
+							this.handleFinishAnswer(e);
+						}}
 
 					>
 						Finish Answer
 					</Button>
-					<br/>
-					{this.clearAnswerButton()}
-				</Grid>
+				</Tooltip>
+
+				<br />
+				{/* {this.clearAnswerButton()} */}
+			</Grid>
 		)
 	}
 
 	matrixShowObject() {
 		// SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
 		// Stores the data in latex and in a form that the server likes
-		const {latexString, disabled} = this.state;
+		const { latexString, disabled } = this.state;
 
 		return (
-				<Grid container
-				      direction="column"
-				      justify="center"
-				      alignItems="center">
-					{getMathJax(latexString)}
-					<br/> <br/>
-					{this.clearAnswerButton()}
-				</Grid>
+			<Grid container
+				direction="column"
+				justify="center"
+				alignItems="center">
+				{getMathJax(latexString)}
+				<br /> <br />
+				{this.clearAnswerButton()}
+			</Grid>
 		)
 	}
 
@@ -660,7 +687,7 @@ export default class ButtonInput extends React.Component {
 		const value = e.target.value;
 		// If the value is nothing then set it back
 		if (value === "") {
-			this.setState({matrixColLength: "", totalFields: -1})
+			this.setState({ matrixColLength: "", totalFields: -1 })
 		}
 		// if only numbers are in the input then update
 		else if (value !== "" && RegExp('^[0-9]*$').test(value)) {
@@ -676,12 +703,12 @@ export default class ButtonInput extends React.Component {
 		const value = e.target.value;
 		// If the value is nothing then set it back
 		if (value === "") {
-			this.setState({matrixRowLength: "", totalFields: -1})
+			this.setState({ matrixRowLength: "", totalFields: -1 })
 		}
 		// if only numbers are in the input then update
 		else if (value !== "" && RegExp('^[0-9]*$').test(value)) {
 			const integerValue = parseInt(value);
-			this.setState({matrixRowLength: integerValue})
+			this.setState({ matrixRowLength: integerValue })
 		}
 	}
 
@@ -722,49 +749,52 @@ export default class ButtonInput extends React.Component {
 	basisCreateObject() {
 		//  CREATE OBJECT PHASE: | Create Matrix |
 		return (
-				<Grid container
-				      direction="column"
-				      justify="center"
-				      alignItems="center">
-					<br/>
+			<Grid container
+				direction="column"
+				justify="center"
+				alignItems="center">
+				<br />
+				<Tooltip title="Begin creating basis answer">
 					<Button
-							disabled={this.state.disabled}
-							variant="extendedFab"
-							color="primary"
-							onClick={() => this.setState({stage: CONST_SELECT_DIMENSION})}
+						disabled={this.state.disabled}
+						variant="extendedFab"
+						color="primary"
+						onClick={() => this.setState({ stage: CONST_SELECT_DIMENSION })}
 					>
 						Create Basis
 					</Button>
-				</Grid>
+				</Tooltip>
+
+			</Grid>
 		)
 	}
 
 	basisSelectDimension() {
 		// SELECT DIMENSION: Size of Rows: ___________, Size of Columns: ______________ | Input Values |
 		return (
-				<Grid container
-				      direction="column"
-				      justify="center"
-				      alignItems="center">
-					<TextField
-							label='Vector Amount'
-							value={this.state.matrixColLength}
-							onChange={(e) => this.handleMatrixColLength(e)}/>
-					<br/>
-					<TextField
-							label='Size of Each Vector'
-							value={this.state.matrixRowLength}
-							onChange={(e) => this.handleBasisRowLength(e)}/>
-					<br/>
-					<Button
-							variant="extendedFab"
-							color="primary"
-							onClick={(e) => this.handleBasisDimensionSubmit(e)}
-					>
-						Confirm Dimension
+			<Grid container
+				direction="column"
+				justify="center"
+				alignItems="center">
+				<TextField
+					label='Vector Amount'
+					value={this.state.matrixColLength}
+					onChange={(e) => this.handleMatrixColLength(e)} />
+				<br />
+				<TextField
+					label='Size of Each Vector'
+					value={this.state.matrixRowLength}
+					onChange={(e) => this.handleBasisRowLength(e)} />
+				<br />
+				<Button
+					variant="extendedFab"
+					color="primary"
+					onClick={(e) => this.handleBasisDimensionSubmit(e)}
+				>
+					Confirm Dimension
 					</Button>
-					<br/>
-				</Grid>
+				<br />
+			</Grid>
 		)
 	}
 
@@ -788,63 +818,66 @@ export default class ButtonInput extends React.Component {
 
 
 		return (
-				<Grid container
-				      direction="column"
-				      alignItems="center">
+			<Grid container
+				direction="column"
+				alignItems="center">
 
-					{ // We're mapping the vector inputs here
+				{ // We're mapping the vector inputs here
 
-						uniqueIds.map((rowList, indexRow) => {
-							return (
-									<Grid container
-									      direction="row"
-									      justify="center"
+					uniqueIds.map((rowList, indexRow) => {
+						return (
+							<Grid container
+								direction="row"
+								justify="center"
 
-									>
-										{
-											rowList.map((fieldString, indexColumn) => {
-												return (
-														<Grid
-																item
-																style={{padding: 4}}
-														>
-															<TextField
-																	id={fieldString}
-																	name={`${indexRow}-${indexColumn}`}
-																	value={this.state.dimensionStorage[indexRow][indexColumn]}
-																	onChange={(e) => this.handleMatrixInput(e)}
-																	label={`Vector ${indexColumn + 1}, Parameter ${indexRow + 1}`}
-																	error={!Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))}
-																	helperText={
-																		!Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))
-																				? validateNumber(this.state.dimensionStorage[indexRow][indexColumn])
-																				: undefined
-																	}
+							>
+								{
+									rowList.map((fieldString, indexColumn) => {
+										return (
+											<Grid
+												item
+												style={{ padding: 4 }}
+											>
+												<TextField
+													id={fieldString}
+													name={`${indexRow}-${indexColumn}`}
+													value={this.state.dimensionStorage[indexRow][indexColumn]}
+													onChange={(e) => this.handleMatrixInput(e)}
+													label={`Vector ${indexColumn + 1}, Parameter ${indexRow + 1}`}
+													error={!Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))}
+													helperText={
+														!Array.isArray(validateNumber(this.state.dimensionStorage[indexRow][indexColumn]))
+															? validateNumber(this.state.dimensionStorage[indexRow][indexColumn])
+															: undefined
+													}
 
-															/>
-															<br/><br/>
-														</Grid>
-												)
-											})
-										}
-									</Grid>
-							)
-						})
-					}
-					<br/>
+												/>
+												<br /><br />
+											</Grid>
+										)
+									})
+								}
+							</Grid>
+						)
+					})
+				}
+				<br />
+				<Tooltip title="Save basis answer">
 					<Button
-							variant="extendedFab"
-							color="primary"
-							onClick={(e) => {
-								this.handleFinishAnswer(e);
-							}}
+						variant="extendedFab"
+						color="primary"
+						onClick={(e) => {
+							this.handleFinishAnswer(e);
+						}}
 
 					>
 						Finish Answer
 					</Button>
-					<br/>
-					{this.clearAnswerButton()}
-				</Grid>
+				</Tooltip>
+
+				<br />
+				{/* {this.clearAnswerButton()} */}
+			</Grid>
 		)
 	}
 
@@ -852,16 +885,16 @@ export default class ButtonInput extends React.Component {
 
 		// SHOW OBJECT: | 1 2 3 | but in latex and in the correct orientation, there should also be a remove button
 		// Stores the data in latex and in a form that the server likes
-		const {latexString, disabled} = this.state;
+		const { latexString, disabled } = this.state;
 		return (
-				<Grid container
-				      direction="column"
-				      justify="center"
-				      alignItems="center">
-					{getMathJax(latexString)}
-					<br/> <br/>
-					{this.clearAnswerButton()}
-				</Grid>
+			<Grid container
+				direction="column"
+				justify="center"
+				alignItems="center">
+				{getMathJax(latexString)}
+				<br /> <br />
+				{this.clearAnswerButton()}
+			</Grid>
 		)
 	}
 
@@ -870,7 +903,7 @@ export default class ButtonInput extends React.Component {
 		const value = e.target.value;
 		// If the value is nothing then set it back
 		if (value === "") {
-			this.setState({matrixColLength: "", totalFields: -1})
+			this.setState({ matrixColLength: "", totalFields: -1 })
 		}
 		// if only numbers are in the input then update
 		else if (value !== "" && RegExp('^[0-9]*$').test(value)) {
@@ -886,12 +919,12 @@ export default class ButtonInput extends React.Component {
 		const value = e.target.value;
 		// If the value is nothing then set it back
 		if (value === "") {
-			this.setState({matrixRowLength: "", totalFields: -1})
+			this.setState({ matrixRowLength: "", totalFields: -1 })
 		}
 		// if only numbers are in the input then update
 		else if (value !== "" && RegExp('^[0-9]*$').test(value)) {
 			const integerValue = parseInt(value);
-			this.setState({matrixRowLength: integerValue})
+			this.setState({ matrixRowLength: integerValue })
 		}
 	}
 
@@ -932,25 +965,25 @@ export default class ButtonInput extends React.Component {
 		e.preventDefault();
 		// CASE 0: The user did not give any inputs or one of the inputs is missing
 		if (!this.allFieldsFilled()) {
-			this.setState({message: 'Looks like you forget to fill in a field.',})
+			this.setState({ message: 'Looks like you forget to fill in a field.', })
 		}
 		// CASE 1: We can go ahead and show the object compiled
 		else {
 			this.parseAnswerForLatexServer();
-			const {dataForServer} = this.state;
+			const { dataForServer } = this.state;
 			if (dataForServer !== "") { // We only want to send it to the server if it's not an empty String
 				this.props.buttonSave(this.state.dataForServer);
 			}
 
 
-			this.setState({stage: CONST_SHOW_OBJECT, message: ''})
+			this.setState({ stage: CONST_SHOW_OBJECT, message: '' })
 		}
 	}
 
 	parseAnswerForLatexServer() {
 		// sets dataForServer: '', latexString: '', in state where dataForServer is what we want to send and latexString
 		// is what we display
-		const {dimensionStorage, type} = this.state;
+		const { dimensionStorage, type } = this.state;
 		// CASE 0: Vector input
 		if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION) {
 			const vectorParsed = this.parseVector(dimensionStorage, " \\\\ ");
@@ -1042,7 +1075,7 @@ export default class ButtonInput extends React.Component {
 	}
 
 	allFieldsFilled() {
-		const {dimensionStorage, totalFields, type, matrixColLength, matrixRowLength} = this.state;
+		const { dimensionStorage, totalFields, type, matrixColLength, matrixRowLength } = this.state;
 		// CASE 0: It's a vector and the user did not input any object or it's not the right size
 		if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION) {
 			const objectSizeInt = objectSize(dimensionStorage);
@@ -1120,26 +1153,26 @@ function serverToBasisLatex(input) {
 	let basis = validateMatrix(input);
 	// Takes server form of a basis and transforms it into latex form
 	return Array.isArray(basis)
-			? '\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)'
-			: '\\(\\left\\{' + stringToBasisArray(input).map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)';
+		? '\\(\\left\\{' + basis.map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)'
+		: '\\(\\left\\{' + stringToBasisArray(input).map(x => '\\begin{bmatrix}' + x.join('\\\\') + '\\end{bmatrix}').join(',') + '\\right\\}\\)';
 }
 
 function replaceImproperValues(input) {
 	return input.replace(",", "")
-			.replace("\n", "")
-			.replace("%", "")
-			.replace("\\", "")
-			.replace("#", "")
-			.replace("$", "")
-			.replace("%", "")
-			.replace("&", "")
-			.replace("{", "")
-			.replace("}", "")
-			.replace("@", "")
-			.replace("^^", "^")
-			.replace("!", "")
-			.replace("//", "/")
-			.replace("~", ""); // We don't want users to input comma or newline
+		.replace("\n", "")
+		.replace("%", "")
+		.replace("\\", "")
+		.replace("#", "")
+		.replace("$", "")
+		.replace("%", "")
+		.replace("&", "")
+		.replace("{", "")
+		.replace("}", "")
+		.replace("@", "")
+		.replace("^^", "^")
+		.replace("!", "")
+		.replace("//", "/")
+		.replace("~", ""); // We don't want users to input comma or newline
 }
 
 function stringToMatrixArray(input) {
