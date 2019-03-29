@@ -42,7 +42,7 @@ export default class QuestionBuilder extends Component {
             initError: 0,
             savedString: questionString,
             content: null,
-            hints: {selectedFunction: null, currentFunctions: []},
+            hints: {selectedFunction: "", currentFunctions: [], suggestedFunctions: []},
         }, questionString.split('；').length === 5 ? initOld(questionString) : init(questionString));
 
         let compileString = compile(this.state);
@@ -547,7 +547,13 @@ export default class QuestionBuilder extends Component {
 
     editMath(event) {
         let {target} = event;
-		let hints = {functions: [], currentFunctions: [], selectedFunction: "", errors: []};
+        let hints = {
+            functions: [],
+            currentFunctions: [],
+            selectedFunction: "",
+            errors: [],
+            suggestedFunctions: this.state.hints.suggestedFunctions
+        };
 
 		let {selectionStart, selectionEnd} = target;
         let content = target.value;
@@ -599,10 +605,20 @@ export default class QuestionBuilder extends Component {
 
     generateHints(event) {
         let {target} = event;
-		this.hints = {functions: [], currentFunctions: [], selectedFunction: "", errors: []};
+		this.hints = {functions: [], currentFunctions: [], selectedFunction: "", errors: [], suggestedFunctions: []};
 
 		let {selectionStart} = target;
         let string = target.value;
+
+        let x = selectionStart;
+        while (/\w/.test(string.substr(x-1, 1))) x--;
+        let y = selectionStart;
+        while (/\w/.test(string.substr(y, 1))) y++;
+        let f = string.substring(x, y);
+        if (f.length > 2)
+            for(let i in FUNCTIONS) if (FUNCTIONS.hasOwnProperty(i)) if (i.includes(f) && i !== f)
+                this.hints.suggestedFunctions.push(i);
+
         let function_regex2 = new RegExp(function_regex, "g");
         for (let m = function_regex2.exec(string); m !== null; m = function_regex2.exec(string)) {
             let fn = m[0].slice(0, -1);
@@ -673,6 +689,8 @@ export default class QuestionBuilder extends Component {
                         {x}({FUNCTIONS[x][3]})
                     </Fragment>
                 ))}
+                <br/>
+                {hints.suggestedFunctions.join(', ')}
             </Fragment>
         );
     }
