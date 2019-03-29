@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from 'react';
 import Card from '@material-ui/core/Card';
-import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import Divider from '@material-ui/core/Divider';
@@ -77,47 +76,45 @@ export default class QuestionBuilder extends Component {
         let cardStyle = {margin: 8, paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10};
         let dividerStyle = {marginTop: 15, marginBottom: 15};
         return (
-            <Fragment>
+            <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
                 {this.renderButtons()}
-                <Grid container spacing={8} style={{flex: 1, margin: 0}}>
-                    <Grid item xs={8} style={{flex: 1, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
-                        <Card style={cardStyle}>{this.renderMathCard()}</Card>
-                        <Divider style={dividerStyle}/>
+                <div style={{flex: 8, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
+                    <Card style={cardStyle}>{this.renderMathCard()}</Card>
+                    <Divider style={dividerStyle}/>
 
-                        <Card style={cardStyle}>{this.renderMainPromptCard()}</Card>
-                        <Divider style={dividerStyle}/>
+                    <Card style={cardStyle}>{this.renderMainPromptCard()}</Card>
+                    <Divider style={dividerStyle}/>
 
-                        {this.state.editorPrompts.map((x, y) =>
-                            <Card style={cardStyle} key={'prompt' + x.prompt + x.type + y}>
-                                {this.renderSubPromptCard(x, y)}
-                            </Card>
-                        )}
-                        <div style={{margin: 8}}>
-                            <Button variant='outlined' style={{width: '100%'}} onClick={() => this.addPrompt()}>
-                                Add Prompt
-                            </Button>
-                        </div>
-                        <Divider style={dividerStyle}/>
-
-                        {this.state.editorCriteria.map((x, y) =>
-                            <Card style={cardStyle} key={'criteria' + x.points + x.criteria + x.explanation + y}>
-                                {this.renderCriteriaCard(x, y)}
-                            </Card>
-                        )}
-                        <div style={{margin: 8}}>
-                            <Button variant='outlined' style={{width: '100%'}} onClick={() => this.addCriteria()}>
-                                Add Criteria
-                            </Button>
-                        </div>
-
-                    </Grid>
-                    <Grid item xs={4} style={{flex: 1, display: 'flex', paddingBottom: 0, overflowY: 'auto'}}>
-                        <Card style={{flex: 1, margin: '8%', padding: 20}}>
-                            {renderHints(this.state.currentlyEditing)}
+                    {this.state.editorPrompts.map((x, y) =>
+                        <Card style={cardStyle} key={'prompt' + x.prompt + x.type + y}>
+                            {this.renderSubPromptCard(x, y)}
                         </Card>
-                    </Grid>
-                </Grid>
-            </Fragment>
+                    )}
+                    <div style={{margin: 8}}>
+                        <Button variant='outlined' style={{width: '100%'}} onClick={() => this.addPrompt()}>
+                            Add Prompt
+                        </Button>
+                    </div>
+                    <Divider style={dividerStyle}/>
+
+                    {this.state.editorCriteria.map((x, y) =>
+                        <Card style={cardStyle} key={'criteria' + x.points + x.criteria + x.explanation + y}>
+                            {this.renderCriteriaCard(x, y)}
+                        </Card>
+                    )}
+                    <div style={{margin: 8}}>
+                        <Button variant='outlined' style={{width: '100%'}} onClick={() => this.addCriteria()}>
+                            Add Criteria
+                        </Button>
+                    </div>
+
+                </div>
+                <div style={{flex: 4, display: 'flex', overflowY: 'auto'}}>
+                    <Card style={{flex: 1, margin: '8%', padding: 20}}>
+                        {renderHints(this.state.currentlyEditing)}
+                    </Card>
+                </div>
+            </div>
         );
     }
 

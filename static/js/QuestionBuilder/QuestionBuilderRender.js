@@ -1,6 +1,5 @@
 import React, {Fragment} from 'react';
 import Card from '@material-ui/core/Card';
-import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import {getMathJax} from '../Utilities';
@@ -84,8 +83,8 @@ export function Preview(props) {
         varList.push([v, state.preview.variables[v]]);
 
     return (
-        <Grid container spacing={8} style={{flex: 1, margin: 0}}>
-            <Grid item xs={8} style={{flex: 1, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
+        <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
+            <div style={{flex: 8, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
                 <Card style={cardStyle}>
                     <Typography variant='title' style={{marginTop: 10, marginBottom: 10}}>Math</Typography>
                     {state.editorMath.map(x => x.comment === ''
@@ -112,8 +111,8 @@ export function Preview(props) {
                         </Fragment>
                     )}
                 </Card>
-            </Grid>
-            <Grid item xs={4} style={{flex: 1, display: 'flex', paddingBottom: 0, overflowY: 'auto'}}>
+            </div>
+            <div style={{flex: 4, display: 'flex', paddingBottom: 0, overflowY: 'auto'}}>
                 <Card style={{flex: 1, margin: '8%', padding: 20}}>
                     <Typography>
                         This is preview mode! It lets you see the contents of all the variables
@@ -123,7 +122,7 @@ export function Preview(props) {
                         are doing!
                     </Typography>
                 </Card>
-            </Grid>
-        </Grid>
+            </div>
+        </div>
     );
 }

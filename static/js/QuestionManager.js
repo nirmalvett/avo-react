@@ -1,5 +1,4 @@
 import React, {Component, Fragment} from 'react';
-import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
@@ -50,8 +49,8 @@ export default class QuestionManager extends Component {
         let {selectedS, selectedQ} = this.state;
         let canEdit = selectedS !== null && this.state.sets[selectedS].can_edit;
         return (
-            <Grid container spacing={8}>
-                <Grid item xs={3} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
+            <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
+                <div style={{flex: 3, display: 'flex'}}>
                     <Paper square style={{
                         width: '100%', flex: 1, display: 'flex', flexDirection: 'column',
                         paddingTop: '5px', paddingBottom: '5px'
@@ -65,8 +64,8 @@ export default class QuestionManager extends Component {
                             {this.renderSetList()}
                         </List>
                     </Paper>
-                </Grid>
-                <Grid item xs={3} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
+                </div>
+                <div style={{flex: 3, display: 'flex', paddingBottom: 0, marginLeft: 8}}>
                     <Paper square style={{
                         width: '100%', flex: 1, display: 'flex', flexDirection: 'column',
                         paddingTop: '5px', paddingBottom: '5px'
@@ -110,16 +109,16 @@ export default class QuestionManager extends Component {
                             : null
                         }
                     </Paper>
-                </Grid>
-                <Grid item xs={6} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
+                </div>
+                <div style={{flex: 6, display: 'flex', paddingBottom: 0, marginLeft: 8}}>
                     <Paper square style={{
                         width: '100%', flex: 1, flexDirection: 'column', paddingTop: '5px',
                         paddingBottom: '5px', padding: '20px', overflowY: 'auto'
                     }}>
                         {this.renderQuestionPreview()}
                     </Paper>
-                </Grid>
-            </Grid>
+                </div>
+            </div>
         );
     }
 
