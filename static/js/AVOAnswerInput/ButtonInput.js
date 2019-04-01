@@ -342,34 +342,40 @@ export default class ButtonInput extends React.Component {
 					direction="column"
 					justify="center"
 					alignItems="center">
-
-					{ // We're mapping the vector inputs here
-						this.state.dynamicVectorInputs.map((idName, index) => {
-							return (
-								<div>
-									<TextField
-										id={'vector-Input-:' + idName}
-										style={{ float: 'right' }}
-										name={`${index}-0`}
-										value={this.state.dimensionStorage[index]}
-										onChange={(e) => this.handleVectorInput(e)}
-										label={`Vector Parameter ${index + 1}`}
-										error={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))}
-										helperText={
-											!Array.isArray(validateNumber(this.state.dimensionStorage[index]))
-												? validateNumber(this.state.dimensionStorage[index])
-												: undefined
-										}
-									/>
-									<br />
-									<br />
-								</div>
-							)
-						})
-					}
+					<Grid container
+						direction="row"
+						justify="center"
+						alignItems="center">
+						<div style={{ float: 'left', paddingRight:'20px' }}><b><h1>[</h1></b></div>
+						{ // We're mapping the vector inputs here
+							this.state.dynamicVectorInputs.map((idName, index) => {
+								return (
+									<div style={{ width: '200px' }}>
+										<TextField
+											id={'vector-Input-:' + idName}
+											style={{ float: 'right', paddingLeft:'20px', paddingRight:'20px' }}
+											name={`${index}-0`}
+											value={this.state.dimensionStorage[index]}
+											onChange={(e) => this.handleVectorInput(e)}
+											label={`Vector Component ${index + 1}`}
+											error={!Array.isArray(validateNumber(this.state.dimensionStorage[index]))}
+											helperText={
+												!Array.isArray(validateNumber(this.state.dimensionStorage[index]))
+													? validateNumber(this.state.dimensionStorage[index])
+													: undefined
+											}
+										/>
+										<br />
+										<br />
+									</div>
+								)
+							})
+						}
+						<div style={{ float: 'right' }}><b><h1>]</h1></b></div>
+					</Grid>
 					<br />
 					<div>
-						<Tooltip title="Add new field" placement="top">
+						<Tooltip title="Add new vector component" placement="top">
 							<IconButton
 								variant="extendedFab"
 								color="primary"
@@ -389,7 +395,7 @@ export default class ButtonInput extends React.Component {
 								<Add />
 							</IconButton>
 						</Tooltip>
-						<Tooltip title="Delete last field" placement="top">
+						<Tooltip title="Delete last vector component" placement="top">
 							<IconButton color="primary" style={{ float: 'right' }} onClick={() => {
 								let newArr = this.state.dynamicVectorInputs;
 								newArr = newArr.filter((obj, idx) => {
