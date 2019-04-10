@@ -1401,7 +1401,6 @@ def create_payment():
         db.session.commit()
         return jsonify({'tid': payment.id})
     else:
-        print(payment.error)
         # If PayPal encounters error return error JSON
         return jsonify(error='Unable to create payment')
 
