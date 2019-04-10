@@ -134,7 +134,6 @@ def remove_account():
     return jsonify("All User Data Removed")
 
 
-
 @routes.route('/createClass', methods=['POST'])
 @login_required
 @check_confirmed
@@ -246,6 +245,7 @@ def get_classes():
         classes[c]['tests'] = list(classes[c]['tests'].values())
 
     classes = list(classes.values())
+    print(classes)
     return jsonify(classes=classes)
 
 
@@ -554,8 +554,8 @@ def unenroll():
         return jsonify(error="One or more data type is invalid")
 
     user = User.query.get(user_id)
-    current_class = Class.query.filter((Class.CLASS == enrolled.c.CLASS) &
-                                       (user_id == enrolled.c.USER)).all()
+    current_class = Class.query.filter((Class.CLASS == Transaction.CLASS) &
+                                       (user_id == Transaction.USER)).all()
     if user is None or len(current_class) is 0:
         # If there is no user found return error JSON
         return jsonify("No User Found")
@@ -1170,10 +1170,10 @@ def submit_test():
     current_takes = Takes.query.get(takes)
     test = Test.query.get(current_takes.TEST)
     time = datetime.now()
-    if test.deadline < time:
+    if test.deadline + timedelta(seconds=60) < time:
         # If test deadline has passed close test return error JSON
         return jsonify(error="Test deadline has passed")
-    if current_takes.time_submitted < time:
+    if (current_takes.time_submitted + timedelta(seconds=60)) < time:
         return jsonify(error="Test already has been submitted")
     current_takes.time_submitted = time_stamp(datetime.now() - timedelta(seconds=1))
     db.session.commit()
@@ -1538,6 +1538,7 @@ def shutdown():
         sys.exit(4)
     else:
         return abort(400)
+
 
 @login_required
 @check_confirmed
