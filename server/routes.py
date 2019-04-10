@@ -134,7 +134,6 @@ def remove_account():
     return jsonify("All User Data Removed")
 
 
-
 @routes.route('/createClass', methods=['POST'])
 @login_required
 @check_confirmed
@@ -246,6 +245,7 @@ def get_classes():
         classes[c]['tests'] = list(classes[c]['tests'].values())
 
     classes = list(classes.values())
+    print(classes)
     return jsonify(classes=classes)
 
 
@@ -1538,6 +1538,7 @@ def shutdown():
         sys.exit(4)
     else:
         return abort(400)
+
 
 @login_required
 @check_confirmed
