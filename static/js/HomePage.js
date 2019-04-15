@@ -38,8 +38,7 @@ export default class HomePage extends Component {
                         </div>
                     </Fragment>
                     <br />
-                    <Grid container
-                        spacing={12}>
+                    <Grid container>
                         <Grid item xs={12} sm={12} md={6} lg={6}>
                             <Grid container
                                 direction="column"
