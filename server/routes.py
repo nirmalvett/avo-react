@@ -245,7 +245,6 @@ def get_classes():
         classes[c]['tests'] = list(classes[c]['tests'].values())
 
     classes = list(classes.values())
-    print(classes)
     return jsonify(classes=classes)
 
 
@@ -295,19 +294,17 @@ def test_stats():
         # If none has taken the test return default values
         test_questions = eval(test.question_list)  # List of questions in test
         test_question_marks = []
-        question = Question.query.filter(Question.QUESTION.in_(test_questions)).all()  # Get all questions in the test
-        if len(test_questions) is not len(question):
-            # If a question could not be found return an error
-            return jsonify(error="One or more questions not found")
+        question = Question.query.filter(Question.QUESTION.in_(test_questions)).all()  # Get all questions in the tes
         for i in range(len(test_questions)):  # for each question in the test
             # for each question append the total
+            current_question = next((x for x in question if x.QUESTION == test_questions[i]), 0)
             test_question_marks.append(
                 {
                     'numberStudents': 0,
                     'questionMean': 0,
                     'questionMedian': 0,
                     'questionSTDEV': 0,
-                    'questionMark': question[i].total,
+                    'questionMark': current_question.total,
                     'topMarksPerStudent': []
                 }
             )
@@ -332,7 +329,8 @@ def test_stats():
     question = Question.query.filter(Question.QUESTION.in_(test_questions)).all()  # All questions in test
     for i in range(len(test_questions)):
         # For each question in the test get the question and append the total
-        test_question_marks.append(question[i].total)
+        current_question = next((x for x in question if x.QUESTION == test_questions[i].QUESTION), 0)
+        test_question_marks.append(current_question.total)
     question_analytics = []  # Array to return to client of analytics
     del test_questions
 
@@ -965,7 +963,8 @@ def get_test():
         questions_in_test = Question.query.filter(Question.QUESTION.in_(question_ids)).all()   # All questions in test
         for i in range(len(question_ids)):
             # For each question id get the question data and add to question list
-            q = AvoQuestion(questions_in_test[i].string, seeds[i])
+            current_question = next((x for x in questions_in_test if x.QUESTION == question_ids[i]), None)
+            q = AvoQuestion(current_question.string, seeds[i])
             questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
         return jsonify(
             takes=takes.TAKES,
@@ -1010,7 +1009,7 @@ def create_takes(test, user):
     questions_in_test = Question.query.filter(Question.QUESTION.in_(test_question_list)).all()  # Questions in test
     for i in range(len(test_question_list)):
         # For each question in test add in mark values per question
-        q = questions_in_test[i]  # Current question
+        q = next((x for x in questions_in_test if x.QUESTION == test_question_list[i]), None)  # Current question
         marks_list.append([0] * len(AvoQuestion(q.string, 0, []).totals))
         answer_list.append([''] * q.answers)
     # We want to figure out what the new time should be
@@ -1058,7 +1057,7 @@ def save_test():
     questions = Question.query.filter(Question.QUESTION.in_(question_list)).all()  # All question in test
     for i in range(len(question_list)):
         # For each question calculate the mark and add to the total
-        current_question = questions[i]  # Get the current question from the database
+        current_question = next((x for x in questions if x.QUESTION == question_list[i]), None)  # Get the current question from the database
         if current_question is None:
             return jsonify(error="Question Not Found PLease Try Again")
         total += current_question.total
@@ -1212,7 +1211,7 @@ def post_test():
         question_objects_in_test = Question.query.filter(Question.QUESTION.in_(questions)).all()  # Questions in test
         for i in range(len(questions)):
             # For each question mark question with answer and add to list then return
-            current_question = question_objects_in_test[i]
+            current_question = next((x for x in question_objects_in_test if x.QUESTION == questions[i]), None)
             q = AvoQuestion(current_question.string, seeds[i], answers[i])
             question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation,
                                   'types': q.types, 'answers': answers[i], 'totals': q.totals, 'scores': marks[i]})
