@@ -329,7 +329,7 @@ def test_stats():
     question = Question.query.filter(Question.QUESTION.in_(test_questions)).all()  # All questions in test
     for i in range(len(test_questions)):
         # For each question in the test get the question and append the total
-        current_question = next((x for x in question if x.QUESTION == test_questions[i].QUESTION), 0)
+        current_question = next((x for x in question if x.QUESTION == test_questions[i]), 0)
         test_question_marks.append(current_question.total)
     question_analytics = []  # Array to return to client of analytics
     del test_questions
