@@ -133,6 +133,112 @@ def remove_account():
     db.session.commit()
     return jsonify("All User Data Removed")
 
+@routes.route('/home')
+@login_required
+@check_confirmed
+def home():
+    """
+        Route URL: /home
+        Expects: Nothing
+        Returns:
+        {
+            dueDates: [
+                {
+                    name: "1600 Set 1",
+                    id: 7,
+                    dueDate: String of the date,
+                    class: {   // The class id from which this is from
+                    name: "Math1600",
+                    id: 23
+                },
+                    ]
+            messages:
+                [
+                    {
+                        title: "Welcome to AVO",
+                        id: 19,
+                        body: Longer String body of the message,
+                        date: String date of the message posted
+                        class: {  // This is info about which class the message is from
+                            name: "AVO Team",
+                            id: 20
+                        }
+                    }
+            ]
+        }
+
+    """
+    # TODO implement these data instead of using fake ones that Frank created
+    now = datetime.now()
+    # get list of due dates objects
+    dueDates = [
+        {
+            "name": "1600 Set 3",
+            "id": 7,
+            "dueDate": now,
+            "class": {
+                "name": "Math1600",
+                "id": 23
+            }
+
+        },
+        {
+            "name": "1600 Set 2",
+            "id": 37,
+            "dueDate": now - timedelta(days=5),
+            "class": {
+                "name": "Math1600",
+                "id": 23
+            }
+
+        },
+        {
+            "name": "1600 Set 1",
+            "id": 27,
+            "dueDate": now - timedelta(days=10),
+            "class": {
+                "name": "Math1600",
+                "id": 23
+            }
+
+        },
+
+    ]
+    # get list of messages
+    messages = [
+        {
+            "Title": "Welcome to AVO3",
+            "id": 49,
+            "body": "Here is the main body of the message for the user",
+            "date": now,
+            "class": {
+                "name": "Team AVO",
+                "id": 23
+            }
+        },
+        {
+            "Title": "Welcome to AVO2",
+            "id": 22,
+            "body": "Here is the main body of the message for the user",
+            "date": now - timedelta(days=5),
+            "class": {
+                "name": "Team AVO",
+                "id": 23
+            }
+        },
+        {
+            "Title": "Welcome to AVO1",
+            "id": 30,
+            "body": "Here is the main body of the message for the user",
+            "date": now - timedelta(days=10),
+            "class": {
+                "name": "Team AVO",
+                "id": 23
+            }
+        }
+    ]
+    return jsonify(messages=messages, dueDates = dueDates)
+
 
 @routes.route('/createClass', methods=['POST'])
 @login_required
