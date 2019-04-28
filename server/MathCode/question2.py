@@ -46,7 +46,10 @@ class AvoQuestion:
         self.score = 0
         self.scores = []
         self.explanation = []
-        self.var_list = {}
+        self.var_list = {
+            '$pi': number(3.141592653589793),
+            '$e': number(2.718281828459045),
+        }
         self.str_list = []
         self.ans_list = []
         self.totals = []
@@ -81,7 +84,7 @@ class AvoQuestion:
                 else:
                     raise ValueError("Wrong number of answers")
             for i in range(len(self.types)):
-                self.ans_list.append(parse_answer(i, answers[i], self.types[i], self.prompts[i]))
+                self.ans_list.append(parse_answer(i, answers[i], self.types[i], self.prompts[i], self))
 
             # Evaluate the criteria
             for i in range(len(self._criteria)):
@@ -255,6 +258,8 @@ methods = {
     'HA': AvoVariable.multiple_choice,
     'HB': AvoVariable.true_false,
     'HC': AvoVariable.reset,
+
+    "LN": AvoVariable.ln,
 
     '_A': lambda x: repr(x),
     '_B': AvoVariable.system_of_equations,
