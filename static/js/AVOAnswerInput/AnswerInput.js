@@ -95,9 +95,20 @@ export default class AnswerInput extends React.Component {
                 </div>
             );
         }
-        else if (type === CONST_LINEAR_EXPRESSION)
-            return null;
-        else if (type === CONST_MANUAL_INPUT)
+        else if (type === CONST_LINEAR_EXPRESSION) {
+            return (
+                <div>
+                    {getMathJax(this.state.prompt)}
+                    <TextField
+                        value={v}
+                        onChange={(e) => this.onChange(e.target.value)}
+                        onBlur={() => this.props.onBlur()}
+                        label='Enter expression'
+                        disabled={disabled}
+                    />
+                </div>
+            );
+        } else if (type === CONST_MANUAL_INPUT)
             return (
                 <TextField
                     value={v}

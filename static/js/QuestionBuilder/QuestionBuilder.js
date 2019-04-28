@@ -274,6 +274,7 @@ export default class QuestionBuilder extends Component {
                         <MenuItem value='0'>True/false</MenuItem>
                         <MenuItem value='1'>Multiple choice</MenuItem>
                         <MenuItem value='2'>Number</MenuItem>
+                        <MenuItem value='3'>Calculus Expression</MenuItem>
                         {/*<MenuItem value='5' disabled>Polynomial</MenuItem>*/}
                         <MenuItem value='6'>Vector</MenuItem>
                         <MenuItem value='7'>Vector with free variables</MenuItem>
