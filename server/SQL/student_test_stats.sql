@@ -8,12 +8,12 @@ FROM   (SELECT CLASS.CLASS,
                TEST.total,
                MAX(takes.grade) AS grade
         FROM   CLASS
-               INNER JOIN enrolled
-                       ON enrolled.CLASS = CLASS.CLASS
+               INNER JOIN transaction
+                       ON transaction.CLASS = CLASS.CLASS
                INNER JOIN USER calling_user
-                       ON enrolled.USER = calling_user.USER
+                       ON transaction.USER = calling_user.USER
                INNER JOIN TEST
-                       ON TEST.CLASS = enrolled.CLASS
+                       ON TEST.CLASS = transaction.CLASS
                INNER JOIN takes
                        ON takes.TEST = TEST.TEST
                INNER JOIN USER takes_user
@@ -22,5 +22,5 @@ FROM   (SELECT CLASS.CLASS,
         WHERE  calling_user.USER = :user
         GROUP  BY takes.USER,
                   takes.TEST,
-                  enrolled.CLASS) AS max_grades
+                  transaction.CLASS) AS max_grades
 GROUP  BY max_grades.TEST;
