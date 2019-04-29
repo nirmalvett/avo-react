@@ -166,6 +166,9 @@ export default class Http {
 		Http._request('POST', `/changeTest`, success, failure,
 				{test: test, timer:timer, name:name, deadline:deadline, attempts:attempts});
 	};
+	static getHome(success, failure) {
+		Http._request('GET', '/home', success, failure);
+	}
 }
 
 function debugModeLog(type, url, data = '', http) {
