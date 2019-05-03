@@ -166,14 +166,14 @@ class Layout extends Component {
                     <Logo theme={theme} color={color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
                     <Divider/>
                     <div style={{overflowY: 'auto'}}>
-                        <List subheader={isTeacher ? <ListSubheader>Student & Teacher</ListSubheader> : undefined}>
+                        <List subheader={isTeacher ? <ListSubheader>Student Tools</ListSubheader> : undefined}>
                             {this.listItem(HomeOutlined, 'Home')}
                             {this.listItem(ClassOutlined, 'My Classes')}
                         </List>
                         {isTeacher  // if it is the teacher then we will the buttons that is allowed for teachers
                             ? <div>
                                 <Divider/>
-                                <List subheader={<ListSubheader>Teacher Only</ListSubheader>}>
+                                <List subheader={<ListSubheader>Teacher Tools</ListSubheader>}>
                                     {this.listItem(ClassOutlined, 'Manage Classes')}
                                     {this.listItem(BuildOutlined, 'My Questions')}
                                     {this.listItem(HelpOutline, 'Documentation')}

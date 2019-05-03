@@ -10,12 +10,12 @@ FROM   (SELECT max_grades.grade AS grade,
                        takes.TEST,
                        MAX(takes.grade) AS grade 
                 FROM   CLASS 
-                       INNER JOIN enrolled 
-                               ON enrolled.CLASS = CLASS.CLASS 
+                       INNER JOIN transaction
+                               ON transaction.CLASS = CLASS.CLASS
                        INNER JOIN USER u1 
-                               ON enrolled.USER = u1.USER
+                               ON transaction.USER = u1.USER
                        INNER JOIN TEST 
-                               ON TEST.CLASS = enrolled.CLASS 
+                               ON TEST.CLASS = transaction.CLASS
                        INNER JOIN takes 
                                ON takes.TEST = TEST.TEST 
                        INNER JOIN USER u2 

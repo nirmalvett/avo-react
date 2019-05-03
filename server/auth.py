@@ -6,6 +6,7 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from datetime import datetime
 import config
 
 from server.Encoding.PasswordHash import check_password
@@ -244,8 +245,8 @@ def enrolled_in_class(class_id):
     """
     try:
         # Get all classes user is enrolled in
-        current_class = Class.query.filter((Class.CLASS == enrolled.c.CLASS) &
-                                           (current_user.USER == enrolled.c.USER)).all()
+        current_class = Class.query.filter((Class.CLASS == Transaction.CLASS) &
+                                           (current_user.USER == Transaction.USER)).all()
         if len(current_class) is 0:
             return False
         for i in range(len(current_class)):
@@ -254,6 +255,31 @@ def enrolled_in_class(class_id):
         return False
     except NoResultFound:
         return False
+
+
+def access_to_class(class_id):
+    """
+    Checks if the user is either the teacher of the class or if the user is enrolled and not expired
+    :param class_id: The ID of the class to check
+    :return: True if the user has access False if they do not
+    """
+    if enrolled_in_class(class_id):
+        # If the user is enrolled in the class at all see if they have a valid transaction
+        transaction_list = Transaction.query.filter((Transaction.USER == current_user.USER) &
+                                                   (Transaction.CLASS == class_id)).all()  # all transaction of user
+        if current_user.is_teacher:
+            # If the current user is a teacher and enrolled then return True as teacher dont pay
+            return True
+        time = datetime.now()  # Current time
+        for i in transaction_list:
+            # For each transaction check if they are not expired
+            if i.expiration is None:
+                # If the transaction has no experation return True
+                return True
+            if i.expiration > time:
+                # If the transaction has not expired return True
+                return True
+    return False
 
 
 def able_edit_set(setID):
