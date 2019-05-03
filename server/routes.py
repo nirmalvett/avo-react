@@ -1282,23 +1282,22 @@ def csv_class_marks(classid):
         # For each test add the names to the array and update the file string
         test_name_list.append(test_array[i].name)
         output_string = output_string + ', \"' + str(test_array[i].name) + '\" '
-
     for i in range(len(student_array)):
         # For each student get there best mark on each test and add it to the array
         current_string = '\n' + '\"' + str(student_array[i].email) + '\"'  # A string for each line of the file
 
         for j in range(len(test_array)):
             # For each test get the best mark and add it to the array
-            mark = Takes.query.filter((Takes.TEST == test_array[j].TEST) & (student_array[i].USER == User.USER)).all()
-            # Get the best mark f they havn't taken the test add a value as such
-            top_mark = 0
+            mark = Takes.query.filter((Takes.TEST == test_array[j].TEST) & (student_array[i].USER == Takes.USER)).all()
+            # Get the best mark if they havn't taken the test add a value as such
+            top_mark = 0  # The top mark got on the test
             if len(mark) is not 0:
                 for k in range(len(mark)):
                     # For each mark compare the grade and if its greater add it to the string
                     if mark[k].grade >= top_mark:
                         top_mark = mark[k].grade
                 current_string = current_string + ', ' + str(top_mark) + ' / ' + str(
-                                    test_array[j].total)
+                    test_array[j].total)
             else:
                 current_string = current_string + ', ' + 'Test Not Taken'
         output_string = output_string + current_string
