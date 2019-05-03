@@ -1289,18 +1289,17 @@ def csv_class_marks(classid):
 
         for j in range(len(test_array)):
             # For each test get the best mark and add it to the array
-            mark = Takes.query.join(User).join(Test).filter(
-                (Takes.TEST == test_array[j].TEST) & (student_array[i].USER == User.USER)).all()
-            try:
-                # Get the best mark f they havn't taken the test add a value as such
-                top_mark = 0
+            mark = Takes.query.filter((Takes.TEST == test_array[j].TEST) & (student_array[i].USER == User.USER)).all()
+            # Get the best mark f they havn't taken the test add a value as such
+            top_mark = 0
+            if len(mark) is not 0:
                 for k in range(len(mark)):
                     # For each mark compare the grade and if its greater add it to the string
                     if mark[k].grade >= top_mark:
-                        top_mark = k
-                current_string = current_string + ', ' + str(mark[top_mark].grade) + ' / ' + str(
-                    test_array[i].total)
-            except IndexError:
+                        top_mark = mark[k].grade
+                current_string = current_string + ', ' + str(top_mark) + ' / ' + str(
+                                    test_array[j].total)
+            else:
                 current_string = current_string + ', ' + 'Test Not Taken'
         output_string = output_string + current_string
 
