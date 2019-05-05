@@ -118,8 +118,8 @@ export default class AnswerInput extends React.Component {
                     disabled={disabled}
                 />
             );
-        else if (type === CONST_MANUAL_INPUT_POLYNOMIAL)
-            return null;
+        // else if (type === CONST_MANUAL_INPUT_POLYNOMIAL)
+        //     return null;
         else if (type === CONST_VECTOR) {
             if (inputMode === BUTTON_INPUT){
                 return (
