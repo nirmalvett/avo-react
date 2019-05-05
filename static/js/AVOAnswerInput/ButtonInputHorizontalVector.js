@@ -178,7 +178,7 @@ export default class ButtonInputHorizontalVector extends React.Component {
 							: type === CONST_BASIS
 								? this.basisCreateObject()
 								: type === CONST_VECTOR_HORIZONTAL
-									? this.vectorHorizontalCreateObject()
+									? this.vectorCreateObject()
 									: null
 				}
 				<br /><br />
