@@ -46,36 +46,56 @@ export default class HomePage extends Component {
                                 direction="column"
                                 justify="flex-start"
                                 alignItems="flex-start">
-                                <Typography variant='display1' color='textPrimary'>Due Dates</Typography>
+                                <Typography variant='headline' color='textPrimary'>Due Dates:</Typography>
                                 <br />
-                                {this.state.dueDates.filter((dueDate) => {
-                                    let parts = dueDate.dueDate.split(' ')
-                                    let month = new Date(Date.parse(parts[2] + " 1, 2018")).getMonth()
-                                    let newDate = new Date(parts[3], month, parts[1])
-                                    return newDate.getDate() === this.state.selectedDate.getDate() && newDate.getMonth() === this.state.selectedDate.getMonth() && newDate.getFullYear() === this.state.selectedDate.getFullYear()
-                                }).map((dueDate) => (
-                                    <div key={uniqid()}>
-                                        <Typography variant='headline' color='textPrimary'>{dueDate.name}</Typography>
-                                        <Typography variant='subheading' color='textPrimary'>{dueDate.dueDate}</Typography>
-                                    </div>
-                                ))}
+                                {
+                                    this.state.dueDates.map((dd) => {
+                                        let datesToShow = dd.dueDates.filter((dueDate) => {
+                                            let parts = dueDate.dueDate.split(' ')
+                                            let month = new Date(Date.parse(parts[2] + " 1, 2018")).getMonth()
+                                            let newDate = new Date(parts[3], month, parts[1])
+                                            return newDate.getDate() === this.state.selectedDate.getDate() && newDate.getMonth() === this.state.selectedDate.getMonth() && newDate.getFullYear() === this.state.selectedDate.getFullYear()
+                                        })
+                                        return (
+                                            <div key={uniqid()}>
+                                                <Typography variant='title' color='textPrimary'>{dd.class.name}</Typography>
+                                                {
+                                                    datesToShow.map((dueDate) => (
+                                                        <Typography key={uniqid()} variant='subheading' color='textPrimary'>{dueDate.name + ' - ' + dueDate.dueDate}</Typography>
+                                                    ))
+                                                }
+                                            </div>
+                                        )
+
+                                    })
+                                }
                             </Grid>
                         </Grid>
-                        <Grid item xs={12} sm={12} md={6} lg={6}>
+                        {<Grid item xs={12} sm={12} md={6} lg={6}>
                             <Grid container
                                 direction="column"
                                 justify="flex-start"
                                 alignItems="flex-start">
                                 {
-                                    this.state.notifications.map((notification, i) => (
-                                        <div key={uniqid()}>
-                                            <Typography variant='display1' color='textPrimary'>{notification.class.name + ' - ' + notification.Title}</Typography>
-                                            <Typography variant='subheading' color='textPrimary'>{notification.body}</Typography>
+                                    this.state.notifications.map((notification, i) => {
+                                        return (<div key={uniqid()}>
+                                            <Typography variant='headline' color='textPrimary'>{notification.class.name + ':'}</Typography>
+                                            <br/>
+                                            {
+                                                notification.messages.map((notification) => (
+                                                    <div key={uniqid()}>
+                                                        <Typography variant='title' color='textPrimary'>{notification.title}</Typography>
+                                                        <Typography variant='subheading' color='textPrimary'>{notification.body}</Typography>
+                                                        <br />
+                                                    </div>
+                                                ))
+                                            }
                                             <br />
                                         </div>
-                                    ))}
+                                        )
+                                    })}
                             </Grid>
-                        </Grid>
+                        </Grid>}
                     </Grid>
                 </Grid>
 

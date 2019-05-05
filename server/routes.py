@@ -133,6 +133,7 @@ def remove_account():
     db.session.commit()
     return jsonify("All User Data Removed")
 
+
 @routes.route('/home')
 @login_required
 @check_confirmed
@@ -173,71 +174,59 @@ def home():
     # get list of due dates objects
     dueDates = [
         {
-            "name": "1600 Set 3",
-            "id": 7,
-            "dueDate": now,
             "class": {
                 "name": "Math1600",
                 "id": 23
-            }
-
-        },
-        {
-            "name": "1600 Set 2",
-            "id": 37,
-            "dueDate": now - timedelta(days=5),
-            "class": {
-                "name": "Math1600",
-                "id": 23
-            }
-
-        },
-        {
-            "name": "1600 Set 1",
-            "id": 27,
-            "dueDate": now - timedelta(days=10),
-            "class": {
-                "name": "Math1600",
-                "id": 23
-            }
-
-        },
-
+            },
+            "dueDates": [
+                {
+                    "name": "Set 1",
+                    "dueDate": now,
+                    "id": 7,
+                },
+                {
+                    "name": "Set 2",
+                    "dueDate": now - timedelta(days=5),
+                    "id": 8,
+                },
+                {
+                    "name": "Set 3",
+                    "dueDate": now - timedelta(days=10),
+                    "id": 9,
+                }
+            ]
+        }
     ]
     # get list of messages
     messages = [
         {
-            "Title": "Welcome to AVO3",
-            "id": 49,
-            "body": "Here is the main body of the message for the user",
-            "date": now,
             "class": {
                 "name": "Team AVO",
                 "id": 23
-            }
-        },
-        {
-            "Title": "Welcome to AVO2",
-            "id": 22,
-            "body": "Here is the main body of the message for the user",
-            "date": now - timedelta(days=5),
-            "class": {
-                "name": "Team AVO",
-                "id": 23
-            }
-        },
-        {
-            "Title": "Welcome to AVO1",
-            "id": 30,
-            "body": "Here is the main body of the message for the user",
-            "date": now - timedelta(days=10),
-            "class": {
-                "name": "Team AVO",
-                "id": 23
-            }
+            },
+            "messages": [
+                {
+                    "title": "Welcome to AVO3",
+                    "id": 49,
+                    "body": "Here is the main body of the message for the user",
+                    "date": now,
+                },
+                {
+                    "title": "Welcome to AVO2",
+                    "id": 22,
+                    "body": "Here is the main body of the message for the user",
+                    "date": now - timedelta(days=5),
+                },
+                {
+                    "title": "Welcome to AVO1",
+                    "id": 30,
+                    "body": "Here is the main body of the message for the user",
+                    "date": now - timedelta(days=10),
+                }
+            ]
         }
     ]
-    return jsonify(messages=messages, dueDates = dueDates)
+    return jsonify(messages=messages, dueDates=dueDates)
 
 
 @routes.route('/createClass', methods=['POST'])
@@ -275,18 +264,27 @@ def get_classes():
     now = datetime.now()
 
     # Get data for courses that the user is enrolled in
-    users_classes = db.session.execute(text(student_classes), params={'user': current_user.USER}).fetchall()
-    users_tests = db.session.execute(text(student_tests), params={'user': current_user.USER}).fetchall()
-    users_test_stats = db.session.execute(text(student_test_stats), params={'user': current_user.USER}).fetchall()
-    users_takes = db.session.execute(text(student_takes), params={'user': current_user.USER}).fetchall()
-    users_medians = db.session.execute(text(student_tests_medians), params={'user': current_user.USER}).fetchall()
+    users_classes = db.session.execute(text(student_classes), params={
+                                       'user': current_user.USER}).fetchall()
+    users_tests = db.session.execute(text(student_tests), params={
+                                     'user': current_user.USER}).fetchall()
+    users_test_stats = db.session.execute(text(student_test_stats), params={
+                                          'user': current_user.USER}).fetchall()
+    users_takes = db.session.execute(text(student_takes), params={
+                                     'user': current_user.USER}).fetchall()
+    users_medians = db.session.execute(text(student_tests_medians), params={
+                                       'user': current_user.USER}).fetchall()
 
     # Get data for courses that the user teaches
     if current_user.is_teacher:
-        users_classes += db.session.execute(text(teacher_classes), params={'user': current_user.USER}).fetchall()
-        users_tests += db.session.execute(text(teacher_tests), params={'user': current_user.USER}).fetchall()
-        users_test_stats += db.session.execute(text(teacher_test_stats), params={'user': current_user.USER}).fetchall()
-        users_medians += db.session.execute(text(teacher_tests_medians), params={'user': current_user.USER}).fetchall()
+        users_classes += db.session.execute(text(teacher_classes), params={
+                                            'user': current_user.USER}).fetchall()
+        users_tests += db.session.execute(text(teacher_tests),
+                                          params={'user': current_user.USER}).fetchall()
+        users_test_stats += db.session.execute(text(teacher_test_stats), params={
+                                               'user': current_user.USER}).fetchall()
+        users_medians += db.session.execute(text(teacher_tests_medians), params={
+                                            'user': current_user.USER}).fetchall()
 
     classes = {}
     for c in users_classes:
@@ -378,7 +376,8 @@ def test_stats():
     # If the user doesnt teach the class then return error JSON
     if not teaches_class(test.CLASS) and not enrolled_in_class(test.CLASS):
         return jsonify(error="User doesn't teach this class or the user is not enrolled in the class")
-    students = User.query.filter((User.USER == Transaction.USER) & (test.CLASS == Transaction.CLASS)).all()  # All students in the class
+    students = User.query.filter((User.USER == Transaction.USER) & (
+        test.CLASS == Transaction.CLASS)).all()  # All students in the class
     current_class = Class.query.get(test.CLASS)
     test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
@@ -392,7 +391,8 @@ def test_stats():
                 # If the student has taken the test get best takes and add to the array of marks
                 takes = takes[len(takes) - 1]  # Get best takes instance
                 test_marks_total.append(takes.grade)
-                question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
+                # append the mark array to the student mark array
+                question_marks.append(eval(takes.marks))
                 del takes
     del students
     question_total_marks = []  # Each students mark per question
@@ -401,7 +401,8 @@ def test_stats():
         # If none has taken the test return default values
         test_questions = eval(test.question_list)  # List of questions in test
         test_question_marks = []
-        question = Question.query.filter(Question.QUESTION.in_(test_questions)).all()  # Get all questions in the test
+        question = Question.query.filter(Question.QUESTION.in_(
+            test_questions)).all()  # Get all questions in the test
         if len(test_questions) is not len(question):
             # If a question could not be found return an error
             return jsonify(error="One or more questions not found")
@@ -435,7 +436,8 @@ def test_stats():
 
     test_questions = eval(test.question_list)  # List of questions in test
     test_question_marks = []
-    question = Question.query.filter(Question.QUESTION.in_(test_questions)).all()  # All questions in test
+    question = Question.query.filter(Question.QUESTION.in_(
+        test_questions)).all()  # All questions in test
     for i in range(len(test_questions)):
         # For each question in the test get the question and append the total
         test_question_marks.append(question[i].total)
@@ -457,7 +459,8 @@ def test_stats():
                                 'totalMark': test_question_marks[i]
                                 }
         if len(question_total_marks[i]) > 1:
-            current_question['questionSTDEV'] = statistics.stdev(question_total_marks[i])
+            current_question['questionSTDEV'] = statistics.stdev(
+                question_total_marks[i])
         else:
             current_question['questionSTDEV'] = 0
         question_analytics.append(current_question)
@@ -483,11 +486,13 @@ def get_sets():
     Get the list of Sets available to the user
     :return: The list of sets
     """
-    list_of_sets = Set.query.filter((Set.SET == UserViewsSet.SET) & (UserViewsSet.USER == current_user.USER)).all()  # Get list of avalible sets for current user
+    list_of_sets = Set.query.filter((Set.SET == UserViewsSet.SET) & (
+        UserViewsSet.USER == current_user.USER)).all()  # Get list of avalible sets for current user
     set_list = []  # List of sets to send back to the user
     for s in list_of_sets:
         # For each set append the data
-        questions = Question.query.filter(Question.SET == s.SET).all()  # Get all questions in set
+        questions = Question.query.filter(
+            Question.SET == s.SET).all()  # Get all questions in set
         question_list = []  # Question data to return to client
         for q in questions:
             # For each question append the data
@@ -527,7 +532,8 @@ def create_set():
     new_set = Set(name)  # New set to be created
     db.session.add(new_set)
     db.session.commit()
-    user_views_set = UserViewsSet(current_user.USER, new_set.SET, True)  # New user_views_set to be created
+    # New user_views_set to be created
+    user_views_set = UserViewsSet(current_user.USER, new_set.SET, True)
     db.session.add(user_views_set)
     db.session.commit()
     return jsonify(id=new_set.SET)
@@ -578,7 +584,8 @@ def delete_set():
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
     try:
-        user_views_set = UserViewsSet.query.filter((UserViewsSet.SET == ID) & (UserViewsSet.USER == current_user.USER)).first()  # user_views_set to delete
+        user_views_set = UserViewsSet.query.filter((UserViewsSet.SET == ID) & (
+            UserViewsSet.USER == current_user.USER)).first()  # user_views_set to delete
     except NoResultFound:
         return jsonify(code="Updated")
     # Add change to database
@@ -635,7 +642,8 @@ def enroll():
                                       current_user.USER, current_class.CLASS, None)
         db.session.add(new_transaction)
         db.session.commit()
-        return jsonify(message='Enrolled')  # this message cannot be changed as the frontend relies on it
+        # this message cannot be changed as the frontend relies on it
+        return jsonify(message='Enrolled')
     else:
         return jsonify(id=current_class.CLASS, price=current_class.price, discount=current_class.price_discount,
                        tax=round(current_class.price_discount * 0.13, 2),
@@ -701,7 +709,8 @@ def change_mark():
         # If User does not teach class return error JSON
         return jsonify(error="User does not teach this class")
     del test
-    question = Question.query.filter(Question.QUESTION.in_(question_array)).all()  # Questions in test
+    question = Question.query.filter(Question.QUESTION.in_(
+        question_array)).all()  # Questions in test
     takes_marks_array = eval(takes.marks)
     new_mark = 0
     if len(takes_marks_array) == len(mark_array):
@@ -778,7 +787,7 @@ def close_test():
     if not isinstance(test, int):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
-    current_test = Test.query.get(test) # Get the test
+    current_test = Test.query.get(test)  # Get the test
     if current_test is None:
         # If test doesn't exist then return error JSON if not close test and return
         return jsonify(error='No test found')
@@ -835,7 +844,8 @@ def get_question():
     if not isinstance(question, int) or not isinstance(seed, int):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
-    current_question = Question.query.get(question)  # Get question from database
+    current_question = Question.query.get(
+        question)  # Get question from database
     if current_question is None:
         # If the question isn't found return error json if not return to client
         return jsonify(error='No question found')
@@ -856,7 +866,8 @@ def new_question():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
-    set_id, name, string, answers, total = data['set'], data['name'], data['string'], data['answers'], data['total']
+    set_id, name, string, answers, total = data['set'], data[
+        'name'], data['string'], data['answers'], data['total']
     if not isinstance(set_id, int) or not isinstance(name, str) or not isinstance(string, str) or not isinstance(answers, int) or not isinstance(total, int):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
@@ -1058,7 +1069,8 @@ def get_test():
         if test.deadline < datetime.now():
             # If deadline has passed return error JSON
             return jsonify(error='The deadline has passed for this test')
-        takes = Takes.query.filter((Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (Takes.time_submitted > datetime.now())).first()  # Get the most current takes
+        takes = Takes.query.filter((Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (
+            Takes.time_submitted > datetime.now())).first()  # Get the most current takes
         if takes is None:
             # If student has not taken the test create a takes instance
             takes = create_takes(test_id, current_user.get_id())
@@ -1067,12 +1079,15 @@ def get_test():
                 return jsonify(error="Couldn't start test")
         questions = []  # Questions in test
         question_ids = eval(test.question_list)  # IDs of questions in test
-        seeds = eval(takes.seeds)  # Seeds of questions in test if -1 gen random seed
-        questions_in_test = Question.query.filter(Question.QUESTION.in_(question_ids)).all()   # All questions in test
+        # Seeds of questions in test if -1 gen random seed
+        seeds = eval(takes.seeds)
+        questions_in_test = Question.query.filter(
+            Question.QUESTION.in_(question_ids)).all()   # All questions in test
         for i in range(len(question_ids)):
             # For each question id get the question data and add to question list
             q = AvoQuestion(questions_in_test[i].string, seeds[i])
-            questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
+            questions.append(
+                {'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
         return jsonify(
             takes=takes.TAKES,
             time_submitted=int(takes.time_submitted.timestamp()*1000),
@@ -1105,15 +1120,19 @@ def create_takes(test, user):
     if x is None:
         # If test not found return
         return
-    takes = Takes.query.filter((Takes.TEST == test) & (Takes.USER == user)).all()  # Get all instances of takes by that user from that test
+    # Get all instances of takes by that user from that test
+    takes = Takes.query.filter(
+        (Takes.TEST == test) & (Takes.USER == user)).all()
     if x.attempts != -1 and len(takes) >= x.attempts:
         # If the user has taken more attempts then allowed return
         return
     test_question_list = eval(x.question_list)  # Question list of test
-    seeds = list(map(lambda seed: randint(0, 65535) if seed == -1 else seed, eval(x.seed_list)))  # Generates seeds of test
+    seeds = list(map(lambda seed: randint(0, 65535) if seed == -
+                     1 else seed, eval(x.seed_list)))  # Generates seeds of test
     answer_list = []  # Answers of takes instance
     marks_list = []  # Marks of takes instance
-    questions_in_test = Question.query.filter(Question.QUESTION.in_(test_question_list)).all()  # Questions in test
+    questions_in_test = Question.query.filter(
+        Question.QUESTION.in_(test_question_list)).all()  # Questions in test
     for i in range(len(test_question_list)):
         # For each question in test add in mark values per question
         q = questions_in_test[i]  # Current question
@@ -1122,12 +1141,15 @@ def create_takes(test, user):
     # We want to figure out what the new time should be
     t = datetime.now()  # Get current time
     if x.timer == -1:  # CASE 1: We have unlimited time selected, so the deadline is 100 years from now
-        time2 = min(t + timedelta(minutes=52560000), x.deadline) # Time submitted based off timer
+        # Time submitted based off timer
+        time2 = min(t + timedelta(minutes=52560000), x.deadline)
     else:  # CASE 2: We have a limited amount of time so figure out when the end date and time should be
-        time2 = min(t + timedelta(minutes=x.timer), x.deadline) # Time submitted based off timer
+        # Time submitted based off timer
+        time2 = min(t + timedelta(minutes=x.timer), x.deadline)
 
     # Add all data to takes object and add to database
-    takes = Takes(test, user, t, time2, 0, str(marks_list), str(answer_list), str(seeds))
+    takes = Takes(test, user, t, time2, 0, str(
+        marks_list), str(answer_list), str(seeds))
     db.session.add(takes)
     db.session.commit()
     return None if takes is None else takes
@@ -1158,18 +1180,22 @@ def save_test():
         return jsonify(error="User doesn't teach this class")
     if len(question_list) is 0:
         return jsonify(error="Can't Submit A Test WIth Zero Questions")
-    deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
+    deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + \
+        deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
     total = 0  # Total the test is out of
-    questions = Question.query.filter(Question.QUESTION.in_(question_list)).all()  # All question in test
+    questions = Question.query.filter(Question.QUESTION.in_(
+        question_list)).all()  # All question in test
     for i in range(len(question_list)):
         # For each question calculate the mark and add to the total
-        current_question = questions[i]  # Get the current question from the database
+        # Get the current question from the database
+        current_question = questions[i]
         if current_question is None:
             return jsonify(error="Question Not Found PLease Try Again")
         total += current_question.total
     # Add the test to the database
-    test = Test(class_id, name, False, deadline, int(timer), int(attempts), str(question_list), str(seed_list), total)
+    test = Test(class_id, name, False, deadline, int(timer), int(
+        attempts), str(question_list), str(seed_list), total)
     db.session.add(test)
     db.session.commit()
     return jsonify(test=test.TEST)
@@ -1188,7 +1214,8 @@ def change_test():
         # If the request isn't JSON return a 400 error
         return abort(400)
     data = request.json  # Data from client
-    test, timer, name, deadline, attempts = data['test'], data['timer'], data['name'], data['deadline'], data['attempts']
+    test, timer, name, deadline, attempts = data['test'], data[
+        'timer'], data['name'], data['deadline'], data['attempts']
     if not isinstance(test, int):
         return jsonify(error="Invalid Input: Test needs to be an int, Test is " + str(type(test)))
     if not isinstance(timer, int):
@@ -1199,7 +1226,8 @@ def change_test():
         return jsonify(error="Invalid Input: Deadline needs to be a str, Deadline is type: " + str(type(deadline)))
     if not isinstance(attempts, int):
         return jsonify(error="Invalid Input: Attempts needs to be an int, " + str(type(attempts)))
-    deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
+    deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + \
+        deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
     test = Test.query.get(test)  # Gets the test object
     if not teaches_class(test.CLASS):
@@ -1228,7 +1256,8 @@ def save_answer():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
-    takes, question, answer = data['takes'], data['question'], data['answer']  # Data from user
+    # Data from user
+    takes, question, answer = data['takes'], data['question'], data['answer']
     if not isinstance(takes, int) or not isinstance(question, int) or not isinstance(answer, list):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
@@ -1239,14 +1268,17 @@ def save_answer():
     if takes_list.time_submitted < datetime.now():
         return jsonify(error="Test time has passed")
     test = Test.query.get(takes_list.TEST)  # Test of that instance of takes
-    question_id = eval(test.question_list)[question]  # List of question IDs from test
-    current_question = Question.query.get(question_id)  # Current question being modified
+    # List of question IDs from test
+    question_id = eval(test.question_list)[question]
+    current_question = Question.query.get(
+        question_id)  # Current question being modified
     # Update the question mark and answer in the takes instance
     answers = eval(takes_list.answers)
     answers[question] = answer
     takes_list.answers = str(answers)
     db.session.commit()
-    q = AvoQuestion(current_question.string, eval(takes_list.seeds)[question], answer)
+    q = AvoQuestion(current_question.string, eval(
+        takes_list.seeds)[question], answer)
     marks = eval(takes_list.marks)
     marks[question] = q.scores
     # Update with new values and commit to DataBase
@@ -1281,7 +1313,8 @@ def submit_test():
         return jsonify(error="Test deadline has passed")
     if (current_takes.time_submitted + timedelta(seconds=60)) < time:
         return jsonify(error="Test already has been submitted")
-    current_takes.time_submitted = time_stamp(datetime.now() - timedelta(seconds=1))
+    current_takes.time_submitted = time_stamp(
+        datetime.now() - timedelta(seconds=1))
     db.session.commit()
     return jsonify(message='Submitted successfully!')
 
@@ -1308,14 +1341,16 @@ def post_test():
         # If takes cant be found return error JSON
         return jsonify(error='No takes record with that ID')
     # Get data from takes and get test from takes
-    marks, answers, seeds, = eval(takes_list.marks), eval(takes_list.answers), eval(takes_list.seeds)
+    marks, answers, seeds, = eval(takes_list.marks), eval(
+        takes_list.answers), eval(takes_list.seeds)
     test = Test.query.get(takes_list.TEST)
     if enrolled_in_class(test.CLASS) or teaches_class(test.CLASS):
         if datetime.now() <= takes_list.time_submitted:
             return jsonify(error="Test not submitted yet")
         questions = eval(test.question_list)
         question_list = []
-        question_objects_in_test = Question.query.filter(Question.QUESTION.in_(questions)).all()  # Questions in test
+        question_objects_in_test = Question.query.filter(
+            Question.QUESTION.in_(questions)).all()  # Questions in test
         for i in range(len(questions)):
             # For each question mark question with answer and add to list then return
             current_question = question_objects_in_test[i]
@@ -1347,11 +1382,13 @@ def get_class_test_results():
     current_test = Test.query.get(test)
     if not teaches_class(current_test.CLASS):
         return jsonify(error="User doesn't teach class")
-    users = User.query.filter((User.USER == Transaction.USER) & (current_test.CLASS == Transaction.CLASS)).all()  # All users in class
+    users = User.query.filter((User.USER == Transaction.USER) & (
+        current_test.CLASS == Transaction.CLASS)).all()  # All users in class
     for i in range(len(users)):
         # For each user get user data and best takes instance and present append to list then return
         first_name, last_name = users[i].first_name, users[i].last_name
-        takes = Takes.query.filter((Takes.USER == users[i].USER) & (Takes.TEST == test)).order_by(Takes.grade).all()
+        takes = Takes.query.filter((Takes.USER == users[i].USER) & (
+            Takes.TEST == test)).order_by(Takes.grade).all()
         if len(takes) is 0:
             # If the student hasn't taken the test then return default values else return the marks
             users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
@@ -1380,7 +1417,8 @@ def csv_class_marks(classid):
         return abort(400)
     # Query the database for data on the test class and students data
     output_class = Class.query.get(classid)
-    student_array = User.query.filter((Transaction.CLASS == classid) & (Transaction.USER == User.USER)).all()
+    student_array = User.query.filter(
+        (Transaction.CLASS == classid) & (Transaction.USER == User.USER)).all()
     test_array = Test.query.filter(Test.CLASS == classid).all()
     test_name_list = []  # An array of the test names
     output_string = '\"Email\" '  # The output for the file
@@ -1388,11 +1426,13 @@ def csv_class_marks(classid):
     for i in range(len(test_array)):
         # For each test add the names to the array and update the file string
         test_name_list.append(test_array[i].name)
-        output_string = output_string + ', \"' + str(test_array[i].name) + '\" '
+        output_string = output_string + ', \"' + \
+            str(test_array[i].name) + '\" '
 
     for i in range(len(student_array)):
         # For each student get there best mark on each test and add it to the array
-        current_string = '\n' + '\"' + str(student_array[i].email) + '\"'  # A string for each line of the file
+        # A string for each line of the file
+        current_string = '\n' + '\"' + str(student_array[i].email) + '\"'
 
         for j in range(len(test_array)):
             # For each test get the best mark and add it to the array
@@ -1412,7 +1452,8 @@ def csv_class_marks(classid):
         output_string = output_string + current_string
 
     response = make_response(output_string)
-    response.headers["Content-Disposition"] = "attachment; filename=" + output_class.name + ".csv"
+    response.headers["Content-Disposition"] = "attachment; filename=" + \
+        output_class.name + ".csv"
     return response  # Return the file to the user
 
 
@@ -1442,7 +1483,8 @@ def create_payment():
         # If the user has already tried the payment find payment and return
         try:
             # Try to find payment from PayPal
-            payment = paypalrestsdk.Payment.find(existing_tid.TRANSACTIONPROCESSING)
+            payment = paypalrestsdk.Payment.find(
+                existing_tid.TRANSACTIONPROCESSING)
             if payment.state == 'created':
                 # iF payment is found return Transaction ID
                 return jsonify({'tid': existing_tid.TRANSACTIONPROCESSING})
@@ -1455,7 +1497,8 @@ def create_payment():
             db.session.delete(existing_tid)
             db.session.commit()
 
-    current_class = Class.query.filter(class_id == Class.CLASS).all()  # Get class
+    current_class = Class.query.filter(
+        class_id == Class.CLASS).all()  # Get class
 
     if len(current_class) is 0:
         # If class is not found return error JSON
@@ -1502,7 +1545,8 @@ def create_payment():
 
     if payment.create():
         # If Payment created create new transaction in database and return Transaction ID
-        new_transaction = TransactionProcessing(payment.id, current_class[0].CLASS, current_user.USER)
+        new_transaction = TransactionProcessing(
+            payment.id, current_class[0].CLASS, current_user.USER)
         db.session.add(new_transaction)
         db.session.commit()
         return jsonify({'tid': payment.id})
@@ -1531,7 +1575,8 @@ def confirm_payment():
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
 
-    transaction = Transaction.query.get(tid)  # Attempt to get transaction from the Transaction ID
+    # Attempt to get transaction from the Transaction ID
+    transaction = Transaction.query.get(tid)
     if transaction is not None:
         # If transaction not found return error JSON
         return jsonify("User Already Enrolled")
@@ -1539,7 +1584,8 @@ def confirm_payment():
     if not payment.execute({'payer_id': payer}):
         # If payment cant be processed return error JSON
         return jsonify(error=payment.error)
-    transaction_processing = TransactionProcessing.query.get(tid)  # find transaction in transaction processing table
+    transaction_processing = TransactionProcessing.query.get(
+        tid)  # find transaction in transaction processing table
     if transaction_processing is None:
         # If not found return error JSON
         return jsonify(error="No Trans Id Found")
@@ -1607,7 +1653,8 @@ def free_trial():
         # If transaction not found return error JSON
         return jsonify(error="Free Trial Already Taken")
     free_trial_string = "FREETRIAL-" + str(current_class.CLASS) \
-                        + "-" + str(current_user.USER)  # Generate free trial string
+                        + "-" + \
+        str(current_user.USER)  # Generate free trial string
     time = datetime.now() + timedelta(weeks=2)
     new_transaction = Transaction(free_trial_string, current_user.USER,
                                   current_class.CLASS, time)  # create new transaction in database
@@ -1705,14 +1752,16 @@ def validate():
         if q.SET is None:
             errors.append(f"Question {q.QUESTION} has been deleted")
         if len(parts) != 9:
-            errors.append(f"Question {q.QUESTION} has a deprecated/invalid string")
+            errors.append(
+                f"Question {q.QUESTION} has a deprecated/invalid string")
         else:
             try:
                 AvoQuestion(q.string)
             except Exception:
                 errors.append(f"Question {q.QUESTION} can't be generated")
             if len(parts[4].split('，')) != q.answers:
-                errors.append(f"Question {q.QUESTION}'s answers field count is incorrect")
+                errors.append(
+                    f"Question {q.QUESTION}'s answers field count is incorrect")
             if sum(map(lambda x: float(x), parts[5].split('，'))) != q.total:
                 errors.append(f"Question {q.QUESTION}'s total is incorrect")
 
@@ -1730,7 +1779,8 @@ def validate():
         question_list = eval(t.question_list)
         seed_list = eval(t.seed_list)
         if len(question_list) != len(seed_list):
-            errors.append(f"Test {t.TEST}'s seed list is a different length than it's question list")
+            errors.append(
+                f"Test {t.TEST}'s seed list is a different length than it's question list")
         if any(map(lambda x: x < -1 or x > 65535, seed_list)):
             errors.append(f"Test {t.TEST} has one or more invalid seeds")
         try:
@@ -1789,14 +1839,16 @@ def validate():
         ") as r WHERE COUNT>attempts AND attempts!=-1 ORDER BY USER, TEST;"
     ).fetchall()
     for t in too_many_attempts:
-        errors.append(f'User {t[0]} took test {t[1]} {t[2]} times, but only {t[3]} are allowed')
+        errors.append(
+            f'User {t[0]} took test {t[1]} {t[2]} times, but only {t[3]} are allowed')
 
     enrolled_in_own_class = db.session.execute(
         "SELECT CLASS.USER, CLASS.CLASS FROM CLASS"
         " INNER JOIN enrolled ON CLASS.CLASS=enrolled.CLASS AND CLASS.USER=enrolled.USER;"
     )
     for e in enrolled_in_own_class:
-        errors.append(f'User {e[0]} is enrolled in class {e[1]}, which they also teach')
+        errors.append(
+            f'User {e[0]} is enrolled in class {e[1]}, which they also teach')
 
     enrolled_in_multiple_classes = db.session.execute(
         "SELECT USER, COUNT FROM ("
