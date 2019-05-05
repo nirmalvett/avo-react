@@ -5,7 +5,7 @@ import { getMathJax, validateMatrix, validateNumber, validateVector } from '../U
 import Grid from '@material-ui/core/Grid/Grid';
 import { copy } from "../Utilities";
 import {
-	CONST_CREATE_OBJECT, CONST_INPUT_PHASE, CONST_SHOW_OBJECT, CONST_SELECT_DIMENSION, CONST_VECTOR,
+	CONST_CREATE_OBJECT, CONST_INPUT_PHASE, CONST_SHOW_OBJECT, CONST_SELECT_DIMENSION,
 	CONST_VECTOR_LINEAR_EXPRESSION, CONST_BASIS, CONST_BOOLEAN, CONST_LINEAR_EXPRESSION, CONST_MANUAL_INPUT,
 	CONST_MANUAL_INPUT_POLYNOMIAL, CONST_MATRIX, CONST_MULTIPLE_CHOICE, CONST_NUMBER, CONST_VECTOR_HORIZONTAL
 } from "./InputConsts";
@@ -140,7 +140,7 @@ export default class ButtonInputHorizontalVector extends React.Component {
 		if (previousAnswer === undefined || previousAnswer.length === 0) {
 			return "";
 		}
-		if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION) {
+		if (type === CONST_VECTOR_HORIZONTAL || type === CONST_VECTOR_LINEAR_EXPRESSION) {
 			const vector = validateVector(previousAnswer);
 			return Array.isArray(vector)
 				? '\\(\\begin{bmatrix}' + vector.join('\\\\') + '\\end{bmatrix}\\)'
@@ -171,7 +171,7 @@ export default class ButtonInputHorizontalVector extends React.Component {
 				alignItems="center">
 				<br />
 				{
-					type === CONST_VECTOR
+					type === CONST_VECTOR_HORIZONTAL
 						? this.vectorCreateObject()
 						: type === CONST_MATRIX
 							? this.matrixCreateObject()
@@ -194,7 +194,7 @@ export default class ButtonInputHorizontalVector extends React.Component {
 
 	selectDimension() {
 		const { type } = this.state;
-		if (type === CONST_VECTOR) {
+		if (type === CONST_VECTOR_HORIZONTAL) {
 			return this.vectorSelectDimension();
 		} else if (type === CONST_MATRIX) {
 			return this.matrixSelectDimension();
@@ -205,7 +205,7 @@ export default class ButtonInputHorizontalVector extends React.Component {
 
 	inputPhase() {
 		const { type } = this.state;
-		if (type === CONST_VECTOR) {
+		if (type === CONST_VECTOR_HORIZONTAL) {
 			return this.vectorInputPhase();
 		} else if (type === CONST_MATRIX) {
 			return this.matrixInputPhase();
@@ -230,7 +230,7 @@ export default class ButtonInputHorizontalVector extends React.Component {
 			)
 		}
 		// CASE 1: We are arriving here because the user filled the fields
-		if (type === CONST_VECTOR) {
+		if (type === CONST_VECTOR_HORIZONTAL) {
 			return this.vectorShowObject();
 		} else if (type === CONST_MATRIX) {
 			return this.matrixShowObject();
@@ -250,7 +250,7 @@ export default class ButtonInputHorizontalVector extends React.Component {
 			buttonText = "Clear Matrix Answer"
 		} else if (type === CONST_VECTOR_LINEAR_EXPRESSION) {
 			buttonText = "Clear Vector Answer"
-		} else if (type === CONST_VECTOR) {
+		} else if (type === CONST_VECTOR_HORIZONTAL) {
 			buttonText = "Clear Vector Answer"
 		} else (console.warn("clearAnswerButton(), type: " + type + " not accounted for in logic"));
 		return (
@@ -334,7 +334,7 @@ export default class ButtonInputHorizontalVector extends React.Component {
 			this.state.dimensionStorage = stateObject;
 		}
 
-		if (this.state.type == CONST_VECTOR) {
+		if (this.state.type == CONST_VECTOR_HORIZONTAL) {
 			// this.setState({
 			// 	dynamicVectorInputs : [],
 			// 	dynamicVectorIDs : 0
@@ -993,7 +993,7 @@ export default class ButtonInputHorizontalVector extends React.Component {
 		// is what we display
 		const { dimensionStorage, type } = this.state;
 		// CASE 0: Vector input
-		if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION) {
+		if (type === CONST_VECTOR_HORIZONTAL || type === CONST_VECTOR_LINEAR_EXPRESSION) {
 			const vectorParsed = this.parseVector(dimensionStorage, " \\\\ ");
 			this.state.latexString = this.latexMatrix(vectorParsed.latexString);
 			this.state.dataForServer = vectorParsed.dataForServer;
@@ -1085,7 +1085,7 @@ export default class ButtonInputHorizontalVector extends React.Component {
 	allFieldsFilled() {
 		const { dimensionStorage, totalFields, type, matrixColLength, matrixRowLength } = this.state;
 		// CASE 0: It's a vector and the user did not input any object or it's not the right size
-		if (type === CONST_VECTOR || type === CONST_VECTOR_LINEAR_EXPRESSION) {
+		if (type === CONST_VECTOR_HORIZONTAL || type === CONST_VECTOR_LINEAR_EXPRESSION) {
 			const objectSizeInt = objectSize(dimensionStorage);
 			if (objectSizeInt === 0 || objectSizeInt !== this.state.dynamicVectorInputs.length) {
 				return false;
