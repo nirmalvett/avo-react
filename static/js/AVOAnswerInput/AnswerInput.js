@@ -5,8 +5,9 @@ import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
 import ButtonInput from "./ButtonInput"
+import ButtonInputHorizontalVector from "./ButtonInputHorizontalVector"
 import { CONST_VECTOR, CONST_VECTOR_LINEAR_EXPRESSION, CONST_BASIS, CONST_BOOLEAN, CONST_LINEAR_EXPRESSION,
-        CONST_MANUAL_INPUT, CONST_MANUAL_INPUT_POLYNOMIAL, CONST_MATRIX, CONST_MULTIPLE_CHOICE, CONST_NUMBER
+        CONST_MANUAL_INPUT, CONST_MANUAL_INPUT_POLYNOMIAL, CONST_MATRIX, CONST_MULTIPLE_CHOICE, CONST_NUMBER, CONST_VECTOR_HORIZONTAL
 } from "./InputConsts";
 
 
@@ -117,8 +118,8 @@ export default class AnswerInput extends React.Component {
                     disabled={disabled}
                 />
             );
-        else if (type === CONST_MANUAL_INPUT_POLYNOMIAL)
-            return null;
+        // else if (type === CONST_MANUAL_INPUT_POLYNOMIAL)
+        //     return null;
         else if (type === CONST_VECTOR) {
             if (inputMode === BUTTON_INPUT){
                 return (
@@ -153,6 +154,18 @@ export default class AnswerInput extends React.Component {
         }
         else if (type === CONST_VECTOR_LINEAR_EXPRESSION) {
             return null;
+        }
+        else if (type === CONST_VECTOR_HORIZONTAL){
+          return (
+              <ButtonInputHorizontalVector
+                  prompt = { this.props.prompt }
+                  type = {CONST_VECTOR_HORIZONTAL}  // this is the type
+                  disabled={disabled}  // this is whether the input is disabled
+                  value={v}  // this is the value if a test is resumed
+                  buttonSave={ this.props.buttonSave } // this essentially submits
+                  onChange={this.props.onChange} // this is the onChange method that modifies the data
+              />
+          )
         }
         else if (type === CONST_MATRIX) {
             if (inputMode === BUTTON_INPUT) return (
