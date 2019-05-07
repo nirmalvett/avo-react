@@ -1360,7 +1360,7 @@ def create_payment():
         for i in range(len(transaction_list)):
             # Check if all transactions have expired
             if transaction_list[i].expiration is None:
-                # There is no experation 
+                # There is no experation
                 return jsonify(error="User Still has active payment")
             if transaction_list[i].expiration > time:
                 # The timer is still valid
@@ -1446,7 +1446,7 @@ def confirm_payment():
         return jsonify(error="No Trans Id Found")
     time = datetime.now() + timedelta(weeks=32)  # Create expiration of enrolling
     transaction = Transaction(tid, current_user.USER,
-                              transaction_processing.CLASS, None)  # Create new transaction in table
+                              transaction_processing.CLASS, time)  # Create new transaction in table
     # commit changes to database
     db.session.add(transaction)
     db.session.delete(transaction_processing)
