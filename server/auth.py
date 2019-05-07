@@ -287,7 +287,7 @@ def access_to_class(class_id):
     if enrolled_in_class(class_id):
         # If the user is enrolled in the class at all see if they have a valid transaction
         transaction_list = Transaction.query.filter((Transaction.USER == current_user.USER) &
-                                                   (Transaction.CLASS == class_id)).all()  # all transaction of user
+                                                    (Transaction.CLASS == class_id)).all()  # all transaction of user
         if current_user.is_teacher:
             # If the current user is a teacher and enrolled then return True as teacher dont pay
             return True
