@@ -196,6 +196,27 @@ def login():
                        color=current_user.color, theme=current_user.theme)
 
 
+@UserRoutes.route('/adminLogin/<user_id>', methods=['GET'])
+@login_required
+@check_confirmed
+@admin_only
+def admin_login(user_id):
+    user_id = int(user_id)
+    logout_user()
+    try:
+        # Try to create the user from the email if not throw error JSON
+        user = User.query.filter(User.USER == user_id).one()
+    except NoResultFound:
+        return jsonify(error='Account does not exist!')
+    if not user.confirmed:
+        # If the user hasn't confirmed their email throw error JSON
+        return jsonify(error='Account has not been confirmed!')
+    else:
+        # Else log the user in
+        login_user(user)
+        return redirect('/')
+
+
 @UserRoutes.route('/logout')
 @login_required
 def logout():
