@@ -115,8 +115,8 @@ def remove_account():
         return jsonify(error="No user found")
     if user is None:
         return jsonify(error="No user found")
-    class_list = Class.query.filter((Class.CLASS == enrolled.c.CLASS) &
-                                    (user.USER == enrolled.c.USER)).all()
+    class_list = Class.query.filter((Class.CLASS == Transaction.CLASS) &
+                                    (user.USER == Transaction.USER)).all()
     takes = Takes.query.filter(Takes.USER == user.USER).all()
     if user.is_teacher:
         teaches_list = Class.query.filter(Class.USER == user.USER).all()
@@ -127,7 +127,7 @@ def remove_account():
         db.session.delete(i)
     db.session.commit()
     for i in class_list:
-        user.CLASS_ENROLLED_RELATION.remove(i)
+        user.TRANSACTION_RELATION.remove(i)
     db.session.commit()
     db.session.delete(user)
     db.session.commit()
@@ -541,7 +541,7 @@ def enroll():
 def unenroll():
     """
     Unenroll student from class
-    :return: COnfirmation of the unenroll
+    :return: Confirmation of the unenroll
     """
     if not request.json:
         return abort(400)
