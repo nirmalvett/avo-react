@@ -1354,8 +1354,18 @@ def create_payment():
         return jsonify(error="No class found")
 
     if enrolled_in_class(current_class[0].CLASS):
-        # If user is already enrolled return error JSON
-        return jsonify(error="User Already In Class")
+        # If user is already enrolled check if those enrolled are still not expired
+        transaction_list = Transaction.query.filter((Transaction.USER == current_user.USER) &
+                                                    (Transaction.CLASS == current_class[0].CLASS)).all()  # List of all transactions of that class and user
+        time = datetime.now()
+        for i in range(len(transaction_list)):
+            # Check if all transactions have expired
+            if transaction_list[i].expiration is None:
+                # There is no experation 
+                return jsonify(error="User Still has active payment")
+            if transaction_list[i].expiration > time:
+                # The timer is still valid
+                return jsonify(error="User Still has active payment")
 
     # Create Payment with PayPal
     payment = paypalrestsdk.Payment(
