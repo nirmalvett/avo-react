@@ -1,6 +1,6 @@
 from server.MathCode.AvoVariable import \
     MATRIX, BASIS, error, boolean, number, matrix, basis, mc_ans, tf_ans, vector_free_vars, polynomial, get_types
-from math import sqrt, sin, cos, tan, asin, acos, atan, pi
+from math import sqrt, sin, cos, tan, asin, acos, atan, pi, e, log
 from re import fullmatch, sub, search
 from typing import List
 
@@ -356,7 +356,125 @@ def build_polynomial(cell: str):
     return polynomial(token_list[0])
 
 
-def parse_answer(i, answer, answer_type, prompt):
+def parse_expression(question, expr):
+    invalid = error('invalid expression')
+    # Regex matches integer, float, function, bracket, +, -, *, /, ^, any letter, "pi", "lambda"
+    regex = r'pi|lambda|\d+(?:\.\d+)?|(sqrt|sin|cos|tan|arcsin|arccos|arctan|ln)\(|[()+\-*/^a-z]'
+    token_list: List = sub(r' {2,}', ' ', sub(regex, r' \g<0> ', expr.replace(' ', '')).strip()).split(' ')
+    # If not all the tokens are valid, return 'invalid'
+    if not all(map(lambda t: fullmatch(regex, t), token_list)):
+        return invalid
+
+    # For each token
+    for i in range(len(token_list)):
+        # If it's a unary minus (based on what's before it)
+        if token_list[i] == '-' and (i == 0 or not fullmatch(r'\d+(?:\.\d+)?|pi|lambda|[a-z]|\)', token_list[i - 1])):
+            if i + 1 == len(token_list):  # If it's at the end of the string, return an error
+                return invalid
+            elif token_list[i - 1] == '^':  # Otherwise, if it follows a caret, raise its priority
+                token_list[i] = '---'
+            else:  # Otherwise, make it a normal unary minus
+                token_list[i] = "--"
+
+    brackets = 0
+    operations = []
+    operators = {"---": 8, "--": 6, "+": 4, "-": 4, "*": 5, "/": 5, "^": 7}
+    for i in range(len(token_list)):
+        token = token_list[i]
+        if token == 'pi':
+            token_list[i] = pi
+        elif token == 'e':
+            token_list[i] = e
+        elif fullmatch(r'lambda|[a-z]', token):
+            try:
+                token_list[i] = float(question.var_list['$' + token])
+            except Exception:
+                return invalid
+        elif fullmatch(r'-?\d+(?:\.\d+)?', token):
+            token_list[i] = float(token)
+        elif token in operators:
+            token_list[i] = [token, brackets + 1000 * operators[token] - i]
+            operations.append(token_list[i])
+        elif token.endswith('('):
+            token_list[i] = [token, brackets + 8000 - i]
+            operations.append(token_list[i])
+            brackets += 10000
+        elif token == ')':
+            brackets -= 10000
+        else:
+            print("Something went wrong when handling this token: '" + token + "'")
+            return invalid
+        if brackets < 0:
+            return invalid
+    if brackets != 0:
+        return invalid
+
+    operations.sort(key=lambda item: item[1], reverse=True)
+
+    for i in range(len(operations)):
+        operation = operations[i][0]
+        pos = token_list.index(operations[i])
+        if operation in ('---', '--'):
+            if pos == len(token_list) - 1 or not isinstance(token_list[pos + 1], float):
+                return invalid
+            token_list.pop(pos)
+            token_list[pos] = -token_list[pos]
+        elif operation in ('+', '-', '*', '/', '^'):
+            if pos == 0 or pos == len(token_list) - 1 or not isinstance(token_list[pos - 1], float) \
+                    or not isinstance(token_list[pos + 1], float):
+                return invalid
+            pos -= 1
+            args = token_list.pop(pos), token_list.pop(pos + 1)
+            if operation == '+':
+                token_list[pos] = args[0] + args[1]
+            elif operation == '-':
+                token_list[pos] = args[0] - args[1]
+            elif operation == '*':
+                token_list[pos] = args[0] * args[1]
+            elif operation == '/':
+                if args[1] == 0:
+                    return invalid
+                token_list[pos] = args[0] / args[1]
+            elif operation == '^':
+                token_list[pos] = args[0] ** args[1]
+            else:
+                raise Exception("An unknown error occurred")
+        elif operation in ('(', 'sqrt(', 'sin(', 'cos(', 'tan(', 'arcsin(', 'arccos(', 'arctan(', 'ln('):
+            if pos > len(token_list) - 3 or not isinstance(token_list[pos + 1], float) or token_list[pos + 2] != ')':
+                return invalid
+            token_list.pop(pos + 2)
+            arg = token_list.pop(pos + 1)
+            if operation == '(':
+                token_list[pos] = arg
+            elif operation == 'sqrt(':
+                token_list[pos] = sqrt(arg)
+            elif operation == 'sin(':
+                token_list[pos] = sin(arg)
+            elif operation == 'cos(':
+                token_list[pos] = cos(arg)
+            elif operation == 'tan(':
+                token_list[pos] = tan(arg)
+            elif operation == 'arcsin(':
+                token_list[pos] = asin(arg)
+            elif operation == 'arccos(':
+                token_list[pos] = acos(arg)
+            elif operation == 'arctan(':
+                token_list[pos] = atan(arg)
+            elif operation == 'ln(':
+                token_list[pos] = log(arg)
+            else:
+                raise Exception("An unknown error occurred")
+        else:
+            print("Something went wrong when evaluating '" + operation + "'")
+            return invalid
+
+    if len(token_list) > 1:
+        return invalid
+
+    return number(token_list[0])
+
+
+def parse_answer(i, answer, answer_type, prompt, question=None):
     ans = error('Invalid answer')
     try:
         if len(str(answer)) == 0 and answer_type not in ('0', '1'):
@@ -375,12 +493,12 @@ def parse_answer(i, answer, answer_type, prompt):
                 ans = mc_ans(None, prompt)
         elif answer_type == '2':  # Number
             ans = build_number(answer)
-        elif answer_type == '3':  # Linear Expression
-            raise NotImplementedError
+        elif answer_type == '3':  # Todo - This is also kinda garbage
+            ans = parse_expression(question, answer)
         elif answer_type == '4':  # Todo - Get rid of this garbage
             ans = number(len(answer))
-        elif answer_type == '5':  # Polynomial
-            raise NotImplementedError
+        elif answer_type == '5':  # Vector (alternate)
+            ans = matrix(map(lambda r: [build_number(r)], answer.split(',')))
         elif answer_type == '6':  # Vector
             ans = matrix(map(lambda r: [build_number(r)], answer.split(',')))
         elif answer_type == '7':  # Vector of linear expressions

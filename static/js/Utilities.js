@@ -69,7 +69,7 @@ export function getMathJax(text, variant='body2', key) {
 export function validateNumber(text) {
     // Remove whitespace and check if string is empty
     if (text === undefined || text.replace(/ /g, '').length === 0)
-        return 'No answer given';
+        return ['']; // No error, but also no text to display
 
     // Split string into tokens
     let regex = '\\d+(?:\\.\\d+)?|(sqrt|sin|cos|tan|arcsin|arccos|arctan)\\(|[()+\\-*/^]';

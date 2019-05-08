@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from 'react';
 import Card from '@material-ui/core/Card';
-import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import Divider from '@material-ui/core/Divider';
@@ -11,8 +10,8 @@ import Typography from '@material-ui/core/Typography';
 import Http from '../Http';
 import {copy, getMathJax} from '../Utilities';
 import {
-    buildMathCode, buildPlainText, compile, extractReferences,
-    formatString, formatStringForEditing, init, initOld, validateString,
+    buildMathCode, buildPlainText, compile, extractReferences, formatString,
+    formatStringForEditing, init, initOld, validateString, function_regex, FUNCTIONS
 } from './QuestionBuilderUtils';
 import AnswerInput from '../AVOAnswerInput/AnswerInput';
 import Done from '@material-ui/icons/Done';
@@ -43,6 +42,7 @@ export default class QuestionBuilder extends Component {
             initError: 0,
             savedString: questionString,
             content: null,
+            hints: {selectedFunction: "", currentFunctions: [], suggestedFunctions: []},
         }, questionString.split('；').length === 5 ? initOld(questionString) : init(questionString));
 
         let compileString = compile(this.state);
@@ -76,47 +76,45 @@ export default class QuestionBuilder extends Component {
         let cardStyle = {margin: 8, paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10};
         let dividerStyle = {marginTop: 15, marginBottom: 15};
         return (
-            <Fragment>
+            <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
                 {this.renderButtons()}
-                <Grid container spacing={8} style={{flex: 1, margin: 0}}>
-                    <Grid item xs={8} style={{flex: 1, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
-                        <Card style={cardStyle}>{this.renderMathCard()}</Card>
-                        <Divider style={dividerStyle}/>
+                <div style={{flex: 8, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
+                    <Card style={cardStyle}>{this.renderMathCard()}</Card>
+                    <Divider style={dividerStyle}/>
 
-                        <Card style={cardStyle}>{this.renderMainPromptCard()}</Card>
-                        <Divider style={dividerStyle}/>
+                    <Card style={cardStyle}>{this.renderMainPromptCard()}</Card>
+                    <Divider style={dividerStyle}/>
 
-                        {this.state.editorPrompts.map((x, y) =>
-                            <Card style={cardStyle} key={'prompt' + x.prompt + x.type + y}>
-                                {this.renderSubPromptCard(x, y)}
-                            </Card>
-                        )}
-                        <div style={{margin: 8}}>
-                            <Button variant='outlined' style={{width: '100%'}} onClick={() => this.addPrompt()}>
-                                Add Prompt
-                            </Button>
-                        </div>
-                        <Divider style={dividerStyle}/>
-
-                        {this.state.editorCriteria.map((x, y) =>
-                            <Card style={cardStyle} key={'criteria' + x.points + x.criteria + x.explanation + y}>
-                                {this.renderCriteriaCard(x, y)}
-                            </Card>
-                        )}
-                        <div style={{margin: 8}}>
-                            <Button variant='outlined' style={{width: '100%'}} onClick={() => this.addCriteria()}>
-                                Add Criteria
-                            </Button>
-                        </div>
-
-                    </Grid>
-                    <Grid item xs={4} style={{flex: 1, display: 'flex', paddingBottom: 0, overflowY: 'auto'}}>
-                        <Card style={{flex: 1, margin: '8%', padding: 20}}>
-                            {renderHints(this.state.currentlyEditing)}
+                    {this.state.editorPrompts.map((x, y) =>
+                        <Card style={cardStyle} key={'prompt' + x.prompt + x.type + y}>
+                            {this.renderSubPromptCard(x, y)}
                         </Card>
-                    </Grid>
-                </Grid>
-            </Fragment>
+                    )}
+                    <div style={{margin: 8}}>
+                        <Button variant='outlined' style={{width: '100%'}} onClick={() => this.addPrompt()}>
+                            Add Prompt
+                        </Button>
+                    </div>
+                    <Divider style={dividerStyle}/>
+
+                    {this.state.editorCriteria.map((x, y) =>
+                        <Card style={cardStyle} key={'criteria' + x.points + x.criteria + x.explanation + y}>
+                            {this.renderCriteriaCard(x, y)}
+                        </Card>
+                    )}
+                    <div style={{margin: 8}}>
+                        <Button variant='outlined' style={{width: '100%'}} onClick={() => this.addCriteria()}>
+                            Add Criteria
+                        </Button>
+                    </div>
+
+                </div>
+                <div style={{flex: 4, display: 'flex', overflowY: 'auto'}}>
+                    <Card style={{flex: 1, margin: '8%', padding: 20}}>
+                        {renderHints(this.state.currentlyEditing)}
+                    </Card>
+                </div>
+            </div>
         );
     }
 
@@ -176,14 +174,24 @@ export default class QuestionBuilder extends Component {
                             <IconButton disabled={errors.length > 0} onClick={() => this.saveMath()}><Done/></IconButton>
                         </div>
                     </div>
-                    <div><TextField multiline value={this.state.content} style={{width: '100%'}}
-                                    onChange={event => this.setState({content: event.target.value})}/></div>
-                    <table>
+                    <div>
+                        <TextField
+                            multiline value={this.state.content} style={{width: '100%'}}
+                            inputProps={{
+                                onKeyDown: this.editMath.bind(this),
+                                onClick: this.generateHints.bind(this),
+                                onKeyUp: this.generateHints.bind(this),
+                            }}
+                            onChange={event => this.setState({content: event.target.value})}
+                        />
+                    </div>
+                    <table><tbody>
                         {errors.map(error => <tr>
                             <td style={{padding: 2}}><Typography>Line {error[0]+1}</Typography></td>
                             <td style={{padding: 2}}>{error[1]}</td>
                         </tr>)}
-                    </table>
+                    </tbody></table>
+                    <Typography>{this.getHints()}</Typography>
                 </Fragment>
             );
         }
@@ -277,8 +285,10 @@ export default class QuestionBuilder extends Component {
                         <MenuItem value='0'>True/false</MenuItem>
                         <MenuItem value='1'>Multiple choice</MenuItem>
                         <MenuItem value='2'>Number</MenuItem>
+                        <MenuItem value='3'>Calculus Expression</MenuItem>
                         {/*<MenuItem value='5' disabled>Polynomial</MenuItem>*/}
                         <MenuItem value='6'>Vector</MenuItem>
+                        <MenuItem value='5'>Vector (Horizontal Input)</MenuItem>
                         <MenuItem value='7'>Vector with free variables</MenuItem>
                         <MenuItem value='8'>Matrix</MenuItem>
                         <MenuItem value='9'>Basis</MenuItem>
@@ -535,6 +545,156 @@ export default class QuestionBuilder extends Component {
             target.selectionStart = selectionStart + 2;
             target.selectionEnd = selectionEnd + 2;
         }
+    }
+
+    editMath(event) {
+        let {target} = event;
+        let hints = {
+            functions: [],
+            currentFunctions: [],
+            selectedFunction: "",
+            errors: [],
+            suggestedFunctions: this.state.hints.suggestedFunctions
+        };
+
+		let {selectionStart, selectionEnd} = target;
+        let content = target.value;
+        let match = new RegExp(function_regex + "$").exec(content.substr(0, selectionStart) + '(');
+        let args = match === null ? "" : FUNCTIONS[match[0].slice(0, -1)][3];
+        if (event.key === "(") {
+            event.preventDefault();
+            document.execCommand('insertText', false, "(" + args + ")");
+            content = content.substr(0, selectionStart) + "(" + args + ")" + content.substr(selectionStart);
+            selectionEnd = (selectionStart += 1) + args.length;
+        } else if (event.key === "[") {
+            event.preventDefault();
+            document.execCommand('insertText', false, "[]");
+            content = content.substr(0, selectionStart) + "[]" + content.substr(selectionStart);
+            selectionEnd = selectionStart += 1;
+        } else if (event.key === "{") {
+            event.preventDefault();
+            document.execCommand('insertText', false, "{}");
+            content = content.substr(0, selectionStart) + "{}" + content.substr(selectionStart);
+            selectionEnd = selectionStart += 1;
+        }
+        let string = content;
+        let function_regex2 = new RegExp(function_regex, "g");
+        for (let m = function_regex2.exec(string); m !== null; m = function_regex2.exec(string)) {
+            let fn = m[0].slice(0, -1);
+            let fnStart = m.index + m[0].length;
+            let fnStop = m.index + m[0].length;
+            let arg = 0;
+            for (let brackets = 1; brackets > 0 && fnStop < selectionStart; fnStop++) {
+                if (brackets === 1 && string[fnStop] === "," && fnStop < selectionStart)
+                    arg++;
+                else if ("([{".includes(string[fnStop]))
+                    brackets++;
+                else if (")]}".includes(string[fnStop]))
+                    brackets--;
+                if (brackets === 0)
+                    arg = -1;
+            }
+            if (m.index <= selectionStart && selectionStart < m.index + m[0].length)
+                hints.selectedFunction = fn;
+            else if (fnStart <= selectionStart && arg >= 0)
+                hints.currentFunctions.push([fn, arg]);
+        }
+        this.setState({content, hints}, () => {
+            target.selectionStart = selectionStart;
+            target.selectionEnd = selectionEnd;
+        });
+    }
+
+    generateHints(event) {
+        let {target} = event;
+		this.hints = {functions: [], currentFunctions: [], selectedFunction: "", errors: [], suggestedFunctions: []};
+
+		let {selectionStart} = target;
+        let string = target.value;
+
+        let x = selectionStart;
+        while (/\w/.test(string.substr(x-1, 1))) x--;
+        let y = selectionStart;
+        while (/\w/.test(string.substr(y, 1))) y++;
+        let f = string.substring(x, y);
+        if (f.length > 2)
+            for(let i in FUNCTIONS) if (FUNCTIONS.hasOwnProperty(i)) if (i.includes(f) && i !== f)
+                this.hints.suggestedFunctions.push(i);
+
+        let function_regex2 = new RegExp(function_regex, "g");
+        for (let m = function_regex2.exec(string); m !== null; m = function_regex2.exec(string)) {
+            let fn = m[0].slice(0, -1);
+            let fnStart = m.index + m[0].length;
+            let fnStop = m.index + m[0].length;
+            let arg = 0;
+            for (let brackets = 1; brackets > 0 && fnStop < selectionStart; fnStop++) {
+                if (brackets === 1 && string[fnStop] === "," && fnStop < selectionStart)
+                    arg++;
+                else if ("([{".includes(string[fnStop]))
+                    brackets++;
+                else if (")]}".includes(string[fnStop]))
+                    brackets--;
+                if (brackets === 0)
+                    arg = -1;
+            }
+            if (m.index <= selectionStart && selectionStart < m.index + m[0].length)
+                this.hints.selectedFunction = fn;
+            else if (fnStart <= selectionStart && arg >= 0)
+                this.hints.currentFunctions.push([fn, arg]);
+        }
+        this.setState({hints: this.hints});
+    }
+
+    getHints() {
+        let str = [];
+
+        let {hints} = this.state;
+        hints.functions = [];
+		for (let i = 0; i < hints.currentFunctions.length; i++) {
+			let fn = hints.currentFunctions[i];
+			let args = FUNCTIONS[fn[0]][3].split(",").map(x => x.trim());
+			// noinspection CheckTagEmptyBody
+			args[fn[1]] = <strong style={{color: '#399103'}}>{args[fn[1]]}</strong>;
+			str.push(
+			    <Fragment>
+                    {fn[0]}({args.map((x, y) => (
+                        <Fragment>
+                            {y === 0 ? null : ', '}{x}
+                        </Fragment>
+                    ))})
+			    </Fragment>
+            );
+			hints.functions = hints.functions.filter(x => x !== fn[0])
+		}
+
+		if (hints.selectedFunction !== "") {  // Adds a function to the list if the cursor was on the title
+			// noinspection CheckTagEmptyBody
+            str.push(
+                <Fragment>
+                    {hints.selectedFunction}
+                    (<span style={{color: '#399103'}}>{FUNCTIONS[hints.selectedFunction][3]}</span>)
+                </Fragment>
+            );
+		}
+
+		return (
+		    <Fragment>
+                {str.map((x, y) => (
+                    <Fragment key={y}>
+                        <br/>
+                        {x}
+                    </Fragment>
+                ))}
+                {hints.functions.map(x => (
+                    <Fragment>
+                        <br/>
+                        {x}({FUNCTIONS[x][3]})
+                    </Fragment>
+                ))}
+                <br/>
+                {hints.suggestedFunctions.join(', ')}
+            </Fragment>
+        );
     }
 }
 

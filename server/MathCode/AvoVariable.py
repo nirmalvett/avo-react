@@ -1,5 +1,5 @@
 from collections import Iterable
-from math import sqrt, pi, sin, cos, tan, asin, acos, atan, factorial
+from math import sqrt, pi, sin, cos, tan, asin, acos, atan, factorial, log
 from re import sub
 from typing import List, Any
 
@@ -464,6 +464,12 @@ class AvoVariable:
             return matrix([[s.cos(), s.sin()], [s.sin(), -s.cos()]], 0, explanation)
         return error(undefined, explanation)
 
+    def ln(self):
+        explanation = steps(r'\text{{ln}}\left( {0} \right)', 8, [self], [0])
+        if get_types(self) == NUMBER and self.mod == 0 and 0 < self.val:
+            return number(log(self.val), 0, explanation)
+        return error(undefined, explanation)
+
     #: Vector Operations
 
     def is_v(self):
@@ -756,7 +762,7 @@ class AvoVariable:
         return error(undefined, explanation)
 
     def is_orthogonal(self):
-        explanation = steps(r'\text{{isOrthogonal}}\left( {0} \right)', 8, [self], [0])
+        explanation = steps(r'\text{{isOsrthogonal}}\left( {0} \right)', 8, [self], [0])
         if self.type == BASIS:
             for i in range(self.cols):
                 for j in range(i + 1, self.cols):

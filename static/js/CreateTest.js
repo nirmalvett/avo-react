@@ -3,7 +3,7 @@ import Http from './Http';
 import { copy, getMathJax } from './Utilities';
 import { InlineDateTimePicker } from 'material-ui-pickers';
 import AnswerInput from './AVOAnswerInput/AnswerInput';
-import { Card, Grid, List, Paper, Collapse, ListItem, TextField, CardHeader, IconButton, ListItemText } from '@material-ui/core';
+import { Card, List, Paper, Collapse, ListItem, TextField, CardHeader, IconButton, ListItemText } from '@material-ui/core';
 import { Done, Lock, Delete, Folder, Refresh, LockOpen, FolderOpen } from '@material-ui/icons';
 
 
@@ -26,8 +26,8 @@ export default class CreateTest extends Component {
         let {sets, testQuestions, deadline} = this.state;
         let disableSubmit = testQuestions.length === 0 || deadline.length !== 16;
         return (
-            <Grid container spacing={8} style={{flex: 1, display: 'flex'}}>
-                <Grid item xs={3} style={{flex: 1, display: 'flex', paddingBottom: 0}}>
+            <div style={{display: 'flex', flexDirection: 'row', flex: 1}}>
+                <div style={{flex: 1, display: 'flex'}}>
                     <Paper square style={{width: '100%', flex: 1, display: 'flex'}}>
                         <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
                             {sets.map((set, setIndex) =>
@@ -51,9 +51,15 @@ export default class CreateTest extends Component {
                             )}
                         </List>
                     </Paper>
-                </Grid>
-                <Grid item xs={1}/>
-                <Grid item xs={7} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
+                </div>
+                <div style={{
+                    flex: 2,
+                    paddingLeft: '10%',
+                    paddingRight: '10%',
+                    paddingTop: '20px',
+                    paddingBottom: '20px',
+                    overflowY: 'auto'
+                }}>
                     {this.state.testQuestions.map((question, questionIndex) =>
                         <Card key={`Create-Test-Card-index:${questionIndex}-id:${question.id}-seed:${question.seed}`}
                               style={{marginTop: '5%', marginBottom: '5%', padding: '10px'}}>
@@ -111,9 +117,8 @@ export default class CreateTest extends Component {
                             onChange={this.handleDateChange.bind(this)}
                         />
                     </Card>
-                </Grid>
-                <Grid item xs={1}/>
-            </Grid>
+                </div>
+            </div>
         );
     }
 

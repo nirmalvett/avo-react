@@ -1,13 +1,9 @@
 import React, {Fragment} from 'react';
 import Card from '@material-ui/core/Card';
-import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
-import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import {getMathJax} from '../Utilities';
-import {buildMathCode} from './QuestionBuilderUtils';
 import AnswerInput from '../AVOAnswerInput/AnswerInput';
-import ArrowBack from '@material-ui/icons/ArrowBack';
 
 
 export function renderHints(currentlyEditing) {
@@ -19,9 +15,11 @@ export function renderHints(currentlyEditing) {
         </Typography>
     );
     if (currentlyEditing === 'mainPrompt') return (
-        <Typography>
-            Here is where you can enter the main prompt for your question. It will
-            appear before all the answer fields, and be the most heavily emphasized.
+        <Typography component='span'>
+            <p>
+                Here is where you can enter the main prompt for your question. It will
+                appear before all the answer fields, and be the most heavily emphasized.
+            </p>
             <ol>
                 <li>\(1+1\) is an inline equation. (ctrl+d to insert)</li>
                 <li>\[1+1\] is a block equation. (ctrl+e to insert)</li>
@@ -30,11 +28,13 @@ export function renderHints(currentlyEditing) {
         </Typography>
     );
     if (currentlyEditing.startsWith('prompt')) return (
-        <Typography>
-            Here is where you can customize the answer fields for your question.
-            Just choose an answer type, and then enter a prompt. For multiple choice
-            questions, put the prompt on the first line, and each consecutive answer
-            on its own line.
+        <Typography component='span'>
+            <p>
+                Here is where you can customize the answer fields for your question.
+                Just choose an answer type, and then enter a prompt. For multiple choice
+                questions, put the prompt on the first line, and each consecutive answer
+                on its own line.
+            </p>
             <ol>
                 <li>\(1+1\) is an inline equation. (ctrl+d to insert)</li>
                 <li>\[1+1\] is a block equation. (ctrl+e to insert)</li>
@@ -43,16 +43,19 @@ export function renderHints(currentlyEditing) {
         </Typography>
     );
     if (currentlyEditing === 'math') return (
-        <Typography>
-            Here, you can create all the variables you need to generate and mark your question.
-            The way it works is that each line is its own formula, and the question will
-            accumulate a list of variables that can be used anywhere.
+        <Typography component='span'>
+            <p>
+                Here, you can create all the variables you need to generate and mark your question.
+                The way it works is that each line is its own formula, and the question will
+                accumulate a list of variables that can be used anywhere.
+            </p>
             <ol>
                 <li>$1 is the result of the first expression.</li>
                 <li>@1 is the student's answer to the first part.</li>
             </ol>
-            See the documentation tab in the sidebar for the list of available
-            operators and functions.
+            <p>
+                See the documentation tab in the sidebar for the list of available operators and functions.
+            </p>
         </Typography>
     );
     if (currentlyEditing.startsWith('criteria')) return (
@@ -80,8 +83,8 @@ export function Preview(props) {
         varList.push([v, state.preview.variables[v]]);
 
     return (
-        <Grid container spacing={8} style={{flex: 1, margin: 0}}>
-            <Grid item xs={8} style={{flex: 1, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
+        <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
+            <div style={{flex: 8, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
                 <Card style={cardStyle}>
                     <Typography variant='title' style={{marginTop: 10, marginBottom: 10}}>Math</Typography>
                     {state.editorMath.map(x => x.comment === ''
@@ -108,8 +111,8 @@ export function Preview(props) {
                         </Fragment>
                     )}
                 </Card>
-            </Grid>
-            <Grid item xs={4} style={{flex: 1, display: 'flex', paddingBottom: 0, overflowY: 'auto'}}>
+            </div>
+            <div style={{flex: 4, display: 'flex', paddingBottom: 0, overflowY: 'auto'}}>
                 <Card style={{flex: 1, margin: '8%', padding: 20}}>
                     <Typography>
                         This is preview mode! It lets you see the contents of all the variables
@@ -119,7 +122,7 @@ export function Preview(props) {
                         are doing!
                     </Typography>
                 </Card>
-            </Grid>
-        </Grid>
+            </div>
+        </div>
     );
 }

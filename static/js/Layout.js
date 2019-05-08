@@ -6,25 +6,26 @@ import PostTest from './PostTest';
 import MarkEditor from './MarkEditor';
 import TakeTest from './TakeTest';
 import MyClasses from './MyClasses';
-import TimerComp from "./TimerComp";
+import Timer from "./TimerComp";
 import CreateTest from './CreateTest';
 import Preferences from './Preferences';
 import ManageClasses from './ManageClasses';
-import { avoGreen } from "./AVOCustomColors";
+import QuestionManager from "./QuestionManager";
 import QuestionBuilder from "./QuestionBuilder/QuestionBuilder";
 import QuestionBuilderDocs from "./QuestionBuilderDocs";
-import { MySnackbarContentWrapper } from "./AVOSnackBar";
 import AVOInClassTools from "./AVOInClassTools/AVOInClassTools";
 import AVOExplanations from "./AVOExplanations/AVOExplanations";
+import { avoGreen } from "./AVOCustomColors";
+import { MySnackbarContentWrapper } from "./AVOSnackBar";
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
 import {withStyles, List, AppBar, Drawer, Divider, Toolbar, IconButton,
     Typography, ListItem, ListItemText, ListSubheader, Snackbar } from '@material-ui/core';
 import { HomeOutlined, BuildOutlined, HelpOutline,
-    ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu, Timer } from "@material-ui/icons";
+    ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu } from "@material-ui/icons";
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
     deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors';
 import classNames from 'classnames';
-import QuestionManager from "./QuestionManager";
+import {copy} from "./Utilities";
 const drawerWidth = 240;
 const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
     amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
@@ -165,14 +166,14 @@ class Layout extends Component {
                     <Logo theme={theme} color={color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
                     <Divider/>
                     <div style={{overflowY: 'auto'}}>
-                        <List subheader={isTeacher ? <ListSubheader>Student & Teacher</ListSubheader> : undefined}>
+                        <List subheader={isTeacher ? <ListSubheader>Student Tools</ListSubheader> : undefined}>
                             {this.listItem(HomeOutlined, 'Home')}
                             {this.listItem(ClassOutlined, 'My Classes')}
                         </List>
                         {isTeacher  // if it is the teacher then we will the buttons that is allowed for teachers
                             ? <div>
                                 <Divider/>
-                                <List subheader={<ListSubheader>Teacher Only</ListSubheader>}>
+                                <List subheader={<ListSubheader>Teacher Tools</ListSubheader>}>
                                     {this.listItem(ClassOutlined, 'Manage Classes')}
                                     {this.listItem(BuildOutlined, 'My Questions')}
                                     {this.listItem(HelpOutline, 'Documentation')}
@@ -230,8 +231,8 @@ class Layout extends Component {
         // this helper returns the logic for what is loaded in the right side of the menu
         let {isTeacher, section, color, theme} = this.state;
         if (section === 'Home') return (<HomePage
-                showSnackBar = {this.showSnackBar.bind(this)}
-                isTeacher = {isTeacher}
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {isTeacher}
         />);
         if (section === 'My Classes') return (<MyClasses
             showSnackBar = {this.showSnackBar.bind(this)}
@@ -273,7 +274,7 @@ class Layout extends Component {
             showSnackBar = {this.showSnackBar.bind(this)}
             isTeacher = {isTeacher}
             getTimeRemaining = {(minutes, dueDate) => this.getTimeRemaining(minutes, dueDate)}
-            testID={this.state.test.id}
+            test={this.state.test}
             submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}
         />);
         if (section === 'Preferences') return (<Preferences
@@ -298,26 +299,14 @@ class Layout extends Component {
     }
 
     timerInTopBar(){
-       // the timer logic is found here
-      const { minutesRemainingUponResumingTest, section} = this.state;
-      return (
-          <React.Fragment>
-               {
-                    section === 'Take Test' &&  // if the current section is take test
-                    minutesRemainingUponResumingTest !== null // if the minutesRemaining value exists
-                        ?   <React.Fragment>
-                                <div style={{ 'position' : 'absolute', 'right' : '32px' }}><Timer/></div>
-                                <TimerComp
-                                    showSnackBar = {this.showSnackBar.bind(this)}
-                                    time={this.state.minutesRemainingUponResumingTest}
-                                    testDueDate = {this.state.testDueDate}
-                                    uponCompletionFunc={() => document.getElementById('avo-test__submit-button').click()} />
-                            </React.Fragment>
-                        : null
-                }
-          </React.Fragment>
-      )
-
+        if (this.state.section === 'Take Test') return (
+            <Timer
+                showSnackBar={this.showSnackBar.bind(this)}
+                deadline={this.state.test.time_submitted}
+                onCompletionFunc={() => document.getElementById('avo-test__submit-button').click()}
+            />
+        );
+        return null;
     }
 
     // ============================== Methods that perform some type of data manipulation =======================
@@ -331,10 +320,14 @@ class Layout extends Component {
     }
 
     startTest(test) {
-        this.setState({section: 'Take Test', test: test});
+        console.log(test);
+        Http.getTest(test.id, result => {
+			result.newAnswers = copy(result.answers);
+			this.setState({section: 'Take Test', test: result});
+		}, (result) => alert(result.error));
     }
 
-    getTimeRemaining(minutesRemainingUponResumingTest, testDueDate){
+    getTimeRemaining(minutesRemainingUponResumingTest, testDueDate) {
         // When we hit the getTest route we need to know the time remaining we also have test due date in case
         // it's an assignment because we would want to display that instead
         this.setState({
