@@ -55,11 +55,13 @@ export default class Timer extends Component {
         if (el !== null) {
             this.timeRemaining--;
             el.innerHTML = this.getTime();
-            setTimeout(this.update.bind(this), 1000);
-            if (this.timeRemaining === 60*5)
-                this.props.showSnackBar('info', '5 minutes left', 5000);
             if (this.timeRemaining === 0)
                 this.props.onCompletionFunc();
+            else {
+                if (this.timeRemaining === 60*5)
+                    this.props.showSnackBar('info', '5 minutes left', 5000);
+                setTimeout(this.update.bind(this), 1000);
+            }
         }
     };
 
