@@ -497,8 +497,8 @@ def parse_answer(i, answer, answer_type, prompt, question=None):
             ans = parse_expression(question, answer)
         elif answer_type == '4':  # Todo - Get rid of this garbage
             ans = number(len(answer))
-        elif answer_type == '5':  # Polynomial
-            raise NotImplementedError
+        elif answer_type == '5':  # Vector (alternate)
+            ans = matrix(map(lambda r: [build_number(r)], answer.split(',')))
         elif answer_type == '6':  # Vector
             ans = matrix(map(lambda r: [build_number(r)], answer.split(',')))
         elif answer_type == '7':  # Vector of linear expressions

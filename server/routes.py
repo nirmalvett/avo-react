@@ -115,8 +115,8 @@ def remove_account():
         return jsonify(error="No user found")
     if user is None:
         return jsonify(error="No user found")
-    class_list = Class.query.filter((Class.CLASS == enrolled.c.CLASS) &
-                                    (user.USER == enrolled.c.USER)).all()
+    class_list = Class.query.filter((Class.CLASS == Transaction.CLASS) &
+                                    (user.USER == Transaction.USER)).all()
     takes = Takes.query.filter(Takes.USER == user.USER).all()
     if user.is_teacher:
         teaches_list = Class.query.filter(Class.USER == user.USER).all()
@@ -127,7 +127,7 @@ def remove_account():
         db.session.delete(i)
     db.session.commit()
     for i in class_list:
-        user.CLASS_ENROLLED_RELATION.remove(i)
+        user.TRANSACTION_RELATION.remove(i)
     db.session.commit()
     db.session.delete(user)
     db.session.commit()
@@ -541,7 +541,7 @@ def enroll():
 def unenroll():
     """
     Unenroll student from class
-    :return: COnfirmation of the unenroll
+    :return: Confirmation of the unenroll
     """
     if not request.json:
         return abort(400)
@@ -1353,8 +1353,18 @@ def create_payment():
         return jsonify(error="No class found")
 
     if enrolled_in_class(current_class[0].CLASS):
-        # If user is already enrolled return error JSON
-        return jsonify(error="User Already In Class")
+        # If user is already enrolled check if those enrolled are still not expired
+        transaction_list = Transaction.query.filter((Transaction.USER == current_user.USER) &
+                                                    (Transaction.CLASS == current_class[0].CLASS)).all()  # List of all transactions of that class and user
+        time = datetime.now()
+        for i in range(len(transaction_list)):
+            # Check if all transactions have expired
+            if transaction_list[i].expiration is None:
+                # There is no experation
+                return jsonify(error="User Still has active payment")
+            if transaction_list[i].expiration > time:
+                # The timer is still valid
+                return jsonify(error="User Still has active payment")
 
     # Create Payment with PayPal
     payment = paypalrestsdk.Payment(
@@ -1436,7 +1446,7 @@ def confirm_payment():
         return jsonify(error="No Trans Id Found")
     time = datetime.now() + timedelta(weeks=32)  # Create expiration of enrolling
     transaction = Transaction(tid, current_user.USER,
-                              transaction_processing.CLASS, None)  # Create new transaction in table
+                              transaction_processing.CLASS, time)  # Create new transaction in table
     # commit changes to database
     db.session.add(transaction)
     db.session.delete(transaction_processing)
