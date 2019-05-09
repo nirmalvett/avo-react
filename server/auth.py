@@ -255,6 +255,11 @@ def teaches_class(class_id):
     if current_user.USER is current_class.USER:
         # If the current user teaches the class then return true if not return False
         return True
+    transaction = Transaction.query.filter((Transaction.CLASS == class_id) &
+                                           (Transaction.USER == current_user.USER)).all()
+    for i in range(len(transaction)):
+        if transaction[i].TRANSACTION.startswith('TEACHER-'):
+            return True
     return False
 
 
