@@ -1126,7 +1126,7 @@ def save_answer():
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
     takes_list = Takes.query.get(takes)  # Instance of takes to add answer to
-    if takes_list is None or takes_list.USER is not current_user.USER:
+    if takes_list is None or takes_list.USER != current_user.USER:
         # If takes instance cant be found or is not the same as current user return error JSON
         return jsonify(error='Invalid takes record')
     if takes_list.time_submitted < datetime.now():
