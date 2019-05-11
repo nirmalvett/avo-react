@@ -58,12 +58,14 @@ export default class HomePage extends Component {
                                         })
                                         return (
                                             <div key={uniqid()}>
-                                                <Typography variant='title' color='textPrimary'>{dd.class.name}</Typography>
+                                                <Typography variant='title' color='textPrimary'>{dd.class.name + ':'}</Typography>
+                                                <br />
                                                 {
-                                                    datesToShow.map((dueDate) => (
+                                                    datesToShow.length > 0 ? datesToShow.map((dueDate) => (
                                                         <Typography key={uniqid()} variant='subheading' color='textPrimary'>{dueDate.name + ' - ' + dueDate.dueDate}</Typography>
-                                                    ))
+                                                    )) : <Typography key={uniqid()} variant='subheading' color='textPrimary'>{'No due dates today'}</Typography>
                                                 }
+                                                <br />
                                             </div>
                                         )
 

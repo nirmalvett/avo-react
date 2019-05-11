@@ -142,29 +142,61 @@ def home():
         Route URL: /home
         Expects: Nothing
         Returns:
+        dueDate is the date string, class id's correspond to the classes in my classes
         {
-            dueDates: [
+            dueDates = [
                 {
-                    name: "1600 Set 1",
-                    id: 7,
-                    dueDate: String of the date,
-                    class: {   // The class id from which this is from
-                    name: "Math1600",
-                    id: 23
-                },
-                    ]
-            messages:
-                [
-                    {
-                        title: "Welcome to AVO",
-                        id: 19,
-                        body: Longer String body of the message,
-                        date: String date of the message posted
-                        class: {  // This is info about which class the message is from
-                            name: "AVO Team",
-                            id: 20
+                    "class": {
+                        "name": "Math1600",
+                        "id": 23
+                    },
+                    "dueDates": [
+                        {
+                            "name": "Set 1",
+                            "dueDate": now,
+                            "id": 7,
+                        },
+                        {
+                            "name": "Set 2",
+                            "dueDate": now - timedelta(days=5),
+                            "id": 8,
+                        },
+                        {
+                            "name": "Set 3",
+                            "dueDate": now - timedelta(days=10),
+                            "id": 9,
                         }
-                    }
+                    ]
+                }
+            ]
+            date is a date string, class id corresponds to classes in my classes 
+            messages = [
+                {
+                    "class": {
+                        "name": "Team AVO",
+                        "id": 23
+                    },
+                    "messages": [
+                        {
+                            "title": "Welcome to AVO3",
+                            "id": 49,
+                            "body": "Here is the main body of the message for the user",
+                            "date": now,
+                        },
+                        {
+                            "title": "Welcome to AVO2",
+                            "id": 22,
+                            "body": "Here is the main body of the message for the user",
+                            "date": now - timedelta(days=5),
+                        },
+                        {
+                            "title": "Welcome to AVO1",
+                            "id": 30,
+                            "body": "Here is the main body of the message for the user",
+                            "date": now - timedelta(days=10),
+                        }
+                    ]
+                }
             ]
         }
 
@@ -195,6 +227,29 @@ def home():
                     "id": 9,
                 }
             ]
+        },
+        {
+            "class": {
+                "name": "Math1229",
+                "id": 23
+            },
+            "dueDates": [
+                {
+                    "name": "Test 1",
+                    "dueDate": now,
+                    "id": 10,
+                },
+                {
+                    "name": "Test 2",
+                    "dueDate": now - timedelta(days=2),
+                    "id": 11,
+                },
+                {
+                    "name": "Test 3",
+                    "dueDate": now - timedelta(days=3),
+                    "id": 12,
+                }
+            ]
         }
     ]
     # get list of messages
@@ -222,6 +277,20 @@ def home():
                     "id": 30,
                     "body": "Here is the main body of the message for the user",
                     "date": now - timedelta(days=10),
+                }
+            ]
+        },
+        {
+            "class": {
+                "name": "Math1600",
+                "id": 23
+            },
+            "messages": [
+                {
+                    "title": "Remember to study!",
+                    "id": 49,
+                    "body": "There's a quiz on friday, study up!",
+                    "date": now,
                 }
             ]
         }
