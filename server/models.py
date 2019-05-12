@@ -29,7 +29,7 @@ class Class(db.Model):
         self.price_discount = price
         self.enroll_key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
         enroll_key_class = Class.query.filter(Class.enroll_key == self.enroll_key).all()
-        while len(enroll_key_class) is not 0:
+        while len(enroll_key_class) != 0:
             self.enroll_key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
             enroll_key_class = Class.query.filter(Class.enroll_key == self.enroll_key).all()
 
