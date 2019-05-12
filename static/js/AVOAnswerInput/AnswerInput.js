@@ -1,5 +1,5 @@
 import React, {Fragment} from 'react';
-import {getMathJax, validateMatrix, validateNumber, validateVector} from '../HelperFunctions/Utilities';
+import {getMathJax, validateMatrix, validateNumber, validateVector} from '../Utilities';
 import Radio from '@material-ui/core/Radio/Radio';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';

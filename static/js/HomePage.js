@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Typography } from '@material-ui/core';
-import { isChrome } from "../HelperFunctions/helpers";
+import { isChrome } from "./helpers";
 
 
 export default class HomePage extends Component {

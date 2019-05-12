@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
-import Http from '../HelperFunctions/Http';
-import {copy, getDateString} from "../HelperFunctions/Utilities";
-import {convertListFloatToAnalytics} from "../HelperFunctions/helpers";
+import Http from './Http';
+import {copy, getDateString} from "./Utilities";
+import {convertListFloatToAnalytics} from "./helpers";
 import Tab from '@material-ui/core/Tab';
 import Card from '@material-ui/core/Card';
 import Tabs from '@material-ui/core/Tabs';
@@ -32,8 +32,8 @@ import AssessmentOutlinedIcon from '@material-ui/icons/AssessmentOutlined';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import Chart from "react-apexcharts";
 import paypal from 'paypal-checkout';
-import AVOModal from '../SharedComponents/MaterialModal';
-import paypal_mode from 'js-yaml-loader!../../../config.yaml';
+import AVOModal from './AVOMatComps/AVOMatModal';
+import paypal_mode from 'js-yaml-loader!./../../config.yaml';
 
 
 const CONST_TAB_OVERALL_ANALYTICS = 0;

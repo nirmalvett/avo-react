@@ -7,13 +7,13 @@ import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/es/TextField/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-import Http from '../HelperFunctions/Http';
-import {copy, getMathJax} from '../HelperFunctions/Utilities';
+import Http from '../Http';
+import {copy, getMathJax} from '../Utilities';
 import {
     buildMathCode, buildPlainText, compile, extractReferences, formatString,
     formatStringForEditing, init, initOld, validateString, function_regex, FUNCTIONS
 } from './QuestionBuilderUtils';
-import AnswerInput from '../AnswerInput/AnswerInput';
+import AnswerInput from '../AVOAnswerInput/AnswerInput';
 import Done from '@material-ui/icons/Done';
 import Edit from '@material-ui/icons/Edit';
 import Save from '@material-ui/icons/Save';

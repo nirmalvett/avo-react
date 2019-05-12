@@ -1,9 +1,9 @@
 import React from 'react';
 import TextField from "@material-ui/core/TextField/TextField";
 import Button from '@material-ui/core/Button';
-import { getMathJax, validateMatrix, validateNumber, validateVector } from '../HelperFunctions/Utilities';
+import { getMathJax, validateMatrix, validateNumber, validateVector } from '../Utilities';
 import Grid from '@material-ui/core/Grid/Grid';
-import { copy } from "../HelperFunctions/Utilities";
+import { copy } from "../Utilities";
 import {
 	CONST_CREATE_OBJECT, CONST_INPUT_PHASE, CONST_SHOW_OBJECT, CONST_SELECT_DIMENSION,
 	CONST_VECTOR_LINEAR_EXPRESSION, CONST_BASIS, CONST_BOOLEAN, CONST_LINEAR_EXPRESSION, CONST_MANUAL_INPUT,
@@ -16,7 +16,7 @@ import {
 } from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar';
 import Slide from '@material-ui/core/Slide';
-import { objectSize } from "../HelperFunctions/helpers";
+import { objectSize } from "../helpers";
 import Typography from '@material-ui/core/Typography/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 

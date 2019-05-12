@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import Http from '../HelperFunctions/Http';
-import { copy, getMathJax } from '../HelperFunctions/Utilities';
+import Http from './Http';
+import { copy, getMathJax } from './Utilities';
 import { InlineDateTimePicker } from 'material-ui-pickers';
-import AnswerInput from '../AnswerInput/AnswerInput';
+import AnswerInput from './AVOAnswerInput/AnswerInput';
 import { Card, List, Paper, Collapse, ListItem, TextField, CardHeader, IconButton, ListItemText } from '@material-ui/core';
 import { Done, Lock, Delete, Folder, Refresh, LockOpen, FolderOpen } from '@material-ui/icons';
 
