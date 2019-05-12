@@ -192,7 +192,15 @@ def get_classes():
         }
 
     for t in users_tests:
+        if t.is_open is False and t.open_time < now:
+            # Of the test is not open and the current time is greater then open time check if deadline has passed
+            if t.deadline > now:
+                # If the deadline has not passed set the test to open
+                test_update = Test.query.get(t.test)
+                test_update.is_open = True
+                db.session.commit()
         if t.is_open and t.deadline < now:
+            # If the test is open and the deadline has passed close the test
             test_update = Test.query.get(t.TEST)
             test_update.is_open = False
             db.session.commit()
@@ -271,7 +279,8 @@ def test_stats():
     # If the user doesnt teach the class then return error JSON
     if not teaches_class(test.CLASS) and not enrolled_in_class(test.CLASS):
         return jsonify(error="User doesn't teach this class or the user is not enrolled in the class")
-    students = User.query.filter((User.USER == Transaction.USER) & (test.CLASS == Transaction.CLASS)).all()  # All students in the class
+    students = User.query.filter(
+        (User.USER == Transaction.USER) & (test.CLASS == Transaction.CLASS)).all()  # All students in the class
     current_class = Class.query.get(test.CLASS)
     test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
@@ -308,7 +317,8 @@ def test_stats():
                     'topMarksPerStudent': []
                 }
             )
-        return jsonify(numberStudents=0, testMean=0, testMedian=0, testSTDEV=0, questions=test_question_marks, topMarkPerStudent=[],
+        return jsonify(numberStudents=0, testMean=0, testMedian=0, testSTDEV=0, questions=test_question_marks,
+                       topMarkPerStudent=[],
                        totalMark=[])
 
     for i in range(len(question_marks[0])):
@@ -375,7 +385,8 @@ def get_sets():
     Get the list of Sets available to the user
     :return: The list of sets
     """
-    list_of_sets = Set.query.filter((Set.SET == UserViewsSet.SET) & (UserViewsSet.USER == current_user.USER)).all()  # Get list of avalible sets for current user
+    list_of_sets = Set.query.filter((Set.SET == UserViewsSet.SET) & (
+                UserViewsSet.USER == current_user.USER)).all()  # Get list of avalible sets for current user
     set_list = []  # List of sets to send back to the user
     for s in list_of_sets:
         # For each set append the data
@@ -470,7 +481,8 @@ def delete_set():
         # If data isn't correct return error JSON
         return jsonify(error="One or more data is not correct")
     try:
-        user_views_set = UserViewsSet.query.filter((UserViewsSet.SET == ID) & (UserViewsSet.USER == current_user.USER)).first()  # user_views_set to delete
+        user_views_set = UserViewsSet.query.filter(
+            (UserViewsSet.SET == ID) & (UserViewsSet.USER == current_user.USER)).first()  # user_views_set to delete
     except NoResultFound:
         return jsonify(code="Updated")
     # Add change to database
@@ -513,7 +525,8 @@ def enroll():
             db.session.commit()
         return jsonify(message='Enrolled')
     transaction = Transaction.query.filter((Transaction.USER == current_user.USER) &
-                                           (Transaction.CLASS == current_class.CLASS)).all()  # Checks if the user has a free trial
+                                           (
+                                                       Transaction.CLASS == current_class.CLASS)).all()  # Checks if the user has a free trial
     free_trial = True
     for i in range(len(transaction)):
         # For each transaction see if it starts with a free trial string
@@ -670,13 +683,15 @@ def close_test():
     if not isinstance(test, int):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
-    current_test = Test.query.get(test) # Get the test
+    current_test = Test.query.get(test)  # Get the test
     if current_test is None:
         # If test doesn't exist then return error JSON if not close test and return
         return jsonify(error='No test found')
     if teaches_class(current_test.CLASS):
         # If the user teaches the class the test is in close it
         current_test.is_open = False
+        if current_test.open_time is not None:
+            current_test.open_time = None
         db.session.commit()
         return jsonify(message='Closed!')
     else:
@@ -918,7 +933,7 @@ def sample_question():
         var_list = {}
         if isinstance(q.var_list, list):
             for i in range(len(q.var_list)):
-                var_list['$' + str(i+1)] = repr(q.var_list[i])
+                var_list['$' + str(i + 1)] = repr(q.var_list[i])
         else:
             for k in q.var_list:
                 var_list[k] = repr(q.var_list[k])
@@ -952,7 +967,8 @@ def get_test():
         if test.deadline < datetime.now():
             # If deadline has passed return error JSON
             return jsonify(error='The deadline has passed for this test')
-        takes = Takes.query.filter((Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (Takes.time_submitted > datetime.now())).first()  # Get the most current takes
+        takes = Takes.query.filter((Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (
+                    Takes.time_submitted > datetime.now())).first()  # Get the most current takes
         if takes is None:
             # If student has not taken the test create a takes instance
             takes = create_takes(test_id, current_user.get_id())
@@ -962,7 +978,7 @@ def get_test():
         questions = []  # Questions in test
         question_ids = eval(test.question_list)  # IDs of questions in test
         seeds = eval(takes.seeds)  # Seeds of questions in test if -1 gen random seed
-        questions_in_test = Question.query.filter(Question.QUESTION.in_(question_ids)).all()   # All questions in test
+        questions_in_test = Question.query.filter(Question.QUESTION.in_(question_ids)).all()  # All questions in test
         for i in range(len(question_ids)):
             # For each question id get the question data and add to question list
             current_question = next((x for x in questions_in_test if x.QUESTION == question_ids[i]), None)
@@ -970,7 +986,7 @@ def get_test():
             questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
         return jsonify(
             takes=takes.TAKES,
-            time_submitted=int(takes.time_submitted.timestamp()*1000),
+            time_submitted=int(takes.time_submitted.timestamp() * 1000),
             answers=eval(takes.answers),
             questions=questions
         )
@@ -1000,12 +1016,14 @@ def create_takes(test, user):
     if x is None:
         # If test not found return
         return
-    takes = Takes.query.filter((Takes.TEST == test) & (Takes.USER == user)).all()  # Get all instances of takes by that user from that test
+    takes = Takes.query.filter(
+        (Takes.TEST == test) & (Takes.USER == user)).all()  # Get all instances of takes by that user from that test
     if x.attempts != -1 and len(takes) >= x.attempts:
         # If the user has taken more attempts then allowed return
         return
     test_question_list = eval(x.question_list)  # Question list of test
-    seeds = list(map(lambda seed: randint(0, 65535) if seed == -1 else seed, eval(x.seed_list)))  # Generates seeds of test
+    seeds = list(
+        map(lambda seed: randint(0, 65535) if seed == -1 else seed, eval(x.seed_list)))  # Generates seeds of test
     answer_list = []  # Answers of takes instance
     marks_list = []  # Marks of takes instance
     questions_in_test = Question.query.filter(Question.QUESTION.in_(test_question_list)).all()  # Questions in test
@@ -1041,12 +1059,13 @@ def save_test():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
-    class_id, name, deadline, timer, attempts, question_list, seed_list = \
-        data['classID'], data['name'], data['deadline'], data['timer'], data['attempts'], data['questionList'],\
-        data['seedList']  # Data from the client
-    if not isinstance(class_id, int) or not isinstance(name, str) or not isinstance(deadline, str) or not \
-            isinstance(timer, str) or not isinstance(attempts, str) or not isinstance(question_list, list) or not \
-            isinstance(seed_list, list):
+    class_id, name, deadline, timer, attempts, question_list, seed_list, open_time = \
+        data['classID'], data['name'], data['deadline'], data['timer'], data['attempts'], data['questionList'], \
+        data['seedList'], data['open_time']  # Data from the client
+    if not isinstance(class_id, int) or not isinstance(name, str) or not \
+            (isinstance(open_time, str) or open_time is None) or not isinstance(deadline, str) \
+            or not isinstance(timer, str) or not isinstance(attempts, str) or not isinstance(question_list, list) \
+            or not isinstance(seed_list, list):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
     if not teaches_class(class_id):
@@ -1055,16 +1074,26 @@ def save_test():
         return jsonify(error="Can't Submit A Test WIth Zero Questions")
     deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
+    if open_time is not None:
+        # If there is an open time format it and compare to deadline
+        open_time = open_time[0:4] + "-" + open_time[4:6] + "-" + open_time[6:8] + ' ' + \
+                    open_time[8:10] + ':' + open_time[10:]  # Open time of the quiz
+        open_time = datetime.strptime(str(open_time), '%Y-%m-%d %H:%M')
+        if open_time >= deadline:
+            # If the open time is after the deadline return error JSON
+            return jsonify(error="time to open is past the deadline")
     total = 0  # Total the test is out of
     questions = Question.query.filter(Question.QUESTION.in_(question_list)).all()  # All question in test
     for i in range(len(question_list)):
         # For each question calculate the mark and add to the total
-        current_question = next((x for x in questions if x.QUESTION == question_list[i]), None)  # Get the current question from the database
+        current_question = next((x for x in questions if x.QUESTION == question_list[i]),
+                                None)  # Get the current question from the database
         if current_question is None:
             return jsonify(error="Question Not Found PLease Try Again")
         total += current_question.total
     # Add the test to the database
-    test = Test(class_id, name, False, deadline, int(timer), int(attempts), str(question_list), str(seed_list), total)
+    test = Test(class_id, name, False, open_time, deadline, int(timer), int(attempts), str(question_list),
+                str(seed_list), total)
     db.session.add(test)
     db.session.commit()
     return jsonify(test=test.TEST)
@@ -1083,7 +1112,8 @@ def change_test():
         # If the request isn't JSON return a 400 error
         return abort(400)
     data = request.json  # Data from client
-    test, timer, name, deadline, attempts = data['test'], data['timer'], data['name'], data['deadline'], data['attempts']
+    test, timer, name, deadline, attempts, open_time = data['test'], data['timer'], data['name'], data['deadline'], \
+                                                       data['attempts'], data['open_time']
     if not isinstance(test, int):
         return jsonify(error="Invalid Input: Test needs to be an int, Test is " + str(type(test)))
     if not isinstance(timer, int):
@@ -1094,6 +1124,8 @@ def change_test():
         return jsonify(error="Invalid Input: Deadline needs to be a str, Deadline is type: " + str(type(deadline)))
     if not isinstance(attempts, int):
         return jsonify(error="Invalid Input: Attempts needs to be an int, " + str(type(attempts)))
+    if not isinstance(open_time, str):
+        return jsonify(error="Invalid Input: Open_Time needs to be an str " + str(type(open_time)))
     deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
     test = Test.query.get(test)  # Gets the test object
@@ -1242,7 +1274,8 @@ def get_class_test_results():
     current_test = Test.query.get(test)
     if not teaches_class(current_test.CLASS):
         return jsonify(error="User doesn't teach class")
-    users = User.query.filter((User.USER == Transaction.USER) & (current_test.CLASS == Transaction.CLASS)).all()  # All users in class
+    users = User.query.filter(
+        (User.USER == Transaction.USER) & (current_test.CLASS == Transaction.CLASS)).all()  # All users in class
     for i in range(len(users)):
         # For each user get user data and best takes instance and present append to list then return
         first_name, last_name = users[i].first_name, users[i].last_name
@@ -1357,7 +1390,8 @@ def create_payment():
     if enrolled_in_class(current_class[0].CLASS):
         # If user is already enrolled check if those enrolled are still not expired
         transaction_list = Transaction.query.filter((Transaction.USER == current_user.USER) &
-                                                    (Transaction.CLASS == current_class[0].CLASS)).all()  # List of all transactions of that class and user
+                                                    (Transaction.CLASS == current_class[
+                                                        0].CLASS)).all()  # List of all transactions of that class and user
         time = datetime.now()  # Current time
         for i in range(len(transaction_list)):
             # Check if all transactions have expired

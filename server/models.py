@@ -155,6 +155,7 @@ class Test(db.Model):
     CLASS = db.Column(db.Integer, db.ForeignKey('CLASS.CLASS'), nullable=True)
     name = db.Column(db.String(45), nullable=False)
     is_open = db.Column(db.Boolean, nullable=False, default=False)
+    open_time = db.Column(db.DateTime, nullable=True)
     deadline = db.Column(db.DateTime, nullable=False)
     timer = db.Column(db.Integer, nullable=False, default=15)
     attempts = db.Column(db.Integer, nullable=False, default=1)
@@ -165,10 +166,11 @@ class Test(db.Model):
     TAKES_RELATION = db.relationship("Takes", back_populates="TEST_RELATION")
     CLASS_RELATION = db.relationship("Class", back_populates="TEST_RELATION")
 
-    def __init__(self, CLASS, name, is_open, deadline, timer, attempts, question_list, seed_list, total):
+    def __init__(self, CLASS, name, is_open, open_time, deadline, timer, attempts, question_list, seed_list, total):
         self.CLASS = CLASS
         self.name = name
         self.is_open = is_open
+        self.open_time = open_time
         self.deadline = deadline
         self.timer = timer
         self.attempts = attempts
