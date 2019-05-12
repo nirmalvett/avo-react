@@ -8,7 +8,7 @@ import { Button, Dialog, DialogTitle, DialogActions, DialogContent, DialogConten
 // onConfirmFunction: this is called when confirm is clicked
 // checkCondition: if function returns true then dialogue box appears otherwise an alert is raised*/
 
-export default class ScrollablePopup extends Component {
+export default class AVOScrollablePopup extends Component {
 
     constructor(props){
         super(props);

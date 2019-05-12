@@ -9,11 +9,11 @@ import {
     DeleteOutlined, GetAppOutlined, PeopleOutlined, NoteAddOutlined, AssignmentLate, AssignmentTurnedIn,
     AssessmentOutlined
 } from '@material-ui/icons';
-import Http from '../HelperFunctions/Http';
-import {copy, getDateString} from '../HelperFunctions/Utilities';
-import AVOModal from '../SharedComponents/MaterialModal';
+import Http from './Http';
+import {copy, getDateString} from './Utilities';
+import AVOModal from './AVOMatComps/AVOMatModal';
 import Chart from 'react-apexcharts';
-import {convertListFloatToAnalytics} from '../HelperFunctions/helpers';
+import {convertListFloatToAnalytics} from './helpers';
 import {InlineDateTimePicker} from "material-ui-pickers";
 
 const cardStyle = {marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};

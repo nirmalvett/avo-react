@@ -1,12 +1,12 @@
 import React from 'react';
 import Card from "@material-ui/core/Card/Card";
 import CardHeader from "@material-ui/core/CardHeader/CardHeader";
-import {copy, getMathJax} from "../HelperFunctions/Utilities";
+import {copy, getMathJax} from "./Utilities";
 import Divider from "@material-ui/core/Divider/Divider";
-import AnswerInput from "../AnswerInput/AnswerInput";
+import AnswerInput from "./AVOAnswerInput/AnswerInput";
 import Typography from "@material-ui/core/Typography/Typography";
 import IconButton from '@material-ui/core/IconButton/IconButton';
-import {uniqueKey} from "../HelperFunctions/helpers";
+import {uniqueKey} from "./helpers";
 import Tooltip from '@material-ui/core/Tooltip';
 import Check from '@material-ui/icons/Check';
 import Close from '@material-ui/icons/Close';

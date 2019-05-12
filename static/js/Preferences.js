@@ -1,5 +1,5 @@
 import React from 'react';
-import Http from '../HelperFunctions/Http';
+import Http from './Http';
 import Radio from '@material-ui/core/Radio/Radio';
 import Avatar from '@material-ui/core/Avatar/Avatar';
 import RadioGroup from '@material-ui/core/RadioGroup/RadioGroup';

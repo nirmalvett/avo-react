@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import Http from '../HelperFunctions/Http';
-import {copy, getMathJax} from '../HelperFunctions/Utilities';
-import AnswerInput from '../AnswerInput/AnswerInput';
+import Http from './Http';
+import {copy, getMathJax} from './Utilities';
+import AnswerInput from './AVOAnswerInput/AnswerInput';
 import Card from '@material-ui/core/Card/Card';
 import Button from '@material-ui/core/Button/Button';
 import Tooltip from '@material-ui/core/Tooltip/Tooltip';
