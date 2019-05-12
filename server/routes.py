@@ -278,10 +278,10 @@ def test_stats():
 
     for s in range(len(students)):
         # For each student get best takes and add to test_marks array
-        if students[s].USER is not current_class.USER:
+        if students[s].USER != current_class.USER:
             takes = Takes.query.order_by(Takes.grade).filter(
                 (Takes.TEST == test.TEST) & (Takes.USER == students[s].USER)).all()  # Get current students takes
-            if len(takes) is not 0:
+            if len(takes) != 0:
                 # If the student has taken the test get best takes and add to the array of marks
                 takes = takes[len(takes) - 1]  # Get best takes instance
                 test_marks_total.append(takes.grade)
@@ -290,7 +290,7 @@ def test_stats():
     del students
     question_total_marks = []  # Each students mark per question
 
-    if len(question_marks) is 0:
+    if len(question_marks) == 0:
         # If none has taken the test return default values
         test_questions = eval(test.question_list)  # List of questions in test
         test_question_marks = []
@@ -354,7 +354,7 @@ def test_stats():
             current_question['questionSTDEV'] = 0
         question_analytics.append(current_question)
     test_mean, test_median, test_stdev = 0, 0, 0  # Overall test analytics
-    if len(test_marks_total) is not 0:
+    if len(test_marks_total) != 0:
         test_mean = statistics.mean(test_marks_total)
         test_median = statistics.median(test_marks_total)
         if len(test_marks_total) > 1:
@@ -554,12 +554,12 @@ def unenroll():
     user = User.query.get(user_id)
     current_class = Class.query.filter((Class.CLASS == Transaction.CLASS) &
                                        (user_id == Transaction.USER)).all()
-    if user is None or len(current_class) is 0:
+    if user is None or len(current_class) == 0:
         # If there is no user found return error JSON
         return jsonify("No User Found")
     for i in range(len(current_class)):
         # For each class check if it is the correct class
-        if current_class[i].CLASS is class_id:
+        if current_class[i].CLASS == class_id:
             user.CLASS_ENROLLED_RELATION.remove(current_class[i])
             db.session.commit()
             return jsonify(code="User was removed")
@@ -749,7 +749,8 @@ def new_question():
         return abort(400)
     data = request.json
     set_id, name, string, answers, total = data['set'], data['name'], data['string'], data['answers'], data['total']
-    if not isinstance(set_id, int) or not isinstance(name, str) or not isinstance(string, str) or not isinstance(answers, int) or not isinstance(total, int):
+    if not isinstance(set_id, int) or not isinstance(name, str) \
+            or not isinstance(string, str) or not isinstance(answers, int) or not isinstance(total, int):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
     if not able_edit_set(set_id):
@@ -806,7 +807,8 @@ def edit_question():
         return abort(400)
     data = request.json  # Data from client
     question_id, string, answers, total = data['id'], data['string'], data['answers'], data['total']
-    if not isinstance(question_id, int) or not isinstance(string, str) or not isinstance(answers, int) or not isinstance(total, int):
+    if not isinstance(question_id, int) or not isinstance(string, str) \
+            or not isinstance(answers, int) or not isinstance(total, int):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
     question = Question.query.get(question_id)
@@ -1049,7 +1051,7 @@ def save_test():
         return jsonify(error="One or more data is not correct")
     if not teaches_class(class_id):
         return jsonify(error="User doesn't teach this class")
-    if len(question_list) is 0:
+    if len(question_list) == 0:
         return jsonify(error="Can't Submit A Test WIth Zero Questions")
     deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
@@ -1126,7 +1128,7 @@ def save_answer():
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
     takes_list = Takes.query.get(takes)  # Instance of takes to add answer to
-    if takes_list is None or takes_list.USER is not current_user.USER:
+    if takes_list is None or takes_list.USER == current_user.USER:
         # If takes instance cant be found or is not the same as current user return error JSON
         return jsonify(error='Invalid takes record')
     if takes_list.time_submitted < datetime.now():
@@ -1245,7 +1247,7 @@ def get_class_test_results():
         # For each user get user data and best takes instance and present append to list then return
         first_name, last_name = users[i].first_name, users[i].last_name
         takes = Takes.query.filter((Takes.USER == users[i].USER) & (Takes.TEST == test)).order_by(Takes.grade).all()
-        if len(takes) is 0:
+        if len(takes) == 0:
             # If the student hasn't taken the test then return default values else return the marks
             users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
                         'tests': []}
@@ -1291,7 +1293,7 @@ def csv_class_marks(classid):
             mark = Takes.query.filter((Takes.TEST == test_array[j].TEST) & (student_array[i].USER == Takes.USER)).all()
             # Get the best mark if they havn't taken the test add a value as such
             top_mark = 0  # The top mark got on the test
-            if len(mark) is not 0:
+            if len(mark) == 0:
                 for k in range(len(mark)):
                     # For each mark compare the grade and if its greater add it to the string
                     if mark[k].grade >= top_mark:
@@ -1348,7 +1350,7 @@ def create_payment():
 
     current_class = Class.query.filter(class_id == Class.CLASS).all()  # Get class
 
-    if len(current_class) is 0:
+    if len(current_class) == 0:
         # If class is not found return error JSON
         return jsonify(error="No class found")
 

@@ -41,7 +41,8 @@ def register():
         return abort(400)
     data = request.json # Data sent from client
     first_name, last_name, email, password = data['first_name'], data['last_name'], data['email'], data['password']
-    if not isinstance(first_name, str) or not isinstance(last_name, str) or not isinstance(email, str) or not isinstance(password, str):
+    if not isinstance(first_name, str) or not isinstance(last_name, str) or not \
+            isinstance(email, str) or not isinstance(password, str):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify("One or more data is not correct")
     if not fullmatch(r'[a-zA-Z]{2,}\d*@uwo\.ca+', email):
@@ -52,7 +53,7 @@ def register():
         return jsonify(error='Password too short')
 
     user = User.query.filter(User.email == email).all() # Creates a user object based off of the email entered
-    if len(user) is not 0:
+    if len(user) != 0:
         # If no user is found then return error JSON
         return jsonify(error='User already exists')
 
@@ -252,7 +253,7 @@ def teaches_class(class_id):
     current_class = Class.query.get(class_id)  # Gets the class from the class ID
     if current_class is None:
         return False
-    if current_user.USER is current_class.USER:
+    if current_user.USER == current_class.USER:
         # If the current user teaches the class then return true if not return False
         return True
     transaction = Transaction.query.filter((Transaction.CLASS == class_id) &
@@ -273,10 +274,10 @@ def enrolled_in_class(class_id):
         # Get all classes user is enrolled in
         current_class = Class.query.filter((Class.CLASS == Transaction.CLASS) &
                                            (current_user.USER == Transaction.USER)).all()
-        if len(current_class) is 0:
+        if len(current_class) == 0:
             return False
         for i in range(len(current_class)):
-            if current_class[i].CLASS is class_id:
+            if current_class[i].CLASS == class_id:
                 return True
         return False
     except NoResultFound:
