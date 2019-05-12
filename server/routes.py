@@ -1356,7 +1356,7 @@ def create_payment():
         # If user is already enrolled check if those enrolled are still not expired
         transaction_list = Transaction.query.filter((Transaction.USER == current_user.USER) &
                                                     (Transaction.CLASS == current_class[0].CLASS)).all()  # List of all transactions of that class and user
-        time = datetime.now()
+        time = datetime.now()  # Current time
         for i in range(len(transaction_list)):
             # Check if all transactions have expired
             if transaction_list[i].expiration is None:
