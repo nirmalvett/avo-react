@@ -1,22 +1,22 @@
 import React, {Component, Fragment} from 'react';
-import Http from './Http';
-import Logo from './Logo';
-import HomePage from './HomePage';
-import PostTest from './PostTest';
-import MarkEditor from './MarkEditor';
-import TakeTest from './TakeTest';
-import MyClasses from './MyClasses';
-import Timer from "./TimerComp";
-import CreateTest from './CreateTest';
-import Preferences from './Preferences';
-import ManageClasses from './ManageClasses';
-import QuestionManager from "./QuestionManager";
-import QuestionBuilder from "./QuestionBuilder/QuestionBuilder";
-import QuestionBuilderDocs from "./QuestionBuilderDocs";
-import AVOInClassTools from "./AVOInClassTools/AVOInClassTools";
-import AVOExplanations from "./AVOExplanations/AVOExplanations";
-import { avoGreen } from "./AVOCustomColors";
-import { MySnackbarContentWrapper } from "./AVOSnackBar";
+import Http from '../HelperFunctions/Http';
+import Logo from '../SharedComponents/Logo';
+import HomePage from '../Home/HomePage';
+import PostTest from '../SharedComponents/PostTest';
+import MarkEditor from '../ManageClasses/MarkEditor';
+import TakeTest from '../MyClasses/TakeTest';
+import MyClasses from '../MyClasses/MyClasses';
+import Timer from "../MyClasses/TimerComp";
+import CreateTest from '../ManageClasses/CreateTest';
+import Preferences from '../Preferences/Preferences';
+import ManageClasses from '../ManageClasses/ManageClasses';
+import QuestionManager from "../CourseBuilder/QuestionBuilder/QuestionManager";
+import QuestionBuilder from "../QuestionBuilder/QuestionBuilder";
+import QuestionBuilderDocs from "../CourseBuilder/QuestionBuilder/QuestionBuilderDocs";
+import AVOInClassTools from "../MISC/AVOInClassTools/AVOInClassTools";
+import AVOExplanations from "../MISC/AVOExplanations/AVOExplanations";
+import { avoGreen } from "../SharedComponents/AVOCustomColors";
+import { MySnackbarContentWrapper } from "../SharedComponents/AVOSnackBar";
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
 import {withStyles, List, AppBar, Drawer, Divider, Toolbar, IconButton,
     Typography, ListItem, ListItemText, ListSubheader, Snackbar } from '@material-ui/core';
@@ -25,7 +25,7 @@ import { HomeOutlined, BuildOutlined, HelpOutline,
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
     deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors';
 import classNames from 'classnames';
-import {copy} from "./Utilities";
+import {copy} from "../HelperFunctions/Utilities";
 const drawerWidth = 240;
 const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
     amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
