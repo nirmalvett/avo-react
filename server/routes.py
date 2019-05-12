@@ -1128,7 +1128,7 @@ def save_answer():
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
     takes_list = Takes.query.get(takes)  # Instance of takes to add answer to
-    if takes_list is None or takes_list.USER == current_user.USER:
+    if takes_list is None or takes_list.USER != current_user.USER:
         # If takes instance cant be found or is not the same as current user return error JSON
         return jsonify(error='Invalid takes record')
     if takes_list.time_submitted < datetime.now():
@@ -1293,7 +1293,7 @@ def csv_class_marks(classid):
             mark = Takes.query.filter((Takes.TEST == test_array[j].TEST) & (student_array[i].USER == Takes.USER)).all()
             # Get the best mark if they havn't taken the test add a value as such
             top_mark = 0  # The top mark got on the test
-            if len(mark) == 0:
+            if len(mark) != 0:
                 for k in range(len(mark)):
                     # For each mark compare the grade and if its greater add it to the string
                     if mark[k].grade >= top_mark:
