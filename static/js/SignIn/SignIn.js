@@ -1,13 +1,13 @@
 import React, {Component, Fragment} from 'react';
-import Http from './Http';
+import Http from '../HelperFunctions/Http';
 import Card from '@material-ui/core/Card/Card';
 import Button from '@material-ui/core/Button/Button';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
 import Checkbox from '@material-ui/core/Checkbox';
 import Slide from '@material-ui/core/Slide';
-import Logo from "./Logo"
-import AVOModal from './AVOMatComps/AVOMatModal';
+import Logo from "../SharedComponents/Logo"
+import AVOModal from '../SharedComponents/MaterialModal';
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
 import {createMuiTheme} from "@material-ui/core";
 

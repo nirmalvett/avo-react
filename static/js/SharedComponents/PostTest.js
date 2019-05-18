@@ -1,12 +1,12 @@
 import React from 'react';
-import Http from './Http';
+import Http from '../HelperFunctions/Http';
 import Card from "@material-ui/core/Card/Card";
 import CardHeader from "@material-ui/core/CardHeader/CardHeader";
-import {getMathJax} from "./Utilities";
+import {getMathJax} from "../HelperFunctions/Utilities";
 import Divider from "@material-ui/core/Divider/Divider";
-import AnswerInput from "./AVOAnswerInput/AnswerInput";
+import AnswerInput from "../AnswerInput/AnswerInput";
 import Typography from "@material-ui/core/Typography/Typography";
-import {uniqueKey} from "./helpers";
+import {uniqueKey} from "../HelperFunctions/helpers";
 
 export default class PostTest extends React.Component {
     constructor(props) {
