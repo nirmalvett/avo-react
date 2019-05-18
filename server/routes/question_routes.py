@@ -1,11 +1,11 @@
-from flask import Blueprint, jsonify, request
-from flask_login import login_required
+from flask import Blueprint, jsonify, request, abort
+from flask_login import current_user
 from sqlalchemy.orm.exc import NoResultFound
 from server.MathCode.question import AvoQuestion
 
-from server.decorators import *
+from server.decorators import login_required, teacher_only, admin_only
 from server.auth import able_edit_set
-from server.models import *
+from server.models import db, Set, Question, UserViewsSet
 
 QuestionRoutes = Blueprint('QuestionRoutes', __name__)
 
@@ -14,8 +14,6 @@ QuestionRoutes = Blueprint('QuestionRoutes', __name__)
 
 
 @QuestionRoutes.route('/getSets')
-@login_required
-@check_confirmed
 @teacher_only
 def get_sets():
     """
@@ -48,8 +46,6 @@ def get_sets():
 
 
 @QuestionRoutes.route('/getAllQuestions', methods=['GET'])
-@login_required
-@check_confirmed
 @admin_only
 def get_all_questions():
     """
@@ -76,8 +72,6 @@ def get_all_questions():
 
 
 @QuestionRoutes.route('/newSet', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def create_set():
     """
@@ -102,8 +96,6 @@ def create_set():
 
 
 @QuestionRoutes.route('/renameSet', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def rename_set():
     """
@@ -129,8 +121,6 @@ def rename_set():
 
 
 @QuestionRoutes.route('/deleteSet', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def delete_set():
     """
@@ -161,8 +151,6 @@ def delete_set():
 
 
 @QuestionRoutes.route('/newQuestion', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def new_question():
     """
@@ -194,8 +182,6 @@ def new_question():
 
 
 @QuestionRoutes.route('/renameQuestion', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def rename_question():
     """
@@ -219,8 +205,6 @@ def rename_question():
 
 
 @QuestionRoutes.route('/editQuestion', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def edit_question():
     """
@@ -254,8 +238,6 @@ def edit_question():
 
 
 @QuestionRoutes.route('/deleteQuestion', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def delete_question():
     """
@@ -283,7 +265,6 @@ def delete_question():
 
 @QuestionRoutes.route('/getQuestion', methods=['POST'])
 @login_required
-@check_confirmed
 def get_question():
     """
     Get question data for client
@@ -306,8 +287,6 @@ def get_question():
 
 
 @QuestionRoutes.route('/sampleQuestion', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def sample_question():
     """

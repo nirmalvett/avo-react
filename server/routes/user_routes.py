@@ -1,15 +1,15 @@
-from flask import Blueprint, jsonify, request, render_template
-from flask_login import login_required, logout_user, login_user
+from flask import Blueprint, jsonify, request, render_template, abort, url_for, redirect
+from flask_login import logout_user, login_user, current_user
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 from sqlalchemy.orm.exc import NoResultFound
 
-from server.Encoding.PasswordHash import check_password
+from server.Encoding.PasswordHash import check_password, generate_salt, hash_password
 import re
 
 import config
-from server.decorators import *
+from server.decorators import login_required, admin_only
 from server.auth import send_email
-from server.models import *
+from server.models import db, User, Class, Transaction, Takes
 
 UserRoutes = Blueprint('UserRoutes', __name__)
 
@@ -218,7 +218,6 @@ def password_reset(token):
 
 @UserRoutes.route('/changeColor', methods=['POST'])
 @login_required
-@check_confirmed
 def change_color():
     """
     Changes the current user's color theme
@@ -241,7 +240,6 @@ def change_color():
 
 @UserRoutes.route('/changeTheme', methods=['POST'])
 @login_required
-@check_confirmed
 def change_theme():
     """
     Changes the current user's theme
@@ -265,8 +263,6 @@ def change_theme():
 
 
 @UserRoutes.route('/adminLogin/<user_id>', methods=['GET'])
-@login_required
-@check_confirmed
 @admin_only
 def admin_login(user_id):
     user_id = int(user_id)
@@ -286,8 +282,6 @@ def admin_login(user_id):
 
 
 @UserRoutes.route('/removeAccount', methods=['POST'])
-@login_required
-@check_confirmed
 @admin_only
 def remove_account():
     if not request.json:

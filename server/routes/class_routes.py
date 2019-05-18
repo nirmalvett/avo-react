@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request, make_response, abort
-from flask_login import login_required, current_user
+from flask_login import current_user
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
-from server.decorators import check_confirmed, teacher_only, admin_only, student_only
+from server.decorators import login_required, teacher_only, student_only, admin_only
 from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing
 import paypalrestsdk
 import config
@@ -36,8 +36,6 @@ with open('server/SQL/teacher_tests_medians.sql', 'r') as sql:
 
 
 @ClassRoutes.route('/createClass', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def create_class():
     """
@@ -60,7 +58,6 @@ def create_class():
 
 @ClassRoutes.route('/getClasses')
 @login_required
-@check_confirmed
 def get_classes():
     """
     Get the current users classes available to them
@@ -150,8 +147,6 @@ def get_classes():
 
 
 @ClassRoutes.route('/getClassTestResults', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def get_class_test_results():
     """
@@ -188,8 +183,6 @@ def get_class_test_results():
 
 
 @ClassRoutes.route('/CSV/ClassMarks/<class_id>')
-@login_required
-@check_confirmed
 @teacher_only
 def csv_class_marks(class_id):
     """
@@ -242,7 +235,6 @@ def csv_class_marks(class_id):
 
 @ClassRoutes.route('/enroll', methods=['POST'])
 @login_required
-@check_confirmed
 def enroll():
     """
     Enroll the current user in a class
@@ -296,8 +288,6 @@ def enroll():
 
 
 @ClassRoutes.route('/freeTrial', methods=['POST'])
-@login_required
-@check_confirmed
 @student_only
 def start_free_trial():
     """
@@ -338,8 +328,6 @@ def start_free_trial():
 
 
 @ClassRoutes.route('/pay', methods=['POST'])
-@login_required
-@check_confirmed
 @student_only
 def create_payment():
     """
@@ -444,8 +432,6 @@ def create_payment():
 
 
 @ClassRoutes.route('/postPay', methods=['POST'])
-@login_required
-@check_confirmed
 @student_only
 def confirm_payment():
     """
@@ -486,6 +472,7 @@ def confirm_payment():
 
 
 @ClassRoutes.route('/cancel', methods=['POST'])
+@student_only
 def cancel_order():
     """
     Cancel Payment by removing from Transaction Processing Table
@@ -508,8 +495,6 @@ def cancel_order():
 
 
 @ClassRoutes.route('/unenroll', methods=['POST'])
-@login_required
-@check_confirmed
 @admin_only
 def unenroll():
     """

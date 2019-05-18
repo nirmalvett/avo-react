@@ -1,13 +1,14 @@
-from flask import Blueprint, jsonify, request
-from flask_login import login_required
+from flask import Blueprint, jsonify, request, abort
+from flask_login import current_user
+
 from server.MathCode.question import AvoQuestion
 from random import randint
 from datetime import datetime, timedelta
 import statistics
 
-from server.decorators import *
+from server.decorators import login_required, teacher_only
 from server.auth import teaches_class, enrolled_in_class, access_to_class
-from server.models import *
+from server.models import db, Class, Test, Takes, Question, User, Transaction
 
 TestRoutes = Blueprint('TestRoutes', __name__)
 
@@ -16,8 +17,6 @@ TestRoutes = Blueprint('TestRoutes', __name__)
 
 
 @TestRoutes.route('/saveTest', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def save_test():
     """
@@ -59,8 +58,6 @@ def save_test():
 
 
 @TestRoutes.route('/changeTest', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def change_test():
     """
@@ -101,8 +98,6 @@ def change_test():
 
 
 @TestRoutes.route('/deleteTest', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def delete_test():
     """
@@ -129,8 +124,6 @@ def delete_test():
 
 
 @TestRoutes.route('/openTest', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def open_test():
     """
@@ -160,8 +153,6 @@ def open_test():
 
 
 @TestRoutes.route('/closeTest', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def close_test():
     """
@@ -193,7 +184,6 @@ def close_test():
 
 @TestRoutes.route('/getTest', methods=['POST'])
 @login_required
-@check_confirmed
 def get_test():
     """
     Get test data for client
@@ -250,7 +240,6 @@ def get_test():
 
 @TestRoutes.route('/saveAnswer', methods=['POST'])
 @login_required
-@check_confirmed
 def save_answer():
     """
     Save a users answer to a question
@@ -290,7 +279,6 @@ def save_answer():
 
 @TestRoutes.route('/submitTest', methods=['POST'])
 @login_required
-@check_confirmed
 def submit_test():
     """
     Submit a takes to the DataBase
@@ -323,8 +311,6 @@ def submit_test():
 
 @TestRoutes.route('/postTest', methods=['POST'])
 @login_required
-@check_confirmed
-@check_confirmed
 def post_test():
     """
     Generate the post test screen
@@ -364,7 +350,6 @@ def post_test():
 
 @TestRoutes.route('/testStats', methods=['POST'])
 @login_required
-@check_confirmed
 def test_stats():
     """
     Generate Stats on a per Question basis of a given test
@@ -482,8 +467,6 @@ def test_stats():
 
 
 @TestRoutes.route('/changeMark', methods=['POST'])
-@login_required
-@check_confirmed
 @teacher_only
 def change_mark():
     """

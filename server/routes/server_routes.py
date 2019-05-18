@@ -1,13 +1,12 @@
-from flask import Blueprint, jsonify, request
-from flask_login import login_required
+from flask import Blueprint, jsonify, request, abort
 from server.MathCode.question import AvoQuestion
 import sys
 from git import Repo
 import re
 
 import config
-from server.decorators import *
-from server.models import *
+from server.decorators import admin_only
+from server.models import db, User, Class, Test, Question, Set
 
 ServerRoutes = Blueprint('ServerRoutes', __name__)
 
@@ -40,10 +39,8 @@ def shutdown():
         return abort(400)
 
 
-@login_required
-@check_confirmed
-@admin_only
 @ServerRoutes.route('/validateDatabase')
+@admin_only
 def validate():
     err_invalid_email = []
     err_missing_pk_user = []

@@ -3,7 +3,7 @@ from flask_login import current_user
 from functools import wraps
 
 
-def check_confirmed(f):
+def login_required(f):
     """
     Check if the user's email is confirmed when requesting deep web pages
     :param f: Takes current user
@@ -11,11 +11,14 @@ def check_confirmed(f):
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Query the user table and checks there IsConfirmed value
-        if current_user.confirmed is False:
-            # If the user is Unconfirmed then redirect then to the unconfirmed page
+        if not current_user.is_authenticated:
+            # If they aren't logged in, abort with the 'unauthorized' http status code
+            return abort(401)
+        elif not current_user.confirmed:
+            # If the user is not confirmed, redirect them to the unconfirmed page
             return redirect(url_for('GeneralRoutes.unconfirmed'))
-        return f(*args, **kwargs)
+        else:
+            return f(*args, **kwargs)
     return decorated_function
 
 
@@ -27,11 +30,17 @@ def teacher_only(f):
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Query the User table to find if they are a teacher or not
-        if current_user.is_teacher is False:
-            # If they are not a teacher return a 400 error
+        if not current_user.is_authenticated:
+            # If they aren't logged in, abort with the 'unauthorized' http status code
             return abort(401)
-        return f(*args, **kwargs)
+        elif not current_user.confirmed:
+            # If the user is not confirmed, redirect them to the unconfirmed page
+            return redirect(url_for('GeneralRoutes.unconfirmed'))
+        elif not current_user.is_admin and not current_user.is_teacher:
+            # If they aren't a teacher or an admin, abort with the 'forbidden' http status code
+            return abort(403)
+        else:
+            return f(*args, **kwargs)
     return decorated_function
 
 
@@ -43,11 +52,17 @@ def student_only(f):
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Query the user table to find if they are a student
-        if current_user.is_teacher is True:
-            # If they are a teacher return a 400 error
+        if not current_user.is_authenticated:
+            # If they aren't logged in, abort with the 'unauthorized' http status code
             return abort(401)
-        return f(*args, **kwargs)
+        elif not current_user.confirmed:
+            # If the user is not confirmed, redirect them to the unconfirmed page
+            return redirect(url_for('GeneralRoutes.unconfirmed'))
+        elif not current_user.is_admin and current_user.is_teacher:
+            # If they aren't a student or an admin, abort with the 'forbidden' http status code
+            return abort(403)
+        else:
+            return f(*args, **kwargs)
     return decorated_function
 
 
@@ -59,9 +74,15 @@ def admin_only(f):
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Query the user table to find if they are a student
-        if current_user.is_admin is False:
-            # If they are a teacher return a 400 error
+        if not current_user.is_authenticated:
+            # If they aren't logged in, abort with the 'unauthorized' http status code
             return abort(401)
-        return f(*args, **kwargs)
+        elif not current_user.confirmed:
+            # If the user is not confirmed, redirect them to the unconfirmed page
+            return redirect(url_for('GeneralRoutes.unconfirmed'))
+        elif not current_user.is_admin:
+            # If they aren't an admin, abort with the 'forbidden' http status code
+            return abort(403)
+        else:
+            return f(*args, **kwargs)
     return decorated_function
