@@ -19,8 +19,7 @@ def serve_sign_in():
     Serves the index
     :return: The index HTML
     """
-    # noinspection PyUnresolvedReferences
-    return render_template('/index.html')
+    return render_template('index.html')
 
 
 # noinspection PyUnusedLocal

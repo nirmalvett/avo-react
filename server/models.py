@@ -1,9 +1,11 @@
-from server.data import db
 from flask_login import UserMixin
+from flask_sqlalchemy import SQLAlchemy
 from random import SystemRandom
 from string import ascii_letters, digits
-
 from server.Encoding.PasswordHash import generate_salt, hash_password
+
+# Initialize Database
+db = SQLAlchemy()
 
 
 class Class(db.Model):
@@ -218,7 +220,7 @@ class Transaction(db.Model):
         self.CLASS = CLASS
         self.expiration = expiration
 
-    def __reduce__(self):
+    def __repr__(self):
         return f'Transaction {self.TRANSACTION} {self.USER} {self.CLASS} {self.expiration}'
 
 
