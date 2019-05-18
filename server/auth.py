@@ -78,7 +78,7 @@ def access_to_class(class_id):
         for i in transaction_list:
             # For each transaction check if they are not expired
             if i.expiration is None:
-                # If the transaction has no experation return True
+                # If the transaction has no expiration return True
                 return True
             if i.expiration > time:
                 # If the transaction has not expired return True

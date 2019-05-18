@@ -126,7 +126,7 @@ def validate():
         if any(map(lambda x: x < -1 or x > 65535, seed_list)):
             errors.append(f"Test {t.TEST} has one or more invalid seeds")
         try:
-            if t.total != sum(map(lambda q: q_array[q].total, question_list)):
+            if t.total != sum(map(lambda question: q_array[question].total, question_list)):
                 errors.append(f"Test {t.TEST} has the wrong total")
         except IndexError:
             errors.append(f"Test {t.TEST} has a nonexistent question")
