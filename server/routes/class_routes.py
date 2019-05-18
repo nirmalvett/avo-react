@@ -5,9 +5,8 @@ from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
 from server.decorators import check_confirmed, teacher_only, admin_only, student_only
-from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Question
+from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing
 import paypalrestsdk
-import statistics
 import config
 
 ClassRoutes = Blueprint('ClassRoutes', __name__)
@@ -31,6 +30,9 @@ with open('server/SQL/student_tests_medians.sql', 'r') as sql:
     student_tests_medians = sql.read()
 with open('server/SQL/teacher_tests_medians.sql', 'r') as sql:
     teacher_tests_medians = sql.read()
+
+
+# Routes for managing classes
 
 
 @ClassRoutes.route('/createClass', methods=['POST'])
@@ -147,103 +149,6 @@ def get_classes():
     return jsonify(classes=classes)
 
 
-@ClassRoutes.route('/enroll', methods=['POST'])
-@login_required
-@check_confirmed
-def enroll():
-    """
-    Enroll the current user in a class
-    :return: Confirmation
-    """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    key = request.json['key']  # Data sent from user
-
-    if not isinstance(key, str):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-    try:
-        # Find class with said enroll key if no class found return error json
-        current_class = Class.query.filter(Class.enroll_key == key).first()
-    except NoResultFound:
-        return jsonify(error='Invalid enroll key')
-    if current_class is None:
-        # If no class is found return error JSON
-        return jsonify(error='Invalid enroll key')
-    if current_user.is_teacher:
-        # If the user is a teacher enroll them into the class
-        if not teaches_class(current_class.CLASS):
-            # If the teacher does not teach the class return JSON of success
-            new_transaction = Transaction("TEACHER-" + str(current_user.USER) + "-" + str(current_class.CLASS),
-                                          current_user.USER, current_class.CLASS, None)
-            db.session.add(new_transaction)
-            db.session.commit()
-        return jsonify(message='Enrolled')
-    # Checks if the user has a free trial
-    transaction = Transaction.query.filter((Transaction.USER == current_user.USER) &
-                                           (Transaction.CLASS == current_class.CLASS)).all()
-    free_trial = True
-    for i in range(len(transaction)):
-        # For each transaction see if it starts with a free trial string
-        trans_string = transaction[i].TRANSACTION
-        if trans_string.startswith("FREETRIAL-"):
-            # If the transaction string starts with free trial set the availability of free trail to false
-            free_trial = False
-    if current_class.price_discount == 0.00 or current_class.price_discount == 0:
-        # Append current user to the class
-        new_transaction = Transaction("FREECLASS-" + str(current_user.USER) + "-" + str(current_class.CLASS),
-                                      current_user.USER, current_class.CLASS, None)
-        db.session.add(new_transaction)
-        db.session.commit()
-        return jsonify(message='Enrolled')  # this message cannot be changed as the frontend relies on it
-    else:
-        return jsonify(id=current_class.CLASS, price=current_class.price, discount=current_class.price_discount,
-                       tax=round(current_class.price_discount * 0.13, 2),
-                       totalprice=round(current_class.price_discount * 1.13, 2), freeTrial=free_trial)
-
-
-@ClassRoutes.route('/unenroll', methods=['POST'])
-@login_required
-@check_confirmed
-@admin_only
-def unenroll():
-    """
-    Unenroll student from class
-    :return: Confirmation of the unenroll
-    """
-    if not request.json:
-        return abort(400)
-    data = request.json
-    user_id, class_id = data['userID'], data['classID']
-
-    if not isinstance(user_id, int) or not isinstance(class_id, int):
-        return jsonify(error="One or more data type is invalid")
-
-    user = User.query.get(user_id)
-    current_class = Class.query.filter((Class.CLASS == Transaction.CLASS) &
-                                       (user_id == Transaction.USER)).all()
-    if user is None or len(current_class) == 0:
-        # If there is no user found return error JSON
-        return jsonify("No User Found")
-    for i in range(len(current_class)):
-        # For each class check if it is the correct class
-        if current_class[i].CLASS == class_id:
-            user.CLASS_ENROLLED_RELATION.remove(current_class[i])
-            db.session.commit()
-            return jsonify(code="User was removed")
-    return jsonify(error="user is not enrolled in class")
-
-
-def time_stamp(t):
-    """
-    Casts DateTime object to int
-    :param t: DateTime
-    :return: int representation of DateTime
-    """
-    return int('{:04d}{:02d}{:02d}{:02d}{:02d}{:02d}'.format(t.year, t.month, t.day, t.hour, t.minute, t.second))
-
-
 @ClassRoutes.route('/getClassTestResults', methods=['POST'])
 @login_required
 @check_confirmed
@@ -277,7 +182,7 @@ def get_class_test_results():
         else:
             users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
                         'tests': [{'takes': takes[len(takes) - 1].TAKES,
-                                   'timeSubmitted': time_stamp(takes[len(takes) - 1].time_submitted),
+                                   'timeSubmitted': time_stamp(takes[-1].time_submitted),
                                    'grade': takes[len(takes) - 1].grade}]}
     return jsonify(results=users)
 
@@ -330,6 +235,106 @@ def csv_class_marks(class_id):
     response = make_response(output_string)
     response.headers["Content-Disposition"] = "attachment; filename=" + output_class.name + ".csv"
     return response  # Return the file to the user
+
+
+# Routes for joining/leaving classes
+
+
+@ClassRoutes.route('/enroll', methods=['POST'])
+@login_required
+@check_confirmed
+def enroll():
+    """
+    Enroll the current user in a class
+    :return: Confirmation
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    key = request.json['key']  # Data sent from user
+
+    if not isinstance(key, str):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    try:
+        # Find class with said enroll key if no class found return error json
+        current_class = Class.query.filter(Class.enroll_key == key).first()
+    except NoResultFound:
+        return jsonify(error='Invalid enroll key')
+    if current_class is None:
+        # If no class is found return error JSON
+        return jsonify(error='Invalid enroll key')
+    if current_user.is_teacher:
+        # If the user is a teacher enroll them into the class
+        if not teaches_class(current_class.CLASS):
+            # If the teacher does not teach the class return JSON of success
+            db.session.add(Transaction(
+                f"TEACHER-{current_user.USER}-{current_class.CLASS}", current_user.USER, current_class.CLASS, None
+            ))
+            db.session.commit()
+        return jsonify(message='Enrolled')
+    if current_class.price_discount == 0:
+        # Append current user to the class
+        db.session.add(Transaction(
+            f"FREECLASS-{current_user.USER}-{current_class.CLASS}", current_user.USER, current_class.CLASS, None
+        ))
+        db.session.commit()
+        return jsonify(message='Enrolled')  # this message cannot be changed as the frontend relies on it
+    else:
+        # Checks if the user has a free trial left
+        transactions = Transaction.query.filter((Transaction.USER == current_user.USER) &
+                                                (Transaction.CLASS == current_class.CLASS)).all()
+        free_trial = not any(map(lambda t: t.TRANSACTION.startswith("FREETRIAL-"), transactions))
+        return jsonify(
+            id=current_class.CLASS,
+            price=current_class.price,
+            discount=current_class.price_discount,
+            tax=round(current_class.price_discount * 0.13, 2),
+            totalprice=round(current_class.price_discount * 1.13, 2),
+            freeTrial=free_trial
+        )
+
+
+@ClassRoutes.route('/freeTrial', methods=['POST'])
+@login_required
+@check_confirmed
+@student_only
+def start_free_trial():
+    """
+    Generate free trial for class
+    :return:  Confirmation of free trial
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+
+    # Data from client
+    data = request.json
+    class_id = data['classID']
+    if not isinstance(class_id, int):
+        # If data isn't correct return error JSON
+        return jsonify(error="One or more data is not correct")
+    try:
+        # See if current class exists
+        current_class = Class.query.get(class_id)
+    except:
+        return jsonify(error="No class found")
+    if current_class is None:
+        return jsonify(error="No class found")
+    transaction = Transaction.query.filter((current_user.USER == Transaction.USER) &
+                                           (current_class.CLASS == Transaction.CLASS)).all()  # Get transaction
+    if len(transaction) > 0:
+        # If transaction not found return error JSON
+        return jsonify(error="Free Trial Already Taken")
+    free_trial_string = "FREETRIAL-" + str(current_class.CLASS) \
+                        + "-" + str(current_user.USER)  # Generate free trial string
+    time = datetime.now() + timedelta(weeks=2)
+    new_transaction = Transaction(free_trial_string, current_user.USER,
+                                  current_class.CLASS, time)  # create new transaction in database
+    # Commit to database and enroll student
+    db.session.add(new_transaction)
+    db.session.commit()
+    return jsonify(code="Success")
 
 
 @ClassRoutes.route('/pay', methods=['POST'])
@@ -502,43 +507,45 @@ def cancel_order():
     return jsonify(code="Cancelled")
 
 
-@ClassRoutes.route('/freeTrial', methods=['POST'])
+@ClassRoutes.route('/unenroll', methods=['POST'])
 @login_required
 @check_confirmed
-@student_only
-def start_free_trial():
+@admin_only
+def unenroll():
     """
-    Generate free trial for class
-    :return:  Confirmation of free trial
+    Unenroll student from class
+    :return: Confirmation of the unenroll
     """
     if not request.json:
-        # If the request isn't JSON then return a 400 error
         return abort(400)
-
-    # Data from client
     data = request.json
-    class_id = data['classID']
-    if not isinstance(class_id, int):
-        # If data isn't correct return error JSON
-        return jsonify(error="One or more data is not correct")
-    try:
-        # See if current class exists
-        current_class = Class.query.get(class_id)
-    except:
-        return jsonify(error="No class found")
-    if current_class is None:
-        return jsonify(error="No class found")
-    transaction = Transaction.query.filter((current_user.USER == Transaction.USER) &
-                                           (current_class.CLASS == Transaction.CLASS)).all()  # Get transaction
-    if len(transaction) > 0:
-        # If transaction not found return error JSON
-        return jsonify(error="Free Trial Already Taken")
-    free_trial_string = "FREETRIAL-" + str(current_class.CLASS) \
-                        + "-" + str(current_user.USER)  # Generate free trial string
-    time = datetime.now() + timedelta(weeks=2)
-    new_transaction = Transaction(free_trial_string, current_user.USER,
-                                  current_class.CLASS, time)  # create new transaction in database
-    # Commit to database and enroll student
-    db.session.add(new_transaction)
-    db.session.commit()
-    return jsonify(code="Success")
+    user_id, class_id = data['userID'], data['classID']
+
+    if not isinstance(user_id, int) or not isinstance(class_id, int):
+        return jsonify(error="One or more data type is invalid")
+
+    user = User.query.get(user_id)
+    current_class = Class.query.filter((Class.CLASS == Transaction.CLASS) &
+                                       (user_id == Transaction.USER)).all()
+    if user is None or len(current_class) == 0:
+        # If there is no user found return error JSON
+        return jsonify("No User Found")
+    for i in range(len(current_class)):
+        # For each class check if it is the correct class
+        if current_class[i].CLASS == class_id:
+            user.CLASS_ENROLLED_RELATION.remove(current_class[i])
+            db.session.commit()
+            return jsonify(code="User was removed")
+    return jsonify(error="user is not enrolled in class")
+
+
+# Helper methods
+
+
+def time_stamp(t):
+    """
+    Casts DateTime object to int
+    :param t: DateTime
+    :return: int representation of DateTime
+    """
+    return int(f'{t.year:04d}{t.month:02d}{t.day:02d}{t.hour:02d}{t.minute:02d}{t.second:02d}')
