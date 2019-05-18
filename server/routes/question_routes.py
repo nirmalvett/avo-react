@@ -10,6 +10,9 @@ from server.models import *
 QuestionRoutes = Blueprint('QuestionRoutes', __name__)
 
 
+# Get sets/questions
+
+
 @QuestionRoutes.route('/getSets')
 @login_required
 @check_confirmed
@@ -42,6 +45,34 @@ def get_sets():
             'questions': question_list
         })
     return jsonify(sets=set_list)
+
+
+@QuestionRoutes.route('/getAllQuestions', methods=['GET'])
+@login_required
+@check_confirmed
+@admin_only
+def get_all_questions():
+    """
+    Gets all questions in the database and returns
+    :return: List of all questions
+    """
+    question_list = Question.query.all()
+    question_array = []
+    for q in question_list:
+        question_array.append(
+            {
+                'QUESTION': q.QUESTION,
+                'SET': q.SET,
+                'name': q.name,
+                'string': q.string,
+                'answers': q.answers,
+                'total': q.total
+            }
+        )
+    return jsonify(questions=question_array)
+
+
+# Manage sets
 
 
 @QuestionRoutes.route('/newSet', methods=['POST'])
@@ -126,28 +157,7 @@ def delete_set():
     return jsonify(code="Updated")
 
 
-@QuestionRoutes.route('/getQuestion', methods=['POST'])
-@login_required
-@check_confirmed
-def get_question():
-    """
-    Get question data for client
-    :return: Question data
-    """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    data = request.json
-    question, seed = data['question'], data['seed']  # Data from client
-    if not isinstance(question, int) or not isinstance(seed, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-    current_question = Question.query.get(question)  # Get question from database
-    if current_question is None:
-        # If the question isn't found return error json if not return to client
-        return jsonify(error='No question found')
-    q = AvoQuestion(current_question.string, seed)
-    return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
+# Manage questions
 
 
 @QuestionRoutes.route('/newQuestion', methods=['POST'])
@@ -243,31 +253,6 @@ def edit_question():
     return jsonify(code="Question updated")
 
 
-@QuestionRoutes.route('/getAllQuestions', methods=['GET'])
-@login_required
-@check_confirmed
-@admin_only
-def get_all_questions():
-    """
-    Gets all questions in the database and returns
-    :return: List of all questions
-    """
-    question_list = Question.query.all()
-    question_array = []
-    for q in question_list:
-        question_array.append(
-            {
-                'QUESTION': q.QUESTION,
-                'SET': q.SET,
-                'name': q.name,
-                'string': q.string,
-                'answers': q.answers,
-                'total': q.total
-            }
-        )
-    return jsonify(questions=question_array)
-
-
 @QuestionRoutes.route('/deleteQuestion', methods=['POST'])
 @login_required
 @check_confirmed
@@ -291,6 +276,33 @@ def delete_question():
     question.SET = None
     db.session.commit()
     return jsonify(code="Updated")
+
+
+# Generate a question
+
+
+@QuestionRoutes.route('/getQuestion', methods=['POST'])
+@login_required
+@check_confirmed
+def get_question():
+    """
+    Get question data for client
+    :return: Question data
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    data = request.json
+    question, seed = data['question'], data['seed']  # Data from client
+    if not isinstance(question, int) or not isinstance(seed, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    current_question = Question.query.get(question)  # Get question from database
+    if current_question is None:
+        # If the question isn't found return error json if not return to client
+        return jsonify(error='No question found')
+    q = AvoQuestion(current_question.string, seed)
+    return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
 
 
 @QuestionRoutes.route('/sampleQuestion', methods=['POST'])
