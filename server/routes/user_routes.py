@@ -14,86 +14,7 @@ from server.models import *
 UserRoutes = Blueprint('UserRoutes', __name__)
 
 
-@UserRoutes.route('/changeColor', methods=['POST'])
-@login_required
-@check_confirmed
-def change_color():
-    """
-    Changes the current user's color theme
-    :return: Confirmation
-    """
-    if not request.json:
-        # If the request isn't JSON return a 400 error
-        return abort(400)
-    data = request.json  # Data from client
-    color = data['color']
-    if not isinstance(color, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-
-    # Commit the users's changes to the DB
-    current_user.color = color
-    db.session.commit()
-    return jsonify(message='updated')
-
-
-@UserRoutes.route('/changeTheme', methods=['POST'])
-@login_required
-@check_confirmed
-def change_theme():
-    """
-    Changes the current user's theme
-    :return: Confirmation of the change
-    """
-    if not request.json:
-        # If the request isn't JSON return a 400 error
-        return abort(400)
-    data = request.json  # Data from the client
-    theme = data['theme']
-    if not isinstance(theme, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-    # Applies the user's changes to the database
-    current_user.theme = theme
-    db.session.commit()
-    return jsonify(message='updated')
-
-
-@UserRoutes.route('/removeAccount', methods=['POST'])
-@login_required
-@check_confirmed
-@admin_only
-def remove_account():
-    if not request.json:
-        return abort(400)
-    data = request.json
-    user_id = data['userID']
-
-    if not isinstance(user_id, int):
-        return jsonify(error="One or more data types are not correct")
-    try:
-        user = User.query.filter(User.USER == user_id).first()
-    except NoResultFound:
-        return jsonify(error="No user found")
-    if user is None:
-        return jsonify(error="No user found")
-    class_list = Class.query.filter((Class.CLASS == Transaction.CLASS) &
-                                    (user.USER == Transaction.USER)).all()
-    takes = Takes.query.filter(Takes.USER == user.USER).all()
-    if user.is_teacher:
-        teaches_list = Class.query.filter(Class.USER == user.USER).all()
-        for i in teaches_list:
-            i.USER = None
-        db.session.commit()
-    for i in takes:
-        db.session.delete(i)
-    db.session.commit()
-    for i in class_list:
-        user.TRANSACTION_RELATION.remove(i)
-    db.session.commit()
-    db.session.delete(user)
-    db.session.commit()
-    return jsonify("All User Data Removed")
+# Routes needed for normal account creation and usage (ordered sequentially)
 
 
 @UserRoutes.route('/register', methods=['POST'])
@@ -166,6 +87,68 @@ def confirm(token):
     return render_template('/index.html')
 
 
+@UserRoutes.route('/login', methods=['POST'])
+def login():
+    """
+    Login the user
+    :return: Confirmation that the user has been logged in
+    """
+    if not request.json:
+        # If the request isn't JSON return a 400 error
+        return abort(400)
+    data = request.json  # Data from the client
+    username, password = data['username'], data['password']
+    if not isinstance(username, str) or not isinstance(password, str):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify("One or more data is not correct")
+    try:
+        # Try to create the user from the email if not throw error JSON
+        user = User.query.filter(User.email == username).one()
+    except NoResultFound:
+        return jsonify(error='Account does not exist!')
+    if not check_password(password, user.salt, user.password):
+        # Checks the password if false throw error JSON
+        return jsonify(error='Password is incorrect!')
+    elif not user.confirmed:
+        # If the user hasn't confirmed their email throw error JSON
+        return jsonify(error='Account has not been confirmed!')
+    else:
+        # Else log the user in
+        login_user(user)
+        return jsonify(first_name=current_user.first_name, last_name=current_user.last_name,
+                       is_teacher=current_user.is_teacher, is_admin=current_user.is_admin,
+                       color=current_user.color, theme=current_user.theme)
+
+
+@UserRoutes.route('/getUserInfo')
+def get_user_info():
+    """
+    Get the current user's info
+    :return: The user's info
+    """
+    try:
+        # Returns the current user's data if not logged in return error JSON
+        return jsonify(first_name=current_user.first_name, last_name=current_user.last_name,
+                       is_teacher=current_user.is_teacher, is_admin=current_user.is_admin,
+                       color=current_user.color, theme=current_user.theme)
+    except AttributeError:
+        return jsonify(error='User does not exist')
+
+
+@UserRoutes.route('/logout')
+@login_required
+def logout():
+    """
+    Logout the current user
+    :return: Confirmation that the user has been logged out
+    """
+    logout_user()
+    return jsonify(message='Successfully logged out')
+
+
+# Password reset
+
+
 @UserRoutes.route('/requestPasswordReset', methods=['POST'])
 def request_password_reset():
 
@@ -230,37 +213,55 @@ def password_reset(token):
         return jsonify(error='An unexpected error occurred. Reference #1j29')
 
 
-@UserRoutes.route('/login', methods=['POST'])
-def login():
+# User settings
+
+
+@UserRoutes.route('/changeColor', methods=['POST'])
+@login_required
+@check_confirmed
+def change_color():
     """
-    Login the user
-    :return: Confirmation that the user has been logged in
+    Changes the current user's color theme
+    :return: Confirmation
+    """
+    if not request.json:
+        # If the request isn't JSON return a 400 error
+        return abort(400)
+    data = request.json  # Data from client
+    color = data['color']
+    if not isinstance(color, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+
+    # Commit the users's changes to the DB
+    current_user.color = color
+    db.session.commit()
+    return jsonify(message='updated')
+
+
+@UserRoutes.route('/changeTheme', methods=['POST'])
+@login_required
+@check_confirmed
+def change_theme():
+    """
+    Changes the current user's theme
+    :return: Confirmation of the change
     """
     if not request.json:
         # If the request isn't JSON return a 400 error
         return abort(400)
     data = request.json  # Data from the client
-    username, password = data['username'], data['password']
-    if not isinstance(username, str) or not isinstance(password, str):
+    theme = data['theme']
+    if not isinstance(theme, int):
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
-    try:
-        # Try to create the user from the email if not throw error JSON
-        user = User.query.filter(User.email == username).one()
-    except NoResultFound:
-        return jsonify(error='Account does not exist!')
-    if not check_password(password, user.salt, user.password):
-        # Checks the password if false throw error JSON
-        return jsonify(error='Password is incorrect!')
-    elif not user.confirmed:
-        # If the user hasn't confirmed their email throw error JSON
-        return jsonify(error='Account has not been confirmed!')
-    else:
-        # Else log the user in
-        login_user(user)
-        return jsonify(first_name=current_user.first_name, last_name=current_user.last_name,
-                       is_teacher=current_user.is_teacher, is_admin=current_user.is_admin,
-                       color=current_user.color, theme=current_user.theme)
+        return jsonify(error="One or more data is not correct")
+    # Applies the user's changes to the database
+    current_user.theme = theme
+    db.session.commit()
+    return jsonify(message='updated')
+
+
+# Account management (admin only)
 
 
 @UserRoutes.route('/adminLogin/<user_id>', methods=['GET'])
@@ -284,27 +285,38 @@ def admin_login(user_id):
         return redirect('/')
 
 
-@UserRoutes.route('/logout')
+@UserRoutes.route('/removeAccount', methods=['POST'])
 @login_required
-def logout():
-    """
-    Logout the current user
-    :return: Confirmation that the user has been logged out
-    """
-    logout_user()
-    return jsonify(message='Successfully logged out')
+@check_confirmed
+@admin_only
+def remove_account():
+    if not request.json:
+        return abort(400)
+    data = request.json
+    user_id = data['userID']
 
-
-@UserRoutes.route('/getUserInfo')
-def get_user_info():
-    """
-    Get the current user's info
-    :return: The user's info
-    """
+    if not isinstance(user_id, int):
+        return jsonify(error="One or more data types are not correct")
     try:
-        # Returns the current user's data if not logged in return error JSON
-        return jsonify(first_name=current_user.first_name, last_name=current_user.last_name,
-                       is_teacher=current_user.is_teacher, is_admin=current_user.is_admin,
-                       color=current_user.color, theme=current_user.theme)
-    except AttributeError:
-        return jsonify(error='User does not exist')
+        user = User.query.filter(User.USER == user_id).first()
+    except NoResultFound:
+        return jsonify(error="No user found")
+    if user is None:
+        return jsonify(error="No user found")
+    class_list = Class.query.filter((Class.CLASS == Transaction.CLASS) &
+                                    (user.USER == Transaction.USER)).all()
+    takes = Takes.query.filter(Takes.USER == user.USER).all()
+    if user.is_teacher:
+        teaches_list = Class.query.filter(Class.USER == user.USER).all()
+        for i in teaches_list:
+            i.USER = None
+        db.session.commit()
+    for i in takes:
+        db.session.delete(i)
+    db.session.commit()
+    for i in class_list:
+        user.TRANSACTION_RELATION.remove(i)
+    db.session.commit()
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify("All User Data Removed")
