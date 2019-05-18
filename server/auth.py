@@ -8,7 +8,7 @@ import config
 from server.models import User, Class, Transaction, UserViewsSet
 
 login_manager = LoginManager()
-login_manager.login_view = "FileRoutes.serve_sign_in"
+login_manager.login_view = "FileRoutes.serve_web_app"
 
 
 @login_manager.user_loader
