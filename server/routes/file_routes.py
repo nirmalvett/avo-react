@@ -4,6 +4,15 @@ from flask import Blueprint, send_file, render_template
 FileRoutes = Blueprint('FileRoutes', __name__)
 
 
+@FileRoutes.route('/')
+def serve_web_app():
+    """
+    Serves the index
+    :return: The index HTML
+    """
+    return render_template('index.html')
+
+
 @FileRoutes.route('/favicon.ico')
 def serve_icon():
     """
@@ -11,15 +20,6 @@ def serve_icon():
     :return: The Favicon file
     """
     return send_file('../static/favicon.ico')
-
-
-@FileRoutes.route('/')
-def serve_sign_in():
-    """
-    Serves the index
-    :return: The index HTML
-    """
-    return render_template('index.html')
 
 
 # noinspection PyUnusedLocal
