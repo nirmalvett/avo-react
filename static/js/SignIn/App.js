@@ -5,13 +5,15 @@ import SignIn from './SignIn.js';
 import MomentUtils from '@date-io/moment';
 import PasswordResetPage from './PasswordReset';
 import { isChrome, isSafari } from "../HelperFunctions/helpers";
-import { unregister } from '../registerServiceWorker';
 import NotChromeWarningPage from "./NotChromeWarningPage";
 import { MuiPickersUtilsProvider } from 'material-ui-pickers';
+import { handleInitialData } from "../Redux/Actions/shared";
+import {connect} from 'react-redux';
 
-unregister();
-export default class App extends Component {
+
+class App extends Component {
     is_teacher; is_admin; // Putting this here makes the warnings go away
+
 
     constructor(props) {
         super(props);
@@ -25,6 +27,10 @@ export default class App extends Component {
             result => this.updateUser('', '', result),
             () => {this.setState({authenticated: false, user: null});}
         );
+    }
+    componentDidMount(){
+	      /* When this component mounts get the data */
+	      this.props.dispatch(handleInitialData())
     }
 
     render () {
@@ -75,3 +81,5 @@ export default class App extends Component {
         });
     }
 }
+
+export default connect()(App);
