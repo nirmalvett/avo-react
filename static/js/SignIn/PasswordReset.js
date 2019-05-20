@@ -1,11 +1,11 @@
 import React from 'react';
-import Http from './Http';
+import Http from '../HelperFunctions/Http';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import Button from '@material-ui/core/Button/Button';
 import TextField from '@material-ui/core/TextField/TextField';
 import Typography from '@material-ui/core/Typography/Typography';
-import Logo from "./Logo";
+import Logo from "../SharedComponents/Logo";
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
     deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors';
 import {createMuiTheme, MuiThemeProvider} from "@material-ui/core";

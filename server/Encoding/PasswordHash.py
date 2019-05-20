@@ -14,16 +14,17 @@ def hash_password(password, salt):
     """
     Hashes the password
     :param password:
+    :param salt:
     """
     return hashlib.sha512(salt.encode() + password.encode()).hexdigest()
 
 
-def check_password(givenPassword, salt, storedPassword):
+def check_password(given_password, salt, stored_password):
     """
     Checks the password
-    :param givenPassword: Pass
+    :param given_password: Pass
     :param salt:
-    :param storedPassword:
+    :param stored_password:
     :return: If stored password is equal to given password
     """
-    return storedPassword == hashlib.sha512(salt.encode() + givenPassword.encode()).hexdigest()
+    return stored_password == hashlib.sha512(salt.encode() + given_password.encode()).hexdigest()
