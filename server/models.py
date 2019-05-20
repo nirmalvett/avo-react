@@ -242,13 +242,12 @@ class TransactionProcessing(db.Model):
 class Tag(db.Model):
     __tablename__ = 'TAG'
 
-    TAG = db.Column(db.Integer, primary_key=True)
+    TAG = db.Column(db.Integer, primary_key=True, autoincrement=True)
     parent = db.Column(db.Integer, nullable=False)
     tagName = db.Column(db.String(30), nullable=False)
     childOrder = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, TAG, parent, tagName, childOrder):
-        self.TAG = TAG
+    def __init__(self, parent, tagName, childOrder):
         self.parent = parent
         self.tagName = tagName
         self.childOrder = childOrder
