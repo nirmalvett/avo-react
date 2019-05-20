@@ -2,6 +2,7 @@
     "compilerOptions": {
       "outDir": "./dist/",
       "allowSyntheticDefaultImports": true,
+      "moduleResolution": "node",
       "sourceMap": true,
       "noImplicitAny": true,
       "module": "es6",
