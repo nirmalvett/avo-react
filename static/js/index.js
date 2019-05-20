@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './SignIn/App';
+import App from './App';
 import '../css/app.css';
 import {createStore} from 'redux';
 import {Provider} from 'react-redux';

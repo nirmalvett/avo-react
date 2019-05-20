@@ -1,26 +1,12 @@
 import {getInitialData, getStudent, getTeacher } from "../../ServiceAPI/Server";
 import { receiveStudent } from "./student";
-export const SET_ACCOUNT_TYPE = "SET_ACCOUNT_TYPE";
-export const CONST_TEACHER_ACCOUNT = 'CONST_TEACHER_ACCOUNT';
-export const CONST_STUDENT_ACCOUNT = 'CONST_STUDENT_ACCOUNT';
-const AUTHED_ID = null; // should be set to null requiring login
+import Http from "../../HelperFunctions/Http";
+export const CONST_USER_LOGIN_DATA = "CONST_USER_LOGIN_DATA";
 
-
-
-export function setUserType(returnedInt){
-    let accountType = CONST_STUDENT_ACCOUNT;
-    if (returnedInt === 1){accountType = CONST_TEACHER_ACCOUNT}
+export function handleLoginData(returnObject){
     return {
-        type: SET_ACCOUNT_TYPE,
-        accountType: accountType,
+        type: CONST_USER_LOGIN_DATA,
+        returnObject: returnObject
     }
 }
 
-export function handleInitialData(){
-    return (dispatch) => {
-        return getStudent(5).then(({ student })=>{
-            dispatch(receiveStudent(student))
-        })
-    }
-
-}

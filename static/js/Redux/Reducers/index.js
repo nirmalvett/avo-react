@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
-import { student} from "./student";
+import { account } from "./account";
 
 export default combineReducers({
-  student: student,
+  account: account,
 })
