@@ -4,7 +4,8 @@ export function account(state={}, action){
         case CONST_USER_LOGIN_DATA:
             return {
                 ...state,
-                ...action.returnObject
+                ...action.returnObject,
+                theme: action.returnObject.theme ? 'dark' : 'light',
             };
         default:
             return state;
