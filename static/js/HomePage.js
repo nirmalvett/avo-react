@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Typography } from '@material-ui/core';
+import { Typography, ListItem, List } from '@material-ui/core';
 import { isChrome } from "./helpers";
 import { DatePicker } from "material-ui-pickers";
 import Grid from '@material-ui/core/Grid/Grid';
@@ -58,13 +58,21 @@ export default class HomePage extends Component {
                                         })
                                         return (
                                             <div key={uniqid()}>
-                                                <Typography variant='title' color='textPrimary'>{dd.class.name + ':'}</Typography>
-                                                <br />
-                                                {
-                                                    datesToShow.length > 0 ? datesToShow.map((dueDate) => (
-                                                        <Typography key={uniqid()} variant='subheading' color='textPrimary'>{dueDate.name + ' - ' + dueDate.dueDate}</Typography>
-                                                    )) : <Typography key={uniqid()} variant='subheading' color='textPrimary'>{'No due dates today'}</Typography>
-                                                }
+                                                <List>
+                                                    <ListItem button>
+                                                        <Typography variant='title' color='textPrimary'>{dd.class.name + ':'}</Typography>
+                                                    </ListItem>
+                                                    <br />
+                                                    {
+                                                        datesToShow.length > 0 ? datesToShow.map((dueDate) => (
+
+                                                            <ListItem button>
+                                                                <Typography key={uniqid()} variant='subheading' color='textPrimary'>{dueDate.name + ' - ' + dueDate.dueDate}</Typography>
+                                                            </ListItem>
+                                                        )) : <ListItem button><Typography key={uniqid()} variant='subheading' color='textPrimary'>{'No due dates today'}</Typography></ListItem>
+                                                    }
+                                                </List>
+
                                                 <br />
                                             </div>
                                         )
@@ -78,24 +86,30 @@ export default class HomePage extends Component {
                                 direction="column"
                                 justify="flex-start"
                                 alignItems="flex-start">
-                                {
-                                    this.state.notifications.map((notification, i) => {
-                                        return (<div key={uniqid()}>
-                                            <Typography variant='headline' color='textPrimary'>{notification.class.name + ':'}</Typography>
-                                            <br/>
-                                            {
-                                                notification.messages.map((notification) => (
-                                                    <div key={uniqid()}>
-                                                        <Typography variant='title' color='textPrimary'>{notification.title}</Typography>
-                                                        <Typography variant='subheading' color='textPrimary'>{notification.body}</Typography>
-                                                        <br />
-                                                    </div>
-                                                ))
-                                            }
-                                            <br />
-                                        </div>
-                                        )
-                                    })}
+                                <Typography variant='headline' color='textPrimary'>Messages:</Typography>
+                                <br />
+                                <List>
+                                    {
+                                        this.state.notifications.map((notification, i) => {
+                                            return (<div key={uniqid()}>
+                                                <ListItem button><Typography variant='headline' color='textPrimary'>{notification.class.name + ':'}</Typography></ListItem>
+
+                                                <br />
+                                                {
+                                                    notification.messages.map((notification) => (
+                                                        <div key={uniqid()}>
+                                                            <ListItem button><Typography variant='title' color='textPrimary'>{notification.title}</Typography></ListItem>
+                                                            <ListItem button><Typography variant='subheading' color='textPrimary'>{notification.body}</Typography></ListItem>
+                                                            <br />
+                                                        </div>
+                                                    ))
+                                                }
+                                                <br />
+                                            </div>
+                                            )
+                                        })}
+                                </List>
+
                             </Grid>
                         </Grid>}
                     </Grid>
