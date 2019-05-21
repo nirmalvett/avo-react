@@ -1,17 +1,20 @@
 import React, { Component } from 'react';
-import Http from '../HelperFunctions/Http';
-import Layout from '../Layout/Layout.js';
-import SignIn from './SignIn.js';
+import Http from './HelperFunctions/Http';
+import Layout from './Layout/Layout.js';
+import SignIn from './SignIn/SignIn.js';
 import MomentUtils from '@date-io/moment';
-import PasswordResetPage from './PasswordReset';
-import { isChrome, isSafari } from "../HelperFunctions/helpers";
-import { unregister } from '../registerServiceWorker';
-import NotChromeWarningPage from "./NotChromeWarningPage";
+import PasswordResetPage from './SignIn/PasswordReset';
+import { isChrome, isSafari } from "./HelperFunctions/helpers";
+import NotChromeWarningPage from "./SignIn/NotChromeWarningPage";
 import { MuiPickersUtilsProvider } from 'material-ui-pickers';
+import { handleUserLogin } from "./Redux/Actions/shared";
+import {connect} from 'react-redux';
+import { handleLoginData } from "./Redux/Actions/shared";
 
-unregister();
-export default class App extends Component {
+
+class App extends Component {
     is_teacher; is_admin; // Putting this here makes the warnings go away
+
 
     constructor(props) {
         super(props);
@@ -21,8 +24,15 @@ export default class App extends Component {
             password: '',
             user: null,
         };
+
+    }
+
+    componentDidMount(){
         Http.getUserInfo(
-            result => this.updateUser('', '', result),
+            result => {
+                this.props.dispatch(handleLoginData(result));
+                this.updateUser('', '', result);
+            },
             () => {this.setState({authenticated: false, user: null});}
         );
     }
@@ -42,7 +52,8 @@ export default class App extends Component {
         if (urlContainsPasswordRest) return (
             <PasswordResetPage/>
         );
-        else if (this.state.authenticated) return (
+        else if (this.state.authenticated)
+            return (
             <Layout
                 setTheme={(color, theme) => this.setState({color: color, theme: theme})}
                 logout={() => this.setState({authenticated: false})}
@@ -75,3 +86,5 @@ export default class App extends Component {
         });
     }
 }
+
+export default connect()(App);
