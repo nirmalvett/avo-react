@@ -303,7 +303,14 @@ class Layout extends Component {
             <Timer
                 showSnackBar={this.showSnackBar.bind(this)}
                 deadline={this.state.test.time_submitted}
-                onCompletionFunc={() => document.getElementById('avo-test__submit-button').click()}
+                onCompletionFunc={() => {
+                    setTimeout(
+                        () => document.getElementById('avo-test__submit-button').click(),
+                        100
+                    );
+                    // This runs first, but putting it second guarantees that the button will always be clicked
+                    document.activeElement.blur();
+                }}
             />
         );
         return null;
