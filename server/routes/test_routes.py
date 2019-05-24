@@ -27,10 +27,11 @@ def save_test():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     data = request.json
-    class_id, name, deadline, timer, attempts, question_list, seed_list = \
-        data['classID'], data['name'], data['deadline'], data['timer'], data['attempts'], data['questionList'],\
+    class_id, name, open_time, deadline, timer, attempts, question_list, seed_list = \
+        data['classID'], data['name'], data['openTime'], data['deadline'], data['timer'], data['attempts'], data['questionList'],\
         data['seedList']  # Data from the client
-    if not isinstance(class_id, int) or not isinstance(name, str) or not isinstance(deadline, str) or not \
+    if not isinstance(class_id, int) or not isinstance(name, str) or not (
+            isinstance(open_time, str) or open_time is None) or not isinstance(deadline, str) or not \
             isinstance(timer, str) or not isinstance(attempts, str) or not isinstance(question_list, list) or not \
             isinstance(seed_list, list):
         # Checks if all data given is of correct type if not return error JSON
@@ -41,7 +42,16 @@ def save_test():
         return jsonify(error="Can't Submit A Test WIth Zero Questions")
     deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
+    if open_time is not None:
+        # If there is an open time format it to a datetime
+        open_time = open_time[0:4] + "-" + open_time[4:6] + "-" + open_time[6:8] + ' ' \
+                    + open_time[8:10] + ':' + open_time[10:]
+        open_time = datetime.strptime(str(open_time), '%Y-%m-%d %H:%M')
+        if open_time >= deadline:
+            # The deadline is before the open time
+            return jsonify(error="open time is past the deadline")
     total = 0  # Total the test is out of
+
     questions = Question.query.filter(Question.QUESTION.in_(question_list)).all()  # All question in test
     for i in range(len(question_list)):
         # For each question calculate the mark and add to the total
@@ -51,7 +61,7 @@ def save_test():
             return jsonify(error="Question Not Found PLease Try Again")
         total += current_question.total
     # Add the test to the database
-    test = Test(class_id, name, False, deadline, int(timer), int(attempts), str(question_list), str(seed_list), total)
+    test = Test(class_id, name, False, open_time, deadline, int(timer), int(attempts), str(question_list), str(seed_list), total)
     db.session.add(test)
     db.session.commit()
     return jsonify(test=test.TEST)
@@ -68,26 +78,36 @@ def change_test():
         # If the request isn't JSON return a 400 error
         return abort(400)
     data = request.json  # Data from client
-    test, timer, name, deadline, attempts =\
-        data['test'], data['timer'], data['name'], data['deadline'], data['attempts']
+    test, timer, name, open_time, deadline, attempts =\
+        data['test'], data['timer'], data['name'], data['openTime'], data['deadline'], data['attempts']
     if not isinstance(test, int):
         return jsonify(error="Invalid Input: Test needs to be an int, Test is " + str(type(test)))
     if not isinstance(timer, int):
         return jsonify(error="Invalid Input: Timer needs to be an int, " + str(type(timer)))
     if not isinstance(name, str):
         return jsonify(error="Invalid Input: Name needs to be an int, " + str(type(name)))
+    if not (isinstance(open_time, str) or open_time is None):
+        return jsonify(error="Invalid Input: open_time needs to be a str")
     if not isinstance(deadline, str):
         return jsonify(error="Invalid Input: Deadline needs to be a str, Deadline is type: " + str(type(deadline)))
     if not isinstance(attempts, int):
         return jsonify(error="Invalid Input: Attempts needs to be an int, " + str(type(attempts)))
     deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
+    if open_time is not None:
+        open_time = open_time[0:4] + "-" + open_time[4:6] + "-" + open_time[6:8] + ' ' \
+                    + open_time[8:10] + ':' + open_time[10:]
+        open_time = datetime.strptime(str(open_time), '%Y-%m-%d %H:%M')
+        if open_time >= deadline:
+            # The deadline is before the open time
+            return jsonify(error="open time is past the deadline")
     test = Test.query.get(test)  # Gets the test object
     if not teaches_class(test.CLASS):
         # If the teacher doesn't teach the class the test is in return error
         return jsonify(error="User does not teach class")
 
     # Updates Test data
+    test.open_time = open_time
     test.deadline = deadline
     test.timer = timer
     test.name = name
