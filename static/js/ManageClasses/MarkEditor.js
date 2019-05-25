@@ -1,7 +1,6 @@
 import React from 'react';
 import Http from '../HelperFunctions/Http';
 import Button from '@material-ui/core/Button';
-import Grid from "@material-ui/core/Grid/Grid";
 import Save from '@material-ui/icons/Save';
 import MarkEditorQuestionCard, {CONST_MARKED_CORRECT, CONST_MARKED_INCORRECT} from './MarkEditorQuestionCard';
 
@@ -37,15 +36,17 @@ export default class MarkEditor extends React.Component {
 
     render() {
         return (
-            <Grid container spacing={8}>
-                <Grid xs={1}/>
-                <Grid xs={10} style={{marginTop: '20px', marginBottom: '20px', overflowY: 'auto'}}>
-                  { this.getEachQuestionCard() }
-                </Grid>
-                <Grid xs={1}/>
-                { this.saveButton() }
-
-            </Grid>
+            <div style={{
+                flex: 1,
+                paddingLeft: '10%',
+                paddingRight: '10%',
+                paddingTop: '20px',
+                paddingBottom: '20px',
+                overflowY: 'auto'
+            }}>
+                {this.getEachQuestionCard()}
+                {this.saveButton()}
+            </div>
         );
     }
 
@@ -111,7 +112,7 @@ function convertArrayForServer(markButtonMarkers, questionObjectArray){
     const questionSubArray = [];
     currentQuestionTotals = questionObjectArray[i].totals; // [0.25, 0.25]
     currentMarkArray = markButtonMarkers[i]; // [1,0]
-    
+
     for (let j = 0; j < currentQuestionTotals.length; j++){
        questionSubArray.push(
           currentMarkArray[j] === 1 // if it's marked correctly then get the marks worth otherwise have it return 0
@@ -123,4 +124,3 @@ function convertArrayForServer(markButtonMarkers, questionObjectArray){
   }
   return returnArray;
 }
-
