@@ -57,6 +57,10 @@ export default class Http {
 		Http._request('GET', '/getClasses', success, failure);
 	}
 
+	static getTags(success, failure) {
+		Http._request('GET', '/getTags', success, failure);
+	}
+
 	static getSets(success, failure) {
 		Http._request('GET', '/getSets', success, failure);
 	}

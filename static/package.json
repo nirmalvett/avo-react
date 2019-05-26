@@ -36,17 +36,18 @@
     "downshift": "3.1.4",
     "extract-text-webpack-plugin": "2.1.2",
     "file-loader": "2.0.0",
+    "js-yaml-loader": "1.0.1",
     "material-ui-pickers": "2.0.1",
     "moment": "2.22.2",
     "npm": "6.5.0",
     "paypal-checkout": "4.0.239",
+    "prop-types": "latest",
     "react": "16.5.0",
     "react-apexcharts": "1.0.10",
     "react-dom": "16.5.0",
     "react-mathjax2": "0.0.1",
+    "react-sortable-tree": "1.5.0",
     "style-loader": "0.23.0",
-    "webpack": "3.0.0",
-    "prop-types": "latest",
-    "js-yaml-loader": "1.0.1"
+    "webpack": "3.0.0"
   }
 }

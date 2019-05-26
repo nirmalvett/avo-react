@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Typography } from '@material-ui/core';
 import { isChrome } from "../HelperFunctions/helpers";
-
+import TagBuilder from '../CourseBuilder/TagBuilder/TagBuilder'
 
 export default class HomePage extends Component {
     render() {
@@ -11,6 +11,7 @@ export default class HomePage extends Component {
                 <Typography variant='subheading'>AVO is the future of AI assisted learning, and utilizes cutting edge
                     methodologies & systems to deliver an incomparable experience.</Typography>
                 <br/>
+                <TagBuilder></TagBuilder>
             </div>
         );
     }
