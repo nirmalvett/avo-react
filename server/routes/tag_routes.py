@@ -6,13 +6,13 @@ from server.MathCode.question import AvoQuestion
 from server.decorators import login_required, teacher_only, admin_only
 from server.models import db, Set, Question, UserViewsSet, Tag
 
-QuestionRoutes = Blueprint('TagRoutes', __name__)
+TagRoutes = Blueprint('TagRoutes', __name__)
 
 
 # Get sets/questions
 
 
-@QuestionRoutes.route('/getTags')
+@TagRoutes.route('/getTags')
 @teacher_only
 def get_tags_route():
     """

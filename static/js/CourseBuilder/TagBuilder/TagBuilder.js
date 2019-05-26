@@ -49,7 +49,7 @@ export default class TagBuilder extends Component {
               <Button
                 style={{ marginTop: "16px", marginRight: "20px" }}
                 variant="contained"
-                onClick={()=>this.addTag()}
+                onClick={() => this.addTag()}
               >
                 Add new tag
               </Button>
@@ -61,23 +61,32 @@ export default class TagBuilder extends Component {
                 onChange={e => this.handleTagInput(e)}
                 margin="normal"
               />
+              <div style={{ paddingLeft: '33%' }}>
+                <Button
+                  style={{ marginTop: "16px", float: "right" }}
+                  variant="contained"
+                  onClick={() => {}}
+                >
+                  Save
+                </Button>
+              </div>
             </Grid>
           </CardActions>
         </Card>
       </div>
     );
   }
-  addTag(){
-      const newTag = {
-          id: -1,
-          title: this.state.tagInput,
-          children: []
-      }
-      const newTags = this.state.tags.concat(newTag)
-      this.setState({
-          tags: newTags,
-          tagInput: ''
-      })
+  addTag() {
+    const newTag = {
+      id: -1,
+      title: this.state.tagInput,
+      children: []
+    };
+    const newTags = this.state.tags.concat(newTag);
+    this.setState({
+      tags: newTags,
+      tagInput: ""
+    });
   }
   handleTagInput(event) {
     this.setState({ tagInput: event.target.value });
