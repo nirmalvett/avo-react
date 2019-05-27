@@ -7,7 +7,7 @@ import MarkEditor from '../ManageClasses/MarkEditor';
 import TakeTest from '../MyClasses/TakeTest';
 import MyClasses from '../MyClasses/MyClasses';
 import Timer from "../MyClasses/TimerComp";
-import CreateTest from '../ManageClasses/CreateTest';
+import CreateTest from '../ManageClasses/CreateTest/CreateTest';
 import Preferences from '../Preferences/Preferences';
 import ManageClasses from '../ManageClasses/ManageClasses';
 import QuestionManager from "../CourseBuilder/QuestionBuilder/QuestionManager";

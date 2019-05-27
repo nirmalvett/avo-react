@@ -90,7 +90,15 @@ def get_classes():
         }
 
     for t in users_tests:
+        if t.open_time is not None:
+            # If the test has an open time check if it should auto open
+            if t.open_time is not None and t.is_open is False and t.open_time < now < t.deadline:
+                # If the test is withing the open time and deadline open the test and disable the open time
+                t.open_time = None
+                t.is_open = True
+                db.session.commit()
         if t.is_open and t.deadline < now:
+            # If the test does not have an open time check the deadline param
             test_update = Test.query.get(t.TEST)
             test_update.is_open = False
             db.session.commit()
@@ -99,6 +107,7 @@ def get_classes():
             'id': t.TEST,
             'name': t.name,
             'open': t.is_open and t.deadline > now,
+            'open_time': t.open_time,
             'deadline': time_stamp(t.deadline),
             'timer': t.timer,
             'attempts': t.attempts,

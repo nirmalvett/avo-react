@@ -25,7 +25,7 @@ function getFirstCard() {
 }
 
 
-export default class TakeTest extends Component {
+class TakeTest extends Component {
 	constructor(props) {
 		super(props);
 		this.state = this.props.test;
