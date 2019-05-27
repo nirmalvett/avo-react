@@ -60,7 +60,36 @@ export default class CreateTest extends Component {
                             {question.prompts.map((a, b) => <AnswerInput key = { `Create-Test-Answer-index:${b}-id:${question.id}-seed:${question.seed}` } value='' disabled prompt={a} type={question.types[b]}/>)}
                         </Card>
                     )}
-                    <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
+                    { this.bottomSubmissionCard() }
+
+                </div>
+            </div>
+        );
+    }
+
+    handleDateChange(date) {
+        var d = new Date(date);
+        let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" +
+            ("00" + d.getDate()).slice(-2) + "" +
+            ("00" + d.getHours()).slice(-2) + "" +
+            ("00" + d.getMinutes()).slice(-2) + "";
+        _date = d.getFullYear() + "" + _date;
+        this.setState({ deadline: _date, _deadline: date });
+    };
+
+    handleOpenChange(date) {
+        var d = new Date(date);
+        let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" +
+            ("00" + d.getDate()).slice(-2) + "" +
+            ("00" + d.getHours()).slice(-2) + "" +
+            ("00" + d.getMinutes()).slice(-2) + "";
+        _date = d.getFullYear() + "" + _date;
+        this.setState({ openTime: _date, _openTime: date });
+    };
+
+    bottomSubmissionCard(){
+        return (
+            <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
                         <CardHeader title={'Test Settings'} action={this.submitTest()}/>
                         <TextField
                             margin='normal'
@@ -91,30 +120,8 @@ export default class CreateTest extends Component {
                             onChange={this.handleOpenChange.bind(this)}
                         />
                     </Card>
-                </div>
-            </div>
-        );
+        )
     }
-
-    handleDateChange(date) {
-        var d = new Date(date);
-        let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" +
-            ("00" + d.getDate()).slice(-2) + "" +
-            ("00" + d.getHours()).slice(-2) + "" +
-            ("00" + d.getMinutes()).slice(-2) + "";
-        _date = d.getFullYear() + "" + _date;
-        this.setState({ deadline: _date, _deadline: date });
-    };
-
-    handleOpenChange(date) {
-        var d = new Date(date);
-        let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" +
-            ("00" + d.getDate()).slice(-2) + "" +
-            ("00" + d.getHours()).slice(-2) + "" +
-            ("00" + d.getMinutes()).slice(-2) + "";
-        _date = d.getFullYear() + "" + _date;
-        this.setState({ openTime: _date, _openTime: date });
-    };
 
     submitTest(){
         return (
