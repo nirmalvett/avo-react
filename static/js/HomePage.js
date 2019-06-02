@@ -14,7 +14,6 @@ import CardContent from "@material-ui/core/CardContent";
 
 import "react-infinite-calendar/styles.css"; // Make sure to import the default stylesheet
 // Or import the input component
-
 var uniqid = require("uniqid");
 var today = new Date();
 var lastWeek = new Date(
@@ -36,13 +35,32 @@ export default class HomePage extends Component {
       selectedDate: new Date(),
       notifications: [],
       dueDates: [],
-      value: 0
+      value: 0,
+      calendarTheme: {
+        accentColor: this.props.color["500"],
+        floatingNav: {
+          background: this.props.color["500"],
+          chevron: "#FFA726",
+          color: "#FFF"
+        },
+        headerColor: this.props.color["500"],
+        selectionColor: this.props.color["500"],
+        textColor: {
+          active: "#FFF",
+          default: "#333"
+        },
+        todayColor: this.props.color["200"],
+        weekdayColor: this.props.color["200"]
+      }
     };
+  }
+  componentWillMount() {
     this.getHome();
   }
 
   render() {
     const { value } = this.state;
+
     return (
       <div style={{ margin: "20px", flex: 1, overflowY: "auto" }}>
         <Grid
@@ -67,8 +85,8 @@ export default class HomePage extends Component {
                 style={{
                   maxWidth: "100%",
                   flexBasis: "100%",
-                  margin: '5px',
-                  padding: '5px'
+                  margin: "5px",
+                  padding: "5px"
                 }}
               >
                 <Grid
@@ -116,12 +134,7 @@ export default class HomePage extends Component {
                                   height={400}
                                   selected={today}
                                   minDate={today}
-                                  displayOptions={{
-                                    // layout: "landscape",
-                                    // showOverlay: false,
-                                    // showHeader: false,
-                                    // shouldHeaderAnimate: false
-                                  }}
+                                  theme={this.state.calendarTheme}
                                 />
                               </Grid>
                               <Grid item xs={12} sm={12} md={12} lg={12} xl={6}>
@@ -280,7 +293,6 @@ export default class HomePage extends Component {
     );
   }
   handleDateChange(date) {
-    console.log(date);
     this.setState({ selectedDate: new Date(date) });
   }
   componentDidMount() {

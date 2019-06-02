@@ -231,6 +231,8 @@ class Layout extends Component {
         // this helper returns the logic for what is loaded in the right side of the menu
         let {isTeacher, section, color, theme} = this.state;
         if (section === 'Home') return (<HomePage
+            color={this.state.color}
+            theme={this.state.theme}
             showSnackBar = {this.showSnackBar.bind(this)}
             isTeacher = {isTeacher}
         />);
