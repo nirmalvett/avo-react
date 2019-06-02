@@ -6,12 +6,18 @@ import AnswerInput from '../../AnswerInput/AnswerInput';
 import { Card, List, Paper, Collapse, ListItem, TextField, CardHeader, IconButton, ListItemText } from '@material-ui/core';
 import { Done, Lock, Delete, Folder, Refresh, LockOpen, FolderOpen } from '@material-ui/icons';
 import { QuestionSidebar } from "./QuestionSidebar";
+import { connect } from 'react-redux';
+import mapStateToProps from "react-redux/es/connect/mapStateToProps";
+import {CONST_MAKE_TEST_SETS, initialMakeTest} from "../../Redux/Actions/teacher";
+import { MakeTestDefault } from "./MakeTestDefault";
+import { defaultMakeTestSettings } from "../../Redux/Actions/teacher";
+import { QuestionCard } from "./QuestionCard";
 
-export default class CreateTest extends Component {
+class CreateTest extends Component {
     constructor(props) {
         super(props);
-        Http.getSets((result) => this.setState(result));
-        this.state = {
+         Http.getSets((result) => this.setState(result));
+         this.state = {
             sets: [],
             testQuestions: [],
             deadline: '2018-01-01T00:00:00.000Z',
@@ -24,47 +30,40 @@ export default class CreateTest extends Component {
         };
     }
 
-    render() {
+    componentDidMount() {
+      this.props.dispatch(initialMakeTest());
+      this.props.dispatch(defaultMakeTestSettings(MakeTestDefault));
+    }
+
+	  render() {
         let {sets, testQuestions, deadline} = this.state;
         let disableSubmit = testQuestions.length === 0 || deadline.length !== 16;
+        console.log("testQuestions", testQuestions);
         return (
             <div style={{display: 'flex', flexDirection: 'row', flex: 1}}>
                 { QuestionSidebar(this.open.bind(this), this.addQuestion.bind(this), sets) }
-                <div style={{
-                    flex: 2,
-                    paddingLeft: '10%',
-                    paddingRight: '10%',
-                    paddingTop: '20px',
-                    paddingBottom: '20px',
-                    overflowY: 'auto'
-                }}>
-                    {this.state.testQuestions.map((question, questionIndex) =>
-                        <Card key={`Create-Test-Card-index:${questionIndex}-id:${question.id}-seed:${question.seed}`}
-                              style={{marginTop: '5%', marginBottom: '5%', padding: '10px'}}>
-                            <CardHeader
-                                title={question.name}
-                                subheader={'Question ' + (questionIndex + 1) + '/' + testQuestions.length}
-                                action={<div>
-                                    <IconButton onClick={() => this.refresh(questionIndex)}>
-                                        <Refresh/>
-                                    </IconButton>
-                                    <IconButton onClick={() => this.lock(questionIndex)}>
-                                        {question.locked ? <Lock/> : <LockOpen/>}
-                                    </IconButton>
-                                    <IconButton onClick={() => this.deleteQ(questionIndex)}>
-                                        <Delete/>
-                                    </IconButton>
-                                </div>}
-                            />
-                            {getMathJax(question.prompt, 'subheading')}
-                            {question.prompts.map((a, b) => <AnswerInput key = { `Create-Test-Answer-index:${b}-id:${question.id}-seed:${question.seed}` } value='' disabled prompt={a} type={question.types[b]}/>)}
-                        </Card>
-                    )}
-                    { this.bottomSubmissionCard() }
-
+                <div style={{ flex: 2, paddingLeft: '10%', paddingRight: '10%', paddingTop: '20px', paddingBottom: '20px', overflowY: 'auto'}}>
+                    { this.getTestQuestions() } {/* get each test question card */}
+                    { this.bottomSubmissionCard() } {/* the bottom card that specifies things like attemps, date, etc */}
                 </div>
             </div>
         );
+    }
+
+    getTestQuestions(){
+      let { testQuestions } = this.state;
+      /* This returns the the cards each of each will be a question card*/
+      return (
+          <React.Fragment>
+            {
+              testQuestions.map(
+                  (question, questionIndex) => {
+                    return QuestionCard(question, questionIndex, testQuestions.length)
+                  }
+              )
+            }
+          </React.Fragment>
+      )
     }
 
     handleDateChange(date) {
@@ -212,3 +211,6 @@ export default class CreateTest extends Component {
         );
     }
 }
+
+
+export default connect()(CreateTest)

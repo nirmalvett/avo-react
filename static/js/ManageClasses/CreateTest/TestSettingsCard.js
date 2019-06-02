@@ -10,7 +10,7 @@ export function TestSettingsCard(open, addQuestion, sets){
     * sets: list of set data*/
 	 return (
 
-	 		            <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
+	 		            <Card key = 'Test-Setting-Card-Create-Test' style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
                         <CardHeader title={'Test Settings'} action={this.submitTest()}/>
                         <TextField
                             margin='normal'
