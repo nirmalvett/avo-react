@@ -11,7 +11,6 @@ export default class HomePage extends Component {
                 <Typography variant='subheading'>AVO is the future of AI assisted learning, and utilizes cutting edge
                     methodologies & systems to deliver an incomparable experience.</Typography>
                 <br/>
-                <TagBuilder></TagBuilder>
             </div>
         );
     }
