@@ -25,8 +25,8 @@ export default class TagBuilder extends Component {
         style={{
           width: 1000,
           height: 600,
-          margin: 5,
-          padding: 5,
+          margin: 25,
+          padding: 25,
           overflow: "hidden"
         }}
       >
