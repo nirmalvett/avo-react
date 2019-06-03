@@ -25,9 +25,41 @@ def get_tags_route():
 @teacher_only
 def save_tags_route():
     """
-       For now this route will return all tags from the database
-       :return: The list of tags
-       """
+        We will expect the following from the web
+        {
+            newTags: [...],
+            changedTags: [....]
+        }
+
+        Where each object in the lists will contain information for a given concept. Here is an example
+        {'tagName': 'Linear Algebra', 'TAG': 0, 'parent': null, 'childOrder': 0}
+
+    """
+    # Step 1: Check if we were given the proper JSON
+    """
+    example
+     if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    """
+    # Step 3: First get the object from the JSON
+    """ 
+    example
+    data = request.json
+    answer = data['answer']  # Data from user
+    """
+    # Step 4: Validate the datatype
+    """ 
+      example
+        if not isinstance(takes, int) or not isinstance(question, int) or not isinstance(answer, list):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    """
+
+    # Step 5: Now loop through each object from the list
+        # for each object if it's a new one then add the object to the table
+        # for each object if it's a change object then update the given value in the table
+
     return jsonify(message='Changed successfully!')
 
 def get_tags():
