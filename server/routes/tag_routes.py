@@ -21,6 +21,14 @@ def get_tags_route():
     """
     return jsonify(tags=get_tags())
 
+@TagRoutes.route('/saveTags')
+@teacher_only
+def save_tags_route():
+    """
+       For now this route will return all tags from the database
+       :return: The list of tags
+       """
+    return jsonify(message='Changed successfully!')
 
 def get_tags():
     """
