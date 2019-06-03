@@ -21,14 +21,27 @@ def get_tags_route():
     """
     return jsonify(tags=get_tags())
 
-@TagRoutes.route('/saveTags')
+def get_tags():
+    """
+    For now this route will return all tags from the database
+    :return: List, of dict objects each of which represents a tag
+    """
+    # Get list of available sets for current user
+    list_of_tags = Tag.query.all()  # [Tag, Tag...]
+    list_dict = []
+    for tag in list_of_tags:
+        list_dict.append(alchemy_to_dict(tag))
+    return list_dict
+
+
+
+@TagRoutes.route('/putTags')
 @teacher_only
-def save_tags_route():
+def put_tags_route():
     """
         We will expect the following from the web
         {
-            newTags: [...],
-            changedTags: [....]
+            tags: [....]
         }
 
         Where each object in the lists will contain information for a given concept. Here is an example
@@ -62,16 +75,30 @@ def save_tags_route():
 
     return jsonify(message='Changed successfully!')
 
-def get_tags():
+
+@TagRoutes.route('/addTag')
+@teacher_only
+def add_tag_route():
     """
-    For now this route will return all tags from the database
-    :return: List, of dict objects each of which represents a tag
+        Where each object in the lists will contain information for a given concept. Here is an example
+        {tag: {'tagName': 'Linear Algebra' }}
     """
-    # Get list of available sets for current user
-    list_of_tags = Tag.query.all()  # [Tag, Tag...]
-    list_dict = []
-    for tag in list_of_tags:
-        tag_dict = tag.__dict__
-        tag_dict.pop('_sa_instance_state')
-        list_dict.append(tag_dict)
-    return list_dict
+    if not request.json:
+        # If the request is not json return a 400 error
+        return abort(400)
+    data = request.json  # Data sent from client
+    tag = data['tag']
+    tag_obj = Tag(None, tag.tagName, 0)
+    db.session.add(tag_obj)
+    db.commit()
+
+    return jsonify(
+        message='Changed successfully!',
+        tag=alchemy_to_dict(tag_obj)
+    )
+
+
+def alchemy_to_dict(obj):
+    dicObj = obj.__dict__
+    dicObj.pop('_sa_instance_state')
+    return dicObj
