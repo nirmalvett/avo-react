@@ -55,13 +55,13 @@ def put_tags_route():
         # If the request isn't JSON then return a 400 error
         return abort(400)
     """
-    # Step 3: First get the object from the JSON
+    # Step 3: First get the object from the JSON, in this case you'll find data['tags'], let's call it newTagsList
     """ 
     example
     data = request.json
     answer = data['answer']  # Data from user
     """
-    # Step 4: Validate the datatype
+    # Step 4: Validate the datatype, in this case it should be a list i.e. check if not isinstance(newTagsList, list)
     """ 
       example
         if not isinstance(takes, int) or not isinstance(question, int) or not isinstance(answer, list):
@@ -70,8 +70,14 @@ def put_tags_route():
     """
 
     # Step 5: Now loop through each object from the list
-        # for each object if it's a new one then add the object to the table
-        # for each object if it's a change object then update the given value in the table
+    """
+        example
+        # so first we'll get a list of all the tag objects 
+        tag_list = Tag.query.filter(Tag.TAG.in_(changed_array)).all()
+        for tag in tag_list:
+            change each tag of the object to update from the object found in the list you received  
+        db.commit()
+    """
 
     return jsonify(message='Changed successfully!')
 
@@ -80,7 +86,7 @@ def put_tags_route():
 @teacher_only
 def add_tag_route():
     """
-        Where each object in the lists will contain information for a given concept. Here is an example
+        Expects
         {tag: {'tagName': 'Linear Algebra' }}
     """
     if not request.json:
