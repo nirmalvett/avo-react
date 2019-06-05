@@ -80,7 +80,7 @@ export default class Sythesis extends Component {
                     }}
                     title={'Selected State'}
                 />
-                <div id="cy"></div>
+                <div id="cy" style={{ height : '400px', width : '400px' }}></div>
             </React.Fragment>
         );
     };
