@@ -1,7 +1,7 @@
 SELECT CLASS.CLASS,
        CLASS.enroll_key,
        CLASS.name
-FROM   enrolled
+FROM   transaction
        INNER JOIN CLASS
-               ON CLASS.CLASS = enrolled.CLASS
-WHERE  enrolled.USER = :user;
+               ON CLASS.CLASS = transaction.CLASS
+WHERE  transaction.USER = :user;
