@@ -252,3 +252,8 @@ class Tag(db.Model):
         self.tagName = tagName
         self.childOrder = childOrder
 
+    def changeTag(self, parent, tagName, childOrder):
+        self.parent = parent
+        self.tagName = tagName
+        self.childOrder = childOrder
+

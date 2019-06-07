@@ -49,35 +49,23 @@ def put_tags_route():
 
     """
     # Step 1: Check if we were given the proper JSON
-    """
-    example
-     if not request.json:
+    if not request.json:
         # If the request isn't JSON then return a 400 error
         return abort(400)
-    """
     # Step 3: First get the object from the JSON, in this case you'll find data['tags'], let's call it newTagsList
-    """ 
-    example
     data = request.json
-    answer = data['answer']  # Data from user
-    """
+    new_tags_list = data['answer']  # Data from user
     # Step 4: Validate the datatype, in this case it should be a list i.e. check if not isinstance(newTagsList, list)
-    """ 
-      example
-        if not isinstance(takes, int) or not isinstance(question, int) or not isinstance(answer, list):
+    if not isinstance(new_tags_list, list):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
-    """
 
     # Step 5: Now loop through each object from the list
-    """
-        example
-        # so first we'll get a list of all the tag objects 
-        tag_list = Tag.query.filter(Tag.TAG.in_(changed_array)).all()
-        for tag in tag_list:
-            change each tag of the object to update from the object found in the list you received  
-        db.commit()
-    """
+    # so first we'll get a list of all the tag objects
+    tag_list = Tag.query.filter(Tag.TAG.in_(new_tags_list)).all()
+    for tag in tag_list:
+        tag.changeTag()
+    db.commit()
 
     return jsonify(message='Changed successfully!')
 
