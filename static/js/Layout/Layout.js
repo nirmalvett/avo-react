@@ -1,24 +1,4 @@
 import React, {Component, Fragment} from 'react';
-<<<<<<< HEAD:static/js/Layout.js
-import Http from './Http';
-import Logo from './Logo';
-import HomePage from './HomePage';
-import PostTest from './PostTest';
-import MarkEditor from './MarkEditor';
-import TakeTest from './TakeTest';
-import MyClasses from './MyClasses';
-import TimerComp from "./TimerComp";
-import Sythesis from './Sythesis';
-import CreateTest from './CreateTest';
-import Preferences from './Preferences';
-import ManageClasses from './ManageClasses';
-import { avoGreen } from "./AVOCustomColors";
-import QuestionBuilder from "./QuestionBuilder/QuestionBuilder";
-import QuestionBuilderDocs from "./QuestionBuilderDocs";
-import { MySnackbarContentWrapper } from "./AVOSnackBar";
-import AVOInClassTools from "./AVOInClassTools/AVOInClassTools";
-import AVOExplanations from "./AVOExplanations/AVOExplanations";
-=======
 import Http from '../HelperFunctions/Http';
 import Logo from '../SharedComponents/Logo';
 import HomePage from '../Home/HomePage';
@@ -29,6 +9,7 @@ import MyClasses from '../MyClasses/MyClasses';
 import Timer from "../MyClasses/TimerComp";
 import CreateTest from '../ManageClasses/CreateTest';
 import Preferences from '../Preferences/Preferences';
+import Sythesis from '../Sythesis';
 import ManageClasses from '../ManageClasses/ManageClasses';
 import QuestionManager from "../CourseBuilder/QuestionBuilder/QuestionManager";
 import QuestionBuilder from "../QuestionBuilder/QuestionBuilder";
@@ -37,7 +18,6 @@ import AVOInClassTools from "../MISC/AVOInClassTools/AVOInClassTools";
 import AVOExplanations from "../MISC/AVOExplanations/AVOExplanations";
 import { avoGreen } from "../SharedComponents/AVOCustomColors";
 import { MySnackbarContentWrapper } from "../SharedComponents/AVOSnackBar";
->>>>>>> 3721e74e7a14f3943c595de0a10501ee542d6cdf:static/js/Layout/Layout.js
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
 import {withStyles, List, AppBar, Drawer, Divider, Toolbar, IconButton,
     Typography, ListItem, ListItemText, ListSubheader, Snackbar } from '@material-ui/core';

@@ -20,9 +20,9 @@ import CardHeader from '@material-ui/core/CardHeader';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import cytoscape from 'cytoscape';
-import Http from './Http';
+import Http from './HelperFunctions/Http';
 import dagre from 'cytoscape-dagre';
-import {getMathJax} from "./Utilities";
+import {getMathJax} from "./HelperFunctions/Utilities";
 
 cytoscape.use(dagre);
 
