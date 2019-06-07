@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import Http from '../../HelperFunctions/Http';
-import { copy, getMathJax } from '../../HelperFunctions/Utilities';
+import { copy } from '../../HelperFunctions/Utilities';
 import { InlineDateTimePicker } from 'material-ui-pickers';
-import AnswerInput from '../../AnswerInput/AnswerInput';
-import { Card, List, Paper, Collapse, ListItem, TextField, CardHeader, IconButton, ListItemText } from '@material-ui/core';
-import { Done, Lock, Delete, Folder, Refresh, LockOpen, FolderOpen } from '@material-ui/icons';
+import { Card, TextField, CardHeader, IconButton } from '@material-ui/core';
+import { Done } from '@material-ui/icons';
 import { QuestionSidebar } from "./QuestionSidebar";
 import { connect } from 'react-redux';
-import mapStateToProps from "react-redux/es/connect/mapStateToProps";
-import {CONST_MAKE_TEST_SETS, initialMakeTest} from "../../Redux/Actions/teacher";
+import { initialMakeTest} from "../../Redux/Actions/teacher";
 import { MakeTestDefault } from "./MakeTestDefault";
 import { defaultMakeTestSettings } from "../../Redux/Actions/teacher";
 import { QuestionCard } from "./QuestionCard";
@@ -43,7 +41,14 @@ class CreateTest extends Component {
             <div style={{display: 'flex', flexDirection: 'row', flex: 1}}>
                 { QuestionSidebar(this.open.bind(this), this.addQuestion.bind(this), sets) }
                 <div style={{ flex: 2, paddingLeft: '10%', paddingRight: '10%', paddingTop: '20px', paddingBottom: '20px', overflowY: 'auto'}}>
-                    { this.getTestQuestions() } {/* get each test question card */}
+                    {/*{ this.getTestQuestions() } /!* get each test question card *!/*/}
+                     {
+              testQuestions.map(
+                  (question, questionIndex) => {
+                    return QuestionCard(question, questionIndex, testQuestions.length)
+                  }
+              )
+            }
                     { this.bottomSubmissionCard() } {/* the bottom card that specifies things like attemps, date, etc */}
                 </div>
             </div>

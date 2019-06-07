@@ -1,19 +1,8 @@
-import {
-	Card,
-	CardHeader,
-	Collapse,
-	IconButton,
-	List,
-	ListItem,
-	ListItemText,
-	Paper,
-	TextField
-} from "@material-ui/core";
-import {Delete, Folder, FolderOpen, Lock, LockOpen, Refresh} from "@material-ui/icons";
+import { Card, CardHeader, IconButton, } from "@material-ui/core";
+import { Delete, Lock, LockOpen, Refresh } from "@material-ui/icons";
 import React from "react";
-import {InlineDateTimePicker} from "material-ui-pickers";
-import {getMathJax} from "../../HelperFunctions/Utilities";
-import AnswerInput from "./CreateTest";
+import { getMathJax } from "../../HelperFunctions/Utilities";
+import AnswerInput from "../../AnswerInput/AnswerInput";
 
 
 export function QuestionCard(question, questionIndex, totalQuestions){
@@ -44,8 +33,17 @@ export function QuestionCard(question, questionIndex, totalQuestions){
             }
 	      />
 	      { getMathJax(question.prompt, 'subheading') }
-	      {
-	      	question.prompts.map(
+	      { getAnswerInputs(question, question.prompts, questionIndex) }
+      </Card>
+	 )
+}
+
+function getAnswerInputs(question, promptList, questionIndex){
+  /* question.prompts array of questionPromptList*/
+	return (
+			<React.Fragment>
+				 {
+	      	promptList.map(
 	      			(a, b) =>
 						      <AnswerInput
 								      key = { `Create-Test-Answer-index:${questionIndex}-${b}-` }
@@ -54,7 +52,7 @@ export function QuestionCard(question, questionIndex, totalQuestions){
 								      type={question.types[b]}/>
 		      )
 	      }
-      </Card>
-	 )
+			</React.Fragment>
+	)
 }
 
