@@ -166,57 +166,6 @@ export default class Http {
 		Http._request('POST', `/changeTest`, success, failure,
 				{test: test, timer:timer, name:name, deadline:deadline, attempts:attempts});
 	};
-
-	static synthesisScenarios(success, failure){
-		/*Getting a list of possible scenarios to select from, just the list on the left
-		* returns:
-		* {
-		   scenarios: [
-		      { name: "2 matrix inverse" }
-	      ]
-      }
-    */
-		Http._request('POST', `/synthesisScenarios`, success, failure);
-	};
-
-	static synthesisPreviewScenario(scenarioName, success, failure){
-		/* Getting a preview of a scenario selected, still in screen 1
-		* excepts: scenarioName which is a String of the scenario
-		*
-		* returns:
-		*   {
-	        description: "A couple sentences describing what the objects are and their relationship",
-	        graph:	json object to shove into the graph API
-				}
-		*/
-		Http._request('POST', `/synthesisPreviewScenario`, success, failure,
-				{scenarioName: scenarioName});
-	};
-
-	static synthesisGetTransversal(scenarioName, starting_matrix, ending_matrix, ending_state, success, failure){
-		/* Getting the final graph (a single path) and latex explanation, Screen 2
-		 * scenarioName: the String name of the scenario
-		 * starting_matrix: i.e. 'matA', the string name of the starting state
-		 * ending_matrix: i.e. 'matB', the string name of the end state
-		 * ending_state: i.e. 'invertible', the string name of the destination object for which the endState Node in parameter above belongs
-		 *
-		 * returns:
-		 *   {
-			     graph: a list of the starting state and ending,
-			     latexProof: latex string that shows the steps to proof everything
-		     }
-      */
-		Http._request('POST', `/synthesisPreviewScenario`, success, failure,
-				{
-					scenarioName: scenarioName,
-					starting_matrix: starting_matrix,
-					ending_matrix: ending_matrix,
-					ending_state: ending_state
-				}
-		);
-	}
-
-
 }
 
 function debugModeLog(type, url, data = '', http) {
