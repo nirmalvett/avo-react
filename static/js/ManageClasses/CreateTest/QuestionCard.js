@@ -4,7 +4,7 @@ import React from "react";
 import {getMathJax} from "../../HelperFunctions/Utilities";
 import AnswerInput from "../../AnswerInput/AnswerInput";
 import {connect} from "react-redux";
-import {actionCreateTestDeleteQuestion} from "../../Redux/Actions/actionsMakeTest";
+import {actionCreateTestDeleteQuestion, createTestQuestion} from "../../Redux/Actions/actionsMakeTest";
 
 
 class QuestionCard extends React.Component {
@@ -34,7 +34,7 @@ class QuestionCard extends React.Component {
 			  subheader={'Question ' + (questionIndex + 1) + '/' + totalQuestions}
 			  action={
 				<div>
-				  <IconButton onClick={() => this.refresh(questionIndex)}>
+				  <IconButton onClick={() => this.refresh(question, questionIndex)}>
 					<Refresh/>
 				  </IconButton>
 				  <IconButton onClick={() => this.lock(questionIndex)}>
@@ -56,6 +56,9 @@ class QuestionCard extends React.Component {
 	  this.props.dispatch(actionCreateTestDeleteQuestion(questionIndex))
   }
 
+  refresh(question, questionIndex){
+	this.props.dispatch(createTestQuestion(question, questionIndex));
+  }
 
 }
 

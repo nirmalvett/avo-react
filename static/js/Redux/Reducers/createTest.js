@@ -59,11 +59,11 @@ export function createTest(state = makeTestDefault, action) {
 		};
 	case CONST_CREATE_TEST_REFRESH_QUESTION:
 	  /* action items: indexToReplace, newQuestion*/
-	  const testQuestionsReplaced = state.testQuestions[action.indexToReplace] = action.newQuestion;
+	  state.testQuestions[action.indexToReplace] = action.newQuestion;
 	  	return {
 			...state,
 			testQuestions: [
-				...testQuestionsReplaced
+				...state.testQuestions
 			]
 		};
 	default:
