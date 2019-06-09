@@ -3,8 +3,8 @@ import {Folder, FolderOpen} from "@material-ui/icons";
 import React from "react";
 import {connect} from "react-redux";
 import {HashLoader} from 'react-spinners';
-import {createTestAddQuestion, createTestOpenQuestionSet} from "../../Redux/Actions/actionsMakeTest";
-import {objToList} from "../../HelperFunctions/Utilities";
+import {createTestQuestion, createTestOpenQuestionSet} from "../../Redux/Actions/actionsMakeTest";
+
 
 class QuestionSidebar extends React.Component {
   /*
@@ -13,7 +13,7 @@ class QuestionSidebar extends React.Component {
    * addQuestion: a binded function
    * sets: list of set data*/
   render() {
-	const {sets, addQuestion, open, isLoading} = this.props;
+	const {isLoading} = this.props;
 	/* If it's still loading */
 	if (isLoading){
 	  return this.loading();
@@ -34,7 +34,7 @@ class QuestionSidebar extends React.Component {
 
   questionSets() {
 	/* Method is mapping question sets */
-	const {sets, addQuestion, open} = this.props;
+	const {sets} = this.props;
 	return (
 		<React.Fragment>
 		  {
@@ -98,7 +98,7 @@ class QuestionSidebar extends React.Component {
   }
 
   addQuestion(questionObj) {
-	this.props.dispatch(createTestAddQuestion(questionObj));
+	this.props.dispatch(createTestQuestion(questionObj));
   }
 
   loading() {

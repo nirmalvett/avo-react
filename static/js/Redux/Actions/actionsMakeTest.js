@@ -1,13 +1,12 @@
-import {getInitialData, getStudent, getTeacher} from "../../ServiceAPI/Server";
-import {receiveStudent} from "./actionsStudent";
 import Http from "../../HelperFunctions/Http";
-import {copy} from "../../HelperFunctions/Utilities";
+
 
 export const CONST_CREATE_TEST_GET_QUESTIONS = "CONST_CREATE_TEST_GET_QUESTIONS";
 export const CONST_DEFAULT_TEST_SETTING = "CONST_DEFAULT_TEST_SETTING";
 export const CONST_CREATE_TEST_OPEN_QUESTION_SET = "CONST_CREATE_TEST_OPEN_QUESTION_SET";
 export const CONST_CREATE_TEST_ADD_QUESTION = "CONST_CREATE_TEST_ADD_QUESTION";
-
+export const CONST_CREATE_TEST_DELETE_QUESTION = "CONST_CREATE_TEST_DELETE_QUESTION";
+export const CONST_CREATE_TEST_REFRESH_QUESTION = "CONST_CREATE_TEST_REFRESH_QUESTION";
 export function getQuestionSets() {
   return (dispatch) => {
 	Http.getSets(
@@ -25,12 +24,6 @@ function getSetsAction(result) {
   }
 }
 
-export function defaultMakeTestSettings(inputObject) {
-  return {
-	type: CONST_DEFAULT_TEST_SETTING,
-	returnObject: inputObject
-  }
-}
 
 export function createTestOpenQuestionSet(questionIndex) {
   /* indexQuestion: a valid index */
@@ -40,7 +33,14 @@ export function createTestOpenQuestionSet(questionIndex) {
   }
 }
 
-export function createTestAddQuestion(questionObj) {
+
+/**
+ * [createTestQuestion either adds a new question or refreshes the seed]
+ * @param  {Object} questionObj [questionObj that contains id and name]
+ * @param  {int} indexToReplace [this is the index of the question to replace the seed for. -1 if it's a new question]
+ * @return {Object}             [action object]
+ */
+export function createTestQuestion(questionObj, indexToReplace=-1) {
   return (dispatch) => {
 	const seed = Math.floor(Math.random() * 65536);
 	Http.getQuestion(questionObj.id, seed, (result) => {
@@ -53,8 +53,13 @@ export function createTestAddQuestion(questionObj) {
 		prompts: result.prompts,
 		types: result.types
 	  };
+	  if (indexToReplace === -1){
+	    dispatch(actionCreateTestAddQuestion(newQuestion));
+	  }
+	  else {
+	    dispatch(actionCreateTestChangeQuestion(newQuestion, indexToReplace))
+	  }
 
-	  dispatch(actionCreateTestAddQuestion(newQuestion));
 
 
 	}, () => {
@@ -62,9 +67,32 @@ export function createTestAddQuestion(questionObj) {
   }
 }
 
+
+
 function actionCreateTestAddQuestion(questionObj) {
   return {
 	type: CONST_CREATE_TEST_ADD_QUESTION,
 	newQuestion: questionObj
   }
+}
+
+function actionCreateTestChangeQuestion(questionObj, indexToReplace){
+  return {
+    type: CONST_CREATE_TEST_REFRESH_QUESTION,
+	newQuestion: questionObj,
+	indexToReplace: indexToReplace,
+  }
+}
+
+
+/**
+ * [actionCreateTestDeleteQuestion]
+ * @param  {int} index [index of the question to remove]
+ * @return {object} object [description]
+ */
+export function actionCreateTestDeleteQuestion(index){
+	return {
+		type: CONST_CREATE_TEST_DELETE_QUESTION,
+		index: index,
+	}
 }

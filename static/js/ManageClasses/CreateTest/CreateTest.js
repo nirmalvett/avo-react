@@ -7,7 +7,7 @@ import { Done } from '@material-ui/icons';
 import QuestionSidebar from "./QuestionSidebar"
 import { connect } from 'react-redux';
 import { getQuestionSets} from "../../Redux/Actions/actionsMakeTest";
-import { QuestionCard } from "./QuestionCard";
+import QuestionCard from "./QuestionCard";
 
 class CreateTest extends Component {
     constructor(props) {
@@ -39,28 +39,13 @@ class CreateTest extends Component {
                   addQuestion = { this.addQuestion.bind(this) }
                   sets = { sets }/>
                 <div style={{ flex: 2, paddingLeft: '10%', paddingRight: '10%', paddingTop: '20px', paddingBottom: '20px', overflowY: 'auto'}}>
-                    { this.getTestQuestions() } {/* get each test question card */}
+                    <QuestionCard/> {/* get each test question card */}
                     { this.bottomSubmissionCard() } {/* the bottom card that specifies things like attemps, date, etc */}
                 </div>
             </div>
         );
     }
 
-    getTestQuestions(){
-      let { testQuestions } = this.state;
-      /* This returns the the cards each of each will be a question card*/
-      return (
-          <React.Fragment>
-            {
-              testQuestions.map(
-                  (question, questionIndex) => {
-                    return QuestionCard(question, questionIndex, testQuestions.length)
-                  }
-              )
-            }
-          </React.Fragment>
-      )
-    }
 
     handleDateChange(date) {
         var d = new Date(date);
@@ -184,12 +169,6 @@ class CreateTest extends Component {
         this.setState({testQuestions: newTestQuestions});
     }
 
-    deleteQ(index) {
-        let newTestQuestions = copy(this.state.testQuestions);
-        newTestQuestions.splice(index, 1);
-        this.setState({testQuestions: newTestQuestions});
-    };
-
     saveTest() {
         let s = this.state;
         console.log(s.deadline);
@@ -202,6 +181,4 @@ class CreateTest extends Component {
         );
     }
 }
-
-
-export default connect()(CreateTest)
+export default connect()(CreateTest);

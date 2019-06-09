@@ -2,9 +2,11 @@ import {
   CONST_CREATE_TEST_GET_QUESTIONS,
   CONST_DEFAULT_TEST_SETTING,
   CONST_CREATE_TEST_OPEN_QUESTION_SET,
-  CONST_CREATE_TEST_ADD_QUESTION
+  CONST_CREATE_TEST_ADD_QUESTION,
+  CONST_CREATE_TEST_DELETE_QUESTION, CONST_CREATE_TEST_REFRESH_QUESTION
 } from "../Actions/actionsMakeTest";
 import {copy} from "../../HelperFunctions/Utilities";
+import {arrayWithout} from "../../HelperFunctions/Helpers";
 
 const makeTestDefault = {
   sets: [],
@@ -48,6 +50,22 @@ export function createTest(state = makeTestDefault, action) {
 	    ...state,
 		testQuestions: [...state.testQuestions, newQuestion]
 	  });
+  	case CONST_CREATE_TEST_DELETE_QUESTION:
+		const { index } = action;
+		const testQuestionsWithout = arrayWithout(state.testQuestions, index);
+		return {
+			...state,
+			testQuestions: [...testQuestionsWithout]
+		};
+	case CONST_CREATE_TEST_REFRESH_QUESTION:
+	  /* action items: indexToReplace, newQuestion*/
+	  const testQuestionsReplaced = state.testQuestions[action.indexToReplace] = action.newQuestion;
+	  	return {
+			...state,
+			testQuestions: [
+				...testQuestionsReplaced
+			]
+		};
 	default:
 	  return state;
   }
