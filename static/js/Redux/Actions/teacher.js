@@ -1,18 +1,10 @@
 import {getInitialData, getStudent, getTeacher } from "../../ServiceAPI/Server";
 import { receiveStudent } from "./student";
 import Http from "../../HelperFunctions/Http";
-export const CONST_MAKE_TEST_SETS = "CONST_MAKE_TEST_SETS";
+export const CONST_CREATE_TEST_GET_QUESTIONS = "CONST_CREATE_TEST_GET_QUESTIONS";
 export const CONST_DEFAULT_TEST_SETTING = "CONST_DEFAULT_TEST_SETTING";
 
-export function handleLoginData(returnObject){
-    return {
-        type: CONST_USER_LOGIN_DATA,
-        returnObject: returnObject
-    }
-}
-
-export function initialMakeTest(){
-
+export function getQuestionSets(){
   return (dispatch) => {
       Http.getSets(
         (result) => {
@@ -24,7 +16,7 @@ export function initialMakeTest(){
 
 function getSetsAction(result){
   return {
-    type: CONST_MAKE_TEST_SETS,
+    type: CONST_CREATE_TEST_GET_QUESTIONS,
     returnObject: result
   }
 }

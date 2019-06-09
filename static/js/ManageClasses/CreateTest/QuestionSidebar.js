@@ -2,6 +2,7 @@ import {Collapse, List, ListItem, ListItemText, Paper} from "@material-ui/core";
 import {Folder, FolderOpen} from "@material-ui/icons";
 import React from "react";
 import {connect} from "react-redux";
+import {HashLoader} from 'react-spinners';
 
 class QuestionSidebar extends React.Component {
 	/*
@@ -10,6 +11,19 @@ class QuestionSidebar extends React.Component {
 	 * addQuestion: a binded function
 	 * sets: list of set data*/
 	render() {
+		const {sets, addQuestion, open} = this.props;
+		/* If it's still loading */
+		if (sets.length === 0) {
+			return (
+					<div style={{flex: 1, display: 'flex'}}>
+						<Paper square style={{width: '100%', flex: 1, display: 'flex'}}>
+							<div class="center-div">
+								< HashLoader size={150} color={'#399103'}/>
+							</div>
+					</Paper>
+					</div>
+			)
+		}
 		return (
 				<div style={{flex: 1, display: 'flex'}}>
 					<Paper square style={{width: '100%', flex: 1, display: 'flex'}}>

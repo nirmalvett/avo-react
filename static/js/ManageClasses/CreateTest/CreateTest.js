@@ -6,9 +6,7 @@ import { Card, TextField, CardHeader, IconButton } from '@material-ui/core';
 import { Done } from '@material-ui/icons';
 import QuestionSidebar from "./QuestionSidebar"
 import { connect } from 'react-redux';
-import { initialMakeTest} from "../../Redux/Actions/teacher";
-import { MakeTestDefault } from "./MakeTestDefault";
-import { defaultMakeTestSettings } from "../../Redux/Actions/teacher";
+import { getQuestionSets} from "../../Redux/Actions/teacher";
 import { QuestionCard } from "./QuestionCard";
 
 class CreateTest extends Component {
@@ -29,8 +27,7 @@ class CreateTest extends Component {
     }
 
     componentDidMount() {
-      this.props.dispatch(initialMakeTest());
-      this.props.dispatch(defaultMakeTestSettings(MakeTestDefault));
+      this.props.dispatch(getQuestionSets());
     }
 
 	  render() {
