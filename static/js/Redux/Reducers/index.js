@@ -4,6 +4,6 @@ import { createTest } from "./createTest";
 
 export default combineReducers({
   account: account,
-  makeTest: createTest,
+  createTest: createTest,
 
 })

@@ -4,7 +4,7 @@ import { copy } from '../../HelperFunctions/Utilities';
 import { InlineDateTimePicker } from 'material-ui-pickers';
 import { Card, TextField, CardHeader, IconButton } from '@material-ui/core';
 import { Done } from '@material-ui/icons';
-import QuestionSidebar from "./QuestionSidebar"
+import QuestionSidebar from "./QuestionSidebar/QuestionSidebar"
 import { connect } from 'react-redux';
 import { getQuestionSets} from "../../Redux/Actions/teacher";
 import { QuestionCard } from "./QuestionCard";
@@ -36,7 +36,6 @@ class CreateTest extends Component {
         return (
             <div style={{display: 'flex', flexDirection: 'row', flex: 1}}>
               <QuestionSidebar
-                  open = { this.open.bind(this) }
                   addQuestion = { this.addQuestion.bind(this) }
                   sets = { sets }/>
                 <div style={{ flex: 2, paddingLeft: '10%', paddingRight: '10%', paddingTop: '20px', paddingBottom: '20px', overflowY: 'auto'}}>
