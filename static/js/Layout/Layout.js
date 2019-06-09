@@ -2,7 +2,7 @@ import React, {Component, Fragment} from 'react';
 import Http from '../HelperFunctions/Http';
 import Logo from '../SharedComponents/Logo';
 import HomePage from '../Home/HomePage';
-import TagBuilder from '../CourseBuilder/TagBuilder/TagBuilder'
+import TagView from '../CourseBuilder/TagBuilder/TagView'
 import PostTest from '../SharedComponents/PostTest';
 import MarkEditor from '../ManageClasses/MarkEditor';
 import TakeTest from '../MyClasses/TakeTest';
@@ -299,7 +299,7 @@ class Layout extends Component {
         />);
         if (section === 'In Class Tools') return (<AVOInClassTools/>);
         if (section === 'Explanations') return (<AVOExplanations/>);
-        if (section === 'Tag Builder') return (<TagBuilder/>)
+        if (section === 'Tag Builder') return (<TagView/>)
     }
 
     timerInTopBar(){
