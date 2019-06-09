@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import Http from '../HelperFunctions/Http';
 import {copy, getDateString} from "../HelperFunctions/Utilities";
-import {convertListFloatToAnalytics} from "../HelperFunctions/helpers";
+import {convertListFloatToAnalytics} from "../HelperFunctions/Helpers";
 import Tab from '@material-ui/core/Tab';
 import Card from '@material-ui/core/Card';
 import Tabs from '@material-ui/core/Tabs';
@@ -74,8 +74,8 @@ export default class MyClasses extends Component {
 
 	componentDidMount() {
 		this.loadClasses();
-		if (this.props.isTeacher) { // if it's a teacher account
-			this.props.showSnackBar("info", "Only student account attempts are considered in the analytics")
+		if (this.props.isTeacher) { // if it's a teacher reducerAccount
+			this.props.showSnackBar("info", "Only student reducerAccount attempts are considered in the analytics")
 		}
 	}
 

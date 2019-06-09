@@ -1,8 +1,9 @@
 import {
   CONST_CREATE_TEST_GET_QUESTIONS,
   CONST_DEFAULT_TEST_SETTING,
-  CONST_CREATE_TEST_OPEN_QUESTION_SET
-} from "../Actions/teacher";
+  CONST_CREATE_TEST_OPEN_QUESTION_SET,
+  CONST_CREATE_TEST_ADD_QUESTION
+} from "../Actions/actionsMakeTest";
 import {copy} from "../../HelperFunctions/Utilities";
 
 const makeTestDefault = {
@@ -40,6 +41,12 @@ export function createTest(state = makeTestDefault, action) {
 			open: !state.sets[questionIndex].open
 		  })
 		})
+	  });
+	case CONST_CREATE_TEST_ADD_QUESTION:
+	  const { newQuestion } = action;
+	  return Object.assign({}, state, {
+	    ...state,
+		testQuestions: [...state.testQuestions, newQuestion]
 	  });
 	default:
 	  return state;

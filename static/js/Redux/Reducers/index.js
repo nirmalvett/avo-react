@@ -1,9 +1,9 @@
 import { combineReducers } from 'redux';
-import { account } from "./account";
+import { reducerAccount } from "./reducerAccount";
 import { createTest } from "./createTest";
 
 export default combineReducers({
-  account: account,
+  account: reducerAccount,
   createTest: createTest,
 
 })

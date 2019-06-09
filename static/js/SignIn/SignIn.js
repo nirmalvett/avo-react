@@ -191,7 +191,7 @@ export default class SignIn extends Component {
                     )}
                     <footer className='avo-styles__footer'>
                         <Typography variant='caption'>
-                            {this.state.isSigningIn ? 'Don\'t have an account? Click ' : 'Already have an Account? Click '}
+                            {this.state.isSigningIn ? 'Don\'t have an reducerAccount? Click ' : 'Already have an Account? Click '}
                             <a
                                 id="switchRegistration"
                                 className="avo-styles__link"
@@ -267,7 +267,7 @@ export default class SignIn extends Component {
                     username: s.rEmail,
                     password: s.rPassword1,
                     hasAgreedToTOS: false,
-                    messageToUser: "Registration successful! To fully activate your account please check your email" +
+                    messageToUser: "Registration successful! To fully activate your reducerAccount please check your email" +
                         " inbox/spam folder for the activation link."
                 }),
                 result => this.setState({messageToUser: result.error}),
@@ -382,6 +382,6 @@ export default class SignIn extends Component {
 
     static confirmedAccountAlert() {
         if (window.location.href.includes('/confirm/'))
-            alert("Your account was successfully confirmed! You may now log in and begin using AVO.");
+            alert("Your reducerAccount was successfully confirmed! You may now log in and begin using AVO.");
     };
 };

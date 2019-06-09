@@ -4,9 +4,9 @@ import { copy } from '../../HelperFunctions/Utilities';
 import { InlineDateTimePicker } from 'material-ui-pickers';
 import { Card, TextField, CardHeader, IconButton } from '@material-ui/core';
 import { Done } from '@material-ui/icons';
-import QuestionSidebar from "./QuestionSidebar/QuestionSidebar"
+import QuestionSidebar from "./QuestionSidebar"
 import { connect } from 'react-redux';
-import { getQuestionSets} from "../../Redux/Actions/teacher";
+import { getQuestionSets} from "../../Redux/Actions/actionsMakeTest";
 import { QuestionCard } from "./QuestionCard";
 
 class CreateTest extends Component {
@@ -155,12 +155,6 @@ class CreateTest extends Component {
                     <Done/>
                 </IconButton>
         )
-    }
-
-    open(y) {
-        let newSetList = copy(this.state.sets);
-        newSetList[y].open = !newSetList[y].open;
-        this.setState({sets: newSetList});
     }
 
     addQuestion(a) {

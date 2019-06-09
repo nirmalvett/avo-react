@@ -14,13 +14,13 @@ from server.models import db, User, Class, Transaction, Takes
 UserRoutes = Blueprint('UserRoutes', __name__)
 
 
-# Routes needed for normal account creation and usage (ordered sequentially)
+# Routes needed for normal reducerAccount creation and usage (ordered sequentially)
 
 
 @UserRoutes.route('/register', methods=['POST'])
 def register():
     """
-    Registers a new user account
+    Registers a new user reducerAccount
     :return: Confirmation to the client
     """
     if not request.json:
@@ -55,7 +55,7 @@ def register():
     send_email(email, 'Confirm your AvocadoCore Account',
                f'<html><body>Hi {user.first_name},<br/><br/>'
                f'Thanks for signing up! Please click <a href="{confirm_url}">here</a> to '
-               f'activate your account. If you have any questions or suggestions for how we can improve, please send '
+               f'activate your reducerAccount. If you have any questions or suggestions for how we can improve, please send '
                f'us an email at contact@avocadocore.com.'
                f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>')
     return jsonify(message='Account created')
@@ -77,7 +77,7 @@ def confirm(token):
     user = User.query.filter(User.email == email).first()  # get user from the email
     if user is None:
         # If there is no user found return an error
-        return "There is no account associated with the email in that token"
+        return "There is no reducerAccount associated with the email in that token"
 
     if not user.confirmed:
         # If the user is not confirm confirm then and commit to database
@@ -159,10 +159,10 @@ def request_password_reset():
     try:
         user = User.query.filter(User.email == email).first()
     except NoResultFound:
-        return jsonify(error="The email you requested is not associated with an AVO account. "
+        return jsonify(error="The email you requested is not associated with an AVO reducerAccount. "
                              "Perhaps it was a typo? Please try again.")
     if user is None:
-        return jsonify(error="The email you requested is not associated with an AVO account. "
+        return jsonify(error="The email you requested is not associated with an AVO reducerAccount. "
                              "Perhaps it was a typo? Please try again.")
     serializer = URLSafeTimedSerializer(config.SECRET_KEY)
     token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
@@ -193,7 +193,7 @@ def password_reset(token):
     user = User.query.filter(User.email == email).first()  # get user from the email
     if user is None:
         # If there is no user found return an error
-        return "There is no account associated with the email."
+        return "There is no reducerAccount associated with the email."
 
     if request.method == 'GET':
         return render_template('index.html')

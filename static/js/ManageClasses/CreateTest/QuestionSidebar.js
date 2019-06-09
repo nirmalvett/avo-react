@@ -3,8 +3,8 @@ import {Folder, FolderOpen} from "@material-ui/icons";
 import React from "react";
 import {connect} from "react-redux";
 import {HashLoader} from 'react-spinners';
-import {createTestOpenQuestionSet} from "../../../Redux/Actions/teacher";
-import {objToList} from "../../../HelperFunctions/Utilities";
+import {createTestAddQuestion, createTestOpenQuestionSet} from "../../Redux/Actions/actionsMakeTest";
+import {objToList} from "../../HelperFunctions/Utilities";
 
 class QuestionSidebar extends React.Component {
   /*
@@ -13,28 +13,23 @@ class QuestionSidebar extends React.Component {
    * addQuestion: a binded function
    * sets: list of set data*/
   render() {
-	const {sets, addQuestion, open} = this.props;
+	const {sets, addQuestion, open, isLoading} = this.props;
 	/* If it's still loading */
-	if (sets.length === 0) {
-	  return (
-		  <div style={{flex: 1, display: 'flex'}}>
-			<Paper square style={{width: '100%', flex: 1, display: 'flex'}}>
-			  <div class="center-div">
-				< HashLoader size={150} color={'#399103'}/>
-			  </div>
-			</Paper>
-		  </div>
-	  )
+	if (isLoading){
+	  return this.loading();
 	}
-	return (
+	else {
+	  return (
 		<div style={{flex: 1, display: 'flex'}}>
 		  <Paper square style={{width: '100%', flex: 1, display: 'flex'}}>
 			<List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
-			  {this.questionSets()} {/* This is the question sets */}
+			  { this.questionSets() }  /* This is the question sets */
 			</List>
 		  </Paper>
 		</div>
 	)
+	}
+
   }
 
   questionSets() {
@@ -44,33 +39,33 @@ class QuestionSidebar extends React.Component {
 		<React.Fragment>
 		  {
 			Object.keys(sets).map((key, setIndex) => {
-			  const set = sets[key];
-			  return (
-				  <div>
-					<ListItem
-						key={"CreateTest-Set-List-Item" + setIndex}
-						button
-						onClick={() => this.open(setIndex)}
-						disabled={set.questions.length === 0}>
-					  {handleFolderOpen(set.open, set.questions.length)} {/* User clicks on open folder */}
-					  <ListItemText inset primary={set.name}/>
-					</ListItem>
-					<Collapse in={set.open} timeout='auto' unmountOnExit>
-					  <List>
-						{
-						  set.questions.map((question, questionIndex, setIndex) =>
-							  <ListItem
-								  key={"CreateTest-Per-Set" + setIndex + "-" + questionIndex}
-								  button onClick={() => addQuestion(question)}>
-								<ListItemText secondary={question.name}/>
-							  </ListItem>
-						  )
-						}
-					  </List>
-					</Collapse>
-				  </div>
-			  )
-			}
+				  const set = sets[key];
+				  return (
+					  <div>
+						<ListItem
+							key={"CreateTest-Set-List-Item" + setIndex}
+							button
+							onClick={() => this.open(setIndex)}
+							disabled={set.questions.length === 0}>
+						  {handleFolderOpen(set.open, set.questions.length)} {/* User clicks on open folder */}
+						  <ListItemText inset primary={set.name}/>
+						</ListItem>
+						<Collapse in={set.open} timeout='auto' unmountOnExit>
+						  <List>
+							{
+							  set.questions.map((question, questionIndex, setIndex) =>
+								  <ListItem
+									  key={"CreateTest-Per-Set" + setIndex + "-" + questionIndex}
+									  button onClick={() => this.addQuestion(question)}>
+									<ListItemText secondary={question.name}/>
+								  </ListItem>
+							  )
+							}
+						  </List>
+						</Collapse>
+					  </div>
+				  )
+				}
 			)
 		  }
 		</React.Fragment>
@@ -102,6 +97,24 @@ class QuestionSidebar extends React.Component {
 	this.props.dispatch(createTestOpenQuestionSet(questionIndex))
   }
 
+  addQuestion(questionObj) {
+	this.props.dispatch(createTestAddQuestion(questionObj));
+  }
+
+  loading() {
+	const {isLoading} = this.props;
+	return (
+		<React.Fragment>
+		  {
+			isLoading
+				? <div className="center-div">
+				  	<HashLoader size={150} color={'#399103'}/>
+				  </div>
+				: null
+		  }
+		</React.Fragment>
+	)
+  }
 
 }
 
@@ -130,7 +143,8 @@ function handleFolderOpen(openBoolean, questionLength) {
 
 function mapStateToProps({createTest}) {
   return {
-	sets: createTest.sets
+	sets: createTest.sets,
+	isLoading: createTest.sets.length === 0
   }
 }
 

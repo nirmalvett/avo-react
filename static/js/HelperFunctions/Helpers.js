@@ -145,3 +145,7 @@ export function convertListFloatToAnalytics(inputList, topMark){
 
     return returnObj;
 }
+
+export function loading(){
+
+}

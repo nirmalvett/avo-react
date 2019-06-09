@@ -13,7 +13,7 @@ import Http from '../HelperFunctions/Http';
 import {copy, getDateString} from '../HelperFunctions/Utilities';
 import AVOModal from '../SharedComponents/MaterialModal';
 import Chart from 'react-apexcharts';
-import {convertListFloatToAnalytics} from '../HelperFunctions/helpers';
+import {convertListFloatToAnalytics} from '../HelperFunctions/Helpers';
 import {InlineDateTimePicker} from "material-ui-pickers";
 
 const cardStyle = {marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};
