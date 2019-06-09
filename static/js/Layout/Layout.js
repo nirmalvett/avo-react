@@ -9,6 +9,7 @@ import MyClasses from '../MyClasses/MyClasses';
 import Timer from "../MyClasses/TimerComp";
 import CreateTest from '../ManageClasses/CreateTest';
 import Preferences from '../Preferences/Preferences';
+import Sythesis from '../Sythesis';
 import ManageClasses from '../ManageClasses/ManageClasses';
 import QuestionManager from "../CourseBuilder/QuestionBuilder/QuestionManager";
 import QuestionBuilder from "../QuestionBuilder/QuestionBuilder";
@@ -177,6 +178,7 @@ class Layout extends Component {
                                     {this.listItem(ClassOutlined, 'Manage Classes')}
                                     {this.listItem(BuildOutlined, 'My Questions')}
                                     {this.listItem(HelpOutline, 'Documentation')}
+                                    {this.listItem(HelpOutline, 'Sythesis')}
                                 </List>
                             </div>
                             : null
@@ -296,6 +298,8 @@ class Layout extends Component {
         />);
         if (section === 'In Class Tools') return (<AVOInClassTools/>);
         if (section === 'Explanations') return (<AVOExplanations/>);
+        if (section === 'Sythesis') return (<Sythesis/>);
+        
     }
 
     timerInTopBar(){
