@@ -4,7 +4,7 @@ import { copy } from '../../HelperFunctions/Utilities';
 import { InlineDateTimePicker } from 'material-ui-pickers';
 import { Card, TextField, CardHeader, IconButton } from '@material-ui/core';
 import { Done } from '@material-ui/icons';
-import { QuestionSidebar } from "./QuestionSidebar";
+import QuestionSidebar from "./QuestionSidebar"
 import { connect } from 'react-redux';
 import { initialMakeTest} from "../../Redux/Actions/teacher";
 import { MakeTestDefault } from "./MakeTestDefault";
@@ -35,20 +35,15 @@ class CreateTest extends Component {
 
 	  render() {
         let {sets, testQuestions, deadline} = this.state;
-        let disableSubmit = testQuestions.length === 0 || deadline.length !== 16;
-        console.log("testQuestions", testQuestions);
+
         return (
             <div style={{display: 'flex', flexDirection: 'row', flex: 1}}>
-                { QuestionSidebar(this.open.bind(this), this.addQuestion.bind(this), sets) }
+              <QuestionSidebar
+                  open = { this.open.bind(this) }
+                  addQuestion = { this.addQuestion.bind(this) }
+                  sets = { sets }/>
                 <div style={{ flex: 2, paddingLeft: '10%', paddingRight: '10%', paddingTop: '20px', paddingBottom: '20px', overflowY: 'auto'}}>
-                    {/*{ this.getTestQuestions() } /!* get each test question card *!/*/}
-                     {
-              testQuestions.map(
-                  (question, questionIndex) => {
-                    return QuestionCard(question, questionIndex, testQuestions.length)
-                  }
-              )
-            }
+                    { this.getTestQuestions() } {/* get each test question card */}
                     { this.bottomSubmissionCard() } {/* the bottom card that specifies things like attemps, date, etc */}
                 </div>
             </div>
@@ -92,6 +87,7 @@ class CreateTest extends Component {
     };
 
     bottomSubmissionCard(){
+      const { testQuestions } = this.state;
         return (
             <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
                         <CardHeader title={'Test Settings'} action={this.submitTest()}/>
