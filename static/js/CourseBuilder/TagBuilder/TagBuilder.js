@@ -61,11 +61,11 @@ export default class TagBuilder extends Component {
                 onChange={e => this.handleTagInput(e)}
                 margin="normal"
               />
-              <div style={{ paddingLeft: '33%' }}>
+              <div style={{ paddingLeft: "33%" }}>
                 <Button
                   style={{ marginTop: "16px", float: "right" }}
                   variant="contained"
-                  onClick={() => {}}
+                  onClick={() => this.putTags()}
                 >
                   Save
                 </Button>
@@ -83,13 +83,78 @@ export default class TagBuilder extends Component {
       children: []
     };
     const newTags = this.state.tags.concat(newTag);
+    Http.addTag(
+      { tagName: newTag.title },
+      res => {
+        console.log(res);
+      },
+      err => {
+        console.log(err);
+      }
+    );
     this.setState({
       tags: newTags,
       tagInput: ""
     });
   }
-  handleTagInput(event) {
-    this.setState({ tagInput: event.target.value });
+  putTags() {
+    Http.putTags(
+      this.formatTagsForServer(),
+      res => {
+        console.log(res)
+      },
+      err => {
+        console.log(err)
+      }
+    )
+  }
+  formatTagsForServer() {
+    const parents = this.state.tags.map((tag, i) => {
+      return {
+        TAG: tag.id,
+        parent: null,
+        tagName: tag.title,
+        childOrder: i
+      };
+    });
+    let children = []
+    this.state.tags.forEach(tag => {
+      children.push(this.getListOfChildren(tag.children, tag))
+    })
+    children.forEach((child)=>{
+      child.forEach((ch)=>{
+        parents.push(ch)
+      })
+    })
+    const tags = parents
+    return tags;
+  }
+  getListOfChildren(parents, grandparent) {
+    let c = [];
+    parents.forEach((child, i) => {
+      if (Array.isArray(child))
+        child.forEach(ch => {
+          c.push({
+            TAG: ch.id,
+            parent: grandparent.id == null ? grandparent.TAG : grandparent.id,
+            tagName: ch.title,
+            childOrder: ch.childOrder
+          });
+          if (ch.children != null && ch.children.length > 0)
+            c = c.concat(this.getListOfChildren(ch.children, ch));
+        });
+      else {
+        c.push({
+          TAG: child.id,
+          parent: grandparent.id == null ? grandparent.TAG : grandparent.id,
+          tagName: child.title,
+          childOrder: child.childOrder,
+        });
+        if (child.children != null && child.children.length > 0)
+          c = c.concat(this.getListOfChildren(child.children, child));
+      }
+    });
+    return c;
   }
   getTags() {
     Http.getTags(
@@ -102,16 +167,19 @@ export default class TagBuilder extends Component {
           flatList.push({
             id: tag.TAG,
             parentId: tag.parent,
-            title: tag.tagName
+            title: tag.tagName,
+            childOrder: tag.childOrder
           });
         });
         while (tagCount > 0)
           flatList.forEach(tag => {
             if (tag.parentId == null) {
               parents.push({
+                parentId: null,
                 id: tag.id,
                 title: tag.title,
-                children: []
+                children: [],
+                childOrder: tag.childOrder
               });
               tagCount -= 1;
             } else {
@@ -131,8 +199,10 @@ export default class TagBuilder extends Component {
       if (parent.id === tag.parentId) {
         found = true;
         parent.children.push({
+          parentId: tag.parentId,
           id: tag.id,
           title: tag.title,
+          childOrder: tag.childOrder,
           children: []
         });
       }
@@ -144,5 +214,8 @@ export default class TagBuilder extends Component {
       });
     }
     return found;
+  }
+  handleTagInput(event) {
+    this.setState({ tagInput: event.target.value });
   }
 }

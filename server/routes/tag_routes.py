@@ -35,7 +35,7 @@ def get_tags():
 
 
 
-@TagRoutes.route('/putTags')
+@TagRoutes.route('/putTags', methods=['PUT'])
 @teacher_only
 def put_tags_route():
     """
@@ -54,7 +54,8 @@ def put_tags_route():
         return abort(400)
     # Step 3: First get the object from the JSON, in this case you'll find data['tags'], let's call it newTagsList
     data = request.json
-    new_tags_list = data['answer']  # Data from user
+    new_tags_list = data['tags']  # Data from user
+    print(new_tags_list)
     # Step 4: Validate the datatype, in this case it should be a list i.e. check if not isinstance(newTagsList, list)
     if not isinstance(new_tags_list, list):
         # Checks if all data given is of correct type if not return error JSON
@@ -70,7 +71,7 @@ def put_tags_route():
     return jsonify(message='Changed successfully!')
 
 
-@TagRoutes.route('/addTag')
+@TagRoutes.route('/addTag', methods=['POST'])
 @teacher_only
 def add_tag_route():
     """
@@ -82,13 +83,13 @@ def add_tag_route():
         return abort(400)
     data = request.json  # Data sent from client
     tag = data['tag']
-    tag_obj = Tag(None, tag.tagName, 0)
+    tag_obj = Tag(None, tag['tagName'], 0)
     db.session.add(tag_obj)
-    db.commit()
+    db.session.commit()
 
     return jsonify(
         message='Changed successfully!',
-        tag=alchemy_to_dict(tag_obj)
+        tag=tag
     )
 
 
