@@ -60,7 +60,12 @@ export default class Http {
 	static getTags(success, failure) {
 		Http._request('GET', '/getTags', success, failure);
 	}
-
+	static addTag(tag, success, failure){
+		Http._request('POST', '/addTag', success, failure, {tag})
+	}
+	static putTags(tags, success, failure){
+		Http._request('PUT', '/putTags', success, failure, {tags})
+	}
 	static getSets(success, failure) {
 		Http._request('GET', '/getSets', success, failure);
 	}
