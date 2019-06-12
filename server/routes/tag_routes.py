@@ -9,9 +9,6 @@ from server.models import db, Set, Question, UserViewsSet, Tag
 TagRoutes = Blueprint('TagRoutes', __name__)
 
 
-# Get sets/questions
-
-
 @TagRoutes.route('/getTags')
 @teacher_only
 def get_tags_route():
@@ -20,6 +17,7 @@ def get_tags_route():
     :return: The list of tags
     """
     return jsonify(tags=get_tags())
+
 
 def get_tags():
     """
@@ -32,7 +30,6 @@ def get_tags():
     for tag in list_of_tags:
         list_dict.append(alchemy_to_dict(tag))
     return list_dict
-
 
 
 @TagRoutes.route('/putTags', methods=['PUT'])
@@ -55,18 +52,26 @@ def put_tags_route():
     # Step 3: First get the object from the JSON, in this case you'll find data['tags'], let's call it newTagsList
     data = request.json
     new_tags_list = data['tags']  # Data from user
-    print(new_tags_list)
     # Step 4: Validate the datatype, in this case it should be a list i.e. check if not isinstance(newTagsList, list)
     if not isinstance(new_tags_list, list):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
+    tag_ids = []
+    for t in new_tags_list:
+        tag_ids.append(t['TAG'])
 
     # Step 5: Now loop through each object from the list
     # so first we'll get a list of all the tag objects
-    tag_list = Tag.query.filter(Tag.TAG.in_(new_tags_list)).all()
+    tag_list = Tag.query.filter(Tag.TAG.in_(tag_ids)).all()
+    if len(tag_list) != len(tag_ids):
+        return jsonify(error="One or more tags not found")
+
     for tag in tag_list:
-        tag.changeTag()
-    db.commit()
+        tag_new_data = [d for d in new_tags_list if tag.TAG == d['TAG']]
+        tag.parent = tag_new_data[0]['parent']
+        tag.tagName = tag_new_data[0]['tagName']
+        tag.childOrder = tag_new_data[0]['childOrder']
+    db.session.commit()
 
     return jsonify(message='Changed successfully!')
 
@@ -82,18 +87,23 @@ def add_tag_route():
         # If the request is not json return a 400 error
         return abort(400)
     data = request.json  # Data sent from client
-    tag = data['tag']
-    tag_obj = Tag(None, tag['tagName'], 0)
+    tag = data['tag']  # dic of tag data
+    tag_obj = Tag(None, tag['tagName'], 0)  # Tag to be added to database
     db.session.add(tag_obj)
     db.session.commit()
 
     return jsonify(
         message='Changed successfully!',
-        tag=tag
+        tag=tag_obj
     )
 
 
 def alchemy_to_dict(obj):
+    """
+    Converts SQLalchemy object to dict
+    :param obj: the SQLalchemy object to convert
+    :return: dict of SQLalchemy object
+    """
     dicObj = obj.__dict__
     dicObj.pop('_sa_instance_state')
     return dicObj

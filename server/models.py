@@ -242,7 +242,7 @@ class TransactionProcessing(db.Model):
 class Tag(db.Model):
     __tablename__ = 'TAG'
 
-    TAG = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TAG = db.Column(db.Integer, primary_key=True)
     parent = db.Column(db.Integer, nullable=True)
     tagName = db.Column(db.String(30), nullable=False)
     childOrder = db.Column(db.Integer, nullable=False)
@@ -252,8 +252,7 @@ class Tag(db.Model):
         self.tagName = tagName
         self.childOrder = childOrder
 
-    def changeTag(self, parent, tagName, childOrder):
-        self.parent = parent
-        self.tagName = tagName
-        self.childOrder = childOrder
+    def __repr__(self):
+        return f'TAG {self.TAG} {self.parent} {self.tagName} {self.childOrder}'
+
 
