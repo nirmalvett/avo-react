@@ -1,33 +1,20 @@
 from flask import Flask
 from flask_compress import Compress
-from server.auth import login_manager
+
 from server.models import db
-from server.routes import ClassRoutes, FileRoutes, QuestionRoutes, ServerRoutes, TestRoutes, UserRoutes
-import paypalrestsdk
-import config
+from server.auth import login_manager, UserRoutes
+from server.files import FileRoutes
+from server.routes import routes
 
-
-# Configure PayPal
-print(">>> PayPal is set to " + config.PAYPAL_MODE + " <<<")
-paypalrestsdk.configure({
-    'mode': config.PAYPAL_MODE,
-    'client_id': config.PAYPAL_ID,
-    'client_secret': config.PAYPAL_SECRET
-})
-
-# Create and configure the Flask App, attach the login manager, and attach the database
-app = Flask(__name__, static_folder='../static/dist', template_folder='../static')
-app.config.from_object('config')
+app = Flask(__name__, static_folder='../static/dist', template_folder='../static') # Creates the Flask app
+# Adds in login manager Database Blueprints and GZIP support
 login_manager.init_app(app)
+app.config.from_object('config')
+
 db.init_app(app)
 
-# Attach the database blueprints
-app.register_blueprint(ClassRoutes)
-app.register_blueprint(FileRoutes)
-app.register_blueprint(QuestionRoutes)
-app.register_blueprint(ServerRoutes)
-app.register_blueprint(TestRoutes)
 app.register_blueprint(UserRoutes)
+app.register_blueprint(FileRoutes)
+app.register_blueprint(routes)
 
-# Add gzip support
 Compress(app)

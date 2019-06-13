@@ -1,4 +1,4 @@
-from server.models import db, Transaction
+from server.models import *
 from datetime import datetime
 # TODO Refactor This to work
 if __name__ == "main":

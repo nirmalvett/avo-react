@@ -1,11 +1,9 @@
+from server.data import db
 from flask_login import UserMixin
-from flask_sqlalchemy import SQLAlchemy
 from random import SystemRandom
 from string import ascii_letters, digits
-from server.Encoding.PasswordHash import generate_salt, hash_password
 
-# Initialize Database
-db = SQLAlchemy()
+from server.Encoding.PasswordHash import generate_salt, hash_password
 
 
 class Class(db.Model):
@@ -31,7 +29,7 @@ class Class(db.Model):
         self.price_discount = price
         self.enroll_key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
         enroll_key_class = Class.query.filter(Class.enroll_key == self.enroll_key).all()
-        while len(enroll_key_class) != 0:
+        while len(enroll_key_class) is not 0:
             self.enroll_key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
             enroll_key_class = Class.query.filter(Class.enroll_key == self.enroll_key).all()
 
@@ -55,9 +53,9 @@ class Takes(db.Model):
     TEST_RELATION = db.relationship("Test", back_populates="TAKES_RELATION")
     USER_RELATION = db.relationship("User", back_populates="TAKES_RELATION")
 
-    def __init__(self, test, user, time_started, time_submitted, grade, marks, answers, seeds):
-        self.TEST = test
-        self.USER = user
+    def __init__(self, TEST, USER, time_started, time_submitted, grade, marks, answers, seeds):
+        self.TEST = TEST
+        self.USER = USER
         self.time_started = time_started
         self.time_submitted = time_submitted
         self.grade = grade
@@ -123,8 +121,8 @@ class Question(db.Model):
 
     SET_RELATION = db.relationship("Set", back_populates="QUESTION_RELATION")
 
-    def __init__(self, set_id, name, string, answers, total):
-        self.SET = set_id
+    def __init__(self, SET, name, string, answers, total):
+        self.SET = SET
         self.name = name
         self.string = string
         self.answers = answers
@@ -167,8 +165,8 @@ class Test(db.Model):
     TAKES_RELATION = db.relationship("Takes", back_populates="TEST_RELATION")
     CLASS_RELATION = db.relationship("Class", back_populates="TEST_RELATION")
 
-    def __init__(self, class_id, name, is_open, deadline, timer, attempts, question_list, seed_list, total):
-        self.CLASS = class_id
+    def __init__(self, CLASS, name, is_open, deadline, timer, attempts, question_list, seed_list, total):
+        self.CLASS = CLASS
         self.name = name
         self.is_open = is_open
         self.deadline = deadline
@@ -194,13 +192,13 @@ class UserViewsSet(db.Model):
     USER_RELATION = db.relationship("User", back_populates="USER_VIEWS_SET_RELATION")
     SET_RELATION = db.relationship("Set", back_populates="USER_VIEWS_SET_RELATION")
 
-    def __init__(self, user, set_id, can_edit):
-        self.USER = user
-        self.SET = set_id
+    def __init__(self, USER, SET, can_edit):
+        self.USER = USER
+        self.SET = SET
         self.can_edit = can_edit
 
     def __repr__(self):
-        return f'UserViewsSet {self.USER_VIEWS_SET} {self.USER} {self.SET} {self.can_edit}'
+        return  f'UserViewsSet {self.USER_VIEWS_SET} {self.USER} {self.SET} {self.can_edit}'
 
 
 class Transaction(db.Model):
@@ -214,13 +212,13 @@ class Transaction(db.Model):
     USER_RELATION = db.relationship("User", back_populates="TRANSACTION_RELATION")
     CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_RELATION")
 
-    def __init__(self, transaction, user, class_id, expiration):
-        self.TRANSACTION = transaction
-        self.USER = user
-        self.CLASS = class_id
+    def __init__(self, TRANSACTION, USER, CLASS, expiration):
+        self.TRANSACTION = TRANSACTION
+        self.USER = USER
+        self.CLASS = CLASS
         self.expiration = expiration
 
-    def __repr__(self):
+    def __reduce__(self):
         return f'Transaction {self.TRANSACTION} {self.USER} {self.CLASS} {self.expiration}'
 
 
@@ -233,7 +231,7 @@ class TransactionProcessing(db.Model):
 
     CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_PROCESSING_RELATION")
 
-    def __init__(self, transaction_processing, class_id, user):
-        self.TRANSACTIONPROCESSING = transaction_processing
-        self.CLASS = class_id
-        self.USER = user
+    def __init__(self, TransactionProcessing, CLASS, USER):
+        self.TRANSACTIONPROCESSING = TransactionProcessing
+        self.CLASS = CLASS
+        self.USER = USER
