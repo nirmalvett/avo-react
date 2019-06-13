@@ -12,6 +12,7 @@
 }
 
 body {
+  margin: 0px;
 }
 
 * {
@@ -20,14 +21,12 @@ body {
 }
 
 #root {
-    position: fixed;
-    left: 0;
-    top: 0;
+    background-position: center;
+    background-size: cover !important;
     width: 100vw;
     height: 100vh;
-    overflow: hidden;
-    background: url('../img/avo_backdrop.png') 50% 70%;
-    background-size: 120%;
+    background: url('../img/avo_backdrop_cropped.png') 100% 100%;
+    padding-top: 5vh;
 }
 
 ::-webkit-scrollbar {
@@ -52,7 +51,7 @@ body {
     display: flex;
     width: 33%;
     height: 90vh;
-    margin: 5vh auto auto;
+    margin: 0vh auto auto;
     border-radius: 8px !important;
     box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
     overflow-y: auto !important;
