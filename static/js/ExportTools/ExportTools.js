@@ -1,9 +1,6 @@
 import React, { Component } from "react";
 import Typography from "@material-ui/core/es/Typography/Typography";
 import { Button, Paper } from "@material-ui/core/es";
-import { withStyles } from "@material-ui/core";
-
-let styles;
 
 class ExportTools extends Component {
   constructor(props) {
@@ -13,19 +10,14 @@ class ExportTools extends Component {
         width: "600px",
         height: "480px",
         margin: "50px auto",
-        padding: "20px",
-        justifyContent: "center",
+        padding: "20px"
       },
       highlighted: {
         width: "600px",
         height: "480px",
         margin: "50px auto",
         padding: "20px",
-        backgroundColor: props.theme.color['500'],
-        justifyContent: "center",
-      },
-      exportButton: {
-        justifyContent: "center"
+        backgroundColor: props.theme.color["500"]
       }
     };
 
@@ -51,11 +43,17 @@ class ExportTools extends Component {
   render() {
     return (
       <Paper className="drop-area" id="drop-area" style={this.state.style}>
-        <Typography variant="title" align="center" style={{ margin: "15px" }}>
+        <Typography
+          variant="title"
+          align="center"
+          style={{ margin: "15px", width: "100%" }}
+        >
           Drag and drop your CSVs here to be processed
         </Typography>
-        {this.displayExport()}
-        {this.displayFiles()}
+        <div style={{ width: "200px", padding: "20px" }}>
+          {this.displayExport()}
+          {this.displayFiles()}
+        </div>
       </Paper>
     );
   }
@@ -63,12 +61,7 @@ class ExportTools extends Component {
   displayExport() {
     if (this.state.jsonObjects[0]) {
       return (
-        <Button
-          color="primary"
-          variant="contained"
-          style={this.styles.exportButton}
-          onClick={this.exportFiles}
-        >
+        <Button color="primary" variant="contained" onClick={this.exportFiles}>
           Export
         </Button>
       );
@@ -78,9 +71,11 @@ class ExportTools extends Component {
   displayFiles() {
     if (this.state.fileNames[0]) {
       let fileList = this.state.fileNames.map(name => {
-        return <Typography style={{padding: "5px"}}>{name}</Typography>;
+        return <Typography style={{ padding: "5px" }}>{name}</Typography>;
       });
-      return <div style={{overflow: "auto", height: "400px"}}>{fileList}</div>;
+      return (
+        <div style={{ overflow: "auto", height: "400px" }}>{fileList}</div>
+      );
     }
   }
 
