@@ -1,29 +1,42 @@
 import React, { Component } from "react";
 import Typography from "@material-ui/core/es/Typography/Typography";
+import { Button, Paper } from "@material-ui/core/es";
+import { withStyles } from "@material-ui/core";
 
-const styles = {
-  dropArea: {
-    border: "1px dotted gray",
-    margin: "80px",
-    width: "50%"
-  },
-  highlighted: {
-    border: "1px dotted gray",
-    margin: "80px",
-    width: "50%",
-    backgroundColor: "green"
-  }
-};
+let styles;
 
 class ExportTools extends Component {
   constructor(props) {
     super(props);
+    this.styles = {
+      dropArea: {
+        width: "600px",
+        height: "480px",
+        margin: "50px auto",
+        padding: "20px",
+        justifyContent: "center",
+      },
+      highlighted: {
+        width: "600px",
+        height: "480px",
+        margin: "50px auto",
+        padding: "20px",
+        backgroundColor: props.theme.color['500'],
+        justifyContent: "center",
+      },
+      exportButton: {
+        justifyContent: "center"
+      }
+    };
+
     this.state = {
       fileNames: [],
       convertedFiles: [],
       jsonObjects: [],
-      style: styles.dropArea
+      style: this.styles.dropArea
     };
+
+    // Bindings
     this.setState = this.setState.bind(this);
     this.handleDrop = this.handleDrop.bind(this);
     this.processFile = this.processFile.bind(this);
@@ -37,27 +50,37 @@ class ExportTools extends Component {
 
   render() {
     return (
-      <div className="drop-area" id="drop-area" style={this.state.style}>
-        <form className="drop-form">
-          <Typography variant="title" style={{ margin: "15px" }}>
-            Drag and drop your CSVs here to be processed
-          </Typography>
-          <input
-            type="file"
-            id="fileElem"
-            multiple
-            accept=".csv"
-            onChange={e => this.handleFiles(e)}
-          />
-        </form>
+      <Paper className="drop-area" id="drop-area" style={this.state.style}>
+        <Typography variant="title" align="center" style={{ margin: "15px" }}>
+          Drag and drop your CSVs here to be processed
+        </Typography>
         {this.displayExport()}
-      </div>
+        {this.displayFiles()}
+      </Paper>
     );
   }
 
   displayExport() {
     if (this.state.jsonObjects[0]) {
-      return <button onClick={this.exportFiles}>Export</button>;
+      return (
+        <Button
+          color="primary"
+          variant="contained"
+          style={this.styles.exportButton}
+          onClick={this.exportFiles}
+        >
+          Export
+        </Button>
+      );
+    }
+  }
+
+  displayFiles() {
+    if (this.state.fileNames[0]) {
+      let fileList = this.state.fileNames.map(name => {
+        return <Typography style={{padding: "5px"}}>{name}</Typography>;
+      });
+      return <div style={{overflow: "auto", height: "400px"}}>{fileList}</div>;
     }
   }
 
@@ -81,11 +104,11 @@ class ExportTools extends Component {
   }
 
   highlight(e) {
-    this.setState({ style: styles.highlighted });
+    this.setState({ style: this.styles.highlighted });
   }
 
   unhighlight(e) {
-    this.setState({ style: styles.dropArea });
+    this.setState({ style: this.styles.dropArea });
   }
 
   handleDrop(e) {
