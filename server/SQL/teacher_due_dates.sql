@@ -1,10 +1,11 @@
 SELECT
 		CLASS.name,
 		CLASS.CLASS,
-        TEST.name,
+        TEST.name as test_name,
         TEST.deadline,
         TEST.TEST
 FROM	TEST
 			INNER JOIN CLASS
 				ON CLASS.CLASS = TEST.CLASS
 WHERE	CLASS.USER = 3
+ORDER BY CLASS.CLASS

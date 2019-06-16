@@ -54,6 +54,10 @@ with open('server/SQL/student_messages.sql', 'r') as sql:
     student_messages = sql.read()
 with open('server/SQL/teacher_messages.sql', 'r') as sql:
     teacher_messages = sql.read()
+with open('server/SQL/student_due_dates.sql', 'r') as sql:
+    student_due_dates = sql.read()
+with open('server/SQL/teacher_due_dates.sql', 'r') as sql:
+    teacher_due_dates = sql.read()
 
 
 @routes.route('/changeColor', methods=['POST'])
@@ -206,68 +210,42 @@ def home():
 
     """
     # TODO implement these data instead of using fake ones that Frank created
-    now = datetime.now()
     # get list of due dates objects
 
+    due_dates = []
 
+    due_dates += db.session.execute(text(student_due_dates),
+                                   params={'user': current_user.USER}).fetchall()
 
-    dueDates = [
-        {
-            "class": {
-                "name": "Math1600",
-                "id": 23
-            },
-            "dueDates": [
-                {
-                    "name": "Set 1",
-                    "dueDate": now,
-                    "id": 7,
-                },
-                {
-                    "name": "Set 2",
-                    "dueDate": now - timedelta(days=5),
-                    "id": 8,
-                },
-                {
-                    "name": "Set 3",
-                    "dueDate": now - timedelta(days=10),
-                    "id": 9,
-                }
-            ]
-        },
-        {
-            "class": {
-                "name": "Math1229",
-                "id": 23
-            },
-            "dueDates": [
-                {
-                    "name": "Test 1",
-                    "dueDate": now,
-                    "id": 10,
-                },
-                {
-                    "name": "Test 2",
-                    "dueDate": now - timedelta(days=2),
-                    "id": 11,
-                },
-                {
-                    "name": "Test 3",
-                    "dueDate": now - timedelta(days=3),
-                    "id": 12,
-                }
-            ]
-        }
-    ]
+    if current_user.is_teacher:
+        due_dates += db.session.execute(text(teacher_due_dates),
+                                       params={'user': current_user.USER}).fetchall()
+
+    return_due_dates = []
+    current_list_due_dates = []
+    current_class_data = {"name": due_dates[0].name, "id": due_dates[0].CLASS}
+    current_class = due_dates[0].CLASS
+
+    for due_date in due_dates:
+        if current_class != due_date.CLASS:
+            # If the its a new class then move the messages in
+            return_due_dates.append({"class": current_class_data, "dueDates": current_list_due_dates})
+            current_class_data = {"name": due_date.name, "id": due_date.CLASS}
+            current_list_due_dates = []
+            current_class = due_date.CLASS
+
+        current_list_due_dates.append({'name': due_date.name, 'dueDate': due_date.deadline,
+                                      'id': due_date.TEST})
+    return_due_dates.append({"class": current_class_data, "messages": current_list_due_dates})
 
     messages = []
 
     messages += db.session.execute(text(student_messages),
-                                                 params={'user': current_user.USER}).fetchall()
+                                   params={'user': current_user.USER}).fetchall()
 
     if current_user.is_teacher:
         messages += db.session.execute(text(teacher_messages),
-                                                     params={'user': current_user.USER}).fetchall()
+                                       params={'user': current_user.USER}).fetchall()
     # get list of messages
     return_messages = []
     current_list_messages = []
@@ -280,12 +258,13 @@ def home():
             return_messages.append({"class": current_class_data, "messages": current_list_messages})
             current_class_data = {"name": message.name, "id": message.CLASS}
             current_list_messages = []
+            current_class = message.CLASS
 
         current_list_messages.append({'title': message.title, 'body': message.body,
-                           'date': message.date_created})
+                                      'date': message.date_created})
     return_messages.append({"class": current_class_data, "messages": current_list_messages})
 
-    return jsonify(messages=return_messages, dueDates=dueDates)
+    return jsonify(messages=return_messages, dueDates=return_due_dates)
 
 
 @routes.route('/createClass', methods=['POST'])
