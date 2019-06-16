@@ -98,6 +98,34 @@ def add_tag_route():
     )
 
 
+@TagRoutes.route("/deleteTag", methods=['POST'])
+@teacher_only
+def delete_tag():
+    if not request.json:
+        # If the request is not JSON then return a 400 error
+        abort(400)
+    data = request.json  # Get the request data
+    tag_id = data['TAG']  # ID of tag to be removed
+    if not isinstance(tag_id, int):
+        # If not valid data type return error JSON
+        return jsonify(error="One or more data type is not correct")
+    tag = Tag.query.get(tag_id)  # Get the tag from the database
+    if tag is None:
+        # if no tag found return error JSON
+        return jsonify(error="Tag does not exist")
+    child_tags = tag.query.filter(Tag.parent == tag.parent).all()  # Get all child tags of current tag
+    if len(child_tags) != 0:
+        # There are child tags
+        for child in child_tags:
+            # For each child tag set its parent equal to the parent of the current tag
+            child.parent = tag.parent
+        db.session.commit()
+    # Delete tag and commit
+    db.session.delete(tag)
+    db.session.commit()
+    return jsonify(message="Tag deleted")
+
+
 def alchemy_to_dict(obj):
     """
     Converts SQLalchemy object to dict
