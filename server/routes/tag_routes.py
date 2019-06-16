@@ -91,10 +91,9 @@ def add_tag_route():
     tag_obj = Tag(None, tag['tagName'], 0)  # Tag to be added to database
     db.session.add(tag_obj)
     db.session.commit()
-
     return jsonify(
         message='Changed successfully!',
-        tag=tag_obj
+        tag=tag_obj.TAG
     )
 
 
