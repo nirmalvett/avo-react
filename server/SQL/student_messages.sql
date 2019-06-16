@@ -1,5 +1,6 @@
-SELECT MESSAGE.CLASS,
-		MESSAGE.title,
+SELECT  CLASS.name,
+        MESSAGE.CLASS,
+		    MESSAGE.title,
         MESSAGE.body,
         MESSAGE.date_created
 FROM 	CLASS
@@ -8,3 +9,4 @@ FROM 	CLASS
 		Inner Join MESSAGE
 			ON CLASS.CLASS = MESSAGE.CLASS
 WHERE transaction.USER = :user
+ORDER BY MESSAGE.CLASS

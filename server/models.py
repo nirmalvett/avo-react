@@ -245,7 +245,7 @@ class Message(db.Model):
     CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
     title = db.Column(db.String, nullable=False)
     body = db.Column(db.String, nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False)
+    date_created = db.Column(db.DATETIME, nullable=False)
 
     CLASS_RELATION = db.relationship("Class", back_populates="MESSAGE_RELATION")
 

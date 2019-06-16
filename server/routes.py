@@ -50,6 +50,10 @@ with open('server/SQL/student_tests_medians.sql', 'r') as sql:
     student_tests_medians = sql.read()
 with open('server/SQL/teacher_tests_medians.sql', 'r') as sql:
     teacher_tests_medians = sql.read()
+with open('server/SQL/student_messages.sql', 'r') as sql:
+    student_messages = sql.read()
+with open('server/SQL/teacher_messages.sql', 'r') as sql:
+    teacher_messages = sql.read()
 
 
 @routes.route('/changeColor', methods=['POST'])
@@ -204,6 +208,9 @@ def home():
     # TODO implement these data instead of using fake ones that Frank created
     now = datetime.now()
     # get list of due dates objects
+
+
+
     dueDates = [
         {
             "class": {
@@ -252,50 +259,33 @@ def home():
             ]
         }
     ]
+
+    messages = []
+
+    messages += db.session.execute(text(student_messages),
+                                                 params={'user': current_user.USER}).fetchall()
+
+    if current_user.is_teacher:
+        messages += db.session.execute(text(teacher_messages),
+                                                     params={'user': current_user.USER}).fetchall()
     # get list of messages
-    messages = [
-        {
-            "class": {
-                "name": "Team AVO",
-                "id": 23
-            },
-            "messages": [
-                {
-                    "title": "Welcome to AVO3",
-                    "id": 49,
-                    "body": "Here is the main body of the message for the user",
-                    "date": now,
-                },
-                {
-                    "title": "Welcome to AVO2",
-                    "id": 22,
-                    "body": "Here is the main body of the message for the user",
-                    "date": now - timedelta(days=5),
-                },
-                {
-                    "title": "Welcome to AVO1",
-                    "id": 30,
-                    "body": "Here is the main body of the message for the user",
-                    "date": now - timedelta(days=10),
-                }
-            ]
-        },
-        {
-            "class": {
-                "name": "Math1600",
-                "id": 23
-            },
-            "messages": [
-                {
-                    "title": "Remember to study!",
-                    "id": 49,
-                    "body": "There's a quiz on friday, study up!",
-                    "date": now,
-                }
-            ]
-        }
-    ]
-    return jsonify(messages=messages, dueDates=dueDates)
+    return_messages = []
+    current_list_messages = []
+    current_class_data = {"name": messages[0].name, "id": messages[0].CLASS}
+    current_class = messages[0].CLASS
+
+    for message in messages:
+        if current_class != message.CLASS:
+            # If the its a new class then move the messages in
+            return_messages.append({"class": current_class_data, "messages": current_list_messages})
+            current_class_data = {"name": message.name, "id": message.CLASS}
+            current_list_messages = []
+
+        current_list_messages.append({'title': message.title, 'body': message.body,
+                           'date': message.date_created})
+    return_messages.append({"class": current_class_data, "messages": current_list_messages})
+
+    return jsonify(messages=return_messages, dueDates=dueDates)
 
 
 @routes.route('/createClass', methods=['POST'])

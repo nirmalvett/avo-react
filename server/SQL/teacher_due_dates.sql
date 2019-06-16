@@ -1,0 +1,10 @@
+SELECT
+		CLASS.name,
+		CLASS.CLASS,
+        TEST.name,
+        TEST.deadline,
+        TEST.TEST
+FROM	TEST
+			INNER JOIN CLASS
+				ON CLASS.CLASS = TEST.CLASS
+WHERE	CLASS.USER = 3
