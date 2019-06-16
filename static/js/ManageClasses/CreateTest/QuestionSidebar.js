@@ -23,7 +23,7 @@ class QuestionSidebar extends React.Component {
 		<div style={{flex: 1, display: 'flex'}}>
 		  <Paper square style={{width: '100%', flex: 1, display: 'flex'}}>
 			<List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
-			  { this.questionSets() }  /* This is the question sets */
+			  { this.questionSets() }
 			</List>
 		  </Paper>
 		</div>

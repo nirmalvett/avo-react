@@ -7,6 +7,7 @@ export const CONST_CREATE_TEST_OPEN_QUESTION_SET = "CONST_CREATE_TEST_OPEN_QUEST
 export const CONST_CREATE_TEST_ADD_QUESTION = "CONST_CREATE_TEST_ADD_QUESTION";
 export const CONST_CREATE_TEST_DELETE_QUESTION = "CONST_CREATE_TEST_DELETE_QUESTION";
 export const CONST_CREATE_TEST_REFRESH_QUESTION = "CONST_CREATE_TEST_REFRESH_QUESTION";
+export const CONST_CREATE_TEST_LOCK_SEED = "CONST_CREATE_TEST_LOCK_SEED";
 export function getQuestionSets() {
   return (dispatch) => {
 	Http.getSets(
@@ -95,4 +96,11 @@ export function actionCreateTestDeleteQuestion(index){
 		type: CONST_CREATE_TEST_DELETE_QUESTION,
 		index: index,
 	}
+}
+
+export function actionCreateTestLockSeed(index){
+  return {
+    type: CONST_CREATE_TEST_LOCK_SEED,
+	index: index
+  }
 }

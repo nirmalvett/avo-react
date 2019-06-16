@@ -4,7 +4,11 @@ import React from "react";
 import {getMathJax} from "../../HelperFunctions/Utilities";
 import AnswerInput from "../../AnswerInput/AnswerInput";
 import {connect} from "react-redux";
-import {actionCreateTestDeleteQuestion, createTestQuestion} from "../../Redux/Actions/actionsMakeTest";
+import {
+  actionCreateTestDeleteQuestion,
+  actionCreateTestLockSeed,
+  createTestQuestion
+} from "../../Redux/Actions/actionsMakeTest";
 
 
 class QuestionCard extends React.Component {
@@ -58,6 +62,10 @@ class QuestionCard extends React.Component {
 
   refresh(question, questionIndex){
 	this.props.dispatch(createTestQuestion(question, questionIndex));
+  }
+
+  lock(questionIndex){
+	this.props.dispatch(actionCreateTestLockSeed(questionIndex))
   }
 
 }
