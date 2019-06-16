@@ -14,8 +14,10 @@ export default class TagBuilder extends Component {
     super(props);
     this.state = {
       tags: [],
-      tagInput: "", 
-      currentView: 'folderView'
+      tagAddInput: "", 
+      currentView: 'folderView',
+      tagDeleteInput: "",
+      tagsFromServer: []
     };
     //views: folderView, tagTreeView
     this.getTags();
@@ -61,14 +63,28 @@ export default class TagBuilder extends Component {
                         Add new tag
                     </Button>
                     <TextField
-                        style={{ margin: 0, width: 400, marginTop: -12, marginLeft: 10 }}
+                        style={{ margin: 0, width: 200, marginTop: -12, marginLeft: 10, marginRight: 10 }}
                         id="tag-input"
                         label="New tag..."
-                        value={this.state.tagInput}
-                        onChange={e => this.setState({tagInput: e.target.value})}
+                        value={this.state.tagAddInput}
+                        onChange={e => this.setState({tagAddInput: e.target.value})}
                         margin="normal"
                     />
-                    <div style={{ paddingLeft: '33%' }}>
+                    <Button
+                        variant="contained"
+                        onClick={() => this.deleteTag()}
+                    >
+                        Delete tag
+                    </Button>
+                    <TextField
+                        style={{ margin: 0, width: 200, marginTop: -12, marginLeft: 10 }}
+                        id="tag-input"
+                        label="Delete tag..."
+                        value={this.state.tagDeleteInput}
+                        onChange={e => this.setState({tagDeleteInput: e.target.value})}
+                        margin="normal"
+                    />
+                    <div style={{ marginLeft: 'auto' }}>
                         <Button
                         variant="contained"
                         onClick={() => {this.putTags()}}
@@ -92,17 +108,17 @@ export default class TagBuilder extends Component {
   }
   addTag() {
     Http.addTag(
-      { tagName: this.state.tagInput },
+      { tagName: this.state.tagAddInput },
       res => {
         const newTag = {
           id: res.tag,
-          title: this.state.tagInput,
+          title: this.state.tagAddInput,
           children: []
         };
         const newTags = this.state.tags.concat(newTag);
         this.setState({
           tags: newTags,
-          tagInput: ""
+          tagAddInput: ""
         });
         console.log(res);
       },
@@ -175,6 +191,7 @@ export default class TagBuilder extends Component {
   getTags() {
     Http.getTags(
       res => {
+        this.setState({tagsFromServer: res.tags})
         console.log(res)
         const tags = res.tags;
         this.tags = tags;
@@ -182,9 +199,10 @@ export default class TagBuilder extends Component {
         const parents = [];
         let tagCount = tags.length;
         tags.forEach(tag => {
+          const hasParent = tags.find((t)=>tag.parent === t.TAG)
           flatList.push({
             id: tag.TAG,
-            parentId: tag.parent,
+            parentId: hasParent !== undefined ? tag.parent : null,
             title: tag.tagName,
             childOrder: tag.childOrder
           });
@@ -215,6 +233,20 @@ export default class TagBuilder extends Component {
         console.log(err);
       }
     );
+  }
+  deleteTag(){
+    const tag = this.state.tagsFromServer.find((tag)=>tag.tagName === this.state.tagDeleteInput)
+    console.log(tag)
+    Http.deleteTag(
+      { TAG: tag.TAG },
+      res=>{
+        console.log(res)
+        this.getTags()
+        this.setState({tagDeleteInput: ""})
+      },
+      err=>{
+        console.log(err)
+      })
   }
   sortChildren(parent){
     parent.children.sort((a, b)=>{

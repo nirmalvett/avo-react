@@ -104,7 +104,8 @@ def delete_tag():
         # If the request is not JSON then return a 400 error
         abort(400)
     data = request.json  # Get the request data
-    tag_id = data['TAG']  # ID of tag to be removed
+    print(data)
+    tag_id = data['tag']['TAG']  # ID of tag to be removed
     if not isinstance(tag_id, int):
         # If not valid data type return error JSON
         return jsonify(error="One or more data type is not correct")
