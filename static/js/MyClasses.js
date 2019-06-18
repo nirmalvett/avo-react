@@ -77,8 +77,24 @@ export default class MyClasses extends Component {
 		if (this.props.isTeacher) { // if it's a teacher account
 			this.props.showSnackBar("info", "Only student account attempts are considered in the analytics")
 		}
+		
+		
 	}
-
+	tryToJump(){
+		if(this.props.classToJumpTo != null){
+			const classToJumpTo = this.state.classes.findIndex((c)=>c.id===this.props.classToJumpTo)
+			if(classToJumpTo !== -1) {
+				this.selectClass(classToJumpTo)
+				this.handleClassListItemClick();
+			}
+			if(this.props.setToJumpTo != null){
+				const setToJumpTo = this.state.classes[this.state.c].tests.findIndex((test)=>test.id===this.props.setToJumpTo)
+				if(setToJumpTo !== -1) {
+					this.getTestStats(this.props.setToJumpTo, classToJumpTo, setToJumpTo)
+				}
+			}
+		}
+	}
 	loadClasses(alertMessage) {
 		/* Loads the classes into the state */
 		Http.getClasses(
@@ -87,6 +103,7 @@ export default class MyClasses extends Component {
 					classes: result.classes,
 					classesLoaded : true
 				});
+				this.tryToJump()
 			},
 			(result) => {
 				console.log(result)
@@ -439,7 +456,7 @@ export default class MyClasses extends Component {
 	detailsCard() {
 		let selectedClass = this.state.classes[this.state.c];
 		// Class with tests
-		if (this.state.t !== null) {
+		if (this.state.t != null) {
 			let selectedTest = selectedClass.tests[this.state.t];
 			let bestMark = 0;
 			for (let i = 0; i < selectedTest.submitted.length; i++) {

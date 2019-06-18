@@ -11,7 +11,6 @@ import InfiniteCalendar from "react-infinite-calendar";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
-
 import "react-infinite-calendar/styles.css"; // Make sure to import the default stylesheet
 // Or import the input component
 var uniqid = require("uniqid");
@@ -21,6 +20,7 @@ var lastWeek = new Date(
   today.getMonth(),
   today.getDate() - 7
 );
+var moment = require("moment")
 function TabContainer(props) {
   return (
     <Typography component="div" style={{ padding: 8 * 3 }}>
@@ -60,7 +60,90 @@ export default class HomePage extends Component {
 
   render() {
     const { value } = this.state;
+    const notifications = this.state.notifications.map(
+      (notification, i) => {
+        return (
+          <div key={uniqid()}>
+            <ListItem button onClick={()=>this.props.jumpToClass(notification.class.id)}>
+              <Typography
+                variant="display1"
+                color="textPrimary"
+              >
+                {notification.class.name + ":"}
+              </Typography>
+            </ListItem>
 
+            <br />
+            {notification.messages.map(
+              notificationMsg => (
+                <div key={uniqid()} onClick={()=>this.props.jumpToClass(notification.class.id)}>
+                  <ListItem button>
+                    <Typography
+                      variant="title"
+                      color="textPrimary"
+                    >
+                      {notificationMsg.title}
+                    </Typography>
+                  </ListItem>
+                  <ListItem button>
+                    <Typography
+                      variant="subheading"
+                      color="textPrimary"
+                    >
+                      {notificationMsg.body}
+                    </Typography>
+                  </ListItem>
+                  <br />
+                </div>
+              )
+            )}
+            <br />
+          </div>
+        );
+      }
+    )
+    const dueDates = this.state.dueDates.map((dd, i) => {
+      let datesToShow = []
+      if(dd.dueDates !== undefined){
+        datesToShow = dd.dueDates.filter(dueDate => moment(new Date(dueDate.dueDate.substring(0,16))).endOf("day").isSame(moment(new Date(this.state.selectedDate)).endOf('day')))
+      }
+      return (
+          <List key={i}>
+              <ListItem  button onClick={()=>this.props.jumpToClass(dd.class.id)}>
+              <Typography
+                variant="display1"
+                color="textPrimary"
+              >
+                {dd.class.name + ":"}
+              </Typography>
+            </ListItem>
+            <br />                                        
+            {datesToShow.length > 0 ? (
+              datesToShow.map(dueDate => (
+                <ListItem key={uniqid()} button onClick={()=>this.props.jumpToSet(dd.class.id, dueDate.id)}>
+                  <Typography
+                    variant="subheading"
+                    color="textPrimary"
+                  >
+                    {dueDate.name +
+                      " - " +
+                      dueDate.dueDate}
+                  </Typography>
+                </ListItem>
+              ))
+            ) : (
+              <ListItem button onClick={()=>this.props.jumpToClass(dd.class.id)}>
+                <Typography
+                  variant="subheading"
+                  color="textPrimary"
+                >
+                  {"No due dates today"}
+                </Typography>
+              </ListItem>
+            )}
+          </List>
+      );
+    })
     return (
       <div style={{ margin: "20px", flex: 1, overflowY: "auto" }}>
         <Grid
@@ -138,71 +221,7 @@ export default class HomePage extends Component {
                                 />
                               </Grid>
                               <Grid item xs={12} sm={12} md={12} lg={12} xl={6}>
-                                {this.state.dueDates.map(dd => {
-                                  let datesToShow = dd.dueDates.filter(
-                                    dueDate => {
-                                      let parts = dueDate.dueDate.split(" ");
-                                      let month = new Date(
-                                        Date.parse(parts[2] + " 1, 2018")
-                                      ).getMonth();
-                                      let newDate = new Date(
-                                        parts[3],
-                                        month,
-                                        parts[1]
-                                      );
-                                      return (
-                                        newDate.getDate() ===
-                                          this.state.selectedDate.getDate() &&
-                                        newDate.getMonth() ===
-                                          this.state.selectedDate.getMonth() &&
-                                        newDate.getFullYear() ===
-                                          this.state.selectedDate.getFullYear()
-                                      );
-                                    }
-                                  );
-                                  return (
-                                    <div key={uniqid()}>
-                                      <List>
-                                        <ListItem button>
-                                          <Typography
-                                            variant="display1"
-                                            color="textPrimary"
-                                          >
-                                            {dd.class.name + ":"}
-                                          </Typography>
-                                        </ListItem>
-                                        <br />
-                                        {datesToShow.length > 0 ? (
-                                          datesToShow.map(dueDate => (
-                                            <ListItem key={uniqid()} button>
-                                              <Typography
-                                                key={uniqid()}
-                                                variant="subheading"
-                                                color="textPrimary"
-                                              >
-                                                {dueDate.name +
-                                                  " - " +
-                                                  dueDate.dueDate}
-                                              </Typography>
-                                            </ListItem>
-                                          ))
-                                        ) : (
-                                          <ListItem button>
-                                            <Typography
-                                              key={uniqid()}
-                                              variant="subheading"
-                                              color="textPrimary"
-                                            >
-                                              {"No due dates today"}
-                                            </Typography>
-                                          </ListItem>
-                                        )}
-                                      </List>
-
-                                      <br />
-                                    </div>
-                                  );
-                                })}
+                                {dueDates}
                               </Grid>
                             </Grid>
                           </TabContainer>
@@ -217,48 +236,7 @@ export default class HomePage extends Component {
                                 alignItems="flex-start"
                               >
                                 <List>
-                                  {this.state.notifications.map(
-                                    (notification, i) => {
-                                      return (
-                                        <div key={uniqid()}>
-                                          <ListItem button>
-                                            <Typography
-                                              variant="display1"
-                                              color="textPrimary"
-                                            >
-                                              {notification.class.name + ":"}
-                                            </Typography>
-                                          </ListItem>
-
-                                          <br />
-                                          {notification.messages.map(
-                                            notification => (
-                                              <div key={uniqid()}>
-                                                <ListItem button>
-                                                  <Typography
-                                                    variant="title"
-                                                    color="textPrimary"
-                                                  >
-                                                    {notification.title}
-                                                  </Typography>
-                                                </ListItem>
-                                                <ListItem button>
-                                                  <Typography
-                                                    variant="subheading"
-                                                    color="textPrimary"
-                                                  >
-                                                    {notification.body}
-                                                  </Typography>
-                                                </ListItem>
-                                                <br />
-                                              </div>
-                                            )
-                                          )}
-                                          <br />
-                                        </div>
-                                      );
-                                    }
-                                  )}
+                                  {notifications}
                                 </List>
                               </Grid>
                             </Grid>
