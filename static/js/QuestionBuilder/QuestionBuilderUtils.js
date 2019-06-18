@@ -68,6 +68,7 @@ export const FUNCTIONS = {
     "mc": ["HA", null, null, "student_answer, answer"],
     "tf": ["HB", null, null, "student_answer, answer"],
     "reset": ["HC", null, null, "object"],
+    "ln": ["LN", null, null, "n"],
     "equations": ["_B", null, null, "m, v=0"],
     "pivots": ["_C", null, null, "m"],
     "free_vars": ["_D", null, null, "m, b"],

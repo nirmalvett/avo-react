@@ -7,13 +7,13 @@ import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/es/TextField/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-import Http from '../Http';
-import {copy, getMathJax} from '../Utilities';
+import Http from '../HelperFunctions/Http';
+import {copy, getMathJax} from '../HelperFunctions/Utilities';
 import {
     buildMathCode, buildPlainText, compile, extractReferences, formatString,
     formatStringForEditing, init, initOld, validateString, function_regex, FUNCTIONS
 } from './QuestionBuilderUtils';
-import AnswerInput from '../AVOAnswerInput/AnswerInput';
+import AnswerInput from '../AnswerInput/AnswerInput';
 import Done from '@material-ui/icons/Done';
 import Edit from '@material-ui/icons/Edit';
 import Save from '@material-ui/icons/Save';
@@ -285,8 +285,10 @@ export default class QuestionBuilder extends Component {
                         <MenuItem value='0'>True/false</MenuItem>
                         <MenuItem value='1'>Multiple choice</MenuItem>
                         <MenuItem value='2'>Number</MenuItem>
+                        <MenuItem value='3'>Calculus Expression</MenuItem>
                         {/*<MenuItem value='5' disabled>Polynomial</MenuItem>*/}
                         <MenuItem value='6'>Vector</MenuItem>
+                        <MenuItem value='5'>Vector (Horizontal Input)</MenuItem>
                         <MenuItem value='7'>Vector with free variables</MenuItem>
                         <MenuItem value='8'>Matrix</MenuItem>
                         <MenuItem value='9'>Basis</MenuItem>
