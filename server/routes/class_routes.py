@@ -107,17 +107,17 @@ def home():
                                        params={'user': current_user.USER}).fetchall()
     # Get list of messages
     return_messages = []  # Messages to return to the client
-    current_list_messages = []0
+    current_list_messages = []  # Current messages from the class
     current_class_data = {"name": messages[0].name, "id": messages[0].CLASS}
-    current_class = messages[0].CLASS
+    current_class = messages[0].CLASS  # Current class info
 
     for message in messages:
         if current_class != message.CLASS:
             # If the its a new class then move the messages in
             return_messages.append({"class": current_class_data, "messages": current_list_messages})
             current_class_data = {"name": message.name, "id": message.CLASS}
-            current_list_messages = []  # Current messages from the class
-            current_class = message.CLASS  # Current class info
+            current_list_messages = []
+            current_class = message.CLASS
 
         current_list_messages.append({'title': message.title, 'body': message.body,
                                       'date': message.date_created})
