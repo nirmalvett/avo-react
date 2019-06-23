@@ -653,7 +653,7 @@ def delete_message():
         return abort(400)
 
     data = request.json
-    message = data['message']
+    message = data['messageID']
 
     if not isinstance(message, int):
         # Data types dont match return error JSON
