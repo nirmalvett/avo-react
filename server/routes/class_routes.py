@@ -600,13 +600,13 @@ def unenroll():
 def add_message():
     """
     Add message to the class
-    :return:
+    :return: Confirmation that message has been created
     """
     if not request.json:
         return abort(400)
 
     data = request.json
-    class_id, title, body, date_created = data['classID'], data['title'], data['body'], data['date_created']
+    class_id, title, body = data['classID'], data['title'], data['body']
 
     if not isinstance(class_id, int) or not isinstance(title, str) or not isinstance(body, str) or not isinstance(date_created, datetime):
         return jsonify(error="One or more types are not correct")
@@ -614,11 +614,37 @@ def add_message():
     if not teaches_class(class_id):
         # if class does not exist or class is not taught return error JSON
         return jsonify(error="User does not teach class")
-    new_message = Message(class_id, title, body, date_created)
+    new_message = Message(class_id, title, body, datetime.now())  # New message to add to database
+    # Commit to database
     db.session.add(new_message)
     db.session.commit()
     return jsonify(code="Message Created")
 
+
+@ClassRoutes.route("/deleteMessage", methods=["POST"])
+@teacher_only
+def delete_message():
+    if not request.json:
+        return abort(400)
+
+    data = request.json
+    message = data['message']
+
+    if not isinstance(message, int):
+        # Data types dont match return error JSON
+        return jsonify(error="one or more types are not correct")
+
+    current_message = Message.query.get(message)  # Message to remove
+    if message is None:
+        # If no message is found return error JSON
+        return jsonify(error="Message not found")
+    if not teaches_class(current_message.CLASS):
+        # If user does not teach class return error JSON
+        return jsonify(error="User does not teach class")
+    # Remove message from database
+    db.session.delete(current_message)
+    db.session.commit()
+    return jsonify(code="Message deleted")
 
 
 """Helper Methods"""
