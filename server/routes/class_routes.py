@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
 from server.decorators import login_required, teacher_only, student_only, admin_only
 from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message
+from server.helper_functions import alchemy_to_dict
 import paypalrestsdk
 import config
 
@@ -595,7 +596,31 @@ def unenroll():
     return jsonify(error="user is not enrolled in class")
 
 
-@ClassRoutes.route('addMessage', methods=['POST'])
+@ClassRoutes.route('/getMessages', methods=['POST'])
+@teacher_only
+def get_messages():
+    """
+    Get list of all messages for a given class
+    :return: List of messages given the class ID
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json  # Data from the client
+    class_id = data['class_id']  # ID of class to get messages of
+
+    if not isinstance(class_id, int):
+        # If the class ID is not an integer return error JSON
+        return jsonify(error="One or more types not correct")
+    if not teaches_class(class_id):
+        # If the teacher does not teach the calss return error JSON
+        return jsonify(error="user does not teach class")
+
+    messages = Message.query.filter(Message.CLASS == class_id).all()  # All messages of the class
+    return jsonify(messages=alchemy_to_dict(messages))
+
+
+@ClassRoutes.route('/addMessage', methods=['POST'])
 @teacher_only
 def add_message():
     """
@@ -608,7 +633,7 @@ def add_message():
     data = request.json
     class_id, title, body = data['classID'], data['title'], data['body']
 
-    if not isinstance(class_id, int) or not isinstance(title, str) or not isinstance(body, str) or not isinstance(date_created, datetime):
+    if not isinstance(class_id, int) or not isinstance(title, str) or not isinstance(body, str):
         return jsonify(error="One or more types are not correct")
 
     if not teaches_class(class_id):
@@ -645,6 +670,37 @@ def delete_message():
     db.session.delete(current_message)
     db.session.commit()
     return jsonify(code="Message deleted")
+
+
+@ClassRoutes.route("/editMessage", methods=['POST'])
+@teacher_only
+def edit_message():
+    """
+    Edit an already existing message
+    :return: Confirmation that the message has been changed
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json  # Data from client
+    message_id, title, body = data['messageID'], data['title'], data['body']
+
+    if not isinstance(message_id, int) or not isinstance(title, str) or not isinstance(body, str):
+        # Data doesnt match datatype return error JSON
+        return jsonify(error="One or more data type is incorrect")
+
+    message = Message.query.get(message_id)  # Message to updated
+
+    if message is None:
+        # No message was found return error JSON
+        return jsonify(error="No Message was found")
+
+    # Update the message and update on database
+    message.title = title
+    message.body = body
+    db.session.commit()
+
+    return jsonify(code="Message Updated")
 
 
 """Helper Methods"""
