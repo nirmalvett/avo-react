@@ -5,7 +5,7 @@ from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
 from server.decorators import login_required, teacher_only, student_only, admin_only
-from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing
+from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message
 import paypalrestsdk
 import config
 
@@ -112,6 +112,7 @@ def home():
     current_class = messages[0].CLASS  # Current class info
 
     for message in messages:
+        # For each message result add it to the JSON
         if current_class != message.CLASS:
             # If the its a new class then move the messages in
             return_messages.append({"class": current_class_data, "messages": current_list_messages})
@@ -594,7 +595,33 @@ def unenroll():
     return jsonify(error="user is not enrolled in class")
 
 
-# Helper methods
+@ClassRoutes.route('addMessage', methods=['POST'])
+@teacher_only
+def add_message():
+    """
+    Add message to the class
+    :return:
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json
+    class_id, title, body, date_created = data['classID'], data['title'], data['body'], data['date_created']
+
+    if not isinstance(class_id, int) or not isinstance(title, str) or not isinstance(body, str) or not isinstance(date_created, datetime):
+        return jsonify(error="One or more types are not correct")
+
+    if not teaches_class(class_id):
+        # if class does not exist or class is not taught return error JSON
+        return jsonify(error="User does not teach class")
+    new_message = Message(class_id, title, body, date_created)
+    db.session.add(new_message)
+    db.session.commit()
+    return jsonify(code="Message Created")
+
+
+
+"""Helper Methods"""
 
 
 def time_stamp(t):
