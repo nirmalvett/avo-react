@@ -607,7 +607,7 @@ def get_messages():
         return abort(400)
 
     data = request.json  # Data from the client
-    class_id = data['class_id']  # ID of class to get messages of
+    class_id = data['classID']  # ID of class to get messages of
 
     if not isinstance(class_id, int):
         # If the class ID is not an integer return error JSON
