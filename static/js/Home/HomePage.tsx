@@ -12,16 +12,17 @@ import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import "react-infinite-calendar/styles.css"; // Make sure to import the default stylesheet
+import * as uniqid from "uniqid";
+import * as moment from "moment";
+import * as Models from "../Models/";
 // Or import the input component
-var uniqid = require("uniqid");
 var today = new Date();
 var lastWeek = new Date(
   today.getFullYear(),
   today.getMonth(),
   today.getDate() - 7
 );
-var moment = require("moment")
-function TabContainer(props) {
+function TabContainer(props): any {
   return (
     <Typography component="div" style={{ padding: 8 * 3 }}>
       {props.children}
@@ -29,31 +30,35 @@ function TabContainer(props) {
   );
 }
 
-export default class HomePage extends Component {
-  constructor(props) {
+export default class HomePage extends Component<
+  Models.HomescreenProps,
+  Models.HomescreenState
+> {
+  state: Models.HomescreenState = {
+    selectedDate: new Date(),
+    notifications: [],
+    dueDates: [],
+    value: 0,
+    calendarTheme: {
+      accentColor: this.props.color["500"],
+      floatingNav: {
+        background: this.props.color["500"],
+        chevron: "#FFA726",
+        color: "#FFF"
+      },
+      headerColor: this.props.color["500"],
+      selectionColor: this.props.color["500"],
+      textColor: {
+        active: "#FFF",
+        default: "#333"
+      },
+      todayColor: this.props.color["200"],
+      weekdayColor: this.props.color["200"]
+    }
+  };
+  constructor(props: Models.HomescreenProps) {
     super(props);
-    this.state = {
-      selectedDate: new Date(),
-      notifications: [],
-      dueDates: [],
-      value: 0,
-      calendarTheme: {
-        accentColor: this.props.color["500"],
-        floatingNav: {
-          background: this.props.color["500"],
-          chevron: "#FFA726",
-          color: "#FFF"
-        },
-        headerColor: this.props.color["500"],
-        selectionColor: this.props.color["500"],
-        textColor: {
-          active: "#FFF",
-          default: "#333"
-        },
-        todayColor: this.props.color["200"],
-        weekdayColor: this.props.color["200"]
-      }
-    };
+    console.log(this.props.color);
   }
   componentWillMount() {
     this.getHome();
@@ -61,90 +66,83 @@ export default class HomePage extends Component {
 
   render() {
     const { value } = this.state;
-    const notifications = this.state.notifications.map(
-      (notification, i) => {
-        return (
-          <div key={uniqid()}>
-            <ListItem button onClick={()=>this.props.jumpToClass(notification.class.id)}>
-              <Typography
-                variant="display1"
-                color="textPrimary"
-              >
-                {notification.class.name + ":"}
-              </Typography>
-            </ListItem>
-
-            <br />
-            {notification.messages.map(
-              notificationMsg => (
-                <div key={uniqid()} onClick={()=>this.props.jumpToClass(notification.class.id)}>
-                  <ListItem button>
-                    <Typography
-                      variant="title"
-                      color="textPrimary"
-                    >
-                      {notificationMsg.title}
-                    </Typography>
-                  </ListItem>
-                  <ListItem button>
-                    <Typography
-                      variant="subheading"
-                      color="textPrimary"
-                    >
-                      {notificationMsg.body}
-                    </Typography>
-                  </ListItem>
-                  <br />
-                </div>
-              )
-            )}
-            <br />
-          </div>
-        );
-      }
-    )
-    const dueDates = this.state.dueDates.map((dd, i) => {
-      let datesToShow = []
-      if(dd.dueDates !== undefined){
-        datesToShow = dd.dueDates.filter(dueDate => moment(new Date(dueDate.dueDate.substring(0,16))).endOf("day").isSame(moment(new Date(this.state.selectedDate)).endOf('day')))
-      }
+    const notifications = this.state.notifications.map((notification: Models.MessagesResponse, i) => {
       return (
-          <List key={i}>
-              <ListItem  button onClick={()=>this.props.jumpToClass(dd.class.id)}>
-              <Typography
-                variant="display1"
-                color="textPrimary"
-              >
-                {dd.class.name + ":"}
-              </Typography>
-            </ListItem>
-            <br />                                        
-            {datesToShow.length > 0 ? (
-              datesToShow.map(dueDate => (
-                <ListItem key={uniqid()} button onClick={()=>this.props.jumpToSet(dd.class.id, dueDate.id)}>
-                  <Typography
-                    variant="subheading"
-                    color="textPrimary"
-                  >
-                    {dueDate.name +
-                      " - " +
-                      dueDate.dueDate}
-                  </Typography>
-                </ListItem>
-              ))
-            ) : (
-              <ListItem button onClick={()=>this.props.jumpToClass(dd.class.id)}>
-                <Typography
-                  variant="subheading"
-                  color="textPrimary"
-                >
-                  {"No due dates today"}
+        <div key={uniqid()}>
+          <ListItem
+            button
+            onClick={() => this.props.jumpToClass(notification.class.id)}
+          >
+            <Typography variant="display1" color="textPrimary">
+              {notification.class.name + ":"}
+            </Typography>
+          </ListItem>
+
+          <br />
+          {notification.messages.map((notificationMsg: Models.Notfication) => (
+            <div
+              key={uniqid()}
+              onClick={() => this.props.jumpToClass(notification.class.id)}
+            >
+              <ListItem button>
+                <Typography variant="title" color="textPrimary">
+                  {notificationMsg.title}
                 </Typography>
               </ListItem>
-            )}
-          </List>
+              <ListItem button>
+                <Typography variant="subheading" color="textPrimary">
+                  {notificationMsg.body}
+                </Typography>
+              </ListItem>
+              <br />
+            </div>
+          ))}
+          <br />
+        </div>
       );
-    })
+    });
+    const dueDates = this.state.dueDates.map((dd: Models.DueDatesResponse, i) => {
+      let datesToShow: Models.DueDate[] = [];
+      if (dd.dueDates !== undefined) {
+        datesToShow = dd.dueDates.filter((dueDate: Models.DueDate) =>
+          moment(new Date(dueDate.dueDate.substring(0, 16)))
+            .endOf("day")
+            .isSame(moment(this.state.selectedDate).endOf("day"))
+        );
+      }
+      return (
+        <List key={i}>
+          <ListItem button onClick={() => this.props.jumpToClass(dd.class.id)}>
+            <Typography variant="display1" color="textPrimary">
+              {dd.class.name + ":"}
+            </Typography>
+          </ListItem>
+          <br />
+          {datesToShow.length > 0 ? (
+            datesToShow.map((dueDate: Models.DueDate) => (
+              <ListItem
+                key={uniqid()}
+                button
+                onClick={() => this.props.jumpToSet(dd.class.id, dueDate.id)}
+              >
+                <Typography variant="subheading" color="textPrimary">
+                  {dueDate.name + " - " + dueDate.dueDate}
+                </Typography>
+              </ListItem>
+            ))
+          ) : (
+            <ListItem
+              button
+              onClick={() => this.props.jumpToClass(dd.class.id)}
+            >
+              <Typography variant="subheading" color="textPrimary">
+                {"No due dates today"}
+              </Typography>
+            </ListItem>
+          )}
+        </List>
+      );
+    });
     return (
       <div style={{ margin: "20px", flex: 1, overflowY: "auto" }}>
         <Grid
@@ -189,13 +187,13 @@ export default class HomePage extends Component {
                       <div>
                         <AppBar position="static" color="default">
                           <Tabs
+                            scrollable={true}
                             value={value}
                             onChange={(value, event) =>
                               this.changeTab(value, event)
                             }
                             indicatorColor="primary"
                             textColor="primary"
-                            variant="scrollable"
                             scrollButtons="auto"
                           >
                             <Tab label="Due dates" />
@@ -212,7 +210,6 @@ export default class HomePage extends Component {
                             >
                               <Grid item xs={12} sm={12} md={12} lg={12} xl={6}>
                                 <InfiniteCalendar
-                                  item
                                   onSelect={e => this.handleDateChange(e)}
                                   width={600}
                                   height={400}
@@ -236,9 +233,7 @@ export default class HomePage extends Component {
                                 justify="flex-start"
                                 alignItems="flex-start"
                               >
-                                <List>
-                                  {notifications}
-                                </List>
+                                <List>{notifications}</List>
                               </Grid>
                             </Grid>
                           </TabContainer>
@@ -260,7 +255,8 @@ export default class HomePage extends Component {
   }
   getHome() {
     Http.getHome(
-      response => {
+      (response: Models.GetHomeResponse) => {
+        console.log(response);
         this.setState({
           dueDates: response.dueDates,
           notifications: response.messages
