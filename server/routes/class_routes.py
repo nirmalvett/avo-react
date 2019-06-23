@@ -68,21 +68,23 @@ def create_class():
 def home():
     # get list of due dates objects
 
-    due_dates = []
+    due_dates = []  # Result of the due date SQL calls
 
     due_dates += db.session.execute(text(student_due_dates),
                                     params={'user': current_user.USER}).fetchall()
 
     if current_user.is_teacher:
+        # If the user is a teacher run a teacher due dates SQL call
         due_dates += db.session.execute(text(teacher_due_dates),
                                         params={'user': current_user.USER}).fetchall()
 
-    return_due_dates = []
-    current_list_due_dates = []
+    return_due_dates = []  # Return data for due dates
+    current_list_due_dates = []  # Due dates of current indexed class
     current_class_data = {"name": due_dates[0].name, "id": due_dates[0].CLASS}
-    current_class = due_dates[0].CLASS
+    current_class = due_dates[0].CLASS  # Current class of indexed due dates
 
     for due_date in due_dates:
+        # For each due date index to list
         if current_class != due_date.CLASS:
             # If the its a new class then move the messages in
             return_due_dates.append({"class": current_class_data, "dueDates": current_list_due_dates})
@@ -94,17 +96,18 @@ def home():
                                       'id': due_date.TEST})
     return_due_dates.append({"class": current_class_data, "messages": current_list_due_dates})
 
-    messages = []
+    messages = []  # Messages returned by the SQL query
 
     messages += db.session.execute(text(student_messages),
                                    params={'user': current_user.USER}).fetchall()
 
     if current_user.is_teacher:
+        # If the current user is a teacher add the teacher result
         messages += db.session.execute(text(teacher_messages),
                                        params={'user': current_user.USER}).fetchall()
-    # get list of messages
-    return_messages = []
-    current_list_messages = []
+    # Get list of messages
+    return_messages = []  # Messages to return to the client
+    current_list_messages = []0
     current_class_data = {"name": messages[0].name, "id": messages[0].CLASS}
     current_class = messages[0].CLASS
 
@@ -113,8 +116,8 @@ def home():
             # If the its a new class then move the messages in
             return_messages.append({"class": current_class_data, "messages": current_list_messages})
             current_class_data = {"name": message.name, "id": message.CLASS}
-            current_list_messages = []
-            current_class = message.CLASS
+            current_list_messages = []  # Current messages from the class
+            current_class = message.CLASS  # Current class info
 
         current_list_messages.append({'title': message.title, 'body': message.body,
                                       'date': message.date_created})
