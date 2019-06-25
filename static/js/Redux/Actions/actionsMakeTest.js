@@ -8,6 +8,8 @@ export const CONST_CREATE_TEST_ADD_QUESTION = "CONST_CREATE_TEST_ADD_QUESTION";
 export const CONST_CREATE_TEST_DELETE_QUESTION = "CONST_CREATE_TEST_DELETE_QUESTION";
 export const CONST_CREATE_TEST_REFRESH_QUESTION = "CONST_CREATE_TEST_REFRESH_QUESTION";
 export const CONST_CREATE_TEST_LOCK_SEED = "CONST_CREATE_TEST_LOCK_SEED";
+export const CONST_CREATE_TEST_NAME_FOR_TEST = "CONST_CREATE_TEST_NAME_FOR_TEST";
+
 export function getQuestionSets() {
   return (dispatch) => {
 	Http.getSets(
@@ -25,7 +27,6 @@ function getSetsAction(result) {
   }
 }
 
-
 export function createTestOpenQuestionSet(questionIndex) {
   /* indexQuestion: a valid index */
   return {
@@ -33,7 +34,6 @@ export function createTestOpenQuestionSet(questionIndex) {
 	questionIndex: questionIndex
   }
 }
-
 
 /**
  * [createTestQuestion either adds a new question or refreshes the seed]
@@ -68,8 +68,6 @@ export function createTestQuestion(questionObj, indexToReplace=-1) {
   }
 }
 
-
-
 function actionCreateTestAddQuestion(questionObj) {
   return {
 	type: CONST_CREATE_TEST_ADD_QUESTION,
@@ -89,7 +87,7 @@ function actionCreateTestChangeQuestion(questionObj, indexToReplace){
 /**
  * [actionCreateTestDeleteQuestion]
  * @param  {int} index [index of the question to remove]
- * @return {object} object [description]
+ * @return {object} object [action object]
  */
 export function actionCreateTestDeleteQuestion(index){
 	return {
@@ -102,5 +100,17 @@ export function actionCreateTestLockSeed(index){
   return {
     type: CONST_CREATE_TEST_LOCK_SEED,
 	index: index
+  }
+}
+
+/**
+ * [actionCreateTestDeleteQuestion]
+ * @param  {string} testName [the name of the test in the form of a String]
+ * @return {object} object [action object]
+ */
+export function actionCreateTestSetTestName(testName){
+  return {
+    type: CONST_CREATE_TEST_NAME_FOR_TEST,
+	testName: testName,
   }
 }

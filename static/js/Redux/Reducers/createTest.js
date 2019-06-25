@@ -3,7 +3,10 @@ import {
   CONST_DEFAULT_TEST_SETTING,
   CONST_CREATE_TEST_OPEN_QUESTION_SET,
   CONST_CREATE_TEST_ADD_QUESTION,
-  CONST_CREATE_TEST_DELETE_QUESTION, CONST_CREATE_TEST_REFRESH_QUESTION, CONST_CREATE_TEST_LOCK_SEED
+  CONST_CREATE_TEST_DELETE_QUESTION,
+  CONST_CREATE_TEST_REFRESH_QUESTION,
+  CONST_CREATE_TEST_LOCK_SEED,
+  CONST_CREATE_TEST_NAME_FOR_TEST
 } from "../Actions/actionsMakeTest";
 import {copy} from "../../HelperFunctions/Utilities";
 import {arrayWithout} from "../../HelperFunctions/Helpers";
@@ -67,9 +70,6 @@ export function createTest(state = makeTestDefault, action) {
 			]
 		};
 	case CONST_CREATE_TEST_LOCK_SEED:
-	  /*let newTestQuestions = copy(this.state.testQuestions);
-        newTestQuestions[index].locked = !newTestQuestions[index].locked;
-        this.setState({testQuestions: newTestQuestions});*/
 	  state.testQuestions[action.index].locked = !state.testQuestions[action.index].locked;
 	  	return {
 			...state,
@@ -77,6 +77,11 @@ export function createTest(state = makeTestDefault, action) {
 				...state.testQuestions
 			]
 		};
+	case CONST_CREATE_TEST_NAME_FOR_TEST:
+	  return {
+	    ...state,
+		name: action.testName,
+	  };
 
 	default:
 	  return state;
