@@ -1,29 +1,15 @@
 import React, { Component } from 'react';
 import Http from '../../HelperFunctions/Http';
-import { copy } from '../../HelperFunctions/Utilities';
-import { InlineDateTimePicker } from 'material-ui-pickers';
-import { Card, TextField, CardHeader, IconButton } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import { Done } from '@material-ui/icons';
 import QuestionSidebar from "./QuestionSidebar"
 import { connect } from 'react-redux';
 import { getQuestionSets} from "../../Redux/Actions/actionsMakeTest";
-import QuestionCard from "./QuestionCard";
+import QuestionCardDashboard from "./QuestionCardDashboard/QuestionCardDashboard";
 
 class CreateTest extends Component {
     constructor(props) {
         super(props);
-         Http.getSets((result) => this.setState(result));
-         this.state = {
-            sets: [],
-            testQuestions: [],
-            deadline: '2018-01-01T00:00:00.000Z',
-            _deadline: new Date(),
-            openTime: '2018-01-01T00:00:00.000Z',
-            _openTime: new Date(),
-            name: null,
-            timeLimit: null,
-            attempts: null,
-        };
     }
 
     componentDidMount() {
@@ -31,21 +17,16 @@ class CreateTest extends Component {
     }
 
 	  render() {
-        let {sets, testQuestions, deadline} = this.state;
 
         return (
             <div style={{display: 'flex', flexDirection: 'row', flex: 1}}>
-              <QuestionSidebar
-                  addQuestion = { this.addQuestion.bind(this) }
-                  sets = { sets }/>
+              <QuestionSidebar />
                 <div style={{ flex: 2, paddingLeft: '10%', paddingRight: '10%', paddingTop: '20px', paddingBottom: '20px', overflowY: 'auto'}}>
-                    <QuestionCard/> {/* get each test question card */}
-                    { this.bottomSubmissionCard() } {/* the bottom card that specifies things like attemps, date, etc */}
+                    <QuestionCardDashboard /> {/* get each test question card */}
                 </div>
             </div>
         );
     }
-
 
     handleDateChange(date) {
         var d = new Date(date);
@@ -66,43 +47,6 @@ class CreateTest extends Component {
         _date = d.getFullYear() + "" + _date;
         this.setState({ openTime: _date, _openTime: date });
     };
-
-    bottomSubmissionCard(){
-      const { testQuestions } = this.state;
-        return (
-            <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
-                        <CardHeader title={'Test Settings'} action={this.submitTest()}/>
-                        <TextField
-                            margin='normal'
-                            label='Name'
-                            style={{width: '46%', margin: '2%'}}
-                            onChange={e => this.setState({name: e.target.value})}
-                        />
-                        <TextField
-                            margin='normal' label='Time Limit in Minutes (-1 for unlimited)' type='number'
-                            style={{width: '46%', margin: '2%'}}
-                            onChange={e => this.setState({timeLimit: e.target.value})}/>
-                        <br/>
-                        <TextField margin='normal' label='Attempts (-1 for unlimited)' type='number'
-                                   style={{width: '46%', margin: '2%'}}
-                                   onChange={e => this.setState({attempts: e.target.value})}/>
-                        <InlineDateTimePicker
-                            margin='normal'
-                            style={{width: '46%', margin: '2%'}}
-                            label="Deadline"
-                            value={this.state._deadline}
-                            onChange={this.handleDateChange.bind(this)}
-                        />
-                        <InlineDateTimePicker
-                            margin='normal'
-                            style={{width: '46%', margin: '2%'}}
-                            label="Test Auto Open Time"
-                            value={this.state._openTime}
-                            onChange={this.handleOpenChange.bind(this)}
-                        />
-                    </Card>
-        )
-    }
 
     submitTest(){
         return (
@@ -141,44 +85,6 @@ class CreateTest extends Component {
                 </IconButton>
         )
     }
-
-    addQuestion(a) {
-        let seed = Math.floor(Math.random() * 65536);
-        Http.getQuestion(a.id, seed, (result) => {
-            let newTestQuestions = copy(this.state.testQuestions);
-            newTestQuestions.push({id: a.id, name: a.name, seed: seed,
-                locked: false, prompt: result.prompt, prompts: result.prompts, types: result.types});
-            this.setState({testQuestions: newTestQuestions});
-        }, () => {});
-    }
-
-    refresh(index) {
-        let seed = Math.floor(Math.random() * 65536);
-        Http.getQuestion(this.state.testQuestions[index].id, seed, (result) => {
-            let newTestQuestions = copy(this.state.testQuestions);
-            newTestQuestions[index].prompt = result.prompt;
-            newTestQuestions[index].prompts = result.prompts;
-            newTestQuestions[index].seed = seed;
-            this.setState({testQuestions: newTestQuestions});
-        }, () => {});
-    }
-
-    lock(index) {
-        let newTestQuestions = copy(this.state.testQuestions);
-        newTestQuestions[index].locked = !newTestQuestions[index].locked;
-        this.setState({testQuestions: newTestQuestions});
-    }
-
-    saveTest() {
-        let s = this.state;
-        console.log(s.deadline);
-        let questions = s.testQuestions.map(x => x.id);
-        let seeds = s.testQuestions.map(x => x.locked ? x.seed : -1);
-        let deadline = s.deadline.replace(/[\-T:]/g, '');
-        Http.saveTest(this.props.classID, s.name, deadline, s.timeLimit, s.attempts, questions, seeds,
-            () => {this.props.onCreate()},
-            () => {alert('Something went wrong')}
-        );
-    }
 }
+
 export default connect()(CreateTest);
