@@ -9,6 +9,10 @@ export const CONST_CREATE_TEST_DELETE_QUESTION = "CONST_CREATE_TEST_DELETE_QUEST
 export const CONST_CREATE_TEST_REFRESH_QUESTION = "CONST_CREATE_TEST_REFRESH_QUESTION";
 export const CONST_CREATE_TEST_LOCK_SEED = "CONST_CREATE_TEST_LOCK_SEED";
 export const CONST_CREATE_TEST_NAME_FOR_TEST = "CONST_CREATE_TEST_NAME_FOR_TEST";
+export const CONST_CREATE_TEST_ATTEMPT_LIMIT = "CONST_CREATE_TEST_ATTEMPT_LIMIT";
+export const CONST_CREATE_TEST_TIME_LIMIT = "CONST_CREATE_TEST_TIME_LIMIT";
+export const CONST_CREATE_TEST_AUTO_CLOSE = "CONST_CREATE_TEST_AUTO_CLOSE";
+export const CONST_CRETE_TEST_AUTO_OPEN = "CONST_CRETE_TEST_AUTO_OPEN";
 
 export function getQuestionSets() {
   return (dispatch) => {
@@ -114,3 +118,69 @@ export function actionCreateTestSetTestName(testName){
 	testName: testName,
   }
 }
+
+/**
+ * [actionCreateAttemptLimit]
+ * @param  {int} attemptInt [the amount of attempts]
+ * @return {object} object [action object]
+ */
+export function actionCreateAttemptLimit(attemptInt){
+  return {
+    type: CONST_CREATE_TEST_ATTEMPT_LIMIT,
+	attemptInt: attemptInt,
+  }
+}
+
+/**
+ * [actionCreateAttemptLimit]
+ * @param  {int} minuteInt [the amount minutes]
+ * @return {object} object [action object]
+ */
+export function actionCreateTimeLimit(minuteInt){
+  return {
+    type: CONST_CREATE_TEST_TIME_LIMIT,
+	minuteInt: minuteInt,
+  }
+}
+
+/**
+ * [actionCreateAutoOpen]
+ * @param  {date} date [the date opening time]
+ * @return {object} object [action object]
+ */
+export function actionCreateAutoOpen(date){
+  return {
+    type: CONST_CREATE_TEST_AUTO_CLOSE,
+	date: date,
+  }
+}
+
+/**
+ * [actionCreateAutoClose]
+ * @param  {date} date [the date opening time]
+ * @return {object} object [action object]
+ */
+export function actionCreateAutoClose(date){
+  return {
+    type: CONST_CRETE_TEST_AUTO_OPEN,
+	date: date,
+  }
+}
+
+/**
+ * helper function takes the date object created by inline date picker and converts it to format expected by server
+ * @param date Input is the date object given by inline date pick component
+ * @return [String] date format for the server
+ */
+function convertDateToServerFormat(date) {
+  const d = new Date(date);
+  let _date =
+	  ("00" + (d.getMonth() + 1)).slice(-2) + "" +
+	  ("00" + d.getDate()).slice(-2) + "" +
+	  ("00" + d.getHours()).slice(-2) + "" +
+	  ("00" + d.getMinutes()).slice(-2) + "";
+  _date = d.getFullYear() + "" + _date;
+  return _date
+}
+
+
