@@ -66,7 +66,6 @@ export default class ManageClasses extends Component {
     loadClasses(snackBarString) {
         // this gets the class results
         Http.getClasses(result => {
-                console.log(result);
                 this.setState({ classesLoaded : true, classes : result.classes });
             },
             result => console.log(result));
@@ -1283,7 +1282,6 @@ export default class ManageClasses extends Component {
                     () => this.setState({c: cIndex, t: tIndex, results: [], testStats: result})
                 );
             },
-            console.log
         )
     }
 
