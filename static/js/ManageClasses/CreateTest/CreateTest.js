@@ -28,26 +28,6 @@ class CreateTest extends Component {
         );
     }
 
-    handleDateChange(date) {
-        var d = new Date(date);
-        let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" +
-            ("00" + d.getDate()).slice(-2) + "" +
-            ("00" + d.getHours()).slice(-2) + "" +
-            ("00" + d.getMinutes()).slice(-2) + "";
-        _date = d.getFullYear() + "" + _date;
-        this.setState({ deadline: _date, _deadline: date });
-    };
-
-    handleOpenChange(date) {
-        var d = new Date(date);
-        let _date = ("00" + (d.getMonth() + 1)).slice(-2) + "" +
-            ("00" + d.getDate()).slice(-2) + "" +
-            ("00" + d.getHours()).slice(-2) + "" +
-            ("00" + d.getMinutes()).slice(-2) + "";
-        _date = d.getFullYear() + "" + _date;
-        this.setState({ openTime: _date, _openTime: date });
-    };
-
     submitTest(){
         return (
             <IconButton disabled={this.state.testQuestions.length === 0} onClick={() => {
