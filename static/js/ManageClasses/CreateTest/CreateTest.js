@@ -17,16 +17,17 @@ class CreateTest extends Component {
     }
 
 	  render() {
-
         return (
             <div style={{display: 'flex', flexDirection: 'row', flex: 1}}>
               <QuestionSidebar />
                 <div style={{ flex: 2, paddingLeft: '10%', paddingRight: '10%', paddingTop: '20px', paddingBottom: '20px', overflowY: 'auto'}}>
-                    <QuestionCardDashboard /> {/* get each test question card */}
+                    <QuestionCardDashboard onCreate = {this.props.onCreate}/> {/* get each test question card */}
                 </div>
             </div>
         );
     }
+
+
 
     submitTest(){
         return (
@@ -65,6 +66,8 @@ class CreateTest extends Component {
                 </IconButton>
         )
     }
+
+
 }
 
 export default connect()(CreateTest);

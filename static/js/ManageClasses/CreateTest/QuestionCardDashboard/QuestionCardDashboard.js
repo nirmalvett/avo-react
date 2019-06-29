@@ -10,7 +10,7 @@ class QuestionCardDashboard extends React.Component {
 	return (
 		<React.Fragment>
 		  { this.renderQuestionCards() }
-		  <TestSettingsCard />
+		  <TestSettingsCard onCreate = {this.props.onCreate}/>
 		</React.Fragment>
 	)
   }

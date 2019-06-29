@@ -78,6 +78,7 @@ class TestSettingsCard extends React.Component {
 	  alert ('Test must contain 1 or more questions!');
 	  return;
 	}
+	
   }
 
   changeTestName (name) {

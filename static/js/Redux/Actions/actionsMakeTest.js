@@ -13,6 +13,7 @@ export const CONST_CREATE_TEST_ATTEMPT_LIMIT = "CONST_CREATE_TEST_ATTEMPT_LIMIT"
 export const CONST_CREATE_TEST_TIME_LIMIT = "CONST_CREATE_TEST_TIME_LIMIT";
 export const CONST_CREATE_TEST_AUTO_CLOSE = "CONST_CREATE_TEST_AUTO_CLOSE";
 export const CONST_CRETE_TEST_AUTO_OPEN = "CONST_CRETE_TEST_AUTO_OPEN";
+export const CONST_CREATE_TEST_SUBMIT_TEST = "CONST_CREATE_TEST_SUBMIT_TEST";
 
 export function getQuestionSets() {
   return (dispatch) => {
@@ -165,6 +166,23 @@ export function actionCreateAutoClose(date){
     type: CONST_CREATE_TEST_AUTO_CLOSE,
 	date: date,
   }
+}
+
+/**
+ *
+ * @param onChange is a binded function from Layout that changes the view back to ManageClasses upon successful submission
+ */
+export function actionCreateTestSubmitTest(onCreate, props){
+  let s = props;
+  const questions = s.testQuestions.map(x => x.id);
+  const seeds = s.testQuestions.map(x => x.locked ? x.seed : -1);
+  const deadline = convertDateToServerFormat(s).closeTime.replace(/[\-T:]/g, '');
+  const openTime = convertDateToServerFormat(s).closeTime.replace(/[\-T:]/g, '');
+   Http.saveTest(s.classID, s.name, deadline, s.timeLimit, s.attempts, questions, seeds, openTime,
+	() => {onCreate()},
+	() => {alert('Something went wrong')}
+	);
+
 }
 
 /**

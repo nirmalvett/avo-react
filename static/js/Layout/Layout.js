@@ -249,12 +249,13 @@ class Layout extends Component {
             postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}
             markEditor={takes => {this.setState({markEditor: takes, section: 'Mark Editor'})}}
         />);
-        if (section === 'Create Test') return (<CreateTest
-            showSnackBar = {this.showSnackBar.bind(this)}
-            isTeacher = {isTeacher}
-            classID={this.state.testCreator}
-            onCreate={() => this.setState({section: 'Manage Classes'})}
-        />);
+        if (section === 'Create Test') return (
+            <CreateTest
+                showSnackBar = {this.showSnackBar.bind(this)}
+                isTeacher = {isTeacher}
+                classID={this.state.testCreator}
+                onCreate={() => this.setState({section: 'Manage Classes'})}/>
+        );
         if (section === 'My Questions') return (<QuestionManager
             showSnackBar = {this.showSnackBar.bind(this)}
             theme={createMuiTheme({palette: {primary: color, type: theme}})}
