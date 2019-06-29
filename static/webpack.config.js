@@ -2,16 +2,22 @@ const webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const config = {
-    entry:  __dirname + '/js/index.js',
+    entry:  __dirname + '/js/index.tsx',
+    devtool: 'inline-source-map',
     output: {
         path: __dirname + '/dist',
         filename: 'bundle.js',
     },
     resolve: {
-        extensions: [".js", ".jsx", ".css"]
+        extensions: ['.tsx', '.ts', ".js", ".jsx", ".css"]
     },
     module: {
         rules: [
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/
+            },
             {
                 test: /\.jsx?/,
                 exclude: /node_modules/,
