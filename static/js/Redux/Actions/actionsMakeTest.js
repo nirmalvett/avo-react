@@ -150,7 +150,7 @@ export function actionCreateTimeLimit(minuteInt){
  */
 export function actionCreateAutoOpen(date){
   return {
-    type: CONST_CREATE_TEST_AUTO_CLOSE,
+    type: CONST_CRETE_TEST_AUTO_OPEN,
 	date: date,
   }
 }
@@ -162,7 +162,7 @@ export function actionCreateAutoOpen(date){
  */
 export function actionCreateAutoClose(date){
   return {
-    type: CONST_CRETE_TEST_AUTO_OPEN,
+    type: CONST_CREATE_TEST_AUTO_CLOSE,
 	date: date,
   }
 }

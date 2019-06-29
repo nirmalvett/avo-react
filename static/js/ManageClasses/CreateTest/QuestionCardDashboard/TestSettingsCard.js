@@ -89,14 +89,12 @@ class TestSettingsCard extends React.Component {
   }
 
   changeAutoOpen (e) {
-    e.preventDefault();
-    const newDateString = e.target.value._d;
+    const newDateString = e._d;
 	this.props.dispatch (actionCreateAutoOpen(newDateString))
   }
 
   changeAutoClose (e) {
-    e.preventDefault();
-    const newDateString = e.target.value._d;
+    const newDateString = e._d;
 	this.props.dispatch (actionCreateAutoClose(newDateString));
   }
 
