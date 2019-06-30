@@ -52,7 +52,15 @@ export default class Http {
 	static createClass(name, success, failure) {
 		Http._request('POST', '/createClass', success, failure, {name});
 	}
-
+	static getMessages(classID, success, failure) {
+		Http._request('POST', '/getMessages', success, failure, {classID});
+	}
+	static addMessage(classID, title, body, success, failure) {
+		Http._request('POST', '/addMessage', success, failure, {classID, title, body});
+	}
+	static deleteMessage(messageID, success, failure) {
+		Http._request('POST', '/deleteMessage', success, failure, {messageID});
+	}
 	static getClasses(success, failure) {
 		Http._request('GET', '/getClasses', success, failure);
 	}

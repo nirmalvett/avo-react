@@ -18,6 +18,7 @@ import AVOExplanations from "../MISC/AVOExplanations/AVOExplanations";
 import { avoGreen } from "../SharedComponents/AVOCustomColors";
 import { MySnackbarContentWrapper } from "../SharedComponents/AVOSnackBar";
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
+import NotifyClass from '../Home/NotifyClass'
 import {withStyles, List, AppBar, Drawer, Divider, Toolbar, IconButton,
     Typography, ListItem, ListItemText, ListSubheader, Snackbar } from '@material-ui/core';
 import { HomeOutlined, BuildOutlined, HelpOutline,
@@ -244,6 +245,7 @@ class Layout extends Component {
                   {this.listItem(ClassOutlined, "Manage Classes")}
                   {this.listItem(BuildOutlined, "My Questions")}
                   {this.listItem(HelpOutline, "Documentation")}
+                  {this.listItem(ClassOutlined, "Notify Class")}
                 </List>
               </div>
             ) : null}
@@ -427,6 +429,7 @@ class Layout extends Component {
       );
     if (section === "In Class Tools") return <AVOInClassTools />;
     if (section === "Explanations") return <AVOExplanations />;
+    if (section === "Notify Class") return <NotifyClass />
   }
 
     timerInTopBar(){
