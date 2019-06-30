@@ -35,7 +35,6 @@ export default class NotifyClass extends Component {
         style={{
           width: 1000,
           height: 600,
-          margin: 25,
           padding: 25,
           overflow: "hidden",
           marginTop: 0
