@@ -1,7 +1,7 @@
 import React from "react";
 import {connect} from "react-redux";
 import QuestionCard from "./QuestionCard";
-import TestSettingsCard from "./TestSettingsCard"
+import TestSettingsCard from "./TestSettings/TestSettingsCard"
 
 class QuestionCardDashboard extends React.Component {
   render () {

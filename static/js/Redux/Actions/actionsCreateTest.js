@@ -13,7 +13,13 @@ export const CONST_CREATE_TEST_ATTEMPT_LIMIT = "CONST_CREATE_TEST_ATTEMPT_LIMIT"
 export const CONST_CREATE_TEST_TIME_LIMIT = "CONST_CREATE_TEST_TIME_LIMIT";
 export const CONST_CREATE_TEST_AUTO_CLOSE = "CONST_CREATE_TEST_AUTO_CLOSE";
 export const CONST_CRETE_TEST_AUTO_OPEN = "CONST_CRETE_TEST_AUTO_OPEN";
+export const CONST_CREATE_TEST_TOGGLE_CLOSE_TIME = "CONST_CREATE_TEST_TOGGLE_CLOSE_TIME";
+export const CONST_CREATE_TEST_TOGGLE_ATTEMPT_LIMIT = "CONST_CREATE_TEST_TOGGLE_ATTEMPT_LIMIT";
+export const CONST_CREATE_TEST_TOGGLE_OPEN_TIME = "CONST_CREATE_TEST_TOGGLE_OPEN_TIME";
+export const CONST_CREATE_TEST_TOGGLE_TIME_LIMIT = "CONST_CREATE_TEST_TOGGLE_TIME_LIMIT";
 export const CONST_CREATE_TEST_SUBMIT_TEST = "CONST_CREATE_TEST_SUBMIT_TEST";
+
+
 
 /**
  *
@@ -111,6 +117,11 @@ export function actionCreateTestDeleteQuestion (index) {
   }
 }
 
+/**
+ * creates the test lock seed action
+ * @param index [int]
+ * @returns {{index: [int], type: string}}
+ */
 export function actionCreateTestLockSeed (index) {
   return {
 	type: CONST_CREATE_TEST_LOCK_SEED,
@@ -179,28 +190,89 @@ export function actionCreateAutoClose (date) {
 }
 
 /**
+ * Function toggles whether or not close time is shown
+ * @returns {{type: string}}
+ */
+export function actionCreateTestToggleCloseTime(){
+  return {
+    type: CONST_CREATE_TEST_TOGGLE_CLOSE_TIME
+  }
+}
+
+/**
+ * Function toggles whether or not open time is shown
+ * @returns {{type: string}}
+ */
+export function actionCreateTestToggleOpenTime(){
+  return {
+    type: CONST_CREATE_TEST_TOGGLE_OPEN_TIME
+  }
+}
+
+/**
+ * Function toggles whether or not there is an attempt limit
+ * @returns {{type: string}}
+ */
+export function actionCreateTestToggleAttemptLimit(){
+  return {
+    type: CONST_CREATE_TEST_TOGGLE_ATTEMPT_LIMIT
+  }
+}
+
+/**
+ * Function toggles whether or not there is a time limit in minutes
+ * @returns {{type: string}}
+ */
+export function actionCreateTestToggleTimeLimit(){
+  return {
+    type: CONST_CREATE_TEST_TOGGLE_TIME_LIMIT
+  }
+}
+
+/**
  * This Submits the test
+ * If there is no attempts then attempts should be -1
+ If there is no time limit then time limit should be -1
+ If there is no close time then close time should be set to 200 years from today
+ If there is no open time then open time should be set to 100 years from today
  * @param onCreate [func] a function that's passed in
  * @param props
  */
 export function actionCreateTestSubmitTest (onCreate, props) {
   let s = props;
+
+  // If there is no attempts then attempts should be -1
+  let attempts = s.attempts;
+  if (!props.hasAttemptsLimit) attempts = -1;
+  // If there is no time limit then time limit should be -1
+  let timeLimit = s.timeLimit;
+  if (!props.hasTimeLimit)  timeLimit = -1;
+  // If there is no close time then close time should be set to 200 years from today
+  let deadlineDate = s.closeTime;
+  if (!props.hasCloseTime) deadlineDate = daysFromToday(200);
+  const deadline = convertDateToServerFormat(deadlineDate).replace (/[\-T:]/g, '');
+  // If there is no open time then open time should be set to 100 years from today
+  let openTimeDate = s.openTime;
+  if (!props.hasOpentime) openTimeDate = daysFromToday(100);
+  const openTime = convertDateToServerFormat(openTimeDate).replace (/[\-T:]/g, '');
   const questions = s.testQuestions.map (x => x.id);
   const seeds = s.testQuestions.map (x => x.locked ? x.seed : -1);
-  const deadline = convertDateToServerFormat(s.closeTime).replace (/[\-T:]/g, '');
-  const openTime = convertDateToServerFormat(s.openTime).replace (/[\-T:]/g, '');
+
+
   Http.saveTest (
 	  s.classId,
 	  s.name,
 	  deadline,
-	  s.timeLimit.toString(),
-	  s.attempts.toString(),
+	  timeLimit.toString(),
+	  attempts.toString(),
 	  questions,
 	  seeds,
 	  openTime,
 	  () => { props.onCreate()},
 	  (e) => { alert (e.error)});
 }
+
+
 
 /**
  * helper function takes the date object created by inline date picker and converts it to format expected by server
@@ -218,4 +290,12 @@ function convertDateToServerFormat (date) {
   return _date
 }
 
-
+/**
+ * @param days [int]
+ * @returns {Date} 100 years date object from today's date
+ */
+function daysFromToday(days) {
+  var result = new Date();
+  result.setDate(result.getDate() + days);
+  return result;
+}

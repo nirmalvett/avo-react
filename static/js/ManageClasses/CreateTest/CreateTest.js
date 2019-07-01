@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import QuestionSidebar from "./QuestionSidebar"
 import {connect} from 'react-redux';
-import {getQuestionSets} from "../../Redux/Actions/actionsMakeTest";
+import {getQuestionSets} from "../../Redux/Actions/actionsCreateTest";
 import QuestionCardDashboard from "./QuestionCardDashboard/QuestionCardDashboard";
 
 class CreateTest extends Component {

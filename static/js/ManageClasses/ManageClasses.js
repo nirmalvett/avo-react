@@ -46,7 +46,7 @@ import AVOModal from '../SharedComponents/MaterialModal';
 import Chart from 'react-apexcharts';
 import {convertListFloatToAnalytics} from '../HelperFunctions/Helpers';
 import {InlineDateTimePicker} from "material-ui-pickers";
-import {actionCreateTestAddClassId} from "../Redux/Actions/actionsMakeTest";
+import {actionCreateTestAddClassId} from "../Redux/Actions/actionsCreateTest";
 import {connect} from "react-redux";
 
 const cardStyle = {marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};

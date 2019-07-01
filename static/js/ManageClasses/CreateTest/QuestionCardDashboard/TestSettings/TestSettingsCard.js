@@ -6,60 +6,49 @@ import {
   actionCreateAttemptLimit,
   actionCreateAutoClose,
   actionCreateAutoOpen,
-  actionCreateTestSetTestName, actionCreateTestSubmitTest,
+  actionCreateTestSetTestName,
+  actionCreateTestSubmitTest,
   actionCreateTimeLimit
-} from "../../../Redux/Actions/actionsMakeTest";
+} from "../../../../Redux/Actions/actionsCreateTest";
 import {Done} from '@material-ui/icons';
 import IconButton from "@material-ui/core/IconButton";
-
+import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import AutoCloseTest from "./AutoCloseTest"
+import AutoOpenTest from "./AutoOpenTest"
+import Attempts from "./Attempts"
+import TimeLimit from "./TimeLimit"
 class TestSettingsCard extends React.Component {
-
   render () {
 	return (
-		<Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
+		<Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1, justifyContent: 'space-between'}}>
 		  <CardHeader
 			  title={'Test Settings'}
 			  action={
 				<IconButton
 					color='primary'
-					disabled={!this.enableSubmitButton()}
-					onClick={() => this.clickTestSubmit()}>
+					disabled={!this.enableSubmitButton ()}
+					onClick={() => this.clickTestSubmit ()}>
 				  <Done/>
 				</IconButton>
 			  }/>
-
 		  <TextField
 			  margin='normal'
 			  label='Name'
 			  style={{width: '46%', margin: '2%'}}
 			  onChange={e => this.changeTestName (e.target.value)}
 		  />
-		  <TextField
-			  margin='normal' label='Time Limit in Minutes'
-			  type='number'
-			  style={{width: '46%', margin: '2%'}}
-			  onChange={e => this.changeTimeLimit (e.target.value)}
-		  />
 		  <br/>
-		  <TextField
-			  margin='normal' label='Attempts' type='number'
-			  style={{width: '46%', margin: '2%'}}
-			  onChange={e => this.changeAttemptLimit (e.target.value)}
-		  />
-		  <InlineDateTimePicker
-			  margin='normal'
-			  style={{width: '46%', margin: '2%'}}
-			  label="Deadline"
-			  value={this.props.closeTime}
-			  onChange={e => this.changeAutoClose(e)}
-		  />
-		  <InlineDateTimePicker
-			  margin='normal'
-			  style={{width: '46%', margin: '2%'}}
-			  label="When to automatically open"
-			  value={this.props.openTime}
-			  onChange={e => this.changeAutoOpen(e)}
-		  />
+		  <TimeLimit />
+		  <br/>
+		  <Attempts/>
+		  <br/>
+		  <AutoOpenTest />
+		  <br/>
+		  <AutoCloseTest/>
+
+
+
 		</Card>
 	)
   }
@@ -68,15 +57,15 @@ class TestSettingsCard extends React.Component {
    * clickTestSubmit is triggered whenever you click on the submit
    */
   clickTestSubmit () {
-    const { onCreate, dispatch } = this.props;
-    actionCreateTestSubmitTest(onCreate, this.props);
+	const {onCreate, dispatch} = this.props;
+	actionCreateTestSubmitTest (onCreate, this.props);
   }
 
   /**
    * method returns true if one of the fields is not properly filled yet
-   */s
-  enableSubmitButton(){
-    const {attempts, closeTime, name, openTime, testQuestions, timeLimit}= this.props;
+   */
+  enableSubmitButton () {
+	const {attempts, closeTime, name, openTime, testQuestions, timeLimit} = this.props;
 	if (openTime === null || closeTime === null) return false;
 	else if (name.length === 0) return false;
 	else if (testQuestions.length === 0) return false;
@@ -93,19 +82,6 @@ class TestSettingsCard extends React.Component {
 	this.props.dispatch (actionCreateAttemptLimit (limit));
   }
 
-  changeAutoOpen (e) {
-    const newDateString = e._d;
-	this.props.dispatch (actionCreateAutoOpen(newDateString))
-  }
-
-  changeAutoClose (e) {
-    const newDateString = e._d;
-	this.props.dispatch (actionCreateAutoClose(newDateString));
-  }
-
-  changeTimeLimit (minuteInt) {
-	this.props.dispatch (actionCreateTimeLimit (minuteInt));
-  }
 }
 
 function mapStateToProps ({createTest}) {
@@ -114,9 +90,12 @@ function mapStateToProps ({createTest}) {
 	closeTime: createTest.closeTime,
 	openTime: createTest.openTime,
 	name: createTest.name,
-	timeLimit: parseInt(createTest.timeLimit),
-	attempts: parseInt(createTest.attempts),
+	timeLimit: parseInt (createTest.timeLimit),
+	attempts: parseInt (createTest.attempts),
 	classId: createTest.classId,
+	hasCloseTime: createTest.hasCloseTime,
+	hasAttemptLimit: createTest.hasAttemptLimit,
+	hasTimeLimit: createTest.hasTimeLimit,
   }
 
 }

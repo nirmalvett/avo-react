@@ -9,22 +9,32 @@ import {
   CONST_CREATE_TEST_NAME_FOR_TEST,
   CONST_CREATE_TEST_ATTEMPT_LIMIT,
   CONST_CREATE_TEST_AUTO_CLOSE,
-  CONST_CREATE_TEST_TIME_LIMIT, CONST_CRETE_TEST_AUTO_OPEN, CONST_CREATE_TEST_ADD_CLASS_ID
-} from "../Actions/actionsMakeTest";
+  CONST_CREATE_TEST_TIME_LIMIT,
+  CONST_CRETE_TEST_AUTO_OPEN,
+  CONST_CREATE_TEST_ADD_CLASS_ID,
+  CONST_CREATE_TEST_TOGGLE_CLOSE_TIME,
+  CONST_CREATE_TEST_TOGGLE_ATTEMPT_LIMIT,
+  CONST_CREATE_TEST_TOGGLE_OPEN_TIME,
+  CONST_CREATE_TEST_TOGGLE_TIME_LIMIT
+} from "../Actions/actionsCreateTest";
 import {arrayWithout} from "../../HelperFunctions/Helpers";
 
 const makeTestDefault = {
   sets: [],
   testQuestions: [],
-  closeTime: new Date(),
+  closeTime: addDays(new Date(), 1) ,
   openTime: new Date(),
+  hasOpenTime: false,
+  hasCloseTime: false,
+  hasAttemptsLimit: false,
+  hasTimeLimit: false,
   name: "",
   timeLimit: null,
   attempts: null,
   classId: null,
 };
 
-export function createTest(state = makeTestDefault, action) {
+export function ReducerCreateTest(state = makeTestDefault, action) {
   switch (action.type) {
 	case CONST_CREATE_TEST_GET_QUESTIONS:
 	  return {
@@ -109,7 +119,35 @@ export function createTest(state = makeTestDefault, action) {
 		classId: action.id,
 
 	  };
+	case CONST_CREATE_TEST_TOGGLE_CLOSE_TIME:
+	  return {
+	    ...state,
+		hasCloseTime: !state.hasCloseTime
+	  };
+	case CONST_CREATE_TEST_TOGGLE_ATTEMPT_LIMIT:
+	  return {
+		...state,
+		hasAttemptsLimit: !state.hasAttemptsLimit,
+	  };
+	case CONST_CREATE_TEST_TOGGLE_OPEN_TIME:
+	  return {
+	    ...state,
+		hasOpenTime: !state.hasOpenTime,
+	  };
+
+	case CONST_CREATE_TEST_TOGGLE_TIME_LIMIT:
+	  return {
+	    ...state,
+		hasTimeLimit: !state.hasTimeLimit,
+	  };
 	default:
 	  return state;
   }
+}
+
+
+function addDays(date, days) {
+  var result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
 }

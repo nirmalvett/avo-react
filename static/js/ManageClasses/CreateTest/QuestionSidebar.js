@@ -3,7 +3,7 @@ import {Folder, FolderOpen} from "@material-ui/icons";
 import React from "react";
 import {connect} from "react-redux";
 import {HashLoader} from 'react-spinners';
-import {createTestQuestion, createTestOpenQuestionSet} from "../../Redux/Actions/actionsMakeTest";
+import {createTestQuestion, createTestOpenQuestionSet} from "../../Redux/Actions/actionsCreateTest";
 
 
 class QuestionSidebar extends React.Component {

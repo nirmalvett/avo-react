@@ -7,7 +7,7 @@ import {
   actionCreateTestDeleteQuestion,
   actionCreateTestLockSeed,
   createTestQuestion
-} from "../../../Redux/Actions/actionsMakeTest";
+} from "../../../Redux/Actions/actionsCreateTest";
 import {getAnswerInputs} from "./getAnswerInputs";
 
 class QuestionCard extends React.Component {
