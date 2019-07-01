@@ -23,7 +23,7 @@ class AutoCloseTest extends React.Component {
 					onChange={() => this.props.dispatch (actionCreateTestToggleCloseTime ())}
 				/>
 			  }
-			  label="Auto Close Test"
+			  label="Auto close test"
 		  />
 		  {
 			this.props.hasCloseTime
