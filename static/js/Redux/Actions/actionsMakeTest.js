@@ -1,6 +1,6 @@
 import Http from "../../HelperFunctions/Http";
 
-
+export const CONST_CREATE_TEST_ADD_CLASS_ID = "CONST_CREATE_TEST_ADD_CLASS_ID";
 export const CONST_CREATE_TEST_GET_QUESTIONS = "CONST_CREATE_TEST_GET_QUESTIONS";
 export const CONST_DEFAULT_TEST_SETTING = "CONST_DEFAULT_TEST_SETTING";
 export const CONST_CREATE_TEST_OPEN_QUESTION_SET = "CONST_CREATE_TEST_OPEN_QUESTION_SET";
@@ -15,24 +15,36 @@ export const CONST_CREATE_TEST_AUTO_CLOSE = "CONST_CREATE_TEST_AUTO_CLOSE";
 export const CONST_CRETE_TEST_AUTO_OPEN = "CONST_CRETE_TEST_AUTO_OPEN";
 export const CONST_CREATE_TEST_SUBMIT_TEST = "CONST_CREATE_TEST_SUBMIT_TEST";
 
-export function getQuestionSets() {
+/**
+ *
+ * @param id
+ * @returns {{id: *, type: string}}
+ */
+export function actionCreateTestAddClassId(id){
+  return {
+    type: CONST_CREATE_TEST_ADD_CLASS_ID,
+	id: id
+  }
+}
+
+export function getQuestionSets () {
   return (dispatch) => {
-	Http.getSets(
+	Http.getSets (
 		(result) => {
-		  dispatch(getSetsAction(result))
+		  dispatch (getSetsAction (result))
 		}
 	);
   }
 }
 
-function getSetsAction(result) {
+function getSetsAction (result) {
   return {
 	type: CONST_CREATE_TEST_GET_QUESTIONS,
 	returnObject: result
   }
 }
 
-export function createTestOpenQuestionSet(questionIndex) {
+export function createTestOpenQuestionSet (questionIndex) {
   /* indexQuestion: a valid index */
   return {
 	type: CONST_CREATE_TEST_OPEN_QUESTION_SET,
@@ -46,10 +58,10 @@ export function createTestOpenQuestionSet(questionIndex) {
  * @param  {int} indexToReplace [this is the index of the question to replace the seed for. -1 if it's a new question]
  * @return {Object}             [action object]
  */
-export function createTestQuestion(questionObj, indexToReplace=-1) {
+export function createTestQuestion (questionObj, indexToReplace = -1) {
   return (dispatch) => {
-	const seed = Math.floor(Math.random() * 65536);
-	Http.getQuestion(questionObj.id, seed, (result) => {
+	const seed = Math.floor (Math.random () * 65536);
+	Http.getQuestion (questionObj.id, seed, (result) => {
 	  const newQuestion = {
 		id: questionObj.id,
 		name: questionObj.name,
@@ -59,13 +71,11 @@ export function createTestQuestion(questionObj, indexToReplace=-1) {
 		prompts: result.prompts,
 		types: result.types
 	  };
-	  if (indexToReplace === -1){
-	    dispatch(actionCreateTestAddQuestion(newQuestion));
+	  if (indexToReplace === -1) {
+		dispatch (actionCreateTestAddQuestion (newQuestion));
+	  } else {
+		dispatch (actionCreateTestChangeQuestion (newQuestion, indexToReplace))
 	  }
-	  else {
-	    dispatch(actionCreateTestChangeQuestion(newQuestion, indexToReplace))
-	  }
-
 
 
 	}, () => {
@@ -73,16 +83,16 @@ export function createTestQuestion(questionObj, indexToReplace=-1) {
   }
 }
 
-function actionCreateTestAddQuestion(questionObj) {
+function actionCreateTestAddQuestion (questionObj) {
   return {
 	type: CONST_CREATE_TEST_ADD_QUESTION,
 	newQuestion: questionObj
   }
 }
 
-function actionCreateTestChangeQuestion(questionObj, indexToReplace){
+function actionCreateTestChangeQuestion (questionObj, indexToReplace) {
   return {
-    type: CONST_CREATE_TEST_REFRESH_QUESTION,
+	type: CONST_CREATE_TEST_REFRESH_QUESTION,
 	newQuestion: questionObj,
 	indexToReplace: indexToReplace,
   }
@@ -94,16 +104,16 @@ function actionCreateTestChangeQuestion(questionObj, indexToReplace){
  * @param  {int} index [index of the question to remove]
  * @return {object} object [action object]
  */
-export function actionCreateTestDeleteQuestion(index){
-	return {
-		type: CONST_CREATE_TEST_DELETE_QUESTION,
-		index: index,
-	}
+export function actionCreateTestDeleteQuestion (index) {
+  return {
+	type: CONST_CREATE_TEST_DELETE_QUESTION,
+	index: index,
+  }
 }
 
-export function actionCreateTestLockSeed(index){
+export function actionCreateTestLockSeed (index) {
   return {
-    type: CONST_CREATE_TEST_LOCK_SEED,
+	type: CONST_CREATE_TEST_LOCK_SEED,
 	index: index
   }
 }
@@ -113,9 +123,9 @@ export function actionCreateTestLockSeed(index){
  * @param  {string} testName [the name of the test in the form of a String]
  * @return {object} object [action object]
  */
-export function actionCreateTestSetTestName(testName){
+export function actionCreateTestSetTestName (testName) {
   return {
-    type: CONST_CREATE_TEST_NAME_FOR_TEST,
+	type: CONST_CREATE_TEST_NAME_FOR_TEST,
 	testName: testName,
   }
 }
@@ -125,9 +135,9 @@ export function actionCreateTestSetTestName(testName){
  * @param  {int} attemptInt [the amount of attempts]
  * @return {object} object [action object]
  */
-export function actionCreateAttemptLimit(attemptInt){
+export function actionCreateAttemptLimit (attemptInt) {
   return {
-    type: CONST_CREATE_TEST_ATTEMPT_LIMIT,
+	type: CONST_CREATE_TEST_ATTEMPT_LIMIT,
 	attemptInt: attemptInt,
   }
 }
@@ -137,9 +147,9 @@ export function actionCreateAttemptLimit(attemptInt){
  * @param  {int} minuteInt [the amount minutes]
  * @return {object} object [action object]
  */
-export function actionCreateTimeLimit(minuteInt){
+export function actionCreateTimeLimit (minuteInt) {
   return {
-    type: CONST_CREATE_TEST_TIME_LIMIT,
+	type: CONST_CREATE_TEST_TIME_LIMIT,
 	minuteInt: minuteInt,
   }
 }
@@ -149,9 +159,9 @@ export function actionCreateTimeLimit(minuteInt){
  * @param  {date} date [the date opening time]
  * @return {object} object [action object]
  */
-export function actionCreateAutoOpen(date){
+export function actionCreateAutoOpen (date) {
   return {
-    type: CONST_CRETE_TEST_AUTO_OPEN,
+	type: CONST_CRETE_TEST_AUTO_OPEN,
 	date: date,
   }
 }
@@ -161,28 +171,35 @@ export function actionCreateAutoOpen(date){
  * @param  {date} date [the date opening time]
  * @return {object} object [action object]
  */
-export function actionCreateAutoClose(date){
+export function actionCreateAutoClose (date) {
   return {
-    type: CONST_CREATE_TEST_AUTO_CLOSE,
+	type: CONST_CREATE_TEST_AUTO_CLOSE,
 	date: date,
   }
 }
 
 /**
- *
- * @param onChange is a binded function from Layout that changes the view back to ManageClasses upon successful submission
+ * This Submits the test
+ * @param onCreate [func] a function that's passed in
+ * @param props
  */
-export function actionCreateTestSubmitTest(onCreate, props){
+export function actionCreateTestSubmitTest (onCreate, props) {
   let s = props;
-  const questions = s.testQuestions.map(x => x.id);
-  const seeds = s.testQuestions.map(x => x.locked ? x.seed : -1);
-  const deadline = convertDateToServerFormat(s).closeTime.replace(/[\-T:]/g, '');
-  const openTime = convertDateToServerFormat(s).closeTime.replace(/[\-T:]/g, '');
-   Http.saveTest(s.classID, s.name, deadline, s.timeLimit, s.attempts, questions, seeds, openTime,
-	() => {onCreate()},
-	() => {alert('Something went wrong')}
-	);
-
+  const questions = s.testQuestions.map (x => x.id);
+  const seeds = s.testQuestions.map (x => x.locked ? x.seed : -1);
+  const deadline = convertDateToServerFormat(s.closeTime).replace (/[\-T:]/g, '');
+  const openTime = convertDateToServerFormat(s.openTime).replace (/[\-T:]/g, '');
+  Http.saveTest (
+	  s.classId,
+	  s.name,
+	  deadline,
+	  s.timeLimit.toString(),
+	  s.attempts.toString(),
+	  questions,
+	  seeds,
+	  openTime,
+	  () => { props.onCreate()},
+	  (e) => { alert (e.error)});
 }
 
 /**
@@ -190,14 +207,14 @@ export function actionCreateTestSubmitTest(onCreate, props){
  * @param date Input is the date object given by inline date pick component
  * @return [String] date format for the server
  */
-function convertDateToServerFormat(date) {
-  const d = new Date(date);
+function convertDateToServerFormat (date) {
+  const d = new Date (date);
   let _date =
-	  ("00" + (d.getMonth() + 1)).slice(-2) + "" +
-	  ("00" + d.getDate()).slice(-2) + "" +
-	  ("00" + d.getHours()).slice(-2) + "" +
-	  ("00" + d.getMinutes()).slice(-2) + "";
-  _date = d.getFullYear() + "" + _date;
+	  ("00" + (d.getMonth () + 1)).slice (-2) + "" +
+	  ("00" + d.getDate ()).slice (-2) + "" +
+	  ("00" + d.getHours ()).slice (-2) + "" +
+	  ("00" + d.getMinutes ()).slice (-2) + "";
+  _date = d.getFullYear () + "" + _date;
   return _date
 }
 

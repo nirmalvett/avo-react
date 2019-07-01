@@ -28,7 +28,7 @@ def save_test():
         return abort(400)
     data = request.json
     class_id, name, open_time, deadline, timer, attempts, question_list, seed_list = \
-        data['classID'], data['name'], data['openTime'], data['deadline'], data['timer'], data['attempts'], data['questionList'],\
+        data['classId'], data['name'], data['openTime'], data['deadline'], data['timer'], data['attempts'], data['questionList'],\
         data['seedList']  # Data from the client
     if not isinstance(class_id, int) or not isinstance(name, str) or not (
             isinstance(open_time, str) or open_time is None) or not isinstance(deadline, str) or not \
@@ -49,7 +49,7 @@ def save_test():
         open_time = datetime.strptime(str(open_time), '%Y-%m-%d %H:%M')
         if open_time >= deadline:
             # The deadline is before the open time
-            return jsonify(error="open time is past the deadline")
+            return jsonify(error="Oops...deadline must be after the automatic open time. Please adjust the test settings and try again.")
     total = 0  # Total the test is out of
 
     questions = Question.query.filter(Question.QUESTION.in_(question_list)).all()  # All question in test

@@ -9,7 +9,7 @@ import {
   CONST_CREATE_TEST_NAME_FOR_TEST,
   CONST_CREATE_TEST_ATTEMPT_LIMIT,
   CONST_CREATE_TEST_AUTO_CLOSE,
-  CONST_CREATE_TEST_TIME_LIMIT, CONST_CRETE_TEST_AUTO_OPEN
+  CONST_CREATE_TEST_TIME_LIMIT, CONST_CRETE_TEST_AUTO_OPEN, CONST_CREATE_TEST_ADD_CLASS_ID
 } from "../Actions/actionsMakeTest";
 import {arrayWithout} from "../../HelperFunctions/Helpers";
 
@@ -18,9 +18,10 @@ const makeTestDefault = {
   testQuestions: [],
   closeTime: new Date(),
   openTime: new Date(),
-  name: null,
+  name: "",
   timeLimit: null,
   attempts: null,
+  classId: null,
 };
 
 export function createTest(state = makeTestDefault, action) {
@@ -101,6 +102,12 @@ export function createTest(state = makeTestDefault, action) {
 	  return {
 	    ...state,
 		openTime: action.date
+	};
+	case CONST_CREATE_TEST_ADD_CLASS_ID:
+	  return {
+	    ...state,
+		classId: action.id,
+
 	  };
 	default:
 	  return state;

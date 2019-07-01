@@ -6,13 +6,14 @@ import {
   actionCreateAttemptLimit,
   actionCreateAutoClose,
   actionCreateAutoOpen,
-  actionCreateTestSetTestName,
+  actionCreateTestSetTestName, actionCreateTestSubmitTest,
   actionCreateTimeLimit
 } from "../../../Redux/Actions/actionsMakeTest";
 import {Done} from '@material-ui/icons';
 import IconButton from "@material-ui/core/IconButton";
 
 class TestSettingsCard extends React.Component {
+
   render () {
 	return (
 		<Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
@@ -21,7 +22,7 @@ class TestSettingsCard extends React.Component {
 			  action={
 				<IconButton
 					color='primary'
-					disabled={this.props.testQuestions.length === 0}
+					disabled={!this.enableSubmitButton()}
 					onClick={() => this.clickTestSubmit()}>
 				  <Done/>
 				</IconButton>
@@ -34,7 +35,8 @@ class TestSettingsCard extends React.Component {
 			  onChange={e => this.changeTestName (e.target.value)}
 		  />
 		  <TextField
-			  margin='normal' label='Time Limit in Minutes' type='number'
+			  margin='normal' label='Time Limit in Minutes'
+			  type='number'
 			  style={{width: '46%', margin: '2%'}}
 			  onChange={e => this.changeTimeLimit (e.target.value)}
 		  />
@@ -62,23 +64,25 @@ class TestSettingsCard extends React.Component {
 	)
   }
 
-
-
   /**
    * clickTestSubmit is triggered whenever you click on the submit
    */
   clickTestSubmit () {
-	const s = this.props;
-	let deadline = s.deadline.replace (/[\-T:]/g, '');
-	if (deadline.length !== 12) {
-	  alert ('Invalid deadline');
-	  return;
-	}
-	if (this.props.testQuestions.length === 0) {
-	  alert ('Test must contain 1 or more questions!');
-	  return;
-	}
-	
+    const { onCreate, dispatch } = this.props;
+    actionCreateTestSubmitTest(onCreate, this.props);
+  }
+
+  /**
+   * method returns true if one of the fields is not properly filled yet
+   */s
+  enableSubmitButton(){
+    const {attempts, closeTime, name, openTime, testQuestions, timeLimit}= this.props;
+	if (openTime === null || closeTime === null) return false;
+	else if (name.length === 0) return false;
+	else if (testQuestions.length === 0) return false;
+	else if (timeLimit === null) return false;
+	else if (attempts === null) return false;
+	return true;
   }
 
   changeTestName (name) {
@@ -110,11 +114,13 @@ function mapStateToProps ({createTest}) {
 	closeTime: createTest.closeTime,
 	openTime: createTest.openTime,
 	name: createTest.name,
-	timeLimit: createTest.timeLimit,
-	attempts: createTest.attempts
+	timeLimit: parseInt(createTest.timeLimit),
+	attempts: parseInt(createTest.attempts),
+	classId: createTest.classId,
   }
 
 }
+
 
 export default connect (mapStateToProps) (TestSettingsCard);
 
