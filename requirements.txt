@@ -17,4 +17,4 @@ GitPython==2.1.11
 itsdangerous==0.24
 paypalrestsdk==1.13.1
 pyYAML==3.13
-
+Flask-Cors==3.0.8

@@ -5,8 +5,10 @@ from server.models import db
 from server.routes import ClassRoutes, FileRoutes, QuestionRoutes, ServerRoutes, TestRoutes, UserRoutes
 import paypalrestsdk
 import config
-
-
+from flask_cors import CORS
+import os
+env = os.environ.get("ENV", None)
+print(env)
 # Configure PayPal
 print(">>> PayPal is set to " + config.PAYPAL_MODE + " <<<")
 paypalrestsdk.configure({
@@ -17,6 +19,7 @@ paypalrestsdk.configure({
 
 # Create and configure the Flask App, attach the login manager, and attach the database
 app = Flask(__name__, static_folder='../static/dist', template_folder='../static')
+cors = CORS(app, resources={r"/*": {"origins": ["http://avo-frontend.s3-website.us-east-2.amazonaws.com/*", "http://localhost/*"] if env != 'prod' else "http://avo-frontend.s3-website.us-east-2.amazonaws.com/*"}})
 app.config.from_object('config')
 login_manager.init_app(app)
 db.init_app(app)
