@@ -19,7 +19,6 @@ paypalrestsdk.configure({
 
 # Create and configure the Flask App, attach the login manager, and attach the database
 app = Flask(__name__, static_folder='../static/dist', template_folder='../static')
-cors = CORS(app, resources={r"/*": {"origins": ["http://avo-frontend.s3-website.us-east-2.amazonaws.com/*", "http://localhost/*"] if env != 'prod' else "http://avo-frontend.s3-website.us-east-2.amazonaws.com/*"}})
 app.config.from_object('config')
 login_manager.init_app(app)
 db.init_app(app)
@@ -34,3 +33,4 @@ app.register_blueprint(UserRoutes)
 
 # Add gzip support
 Compress(app)
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://avo-frontend.s3-website.us-east-2.amazonaws.com/*", "http://localhost/*", "https://d1tnjp7zr1fy56.cloudfront.net/*"] if env != 'prod' else "http://avo-frontend.s3-website.us-east-2.amazonaws.com/*"}})
