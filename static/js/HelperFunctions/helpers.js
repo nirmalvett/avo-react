@@ -45,6 +45,7 @@ export function isChrome(){
     // and new IE Edge outputs to true now for window.chrome
     // and if not iOS Chrome check
     // so use the below updated condition
+    let isHeadlessChrome = window.navigator.userAgent.indexOf("HeadlessChrome") !== -1;
     let isChromium = window.chrome;
     let winNav = window.navigator;
     let vendorName = winNav.vendor;
@@ -56,8 +57,9 @@ export function isChrome(){
         return true;
     } else
         return (
-            isChromium !== null &&
-            typeof isChromium !== "undefined" &&
+            ((isChromium !== null &&
+            typeof isChromium !== "undefined") ||
+            isHeadlessChrome === true) &&
             vendorName === "Google Inc." &&
             isOpera === false &&
             isEdge === false
