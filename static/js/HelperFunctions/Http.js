@@ -162,9 +162,9 @@ export default class Http {
 		Http._request('POST', `/passwordReset/${token}`, success, failure, {password: password});
 	};
 
-	static changeTest(test, timer, name, deadline, attempts, success, failure) {
+	static changeTest(test, timer, name, deadline, openTime, attempts, success, failure) {
 		Http._request('POST', `/changeTest`, success, failure,
-				{test: test, timer:timer, name:name, deadline:deadline, attempts:attempts});
+				{test: test, timer:timer, name:name, deadline:deadline, attempts:attempts,  openTime: openTime});
 	};
 }
 

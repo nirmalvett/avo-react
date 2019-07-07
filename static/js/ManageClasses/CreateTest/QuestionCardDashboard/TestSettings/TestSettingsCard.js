@@ -94,6 +94,7 @@ function mapStateToProps ({createTest}) {
 	attempts: parseInt (createTest.attempts),
 	classId: createTest.classId,
 	hasCloseTime: createTest.hasCloseTime,
+	hasOpentime: createTest.hasOpenTime,
 	hasAttemptLimit: createTest.hasAttemptLimit,
 	hasTimeLimit: createTest.hasTimeLimit,
   }

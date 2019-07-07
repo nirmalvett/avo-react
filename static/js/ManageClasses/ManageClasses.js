@@ -48,6 +48,7 @@ import {convertListFloatToAnalytics} from '../HelperFunctions/Helpers';
 import {InlineDateTimePicker} from "material-ui-pickers";
 import {actionCreateTestAddClassId} from "../Redux/Actions/actionsCreateTest";
 import {connect} from "react-redux";
+import {addDays} from "../Redux/Reducers/reducerCreateTest";
 
 const cardStyle = {marginBottom: '10%', padding: '10px', flex: 1, display: 'flex', flexDirection: 'column'};
 const CONST_TAB_OVERALL_ANALYTICS = 0;
@@ -98,7 +99,10 @@ class ManageClasses extends Component {
 	  editTestPopperOpen: false,
 	  editTest_attempts: null,
 	  editTest_time: null,
-	  editTest_date: null,
+	  editTest_date: addDays (new Date (), 1),
+	  editTest_openTime: new Date (),
+	  _editTest_date: addDays (new Date (), 1),
+	  _editTest_openTime: new Date (),
 	  editTest_name: null,
 	  editTest_confirm_text: "Confirm" // first time it's Confirm after that it's "Change Again"
 	};
@@ -106,12 +110,18 @@ class ManageClasses extends Component {
 
   componentDidMount () {
 	this.loadClasses ();
-  };
+  }
 
   loadClasses (snackBarString) {
 	// this gets the class results
 	Http.getClasses (result => {
-		  this.setState ({classesLoaded: true, classes: result.classes});
+		  this.setState ({
+			classesLoaded: true, classes: result.classes,
+			editTest_date: addDays (new Date (), 1),
+			editTest_openTime: new Date (),
+			_editTest_date: addDays (new Date (), 1),
+			_editTest_openTime: new Date (),
+		  });
 		},
 		result => console.log (result));
 	if (snackBarString !== undefined)
@@ -298,7 +308,7 @@ class ManageClasses extends Component {
 			  action={
 				<Fragment key={`Action-:${uniqueKey1} ${selectedClass.name}`}>
 				  <Tooltip title='Create a new Test'>
-					<IconButton onClick={() => this.createTestHelper(selectedClass.id)}>
+					<IconButton onClick={() => this.createTestHelper (selectedClass.id)}>
 					  <NoteAddOutlined/>
 					</IconButton>
 				  </Tooltip>
@@ -347,7 +357,7 @@ class ManageClasses extends Component {
 
 
   createTestHelper (id) {
-	this.props.dispatch(actionCreateTestAddClassId(id));
+	this.props.dispatch (actionCreateTestAddClassId (id));
 	this.state.createTest (id);
   }
 
@@ -524,6 +534,13 @@ class ManageClasses extends Component {
 					value={this.state._editTest_date}
 					onChange={this.handleDateChange.bind (this)}
 				/>
+				<InlineDateTimePicker
+					margin='normal'
+					style={{width: '46%', margin: '2%'}}
+					label="Automatic Opening Time"
+					value={this.state._editTest_openTime}
+					onChange={this.handleOpenTestChange.bind (this)}
+				/>
 				<br/>
 				<div style={{float: 'right', position: 'relative'}}>
 				  <Button
@@ -545,6 +562,7 @@ class ManageClasses extends Component {
 							parseInt (this.state.editTest_time),
 							this.state.editTest_name,
 							dateForServer (this.state._editTest_date),
+							dateForServer (this.state._editTest_openTime),
 							parseInt (this.state.editTest_attempts),
 							() => {
 							  this.setState ({
@@ -591,7 +609,22 @@ class ManageClasses extends Component {
 	  editTest_date: _date,
 	  _editTest_date: date
 	});
-  };
+  }
+  ;
+
+  handleOpenTestChange (date) {
+	let d = new Date (date);
+	let _date = ("00" + (d.getMonth () + 1)).slice (-2)
+		+ ("00" + d.getDate ()).slice (-2)
+		+ ("00" + d.getHours ()).slice (-2)
+		+ ("00" + d.getMinutes ()).slice (-2);
+	_date = d.getFullYear () + _date;
+	this.setState ({
+	  editTest_openTime: _date,
+	  _editTest_openTime: date
+	});
+  }
+  ;
 
   detailsCard_selectedTest_cardHeader (selectedTest) {
 	return (
@@ -898,7 +931,8 @@ class ManageClasses extends Component {
 	for (let i = 0; i < this.state.results.length; i++)
 	  outArray.push ({label: `${this.state.results[i].firstName} ${this.state.results[i].lastName}`});
 	return outArray;
-  };
+  }
+  ;
 
   renderSuggestion ({suggestion, index, itemProps, highlightedIndex, selectedItem}) {
 	const isHighlighted = highlightedIndex === index;
@@ -919,15 +953,18 @@ class ManageClasses extends Component {
 	const inputLen = value.length;
 	return inputLen === 0 ? [] : this.state.studentNameSearchLabels.filter (() => {
 	});
-  };
+  }
+  ;
 
   handleVertClick (event) {
 	this.setState ({anchorEl: event.currentTarget});
-  };
+  }
+  ;
 
   handleVertClose () {
 	this.setState ({anchorEl: null});
-  };
+  }
+  ;
 
   handleClassListItemClick () {
 	this.setState ({apexChartEl: undefined});
@@ -945,7 +982,8 @@ class ManageClasses extends Component {
 	  });
 	  window.onresize = this.handleResize.bind (this);
 	}, 50);
-  };
+  }
+  ;
 
   handleResize () {
 	this.setState ({apexChartEl: 'loading...'});
@@ -1194,7 +1232,8 @@ class ManageClasses extends Component {
 		theme: this.props.theme.theme,
 	  }
 	}
-  };
+  }
+  ;
 
   getTestCardGraphSeries () {
 	let selectedTest = this.state.classes[this.state.c].tests[this.state.t];
