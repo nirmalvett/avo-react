@@ -36,8 +36,12 @@ def save_test():
             isinstance(seed_list, list):
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="One or more data is not correct")
+    if int(timer) < -1:
+        return jsonify(error="timer can not be negative time")
+    if int(attempts) < -1:
+        return jsonify(error="the number of attempts can not be negative")
     if not teaches_class(class_id):
-        return jsonify(error="User doesn't teach this class")
+        return jsonify(error="User oesn't teach this class")
     if len(question_list) == 0:
         return jsonify(error="Can't Submit A Test WIth Zero Questions")
     deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
@@ -94,6 +98,10 @@ def change_test():
         return jsonify(error="Invalid Input: Attempts needs to be an int, " + str(type(attempts)))
     deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
+    if attempts < -1:
+        return jsonify(error="Number of attempts can not be negative")
+    if timer < -1:
+        return jsonify(error="Timer can not be negative")
     if open_time is not None:
         open_time = open_time[0:4] + "-" + open_time[4:6] + "-" + open_time[6:8] + ' ' \
                     + open_time[8:10] + ':' + open_time[10:]
