@@ -243,7 +243,7 @@ class TransactionProcessing(db.Model):
 class Message(db.Model):
     __tablename__ = 'MESSAGE'
 
-    MESSAGE = db.Column(db.Integer, primary_key=True)
+    MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
     CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
     title = db.Column(db.String, nullable=False)
     body = db.Column(db.String, nullable=False)
