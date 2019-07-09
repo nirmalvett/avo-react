@@ -617,6 +617,7 @@ def get_messages():
         return jsonify(error="user does not teach class")
 
     messages = Message.query.filter(Message.CLASS == class_id).all()  # All messages of the class
+    print(alchemy_to_dict(messages))
     return jsonify(messages=alchemy_to_dict(messages))
 
 
