@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import Http from '../HelperFunctions/Http';
 import {copy, getDateString} from "../HelperFunctions/Utilities";
-import {convertListFloatToAnalytics} from "../HelperFunctions/helpers";
+import {convertListFloatToAnalytics} from "../HelperFunctions/Helpers";
 import Tab from '@material-ui/core/Tab';
 import Card from '@material-ui/core/Card';
 import Tabs from '@material-ui/core/Tabs';

@@ -147,3 +147,19 @@ export function convertListFloatToAnalytics(inputList, topMark){
 
     return returnObj;
 }
+
+/**
+ * [arrayWithout a function that returns an array without the indexed item]
+ * @param  {[Object]} list [array of objects]
+ * @param  {int} index [the index to remove]
+ * @return {[list]}       [an array without the index]
+ */
+export function arrayWithout(list, index){
+	const newList = [];
+	for (let i = 0; i < list.length; i++){
+		if (i !== index){
+			newList.push(list[i])
+		}
+	}
+	return newList;
+}
