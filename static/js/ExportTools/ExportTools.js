@@ -42,6 +42,7 @@ class ExportTools extends Component {
 
   render() {
     return (
+      // Creates a drop box area where a professor can drag and drop CSV files for processing
       <Paper className="drop-area" id="drop-area" style={this.state.style}>
         <Typography
           variant="title"
@@ -51,6 +52,7 @@ class ExportTools extends Component {
           Drag and drop your CSVs here to be processed
         </Typography>
         <div style={{ width: "200px", padding: "20px" }}>
+          {/*Display the export button and file names only after there is a file to export*/}
           {this.displayExport()}
           {this.displayFiles()}
         </div>
@@ -58,6 +60,7 @@ class ExportTools extends Component {
     );
   }
 
+  // Responsible for displaying the export button if there are files that have been dropped
   displayExport() {
     if (this.state.jsonObjects[0]) {
       return (
@@ -68,6 +71,7 @@ class ExportTools extends Component {
     }
   }
 
+  // Responsible for displaying the names of the dropped files
   displayFiles() {
     if (this.state.fileNames[0]) {
       let fileList = this.state.fileNames.map(name => {
@@ -79,6 +83,8 @@ class ExportTools extends Component {
     }
   }
 
+  // Set up event handlers on the drop box that take care of highlighting
+  // when a file is dragged over
   componentDidMount() {
     let dropArea = document.getElementById("drop-area");
     ["dragenter", "dragover", "dragleave", "drop"].forEach(event =>
@@ -106,11 +112,13 @@ class ExportTools extends Component {
     this.setState({ style: this.styles.dropArea });
   }
 
+  // Get each file that was dropped and process them
   handleDrop(e) {
     let files = e.dataTransfer.files;
     [...files].forEach(this.processFile);
   }
 
+  // Add the filename to this list and read its contents in to a JSON object
   processFile(file) {
     this.state.fileNames.push(file.name);
     let reader = new FileReader();
@@ -118,12 +126,15 @@ class ExportTools extends Component {
     reader.readAsText(file);
   }
 
+  // Turns the file into a JSON object and adds that object into the list
   fileToJSON(e) {
     let contents = e.target.result;
     let json = this.csvToJSON(contents);
     this.setState({ jsonObjects: [...this.state.jsonObjects, json] });
   }
 
+  // The logic for processing a CSV in the browser and turning it into a 
+  // JSON object
   csvToJSON(csv) {
     let lines = csv.split("\n");
     let headers = lines[0].split(",").map(header => header.trim());
@@ -139,24 +150,29 @@ class ExportTools extends Component {
     }
     json[listName] = {};
     for (let i = 1; i < lines.length; i++) {
+      // Trim each value
       let line = lines[i].split(",").map(value => value.trim());
       let name = line.shift();
       // Remove blank column added by OWL
       line.shift();
+      // Create a new object within the outer object to represent a student
       json[listName][name] = {};
       for (let j = 0; j < courses.length; j++) {
+        // Add the student's marks for each course
         json[listName][name][courses[j]] = line[j];
       }
     }
     return json;
   }
 
+  // The logic for taking a JSON object and converting back into a CSV in the browser
   jsonToCSV(json) {
     let headers = json.headers;
     // If there are no headers, then don't bother making a file
     if (headers.length === 0) {
       return "";
     }
+    // Everything after the first 2 columns is a course value
     let courses = headers.slice(2, headers.length);
     let students = json[headers[0]];
 
@@ -169,6 +185,8 @@ class ExportTools extends Component {
       file += student + ",";
       courses.forEach(course => {
         // The first comma completes the blank and seperates the rest of the values
+
+        // Check that the course has a corresponding value
         if (
           students[student].hasOwnProperty(course) &&
           students[student][course] !== null &&
@@ -184,6 +202,8 @@ class ExportTools extends Component {
     return file;
   }
 
+  // Starts the conversion of all the new files that have been dropped in, then
+  // then starts the download of all the converted files
   exportFiles() {
     const { convertedFiles, jsonObjects } = this.state;
     let converted = [];
@@ -197,11 +217,15 @@ class ExportTools extends Component {
     this.setState({ convertedFiles: [...convertedFiles, ...converted] });
   }
 
+  // Causes the browser to start a download by creating a hidden button
+  // and clicking it
   downloadFiles(newFiles) {
     const { convertedFiles } = this.state;
+    // Create an anchor
     let hiddenDownload = document.createElement("a");
     hiddenDownload.target = "_blank";
     let i = 1;
+    // For each file, change the anchor's dowload property and click it
     [...convertedFiles, ...newFiles].forEach(file => {
       hiddenDownload.href = "data:attachment/text," + encodeURI(file);
       hiddenDownload.download = "CSV - Converted " + i + ".csv";
