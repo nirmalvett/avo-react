@@ -74,8 +74,8 @@ class ExportTools extends Component {
   // Responsible for displaying the names of the dropped files
   displayFiles() {
     if (this.state.fileNames[0]) {
-      let fileList = this.state.fileNames.map(name => {
-        return <Typography style={{ padding: "5px" }}>{name}</Typography>;
+      let fileList = this.state.fileNames.map((name, i) => {
+        return <Typography key={i} style={{ padding: "5px" }}>{name}</Typography>;
       });
       return (
         <div style={{ overflow: "auto", height: "400px" }}>{fileList}</div>

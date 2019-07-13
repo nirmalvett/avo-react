@@ -15,13 +15,14 @@ import QuestionBuilder from "../QuestionBuilder/QuestionBuilder";
 import QuestionBuilderDocs from "../CourseBuilder/QuestionBuilder/QuestionBuilderDocs";
 import AVOInClassTools from "../MISC/AVOInClassTools/AVOInClassTools";
 import AVOExplanations from "../MISC/AVOExplanations/AVOExplanations";
+import ExportTools from '../ExportTools/ExportTools'
 import { avoGreen } from "../SharedComponents/AVOCustomColors";
 import { MySnackbarContentWrapper } from "../SharedComponents/AVOSnackBar";
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
 import {withStyles, List, AppBar, Drawer, Divider, Toolbar, IconButton,
     Typography, ListItem, ListItemText, ListSubheader, Snackbar } from '@material-ui/core';
 import { HomeOutlined, BuildOutlined, HelpOutline,
-    ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu } from "@material-ui/icons";
+    ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu, AssignmentReturnedOutlined } from "@material-ui/icons";
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
     deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors';
 import classNames from 'classnames';
@@ -177,6 +178,7 @@ class Layout extends Component {
                                     {this.listItem(ClassOutlined, 'Manage Classes')}
                                     {this.listItem(BuildOutlined, 'My Questions')}
                                     {this.listItem(HelpOutline, 'Documentation')}
+                                    {this.listItem(AssignmentReturnedOutlined, 'Export Tools')}
                                 </List>
                             </div>
                             : null
@@ -234,6 +236,7 @@ class Layout extends Component {
             showSnackBar = {this.showSnackBar.bind(this)}
             isTeacher = {isTeacher}
         />);
+        if (section === 'Export Tools') return (<ExportTools theme={{theme: this.state.theme, color: this.state.color}}/>);
         if (section === 'My Classes') return (<MyClasses
             showSnackBar = {this.showSnackBar.bind(this)}
             isTeacher = {isTeacher}
