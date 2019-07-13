@@ -512,7 +512,7 @@ def change_mark():
         # If any data is wrong format return error JSON
         return jsonify(error="one or more invalid data points")
     takes = Takes.query.get(take_id)  # takes object to update
-    # Check if the test of the take is in the class that the reducerAccount is teaching
+    # Check if the test of the take is in the class that the account is teaching
     test = Test.query.get(takes.TEST)  # Test that takes is apart of
     question_array = eval(test.question_list)  # List of questions in the test
     if not teaches_class(test.CLASS):

@@ -422,7 +422,7 @@ def create_payment():
                 'payment_method': 'paypal'
             },
             'redirect_urls': {
-                # todo have to enable auto return in the paypal reducerAccount
+                # todo have to enable auto return in the paypal account
                 'return_url': f'http://' + config.HOSTNAME + '/',
                 # todo when cancelled remove tid from mapping table
                 'cancel_url': f'http://' + config.HOSTNAME + '/'

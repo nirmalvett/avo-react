@@ -74,8 +74,8 @@ export default class MyClasses extends Component {
 
 	componentDidMount() {
 		this.loadClasses();
-		if (this.props.isTeacher) { // if it's a teacher reducerAccount
-			this.props.showSnackBar("info", "Only student reducerAccount attempts are considered in the analytics")
+		if (this.props.isTeacher) { // if it's a teacher account
+			this.props.showSnackBar("info", "Only student account attempts are considered in the analytics")
 		}
 	}
 
