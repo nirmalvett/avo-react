@@ -58,6 +58,9 @@ export default class Http {
 	static addMessage(classID, title, body, success, failure) {
 		Http._request('POST', '/addMessage', success, failure, {classID, title, body});
 	}
+	static editMessage(messageID, title, body, success, failure) {
+		Http._request('POST', '/editMessage', success, failure, {messageID, title, body});
+	}
 	static deleteMessage(messageID, success, failure) {
 		Http._request('POST', '/deleteMessage', success, failure, {messageID});
 	}

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Typography } from "@material-ui/core";
+import { Typography, Input } from "@material-ui/core";
 import Http from "../HelperFunctions/Http";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
@@ -11,16 +11,20 @@ import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
-
+import * as uniqid from "uniqid";
+import Message from "./Message";
 export default class NotifyClass extends Component {
   state: any = {
     classes: [],
-    selectedClass: { name: "Select class..." },
     selectedClassName: "Select class...",
     addMessageInput: "",
     messageBodyInput: "",
     messages: [],
-    deleteMessageIDs: []
+    classNames: [],
+    editTitle: "",
+    editBody: "",
+    selectedMessage: null,
+    showEdit: false
   };
   constructor(props) {
     super(props);
@@ -28,46 +32,150 @@ export default class NotifyClass extends Component {
   }
 
   render() {
-    console.log(this.state.selectedClass);
-
     return (
       <div
         style={{
-          width: 1000,
-          height: 600,
+          width: "70vw",
+          height: "70vh",
           padding: 25,
-          overflow: "hidden",
+          overflow: "auto",
           marginTop: 0
         }}
       >
-        <Card style={{ height: "100%", width: "100%" }}>
+        <Card style={{ width: "100%", overflow: "auto" }}>
           <CardContent>
-            <div style={{ height: 500 }}>
-              <FormControl style={{ minWidth: 120 }}>
-                <InputLabel htmlFor="select-class">Class</InputLabel>
+            <div style={{ minHeight: 500 }}>
+              <FormControl style={{ minWidth: 120, paddingBottom: 20 }}>
                 <Select
-                  value={this.state.selectedClass}
-                  onChange={e => {
-                    this.setState({
-                      selectedClass: e.target.value
-                    });
-                    this.getMessages();
-                  }}
-                  inputProps={{
-                    name: "name",
-                    id: "select-class"
-                  }}
+                  value={this.state.selectedClassName}
+                  input={<Input name="data" id="select-class" />}
+                  onChange={e =>
+                    this.setState(
+                      {
+                        selectedClassName: e.target.value
+                      },
+                      () => {
+                        console.log(this.state.selectedClassName);
+                        this.getMessages();
+                      }
+                    )
+                  }
                 >
-                  {this.state.classes.map((c, i) => (
+                  {this.state.classNames.map((c, i) => (
                     <MenuItem key={i} value={c}>
-                      {c.name}
+                      {c}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
+              <br />
+              {this.state.messages.map((message, i) => {
+                if (message.showEdit)
+                  return (
+                    <Card key={i} style={{ display: "inline-block", paddingBottom: 20 }}>
+                      <CardContent />
+                      <CardActions>
+                        <div
+                          style={{ display: "inherit", marginRight: "auto" }}
+                        >
+                          <TextField
+                            style={{
+                              paddingTop: 20,
+                              margin: 0,
+                              width: 200,
+                              marginTop: -12,
+                              marginLeft: 0,
+                              marginRight: 10
+                            }}
+                            id="edit-title"
+                            label="New message title..."
+                            value={this.state.editTitle}
+                            onChange={e =>
+                              this.setState({ editTitle: e.target.value })
+                            }
+                            margin="normal"
+                          />
+                          <TextField
+                            style={{
+                              paddingTop: 20,
+                              margin: 0,
+                              minWidth: 200,
+                              marginTop: -12,
+                              marginLeft: 10,
+                              marginRight: 10
+                            }}
+                            multiline
+                            id="edit-body"
+                            label="New message body..."
+                            value={this.state.editBody}
+                            onChange={e =>
+                              this.setState({ editBody: e.target.value })
+                            }
+                            margin="normal"
+                          />
+                        </div>
+                        <span style={{ display: "hidden" }} />
+                        <div style={{ display: "inherit" }}>
+                          <Button
+                            variant="contained"
+                            onClick={() =>
+                              this.saveMessage(this.state.selectedMessage)
+                            }
+                          >
+                            Save message
+                          </Button>
+                        </div>
+                      </CardActions>
+                    </Card>
+                  );
+                return (
+                  <div key={uniqid()}>
+                    <div
+                      onClick={() => {
+                        const messageIndex = this.state.messages.findIndex(
+                          m => m.MESSAGE === message.MESSAGE
+                        );
+                        let newMessages = this.state.messages;
+                        newMessages[messageIndex].selected = !newMessages[
+                          messageIndex
+                        ].selected;
+                        this.setState({ messages: newMessages });
+                      }}
+                    >
+                      <Message message={message} />
+                    </div>
+                    <div
+                      style={{ clear: "both" }}
+                      onClick={() => {
+                        const messageIndex = this.state.messages.findIndex(
+                          m => m.MESSAGE === message.MESSAGE
+                        );
+                        const messages = this.state.messages;
+                        messages.forEach(m => (m.showEdit = false));
+                        messages[messageIndex].showEdit = true
+                        this.setState({
+                          editTitle: message.title,
+                          editBody: message.body,
+                          selectedMessage: message,
+                          messages
+                        });
+                      }}
+                    >
+                      <Typography
+                        style={{ float: "right" }}
+                        component={"span"}
+                        variant="caption"
+                        color="textPrimary"
+                      >
+                        Edit
+                      </Typography>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
-          <CardActions style={{ padding: 0 }}>
+          <CardActions style={{ padding: 0, paddingTop: "auto" }}>
             <Grid
               container
               direction="row"
@@ -83,7 +191,7 @@ export default class NotifyClass extends Component {
                   marginLeft: 10,
                   marginRight: 10
                 }}
-                id="tag-input"
+                id="message-title"
                 label="New message title..."
                 value={this.state.addMessageInput}
                 onChange={e =>
@@ -94,12 +202,13 @@ export default class NotifyClass extends Component {
               <TextField
                 style={{
                   margin: 0,
-                  width: 200,
+                  minWidth: 200,
                   marginTop: -12,
                   marginLeft: 10,
                   marginRight: 10
                 }}
-                id="tag-input"
+                multiline
+                id="message-body"
                 label="New message body..."
                 value={this.state.messageBodyInput}
                 onChange={e =>
@@ -107,16 +216,17 @@ export default class NotifyClass extends Component {
                 }
                 margin="normal"
               />
-              <Button variant="contained" onClick={() => this.addMessage()}>
-                Add new message
-              </Button>
-              <div style={{ padding: 5 }} />
-
               <div style={{ marginLeft: "auto" }}>
-                <Button variant="contained" onClick={() => this.deleteMessages()}>
-                  Delete selected messages
+                <Button variant="contained" onClick={() => this.addMessage()}>
+                  Add new message
                 </Button>
               </div>
+
+              <div style={{ padding: 5 }} />
+
+              <Button variant="contained" onClick={() => this.deleteMessages()}>
+                Delete selected messages
+              </Button>
             </Grid>
           </CardActions>
         </Card>
@@ -124,12 +234,16 @@ export default class NotifyClass extends Component {
     );
   }
   addMessage() {
+    const classID = this.state.classes.find(
+      c => c.name === this.state.selectedClassName
+    );
     Http.addMessage(
-      this.state.selectedClass.id,
+      classID.id,
       this.state.addMessageInput,
       this.state.messageBodyInput,
       res => {
-        console.log(res);
+        this.setState({addMessageInput: "", messageBodyInput: ""})
+        this.getMessages();
       },
       err => {
         console.log(err);
@@ -137,9 +251,12 @@ export default class NotifyClass extends Component {
     );
   }
   deleteMessages() {
-    this.state.deleteMessageIDs.forEach(message => {
+    const deleteMessageIDs = this.state.messages.filter(
+      message => message.selected
+    );
+    deleteMessageIDs.forEach(message => {
       Http.deleteMessage(
-        message,
+        message.MESSAGE,
         res => {
           console.log(res);
         },
@@ -147,19 +264,43 @@ export default class NotifyClass extends Component {
           console.log(err);
         }
       );
-      const filtered = this.state.messages.filter(m => m.id !== message);
-      this.setState({
-        messages: filtered
-      });
     });
+    let filtered = this.state.messages;
+    deleteMessageIDs.forEach(message => {
+      filtered = filtered.filter(m => m.MESSAGE !== message.MESSAGE);
+    });
+    this.setState({
+      messages: filtered
+    });
+  }
+  saveMessage(message) {
+    Http.editMessage(
+      message.MESSAGE,
+      this.state.editTitle,
+      this.state.editBody,
+      res => {
+        const msg = this.state.messages.findIndex(
+          m => m.MESSAGE === message.MESSAGE
+        );
+        const messages = this.state.messages;
+        messages[msg].showEdit = false;
+        messages[msg].title = this.state.editTitle;
+        messages[msg].body = this.state.editBody;
+        this.setState({ messages, showEdit: false, selectedMessage: null });
+        console.log(res);
+      },
+      err => {
+        console.log(err);
+      }
+    );
   }
   getClasses() {
     Http.getClasses(
       response => {
-        console.log(response);
         this.setState({
           classes: response.classes,
-          selectedClass: response.classes[0]
+          selectedClassName: response.classes[0].name,
+          classNames: response.classes.map(c => c.name)
         });
         this.getMessages();
       },
@@ -169,10 +310,17 @@ export default class NotifyClass extends Component {
     );
   }
   getMessages() {
+    const selectedClass = this.state.classes.find(
+      c => c.name === this.state.selectedClassName
+    );
     Http.getMessages(
-      this.state.selectedClass.id,
+      selectedClass.id,
       res => {
         console.log(res);
+        res.messages.forEach((message, i) => {
+          res.messages[i].selected = false;
+          res.messages[i].showEdit = false;
+        });
         this.setState({
           messages: res.messages
         });
