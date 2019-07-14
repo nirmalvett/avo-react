@@ -36,13 +36,13 @@ export default class NotifyClass extends Component {
       <div
         style={{
           width: "70vw",
-          height: "70vh",
+          height: "90vh",
           padding: 25,
           overflow: "auto",
           marginTop: 0
         }}
       >
-        <Card style={{ width: "100%", overflow: "auto" }}>
+        <Card style={{ width: "100%", overflow: "auto", marginBottom: 20 }}>
           <CardContent>
             <div style={{ minHeight: 500 }}>
               <FormControl style={{ minWidth: 120, paddingBottom: 20 }}>
