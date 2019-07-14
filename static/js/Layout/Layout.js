@@ -22,7 +22,7 @@ import NotifyClass from '../Home/NotifyClass'
 import {withStyles, List, AppBar, Drawer, Divider, Toolbar, IconButton,
     Typography, ListItem, ListItemText, ListSubheader, Snackbar } from '@material-ui/core';
 import { HomeOutlined, BuildOutlined, HelpOutline,
-    ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu } from "@material-ui/icons";
+    ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu, Announcement } from "@material-ui/icons";
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
     deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors';
 import classNames from 'classnames';
@@ -245,7 +245,7 @@ class Layout extends Component {
                   {this.listItem(ClassOutlined, "Manage Classes")}
                   {this.listItem(BuildOutlined, "My Questions")}
                   {this.listItem(HelpOutline, "Documentation")}
-                  {this.listItem(ClassOutlined, "Notify Class")}
+                  {this.listItem(Announcement, "Notify Class")}
                 </List>
               </div>
             ) : null}

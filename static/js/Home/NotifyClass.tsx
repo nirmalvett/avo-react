@@ -72,7 +72,10 @@ export default class NotifyClass extends Component {
               {this.state.messages.map((message, i) => {
                 if (message.showEdit)
                   return (
-                    <Card key={i} style={{ display: "inline-block", paddingBottom: 20 }}>
+                    <Card
+                      key={i}
+                      style={{ display: "inline-block", paddingBottom: 20 }}
+                    >
                       <CardContent />
                       <CardActions>
                         <div
@@ -152,7 +155,7 @@ export default class NotifyClass extends Component {
                         );
                         const messages = this.state.messages;
                         messages.forEach(m => (m.showEdit = false));
-                        messages[messageIndex].showEdit = true
+                        messages[messageIndex].showEdit = true;
                         this.setState({
                           editTitle: message.title,
                           editBody: message.body,
@@ -162,14 +165,16 @@ export default class NotifyClass extends Component {
                       }}
                     >
                       <Typography
+                        id="edit-message-button"
                         style={{ float: "right" }}
-                        component={"span"}
                         variant="caption"
                         color="textPrimary"
                       >
                         Edit
                       </Typography>
                     </div>
+                    <br />
+                    <hr />
                   </div>
                 );
               })}
@@ -242,7 +247,7 @@ export default class NotifyClass extends Component {
       this.state.addMessageInput,
       this.state.messageBodyInput,
       res => {
-        this.setState({addMessageInput: "", messageBodyInput: ""})
+        this.setState({ addMessageInput: "", messageBodyInput: "" });
         this.getMessages();
       },
       err => {
