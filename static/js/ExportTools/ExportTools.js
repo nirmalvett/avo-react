@@ -6,6 +6,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 class ExportTools extends Component {
   constructor(props) {
@@ -15,27 +16,28 @@ class ExportTools extends Component {
         width: "600px",
         height: "480px",
         margin: "50px auto",
-        padding: "20px"
+        padding: "20px",
+        flexShrink: "0"
       },
       highlighted: {
         width: "600px",
         height: "480px",
         margin: "50px auto",
         padding: "20px",
+        flexShrink: "0",
         backgroundColor: props.theme.color["500"]
       }
     };
 
     this.state = {
       fileNames: [],
-      convertedFiles: [],
-      jsonObjects: [],
       style: this.styles.dropArea,
       availableClasses: [],
       currentClassId: -1,
       classData: {},
-      convertedFiles2: {},
-      jsonObjects2: {}
+      convertedFiles: {},
+      jsonObjects: {},
+      loadingClass: false
     };
 
     // Bindings
@@ -51,14 +53,32 @@ class ExportTools extends Component {
     this.getMenuItems = this.getMenuItems.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.fetchClassData = this.fetchClassData.bind(this);
+    this.displaySpinner = this.displaySpinner.bind(this);
   }
 
   render() {
     return (
-      <div id="export-container" style={{ width: "100%", height: "100%" }}>
-        <form autoComplete="off">
+      <div
+        id="export-container"
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          justifyContent: "flex-start",
+          flexDirection: "column"
+        }}
+      >
+        <form
+          autoComplete="off"
+          style={{
+            width: "600px",
+            alignSelf: "center",
+            padding: "15px",
+            flexShrink: "0"
+          }}
+        >
           <FormControl
-            style={{ width: "600px" }}
+            style={{ width: "600px", flexShrink: "0" }}
             className="export-form-control"
           >
             <InputLabel htmlFor="export-form-control">Course</InputLabel>
@@ -84,6 +104,8 @@ class ExportTools extends Component {
             Drag and drop your CSVs here to be processed
           </Typography>
           <div style={{ width: "200px", padding: "20px" }}>
+            {/*Display a spinner while loading class data*/}
+            {this.displaySpinner()}
             {/*Display the export button and file names only after there is a file to export*/}
             {this.displayExport()}
             {this.displayFiles()}
@@ -104,14 +126,15 @@ class ExportTools extends Component {
         try {
           // Update the dictionary with an entry for this class (using the ID) whose value is a JSON
           // representation of the class data
-          console.log("Getting class data");
           this.state.classData[classid] = this.csvToJSON(http.responseText);
+          this.setState({ loadingClass: false });
         } catch (e) {
           console.warn(`Error on ${url}: ${e}`);
         }
       }
     };
     http.send();
+    this.setState({ loadingClass: true });
   }
 
   handleChange(event) {
@@ -121,20 +144,42 @@ class ExportTools extends Component {
   getMenuItems() {
     const { availableClasses } = this.state;
     // Create the default value
-    let items = [<MenuItem value={-1}>--Please select a course--</MenuItem>];
+    let items = [
+      <MenuItem key={-1} value={-1}>
+        --Please select a course--
+      </MenuItem>
+    ];
     // Dynamically add the other courses as options from the list of class objects
     items = items.concat(
       availableClasses.map(classObj => {
-        return <MenuItem value={classObj.id}>{classObj.name}</MenuItem>;
+        return (
+          <MenuItem key={classObj.id} value={classObj.id}>
+            {classObj.name}
+          </MenuItem>
+        );
       })
     );
     return items;
   }
 
+  // Responsible for displaying the spinner if we are loading class data
+  displaySpinner() {
+    if (this.state.loadingClass) {
+      return (
+        <React.Fragment>
+          <CircularProgress color="primary" />
+          <Typography style={{ padding: "5px" }}>
+            This may take a little while for larger classes...
+          </Typography>
+        </React.Fragment>
+      );
+    }
+  }
+
   // Responsible for displaying the export button if there are files that have been dropped
   displayExport() {
     //if (this.state.jsonObjects[0]) {
-    if (!this.isEmpty(this.state.jsonObjects2)) {
+    if (!this.isEmpty(this.state.jsonObjects) && !this.state.loadingClass) {
       return (
         <Button color="primary" variant="contained" onClick={this.exportFiles}>
           Export
@@ -219,9 +264,9 @@ class ExportTools extends Component {
     let contents = e.target.result;
     let json = this.csvToJSON(contents);
     // this.setState({ jsonObjects: [...this.state.jsonObjects, json] });
-    let copy = { ...this.state.jsonObjects2 };
+    let copy = { ...this.state.jsonObjects };
     copy[classId] = json;
-    this.setState({ jsonObjects2: copy });
+    this.setState({ jsonObjects: copy });
   }
 
   // The logic for processing a CSV in the browser and turning it into a
@@ -301,7 +346,7 @@ class ExportTools extends Component {
   // Starts the conversion of all the new files that have been dropped in, then
   // then starts the download of all the converted files
   exportFiles() {
-    const { convertedFiles2, jsonObjects2, classData } = this.state;
+    const { convertedFiles, jsonObjects, classData } = this.state;
     // let converted = [];
     // Only convert files that have not yet been converted
     // for (let i = convertedFiles.length; i < jsonObjects.length; i++) {
@@ -313,12 +358,12 @@ class ExportTools extends Component {
     // this.downloadFiles(converted);
     // this.setState({ convertedFiles: [...convertedFiles, ...converted] });
 
-    for (let file in jsonObjects2) {
-      if (jsonObjects2.hasOwnProperty(file)) {
-        if (!(file in convertedFiles2)) {
-          let merged = this.merge(jsonObjects2[file], classData[file]);
+    for (let file in jsonObjects) {
+      if (jsonObjects.hasOwnProperty(file)) {
+        if (!(file in convertedFiles)) {
+          let merged = this.merge(jsonObjects[file], classData[file]);
           let convertedFile = this.jsonToCSV(merged);
-          convertedFiles2[file] = convertedFile;
+          convertedFiles[file] = convertedFile;
         }
       }
     }
@@ -345,15 +390,15 @@ class ExportTools extends Component {
   // }
 
   downloadFiles() {
-    const { convertedFiles2 } = this.state;
+    const { convertedFiles } = this.state;
 
     let hiddenDownload = document.createElement("a");
     hiddenDownload.target = "_blank";
 
     let i = 1;
-    for (let file in convertedFiles2) {
+    for (let file in convertedFiles) {
       hiddenDownload.href =
-        "data:attachment/text," + encodeURI(convertedFiles2[file]);
+        "data:attachment/text," + encodeURI(convertedFiles[file]);
       hiddenDownload.download = "CSV - Converted " + i + ".csv";
       document.body.appendChild(hiddenDownload);
       hiddenDownload.click();
@@ -365,7 +410,9 @@ class ExportTools extends Component {
   // We use the OWL data as the master and append everything to it from the avoObject
   merge(owlObject, avoObject) {
     let merge = JSON.parse(JSON.stringify(owlObject));
-    merge.headers = merge.headers.concat(avoObject.headers.slice(1, avoObject["headers"].length));
+    merge.headers = merge.headers.concat(
+      avoObject.headers.slice(1, avoObject["headers"].length)
+    );
     for (let email in avoObject['"Email"']) {
       // Start from 1 to get rid of the quotes in the email address
       let studentId = email.substr(1, email.indexOf("@") - 1);
@@ -374,11 +421,23 @@ class ExportTools extends Component {
         // Check every assessment on the AVO side
         for (let assessment in avoObject['"Email"'][email]) {
           let assessmentGrade = avoObject['"Email"'][email][assessment];
-          if (assessmentGrade === undefined || assessmentGrade === "Test Not Taken") assessmentGrade = "0";
+          if (
+            assessmentGrade === undefined ||
+            assessmentGrade === "Test Not Taken"
+          )
+            assessmentGrade = "0";
           else {
-            let score = assessmentGrade.substring(0, assessmentGrade.indexOf('/') - 1);
-            let divisor = assessmentGrade.substring(assessmentGrade.indexOf('/') + 2, assessmentGrade.length);
-            assessmentGrade = Math.round((parseFloat(score) / parseFloat(divisor) * 10000)) / 100;
+            let score = assessmentGrade.substring(
+              0,
+              assessmentGrade.indexOf("/") - 1
+            );
+            let divisor = assessmentGrade.substring(
+              assessmentGrade.indexOf("/") + 2,
+              assessmentGrade.length
+            );
+            assessmentGrade =
+              Math.round((parseFloat(score) / parseFloat(divisor)) * 10000) /
+              100;
           }
           merge["Student ID"][studentId][assessment] = assessmentGrade;
         }
