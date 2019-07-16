@@ -200,7 +200,7 @@ class ExportTools extends Component {
 
   displayDelete() {
     if (
-      !this.isEmpty(this.state.jsonObjects) &&
+      !this.state.loadingClass &&
       this.state.selected.length > 0
     ) {
       return (
@@ -232,15 +232,15 @@ class ExportTools extends Component {
   }
 
   getListItem(classId, selected) {
-    console.log(this);
     let style = selected.includes(classId)
-      ? { padding: "5px", textDecoration: "line-through" }
-      : { padding: "5px" };
+      ? { padding: "5px", paddingLeft: "0px", textDecoration: "line-through" }
+      : { padding: "5px", paddingLeft: "0px" };
     return (
       <Typography
         key={classId}
         style={style}
         onClick={() => this.toggleSelected(classId)}
+        variant="subheading"
       >
         {this.state.jsonObjects[classId]["name"]}
       </Typography>
