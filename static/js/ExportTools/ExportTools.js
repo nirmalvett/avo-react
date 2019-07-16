@@ -30,7 +30,6 @@ class ExportTools extends Component {
     };
 
     this.state = {
-      fileNames: [],
       style: this.styles.dropArea,
       // Dictionary of all class names for the user with keys as IDs
       availableClasses: {},
@@ -41,7 +40,9 @@ class ExportTools extends Component {
       filesForExport: {},
       // Holds the objects that have been converted to JSON
       jsonObjects: {},
-      loadingClass: false
+      loadingClass: false,
+      // The classIDs of the selected list items
+      selected: []
     };
 
     // Bindings
@@ -58,6 +59,11 @@ class ExportTools extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.fetchClassData = this.fetchClassData.bind(this);
     this.displaySpinner = this.displaySpinner.bind(this);
+    this.toggleSelected = this.toggleSelected.bind(this);
+    this.displayFiles = this.displayFiles.bind(this);
+    this.getListItem = this.getListItem.bind(this);
+    this.displayDelete = this.displayDelete.bind(this);
+    this.deleteToggled = this.deleteToggled.bind(this);
   }
 
   render() {
@@ -107,11 +113,12 @@ class ExportTools extends Component {
           >
             Drag and drop your CSVs here to be processed
           </Typography>
-          <div style={{ width: "200px", padding: "20px" }}>
+          <div style={{ width: "300px", padding: "20px" }}>
             {/*Display a spinner while loading class data*/}
             {this.displaySpinner()}
             {/*Display the export button and file names only after there is a file to export*/}
             {this.displayExport()}
+            {this.displayDelete()}
             {this.displayFiles()}
           </div>
         </Paper>
@@ -191,20 +198,73 @@ class ExportTools extends Component {
     }
   }
 
+  displayDelete() {
+    if (
+      !this.isEmpty(this.state.jsonObjects) &&
+      this.state.selected.length > 0
+    ) {
+      return (
+        <Button
+          color="primary"
+          variant="contained"
+          style={{ display: "inline", marginLeft: "5px" }}
+          onClick={this.deleteToggled}
+        >
+          Delete
+        </Button>
+      );
+    }
+  }
+
   // Responsible for displaying the names of the dropped files
   displayFiles() {
-    if (this.state.fileNames[0]) {
-      let fileList = this.state.fileNames.map((name, i) => {
-        return (
-          <Typography key={i} style={{ padding: "5px" }}>
-            {name}
-          </Typography>
-        );
-      });
+    const { jsonObjects } = this.state;
+    if (!this.isEmpty(jsonObjects)) {
+      let selected = [...this.state.selected];
+      let fileList = Object.keys(jsonObjects).map(classId =>
+        this.getListItem(classId, selected)
+      );
+
       return (
         <div style={{ overflow: "auto", height: "400px" }}>{fileList}</div>
       );
     }
+  }
+
+  getListItem(classId, selected) {
+    console.log(this);
+    let style = selected.includes(classId)
+      ? { padding: "5px", textDecoration: "line-through" }
+      : { padding: "5px" };
+    return (
+      <Typography
+        key={classId}
+        style={style}
+        onClick={() => this.toggleSelected(classId)}
+      >
+        {this.state.jsonObjects[classId]["name"]}
+      </Typography>
+    );
+  }
+
+  toggleSelected(classId) {
+    let copy = [...this.state.selected];
+    if (this.state.selected.includes(classId)) {
+      copy.splice(copy.indexOf(classId));
+      this.setState({ selected: copy });
+    } else {
+      copy.push(classId);
+      this.setState({ selected: copy });
+    }
+  }
+
+  deleteToggled() {
+    const { selected } = this.state;
+    selected.forEach(classId => {
+      delete this.state.jsonObjects[classId];
+      delete this.state.filesForExport[classId];
+    });
+    this.setState({ selected: [] });
   }
 
   // Set up event handlers on the drop box that take care of highlighting
@@ -212,14 +272,12 @@ class ExportTools extends Component {
   componentDidMount() {
     // Get the available classes for the teacher so they can select which classes they will be uploading a CSV for
     Http.getClasses(
-      (response) => {
-        console.log(response);
+      response => {
         // Create a dictionary of class objects with the id as the key
         let classes = {};
         response.classes.forEach(classObject => {
           classes[classObject.id] = classObject;
         });
-        console.log(classes);
         this.setState({ availableClasses: classes });
       },
       () => console.warn("Failed to get available classes")
@@ -254,7 +312,7 @@ class ExportTools extends Component {
   // Get each file that was dropped and process them
   handleDrop(e) {
     const { currentClassId, classData } = this.state;
-    if (currentClassId !== -1) {
+    if (currentClassId !== -1 && !this.state.loadingClass) {
       let files = e.dataTransfer.files;
       [...files].forEach(file => this.processFile(file, currentClassId));
       // Fetch the class data from the server if it is not cached locally
@@ -267,10 +325,17 @@ class ExportTools extends Component {
   // Add the filename to this list and read its contents in to a JSON object
   processFile(file, classId) {
     let reader = new FileReader();
-    reader.onload = e => this.fileToJSON(e, classId);
+    reader.onload = e => {
+      this.fileToJSON(e, classId);
+      let objectsCopy = JSON.parse(JSON.stringify(this.state.jsonObjects));
+      const filename =
+        this.state.availableClasses[classId]["name"] + ": " + file.name;
+      let copy = JSON.parse(JSON.stringify(this.state.jsonObjects[classId]));
+      copy.name = filename;
+      objectsCopy[classId] = copy;
+      this.setState({ jsonObjects: objectsCopy });
+    };
     reader.readAsText(file);
-    const filename = this.state.availableClasses[classId]["name"] + ": " + file.name
-    this.setState({ fileNames: [...this.state.fileNames, filename] });
   }
 
   // Turns the file into a JSON object and adds that object into the list
@@ -375,20 +440,19 @@ class ExportTools extends Component {
   }
 
   downloadFiles() {
-    const { filesForExport } = this.state;
+    const { filesForExport, jsonObjects } = this.state;
 
     let hiddenDownload = document.createElement("a");
     hiddenDownload.target = "_blank";
 
-    let i = 1;
-    for (const file in filesForExport) {
+    for (const classId in filesForExport) {
       hiddenDownload.href =
-        "data:attachment/text," + encodeURI(filesForExport[file]);
-      hiddenDownload.download = "CSV - Converted " + i + ".csv";
+        "data:attachment/text," + encodeURI(filesForExport[classId]);
+      // Dowload the file with the naming convention, coursename - csv name
+      hiddenDownload.download = jsonObjects[classId]["name"].replace(":", " -");
       document.body.appendChild(hiddenDownload);
       hiddenDownload.click();
       document.body.removeChild(hiddenDownload);
-      i++;
     }
   }
 
