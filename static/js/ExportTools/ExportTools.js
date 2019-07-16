@@ -32,10 +32,14 @@ class ExportTools extends Component {
     this.state = {
       fileNames: [],
       style: this.styles.dropArea,
-      availableClasses: [],
+      // Dictionary of all class names for the user with keys as IDs
+      availableClasses: {},
       currentClassId: -1,
+      // Dictionary that holds objects that represent classes
       classData: {},
-      convertedFiles: {},
+      // Holds the files ready for export
+      filesForExport: {},
+      // Holds the objects that have been converted to JSON
       jsonObjects: {},
       loadingClass: false
     };
@@ -151,10 +155,10 @@ class ExportTools extends Component {
     ];
     // Dynamically add the other courses as options from the list of class objects
     items = items.concat(
-      availableClasses.map(classObj => {
+      Object.keys(availableClasses).map(classId => {
         return (
-          <MenuItem key={classObj.id} value={classObj.id}>
-            {classObj.name}
+          <MenuItem key={classId} value={classId}>
+            {availableClasses[classId]["name"]}
           </MenuItem>
         );
       })
@@ -178,7 +182,6 @@ class ExportTools extends Component {
 
   // Responsible for displaying the export button if there are files that have been dropped
   displayExport() {
-    //if (this.state.jsonObjects[0]) {
     if (!this.isEmpty(this.state.jsonObjects) && !this.state.loadingClass) {
       return (
         <Button color="primary" variant="contained" onClick={this.exportFiles}>
@@ -209,8 +212,17 @@ class ExportTools extends Component {
   componentDidMount() {
     // Get the available classes for the teacher so they can select which classes they will be uploading a CSV for
     Http.getClasses(
-      response => this.setState({ availableClasses: response.classes }),
-      this.setState({ availableClasses: [] })
+      (response) => {
+        console.log(response);
+        // Create a dictionary of class objects with the id as the key
+        let classes = {};
+        response.classes.forEach(classObject => {
+          classes[classObject.id] = classObject;
+        });
+        console.log(classes);
+        this.setState({ availableClasses: classes });
+      },
+      () => console.warn("Failed to get available classes")
     );
 
     let dropArea = document.getElementById("drop-area");
@@ -245,6 +257,7 @@ class ExportTools extends Component {
     if (currentClassId !== -1) {
       let files = e.dataTransfer.files;
       [...files].forEach(file => this.processFile(file, currentClassId));
+      // Fetch the class data from the server if it is not cached locally
       if (!(currentClassId in classData)) {
         this.fetchClassData(currentClassId);
       }
@@ -256,7 +269,8 @@ class ExportTools extends Component {
     let reader = new FileReader();
     reader.onload = e => this.fileToJSON(e, classId);
     reader.readAsText(file);
-    this.setState({ fileNames: [...this.state.fileNames, file.name] });
+    const filename = this.state.availableClasses[classId]["name"] + ": " + file.name
+    this.setState({ fileNames: [...this.state.fileNames, filename] });
   }
 
   // Turns the file into a JSON object and adds that object into the list
@@ -264,7 +278,7 @@ class ExportTools extends Component {
     let contents = e.target.result;
     let json = this.csvToJSON(contents);
     // this.setState({ jsonObjects: [...this.state.jsonObjects, json] });
-    let copy = { ...this.state.jsonObjects };
+    let copy = JSON.parse(JSON.stringify(this.state.jsonObjects));
     copy[classId] = json;
     this.setState({ jsonObjects: copy });
   }
@@ -346,59 +360,30 @@ class ExportTools extends Component {
   // Starts the conversion of all the new files that have been dropped in, then
   // then starts the download of all the converted files
   exportFiles() {
-    const { convertedFiles, jsonObjects, classData } = this.state;
-    // let converted = [];
-    // Only convert files that have not yet been converted
-    // for (let i = convertedFiles.length; i < jsonObjects.length; i++) {
-    //   let json = jsonObjects[i];
-    //   let file = this.jsonToCSV(json);
-    //   converted.push(file);
-    // }
+    const { filesForExport, jsonObjects, classData } = this.state;
 
-    // this.downloadFiles(converted);
-    // this.setState({ convertedFiles: [...convertedFiles, ...converted] });
-
-    for (let file in jsonObjects) {
+    for (const file in jsonObjects) {
       if (jsonObjects.hasOwnProperty(file)) {
-        if (!(file in convertedFiles)) {
+        if (!(file in filesForExport)) {
           let merged = this.merge(jsonObjects[file], classData[file]);
           let convertedFile = this.jsonToCSV(merged);
-          convertedFiles[file] = convertedFile;
+          filesForExport[file] = convertedFile;
         }
       }
     }
     this.downloadFiles();
   }
 
-  // Causes the browser to start a download by creating a hidden button
-  // and clicking it
-  // downloadFiles(newFiles) {
-  //   const { convertedFiles } = this.state;
-  //   // Create an anchor
-  // let hiddenDownload = document.createElement("a");
-  // hiddenDownload.target = "_blank";
-  //   let i = 1;
-  //   // For each file, change the anchor's dowload property and click it
-  //   [...convertedFiles, ...newFiles].forEach(file => {
-  // hiddenDownload.href = "data:attachment/text," + encodeURI(file);
-  // hiddenDownload.download = "CSV - Converted " + i + ".csv";
-  // document.body.appendChild(hiddenDownload);
-  // hiddenDownload.click();
-  // document.body.removeChild(hiddenDownload);
-  //   i++;
-  // });
-  // }
-
   downloadFiles() {
-    const { convertedFiles } = this.state;
+    const { filesForExport } = this.state;
 
     let hiddenDownload = document.createElement("a");
     hiddenDownload.target = "_blank";
 
     let i = 1;
-    for (let file in convertedFiles) {
+    for (const file in filesForExport) {
       hiddenDownload.href =
-        "data:attachment/text," + encodeURI(convertedFiles[file]);
+        "data:attachment/text," + encodeURI(filesForExport[file]);
       hiddenDownload.download = "CSV - Converted " + i + ".csv";
       document.body.appendChild(hiddenDownload);
       hiddenDownload.click();
@@ -413,13 +398,13 @@ class ExportTools extends Component {
     merge.headers = merge.headers.concat(
       avoObject.headers.slice(1, avoObject["headers"].length)
     );
-    for (let email in avoObject['"Email"']) {
+    for (const email in avoObject['"Email"']) {
       // Start from 1 to get rid of the quotes in the email address
-      let studentId = email.substr(1, email.indexOf("@") - 1);
+      const studentId = email.substr(1, email.indexOf("@") - 1);
       // If the studentId is in the corresponding OWL object
       if (studentId in owlObject["Student ID"]) {
         // Check every assessment on the AVO side
-        for (let assessment in avoObject['"Email"'][email]) {
+        for (const assessment in avoObject['"Email"'][email]) {
           let assessmentGrade = avoObject['"Email"'][email][assessment];
           if (
             assessmentGrade === undefined ||
@@ -427,11 +412,11 @@ class ExportTools extends Component {
           )
             assessmentGrade = "0";
           else {
-            let score = assessmentGrade.substring(
+            const score = assessmentGrade.substring(
               0,
               assessmentGrade.indexOf("/") - 1
             );
-            let divisor = assessmentGrade.substring(
+            const divisor = assessmentGrade.substring(
               assessmentGrade.indexOf("/") + 2,
               assessmentGrade.length
             );
