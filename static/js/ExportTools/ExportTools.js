@@ -250,7 +250,7 @@ class ExportTools extends Component {
   toggleSelected(classId) {
     let copy = [...this.state.selected];
     if (this.state.selected.includes(classId)) {
-      copy.splice(copy.indexOf(classId));
+      copy.splice(copy.indexOf(classId), 1);
       this.setState({ selected: copy });
     } else {
       copy.push(classId);
