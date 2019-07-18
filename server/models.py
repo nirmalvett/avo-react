@@ -90,6 +90,7 @@ class User(UserMixin, db.Model):
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="USER_RELATION")
     TAGUSER_RELATION = db.relationship("TagUser", back_populates="USER_RELATION")
+    LESSON_RELATION = db.relationship("Lesson", back_populates="USER_RELATION")
 
     # noinspection PyPep8Naming
     def __init__(self, email, first_name, last_name, password, is_teacher, color, theme):
@@ -279,3 +280,18 @@ class TagUser(db.Model):
         return f'TAG_USER {self.TAGUSER} {self.USER} {self.TAG} {self.mastery}'
 
 
+class Lesson(db.Model):
+    __tablename__ = "LESSON"
+
+    LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    lesson_string = db.Column(db.String, nullable=False)
+
+    USER_RELATION = db.relationship("User", back_populates="LESSON_RELATION")
+
+    def __init__(self, user, lesson_string):
+        self.USER = user
+        self.lesson_string = lesson_string
+
+    def __repr__(self):
+        return f'LESSON {self.LESSON} {self.USER} {self.lesson_string}'
