@@ -89,6 +89,7 @@ class User(UserMixin, db.Model):
     TAKES_RELATION = db.relationship("Takes", back_populates="USER_RELATION")
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="USER_RELATION")
+    TAGUSER_RELATION = db.relationship("TagUser", back_populates="USER_RELATION")
 
     # noinspection PyPep8Naming
     def __init__(self, email, first_name, last_name, password, is_teacher, color, theme):
@@ -242,10 +243,12 @@ class TransactionProcessing(db.Model):
 class Tag(db.Model):
     __tablename__ = 'TAG'
 
-    TAG = db.Column(db.Integer, primary_key=True)
+    TAG = db.Column(db.Integer, primary_key=True, autoincrement=True)
     parent = db.Column(db.Integer, nullable=True)
     tagName = db.Column(db.String(30), nullable=False)
     childOrder = db.Column(db.Integer, nullable=False)
+
+    TAGUSER_RELATION = db.relationship("TagUser", back_populates="TAG_RELATION")
 
     def __init__(self, parent, tagName, childOrder):
         self.parent = parent
@@ -254,5 +257,25 @@ class Tag(db.Model):
 
     def __repr__(self):
         return f'TAG {self.TAG} {self.parent} {self.tagName} {self.childOrder}'
+
+
+class TagUser(db.Model):
+    __tablename__ = "tag_user"
+
+    TAGUSER = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
+    mastery = db.Column(db.Float, nullable=False)
+
+    USER_RELATION = db.relationship("User", back_populates="TAGUSER_RELATION")
+    TAG_RELATION = db.relationship("Tag", back_populates="TAGUSER_RELATION")
+
+    def __init__(self, user, tag, mastery=0.0):
+        self.USER = user
+        self.TAG = tag
+        self.mastery = mastery
+
+    def __repr__(self):
+        return f'TAG_USER {self.TAGUSER} {self.USER} {self.TAG} {self.mastery}'
 
 
