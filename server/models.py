@@ -250,6 +250,7 @@ class Tag(db.Model):
     childOrder = db.Column(db.Integer, nullable=False)
 
     TAGUSER_RELATION = db.relationship("TagUser", back_populates="TAG_RELATION")
+    LESSON_RELATION = db.relationship("Lesson", back_populates="TAG_RELATION")
 
     def __init__(self, parent, tagName, childOrder):
         self.parent = parent
@@ -285,12 +286,15 @@ class Lesson(db.Model):
 
     LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
-    lesson_string = db.Column(db.String, nullable=False)
+    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
+    lesson_string = db.Column(db.Text, nullable=False)
 
     USER_RELATION = db.relationship("User", back_populates="LESSON_RELATION")
+    TAG_RELATION = db.relationship("Tag", back_populates="LESSON_RELATION")
 
-    def __init__(self, user, lesson_string):
+    def __init__(self, user, tag, lesson_string):
         self.USER = user
+        self.TAG = tag
         self.lesson_string = lesson_string
 
     def __repr__(self):
