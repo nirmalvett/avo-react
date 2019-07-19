@@ -4,7 +4,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from server.MathCode.question import AvoQuestion
 
 from server.decorators import login_required, teacher_only, admin_only
-from server.models import db, Set, Question, UserViewsSet, Tag
+from server.models import db, Set, Question, UserViewsSet, Tag, TagUser, Lesson
 
 TagRoutes = Blueprint('TagRoutes', __name__)
 
@@ -124,6 +124,20 @@ def delete_tag():
     db.session.delete(tag)
     db.session.commit()
     return jsonify(message="Tag deleted")
+
+
+@TagRoutes.route("/tagMastery", methods=["GET"])
+@login_required
+def tag_mastery():
+    #TODO add custom SQL for all tags a user has mastered joined with tags joined with lessons a tags assoiated with
+    mastery_list = TagUser.query.filter(TagUser.USER == current_user.USER).all()
+    tag_list = Tag.query.filter(Tag.TAG.in_(mastery_list.TAG)).all()
+    user_mastery = []
+    if not len(tag_list) != len(mastery_list):
+        return jsonify(error="SQL length error")
+    for i in range(len(mastery_list)):
+        user_mastery.append({"name": tag_list[i].name, "mastery": mastery_list[i].mastery})
+    return jsonify(mastery=user_mastery)
 
 
 def alchemy_to_dict(obj):
