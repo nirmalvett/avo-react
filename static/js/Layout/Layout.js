@@ -16,6 +16,7 @@ import QuestionBuilder from "../QuestionBuilder/QuestionBuilder";
 import QuestionBuilderDocs from "../CourseBuilder/QuestionBuilder/QuestionBuilderDocs";
 import AVOInClassTools from "../MISC/AVOInClassTools/AVOInClassTools";
 import AVOExplanations from "../MISC/AVOExplanations/AVOExplanations";
+import AVOLearnComponent from '../Learn/AVOLearnComponent';
 import { avoGreen } from "../SharedComponents/AVOCustomColors";
 import { MySnackbarContentWrapper } from "../SharedComponents/AVOSnackBar";
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
@@ -170,6 +171,7 @@ class Layout extends Component {
                         <List subheader={isTeacher ? <ListSubheader>Student Tools</ListSubheader> : undefined}>
                             {this.listItem(HomeOutlined, 'Home')}
                             {this.listItem(ClassOutlined, 'My Classes')}
+                            {this.listItem(ClassOutlined, 'Learn')}
                         </List>
                         {isTeacher  // if it is the teacher then we will the buttons that is allowed for teachers
                             ? <div>
@@ -300,6 +302,7 @@ class Layout extends Component {
         if (section === 'In Class Tools') return (<AVOInClassTools/>);
         if (section === 'Explanations') return (<AVOExplanations/>);
         if (section === 'Tag Builder') return (<TagView/>)
+        if (section === 'Learn') return (<AVOLearnComponent/>);
     }
 
     timerInTopBar(){
