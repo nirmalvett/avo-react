@@ -10,7 +10,6 @@ SQLAlchemy==1.2.11
 gunicorn==19.9.0
 numpy==1.15.1
 sympy==1.2
-pip==9.0.3
 Flask-Mail==0.9.1
 MarkupSafe==1.0
 GitPython==2.1.11

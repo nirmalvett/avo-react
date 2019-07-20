@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { Typography, ListItem, List } from "@material-ui/core";
-import { isChrome } from "../HelperFunctions/helpers";
+import { isChrome } from "../HelperFunctions/Helpers";
 import PropTypes from "prop-types";
 import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";

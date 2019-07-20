@@ -5,7 +5,8 @@
 desktop.ini
 */__pycache__
 __pycache__
-config.*
+config.py
+config.yaml
 avo.db
 DS_Store
 */DS_Store

@@ -4,7 +4,7 @@ import Layout from './Layout/Layout.js';
 import SignIn from './SignIn/SignIn.js';
 import MomentUtils from '@date-io/moment';
 import PasswordResetPage from './SignIn/PasswordReset';
-import { isChrome, isSafari } from "./HelperFunctions/helpers";
+import { isChrome, isSafari } from "./HelperFunctions/Helpers";
 import NotChromeWarningPage from "./SignIn/NotChromeWarningPage";
 import { MuiPickersUtilsProvider } from 'material-ui-pickers';
 import { handleUserLogin } from "./Redux/Actions/shared";

@@ -7,7 +7,7 @@ import MarkEditor from '../ManageClasses/MarkEditor';
 import TakeTest from '../MyClasses/TakeTest';
 import MyClasses from '../MyClasses/MyClasses';
 import Timer from "../MyClasses/TimerComp";
-import CreateTest from '../ManageClasses/CreateTest';
+import CreateTest from '../ManageClasses/CreateTest/CreateTest';
 import Preferences from '../Preferences/Preferences';
 import ManageClasses from '../ManageClasses/ManageClasses';
 import QuestionManager from "../CourseBuilder/QuestionBuilder/QuestionManager";
@@ -304,133 +304,84 @@ class Layout extends Component {
     );
   }
 
-  getContent() {
-    // this helper returns the logic for what is loaded in the right side of the menu
-    let { isTeacher, section, color, theme } = this.state;
-
-    if (section === "Home")
-      return (
-        <HomePage
-          jumpToClass={this.jumpToClass.bind(this)}
-          jumpToSet={this.jumpToSet.bind(this)}
-          color={this.state.color}
-          theme={this.state.theme}
-          showSnackBar={this.showSnackBar.bind(this)}
-          isTeacher={isTeacher}
-        />
-      );
-    if (section === "My Classes")
-      return (
-        <MyClasses
-          classToJumpTo={this.state.classToJumpTo}
-          setToJumpTo={this.state.setToJumpTo}
-          showSnackBar={this.showSnackBar.bind(this)}
-          isTeacher={isTeacher}
-          startTest={cls => this.startTest(cls)}
-          theme={{ theme: this.state.theme, color: this.state.color }}
-          postTest={takes => {
-            this.setState({ postTest: takes, section: "Post Test" });
-          }}
-        />
-      );
-    if (section === "Manage Classes")
-      return (
-        <ManageClasses
-          showSnackBar={this.showSnackBar.bind(this)}
-          isTeacher={isTeacher}
-          createTest={cls => this.startCreateTest(cls)}
-          theme={{ theme: this.state.theme, color: this.state.color }}
-          postTest={takes => {
-            this.setState({ postTest: takes, section: "Post Test" });
-          }}
-          markEditor={takes => {
-            this.setState({ markEditor: takes, section: "Mark Editor" });
-          }}
-        />
-      );
-    if (section === "Create Test")
-      return (
-        <CreateTest
-          showSnackBar={this.showSnackBar.bind(this)}
-          isTeacher={isTeacher}
-          classID={this.state.testCreator}
-          onCreate={() => this.setState({ section: "Manage Classes" })}
-        />
-      );
-    if (section === "My Questions")
-      return (
-        <QuestionManager
-          showSnackBar={this.showSnackBar.bind(this)}
-          theme={createMuiTheme({ palette: { primary: color, type: theme } })}
-          initBuilder={questionBuilder =>
-            this.setState({ section: "Build Question", questionBuilder })
-          }
-          initWith={this.state.questionManager}
-        />
-      );
-    if (section === "Build Question")
-      return (
-        <QuestionBuilder
-          showSnackBar={this.showSnackBar.bind(this)}
-          theme={createMuiTheme({ palette: { primary: color, type: theme } })}
-          initManager={questionManager =>
-            this.setState({ section: "My Questions", questionManager })
-          }
-          initWith={this.state.questionBuilder}
-        />
-      );
-    if (section === "Documentation")
-      return (
-        <QuestionBuilderDocs
-          theme={createMuiTheme({ palette: { primary: color, type: theme } })}
-        />
-      );
-    if (section === "Take Test")
-      return (
-        <TakeTest
-          showSnackBar={this.showSnackBar.bind(this)}
-          isTeacher={isTeacher}
-          getTimeRemaining={(minutes, dueDate) =>
-            this.getTimeRemaining(minutes, dueDate)
-          }
-          test={this.state.test}
-          submitTest={takes =>
-            this.setState({ postTest: takes, section: "Post Test" })
-          }
-        />
-      );
-    if (section === "Preferences")
-      return (
-        <Preferences
-          showSnackBar={this.showSnackBar.bind(this)}
-          isTeacher={isTeacher}
-          colorList={colorList}
-          color={color}
-          changeColor={color => this.setState({ color: color })}
-          theme={theme}
-          changeTheme={theme => this.setState({ theme: theme })}
-        />
-      );
-    if (section === "Post Test")
-      return (
-        <PostTest
-          showSnackBar={this.showSnackBar.bind(this)}
-          isTeacher={this.state.isTeacher}
-          takes={this.state.postTest}
-        />
-      );
-    if (section === "Mark Editor")
-      return (
-        <MarkEditor
-          showSnackBar={this.showSnackBar.bind(this)}
-          isTeacher={this.state.isTeacher}
-          takes={this.state.markEditor}
-        />
-      );
-    if (section === "In Class Tools") return <AVOInClassTools />;
-    if (section === "Explanations") return <AVOExplanations />;
-    if (section === "Notify Class") return <NotifyClass />
-  }
+    getContent() {
+        // this helper returns the logic for what is loaded in the right side of the menu
+        let {isTeacher, section, color, theme} = this.state;
+        if (section === 'Home') return (<HomePage
+            jumpToClass={this.jumpToClass.bind(this)}
+            jumpToSet={this.jumpToSet.bind(this)}
+            color={this.state.color}
+            theme={this.state.theme}
+            showSnackBar={this.showSnackBar.bind(this)}
+            isTeacher={isTeacher}
+        />);
+        if (section === 'My Classes') return (<MyClasses
+            classToJumpTo={this.state.classToJumpTo}
+            setToJumpTo={this.state.setToJumpTo}          
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {isTeacher}
+            startTest={cls => this.startTest(cls)}
+            theme={{theme: this.state.theme, color: this.state.color}}
+            postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}
+        />);
+        if (section === 'Manage Classes') return (<ManageClasses
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {isTeacher}
+            createTest={cls => this.startCreateTest(cls)}
+            theme={{theme: this.state.theme, color: this.state.color}}
+            postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}
+            markEditor={takes => {this.setState({markEditor: takes, section: 'Mark Editor'})}}
+        />);
+        if (section === 'Create Test') return (
+            <CreateTest
+                showSnackBar = {this.showSnackBar.bind(this)}
+                isTeacher = {isTeacher}
+                classID={this.state.testCreator}
+                onCreate={() => this.setState({section: 'Manage Classes'})}/>
+        );
+        if (section === 'My Questions') return (<QuestionManager
+            showSnackBar = {this.showSnackBar.bind(this)}
+            theme={createMuiTheme({palette: {primary: color, type: theme}})}
+            initBuilder={questionBuilder => this.setState({section: 'Build Question', questionBuilder})}
+            initWith={this.state.questionManager}
+        />);
+        if (section === 'Build Question') return (<QuestionBuilder
+            showSnackBar = {this.showSnackBar.bind(this)}
+            theme={createMuiTheme({palette: {primary: color, type: theme}})}
+            initManager={questionManager => this.setState({section: 'My Questions', questionManager})}
+            initWith={this.state.questionBuilder}
+        />);
+        if (section === 'Documentation') return (<QuestionBuilderDocs
+            theme={createMuiTheme({palette: {primary: color, type: theme}})}
+        />);
+        if (section === 'Take Test') return (<TakeTest
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {isTeacher}
+            getTimeRemaining = {(minutes, dueDate) => this.getTimeRemaining(minutes, dueDate)}
+            test={this.state.test}
+            submitTest={takes => this.setState({postTest: takes, section: 'Post Test'})}
+        />);
+        if (section === 'Preferences') return (<Preferences
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {isTeacher}
+            colorList={colorList}
+            color={color} changeColor={color => this.setState({color: color})}
+            theme={theme} changeTheme={theme => this.setState({theme: theme})}
+        />);
+        if (section === 'Post Test') return (<PostTest
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {this.state.isTeacher}
+            takes={this.state.postTest}
+        />);
+        if (section === 'Mark Editor') return (<MarkEditor
+            showSnackBar = {this.showSnackBar.bind(this)}
+            isTeacher = {this.state.isTeacher}
+            takes={this.state.markEditor}
+        />);
+        if (section === 'In Class Tools') return (<AVOInClassTools/>);
+        if (section === 'Explanations') return (<AVOExplanations/>);
+        if (section === "Notify Class") return <NotifyClass />
+    }
 
     timerInTopBar(){
         if (this.state.section === 'Take Test') return (
