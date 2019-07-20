@@ -14,8 +14,10 @@ export default class TagBuilder extends Component {
     super(props);
     this.state = {
       tags: [],
-      tagInput: "", 
-      currentView: 'folderView'
+      tagAddInput: "", 
+      currentView: 'folderView',
+      tagDeleteInput: "",
+      tagsFromServer: []
     };
     //views: folderView, tagTreeView
     this.getTags();
@@ -47,7 +49,7 @@ export default class TagBuilder extends Component {
                     />
                     </div>
                 </CardContent>
-                <CardActions>
+                <CardActions style={{padding: 0}}>
                     <Grid
                     container
                     direction="row"
@@ -55,25 +57,37 @@ export default class TagBuilder extends Component {
                     alignItems="flex-start"
                     >
                     <Button
-                        style={{ marginTop: "16px", marginRight: "20px" }}
                         variant="contained"
                         onClick={() => this.addTag()}
                     >
                         Add new tag
                     </Button>
                     <TextField
-                        style={{ margin: 0, width: 400 }}
+                        style={{ margin: 0, width: 200, marginTop: -12, marginLeft: 10, marginRight: 10 }}
                         id="tag-input"
                         label="New tag..."
-                        value={this.state.tagInput}
-                        onChange={e => this.handleTagInput(e)}
+                        value={this.state.tagAddInput}
+                        onChange={e => this.setState({tagAddInput: e.target.value})}
                         margin="normal"
                     />
-                    <div style={{ paddingLeft: '33%' }}>
-                        <Button
-                        style={{ marginTop: "16px", float: "right" }}
+                    <Button
                         variant="contained"
-                        onClick={() => {}}
+                        onClick={() => this.deleteTag()}
+                    >
+                        Delete tag
+                    </Button>
+                    <TextField
+                        style={{ margin: 0, width: 200, marginTop: -12, marginLeft: 10 }}
+                        id="tag-input"
+                        label="Delete tag..."
+                        value={this.state.tagDeleteInput}
+                        onChange={e => this.setState({tagDeleteInput: e.target.value})}
+                        margin="normal"
+                    />
+                    <div style={{ marginLeft: 'auto' }}>
+                        <Button
+                        variant="contained"
+                        onClick={() => {this.putTags()}}
                         >
                         Save
                         </Button>
@@ -93,25 +107,26 @@ export default class TagBuilder extends Component {
     );
   }
   addTag() {
-    const newTag = {
-      id: -1,
-      title: this.state.tagInput,
-      children: []
-    };
-    const newTags = this.state.tags.concat(newTag);
     Http.addTag(
-      { tagName: newTag.title },
+      { tagName: this.state.tagAddInput },
       res => {
+        const newTag = {
+          id: res.tag,
+          title: this.state.tagAddInput,
+          children: []
+        };
+        const newTags = this.state.tags.concat(newTag);
+        this.setState({
+          tags: newTags,
+          tagAddInput: ""
+        });
         console.log(res);
       },
       err => {
         console.log(err);
       }
     );
-    this.setState({
-      tags: newTags,
-      tagInput: ""
-    });
+    
   }
   putTags() {
     Http.putTags(
@@ -143,18 +158,19 @@ export default class TagBuilder extends Component {
       })
     })
     const tags = parents
+    console.log(tags)
     return tags;
   }
   getListOfChildren(parents, grandparent) {
     let c = [];
     parents.forEach((child, i) => {
       if (Array.isArray(child))
-        child.forEach(ch => {
+        child.forEach(ch, j => {
           c.push({
             TAG: ch.id,
             parent: grandparent.id == null ? grandparent.TAG : grandparent.id,
             tagName: ch.title,
-            childOrder: ch.childOrder
+            childOrder: j
           });
           if (ch.children != null && ch.children.length > 0)
             c = c.concat(this.getListOfChildren(ch.children, ch));
@@ -164,7 +180,7 @@ export default class TagBuilder extends Component {
           TAG: child.id,
           parent: grandparent.id == null ? grandparent.TAG : grandparent.id,
           tagName: child.title,
-          childOrder: child.childOrder,
+          childOrder: i,
         });
         if (child.children != null && child.children.length > 0)
           c = c.concat(this.getListOfChildren(child.children, child));
@@ -175,22 +191,26 @@ export default class TagBuilder extends Component {
   getTags() {
     Http.getTags(
       res => {
+        this.setState({tagsFromServer: res.tags})
+        console.log(res)
         const tags = res.tags;
         this.tags = tags;
         const flatList = [];
         const parents = [];
         let tagCount = tags.length;
         tags.forEach(tag => {
+          const hasParent = tags.find((t)=>tag.parent === t.TAG)
           flatList.push({
             id: tag.TAG,
-            parentId: tag.parent,
+            parentId: hasParent !== undefined ? tag.parent : null,
             title: tag.tagName,
             childOrder: tag.childOrder
           });
         });
+        const addedAlready = []
         while (tagCount > 0)
           flatList.forEach(tag => {
-            if (tag.parentId == null) {
+            if (tag.parentId == null && addedAlready.findIndex((id)=>tag.id === id) === -1) {
               parents.push({
                 parentId: null,
                 id: tag.id,
@@ -198,11 +218,15 @@ export default class TagBuilder extends Component {
                 children: [],
                 childOrder: tag.childOrder
               });
+              addedAlready.push(tag.id)
               tagCount -= 1;
             } else {
-              if (this.checkChildren(tag, parents)) tagCount -= 1;
+              if (this.checkChildren(tag, parents, addedAlready)) tagCount -= 1;
             }
           });
+        parents.forEach((parent)=>{
+          this.sortChildren(parent)
+        })
         this.setState({ tags: parents });
       },
       err => {
@@ -210,10 +234,32 @@ export default class TagBuilder extends Component {
       }
     );
   }
-  checkChildren(tag, parents) {
+  deleteTag(){
+    const tag = this.state.tagsFromServer.find((tag)=>tag.tagName === this.state.tagDeleteInput)
+    console.log(tag)
+    Http.deleteTag(
+      { TAG: tag.TAG },
+      res=>{
+        console.log(res)
+        this.getTags()
+        this.setState({tagDeleteInput: ""})
+      },
+      err=>{
+        console.log(err)
+      })
+  }
+  sortChildren(parent){
+    parent.children.sort((a, b)=>{
+      return a.childOrder - b.childOrder
+    })
+    parent.children.forEach((child)=>{
+      this.sortChildren(child)
+    })
+  }
+  checkChildren(tag, parents, addedAlready) {
     let found = false;
     parents.forEach(parent => {
-      if (parent.id === tag.parentId) {
+      if (parent.id === tag.parentId && !found && addedAlready.findIndex((id)=>tag.id === id) === -1) {
         found = true;
         parent.children.push({
           parentId: tag.parentId,
@@ -222,12 +268,13 @@ export default class TagBuilder extends Component {
           childOrder: tag.childOrder,
           children: []
         });
+        addedAlready.push(tag.id)
       }
     });
     if (found === false) {
       parents.forEach(parent => {
         if (parent.children.length > 0)
-          if (this.checkChildren(tag, parent.children)) found = true;
+          if( this.checkChildren(tag, parent.children, addedAlready)) found = true
       });
     }
     return found;

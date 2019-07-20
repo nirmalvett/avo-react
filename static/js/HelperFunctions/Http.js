@@ -63,6 +63,9 @@ export default class Http {
 	static addTag(tag, success, failure){
 		Http._request('POST', '/addTag', success, failure, {tag})
 	}
+	static deleteTag(tag, success, failure){
+		Http._request('POST', '/deleteTag', success, failure, {tag})
+	}
 	static putTags(tags, success, failure){
 		Http._request('PUT', '/putTags', success, failure, {tags})
 	}
@@ -175,6 +178,14 @@ export default class Http {
 		Http._request('POST', `/changeTest`, success, failure,
 				{test: test, timer:timer, name:name, deadline:deadline, attempts:attempts});
 	};
+
+	static getLessons(success, failure) {
+		Http._request('GET', '/getLessons', success, failure, {});
+	};
+
+	static getMasteryTags(tagArray, success, failure) {
+		Http._request('POST', '/getMasteryTags', success, failure, { tagNames : tagArray });
+	}
 }
 
 function debugModeLog(type, url, data = '', http) {
