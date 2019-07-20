@@ -126,26 +126,28 @@ def delete_tag():
     return jsonify(message="Tag deleted")
 
 
-@TagRoutes.route("/tagMastery", methods=["GET"])
+@TagRoutes.route("/tagMastery", methods=["POST"])
 @login_required
 def tag_mastery():
-    #TODO add custom SQL for all tags a user has mastered joined with tags joined with lessons a tags assoiated with
-    mastery_list = TagUser.query.filter(TagUser.USER == current_user.USER).all()
-    tag_list = Tag.query.filter(Tag.TAG.in_(mastery_list.TAG)).all()
-    user_mastery = []
-    if not len(tag_list) != len(mastery_list):
-        return jsonify(error="SQL length error")
-    for i in range(len(mastery_list)):
-        user_mastery.append({"name": tag_list[i].name, "mastery": mastery_list[i].mastery})
-    return jsonify(mastery=user_mastery)
+    """
+    Given a array of tag IDs give the tag IDs names and mastery to client
+    :return: array of tag mastery names and Ids to client
+    """
+    return jsonify(mastery={{"ID": 2, "name": "Inverse", "mastery": 0.5},
+                            {"ID": 5, "name": "Test input for tag value extra long to test the lengths of tag length", "mastery": 1.0},
+                            {"ID": 7, "name": "Inverse", "mastery": 0.0}})
 
 
 @TagRoutes.route("/getLessons", methods=["GET"])
 @login_required
 def get_lessons():
-    return jsonify(lessons={{{"ID": 1, "Tag": "Vectors", "string": "this is a test string"},
+    """
+    Get list of lessons for client with the tags associated with them and the lesson string
+    :return: Array of lessons with
+    """
+    return jsonify(lessons={{"ID": 1, "Tag": "Vectors", "string": "this is a test string"},
                              {"ID": 5, "Tag": "Matrix", "string": "this is also a testing of text"},
-                             {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "string": "this is a test string"}}})
+                             {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "string": "this is a test string"}})
 
 
 def alchemy_to_dict(obj):
