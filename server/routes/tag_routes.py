@@ -133,9 +133,11 @@ def tag_mastery():
     Given a array of tag IDs give the tag IDs names and mastery to client
     :return: array of tag mastery names and Ids to client
     """
-    return jsonify(mastery={{"ID": 2, "name": "Inverse", "mastery": 0.5},
+    if not request.json:
+        return jsonify(error="")
+    return jsonify(mastery=[{"ID": 2, "name": "Inverse", "mastery": 0.5},
                             {"ID": 5, "name": "Test input for tag value extra long to test the lengths of tag length", "mastery": 1.0},
-                            {"ID": 7, "name": "Inverse", "mastery": 0.0}})
+                            {"ID": 7, "name": "Inverse", "mastery": 0.0}])
 
 
 @TagRoutes.route("/getLessons", methods=["GET"])
@@ -143,11 +145,11 @@ def tag_mastery():
 def get_lessons():
     """
     Get list of lessons for client with the tags associated with them and the lesson string
-    :return: Array of lessons with
+    :return: Array of lessons with the ID tag associated with lesson and lesson string
     """
-    return jsonify(lessons={{"ID": 1, "Tag": "Vectors", "string": "this is a test string"},
-                             {"ID": 5, "Tag": "Matrix", "string": "this is also a testing of text"},
-                             {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "string": "this is a test string"}})
+    return jsonify(lessons=[{"ID": 1, "Tag": "Vectors", "string": "this is a test string"},
+                            {"ID": 5, "Tag": "Matrix", "string": "this is also a testing of text"},
+                            {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "string": "this is a test string"}])
 
 
 def alchemy_to_dict(obj):
