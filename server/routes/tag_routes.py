@@ -140,7 +140,7 @@ def tag_mastery():
     return jsonify(mastery=user_mastery)
 
 
-@TagRoutes.route("getLessons", methods=["GET"])
+@TagRoutes.route("/getLessons", methods=["GET"])
 @login_required
 def get_lessons():
     return jsonify(lessons={{{"ID": 1, "Tag": "Vectors", "string": "this is a test string"},
