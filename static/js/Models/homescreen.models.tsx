@@ -1,4 +1,5 @@
 import { ColorMap } from './theme.models'
+import { Class } from './common.models'
 export interface HomescreenState {
   selectedDate: Date;
   notifications: MessagesResponse[];
@@ -15,7 +16,11 @@ export interface HomescreenProps {
 export interface Notfication {
     title: string;
     body: string;
-
+    CLASS?: number;
+    MESSAGE?: number;
+    date_created: string;
+    selected?: boolean;
+    showEdit?: boolean;
 }
 export interface DueDate {
     name: string;
@@ -40,10 +45,6 @@ export interface CalendarThemeTextColor {
   active: string;
   default: string;
 }
-export interface Class {
-    name: string
-    id: number
-}
 export interface GetHomeResponse {
     dueDates: DueDatesResponse[]
     messages: MessagesResponse[]
@@ -55,4 +56,16 @@ export interface DueDatesResponse {
 export interface MessagesResponse {
     class: Class
     messages: Notfication[]
+}
+export interface NotifyClassState {
+  classes: Class[];
+  selectedClassName: string;
+  addMessageInput: string;
+  messageBodyInput: string;
+  messages: Notfication[];
+  classNames: string[];
+  editTitle: string;
+  editBody: string;
+  selectedMessage: Notfication;
+  showEdit: boolean;
 }

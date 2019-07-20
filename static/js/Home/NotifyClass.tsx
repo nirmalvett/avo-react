@@ -10,11 +10,11 @@ import TextField from "@material-ui/core/TextField";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
+import * as Models from '../Models'
 import * as uniqid from "uniqid";
 import Message from "./Message";
-export default class NotifyClass extends Component {
-  state: any = {
+export default class NotifyClass extends Component<{}, Models.NotifyClassState> {
+  state: Models.NotifyClassState = {
     classes: [],
     selectedClassName: "Select class...",
     addMessageInput: "",
@@ -26,7 +26,7 @@ export default class NotifyClass extends Component {
     selectedMessage: null,
     showEdit: false
   };
-  constructor(props) {
+  constructor(props: {}) {
     super(props);
     this.getClasses();
   }
@@ -50,15 +50,7 @@ export default class NotifyClass extends Component {
                   value={this.state.selectedClassName}
                   input={<Input name="data" id="select-class" />}
                   onChange={e =>
-                    this.setState(
-                      {
-                        selectedClassName: e.target.value
-                      },
-                      () => {
-                        console.log(this.state.selectedClassName);
-                        this.getMessages();
-                      }
-                    )
+                    this.setState({ selectedClassName: e.target.value }, () => this.getMessages())
                   }
                 >
                   {this.state.classNames.map((c, i) => (
@@ -263,7 +255,7 @@ export default class NotifyClass extends Component {
       Http.deleteMessage(
         message.MESSAGE,
         res => {
-          console.log(res);
+          // console.log(res);
         },
         err => {
           console.log(err);
@@ -292,7 +284,7 @@ export default class NotifyClass extends Component {
         messages[msg].title = this.state.editTitle;
         messages[msg].body = this.state.editBody;
         this.setState({ messages, showEdit: false, selectedMessage: null });
-        console.log(res);
+        // console.log(res);
       },
       err => {
         console.log(err);
@@ -302,6 +294,7 @@ export default class NotifyClass extends Component {
   getClasses() {
     Http.getClasses(
       response => {
+        // console.log(response)
         this.setState({
           classes: response.classes,
           selectedClassName: response.classes[0].name,
@@ -321,7 +314,7 @@ export default class NotifyClass extends Component {
     Http.getMessages(
       selectedClass.id,
       res => {
-        console.log(res);
+        // console.log(res);
         res.messages.forEach((message, i) => {
           res.messages[i].selected = false;
           res.messages[i].showEdit = false;
