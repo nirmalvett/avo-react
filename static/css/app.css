@@ -12,22 +12,20 @@
 }
 
 body {
+  margin: 0px;
 }
 
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
 #root {
-    position: fixed;
-    left: 0;
-    top: 0;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background: url('../img/avo_backdrop.png') 50% 70%;
-    background-size: 120%;
+    background: url('../img/avo_backdrop_cropped.png') 100% 100%;
+    background-position: bottom;
+    background-size: cover !important;
 }
 
 ::-webkit-scrollbar {
@@ -391,4 +389,13 @@ body {
     transform: rotate(360deg);
   }
 }
-
+.center-div
+{
+  margin: auto;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100px;
+  height: 100px;
+}

@@ -6,7 +6,7 @@ import ListItem from '@material-ui/core/ListItem';
 import IconButton from '@material-ui/core/IconButton';
 import ListItemText from '@material-ui/core/ListItemText';
 import Http from '../../HelperFunctions/Http';
-import {uniqueKey} from '../../HelperFunctions/helpers';
+import {uniqueKey} from '../../HelperFunctions/Helpers';
 import {getMathJax} from '../../HelperFunctions/Utilities';
 import AnswerInput from '../../AnswerInput/AnswerInput';
 import Add from '@material-ui/icons/Add';
