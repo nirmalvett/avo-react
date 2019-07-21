@@ -3,7 +3,8 @@ export interface LearnQuestionCardProps {
     prompts: string[];
     promptVariant: string;
     promptsVariant: string;
-    color: "inherit" | "primary" | "secondary" | "default" | "textPrimary" | "textSecondary" | "error"
+    color: "inherit" | "primary" | "secondary" | "default" | "textPrimary" | "textSecondary" | "error";
+    types: string[];
 }
 export interface LearnLessonCardProps {
     title: string;
