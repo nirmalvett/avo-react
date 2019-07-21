@@ -6,7 +6,11 @@ import CardContent from "@material-ui/core/CardContent";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid/Grid";
 import TextField from "@material-ui/core/TextField";
-export default class FolderView extends React.Component<any, any> {
+import * as Models from "../../Models";
+export default class FolderView extends React.Component<
+  {},
+  Models.FolderViewState
+> {
   constructor(props) {
     super(props);
     this.state = {
@@ -92,13 +96,18 @@ export default class FolderView extends React.Component<any, any> {
         const newTag = {
           id: res.tag,
           title: this.state.tagAddInput,
-          children: []
+          children: [],
+          childOrder: 0,
+          parentId: null
         };
         const newTags = this.state.tags.concat(newTag);
-        this.setState({
-          tags: newTags,
-          tagAddInput: ""
-        });
+        this.setState(
+          {
+            tags: newTags,
+            tagAddInput: ""
+          },
+          () => this.getTags()
+        );
       },
       err => {
         console.log(err);
@@ -110,6 +119,7 @@ export default class FolderView extends React.Component<any, any> {
       this.formatTagsForServer(),
       res => {
         // console.log(res)
+        this.getTags();
       },
       err => {
         console.log(err);
@@ -137,14 +147,14 @@ export default class FolderView extends React.Component<any, any> {
     const tags = parents;
     return tags;
   }
-  getListOfChildren(parents, grandparent) {
+  getListOfChildren(parents: Models.Tag[], grandparent: Models.Tag) {
     let c = [];
     parents.forEach((child, i) => {
       if (Array.isArray(child))
         child.forEach((ch, j) => {
           c.push({
             TAG: ch.id,
-            parent: grandparent.id == null ? grandparent.TAG : grandparent.id,
+            parent: grandparent.id || grandparent.TAG,
             tagName: ch.title,
             childOrder: j
           });
@@ -154,7 +164,7 @@ export default class FolderView extends React.Component<any, any> {
       else {
         c.push({
           TAG: child.id,
-          parent: grandparent.id == null ? grandparent.TAG : grandparent.id,
+          parent: grandparent.id || grandparent.TAG,
           tagName: child.title,
           childOrder: i
         });
@@ -167,6 +177,7 @@ export default class FolderView extends React.Component<any, any> {
   getTags() {
     Http.getTags(
       res => {
+        let fixTree = false;
         this.setState({ tagsFromServer: res.tags });
         const tags = res.tags;
         const flatList = [];
@@ -176,16 +187,19 @@ export default class FolderView extends React.Component<any, any> {
           const hasParent = tags.find(t => tag.parent === t.TAG);
           flatList.push({
             id: tag.TAG,
-            parentId: hasParent !== undefined ? tag.parent : null,
+            parentId: hasParent ? tag.parent : null,
             title: tag.tagName,
             childOrder: tag.childOrder
           });
+          if (tag.parent && !hasParent) {
+            fixTree = true;
+          }
         });
         const addedAlready = [];
         while (tagCount > 0)
           flatList.forEach(tag => {
             if (
-              tag.parentId == null &&
+              !tag.parentId &&
               addedAlready.findIndex(id => tag.id === id) === -1
             ) {
               parents.push({
@@ -204,7 +218,11 @@ export default class FolderView extends React.Component<any, any> {
         parents.forEach(parent => {
           this.sortChildren(parent);
         });
-        this.setState({ tags: parents });
+        this.setState({ tags: parents }, () => {
+          if (fixTree) {
+            this.putTags();
+          }
+        });
       },
       err => {
         console.log(err);
@@ -218,8 +236,9 @@ export default class FolderView extends React.Component<any, any> {
     Http.deleteTag(
       { TAG: tag.TAG },
       res => {
-        this.getTags();
-        this.setState({ tagDeleteInput: "" });
+        this.setState({ tagDeleteInput: "" }, () => {
+          this.getTags();
+        });
       },
       err => {
         console.log(err);
@@ -253,7 +272,7 @@ export default class FolderView extends React.Component<any, any> {
         addedAlready.push(tag.id);
       }
     });
-    if (found === false) {
+    if (!found) {
       parents.forEach(parent => {
         if (parent.children.length > 0)
           if (this.checkChildren(tag, parent.children, addedAlready))
