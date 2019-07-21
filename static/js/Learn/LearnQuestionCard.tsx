@@ -3,13 +3,14 @@ import React from 'react'
 import { getMathJax } from '../HelperFunctions/Utilities'
 import { uniqueKey } from '../HelperFunctions/Helpers'
 import * as Models from '../Models/'
+import Card from '@material-ui/core/Card/Card';
 export default function LearnQuestionCard(props: Models.LearnQuestionCardProps) {
     return (
-        <div>
+        <Card>
             <Typography color={props.color}>{getMathJax(props.prompt, props.promptVariant, uniqueKey())}</Typography>;
             {
                 props.prompts.map(prompt => <Typography key={uniqueKey()} color={props.color}>{getMathJax(prompt, props.promptsVariant, uniqueKey())}</Typography>)
             }
-        </div>
+        </Card>
     )
 }
