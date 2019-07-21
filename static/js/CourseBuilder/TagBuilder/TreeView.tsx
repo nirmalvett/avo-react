@@ -9,7 +9,7 @@ export default class TreeView extends React.Component<any, any> {
         this.getTags()
     }
     render() {
-        return <div id="cy" style={{ "width": '800px', minHeight: '800px' }}></div>
+        return <div id="cy" style={{ width: 800, height: 790 }}></div>
     }
     getTags() {
         Http.getTags(

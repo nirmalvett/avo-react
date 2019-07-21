@@ -28,7 +28,7 @@ export default class TagView extends Component<any, any> {
           overflow: "hidden",
         }}
       >
-        <Card style={{ width: "100%", margin: 0, padding: 0 }}>
+        <Card style={{ width: "100%", margin: 0, padding: 0, height: 790 }}>
           <Button onClick={() => this.setState({ currentView: 'folderView' })}>Tag Folder View</Button>
           <Button onClick={() => this.setState({ currentView: 'tagTreeView' })}>Tag Tree View</Button>
           {this.state.currentView == 'folderView' && (

@@ -28,7 +28,7 @@ export default class FolderView extends React.Component<any, any> {
                         />
                     </div>
                 </CardContent>
-                <CardActions style={{ padding: 0, margin: 25, boxSizing: "border-box" }}>
+                <CardActions style={{ padding: 0, margin: 25, boxSizing: "border-box", marginTop: 60 }}>
                     <Grid
                         container
                         direction="row"
