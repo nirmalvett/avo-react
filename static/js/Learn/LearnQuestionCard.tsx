@@ -2,7 +2,8 @@ import { Typography } from '@material-ui/core';
 import React from 'react'
 import { getMathJax } from '../HelperFunctions/Utilities'
 import { uniqueKey } from '../HelperFunctions/Helpers'
-export default function LearnQuestionCard(props) {
+import * as Models from '../Models/'
+export default function LearnQuestionCard(props: Models.LearnQuestionCardProps) {
     return (
         <div>
             <Typography color={props.color}>{getMathJax(props.prompt, props.promptVariant, uniqueKey())}</Typography>;
