@@ -6,7 +6,13 @@ export default class LearnExplanationContainer extends Component<any, any> {
   constructor(props) {
     super(props);
     this.state = {
-      explanationIndex: 0
+      explanationIndex: 0,
+      skills: [
+        { name: "Vectors I", rating: 0.82 },
+        { name: "Vectors II", rating: 0.13 },
+        { name: "Vectors III", rating: 0.52 },
+        { name: "Vectors IV", rating: 0.23 }
+      ]
     };
   }
   handleLeftArrow = () => {
@@ -21,18 +27,27 @@ export default class LearnExplanationContainer extends Component<any, any> {
   };
   render() {
     return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-evenly"
-        }}
-      >
-        {this.props.explanations.length > 1 && this.state.explanationIndex > 0 && (
+      <div>
+        <p>skill graph goes here</p>
+        {this.state.skills.map(skill => (
+          <p>{`${skill.name}: ${skill.rating}`}</p>
+        ))}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-evenly"
+          }}
+        >
           <div
             dangerouslySetInnerHTML={{ __html: "" }}
             onClick={this.handleLeftArrow}
             style={{
+              visibility:
+                this.props.explanations.length > 1 &&
+                this.state.explanationIndex > 0
+                  ? "visible"
+                  : "hidden",
               flex: 1,
               width: 100,
               height: 50,
@@ -44,30 +59,33 @@ export default class LearnExplanationContainer extends Component<any, any> {
               cursor: "pointer"
             }}
           />
-        )}
-        <div style={{ flex: 8, margin: 10 }}>
-          <LearnExplanationCard
-            explanation={this.props.explanations[this.state.explanationIndex]}
+          <div style={{ flex: 8, margin: 10 }}>
+            <LearnExplanationCard
+              explanation={this.props.explanations[this.state.explanationIndex]}
+            />
+          </div>
+
+          <div
+            dangerouslySetInnerHTML={{ __html: "" }}
+            onClick={this.handleRightArrow}
+            style={{
+              visibility:
+                this.props.explanations.length > 1 &&
+                this.state.explanationIndex < this.props.explanations.length - 1
+                  ? "visible"
+                  : "hidden",
+              flex: 1,
+              width: 100,
+              height: 50,
+              padding: 10,
+              margin: "auto",
+              clipPath:
+                "polygon(0% 20%, 60% 20%, 60% 0%, 100% 50%, 60% 100%, 60% 80%, 0% 80%)",
+              backgroundColor: "black",
+              cursor: "pointer"
+            }}
           />
         </div>
-        {this.props.explanations.length > 1 &&
-          this.state.explanationIndex < this.props.explanations.length - 1 && (
-            <div
-              dangerouslySetInnerHTML={{ __html: "" }}
-              onClick={this.handleRightArrow}
-              style={{
-                flex: 1,
-                width: 100,
-                height: 50,
-                padding: 10,
-                margin: "auto",
-                clipPath:
-                  "polygon(0% 20%, 60% 20%, 60% 0%, 100% 50%, 60% 100%, 60% 80%, 0% 80%)",
-                backgroundColor: "black",
-                cursor: "pointer"
-              }}
-            />
-          )}
       </div>
     );
   }
