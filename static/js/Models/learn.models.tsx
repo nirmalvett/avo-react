@@ -17,7 +17,6 @@ export interface LearnExplanationCardProps {
 }
 export interface LearnExplanationContainerState {
   explanationIndex: number;
-  skills: Skill[];
 }
 export interface Skill {
   name: string;
@@ -25,4 +24,5 @@ export interface Skill {
 }
 export interface LearnExplanationContainerProps {
   explanations: string[];
+  skills: Skill[];
 }
