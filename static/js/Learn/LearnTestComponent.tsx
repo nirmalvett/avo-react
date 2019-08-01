@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import LearnExplanationContainer from "./LearnExplanationContainer";
 import LearnQuestionCard from "./LearnQuestionCard";
 import LearnLessonCard from "./LearnLessonCard";
+// going to leave the state and props of this as any as I'm sure you'll need to change things
 export default class LearnTestComponent extends Component<any, any> {
   constructor(props) {
     super(props);
@@ -16,14 +17,19 @@ export default class LearnTestComponent extends Component<any, any> {
       currentState: states.LESSON
     };
   }
-  changeToLessonState = () =>
+  // Any addition logic for switching between these states can be handled here
+  changeToLessonState = () => {
     this.setState({ currentState: this.state.states.LESSON });
-  changeToQuestionState = () =>
+  };
+  changeToQuestionState = () => {
     this.setState({ currentState: this.state.states.QUESTION });
-  changeToExplanationState = () =>
+  };
+  changeToExplanationState = () => {
     this.setState({ currentState: this.state.states.EXPLANATION });
-  changeToTransitionState = () =>
+  };
+  changeToTransitionState = () => {
     this.setState({ currentState: this.state.states.TRANSITION });
+  };
 
   render() {
     return (
@@ -47,11 +53,17 @@ export default class LearnTestComponent extends Component<any, any> {
       )) ||
       (this.state.currentState === this.state.states.EXPLANATION && (
         <div>
-          <LearnExplanationContainer explanations={this.props.explanations} />
-          <button onClick={this.changeToTransitionState}>Go to end screen</button>
+          <LearnExplanationContainer
+            skills={this.props.skills}
+            explanations={this.props.explanations}
+          />
+          <button onClick={this.changeToTransitionState}>
+            Go to end screen
+          </button>
         </div>
       )) ||
       (this.state.currentState === this.state.states.TRANSITION && (
+        // not sure how you want to handle this
         <div>
           <p>Handle returning back to home</p>
         </div>

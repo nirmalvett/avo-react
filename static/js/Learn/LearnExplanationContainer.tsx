@@ -8,13 +8,7 @@ export default class LearnExplanationContainer extends Component<
   constructor(props) {
     super(props);
     this.state = {
-      explanationIndex: 0,
-      skills: [
-        { name: "Vectors I", rating: 0.82 },
-        { name: "Vectors II", rating: 0.13 },
-        { name: "Vectors III", rating: 0.52 },
-        { name: "Vectors IV", rating: 0.23 }
-      ]
+      explanationIndex: 0
     };
   }
   handleLeftArrow = () => {
@@ -30,10 +24,13 @@ export default class LearnExplanationContainer extends Component<
   render() {
     return (
       <div>
+        {/* replace this chunk with the cool looking chart  */}
         <p>skill graph goes here</p>
-        {this.state.skills.map(skill => (
+        {this.props.skills.map(skill => (
           <p>{`${skill.name}: ${skill.rating}`}</p>
         ))}
+        {/* replace this chunk with the cool looking chart  */}
+
         <div
           style={{
             display: "flex",
@@ -41,20 +38,25 @@ export default class LearnExplanationContainer extends Component<
             justifyContent: "space-evenly"
           }}
         >
+          {/* get rid of the following things if you want to put something different for transitional buttons             */}
           <div
+            //   this
             dangerouslySetInnerHTML={{ __html: "" }}
             onClick={this.handleLeftArrow}
             style={{
+              //this
               visibility:
                 this.props.explanations.length > 1 &&
                 this.state.explanationIndex > 0
                   ? "visible"
                   : "hidden",
               flex: 1,
+              // I'm sure you'll set the width and height to whatever you want lmao
               width: 100,
               height: 50,
               padding: 10,
               margin: "auto",
+              // this makes the arrow shape so get rid of all this
               clipPath:
                 "polygon(40% 0%, 40% 20%, 100% 20%, 100% 80%, 40% 80%, 40% 100%, 0% 50%)",
               backgroundColor: "black",
@@ -68,6 +70,7 @@ export default class LearnExplanationContainer extends Component<
           </div>
 
           <div
+            // same stuff as above
             dangerouslySetInnerHTML={{ __html: "" }}
             onClick={this.handleRightArrow}
             style={{
