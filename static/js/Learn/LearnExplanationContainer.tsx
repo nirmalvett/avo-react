@@ -1,8 +1,10 @@
 import React, { Component } from "react";
-import { Typography } from "@material-ui/core";
-
 import LearnExplanationCard from "./LearnExplanationCard";
-export default class LearnExplanationContainer extends Component<any, any> {
+import * as Models from "../Models";
+export default class LearnExplanationContainer extends Component<
+  Models.LearnExplanationContainerProps,
+  Models.LearnExplanationContainerState
+> {
   constructor(props) {
     super(props);
     this.state = {

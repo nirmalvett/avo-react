@@ -1,4 +1,3 @@
-import { Typography } from "@material-ui/core";
 import React from "react";
 import { getMathJax } from "../HelperFunctions/Utilities";
 import { uniqueKey } from "../HelperFunctions/Helpers";
