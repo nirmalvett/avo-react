@@ -392,3 +392,140 @@ body {
   }
 }
 
+shrink-on-hover {
+  transition: transform 275ms ease-out !important;
+}
+
+.shrink-on-hover:hover {
+  transform: scale(0.85);
+}
+
+.shrink-on-hover:active {
+  transform: scale(1.15);
+}
+
+
+.bottom-bar__avo-button {
+  position: relative;
+  bottom: 1.25em;
+  right: 1.25em;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+
+.app-bar-bottom {
+  bottom: 49px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 56px;
+}
+
+.avo-progression-gauge-container {
+  position: relative;
+  height: 18em;
+}
+
+.avo-progression-gauge-container .donut{
+  position: absolute;
+}
+
+.avo-progression-gauge-container .avo-progression-gauge{
+  width: 6.075em;
+  height: 6.075em;
+  z-index: 2;
+  margin-top: 4.75em;
+  border-radius: 50%;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  color: var(--pri-theme-color);
+  background: #fff;   
+}
+
+.avo-progression-gauge-text{
+  font-family: 'Roboto';
+  font-size: 1.5em;
+  padding-top: 1em;
+}
+
+.donut {
+  margin: 10%;
+  width: -webkit-fill-available;
+}
+
+.avo-progression-gauge-subText{
+  font-family: 'Roboto';
+  font-size: 0.5em;
+  color: lightslategrey;
+}
+
+.avo-linechart-text{
+  font-size: 5px;
+  color: lightslategrey;
+}
+
+.avo-progression-gauge-container .avo-progression-gauge-svg{
+  position: absolute;
+  transition: stroke-dasharray 1s ease-in-out;
+}
+
+.avo-svg-line-chart {
+  transition: d 1s ease-in-out;
+}
+
+#avo-line-chart-tooltip{
+  opacity: 0;
+  position: absolute;
+  top: 0em;
+  left: 0em;
+  background: #fff;
+  border: 1px solid #399103;
+  border-radius: 9px;
+  font-size: 12px;
+  padding: 0.5em;
+  margin-left: 1em;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+
+#avo-bar-chart-tooltip{
+  opacity: 0;
+  position: absolute;
+  top: 0em;
+  left: 0em;
+  background: #fff;
+  border: 1px solid #399103;
+  border-radius: 9px;
+  font-size: 12px;
+  padding: 0.5em;
+  margin-left: 1em;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+
+.avo-progression-gauge-triangle{
+  transition: d 1s ease-in-out;
+  will-change: transform;
+}
+
+.avo-progression-gauge-triangle-group1{
+  -webkit-animation:spin 5s linear infinite;
+  -moz-animation:spin 5s linear infinite;
+  animation:spin 5s linear infinite;
+}
+
+.avo-progression-gauge-triangle-group2{
+  -webkit-animation:spin 9s linear infinite;
+  -moz-animation:spin 9s linear infinite;
+  animation:spin 9s linear infinite;
+}
+
+.avo-progression-gauge-triangle-group3{
+  -webkit-animation:spin 14s linear infinite;
+  -moz-animation:spin 14s linear infinite;
+  animation:spin 14s linear infinite;
+}
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg);transform-origin: center; } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg);transform-origin: center; } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg);transform-origin: center; } }
+
+.avo-bar-chart-bar{
+  transition: d 1s ease-in-out;
+}

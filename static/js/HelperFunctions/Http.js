@@ -184,7 +184,7 @@ export default class Http {
 	};
 
 	static getMasteryTags(tagArray, success, failure) {
-		Http._request('POST', '/getMasteryTags', success, failure, { tagNames : tagArray });
+		Http._request('POST', '/tagMastery', success, failure, { tagNames : tagArray });
 	}
 }
 

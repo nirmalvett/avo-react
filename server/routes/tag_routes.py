@@ -147,9 +147,14 @@ def get_lessons():
     Get list of lessons for client with the tags associated with them and the lesson string
     :return: Array of lessons with the ID tag associated with lesson and lesson string
     """
-    return jsonify(lessons=[{"ID": 1, "Tag": "Vectors", "string": "this is a test string"},
-                            {"ID": 5, "Tag": "Matrix", "string": "this is also a testing of text"},
-                            {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "string": "this is a test string"}])
+    return jsonify(lessons=[{"ID": 1, "Tag": "Vectors", "mastery": 0.5, "string": "this is a test string"},
+                            {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+                            {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+                            {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+                            {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+                            {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+                            {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+                            {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "mastery" : 0.76, "string": "this is a test string"}])
 
 
 def alchemy_to_dict(obj):
