@@ -6,8 +6,7 @@ import MomentUtils from '@date-io/moment';
 import PasswordResetPage from './SignIn/PasswordReset';
 import { isChrome, isSafari } from "./HelperFunctions/Helpers";
 import NotChromeWarningPage from "./SignIn/NotChromeWarningPage";
-import { MuiPickersUtilsProvider } from 'material-ui-pickers';
-import { handleUserLogin } from "./Redux/Actions/shared";
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import {connect} from 'react-redux';
 import { handleLoginData } from "./Redux/Actions/shared";
 
