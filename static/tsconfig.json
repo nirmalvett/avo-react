@@ -1,12 +1,18 @@
 {
-    "compilerOptions": {
-      "outDir": "./dist/",
-      "allowSyntheticDefaultImports": true,
-      "moduleResolution": "node",
-      "sourceMap": true,
-      "module": "es6",
-      "target": "es6",
-      "jsx": "react",
-      "allowJs": true
-    }
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "types/*"
+      ]
+    },
+    "outDir": "./dist/",
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "module": "es6",
+    "target": "es6",
+    "jsx": "react",
+    "allowJs": true
   }
+}
