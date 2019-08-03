@@ -45,7 +45,7 @@ import {copy, getDateString} from '../HelperFunctions/Utilities';
 import AVOModal from '../SharedComponents/MaterialModal';
 import Chart from 'react-apexcharts';
 import {convertListFloatToAnalytics} from '../HelperFunctions/Helpers';
-import {InlineDateTimePicker} from "material-ui-pickers";
+import {DateTimePicker} from "@material-ui/pickers";
 import {actionCreateTestAddClassId} from "../Redux/Actions/actionsCreateTest";
 import {connect} from "react-redux";
 import {addDays} from "../Redux/Reducers/reducerCreateTest";
@@ -527,19 +527,21 @@ class ManageClasses extends Component {
 					value={this.state.editTest_attempts}
 					onChange={e => this.setState ({editTest_attempts: e.target.value})}
 				/>
-				<InlineDateTimePicker
+				<DateTimePicker
 					margin='normal'
 					style={{width: '46%', margin: '2%'}}
 					label="Deadline"
 					value={this.state._editTest_date}
 					onChange={this.handleDateChange.bind (this)}
+					variant='inline'
 				/>
-				<InlineDateTimePicker
+				<DateTimePicker
 					margin='normal'
 					style={{width: '46%', margin: '2%'}}
 					label="Automatic Opening Time"
 					value={this.state._editTest_openTime}
 					onChange={this.handleOpenTestChange.bind (this)}
+					variant='inline'
 				/>
 				<br/>
 				<div style={{float: 'right', position: 'relative'}}>
