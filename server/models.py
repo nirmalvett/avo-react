@@ -22,6 +22,7 @@ class Class(db.Model):
     TEST_RELATION = db.relationship("Test", back_populates="CLASS_RELATION")
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="CLASS_RELATION")
     TRANSACTION_PROCESSING_RELATION = db.relationship("TransactionProcessing", back_populates="CLASS_RELATION")
+    MESSAGE_RELATION = db.relationship("Message", back_populates="CLASS_RELATION")
 
     # noinspection PyPep8Naming
     def __init__(self, USER, name, price=59.99):
@@ -258,3 +259,22 @@ class Tag(db.Model):
         return f'TAG {self.TAG} {self.parent} {self.tagName} {self.childOrder}'
 
 
+class Message(db.Model):
+    __tablename__ = 'MESSAGE'
+
+    MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+    title = db.Column(db.String, nullable=False)
+    body = db.Column(db.String, nullable=False)
+    date_created = db.Column(db.DATETIME, nullable=False)
+
+    CLASS_RELATION = db.relationship("Class", back_populates="MESSAGE_RELATION")
+
+    def __init__(self, CLASS, title, body, date_created):
+        self.CLASS = CLASS
+        self.title = title
+        self.body = body
+        self.date_created = date_created
+
+    def __repr__(self):
+        return f'{self.MESSAGE} {self.CLASS} {self.title} {self.body} {self.date_created}'

@@ -19,159 +19,221 @@ import AVOExplanations from "../MISC/AVOExplanations/AVOExplanations";
 import { avoGreen } from "../SharedComponents/AVOCustomColors";
 import { MySnackbarContentWrapper } from "../SharedComponents/AVOSnackBar";
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
+import NotifyClass from '../Home/NotifyClass'
 import {withStyles, List, AppBar, Drawer, Divider, Toolbar, IconButton,
     Typography, ListItem, ListItemText, ListSubheader, Snackbar } from '@material-ui/core';
 import { HomeOutlined, BuildOutlined, HelpOutline,
-    ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu } from "@material-ui/icons";
+    ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu, Announcement } from "@material-ui/icons";
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
     deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors';
 import classNames from 'classnames';
 import {copy} from "../HelperFunctions/Utilities";
 const drawerWidth = 240;
-const colorList = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, avoGreen, green, lightGreen,
-    amber, orange, deepOrange, brown, grey, blueGrey]; // list of colors to choose from
+const colorList = [
+  red,
+  pink,
+  purple,
+  deepPurple,
+  indigo,
+  blue,
+  lightBlue,
+  cyan,
+  teal,
+  avoGreen,
+  green,
+  lightGreen,
+  amber,
+  orange,
+  deepOrange,
+  brown,
+  grey,
+  blueGrey
+]; // list of colors to choose from
 
 const styles = theme => ({
-    drawerPaper: {
-        position: 'relative',
-        width: drawerWidth,
-    },
-    appBar: {
-        transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.easeIn,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-        display: 'flex',
-    },
-    appBarShift: {
-        width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-        marginLeft: drawerWidth,
-    },
-    content: {
-        transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.easeIn,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-        display: 'flex',
-        flex: 1,
-        marginTop: '64px',
-        marginLeft: -drawerWidth
-    },
-    contentShift: {
-        transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-        marginLeft: 0
-    },
+  drawerPaper: {
+    position: "relative",
+    width: drawerWidth
+  },
+  appBar: {
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeIn,
+      duration: theme.transitions.duration.leavingScreen
+    }),
+    display: "flex"
+  },
+  appBarShift: {
+    width: `calc(100% - ${drawerWidth}px)`,
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen
+    }),
+    marginLeft: drawerWidth
+  },
+  content: {
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.easeIn,
+      duration: theme.transitions.duration.leavingScreen
+    }),
+    display: "flex",
+    flex: 1,
+    marginTop: "64px",
+    marginLeft: -drawerWidth
+  },
+  contentShift: {
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen
+    }),
+    marginLeft: 0
+  }
 });
 
 const showTestFeatures = false;
 class Layout extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            name: this.props.firstName + ' ' + this.props.lastName,
-            isTeacher: this.props.isTeacher,
-            isAdmin: this.props.isAdmin,
-            color: colorList[this.props.color],
-            theme: this.props.theme,
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: this.props.firstName + " " + this.props.lastName,
+      isTeacher: this.props.isTeacher,
+      isAdmin: this.props.isAdmin,
+      color: colorList[this.props.color],
+      theme: this.props.theme,
 
-            section: 'Home',
-            open: true,
-            testCreator: null,
-            postTest: null,
-            markEditor: null,
-            minutesRemainingUponResumingTest: null,
-            testDueDate: null,
-            questionManager: [null, null, []],
+      section: "Home",
+      open: true,
+      testCreator: null,
+      postTest: null,
+      markEditor: null,
+      minutesRemainingUponResumingTest: null,
+      testDueDate: null,
+      questionManager: [null, null, []],
 
-            snackBar_hideDuration: 5000,
-            snackBar_isOpen: true,
-            snackBar_message: "AVO AI Assistant Online",
-            snackBar_variant: "success"
-        };
-    }
+      snackBar_hideDuration: 5000,
+      snackBar_isOpen: true,
+      snackBar_message: "AVO AI Assistant Online",
+      snackBar_variant: "success",
+      classToJumpTo: null,
+      setToJumpTo: null
+    };
+  }
 
-    render() {
-        const {classes} = this.props;
-        const {color, theme, open } = this.state;
-        return (
-            <MuiThemeProvider theme={createMuiTheme({palette: {primary: color, type: theme}})}>
-                <div style={{display: 'flex', width: '100%', height: '100%',
-                    backgroundColor: theme === 'dark' ? '#303030' : '#fff'}}>
-                    {this.drawerMenu()}
-                    {this.appBar()}
-                    <div className={classNames(classes.content, {[classes.contentShift]: open})}>
-                        {this.getContent()}
-                    </div>
-                    {this.snackBar()}
-                </div>
-            </MuiThemeProvider>
-        );
-    }
+  render() {
+    const { classes } = this.props;
+    const { color, theme, open } = this.state;
+    return (
+      <MuiThemeProvider
+        theme={createMuiTheme({ palette: { primary: color, type: theme } })}
+      >
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            height: "100%",
+            backgroundColor: theme === "dark" ? "#303030" : "#fff"
+          }}
+        >
+          {this.drawerMenu()}
+          {this.appBar()}
+          <div
+            className={classNames(classes.content, {
+              [classes.contentShift]: open
+            })}
+          >
+            {this.getContent()}
+          </div>
+          {this.snackBar()}
+        </div>
+      </MuiThemeProvider>
+    );
+  }
+  jumpToSet(c, s) {
+    this.setState({
+      classToJumpTo: c,
+      setToJumpTo: s,
+      section: "My Classes"
+    });
+  }
+  jumpToClass(c) {
+    this.setState({
+      classToJumpTo: c,
+      setToJumpTo: null,
+      section: "My Classes"
+    });
+  }
+  // ============================== Methods that return parts of what is rendered ==========================
+  listItem(Icon, text) {
+    // This method helps return a list of items for the menu
+    let { color, theme } = this.state;
+    let selected = this.state.section === text;
+    return (
+      <ListItem
+        button
+        classes={{ root: "avo-menu__item" }}
+        selected={selected}
+        onClick={() => this.setState({ section: text, classToJumpTo: null, setToJumpTo: null })}
+        style={{ backgroundColor: selected ? color.main : undefined }}
+      >
+        <Icon
+          nativeColor={
+            selected && theme === "light"
+              ? "white"
+              : theme === "dark"
+              ? "white"
+              : "rgba(0,0,0,0.5)"
+          }
+        />
+        <ListItemText
+          primary={<div style={{ color: selected ? "white" : "" }}>{text}</div>}
+        />
+      </ListItem>
+    );
+  }
 
-    // ============================== Methods that return parts of what is rendered ==========================
-    listItem(Icon, text) {
-        // This method helps return a list of items for the menu
-        let {color, theme} = this.state;
-        let selected = this.state.section === text;
-        return (
-            <ListItem
-                button
-                classes={{root: 'avo-menu__item'}}
-                selected={selected}
-                onClick={() => this.setState({section: text})}
-                style={{ backgroundColor: selected ? color.main : undefined }}
+  snackBar() {
+    // This helper method returns the logic for pop ups which are called snackBars
+    return (
+      <Snackbar
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        open={this.state.snackBar_isOpen}
+        autoHideDuration={this.state.snackBar_hideDuration}
+        onClose={() => this.setState({ snackBar_isOpen: false })}
+      >
+        <MySnackbarContentWrapper
+          onClose={() => this.setState({ snackBar_isOpen: false })}
+          variant={this.state.snackBar_variant}
+          message={this.state.snackBar_message}
+        />
+      </Snackbar>
+    );
+  }
+
+  drawerMenu() {
+    // this method returns the left side menu
+    const { classes } = this.props;
+    const { color, theme, open, isTeacher } = this.state;
+    return (
+      <Drawer
+        variant="persistent"
+        anchor="left"
+        open={open}
+        classes={{ paper: classes.drawerPaper }}
+      >
+        <div className="avo-drawer__with-logo">
+          <Logo
+            theme={theme}
+            color={color}
+            style={{ width: "80%", marginLeft: "10%", marginTop: "5%" }}
+          />
+          <Divider />
+          <div style={{ overflowY: "auto" }}>
+            <List
+              subheader={isTeacher && <ListSubheader>Student Tools</ListSubheader>}
             >
-                <Icon nativeColor={selected && theme === 'light' ? 'white' : theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)'}/>
-                <ListItemText primary={<div style={{color: selected ? 'white' : ''}}>{text}</div>} />
-            </ListItem>
-        );
-    }
-
-    snackBar(){
-        // This helper method returns the logic for pop ups which are called snackBars
-        return (
-             <Snackbar
-                 anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                 open={this.state.snackBar_isOpen}
-                 autoHideDuration={this.state.snackBar_hideDuration}
-                 onClose={() => this.setState({snackBar_isOpen: false})}
-             >
-                 <MySnackbarContentWrapper
-                     onClose={() => this.setState({snackBar_isOpen: false})}
-                     variant={this.state.snackBar_variant}
-                     message={this.state.snackBar_message}
-                 />
-             </Snackbar>
-        )
-    }
-
-    drawerMenu(){
-        // this method returns the left side menu
-        const { classes } = this.props;
-        const {color, theme, open, isTeacher } = this.state;
-        return (
-            <Drawer
-                variant='persistent'
-                anchor='left'
-                open={open}
-                classes={{paper: classes.drawerPaper}}
-            >
-                <div className='avo-drawer__with-logo'>
-                    <Logo theme={theme} color={color} style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}/>
-                    <Divider/>
-                    <div style={{overflowY: 'auto'}}>
-                        <List subheader={isTeacher ? <ListSubheader>Student Tools</ListSubheader> : undefined}>
-                            {this.listItem(HomeOutlined, 'Home')}
-                            {this.listItem(ClassOutlined, 'My Classes')}
-                        </List>
-                        {isTeacher  // if it is the teacher then we will the buttons that is allowed for teachers
+              {this.listItem(HomeOutlined, "Home")}
+              {this.listItem(ClassOutlined, "My Classes")}
+            </List>
+              {isTeacher  // if it is the teacher then we will the buttons that is allowed for teachers
                             ? <div>
                                 <Divider/>
                                 <List subheader={<ListSubheader>Teacher Tools</ListSubheader>}>
@@ -212,32 +274,44 @@ class Layout extends Component {
         )
     }
 
-    appBar(){
-        // this helper returns the top bar and includes the logic for timer
-        const {open} = this.state;
-        const {classes} = this.props;
-        return (
-            <AppBar className={classNames(classes.appBar, {[classes.appBarShift]: open})}>
-                <Toolbar disableGutters>
-                    <IconButton style={{marginLeft: 12, marginRight: 20, color : 'white'}}
-                                onClick={() => this.setState({open: !open})}>
-                        <Menu/>
-                    </IconButton>
-                    <Typography variant='title' style={{color: 'white'}} noWrap>{this.state.name}</Typography>
-                    {this.timerInTopBar()}
-                </Toolbar>
-            </AppBar>
-        );
-    }
+  appBar() {
+    // this helper returns the top bar and includes the logic for timer
+    const { open } = this.state;
+    const { classes } = this.props;
+    return (
+      <AppBar
+        className={classNames(classes.appBar, { [classes.appBarShift]: open })}
+      >
+        <Toolbar disableGutters>
+          <IconButton
+            style={{ marginLeft: 12, marginRight: 20, color: "white" }}
+            onClick={() => this.setState({ open: !open })}
+          >
+            <Menu />
+          </IconButton>
+          <Typography variant="title" style={{ color: "white" }} noWrap>
+            {this.state.name}
+          </Typography>
+          {this.timerInTopBar()}
+        </Toolbar>
+      </AppBar>
+    );
+  }
 
     getContent() {
         // this helper returns the logic for what is loaded in the right side of the menu
         let {isTeacher, section, color, theme} = this.state;
         if (section === 'Home') return (<HomePage
-            showSnackBar = {this.showSnackBar.bind(this)}
-            isTeacher = {isTeacher}
+            jumpToClass={this.jumpToClass.bind(this)}
+            jumpToSet={this.jumpToSet.bind(this)}
+            color={this.state.color}
+            theme={this.state.theme}
+            showSnackBar={this.showSnackBar.bind(this)}
+            isTeacher={isTeacher}
         />);
         if (section === 'My Classes') return (<MyClasses
+            classToJumpTo={this.state.classToJumpTo}
+            setToJumpTo={this.state.setToJumpTo}
             showSnackBar = {this.showSnackBar.bind(this)}
             isTeacher = {isTeacher}
             startTest={cls => this.startTest(cls)}
@@ -300,7 +374,8 @@ class Layout extends Component {
         />);
         if (section === 'In Class Tools') return (<AVOInClassTools/>);
         if (section === 'Explanations') return (<AVOExplanations/>);
-        if (section === 'Tag Builder') return (<TagView/>)
+        if (section === 'Tag Builder') return (<TagView/>);
+        if (section === "Notify Class") return (<NotifyClass/>);
     }
 
     timerInTopBar(){
@@ -321,46 +396,53 @@ class Layout extends Component {
         return null;
     }
 
-    // ============================== Methods that perform some type of data manipulation =======================
+  // ============================== Methods that perform some type of data manipulation =======================
 
-    logout() {
-        Http.logout(() => this.props.logout());
-    }
+  logout() {
+    Http.logout(() => this.props.logout());
+  }
 
-    startCreateTest(cls) {
-        this.setState({section: 'Create Test', testCreator: cls});
-    }
+  startCreateTest(cls) {
+    this.setState({ section: "Create Test", testCreator: cls });
+  }
 
-    startTest(test) {
-        console.log(test);
-        Http.getTest(test.id, result => {
-			result.newAnswers = copy(result.answers);
-			this.setState({section: 'Take Test', test: result});
-		}, (result) => alert(result.error));
-    }
+  startTest(test) {
+    console.log(test);
+    Http.getTest(
+      test.id,
+      result => {
+        result.newAnswers = copy(result.answers);
+        this.setState({ section: "Take Test", test: result });
+      },
+      result => alert(result.error)
+    );
+  }
 
-    getTimeRemaining(minutesRemainingUponResumingTest, testDueDate) {
-        // When we hit the getTest route we need to know the time remaining we also have test due date in case
-        // it's an assignment because we would want to display that instead
-        this.setState({
-            minutesRemainingUponResumingTest: minutesRemainingUponResumingTest,
-            testDueDate: testDueDate
-        });
-    }
+  getTimeRemaining(minutesRemainingUponResumingTest, testDueDate) {
+    // When we hit the getTest route we need to know the time remaining we also have test due date in case
+    // it's an assignment because we would want to display that instead
+    this.setState({
+      minutesRemainingUponResumingTest: minutesRemainingUponResumingTest,
+      testDueDate: testDueDate
+    });
+  }
 
-    showSnackBar(variant, message, hideDuration) {
-        /**
-         * @param variant can be success, warning, error, info
-         * @param message is the message to display
-         * @param hideDuration is optional but it's the ms for the snackbar to show
-        **/
-        this.setState({
-            snackBar_isOpen: true,
-            snackBar_hideDuration: hideDuration === undefined ? this.state.snackBar_hideDuration : hideDuration,
-            snackBar_variant: variant,
-            snackBar_message: message
-        });
-    }
+  showSnackBar(variant, message, hideDuration) {
+    /**
+     * @param variant can be success, warning, error, info
+     * @param message is the message to display
+     * @param hideDuration is optional but it's the ms for the snackbar to show
+     **/
+    this.setState({
+      snackBar_isOpen: true,
+      snackBar_hideDuration:
+        hideDuration === undefined
+          ? this.state.snackBar_hideDuration
+          : hideDuration,
+      snackBar_variant: variant,
+      snackBar_message: message
+    });
+  }
 }
 
 export default withStyles(styles)(Layout);

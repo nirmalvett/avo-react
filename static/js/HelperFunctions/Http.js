@@ -52,7 +52,18 @@ export default class Http {
 	static createClass(name, success, failure) {
 		Http._request('POST', '/createClass', success, failure, {name});
 	}
-
+	static getMessages(classID, success, failure) {
+		Http._request('POST', '/getMessages', success, failure, {classID});
+	}
+	static addMessage(classID, title, body, success, failure) {
+		Http._request('POST', '/addMessage', success, failure, {classID, title, body});
+	}
+	static editMessage(messageID, title, body, success, failure) {
+		Http._request('POST', '/editMessage', success, failure, {messageID, title, body});
+	}
+	static deleteMessage(messageID, success, failure) {
+		Http._request('POST', '/deleteMessage', success, failure, {messageID});
+	}
 	static getClasses(success, failure) {
 		Http._request('GET', '/getClasses', success, failure);
 	}
@@ -178,6 +189,9 @@ export default class Http {
 		Http._request('POST', `/changeTest`, success, failure,
 				{test: test, timer:timer, name:name, deadline:deadline, attempts:attempts,  openTime: openTime});
 	};
+	static getHome(success, failure) {
+		Http._request('GET', '/home', success, failure);
+	}
 }
 
 function debugModeLog(type, url, data = '', http) {

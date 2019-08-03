@@ -5,7 +5,8 @@ from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
 from server.decorators import login_required, teacher_only, student_only, admin_only
-from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing
+from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message
+from server.helper_functions import alchemy_to_dict
 import paypalrestsdk
 import config
 
@@ -30,7 +31,14 @@ with open('server/SQL/student_tests_medians.sql', 'r') as sql:
     student_tests_medians = sql.read()
 with open('server/SQL/teacher_tests_medians.sql', 'r') as sql:
     teacher_tests_medians = sql.read()
-
+with open('server/SQL/student_messages.sql', 'r') as sql:
+    student_messages = sql.read()
+with open('server/SQL/teacher_messages.sql', 'r') as sql:
+    teacher_messages = sql.read()
+with open('server/SQL/student_due_dates.sql', 'r') as sql:
+    student_due_dates = sql.read()
+with open('server/SQL/teacher_due_dates.sql', 'r') as sql:
+    teacher_due_dates = sql.read()
 
 # Routes for managing classes
 
@@ -54,6 +62,70 @@ def create_class():
     db.session.add(new_class)
     db.session.commit()
     return jsonify(message='Created!')
+
+
+@ClassRoutes.route('/home')
+@login_required
+def home():
+    # get list of due dates objects
+
+    due_dates = []  # Result of the due date SQL calls
+
+    due_dates += db.session.execute(text(student_due_dates),
+                                    params={'user': current_user.USER}).fetchall()
+
+    if current_user.is_teacher:
+        # If the user is a teacher run a teacher due dates SQL call
+        due_dates += db.session.execute(text(teacher_due_dates),
+                                        params={'user': current_user.USER}).fetchall()
+
+    return_due_dates = []  # Return data for due dates
+    current_list_due_dates = []  # Due dates of current indexed class
+    current_class_data = {"name": due_dates[0].name, "id": due_dates[0].CLASS}
+    current_class = due_dates[0].CLASS  # Current class of indexed due dates
+
+    for due_date in due_dates:
+        # For each due date index to list
+        if current_class != due_date.CLASS:
+            # If the its a new class then move the messages in
+            return_due_dates.append({"class": current_class_data, "dueDates": current_list_due_dates})
+            current_class_data = {"name": due_date.name, "id": due_date.CLASS}
+            current_list_due_dates = []
+            current_class = due_date.CLASS
+
+        current_list_due_dates.append({'name': due_date.name, 'dueDate': due_date.deadline,
+                                      'id': due_date.TEST})
+    return_due_dates.append({"class": current_class_data, "messages": current_list_due_dates})
+
+    messages = []  # Messages returned by the SQL query
+
+    messages += db.session.execute(text(student_messages),
+                                   params={'user': current_user.USER}).fetchall()
+
+    if current_user.is_teacher:
+        # If the current user is a teacher add the teacher result
+        messages += db.session.execute(text(teacher_messages),
+                                       params={'user': current_user.USER}).fetchall()
+    # Get list of messages
+    return_messages = []  # Messages to return to the client
+    current_list_messages = []  # Current messages from the class
+    current_class_data = {"name": messages[0].name, "id": messages[0].CLASS}
+    current_class = messages[0].CLASS  # Current class info
+
+    for message in messages:
+        # For each message result add it to the JSON
+        if current_class != message.CLASS:
+            # If the its a new class then move the messages in
+            return_messages.append({"class": current_class_data, "messages": current_list_messages})
+            current_class_data = {"name": message.name, "id": message.CLASS}
+            current_list_messages = []
+            current_class = message.CLASS
+
+        current_list_messages.append({'title': message.title, 'body': message.body,
+                                      'date': message.date_created})
+    return_messages.append({"class": current_class_data, "messages": current_list_messages})
+
+    return jsonify(messages=return_messages, dueDates=return_due_dates)
 
 
 @ClassRoutes.route('/getClasses')
@@ -553,7 +625,115 @@ def unenroll():
     return jsonify(error="user is not enrolled in class")
 
 
-# Helper methods
+@ClassRoutes.route('/getMessages', methods=['POST'])
+@teacher_only
+def get_messages():
+    """
+    Get list of all messages for a given class
+    :return: List of messages given the class ID
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json  # Data from the client
+    class_id = data['classID']  # ID of class to get messages of
+
+    if not isinstance(class_id, int):
+        # If the class ID is not an integer return error JSON
+        return jsonify(error="One or more types not correct")
+    if not teaches_class(class_id):
+        # If the teacher does not teach the calss return error JSON
+        return jsonify(error="user does not teach class")
+
+    messages = Message.query.filter(Message.CLASS == class_id).all()  # All messages of the class
+    print(alchemy_to_dict(messages))
+    return jsonify(messages=alchemy_to_dict(messages))
+
+
+@ClassRoutes.route('/addMessage', methods=['POST'])
+@teacher_only
+def add_message():
+    """
+    Add message to the class
+    :return: Confirmation that message has been created
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json
+    class_id, title, body = data['classID'], data['title'], data['body']
+
+    if not isinstance(class_id, int) or not isinstance(title, str) or not isinstance(body, str):
+        return jsonify(error="One or more types are not correct")
+
+    if not teaches_class(class_id):
+        # if class does not exist or class is not taught return error JSON
+        return jsonify(error="User does not teach class")
+    new_message = Message(class_id, title, body, datetime.now())  # New message to add to database
+    # Commit to database
+    db.session.add(new_message)
+    db.session.commit()
+    return jsonify(code="Message Created")
+
+
+@ClassRoutes.route("/deleteMessage", methods=["POST"])
+@teacher_only
+def delete_message():
+    if not request.json:
+        return abort(400)
+
+    data = request.json
+    message = data['messageID']
+
+    if not isinstance(message, int):
+        # Data types dont match return error JSON
+        return jsonify(error="one or more types are not correct")
+
+    current_message = Message.query.get(message)  # Message to remove
+    if message is None:
+        # If no message is found return error JSON
+        return jsonify(error="Message not found")
+    if not teaches_class(current_message.CLASS):
+        # If user does not teach class return error JSON
+        return jsonify(error="User does not teach class")
+    # Remove message from database
+    db.session.delete(current_message)
+    db.session.commit()
+    return jsonify(code="Message deleted")
+
+
+@ClassRoutes.route("/editMessage", methods=['POST'])
+@teacher_only
+def edit_message():
+    """
+    Edit an already existing message
+    :return: Confirmation that the message has been changed
+    """
+    if not request.json:
+        return abort(400)
+
+    data = request.json  # Data from client
+    message_id, title, body = data['messageID'], data['title'], data['body']
+
+    if not isinstance(message_id, int) or not isinstance(title, str) or not isinstance(body, str):
+        # Data doesnt match datatype return error JSON
+        return jsonify(error="One or more data type is incorrect")
+
+    message = Message.query.get(message_id)  # Message to updated
+
+    if message is None:
+        # No message was found return error JSON
+        return jsonify(error="No Message was found")
+
+    # Update the message and update on database
+    message.title = title
+    message.body = body
+    db.session.commit()
+
+    return jsonify(code="Message Updated")
+
+
+"""Helper Methods"""
 
 
 def time_stamp(t):
