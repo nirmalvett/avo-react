@@ -1,7 +1,6 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { Typography, ListItem, List } from "@material-ui/core";
 import { isChrome } from "../HelperFunctions/Helpers";
-import PropTypes from "prop-types";
 import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -14,14 +13,17 @@ import CardContent from "@material-ui/core/CardContent";
 import "react-infinite-calendar/styles.css"; // Make sure to import the default stylesheet
 import * as uniqid from "uniqid";
 import * as moment from "moment";
-import * as Models from "../Models/";
+import {
+  DueDate,
+  DueDatesResponse,
+  GetHomeResponse,
+  HomescreenProps,
+  HomescreenState,
+  MessagesResponse,
+  Notfication
+} from '../Models';
 // Or import the input component
-var today = new Date();
-var lastWeek = new Date(
-  today.getFullYear(),
-  today.getMonth(),
-  today.getDate() - 7
-);
+let today = new Date();
 function TabContainer(props): any {
   return (
     <Typography component="div" style={{ padding: 8 * 3 }}>
@@ -30,11 +32,8 @@ function TabContainer(props): any {
   );
 }
 
-export default class HomePage extends Component<
-  Models.HomescreenProps,
-  Models.HomescreenState
-> {
-  state: Models.HomescreenState = {
+export default class HomePage extends Component<HomescreenProps, HomescreenState> {
+  state: HomescreenState = {
     selectedDate: new Date(),
     notifications: [],
     dueDates: [],
@@ -56,41 +55,52 @@ export default class HomePage extends Component<
       weekdayColor: this.props.color["200"]
     }
   };
-  constructor(props: Models.HomescreenProps) {
+  constructor(props: HomescreenProps) {
     super(props);
     console.log(this.props.color);
   }
   componentWillMount() {
-    this.getHome();
+    Http.getHome(
+      (response: GetHomeResponse) => {
+        console.log(response);
+        this.setState({
+          dueDates: response.dueDates,
+          notifications: response.messages
+        });
+      },
+      error => {
+        console.log(error);
+      }
+    );
   }
 
   render() {
     const { value } = this.state;
-    const notifications = this.state.notifications.map((notification: Models.MessagesResponse, i) => {
+    const notifications = this.state.notifications.map((notification: MessagesResponse) => {
       return (
-        <div key={uniqid()}>
+        <div>
           <ListItem
             button
             onClick={() => this.props.jumpToClass(notification.class.id)}
           >
-            <Typography variant="display1" color="textPrimary">
+            <Typography variant="h4" color="textPrimary">
               {notification.class.name + ":"}
             </Typography>
           </ListItem>
 
           <br />
-          {notification.messages.map((notificationMsg: Models.Notfication) => (
+          {notification.messages.map((notificationMsg: Notfication) => (
             <div
               key={uniqid()}
               onClick={() => this.props.jumpToClass(notification.class.id)}
             >
               <ListItem button>
-                <Typography variant="title" color="textPrimary">
+                <Typography variant="h4" color="textPrimary">
                   {notificationMsg.title}
                 </Typography>
               </ListItem>
               <ListItem button>
-                <Typography variant="subheading" color="textPrimary">
+                <Typography variant="body1" color="textPrimary">
                   {notificationMsg.body}
                 </Typography>
               </ListItem>
@@ -101,10 +111,10 @@ export default class HomePage extends Component<
         </div>
       );
     });
-    const dueDates = this.state.dueDates.map((dd: Models.DueDatesResponse, i) => {
-      let datesToShow: Models.DueDate[] = [];
+    const dueDates = this.state.dueDates.map((dd: DueDatesResponse, i) => {
+      let datesToShow: DueDate[] = [];
       if (dd.dueDates !== undefined) {
-        datesToShow = dd.dueDates.filter((dueDate: Models.DueDate) =>
+        datesToShow = dd.dueDates.filter((dueDate: DueDate) =>
           moment(new Date(dueDate.dueDate.substring(0, 16)))
             .endOf("day")
             .isSame(moment(this.state.selectedDate).endOf("day"))
@@ -113,19 +123,19 @@ export default class HomePage extends Component<
       return (
         <List key={i}>
           <ListItem button onClick={() => this.props.jumpToClass(dd.class.id)}>
-            <Typography variant="display1" color="textPrimary">
+            <Typography variant="h4" color="textPrimary">
               {dd.class.name + ":"}
             </Typography>
           </ListItem>
           <br />
           {datesToShow.length > 0 ? (
-            datesToShow.map((dueDate: Models.DueDate) => (
+            datesToShow.map((dueDate: DueDate) => (
               <ListItem
                 key={uniqid()}
                 button
                 onClick={() => this.props.jumpToSet(dd.class.id, dueDate.id)}
               >
-                <Typography variant="subheading" color="textPrimary">
+                <Typography variant="body1" color="textPrimary">
                   {dueDate.name + " - " + dueDate.dueDate}
                 </Typography>
               </ListItem>
@@ -135,7 +145,7 @@ export default class HomePage extends Component<
               button
               onClick={() => this.props.jumpToClass(dd.class.id)}
             >
-              <Typography variant="subheading" color="textPrimary">
+              <Typography variant="body1" color="textPrimary">
                 {"No due dates today"}
               </Typography>
             </ListItem>
@@ -187,7 +197,6 @@ export default class HomePage extends Component<
                       <div>
                         <AppBar position="static" color="default">
                           <Tabs
-                            scrollable={true}
                             value={value}
                             onChange={(value, event) =>
                               this.changeTab(value, event)
@@ -252,20 +261,6 @@ export default class HomePage extends Component<
   }
   changeTab(event, value) {
     this.setState({ value: value });
-  }
-  getHome() {
-    Http.getHome(
-      (response: Models.GetHomeResponse) => {
-        console.log(response);
-        this.setState({
-          dueDates: response.dueDates,
-          notifications: response.messages
-        });
-      },
-      error => {
-        console.log(error);
-      }
-    );
   }
   handleDateChange(date) {
     this.setState({ selectedDate: new Date(date) });

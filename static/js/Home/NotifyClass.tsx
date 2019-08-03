@@ -50,7 +50,7 @@ export default class NotifyClass extends Component<{}, Models.NotifyClassState> 
                   value={this.state.selectedClassName}
                   input={<Input name="data" id="select-class" />}
                   onChange={e =>
-                    this.setState({ selectedClassName: e.target.value }, () => this.getMessages())
+                    this.setState({ selectedClassName: e.target.value as string }, () => this.getMessages())
                   }
                 >
                   {this.state.classNames.map((c, i) => (
