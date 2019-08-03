@@ -10,7 +10,8 @@
   "scripts": {
     "build": "webpack --progress --config webpack.config.js",
     "dev-build": "webpack --progress -d --config webpack.config.js",
-    "watch": "webpack --progress -d --config webpack.config.js --watch"
+    "watch": "webpack --progress -d --config webpack.config.js --watch",
+    "prettier": "prettier --write js/**/*.ts js/**/*.tsx"
   },
   "author": "AvocadoCore",
   "devDependencies": {
@@ -56,6 +57,7 @@
     "npm": "^6.10.2",
     "paypal-checkout": "4.0.239",
     "prop-types": "latest",
+    "prettier": "1.18.2",
     "react": "^16.8.0",
     "react-apexcharts": "1.0.10",
     "react-dom": "^16.8.0",
