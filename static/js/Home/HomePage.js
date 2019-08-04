@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Typography } from '@material-ui/core';
-import { isChrome } from "../HelperFunctions/helpers";
-import TagBuilder from '../CourseBuilder/TagBuilder/TagBuilder'
+import { isChrome } from "../HelperFunctions/Helpers";
+
 
 export default class HomePage extends Component {
     render() {

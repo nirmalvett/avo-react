@@ -6,7 +6,7 @@ import {getMathJax} from "../HelperFunctions/Utilities";
 import Divider from "@material-ui/core/Divider/Divider";
 import AnswerInput from "../AnswerInput/AnswerInput";
 import Typography from "@material-ui/core/Typography/Typography";
-import {uniqueKey} from "../HelperFunctions/helpers";
+import {uniqueKey} from "../HelperFunctions/Helpers";
 
 export default class PostTest extends React.Component {
     constructor(props) {

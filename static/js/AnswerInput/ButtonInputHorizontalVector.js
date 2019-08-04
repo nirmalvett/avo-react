@@ -16,7 +16,7 @@ import {
 } from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar';
 import Slide from '@material-ui/core/Slide';
-import { objectSize } from "../HelperFunctions/helpers";
+import { objectSize } from "../HelperFunctions/Helpers";
 import Typography from '@material-ui/core/Typography/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 

@@ -97,9 +97,9 @@ export default class Http {
 		Http._request('POST', '/getTest', success, failure, {test});
 	}
 
-	static saveTest(classID, name, deadline, timer, attempts, questionList, seedList, success, failure) {
+	static saveTest(classId, name, deadline, timer, attempts, questionList, seedList, openTime, success, failure, ) {
 		Http._request('POST', '/saveTest', success, failure,
-				{classID, name, deadline, timer, attempts, questionList, seedList});
+				{classId, name, deadline, timer, attempts, questionList, seedList, openTime});
 	}
 
 	static saveAnswer(takes, question, answer, success, failure) {
@@ -174,9 +174,9 @@ export default class Http {
 		Http._request('POST', `/passwordReset/${token}`, success, failure, {password: password});
 	};
 
-	static changeTest(test, timer, name, deadline, attempts, success, failure) {
+	static changeTest(test, timer, name, deadline, openTime, attempts, success, failure) {
 		Http._request('POST', `/changeTest`, success, failure,
-				{test: test, timer:timer, name:name, deadline:deadline, attempts:attempts});
+				{test: test, timer:timer, name:name, deadline:deadline, attempts:attempts,  openTime: openTime});
 	};
 
 	static getLessons(success, failure) {

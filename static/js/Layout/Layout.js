@@ -8,7 +8,7 @@ import MarkEditor from '../ManageClasses/MarkEditor';
 import TakeTest from '../MyClasses/TakeTest';
 import MyClasses from '../MyClasses/MyClasses';
 import Timer from "../MyClasses/TimerComp";
-import CreateTest from '../ManageClasses/CreateTest';
+import CreateTest from '../ManageClasses/CreateTest/CreateTest';
 import Preferences from '../Preferences/Preferences';
 import ManageClasses from '../ManageClasses/ManageClasses';
 import QuestionManager from "../CourseBuilder/QuestionBuilder/QuestionManager";
@@ -254,12 +254,13 @@ class Layout extends Component {
             postTest={takes => {this.setState({postTest: takes, section: 'Post Test'})}}
             markEditor={takes => {this.setState({markEditor: takes, section: 'Mark Editor'})}}
         />);
-        if (section === 'Create Test') return (<CreateTest
-            showSnackBar = {this.showSnackBar.bind(this)}
-            isTeacher = {isTeacher}
-            classID={this.state.testCreator}
-            onCreate={() => this.setState({section: 'Manage Classes'})}
-        />);
+        if (section === 'Create Test') return (
+            <CreateTest
+                showSnackBar = {this.showSnackBar.bind(this)}
+                isTeacher = {isTeacher}
+                classID={this.state.testCreator}
+                onCreate={() => this.setState({section: 'Manage Classes'})}/>
+        );
         if (section === 'My Questions') return (<QuestionManager
             showSnackBar = {this.showSnackBar.bind(this)}
             theme={createMuiTheme({palette: {primary: color, type: theme}})}

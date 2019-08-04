@@ -77,7 +77,7 @@ def confirm(token):
     user = User.query.filter(User.email == email).first()  # get user from the email
     if user is None:
         # If there is no user found return an error
-        return "There is no account associated with the email in that token"
+        return "There is no accounts associated with the email in that token"
 
     if not user.confirmed:
         # If the user is not confirm confirm then and commit to database
