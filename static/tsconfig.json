@@ -1,18 +1,27 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "*": [
-        "types/*"
-      ]
-    },
-    "outDir": "./dist/",
+    "allowJs":  true,
     "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "module": "es6",
-    "target": "es6",
+    "baseUrl": "js",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
     "jsx": "react",
-    "allowJs": true
-  }
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "module": "es6",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "outDir": "./dist/",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es6"
+  },
+  "include": [
+    "js"
+  ]
 }
