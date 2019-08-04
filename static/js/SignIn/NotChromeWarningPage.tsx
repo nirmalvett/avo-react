@@ -1,4 +1,4 @@
-import React, {Component, ReactElement} from 'react';
+import React, {ReactElement} from 'react';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import Typography from '@material-ui/core/Typography/Typography';
