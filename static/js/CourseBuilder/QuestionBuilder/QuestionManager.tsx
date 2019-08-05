@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from 'react';
-import {List, Paper, Divider, ListItem, IconButton, ListItemText} from '@material-ui/core';
+import {List, Paper, Divider, ListItem, IconButton, ListItemText, ListItemIcon} from '@material-ui/core';
 import {
     Add,
     Lock,
@@ -167,9 +167,10 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                                     button
                                     onClick={this.pasteQuestion.bind(this)}
                                 >
-                                    <PasteIcon color='action' />
+                                    <ListItemIcon>
+                                        <PasteIcon color='action' />
+                                    </ListItemIcon>
                                     <ListItemText
-                                        inset
                                         secondary={
                                             this.state.sets[this.state.copiedQ[0]].questions[
                                                 this.state.copiedQ[1]
@@ -182,8 +183,10 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                                     button
                                     onClick={() => this.setState({copiedQ: null})}
                                 >
-                                    <Delete color='action' />
-                                    <ListItemText inset secondary='Clear Clipboard' />
+                                    <ListItemIcon>
+                                        <Delete color='action' />
+                                    </ListItemIcon>
+                                    <ListItemText secondary='Clear Clipboard' />
                                 </ListItem>
                             </Fragment>
                         ) : null}
@@ -191,8 +194,10 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                             <Fragment>
                                 <Divider />
                                 <ListItem key='paste'>
-                                    <Warning color='action' />
-                                    <ListItemText inset secondary='This set is locked' />
+                                    <ListItemIcon>
+                                        <Warning color='action' />
+                                    </ListItemIcon>
+                                    <ListItemText secondary='This set is locked' />
                                 </ListItem>
                             </Fragment>
                         ) : null}
@@ -222,12 +227,14 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
         let {selectedS} = this.state;
         return this.state.sets.map((set, index) => (
             <ListItem key={set.id + '-' + index} button onClick={() => this.selectSet(index)}>
-                {set.can_edit ? (
-                    <Folder color={selectedS === index ? 'primary' : 'action'} />
-                ) : (
-                    <Lock color={selectedS === index ? 'primary' : 'action'} />
-                )}
-                <ListItemText inset primary={set.name} />
+                <ListItemIcon>
+                    {set.can_edit ? (
+                        <Folder color={selectedS === index ? 'primary' : 'action'} />
+                    ) : (
+                        <Lock color={selectedS === index ? 'primary' : 'action'} />
+                    )}
+                </ListItemIcon>
+                <ListItemText primary={set.name} />
             </ListItem>
         ));
     }
@@ -240,8 +247,10 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                     button
                     onClick={() => this.selectQuestion(index)}
                 >
-                    <QuestionIcon color={this.state.selectedQ === index ? 'primary' : 'action'} />
-                    <ListItemText inset secondary={question.name} />
+                    <ListItemIcon>
+                        <QuestionIcon color={this.state.selectedQ === index ? 'primary' : 'action'} />
+                    </ListItemIcon>
+                    <ListItemText secondary={question.name} />
                 </ListItem>
             ));
     }
