@@ -144,7 +144,7 @@ def tag_mastery():
 @login_required
 def get_lessons():
     """
-    Get list of lessons for client with the tags associated with them and the lesson string
+    Get list of lessons for client with the tags associated with them and the lesson string and ID
     :return: Array of lessons with the ID tag associated with lesson and lesson string
     """
     return jsonify(lessons=[{"ID": 1, "Tag": "Vectors", "mastery": 0.5, "string": "this is a test string"},
@@ -154,7 +154,18 @@ def get_lessons():
                             {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
                             {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
                             {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-                            {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "mastery" : 0.76, "string": "this is a test string"}])
+                            {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "mastery": 0.76, "string": "this is a test string"}])
+
+
+@TagRoutes.route("getLessonData", methods=["POST"])
+@login_required
+def get_lesson_data():
+    """
+    Given a Lesson ID return Lesson string and questions
+    :return: Lesson string and question Ids a strings
+    """
+    return jsonify(String="This is the lesson string yaw yeet boys", questions=[{"ID": 5, "prompt":"If \\(\\vec u=\\left(-2, 2\\right)\\) and \\(\\vec v=\\left(4, 5\\right)\\), find \\(2\\vec u-3\\vec v\\).","prompts":[""],"types":["6"]},
+                                                                                {"ID": 8, "prompt":"If \\(\\vec u=\\left(-2, 2\\right)\\) and \\(\\vec v=\\left(4, 5\\right)\\), find \\(2\\vec u-3\\vec v\\).","prompts":[""],"types":["6"]}])
 
 
 def alchemy_to_dict(obj):
