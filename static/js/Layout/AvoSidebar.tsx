@@ -10,6 +10,7 @@ import {
     ListItem,
     ListItemText,
     ListSubheader,
+    ListItemIcon,
 } from '@material-ui/core';
 import {
     HomeOutlined,
@@ -107,52 +108,61 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                 <Divider />
                 <List>
                     {this.listItem(SettingsOutlined, 'Preferences')}
-                    <ListItem
-                        button
-                        onClick={() => this.logout()}
-                        classes={{root: 'avo-menu__item', selected: 'selected'}}
-                    >
-                        <ExitToAppOutlined color='action' />
-                        <ListItemText primary='Logout' />
-                    </ListItem>
+                    <SidebarListItem
+                        section={this.props.section}
+                        Icon={ExitToAppOutlined}
+                        color={this.props.color}
+                        onClick={this.logout}
+                        text='Logout'
+                        theme={this.props.theme}
+                    />
                 </List>
             </div>
         );
     }
 
     listItem(Icon: SvgIconComponent, text: Section) {
-        // This method helps return a list of items for the menu
-        const color = this.props.color;
-        const theme = this.props.theme;
-        let selected = this.props.section === text;
         return (
-            <ListItem
-                button
-                classes={{root: 'avo-menu__item'}}
-                selected={selected}
+            <SidebarListItem
+                section={this.props.section}
                 onClick={() => this.props.onClick(text)}
-                style={{backgroundColor: selected ? color['500'] : undefined}}
-            >
-                <Icon
-                    style={{
-                        color:
-                            selected && theme === 'light'
-                                ? 'white'
-                                : theme === 'dark'
-                                ? 'white'
-                                : 'rgba(0,0,0,0.5)',
-                    }}
-                />
-                <ListItemText
-                    primary={<div style={{color: selected ? 'white' : ''}}>{text}</div>}
-                />
-            </ListItem>
+                Icon={Icon}
+                color={this.props.color}
+                theme={this.props.theme}
+                text={text}
+            />
         );
     }
 
-    logout() {
-        Http.logout(() => this.props.logout(), () => undefined);
-    }
+    logout = () => Http.logout(() => this.props.logout(), () => undefined);
+}
+
+interface SidebarListItemProps {
+    section: Section
+    Icon: SvgIconComponent;
+    color: {'500': string};
+    onClick: () => void;
+    text: string;
+    theme: 'dark' | 'light';
+}
+
+function SidebarListItem({section, Icon, color, theme, onClick, text}: SidebarListItemProps) {
+    const selected = section === text;
+    const bg = selected || theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)';
+    return (
+        <ListItem
+            button
+            classes={{root: 'avo-menu__item'}}
+            selected={selected}
+            onClick={onClick}
+            style={{backgroundColor: selected ? color['500'] : undefined}}
+        >
+            <ListItemIcon>
+                <Icon style={{color: bg}} />
+            </ListItemIcon>
+            <ListItemText primary={<div style={{color: selected ? 'white' : ''}}>{text}</div>} />
+        </ListItem>
+    );
 }
 
 export default withStyles(styles)(AvoSidebar);

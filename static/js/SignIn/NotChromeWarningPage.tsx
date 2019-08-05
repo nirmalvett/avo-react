@@ -17,16 +17,14 @@ export default function NotChromeWarningPage(): ReactElement {
                 }}
             >
                 <Typography>
-                    Oops it looks like you are not using Google Chrome. AVO is currently
-                    only optimized and tested for Chrome. We promise to work on the other
-                    browsers in the future, but for the time being you will only be able to
-                    access AVO with Chrome.
+                    Oops it looks like you are not using Google Chrome. AVO is currently only
+                    optimized and tested for Chrome. We promise to work on the other browsers in the
+                    future, but for the time being you will only be able to access AVO with Chrome.
                 </Typography>
                 <br />
                 <br />
                 <Typography>
-                    To download Chrome{' '}
-                    <a href='https://www.google.com/chrome/'>click here</a>
+                    To download Chrome <a href='https://www.google.com/chrome/'>click here</a>
                 </Typography>
             </Card>
         </div>

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Http, {UserResponse} from './HelperFunctions/Http';
-import Layout from './Layout/Layout.js';
-import SignIn from './SignIn/SignIn.js';
+import Layout from './Layout/Layout';
+import SignIn from './SignIn/SignIn';
 import MomentUtils from '@date-io/moment';
 import PasswordResetPage from './SignIn/PasswordReset';
 import {isChrome, isSafari} from './HelperFunctions/Helpers';
