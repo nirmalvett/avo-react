@@ -1,4 +1,4 @@
-from flask import redirect, url_for, abort
+from flask import redirect, url_for, abort, request, jsonify
 from flask_login import current_user
 from functools import wraps
 
@@ -86,3 +86,41 @@ def admin_only(f):
         else:
             return f(*args, **kwargs)
     return decorated_function
+
+
+def validate(**types):
+    def decorator(f):
+
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if request.method == 'POST':
+                if not request.json:
+                    return jsonify(schema=describe(types), errors=['No JSON data attached']), 400
+                errors = find_errors(types, request.json, kwargs)
+                if errors is not None:
+                    return jsonify(schema=describe(types), errors=errors), 400
+            else:
+                for _name in types:
+                    kwargs[_name] = None
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+
+def describe(types):
+    schema = {}
+    for _name, _type in types.items():
+        schema[_name] = _type.__name__
+    return schema
+
+
+def find_errors(types, json, kwargs):
+    errors = []
+    for _name, _type in types.items():
+        if _name not in json:
+            errors.append(f'{_name} is missing from query')
+        elif not isinstance(json[_name], _type):
+            errors.append(f'{_name} is of the wrong type, expected {_type.__name__}')
+        else:
+            kwargs[_name] = json[_name]
+    return errors or None
