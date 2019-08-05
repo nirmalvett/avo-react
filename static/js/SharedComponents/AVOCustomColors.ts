@@ -1,0 +1,46 @@
+import {
+    amber,
+    blue,
+    blueGrey,
+    brown,
+    cyan,
+    deepOrange,
+    deepPurple,
+    green,
+    grey,
+    indigo,
+    lightBlue,
+    lightGreen,
+    orange,
+    pink,
+    purple,
+    red,
+    teal,
+} from '@material-ui/core/colors';
+
+export const avoGreen = {
+    '100': '#59e105',
+    '200': '#45af04',
+    '500': '#399103',
+};
+
+export const colorList = [
+    red,
+    pink,
+    purple,
+    deepPurple,
+    indigo,
+    blue,
+    lightBlue,
+    cyan,
+    teal,
+    avoGreen,
+    green,
+    lightGreen,
+    amber,
+    orange,
+    deepOrange,
+    brown,
+    grey,
+    blueGrey,
+];

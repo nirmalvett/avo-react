@@ -75,16 +75,10 @@ class App extends Component<AppProps, AppState> {
         } else if (this.state.authenticated) {
             return (
                 <Layout
-                    setTheme={(color: number, theme: 'light' | 'dark') =>
-                        this.setState({user: {...u, color, theme}})
-                    }
+                    setColor={(color: number) => this.setState({user: {...u, color}})}
+                    setTheme={(theme: 'light' | 'dark') => this.setState({user: {...u, theme}})}
                     logout={() => this.setState({authenticated: false})}
-                    firstName={u.firstName}
-                    lastName={u.lastName}
-                    isTeacher={u.isTeacher}
-                    isAdmin={u.isAdmin}
-                    color={u.color}
-                    theme={u.theme}
+                    {...u}
                 />
             );
         } else {

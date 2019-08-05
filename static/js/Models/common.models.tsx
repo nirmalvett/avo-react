@@ -4,6 +4,7 @@ export interface Class {
     name: string;
     tests: Test[];
 }
+
 export interface Test {
     attempts: number;
     classAverage: number;
@@ -17,6 +18,7 @@ export interface Test {
     standardDeviation: number;
     submitted: SubmittedTest[];
 }
+
 export interface SubmittedTest {
     grade: number;
     takes: number;

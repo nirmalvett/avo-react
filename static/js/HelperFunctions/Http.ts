@@ -15,6 +15,58 @@ export interface UserResponse {
     theme: boolean;
 }
 
+export interface ClassesResponse {
+    classes: {
+        id: number;
+        enrollKey: string;
+        name: string;
+        tests: {
+            id: number;
+            name: string;
+            open: number;
+            open_time: never;
+            deadline: never;
+            timer: number;
+            attempts: number;
+            total: number;
+            submitted: {
+                takes: number;
+                timeSubmitted: never;
+                grade: number;
+            }[];
+            current: null | {
+                timeStarted: never;
+                timeSubmitted: never;
+            };
+            classAverage: number;
+            classMedian: number;
+            classSize: number;
+            standardDeviation: number;
+        }[];
+    }[];
+}
+
+export interface TestResponse {
+    takes: number;
+    time_submitted: number;
+    answers: string[][];
+    questions: {
+        prompt: string;
+        prompts: string[];
+        types: number[];
+    };
+}
+
+export interface MessagesResponse {
+    messages: {
+        MESSAGE: number;
+        CLASS: number;
+        title: string;
+        body: string;
+        date_created: never;
+    }[];
+}
+
 export default class Http {
     static _request<S, T>(
         type: RequestType,
@@ -94,9 +146,11 @@ export default class Http {
     static createClass(name: string, success: cb<never>, failure: cb) {
         Http._request('POST', '/createClass', success, failure, {name});
     }
-    static getMessages(classID: number, success: cb<never>, failure: cb) {
+
+    static getMessages(classID: number, success: cb<MessagesResponse>, failure: cb) {
         Http._request('POST', '/getMessages', success, failure, {classID});
     }
+
     static addMessage(
         classID: number,
         title: string,
@@ -106,6 +160,7 @@ export default class Http {
     ) {
         Http._request('POST', '/addMessage', success, failure, {classID, title, body});
     }
+
     static editMessage(
         messageID: number,
         title: string,
@@ -115,25 +170,31 @@ export default class Http {
     ) {
         Http._request('POST', '/editMessage', success, failure, {messageID, title, body});
     }
+
     static deleteMessage(messageID: number, success: cb<never>, failure: cb) {
         Http._request('POST', '/deleteMessage', success, failure, {messageID});
     }
-    static getClasses(success: cb<never>, failure: cb) {
+
+    static getClasses(success: cb<ClassesResponse>, failure: cb) {
         Http._request('GET', '/getClasses', success, failure);
     }
 
     static getTags(success: cb<never>, failure: cb) {
         Http._request('GET', '/getTags', success, failure);
     }
+
     static addTag(tag: never, success: cb<never>, failure: cb) {
         Http._request('POST', '/addTag', success, failure, {tag});
     }
+
     static deleteTag(tag: number, success: cb<never>, failure: cb) {
         Http._request('POST', '/deleteTag', success, failure, {tag});
     }
+
     static putTags(tags: number[], success: cb<never>, failure: cb) {
         Http._request('PUT', '/putTags', success, failure, {tags});
     }
+
     static getSets(success: cb<never>, failure: cb) {
         Http._request('GET', '/getSets', success, failure);
     }
@@ -158,7 +219,7 @@ export default class Http {
         Http._request('POST', '/getQuestion', success, failure, {question, seed});
     }
 
-    static getTest(test: number, success: cb<never>, failure: cb) {
+    static getTest(test: number, success: cb<TestResponse>, failure: cb) {
         Http._request('POST', '/getTest', success, failure, {test});
     }
 
@@ -313,6 +374,7 @@ export default class Http {
             openTime: openTime,
         });
     }
+
     static getHome(success: cb<never>, failure: cb) {
         Http._request('GET', '/home', success, failure);
     }
