@@ -1,5 +1,13 @@
 import React, {Component, Fragment} from 'react';
-import {List, Paper, Divider, ListItem, IconButton, ListItemText, ListItemIcon} from '@material-ui/core';
+import {
+    List,
+    Paper,
+    Divider,
+    ListItem,
+    IconButton,
+    ListItemText,
+    ListItemIcon,
+} from '@material-ui/core';
 import {
     Add,
     Lock,
@@ -248,7 +256,9 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                     onClick={() => this.selectQuestion(index)}
                 >
                     <ListItemIcon>
-                        <QuestionIcon color={this.state.selectedQ === index ? 'primary' : 'action'} />
+                        <QuestionIcon
+                            color={this.state.selectedQ === index ? 'primary' : 'action'}
+                        />
                     </ListItemIcon>
                     <ListItemText secondary={question.name} />
                 </ListItem>

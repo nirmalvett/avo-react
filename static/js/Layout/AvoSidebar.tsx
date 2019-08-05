@@ -138,7 +138,7 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
 }
 
 interface SidebarListItemProps {
-    section: Section
+    section: Section;
     Icon: SvgIconComponent;
     color: {'500': string};
     onClick: () => void;
