@@ -17,7 +17,6 @@ import {
   CONST_CREATE_TEST_TOGGLE_OPEN_TIME,
   CONST_CREATE_TEST_TOGGLE_TIME_LIMIT
 } from "../Actions/actionsCreateTest";
-import {arrayWithout} from "../../HelperFunctions/Helpers";
 
 const makeTestDefault = {
   sets: [],
@@ -64,9 +63,10 @@ export function ReducerCreateTest(state = makeTestDefault, action) {
 	    ...state,
 		testQuestions: [...state.testQuestions, newQuestion]
 	  });
-  	case CONST_CREATE_TEST_DELETE_QUESTION:
+	  case CONST_CREATE_TEST_DELETE_QUESTION:
 		const { index } = action;
-		const testQuestionsWithout = arrayWithout(state.testQuestions, index);
+		const testQuestionsWithout = [...state.testQuestions];
+		testQuestionsWithout.splice(index, 1);
 		return {
 			...state,
 			testQuestions: [...testQuestionsWithout]
