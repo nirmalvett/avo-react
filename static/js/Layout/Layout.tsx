@@ -255,8 +255,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 <QuestionManager
                     showSnackBar={this.showSnackBar}
                     theme={createMuiTheme({palette: {primary: this.color(), type: theme}})}
-                    initBuilder={(questionBuilder: any) =>
-                        this.setState({section: 'Build Question', questionBuilder}) // todo
+                    initBuilder={
+                        (questionBuilder: any) =>
+                            this.setState({section: 'Build Question', questionBuilder}) // todo
                     }
                     initWith={this.state.questionManager}
                 />
@@ -266,8 +267,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 <QuestionBuilder
                     showSnackBar={this.showSnackBar}
                     theme={createMuiTheme({palette: {primary: this.color(), type: theme}})}
-                    initManager={(questionManager: any) =>
-                        this.setState({section: 'My Questions', questionManager}) // todo
+                    initManager={
+                        (questionManager: any) =>
+                            this.setState({section: 'My Questions', questionManager}) // todo
                     }
                     initWith={this.state.questionBuilder}
                 />

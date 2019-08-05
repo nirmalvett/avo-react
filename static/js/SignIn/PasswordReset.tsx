@@ -58,7 +58,7 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
                         <Grid item xs={4} />
                         <Grid item xs={4} style={{display: 'flex'}}>
                             <Card classes={{root: 'avo-card'}}>
-                                <Logo />
+                                <Logo theme='light' />
                                 <Typography variant='h5'>Change Password</Typography>
                                 <form noValidate autoComplete='off'>
                                     <TextField

@@ -200,7 +200,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                                 </Fragment>
                             ) : (
                                 <Fragment>
-                                    <Logo />
+                                    <Logo theme='light' />
                                     <Typography variant='h5'>Sign In</Typography>
                                     <form style={style} noValidate autoComplete='off'>
                                         <TextField

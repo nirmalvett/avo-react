@@ -1,5 +1,16 @@
 import React, {Component, ReactElement} from 'react';
-import {Typography, ListItem, List, AppBar, Tabs, Tab, Grid, Card, CardActions, CardContent} from '@material-ui/core';
+import {
+    Typography,
+    ListItem,
+    List,
+    AppBar,
+    Tabs,
+    Tab,
+    Grid,
+    Card,
+    CardActions,
+    CardContent,
+} from '@material-ui/core';
 import {isChrome} from '../HelperFunctions/Helpers';
 import Http from '../HelperFunctions/Http';
 import InfiniteCalendar from 'react-infinite-calendar';
