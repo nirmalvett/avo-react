@@ -67,6 +67,33 @@ export interface MessagesResponse {
     }[];
 }
 
+export interface SetsResponse {
+    sets: Set[];
+}
+
+export interface Set {
+    id: number;
+    name: string;
+    can_edit: boolean;
+    questions: Question[];
+}
+
+export interface Question {
+    id: number;
+    name: string;
+    string: string;
+    total: number;
+    answers: number;
+}
+
+export interface QuestionResponse {
+    prompt: string;
+    prompts: string[];
+    types: number[];
+    explanation: string[];
+    variables: {[variable: string]: string};
+}
+
 export default class Http {
     static _request<S, T>(
         type: RequestType,
@@ -195,7 +222,7 @@ export default class Http {
         Http._request('PUT', '/putTags', success, failure, {tags});
     }
 
-    static getSets(success: cb<never>, failure: cb) {
+    static getSets(success: cb<SetsResponse>, failure: cb) {
         Http._request('GET', '/getSets', success, failure);
     }
 
@@ -325,34 +352,31 @@ export default class Http {
     static sampleQuestion(
         string: string,
         seed: number,
-        answers: never[],
-        success: cb<never>,
+        answers: string[] | undefined,
+        success: cb<QuestionResponse>,
         failure: cb,
     ) {
         Http._request('POST', '/sampleQuestion', success, failure, {string, seed, answers});
     }
 
-    static CSVDownload(classid: number, success: cb<never>, failure: cb) {
-        Http._request('GET', '/CSV/ClassMarks/' + classid, success, failure, {});
+    static CSVDownload(classId: number, success: cb<never>, failure: cb) {
+        Http._request('GET', `/CSV/ClassMarks/${classId}`, success, failure, {});
     }
 
-    static getFreeTrial(classid: number, success: cb<never>, failure: cb) {
-        Http._request('POST', '/freeTrial', success, failure, {classID: classid});
+    static getFreeTrial(classID: number, success: cb<never>, failure: cb) {
+        Http._request('POST', '/freeTrial', success, failure, {classID});
     }
 
-    static changeMark(takesId: number, markArray: number[][], success: cb<never>, failure: cb) {
-        Http._request('POST', '/changeMark', success, failure, {
-            takeId: takesId,
-            markArray: markArray,
-        });
+    static changeMark(takeId: number, markArray: number[][], success: cb<never>, failure: cb) {
+        Http._request('POST', '/changeMark', success, failure, {takeId, markArray});
     }
 
     static resetPassword(email: string, success: cb<never>, failure: cb) {
-        Http._request('POST', '/requestPasswordReset', success, failure, {email: email});
+        Http._request('POST', '/requestPasswordReset', success, failure, {email});
     }
 
     static submitPasswordChange(token: string, password: string, success: cb<never>, failure: cb) {
-        Http._request('POST', `/passwordReset/${token}`, success, failure, {password: password});
+        Http._request('POST', `/passwordReset/${token}`, success, failure, {password});
     }
 
     static changeTest(

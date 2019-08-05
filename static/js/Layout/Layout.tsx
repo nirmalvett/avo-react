@@ -99,6 +99,12 @@ interface LayoutState {
 
 export type SnackbarVariant = 'success' | 'warning' | 'error' | 'info';
 
+export type ShowSnackBar = (
+    variant: SnackbarVariant,
+    message: string,
+    hideDuration: number,
+) => void;
+
 interface LayoutClasses {
     content: string;
     contentShift: string;
@@ -254,7 +260,6 @@ class Layout extends Component<LayoutProps, LayoutState> {
             return (
                 <QuestionManager
                     showSnackBar={this.showSnackBar}
-                    theme={createMuiTheme({palette: {primary: this.color(), type: theme}})}
                     initBuilder={
                         (questionBuilder: any) =>
                             this.setState({section: 'Build Question', questionBuilder}) // todo

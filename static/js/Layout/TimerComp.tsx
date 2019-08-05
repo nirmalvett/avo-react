@@ -1,7 +1,7 @@
 import React, {PureComponent, Fragment} from 'react';
 import Typography from '@material-ui/core/Typography/Typography';
 import TimerIcon from '@material-ui/icons/TimerOutlined';
-import {SnackbarVariant} from './Layout';
+import {ShowSnackBar, SnackbarVariant} from './Layout';
 
 const MONTHS = [
     'January',
@@ -19,7 +19,7 @@ const MONTHS = [
 ];
 
 interface TimerProps {
-    showSnackBar: (variant: SnackbarVariant, message: string, hideDuration: number) => void;
+    showSnackBar: ShowSnackBar;
     deadline: number;
     onCompletionFunc: () => void;
 }
