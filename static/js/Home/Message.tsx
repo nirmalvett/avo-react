@@ -1,7 +1,15 @@
-import {Typography, Input} from '@material-ui/core';
+import {Typography} from '@material-ui/core';
 import React from 'react';
 
-export default function Message(props) {
+interface MessageProps {
+    message: {
+        title: string;
+        body: string;
+        selected?: boolean;
+    };
+}
+
+export default function Message(props: MessageProps) {
     return (
         <div style={props.message.selected ? {textDecoration: 'line-through', color: 'red'} : {}}>
             <Typography component={'span'} variant='h4' color='textPrimary'>
