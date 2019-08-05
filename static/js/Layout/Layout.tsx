@@ -84,7 +84,6 @@ interface LayoutState {
     markEditor: null | number;
     minutesRemainingUponResumingTest: null | number;
     testDueDate: null | number;
-    questionManager: [null, null, []];
     classToJumpTo: null | number;
     setToJumpTo: null | number;
     snackbar: {
@@ -94,6 +93,8 @@ interface LayoutState {
         variant: SnackbarVariant;
     };
     test: (TestResponse & {newAnswers: string[][]}) | undefined;
+    questionManager: any; // todo
+    questionBuilder: any; // todo
 }
 
 export type SnackbarVariant = 'success' | 'warning' | 'error' | 'info';
@@ -115,7 +116,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
             markEditor: null,
             minutesRemainingUponResumingTest: null,
             testDueDate: null,
-            questionManager: [null, null, []],
+            questionManager: [null, null, []], // todo
+            questionBuilder: null, // todo
 
             snackbar: {
                 hideDuration: 5000,
@@ -253,8 +255,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 <QuestionManager
                     showSnackBar={this.showSnackBar}
                     theme={createMuiTheme({palette: {primary: this.color(), type: theme}})}
-                    initBuilder={questionBuilder =>
-                        this.setState({section: 'Build Question', questionBuilder})
+                    initBuilder={(questionBuilder: any) =>
+                        this.setState({section: 'Build Question', questionBuilder}) // todo
                     }
                     initWith={this.state.questionManager}
                 />
@@ -264,8 +266,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 <QuestionBuilder
                     showSnackBar={this.showSnackBar}
                     theme={createMuiTheme({palette: {primary: this.color(), type: theme}})}
-                    initManager={questionManager =>
-                        this.setState({section: 'My Questions', questionManager})
+                    initManager={(questionManager: any) =>
+                        this.setState({section: 'My Questions', questionManager}) // todo
                     }
                     initWith={this.state.questionBuilder}
                 />

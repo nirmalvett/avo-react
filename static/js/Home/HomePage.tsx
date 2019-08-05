@@ -1,16 +1,9 @@
 import React, {Component, ReactElement} from 'react';
-import {Typography, ListItem, List} from '@material-ui/core';
+import {Typography, ListItem, List, AppBar, Tabs, Tab, Grid, Card, CardActions, CardContent} from '@material-ui/core';
 import {isChrome} from '../HelperFunctions/Helpers';
-import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Grid from '@material-ui/core/Grid/Grid';
 import Http from '../HelperFunctions/Http';
 import InfiniteCalendar from 'react-infinite-calendar';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import 'react-infinite-calendar/styles.css'; // Make sure to import the default stylesheet
+import 'react-infinite-calendar/styles.css';
 import moment from 'moment';
 import {
     CalendarTheme,
@@ -30,14 +23,14 @@ function TabContainer(props: {children?: any}): ReactElement {
     );
 }
 
-interface HomescreenProps {
+interface HomePageProps {
     color: {'200': string; '500': string};
     jumpToClass(classID: number): void;
     jumpToSet(classID: number, dueDateID: number): void;
     showSnackBar(header: string, message: string, time: number): void;
 }
 
-interface HomescreenState {
+interface HomePageState {
     selectedDate: Date;
     notifications: MessagesResponse[];
     dueDates: DueDatesResponse[];
@@ -45,8 +38,8 @@ interface HomescreenState {
     calendarTheme: CalendarTheme;
 }
 
-export default class HomePage extends Component<HomescreenProps, HomescreenState> {
-    state: HomescreenState = {
+export default class HomePage extends Component<HomePageProps, HomePageState> {
+    state: HomePageState = {
         selectedDate: new Date(),
         notifications: [],
         dueDates: [],
@@ -68,10 +61,7 @@ export default class HomePage extends Component<HomescreenProps, HomescreenState
             weekdayColor: this.props.color['200'],
         },
     };
-    constructor(props: HomescreenProps) {
-        super(props);
-        console.log(this.props.color);
-    }
+
     componentWillMount() {
         Http.getHome(
             (response: GetHomeResponse) => {
@@ -89,77 +79,6 @@ export default class HomePage extends Component<HomescreenProps, HomescreenState
 
     render() {
         const {value} = this.state;
-        const notifications = this.state.notifications.map((notification: MessagesResponse) => {
-            return (
-                <div>
-                    <ListItem button onClick={() => this.props.jumpToClass(notification.class.id)}>
-                        <Typography variant='h4' color='textPrimary'>
-                            {notification.class.name + ':'}
-                        </Typography>
-                    </ListItem>
-
-                    <br />
-                    {notification.messages.map((notificationMsg: Notification, i: number) => (
-                        <div
-                            key={JSON.stringify(notificationMsg) + i}
-                            onClick={() => this.props.jumpToClass(notification.class.id)}
-                        >
-                            <ListItem button>
-                                <Typography variant='h4' color='textPrimary'>
-                                    {notificationMsg.title}
-                                </Typography>
-                            </ListItem>
-                            <ListItem button>
-                                <Typography variant='body1' color='textPrimary'>
-                                    {notificationMsg.body}
-                                </Typography>
-                            </ListItem>
-                            <br />
-                        </div>
-                    ))}
-                    <br />
-                </div>
-            );
-        });
-        const dueDates = this.state.dueDates.map((dd: DueDatesResponse, i) => {
-            let datesToShow: DueDate[] = [];
-            if (dd.dueDates !== undefined) {
-                datesToShow = dd.dueDates.filter((dueDate: DueDate) =>
-                    moment(new Date(dueDate.dueDate.substring(0, 16)))
-                        .endOf('day')
-                        .isSame(moment(this.state.selectedDate).endOf('day')),
-                );
-            }
-            return (
-                <List key={i}>
-                    <ListItem button onClick={() => this.props.jumpToClass(dd.class.id)}>
-                        <Typography variant='h4' color='textPrimary'>
-                            {dd.class.name + ':'}
-                        </Typography>
-                    </ListItem>
-                    <br />
-                    {datesToShow.length > 0 ? (
-                        datesToShow.map((dueDate: DueDate, i: number) => (
-                            <ListItem
-                                key={JSON.stringify(dueDate) + i}
-                                button
-                                onClick={() => this.props.jumpToSet(dd.class.id, dueDate.id)}
-                            >
-                                <Typography variant='body1' color='textPrimary'>
-                                    {dueDate.name + ' - ' + dueDate.dueDate}
-                                </Typography>
-                            </ListItem>
-                        ))
-                    ) : (
-                        <ListItem button onClick={() => this.props.jumpToClass(dd.class.id)}>
-                            <Typography variant='body1' color='textPrimary'>
-                                {'No due dates today'}
-                            </Typography>
-                        </ListItem>
-                    )}
-                </List>
-            );
-        });
         return (
             <div style={{margin: '20px', flex: 1, overflowY: 'auto'}}>
                 <Grid container direction='column' justify='flex-start' alignItems='flex-start'>
@@ -237,7 +156,7 @@ export default class HomePage extends Component<HomescreenProps, HomescreenState
                                                                 lg={12}
                                                                 xl={6}
                                                             >
-                                                                {dueDates}
+                                                                {this.dueDates()}
                                                             </Grid>
                                                         </Grid>
                                                     </TabContainer>
@@ -251,7 +170,7 @@ export default class HomePage extends Component<HomescreenProps, HomescreenState
                                                                 justify='flex-start'
                                                                 alignItems='flex-start'
                                                             >
-                                                                <List>{notifications}</List>
+                                                                <List>{this.notifications()}</List>
                                                             </Grid>
                                                         </Grid>
                                                     </TabContainer>
@@ -267,6 +186,80 @@ export default class HomePage extends Component<HomescreenProps, HomescreenState
                 </Grid>
             </div>
         );
+    }
+
+    notifications() {
+        return this.state.notifications.map((notification: MessagesResponse) => (
+            <div>
+                <ListItem button onClick={() => this.props.jumpToClass(notification.class.id)}>
+                    <Typography variant='h4' color='textPrimary'>
+                        {notification.class.name + ':'}
+                    </Typography>
+                </ListItem>
+                <br />
+                {notification.messages.map((notificationMsg: Notification, i: number) => (
+                    <div
+                        key={JSON.stringify(notificationMsg) + i}
+                        onClick={() => this.props.jumpToClass(notification.class.id)}
+                    >
+                        <ListItem button>
+                            <Typography variant='h4' color='textPrimary'>
+                                {notificationMsg.title}
+                            </Typography>
+                        </ListItem>
+                        <ListItem button>
+                            <Typography variant='body1' color='textPrimary'>
+                                {notificationMsg.body}
+                            </Typography>
+                        </ListItem>
+                        <br />
+                    </div>
+                ))}
+                <br />
+            </div>
+        ));
+    }
+
+    dueDates() {
+        return this.state.dueDates.map((dd: DueDatesResponse, i) => {
+            let datesToShow: DueDate[] = [];
+            if (dd.dueDates !== undefined) {
+                datesToShow = dd.dueDates.filter((dueDate: DueDate) =>
+                    moment(new Date(dueDate.dueDate.substring(0, 16)))
+                        .endOf('day')
+                        .isSame(moment(this.state.selectedDate).endOf('day')),
+                );
+            }
+            return (
+                <List key={i}>
+                    <ListItem button onClick={() => this.props.jumpToClass(dd.class.id)}>
+                        <Typography variant='h4' color='textPrimary'>
+                            {dd.class.name + ':'}
+                        </Typography>
+                    </ListItem>
+                    <br />
+                    {datesToShow.length > 0 ? (
+                        datesToShow.map((dueDate: DueDate, i: number) => (
+                            <ListItem
+                                key={JSON.stringify(dueDate) + i}
+                                button
+                                onClick={() => this.props.jumpToSet(dd.class.id, dueDate.id)}
+                            >
+                                <Typography variant='body1' color='textPrimary'>
+                                    {dueDate.name + ' - ' + dueDate.dueDate}
+                                </Typography>
+                            </ListItem>
+                        ))
+                    ) : (
+                        <ListItem button onClick={() => this.props.jumpToClass(dd.class.id)}>
+                            <Typography variant='body1' color='textPrimary'>
+                                {'No due dates today'}
+                            </Typography>
+                        </ListItem>
+                    )}
+                </List>
+            );
+        });
     }
 
     changeTab(value: Date) {
