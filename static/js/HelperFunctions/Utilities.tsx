@@ -4,7 +4,7 @@ import {Node, Context} from 'react-mathjax2';
 import Typography from '@material-ui/core/Typography/Typography';
 import {ThemeStyle} from '@material-ui/core/styles/createTypography';
 
-export function getMathJax(text: string, variant: ThemeStyle = 'body2', key: string) {
+export function getMathJax(text: string, variant: ThemeStyle = 'body2', key?: string) {
     key = text + key;
     // Initialize an empty list of MathJax elements
     let result = [];

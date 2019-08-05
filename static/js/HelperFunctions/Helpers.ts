@@ -38,7 +38,7 @@ export function isChrome(): boolean {
     if (isIOSChrome) {
         return true;
     } else if (isChromium || isHeadlessChrome) {
-        return winNav.vendor === 'Google Inc.' && isOpera && isEdge;
+        return winNav.vendor === 'Google Inc.' && !isOpera && !isEdge;
     } else {
         return false;
     }
