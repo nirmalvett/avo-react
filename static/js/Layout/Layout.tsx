@@ -274,12 +274,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     initWith={this.state.questionBuilder}
                 />
             );
-        if (section === 'Documentation')
-            return (
-                <QuestionBuilderDocs
-                    theme={createMuiTheme({palette: {primary: this.color(), type: theme}})}
-                />
-            );
+        if (section === 'Documentation') return <QuestionBuilderDocs />;
         if (section === 'Take Test')
             return (
                 <TakeTest
