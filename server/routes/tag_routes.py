@@ -180,8 +180,8 @@ def get_lesson_data():
     Given a Lesson ID return Lesson string and questions
     :return: Lesson string and question Ids a strings
     """
-    return jsonify(String="This is the lesson string yaw yeet boys", questions=[{"ID": 5, "prompt":"If \\(\\vec u=\\left(-2, 2\\right)\\) and \\(\\vec v=\\left(4, 5\\right)\\), find \\(2\\vec u-3\\vec v\\).","prompts":[""],"types":["6"]},
-                                                                                {"ID": 8, "prompt":"If \\(\\vec u=\\left(-2, 2\\right)\\) and \\(\\vec v=\\left(4, 5\\right)\\), find \\(2\\vec u-3\\vec v\\).","prompts":[""],"types":["6"]}])
+    return jsonify(String="This is the lesson string yaw yeet boys", questions=[{"ID": 5, "prompt":"If \\(\\vec u=\\left(-2, 2\\right)\\) and \\(\\vec v=\\left(4, 5\\right)\\), find \\(2\\vec u-3\\vec v\\).","prompts":[""],"types":["6"],"seed":1},
+                                                                                {"ID": 8, "prompt":"Find the vector that is equivalent to the directed line segment \\(\\overrightarrow{PQ}\\) where \\(P\\) is the point \\(\\left(2, 3, 2\\right)\\) and \\(Q\\) is the point \\(\\left(-2, 2, 1\\right)\\).","prompts":[""],"types":["6"],"seed":1}])
 
 
 def alchemy_to_dict(obj):
