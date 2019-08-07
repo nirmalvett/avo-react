@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify, request, abort
 from flask_login import current_user
-from sqlalchemy.orm.exc import NoResultFound
 from server.MathCode.question import AvoQuestion
 
+from random import randint
+
 from server.decorators import login_required, teacher_only, admin_only
-from server.models import db, Set, Question, UserViewsSet, Tag, TagUser, Lesson
+from server.models import db, Set, Question, UserViewsSet, Tag, TagUser, Lesson, UserLesson
 
 TagRoutes = Blueprint('TagRoutes', __name__)
 
@@ -157,7 +158,10 @@ def get_lessons():
     Get list of lessons for client with the tags associated with them and the lesson string and ID
     :return: Array of lessons with the ID tag associated with lesson and lesson string
     """
-
+    lesson_list = Lesson.query.join(UserLesson).filter((Lesson.LESSON == UserLesson.LESSON) &
+                                                       (UserLesson.USER == current_user.USER)).all()
+    tag_list = Tag.query.filter(Tag.TAG.in_(lesson_list.TAG)).all()
+    mastery_list = TagUser.query.filter().all()
     return jsonify(lessons=[{"ID": 1, "Tag": "Vectors", "mastery": 0.5, "string": "this is a test string"},
                             {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
                             {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
@@ -192,9 +196,28 @@ def get_lesson_data():
     Given a Lesson ID return Lesson string and questions
     :return: Lesson string and question Ids a strings
     """
+    """
     return jsonify(String="This is the lesson string yaw yeet boys", questions=[{"ID": 5, "prompt":"If \\(\\vec u=\\left(-2, 2\\right)\\) and \\(\\vec v=\\left(4, 5\\right)\\), find \\(2\\vec u-3\\vec v\\).","prompts":[""],"types":["6"],"seed":1},
-                                                                                {"ID": 8, "prompt":"Find the vector that is equivalent to the directed line segment \\(\\overrightarrow{PQ}\\) where \\(P\\) is the point \\(\\left(2, 3, 2\\right)\\) and \\(Q\\) is the point \\(\\left(-2, 2, 1\\right)\\).","prompts":[""],"types":["6"],"seed":1}])
-
+    """
+    if not request.json:
+        abort(400)
+    data = request.json
+    lesson_id = data["ID"]
+    if not isinstance(lesson_id, int):
+        return jsonify(error="One or more data type are not correct")
+    lesson = Lesson.query.get(lesson_id)
+    if lesson is None:
+        return jsonify(error="Lesson not found")
+    question_list = eval(lesson.question_list)
+    if not isinstance(question_list, list):
+        return jsonify(error="Lesson question list encountered an error")
+    questions = Question.query.filter(Question.QUESTION.in_(question_list)).all()
+    gened_questions = []
+    for question in questions:
+        seed = randint(0, 65535)
+        q = AvoQuestion(question.string, seed=seed)
+        gened_questions.append({"ID": question.QUESTION, "prompt": q.prompt, "prompts": q.prompts, "types": q.types, "seed": seed})
+    return jsonify(String=lesson.lesson_string, questions=gened_questions)
 
 def alchemy_to_dict(obj):
     """

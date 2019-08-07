@@ -291,6 +291,7 @@ class Lesson(db.Model):
     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
     TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
     lesson_string = db.Column(db.Text, nullable=False)
+    question_list = db.Column(db.String, nullable=False)
 
     USER_RELATION = db.relationship("User", back_populates="LESSON_RELATION")
     TAG_RELATION = db.relationship("Tag", back_populates="LESSON_RELATION")
