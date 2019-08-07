@@ -125,7 +125,7 @@ class Question(db.Model):
     total = db.Column(db.Integer, nullable=False)
 
     SET_RELATION = db.relationship("Set", back_populates="QUESTION_RELATION")
-    TAG_USER_RELATION = db.relationship("TagUser", back_populates="QUESTION_RELATION")
+    TAG_QUESTION_RELATION = db.relationship("TagQuestion", back_populates="QUESTION_RELATION")
 
     def __init__(self, set_id, name, string, answers, total):
         self.SET = set_id
