@@ -57,6 +57,18 @@ export default class Http {
 		Http._request('GET', '/getClasses', success, failure);
 	}
 
+	static getTags(success, failure) {
+		Http._request('GET', '/getTags', success, failure);
+	}
+	static addTag(tag, success, failure){
+		Http._request('POST', '/addTag', success, failure, {tag})
+	}
+	static deleteTag(tag, success, failure){
+		Http._request('POST', '/deleteTag', success, failure, {tag})
+	}
+	static putTags(tags, success, failure){
+		Http._request('PUT', '/putTags', success, failure, {tags})
+	}
 	static getSets(success, failure) {
 		Http._request('GET', '/getSets', success, failure);
 	}

@@ -2,6 +2,7 @@ import React, {Component, Fragment} from 'react';
 import Http from '../HelperFunctions/Http';
 import Logo from '../SharedComponents/Logo';
 import HomePage from '../Home/HomePage';
+import TagView from '../CourseBuilder/TagBuilder/TagView'
 import PostTest from '../SharedComponents/PostTest';
 import MarkEditor from '../ManageClasses/MarkEditor';
 import TakeTest from '../MyClasses/TakeTest';
@@ -179,6 +180,8 @@ class Layout extends Component {
                                     {this.listItem(BuildOutlined, 'My Questions')}
                                     {this.listItem(HelpOutline, 'Documentation')}
                                     {this.listItem(AssignmentReturnedOutlined, 'Export Tools')}
+                                    {this.listItem(BuildOutlined, 'Tag Builder')}
+
                                 </List>
                             </div>
                             : null
@@ -300,6 +303,7 @@ class Layout extends Component {
         />);
         if (section === 'In Class Tools') return (<AVOInClassTools/>);
         if (section === 'Explanations') return (<AVOExplanations/>);
+        if (section === 'Tag Builder') return (<TagView/>)
     }
 
     timerInTopBar(){

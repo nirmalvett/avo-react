@@ -2,7 +2,7 @@ from flask import Flask
 from flask_compress import Compress
 from server.auth import login_manager
 from server.models import db
-from server.routes import ClassRoutes, FileRoutes, QuestionRoutes, ServerRoutes, TestRoutes, UserRoutes
+from server.routes import ClassRoutes, FileRoutes, QuestionRoutes, ServerRoutes, TestRoutes, UserRoutes, TagRoutes
 import paypalrestsdk
 import config
 
@@ -28,6 +28,7 @@ app.register_blueprint(QuestionRoutes)
 app.register_blueprint(ServerRoutes)
 app.register_blueprint(TestRoutes)
 app.register_blueprint(UserRoutes)
+app.register_blueprint(TagRoutes)
 
 # Add gzip support
 Compress(app)

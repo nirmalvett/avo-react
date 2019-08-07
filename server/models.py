@@ -239,3 +239,22 @@ class TransactionProcessing(db.Model):
         self.TRANSACTIONPROCESSING = transaction_processing
         self.CLASS = class_id
         self.USER = user
+
+
+class Tag(db.Model):
+    __tablename__ = 'TAG'
+
+    TAG = db.Column(db.Integer, primary_key=True)
+    parent = db.Column(db.Integer, nullable=True)
+    tagName = db.Column(db.String(30), nullable=False)
+    childOrder = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, parent, tagName, childOrder):
+        self.parent = parent
+        self.tagName = tagName
+        self.childOrder = childOrder
+
+    def __repr__(self):
+        return f'TAG {self.TAG} {self.parent} {self.tagName} {self.childOrder}'
+
+
