@@ -69,6 +69,9 @@ export default class AVOLearnTestComp extends Component {
                                 </IconButton>
                             </center>
                         </Grid>
+                        <div style={{ position : 'absolute', left : '0.25em', top : '0.25em' }}>
+                            <button onClick={() => this.setState({ currentState : TestStates.Lesson })}>Go Back To Lesson</button>
+                        </div>
                     </Grid>
                 )}
                 {this.state.currentState === TestStates.TestEnd && (
