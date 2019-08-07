@@ -203,7 +203,7 @@ def get_lesson_question_result():
     if current_mastery is None:
         current_mastery = TagUser(current_user.USER, tag.TAG)
         db.session.add(current_mastery)
-    current_mastery.mastery += q.score / 100
+    current_mastery.mastery += (q.score - question.total) / 100
     if current_mastery.mastery > 1.0:
         current_mastery.mastery = 1.0
     db.session.commit()
