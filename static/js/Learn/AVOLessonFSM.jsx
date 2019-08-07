@@ -65,7 +65,7 @@ export default class AVOLessonFSM extends Component {
                                     flex: 1, 
                                 }}
                             >
-                                Hello world
+                                {this.props.children}
                                 <IconButton 
                                     onClick={(event) => {
                                             this.closeFSM("avo-lesson__expanded-card");
@@ -105,7 +105,7 @@ export default class AVOLessonFSM extends Component {
             $this.style.position        = "absolute";
             $this.style.opacity         = '0';
             $this.style.top             = Math.abs(this.cardPosition.top ) - 20  + 'px';
-            $this.style.left            = Math.abs(this.cardPosition.left) - 200 + 'px';
+            $this.style.left            = Math.abs(this.cardPosition.left) - 300 + 'px';
             $this.style.width           = '95%';
             $this.style.height          = '90%';
             $this.style.transformOrigin = 'top left';
@@ -134,11 +134,6 @@ export default class AVOLessonFSM extends Component {
             $this.style.transform = `scale(1, 1)`;
             document.getElementById('FSM-inner__content-div').style.opacity = "1";
         }, 0);
-        const _this = this;
-        setTimeout(function() {
-            _this.setState({ chartShouldLoad : true });
-            _this.handleClassListItemClick();            
-        }, 700);
     };
 
     closeFSM(cardID){

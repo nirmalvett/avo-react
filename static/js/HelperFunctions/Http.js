@@ -185,7 +185,11 @@ export default class Http {
 
 	static getMasteryTags(tagArray, success, failure) {
 		Http._request('POST', '/tagMastery', success, failure, { tagNames : tagArray });
-	}
+	};
+
+	static getLessonData(lessonID, success, failure) {
+		Http._request('POST', '/getLessonData', success, failure, { lessonID : lessonID });
+	};
 }
 
 function debugModeLog(type, url, data = '', http) {

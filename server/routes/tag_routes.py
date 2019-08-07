@@ -157,7 +157,7 @@ def get_lessons():
                             {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "mastery": 0.76, "string": "this is a test string"}])
 
 
-@TagRoutes.route("getLessonData", methods=["POST"])
+@TagRoutes.route("/getLessonData", methods=["POST"])
 @login_required
 def get_lesson_data():
     """
