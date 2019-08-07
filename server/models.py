@@ -276,6 +276,13 @@ class TagQuestion(db.Model):
     TAG_RELATION = db.relationship("Tag", back_populates="TAG_QUESTION_RELATION")
     QUESTION_RELATION = db.relationship("Question", back_populates="TAG_QUESTION_RELATION")
 
+    def __init__(self, TAG, QUESTION):
+        self.TAG = TAG
+        self.QUESTION = QUESTION
+
+    def __repr__(self):
+        return f'TAG_QUESTION {self.TAG_QUESTION} {self.TAG} {self.QUESTION}'
+
 
 class TagUser(db.Model):
     __tablename__ = "tag_user"

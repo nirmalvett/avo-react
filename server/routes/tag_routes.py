@@ -5,7 +5,7 @@ from server.MathCode.question import AvoQuestion
 from random import randint
 
 from server.decorators import login_required, teacher_only, admin_only
-from server.models import db, Set, Question, UserViewsSet, Tag, TagUser, Lesson, UserLesson
+from server.models import db, Set, Question, UserViewsSet, Tag, TagUser, Lesson, UserLesson, TagQuestion
 
 TagRoutes = Blueprint('TagRoutes', __name__)
 
@@ -169,7 +169,7 @@ def get_lessons():
                             {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "mastery": 0.76, "string": "this is a test string"}])
 
     """
-    lesson_list = Lesson.query.join(UserLesson).filter((Lesson.LESSON == UserLesson.LESSON) &
+    lesson_list = Lesson.join(UserLesson).query.filter((Lesson.LESSON == UserLesson.LESSON) &
                                                        (UserLesson.USER == current_user.USER)).all()
     tag_list = Tag.query.filter(Tag.TAG.in_(lesson_list.TAG)).all()
     mastery_list = TagUser.query.filter((TagUser.TAG == tag_list.TAG) & (TagUser.USER == current_user.USER)).all()
@@ -197,8 +197,17 @@ def get_lesson_question_result():
     if question is None:
         return jsonify(error="question not found")
     q = AvoQuestion(question.string, seed, answers)
-    current_mastery = TagUser.query.filter()
-    return jsonify(explanation=q.explanation, mastery=mastery)
+    tag = Tag.join(TagQuestion).query.filter((Tag.TAG == TagQuestion.TAG) &
+                                                         (TagQuestion.QUESTION == question.QUESTION)).all()
+    current_mastery = TagUser.query.filter((TagUser.TAG == tag.TAG) & (TagUser.USER == current_user.USER)).first()
+    if current_mastery is None:
+        current_mastery = TagUser(current_user.USER, tag.TAG)
+        db.session.add(current_mastery)
+    current_mastery.mastery += q.score / 100
+    if current_mastery.mastery > 1.0:
+        current_mastery.mastery = 1.0
+    db.session.commit()
+    return jsonify(explanation=q.explanation, mastery=current_mastery.mastery)
 
 
 @TagRoutes.route("/getLessonData", methods=["POST"])
