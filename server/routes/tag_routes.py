@@ -132,11 +132,22 @@ def tag_mastery():
     Given a array of tag IDs give the tag IDs names and mastery to client
     :return: array of tag mastery names and Ids to client
     """
-    if not request.json:
-        return jsonify(error="")
+    """
     return jsonify(mastery=[{"ID": 2, "name": "Inverse", "mastery": 0.5},
-                            {"ID": 5, "name": "Test input for tag value extra long to test the lengths of tag length", "mastery": 1.0},
+                            {"ID": 5, "name": "Test input for tag value extra long to test the lengths of tag length",
+                             "mastery": 1.0},
                             {"ID": 7, "name": "Inverse", "mastery": 0.0}])
+    """
+    if not request.json:
+        return abort(400)
+    master_list = TagUser.query.filter(current_user.USER == TagUser.USER).all()
+    tag_list = Tag.query.filter(Tag.TAG.in_(master_list.TAG)).all()
+    return_list = []
+    for i in range(len(master_list)):
+        if not master_list[i].TAG == tag_list[i].TAG:
+            return jsonify(error="Tag not found")
+        return_list.append({"ID": tag_list[i].TAG, "name": tag_list[i].name, "mastery": master_list[i].mastery})
+    return jsonify(mastery=return_list)
 
 
 @TagRoutes.route("/getLessons", methods=["GET"])
@@ -146,6 +157,7 @@ def get_lessons():
     Get list of lessons for client with the tags associated with them and the lesson string and ID
     :return: Array of lessons with the ID tag associated with lesson and lesson string
     """
+
     return jsonify(lessons=[{"ID": 1, "Tag": "Vectors", "mastery": 0.5, "string": "this is a test string"},
                             {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
                             {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
@@ -173,7 +185,7 @@ def get_lesson_question_result():
     return jsonify(explanation=q.explanation, mastery=mastery)
 
 
-@TagRoutes.route("getLessonData", methods=["POST"])
+@TagRoutes.route("/getLessonData", methods=["POST"])
 @login_required
 def get_lesson_data():
     """
