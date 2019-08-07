@@ -43,7 +43,18 @@ export default function AVOMasteryGauge(props) {
                 x = [centerX, centerX];
                 y = [centerY, centerY];
             };
-            items.push( <path className='avo-progression-gauge-triangle' d={`M${centerX}, ${centerY} L${x[0]}, ${y[0]} L${x[1]}, ${y[1]} Z`} fill='#399103' fillOpacity='0.25' stroke='#399103' strokeWidth='0.25' strokeLinecap='round'/>);
+            const tri_color = !!props.colors[triangles.length] ? props.colors[triangles.length] : '#399103';
+            items.push( 
+                <path 
+                    className='avo-progression-gauge-triangle' 
+                    d={`M${centerX}, ${centerY} L${x[0]}, ${y[0]} L${x[1]}, ${y[1]} Z`} 
+                    fill={tri_color} 
+                    fillOpacity='0.25' 
+                    stroke={tri_color} 
+                    strokeWidth='0.25' 
+                    strokeLinecap='round'
+                />
+            );
             if(i == 3 || i == 7 || i == 11) {
                 triangles.push(<g style={{ transformOrigin : 'center'}} cx={centerX} cy={centerY} className={`avo-progression-gauge-triangle-group${triangles.length + 1}`}>{items}</g>);
                 items = [];

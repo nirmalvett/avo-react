@@ -25,6 +25,10 @@ export default class Http {
 		http.send(JSON.stringify(data));
 	}
 
+	static getLessonQuestionResult(QuestionID, Answers, seed, success, failure) {
+		Http._request('POST', '/getLessonQuestionResult', success, failure, {QuestionID, Answers, seed})
+	}
+
 	static register(first_name, last_name, email, password, success, failure) {
 		Http._request('POST', '/register', success, failure, {first_name, last_name, email, password});
 	}
@@ -185,7 +189,11 @@ export default class Http {
 
 	static getMasteryTags(tagArray, success, failure) {
 		Http._request('POST', '/tagMastery', success, failure, { tagNames : tagArray });
-	}
+	};
+
+	static getLessonData(lessonID, success, failure) {
+		Http._request('POST', '/getLessonData', success, failure, { lessonID : lessonID });
+	};
 }
 
 function debugModeLog(type, url, data = '', http) {

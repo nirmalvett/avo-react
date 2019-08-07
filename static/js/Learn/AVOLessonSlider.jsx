@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import AVOLessonFSM         from './AVOLessonFSM';
 import AVOMasteryGauge      from './MasteryGauge';
+import AVOLearnTestComp     from './AVOLearnTestComp';
 import Icon                 from '@material-ui/core/Icon';
 import Grid                 from '@material-ui/core/Grid';
 import Card                 from '@material-ui/core/Card';
+import Http                 from '../HelperFunctions/Http';
 import Typography           from '@material-ui/core/Typography';
 import IconButton           from '@material-ui/core/IconButton';
 
@@ -12,7 +14,8 @@ export default class AVOLessonSlider extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentIndex : 0
+            currentLesson : {},
+            currentIndex  : 0,
         };
         
         this.processSlidesIntoGroups = this.processSlidesIntoGroups.bind(this);
@@ -56,7 +59,13 @@ export default class AVOLessonSlider extends Component {
                         </IconButton>
                     </center>
                 </Grid>
-                <AVOLessonFSM ref={this.fsmRef}/>
+                <AVOLessonFSM ref={this.fsmRef}>
+                    {!!this.state.currentLesson && (
+                        <AVOLearnTestComp 
+                            lesson={this.state.currentLesson}
+                        />
+                    )}
+                </AVOLessonFSM>
             </Grid>
         );
     };
@@ -96,7 +105,10 @@ export default class AVOLessonSlider extends Component {
                             >
                                 <Icon>fullscreen</Icon>
                             </IconButton>
-                            <AVOMasteryGauge comprehension={parseInt(parseFloat(lesson.mastery) * 100)}/>
+                            <AVOMasteryGauge 
+                                comprehension={parseInt(parseFloat(lesson.mastery) * 100)}
+                                colors={['#399103', '#039124', '#809103']}
+                            />
                             <Typography variant={'title'}>{lesson.Tag}</Typography>
                             <Typography variant={'caption'}>{lesson.string}</Typography>
                         </Card>
@@ -118,7 +130,6 @@ export default class AVOLessonSlider extends Component {
     }; 
 
     getSlideTranslation = (index) => {
-        console.log(index, this.state.currentIndex);
         if(index < this.state.currentIndex)
             return -75;
         if(index > this.state.currentIndex)
@@ -159,7 +170,15 @@ export default class AVOLessonSlider extends Component {
     };
 
     openLessonFSM = (event, lesson, LIndex) => {
-        console.log(this.fsmRef);
-        this.fsmRef.current.handleFSM(event, lesson, LIndex);
+        Http.getLessonData(
+            lesson.ID, 
+            (res) => { 
+                console.log(res); 
+                lesson.data = res;
+                this.setState({ currentLesson : lesson });
+                this.fsmRef.current.handleFSM(event, lesson, LIndex);
+            },
+            (err) => { console.log(err); },
+        );
     };
 };
