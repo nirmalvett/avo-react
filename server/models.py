@@ -125,6 +125,7 @@ class Question(db.Model):
     total = db.Column(db.Integer, nullable=False)
 
     SET_RELATION = db.relationship("Set", back_populates="QUESTION_RELATION")
+    TAG_USER_RELATION = db.relationship("TagUser", back_populates="QUESTION_RELATION")
 
     def __init__(self, set_id, name, string, answers, total):
         self.SET = set_id
@@ -254,6 +255,7 @@ class Tag(db.Model):
 
     TAGUSER_RELATION = db.relationship("TagUser", back_populates="TAG_RELATION")
     LESSON_RELATION = db.relationship("Lesson", back_populates="TAG_RELATION")
+    TAG_QUESTION_RELATION = db.relationship("TagQuestion", back_populates="TAG_RELATION")
 
     def __init__(self, parent, tagName, childOrder):
         self.parent = parent
@@ -262,6 +264,17 @@ class Tag(db.Model):
 
     def __repr__(self):
         return f'TAG {self.TAG} {self.parent} {self.tagName} {self.childOrder}'
+
+
+class TagQuestion(db.Model):
+    __tablename__ = "tag_question"
+
+    TAG_QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
+    QUESTION = db.Column(db.Integer, db.ForeignKey("QUESTION.QUESTION"), nullable=False)
+
+    TAG_RELATION = db.relationship("Tag", back_populates="TAG_QUESTION_RELATION")
+    QUESTION_RELATION = db.relationship("Question", back_populates="TAG_QUESTION_RELATION")
 
 
 class TagUser(db.Model):
@@ -309,7 +322,7 @@ class Lesson(db.Model):
 class UserLesson(db.Model):
     __tablename__ = "user_lesson"
 
-    USERLESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    USER_LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
     LESSON = db.Column(db.Integer, db.ForeignKey("LESSON.LESSON"), nullable=False)
 

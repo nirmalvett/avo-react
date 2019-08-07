@@ -197,7 +197,7 @@ def get_lesson_question_result():
     if question is None:
         return jsonify(error="question not found")
     q = AvoQuestion(question.string, seed, answers)
-    mastery = q.score / 100
+    current_mastery = TagUser.query.filter()
     return jsonify(explanation=q.explanation, mastery=mastery)
 
 
