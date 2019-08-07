@@ -16,10 +16,7 @@ export default function TreeView() {
               id: "node-" + el.TAG
             },
             style: {
-              content:
-                el.tagName.length > 10
-                  ? el.tagName.substring(0, 15) + "..."
-                  : el.tagName
+              content: el.tagName
             }
           });
           if (el.parent !== null) {
@@ -100,5 +97,5 @@ export default function TreeView() {
       console.log(err);
     }
   );
-  return <div id="cy" style={{ width: 800, height: 790 }} />;
+  return <div id="cy" style={{ width: '60vw', height: 790, overflow: 'hidden' }} />;
 }

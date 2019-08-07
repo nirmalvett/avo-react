@@ -15,13 +15,13 @@ export default class TagView extends Component<{}, { currentView: string }> {
     return (
       <div
         style={{
-          minWidth: 800,
+          minWidth: '60vw',
           minHeight: 500,
           margin: 25,
-          overflow: "hidden",
+          overflow: "auto",
         }}
       >
-        <Card style={{ width: "100%", margin: 0, padding: 0, height: 790 }}>
+        <Card style={{ width: "100%", margin: 0, padding: 0, height: 790, overflow: 'auto' }}>
           <Button onClick={() => this.setState({ currentView: 'folderView' })}>Tag Folder View</Button>
           <Button onClick={() => this.setState({ currentView: 'tagTreeView' })}>Tag Tree View</Button>
           {this.state.currentView === 'folderView' && (

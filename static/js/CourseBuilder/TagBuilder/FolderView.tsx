@@ -7,29 +7,23 @@ import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid/Grid";
 import TextField from "@material-ui/core/TextField";
 import * as Models from "../../Models";
-export default class FolderView extends React.Component<
-  {},
-  Models.FolderViewState
-> {
+export default class FolderView extends React.Component<{}, Models.FolderViewState> {
   constructor(props) {
     super(props);
     this.state = {
       tags: [],
       tagAddInput: "",
       tagDeleteInput: "",
-      tagsFromServer: []
+      tagsFromServer: [],
     };
     this.getTags();
   }
   render() {
     return (
       <React.Fragment>
-        <CardContent>
+        <CardContent style={{height: 595, padding: 0 }}>
           <div style={{ width: "100%", height: 600 }}>
-            <SortableTree
-              treeData={this.state.tags}
-              onChange={tags => this.setState({ tags })}
-            />
+            <SortableTree treeData={this.state.tags} onChange={tags => this.setState({ tags })} />
           </div>
         </CardContent>
         <CardActions
@@ -37,46 +31,41 @@ export default class FolderView extends React.Component<
             padding: 0,
             margin: 25,
             boxSizing: "border-box",
-            marginTop: 60
+            marginTop: 60,
           }}
         >
-          <Grid
-            container
-            direction="row"
-            justify="flex-start"
-            alignItems="flex-start"
-          >
-            <Button variant="contained" onClick={() => this.addTag()}>
-              Add new tag
-            </Button>
+          <Grid container direction='row' justify='flex-start' alignItems='flex-start'>
             <TextField
               style={{
                 margin: 0,
                 width: 200,
                 marginTop: -12,
                 marginLeft: 10,
-                marginRight: 10
+                marginRight: 10,
               }}
-              id="tag-input"
-              label="New tag..."
+              id='tag-input'
+              label='New tag...'
               value={this.state.tagAddInput}
               onChange={e => this.setState({ tagAddInput: e.target.value })}
-              margin="normal"
+              margin='normal'
             />
-            <Button variant="contained" onClick={() => this.deleteTag()}>
-              Delete tag
+            <Button style={{ marginRight: 10 }} variant='contained' onClick={() => this.addTag()}>
+              Add new tag
             </Button>
             <TextField
-              style={{ margin: 0, width: 200, marginTop: -12, marginLeft: 10 }}
-              id="tag-input"
-              label="Delete tag..."
+              style={{ margin: 0, width: 200, marginTop: -12, marginLeft: 10, marginRight: 10 }}
+              id='tag-input'
+              label='Delete tag...'
               value={this.state.tagDeleteInput}
               onChange={e => this.setState({ tagDeleteInput: e.target.value })}
-              margin="normal"
+              margin='normal'
             />
+            <Button variant='contained' onClick={() => this.deleteTag()}>
+              Delete tag
+            </Button>
             <div style={{ marginLeft: "auto" }}>
               <Button
-                variant="contained"
+                variant='contained'
                 onClick={() => {
                   this.putTags();
                 }}
@@ -98,13 +87,13 @@ export default class FolderView extends React.Component<
           title: this.state.tagAddInput,
           children: [],
           childOrder: 0,
-          parentId: null
+          parentId: null,
         };
         const newTags = this.state.tags.concat(newTag);
         this.setState(
           {
             tags: newTags,
-            tagAddInput: ""
+            tagAddInput: "",
           },
           () => this.getTags()
         );
@@ -132,7 +121,7 @@ export default class FolderView extends React.Component<
         TAG: tag.id,
         parent: null,
         tagName: tag.title,
-        childOrder: i
+        childOrder: i,
       };
     });
     let children = [];
@@ -156,20 +145,18 @@ export default class FolderView extends React.Component<
             TAG: ch.id,
             parent: grandparent.id || grandparent.TAG,
             tagName: ch.title,
-            childOrder: j
+            childOrder: j,
           });
-          if (ch.children != null && ch.children.length > 0)
-            c = c.concat(this.getListOfChildren(ch.children, ch));
+          if (ch.children != null && ch.children.length > 0) c = c.concat(this.getListOfChildren(ch.children, ch));
         });
       else {
         c.push({
           TAG: child.id,
           parent: grandparent.id || grandparent.TAG,
           tagName: child.title,
-          childOrder: i
+          childOrder: i,
         });
-        if (child.children != null && child.children.length > 0)
-          c = c.concat(this.getListOfChildren(child.children, child));
+        if (child.children != null && child.children.length > 0) c = c.concat(this.getListOfChildren(child.children, child));
       }
     });
     return c;
@@ -189,7 +176,7 @@ export default class FolderView extends React.Component<
             id: tag.TAG,
             parentId: hasParent ? tag.parent : null,
             title: tag.tagName,
-            childOrder: tag.childOrder
+            childOrder: tag.childOrder,
           });
           if (tag.parent && !hasParent) {
             fixTree = true;
@@ -198,16 +185,13 @@ export default class FolderView extends React.Component<
         const addedAlready = [];
         while (tagCount > 0)
           flatList.forEach(tag => {
-            if (
-              !tag.parentId &&
-              addedAlready.findIndex(id => tag.id === id) === -1
-            ) {
+            if (!tag.parentId && addedAlready.findIndex(id => tag.id === id) === -1) {
               parents.push({
                 parentId: null,
                 id: tag.id,
                 title: tag.title,
                 children: [],
-                childOrder: tag.childOrder
+                childOrder: tag.childOrder,
               });
               addedAlready.push(tag.id);
               tagCount -= 1;
@@ -230,9 +214,7 @@ export default class FolderView extends React.Component<
     );
   }
   deleteTag() {
-    const tag = this.state.tagsFromServer.find(
-      tag => tag.tagName === this.state.tagDeleteInput
-    );
+    const tag = this.state.tagsFromServer.find(tag => tag.tagName === this.state.tagDeleteInput);
     Http.deleteTag(
       { TAG: tag.TAG },
       res => {
@@ -256,27 +238,21 @@ export default class FolderView extends React.Component<
   checkChildren(tag, parents, addedAlready) {
     let found = false;
     parents.forEach(parent => {
-      if (
-        parent.id === tag.parentId &&
-        !found &&
-        addedAlready.findIndex(id => tag.id === id) === -1
-      ) {
+      if (parent.id === tag.parentId && !found && addedAlready.findIndex(id => tag.id === id) === -1) {
         found = true;
         parent.children.push({
           parentId: tag.parentId,
           id: tag.id,
           title: tag.title,
           childOrder: tag.childOrder,
-          children: []
+          children: [],
         });
         addedAlready.push(tag.id);
       }
     });
     if (!found) {
       parents.forEach(parent => {
-        if (parent.children.length > 0)
-          if (this.checkChildren(tag, parent.children, addedAlready))
-            found = true;
+        if (parent.children.length > 0) if (this.checkChildren(tag, parent.children, addedAlready)) found = true;
       });
     }
     return found;
