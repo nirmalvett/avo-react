@@ -104,7 +104,6 @@ def delete_tag():
         # If the request is not JSON then return a 400 error
         abort(400)
     data = request.json  # Get the request data
-    print(data)
     tag_id = data['tag']['TAG']  # ID of tag to be removed
     if not isinstance(tag_id, int):
         # If not valid data type return error JSON
@@ -157,15 +156,32 @@ def get_lessons():
                             {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "mastery": 0.76, "string": "this is a test string"}])
 
 
-@TagRoutes.route("/getLessonData", methods=["POST"])
+@TagRoutes.route("/getLessonQuestionResult", methods=['POST'])
+@login_required
+def get_lesson_question_result():
+    if not request.json:
+        abort(400)
+    data = request.json
+    question_id, answers, seed = data['QuestionID'], data['Answers'], data['seed']
+    if not isinstance(question_id, int) or not isinstance(answers, list):
+        return jsonify(error="one or more data types are not correct")
+    question = Question.query.get(question_id)
+    if question is None:
+        return jsonify(error="question not found")
+    q = AvoQuestion(question.string, seed, answers)
+    mastery = q.score / 100
+    return jsonify(explanation=q.explanation, mastery=mastery)
+
+
+@TagRoutes.route("getLessonData", methods=["POST"])
 @login_required
 def get_lesson_data():
     """
     Given a Lesson ID return Lesson string and questions
     :return: Lesson string and question Ids a strings
     """
-    return jsonify(String="This is the lesson string yaw yeet boys", questions=[{"ID": 5, "prompt":"If \\(\\vec u=\\left(-2, 2\\right)\\) and \\(\\vec v=\\left(4, 5\\right)\\), find \\(2\\vec u-3\\vec v\\).","prompts":[""],"types":["6"]},
-                                                                                {"ID": 8, "prompt":"If \\(\\vec u=\\left(-2, 2\\right)\\) and \\(\\vec v=\\left(4, 5\\right)\\), find \\(2\\vec u-3\\vec v\\).","prompts":[""],"types":["6"]}])
+    return jsonify(String="This is the lesson string yaw yeet boys", questions=[{"ID": 5, "prompt":"If \\(\\vec u=\\left(-2, 2\\right)\\) and \\(\\vec v=\\left(4, 5\\right)\\), find \\(2\\vec u-3\\vec v\\).","prompts":[""],"types":["6"],"seed":1},
+                                                                                {"ID": 8, "prompt":"Find the vector that is equivalent to the directed line segment \\(\\overrightarrow{PQ}\\) where \\(P\\) is the point \\(\\left(2, 3, 2\\right)\\) and \\(Q\\) is the point \\(\\left(-2, 2, 1\\right)\\).","prompts":[""],"types":["6"],"seed":1}])
 
 
 def alchemy_to_dict(obj):

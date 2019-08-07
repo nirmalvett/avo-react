@@ -106,14 +106,13 @@ export default class AVOLearnTestComp extends Component {
         this.props.lesson.data.questions.forEach((question, index) => {
             // Question Body push
             output.push(
-                !!this.state.questionState && <div style={{
+                <div style={{
                     position   : 'absolute',
                     transition : 'transform 1s ease-in',
                     willChange : 'transform',
                     transform  : `translateX(${this.getSlideTranslation(output.length)}vw)`,
                     width      : '100%',
                     marginTop  : '5em',
-                    display    : `${!!this.state.questionState ? 'block' : 'none'}`
                 }}>
                     <center>
                         <AnswerInput
@@ -145,12 +144,15 @@ export default class AVOLearnTestComp extends Component {
                     transition : 'transform 1s ease-in',
                     willChange : 'transform',
                     transform  : `translateX(${this.getSlideTranslation(output.length)}vw)`,
-                    display    : `${!!this.state.questionState ? 'block' : 'none'}`
                 }}>
-                    Explanation
+                    <Typography variant={'title'}>Previous Question is missing an answer, therefore no explanation is available.</Typography>
                 </div>
             );
         });
         return output;
+    };
+
+    getExplanation() {
+
     };
 };
