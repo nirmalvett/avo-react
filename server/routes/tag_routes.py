@@ -158,10 +158,7 @@ def get_lessons():
     Get list of lessons for client with the tags associated with them and the lesson string and ID
     :return: Array of lessons with the ID tag associated with lesson and lesson string
     """
-    lesson_list = Lesson.query.join(UserLesson).filter((Lesson.LESSON == UserLesson.LESSON) &
-                                                       (UserLesson.USER == current_user.USER)).all()
-    tag_list = Tag.query.filter(Tag.TAG.in_(lesson_list.TAG)).all()
-    mastery_list = TagUser.query.filter().all()
+    """
     return jsonify(lessons=[{"ID": 1, "Tag": "Vectors", "mastery": 0.5, "string": "this is a test string"},
                             {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
                             {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
@@ -170,6 +167,21 @@ def get_lessons():
                             {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
                             {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
                             {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "mastery": 0.76, "string": "this is a test string"}])
+
+    """
+    lesson_list = Lesson.query.join(UserLesson).filter((Lesson.LESSON == UserLesson.LESSON) &
+                                                       (UserLesson.USER == current_user.USER)).all()
+    tag_list = Tag.query.filter(Tag.TAG.in_(lesson_list.TAG)).all()
+    mastery_list = TagUser.query.filter((TagUser.TAG == tag_list.TAG) & (TagUser.USER == current_user.USER)).all()
+    lessons = []
+    for lesson in lesson_list:
+        for i in range(len(tag_list)):
+            if lesson.TAG == tag_list[i].TAG:
+                for j in range(len(mastery_list)):
+                    if tag_list[i].TAG == mastery_list[j].TAG:
+                        lessons.append({"ID": lesson.LESSON, "Tag": tag_list[i].tagName,
+                                        "mastery": mastery_list[j].mastery, "string": lesson.lesson_string})
+    return jsonify(lessons=lessons)
 
 
 @TagRoutes.route("/getLessonQuestionResult", methods=['POST'])
@@ -218,6 +230,7 @@ def get_lesson_data():
         q = AvoQuestion(question.string, seed=seed)
         gened_questions.append({"ID": question.QUESTION, "prompt": q.prompt, "prompts": q.prompts, "types": q.types, "seed": seed})
     return jsonify(String=lesson.lesson_string, questions=gened_questions)
+
 
 def alchemy_to_dict(obj):
     """
