@@ -6,6 +6,8 @@ import Http                 from '../HelperFunctions/Http';
 import AnswerInput          from '../AnswerInput/AnswerInput'
 import Typography           from '@material-ui/core/Typography';
 import IconButton           from '@material-ui/core/IconButton';
+import * as Helpers from '../HelperFunctions/Utilities'
+import { CropPortrait } from '@material-ui/icons';
 
 const TestStates = {
     Lesson          : 'LESSON',
@@ -20,7 +22,8 @@ export default class AVOLearnTestComp extends Component {
             questionIndex : 0,
             newAnswers    : this.props.lesson.data.questions.map(q => ''),
             currentState  : TestStates.Lesson,
-            questionState : 1
+            questionState : 1,
+            currentExplanation: null
         };
         this.getSlideTranslation = this.getSlideTranslation.bind(this);
         this.goToPreviousSlide   = this.goToPreviousSlide  .bind(this);
@@ -134,6 +137,8 @@ export default class AVOLearnTestComp extends Component {
                                 let newAnswerList = this.state.newAnswers;
                                 newAnswerList[index] = value;
                                 this.setState({newAnswers: newAnswerList});
+                                console.log(newAnswerList)
+                                this.getExplanation(newAnswerList, question)
                             }}
                         />
                     </center>
@@ -148,14 +153,33 @@ export default class AVOLearnTestComp extends Component {
                     willChange : 'transform',
                     transform  : `translateX(${this.getSlideTranslation(output.length)}vw)`,
                 }}>
-                    <Typography variant={'title'}>Previous Question is missing an answer, therefore no explanation is available.</Typography>
+                    {
+                        (this.state.newAnswers[index] && <div>
+                                {/* <h1>{ Helpers.getMathJax(this.state.currentExplanation, 'body2', index) }}</h1> */}
+                            </div>) || 
+                        (!this.state.newAnswers[index] && <div>
+                            <Typography variant={'title'}>Previous Question is missing an answer, therefore no explanation is available.</Typography>
+                        </div>)
+                    }
                 </div>
             );
         });
         return output;
     };
 
-    getExplanation() {
-
+    getExplanation(answers, question) {
+        console.log(answers)
+        console.log(question)
+        Http.getLessonQuestionResult(
+            question.ID,
+            answers, 
+            question.seed, 
+            res => {
+                console.log(res)
+                // this.setState({currentExplanation: })
+            }, 
+            err => {
+                console.log(err)
+            })
     };
 };

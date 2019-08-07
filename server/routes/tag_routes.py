@@ -173,7 +173,7 @@ def get_lesson_question_result():
     return jsonify(explanation=q.explanation, mastery=mastery)
 
 
-@TagRoutes.route("getLessonData", methods=["POST"])
+@TagRoutes.route("/getLessonData", methods=["POST"])
 @login_required
 def get_lesson_data():
     """
