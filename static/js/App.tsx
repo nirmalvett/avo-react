@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import Http, {UserResponse} from './HelperFunctions/Http';
+import * as Http from './Http';
 import Layout from './Layout/Layout';
 import SignIn from './SignIn/SignIn';
 import MomentUtils from '@date-io/moment';
@@ -84,7 +84,7 @@ class App extends Component<AppProps, AppState> {
         } else {
             return (
                 <SignIn
-                    login={(u: string, p: string, result: UserResponse) =>
+                    login={(u: string, p: string, result: Http.GetUserInfo) =>
                         this.updateUser(u, p, result)
                     }
                     username={this.state.username}
@@ -94,7 +94,7 @@ class App extends Component<AppProps, AppState> {
         }
     }
 
-    updateUser(username: string, password: string, result: UserResponse) {
+    updateUser(username: string, password: string, result: Http.GetUserInfo) {
         this.setState({
             authenticated: true,
             username,

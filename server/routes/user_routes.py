@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, render_template, abort, url_for, redirect
+from flask import Blueprint, jsonify, request, render_template, url_for, redirect
 from flask_login import logout_user, login_user, current_user
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 from sqlalchemy.orm.exc import NoResultFound
@@ -7,7 +7,7 @@ from server.Encoding.PasswordHash import check_password, generate_salt, hash_pas
 import re
 
 import config
-from server.decorators import login_required, admin_only
+from server.decorators import login_required, admin_only, validate
 from server.auth import send_email
 from server.models import db, User, Class, Transaction, Takes
 
@@ -18,20 +18,12 @@ UserRoutes = Blueprint('UserRoutes', __name__)
 
 
 @UserRoutes.route('/register', methods=['POST'])
-def register():
+@validate(first_name=str, last_name=str, email=str, password=str)
+def register(first_name: str, last_name: str, email: str, password: str):
     """
     Registers a new user account
     :return: Confirmation to the client
     """
-    if not request.json:
-        # If the request is not json return a 400 error
-        return abort(400)
-    data = request.json  # Data sent from client
-    first_name, last_name, email, password = data['first_name'], data['last_name'], data['email'], data['password']
-    if not isinstance(first_name, str) or not isinstance(last_name, str) or not \
-            isinstance(email, str) or not isinstance(password, str):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
     if not re.fullmatch(r'[a-zA-Z]{2,}\d*@uwo\.ca+', email):
         # Checks if the email is a UWO if not return an error JSON
         return jsonify(error='Invalid uwo email')
@@ -88,19 +80,12 @@ def confirm(token):
 
 
 @UserRoutes.route('/login', methods=['POST'])
-def login():
+@validate(username=str, password=str)
+def login(username: str, password: str):
     """
     Login the user
     :return: Confirmation that the user has been logged in
     """
-    if not request.json:
-        # If the request isn't JSON return a 400 error
-        return abort(400)
-    data = request.json  # Data from the client
-    username, password = data['username'], data['password']
-    if not isinstance(username, str) or not isinstance(password, str):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
     try:
         # Try to create the user from the email if not throw error JSON
         user = User.query.filter(User.email == username).one()
@@ -150,12 +135,8 @@ def logout():
 
 
 @UserRoutes.route('/requestPasswordReset', methods=['POST'])
-def request_password_reset():
-
-    if not request.json:
-        return abort(400)
-
-    email = request.json['email']
+@validate(email=str)
+def request_password_reset(email: str):
     try:
         user = User.query.filter(User.email == email).first()
     except NoResultFound:
@@ -218,20 +199,12 @@ def password_reset(token):
 
 @UserRoutes.route('/changeColor', methods=['POST'])
 @login_required
-def change_color():
+@validate(color=int)
+def change_color(color: int):
     """
     Changes the current user's color theme
     :return: Confirmation
     """
-    if not request.json:
-        # If the request isn't JSON return a 400 error
-        return abort(400)
-    data = request.json  # Data from client
-    color = data['color']
-    if not isinstance(color, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-
     # Commit the users's changes to the DB
     current_user.color = color
     db.session.commit()
@@ -240,19 +213,12 @@ def change_color():
 
 @UserRoutes.route('/changeTheme', methods=['POST'])
 @login_required
-def change_theme():
+@validate(theme=int)
+def change_theme(theme: int):
     """
     Changes the current user's theme
     :return: Confirmation of the change
     """
-    if not request.json:
-        # If the request isn't JSON return a 400 error
-        return abort(400)
-    data = request.json  # Data from the client
-    theme = data['theme']
-    if not isinstance(theme, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
     # Applies the user's changes to the database
     current_user.theme = theme
     db.session.commit()
@@ -283,14 +249,8 @@ def admin_login(user_id):
 
 @UserRoutes.route('/removeAccount', methods=['POST'])
 @admin_only
-def remove_account():
-    if not request.json:
-        return abort(400)
-    data = request.json
-    user_id = data['userID']
-
-    if not isinstance(user_id, int):
-        return jsonify(error="One or more data types are not correct")
+@validate(userID=int)
+def remove_account(user_id: int):
     try:
         user = User.query.filter(User.USER == user_id).first()
     except NoResultFound:

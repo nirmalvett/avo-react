@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Typography, Input} from '@material-ui/core';
-import Http from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';

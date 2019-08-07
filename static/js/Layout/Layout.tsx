@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import Http, {TestResponse} from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import HomePage from '../Home/HomePage';
 import TagView from '../CourseBuilder/TagBuilder/TagView';
 import PostTest from '../SharedComponents/PostTest';
@@ -71,6 +71,7 @@ export type Section =
     | 'Mark Editor'
     | 'My Classes'
     | 'My Questions'
+    | 'Notify Class'
     | 'Post Test'
     | 'Preferences'
     | 'Tag Builder'
@@ -92,7 +93,7 @@ interface LayoutState {
         message: string;
         variant: SnackbarVariant;
     };
-    test: (TestResponse & {newAnswers: string[][]}) | undefined;
+    test: (Http.GetTest & {newAnswers: string[][]}) | undefined;
     questionManager: any; // todo
     questionBuilder: any; // todo
 }
@@ -185,7 +186,10 @@ class Layout extends Component<LayoutProps, LayoutState> {
         );
     }
 
-    closeSnackbar = () => this.setState({snackbar: {...this.state.snackbar, open: false}});
+    closeSnackbar = () => {
+        const {hideDuration, variant, message} = this.state.snackbar;
+        this.setState({snackbar: {hideDuration, variant, message, isOpen: false}});
+    };
 
     jumpToSet(c: number, s: number) {
         this.setState({
@@ -367,8 +371,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
             snackbar: {
                 variant,
                 message,
-                hideDuration:
-                    hideDuration === undefined ? this.state.snackbar.hideDuration : hideDuration,
+                hideDuration: hideDuration || 5000,
                 isOpen: true,
             },
         });

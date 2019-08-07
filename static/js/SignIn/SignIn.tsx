@@ -9,7 +9,7 @@ import {
     Typography,
 } from '@material-ui/core';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
-import Http, {UserResponse} from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import Logo from '../SharedComponents/Logo';
 import AVOModal from '../SharedComponents/MaterialModal';
 
@@ -20,7 +20,7 @@ interface Event {
 }
 
 interface SignInProps {
-    login: (u: string, p: string, result: UserResponse) => void;
+    login: (u: string, p: string, result: Http.GetUserInfo) => void;
     username: string;
     password: string;
 }
@@ -280,7 +280,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         declineText='Never mind'
                         onAccept={() => {
                             if (this.state.resetEmail !== '') {
-                                Http.resetPassword(
+                                Http.requestPasswordReset(
                                     this.state.resetEmail,
                                     () =>
                                         alert(

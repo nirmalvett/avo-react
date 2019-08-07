@@ -12,7 +12,7 @@ import {
     CardContent,
 } from '@material-ui/core';
 import {isChrome} from '../HelperFunctions/Helpers';
-import Http from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import InfiniteCalendar from 'react-infinite-calendar';
 import 'react-infinite-calendar/styles.css';
 import moment from 'moment';
@@ -74,7 +74,7 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
     };
 
     componentWillMount() {
-        Http.getHome(
+        Http.home(
             (response: GetHomeResponse) => {
                 console.log(response);
                 this.setState({

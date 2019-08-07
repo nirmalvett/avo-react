@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import Http from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import Card from '@material-ui/core/Card/Card';
 import Grid from '@material-ui/core/Grid/Grid';
 import Button from '@material-ui/core/Button/Button';
@@ -108,7 +108,7 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
             window.location.href.indexOf('passwordReset') + 'passwordReset'.length + 1;
         const token = window.location.href.substring(starting_index);
         const plainAvoUrl = window.location.href.split('passwordReset')[0]; // i.e. app.avocadocore.com/
-        Http.submitPasswordChange(
+        Http.passwordReset(
             token,
             this.state.newPassword,
             () => {

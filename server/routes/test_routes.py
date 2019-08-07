@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, abort
+from flask import Blueprint, jsonify
 from flask_login import current_user
 
 from server.MathCode.question import AvoQuestion
@@ -6,7 +6,7 @@ from random import randint
 from datetime import datetime, timedelta
 import statistics
 
-from server.decorators import login_required, teacher_only
+from server.decorators import login_required, teacher_only, validate
 from server.auth import teaches_class, enrolled_in_class, access_to_class
 from server.models import db, Class, Test, Takes, Question, User, Transaction
 
@@ -18,24 +18,18 @@ TestRoutes = Blueprint('TestRoutes', __name__)
 
 @TestRoutes.route('/saveTest', methods=['POST'])
 @teacher_only
-def save_test():
+@validate(
+    classId=int, name=str, openTime=[str], deadline=str,
+    timer=str, attempts=str, questionList=list, seedList=list
+)
+def save_test(
+        class_id: int, name: str, open_time, deadline: str,
+        timer: str, attempts: str, question_list: list, seed_list: list
+):
     """
     Save a test created by teacher
     :return: The new test
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    data = request.json
-    class_id, name, open_time, deadline, timer, attempts, question_list, seed_list = \
-        data['classId'], data['name'], data['openTime'], data['deadline'], data['timer'], data['attempts'], data['questionList'],\
-        data['seedList']  # Data from the client
-    if not isinstance(class_id, int) or not isinstance(name, str) or not (
-            isinstance(open_time, str) or open_time is None) or not isinstance(deadline, str) or not \
-            isinstance(timer, str) or not isinstance(attempts, str) or not isinstance(question_list, list) or not \
-            isinstance(seed_list, list):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
     if int(timer) < -1:
         return jsonify(error="timer can not be negative time")
     if int(attempts) < -1:
@@ -73,29 +67,12 @@ def save_test():
 
 @TestRoutes.route('/changeTest', methods=['POST'])
 @teacher_only
-def change_test():
+@validate(test=int, timer=int, name=str, openTime=[str], deadline=str, attempts=int)
+def change_test(test: int, timer: int, name: str, open_time: str, deadline: str, attempts: int):
     """
     Changes the Deadline Timer and Name of specified test
     :return: Confirmation that data has been updated
     """
-    if not request.json:
-        # If the request isn't JSON return a 400 error
-        return abort(400)
-    data = request.json  # Data from client
-    test, timer, name, open_time, deadline, attempts =\
-        data['test'], data['timer'], data['name'], data['openTime'], data['deadline'], data['attempts']
-    if not isinstance(test, int):
-        return jsonify(error="Invalid Input: Test needs to be an int, Test is " + str(type(test)))
-    if not isinstance(timer, int):
-        return jsonify(error="Invalid Input: Timer needs to be an int, " + str(type(timer)))
-    if not isinstance(name, str):
-        return jsonify(error="Invalid Input: Name needs to be an int, " + str(type(name)))
-    if not (isinstance(open_time, str) or open_time is None):
-        return jsonify(error="Invalid Input: open_time needs to be a str")
-    if not isinstance(deadline, str):
-        return jsonify(error="Invalid Input: Deadline needs to be a str, Deadline is type: " + str(type(deadline)))
-    if not isinstance(attempts, int):
-        return jsonify(error="Invalid Input: Attempts needs to be an int, " + str(type(attempts)))
     deadline = deadline[0:4] + "-" + deadline[4:6] + "-" + deadline[6:8] + ' ' + deadline[8:10] + ':' + deadline[10:]
     deadline = datetime.strptime(str(deadline), '%Y-%m-%d %H:%M')
     if attempts < -1:
@@ -127,18 +104,12 @@ def change_test():
 
 @TestRoutes.route('/deleteTest', methods=['POST'])
 @teacher_only
-def delete_test():
+@validate(test=int)
+def delete_test(test: int):
     """
     Delete Test
     :return: Confirmation that test has been deleted
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    test = request.json['test']  # Test to be deleted
-    if not isinstance(test, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
     current_test = Test.query.get(test)  # Get the test
     if current_test is None:
         # If test isn't found return error JSON else set class to none and return
@@ -153,18 +124,12 @@ def delete_test():
 
 @TestRoutes.route('/openTest', methods=['POST'])
 @teacher_only
-def open_test():
+@validate(test=int)
+def open_test(test: int):
     """
     Open a test to be taken
     :return: Confirmation that it is open
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    test = request.json['test']  # Data from client
-    if not isinstance(test, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
     current_test = Test.query.get(test)  # Get the test
     if current_test is None:
         # If test cant be found return error json if not set to open and return
@@ -182,18 +147,12 @@ def open_test():
 
 @TestRoutes.route('/closeTest', methods=['POST'])
 @teacher_only
-def close_test():
+@validate(test=int)
+def close_test(test: int):
     """
     Close selected test
     :return: Confirmation that test is closed
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    test = request.json['test']  # Test to close
-    if not isinstance(test, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
     current_test = Test.query.get(test)  # Get the test
     if current_test is None:
         # If test doesn't exist then return error JSON if not close test and return
@@ -212,19 +171,12 @@ def close_test():
 
 @TestRoutes.route('/getTest', methods=['POST'])
 @login_required
-def get_test():
+@validate(testID=int)
+def get_test(test_id: int):
     """
     Get test data for client
     :return: Data of test
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    data = request.json
-    test_id = data['test']  # Data of test requested
-    if not isinstance(test_id, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
     test = Test.query.get(test_id)  # Test requested
     if test is None:
         # If no test found return error json
@@ -268,19 +220,12 @@ def get_test():
 
 @TestRoutes.route('/saveAnswer', methods=['POST'])
 @login_required
-def save_answer():
+@validate(takes=int, question=int, answer=list)
+def save_answer(takes: int, question: int, answer: list):
     """
     Save a users answer to a question
     :return: Confirmation that the question has been saved
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    data = request.json
-    takes, question, answer = data['takes'], data['question'], data['answer']  # Data from user
-    if not isinstance(takes, int) or not isinstance(question, int) or not isinstance(answer, list):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
     takes_list = Takes.query.get(takes)  # Instance of takes to add answer to
     if takes_list is None or takes_list.USER != current_user.USER:
         # If takes instance cant be found or is not the same as current user return error JSON
@@ -307,19 +252,12 @@ def save_answer():
 
 @TestRoutes.route('/submitTest', methods=['POST'])
 @login_required
-def submit_test():
+@validate(takes=int)
+def submit_test(takes: int):
     """
     Submit a takes to the DataBase
     :return: Confirmation that the takes has been updated
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    data = request.json
-    takes = data['takes']  # Data from client
-    if not isinstance(takes, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
     # Get current takes and update submit time and commit to DataBase
     current_takes = Takes.query.get(takes)
     test = Test.query.get(current_takes.TEST)
@@ -339,19 +277,12 @@ def submit_test():
 
 @TestRoutes.route('/postTest', methods=['POST'])
 @login_required
-def post_test():
+@validate(takes=int)
+def post_test(takes: int):
     """
     Generate the post test screen
     :return: The post test screen data
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    data = request.json
-    takes = data['takes']  # Data from client
-    if not isinstance(takes, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
     takes_list = Takes.query.get(takes)  # Get current instance of takes
     if takes_list is None:
         # If takes cant be found return error JSON
@@ -378,23 +309,13 @@ def post_test():
 
 @TestRoutes.route('/testStats', methods=['POST'])
 @login_required
-def test_stats():
+@validate(testID=int)
+def test_stats(test_id: int):
     """
     Generate Stats on a per Question basis of a given test
     :return: Test stats data
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    data = request.json  # Data from client
-    test_id = data['id']
-    if not isinstance(test_id, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
     test = Test.query.get(test_id)  # Test to generate questions from
-    del test_id
-    del data
-
     # If the user doesnt teach the class then return error JSON
     if not teaches_class(test.CLASS) and not enrolled_in_class(test.CLASS):
         return jsonify(error="User doesn't teach this class or the user is not enrolled in the class")
@@ -496,22 +417,14 @@ def test_stats():
 
 @TestRoutes.route('/changeMark', methods=['POST'])
 @teacher_only
-def change_mark():
+@validate(takesID=int, markArray=list)
+def change_mark(takes_id: int, mark_array: list):
     """
     Changes the mark for a given quiz
     Expects {'takeId': int, 'totalMark': int, 'markArray': int}
     :return: {success: True} if successful otherwise an error object
     """
-    if not request.json:
-        return abort(400)
-
-    data = request.json  # Data from client
-    take_id, mark_array = data['takeId'], data['markArray']
-
-    if not isinstance(take_id, int) or not isinstance(mark_array, list):
-        # If any data is wrong format return error JSON
-        return jsonify(error="one or more invalid data points")
-    takes = Takes.query.get(take_id)  # takes object to update
+    takes = Takes.query.get(takes_id)  # takes object to update
     # Check if the test of the take is in the class that the account is teaching
     test = Test.query.get(takes.TEST)  # Test that takes is apart of
     question_array = eval(test.question_list)  # List of questions in the test

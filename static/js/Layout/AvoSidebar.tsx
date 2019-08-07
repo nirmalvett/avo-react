@@ -1,5 +1,5 @@
 import React, {PureComponent, Fragment} from 'react';
-import Http from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import Logo from '../SharedComponents/Logo';
 import {createStyles} from '@material-ui/core/styles';
 import {

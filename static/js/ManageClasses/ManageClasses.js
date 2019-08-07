@@ -40,7 +40,7 @@ import {
   RemoveRedEyeOutlined,
   Stop
 } from '@material-ui/icons';
-import Http from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import {copy, getDateString} from '../HelperFunctions/Utilities';
 import AVOModal from '../SharedComponents/MaterialModal';
 import Chart from 'react-apexcharts';

@@ -1,5 +1,5 @@
 import React from 'react';
-import Http from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import Button from '@material-ui/core/Button';
 import Save from '@material-ui/icons/Save';
 import MarkEditorQuestionCard, {CONST_MARKED_CORRECT, CONST_MARKED_INCORRECT} from './MarkEditorQuestionCard';

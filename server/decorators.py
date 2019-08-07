@@ -1,6 +1,7 @@
 from flask import redirect, url_for, abort, request, jsonify
 from flask_login import current_user
 from functools import wraps
+from re import sub
 
 
 def login_required(f):
@@ -89,6 +90,15 @@ def admin_only(f):
 
 
 def validate(**types):
+    """
+    This function validates the incoming types in post requests, and passes them as parameters. The parameters it
+    passes will be converted to conform to pep8 standards, by inserting underscores and changing the letter case.
+    :param types: The keys are variable names, and the values are one of the following:
+        If it is a type, the parameter is required to exist and be that type
+        If it is a [type], the parameter is required to be that type if it exists, but it might not exist
+        If it is None, it can be any type, but must exist. [None] is invalid.
+    :return: A decorated function
+    """
     def decorator(f):
 
         @wraps(f)
@@ -100,8 +110,8 @@ def validate(**types):
                 if errors is not None:
                     return jsonify(schema=describe(types), errors=errors), 400
             else:
-                for _name in types:
-                    kwargs[_name] = None
+                for k in types:
+                    kwargs[convert_case(k)] = None
             return f(*args, **kwargs)
         return decorated_function
     return decorator
@@ -117,10 +127,26 @@ def describe(types):
 def find_errors(types, json, kwargs):
     errors = []
     for _name, _type in types.items():
-        if _name not in json:
-            errors.append(f'{_name} is missing from query')
-        elif not isinstance(json[_name], _type):
-            errors.append(f'{_name} is of the wrong type, expected {_type.__name__}')
+        if isinstance(_type, type):
+            if _name not in json:
+                errors.append(f'{_name} is missing from query')
+            elif not isinstance(json[_name], _type):
+                errors.append(f'{_name} is of the wrong type, expected {_type.__name__}')
+            else:
+                kwargs[convert_case(_name)] = json[_name]
+        elif isinstance(_type, list) and len(_type) == 1 and isinstance(_type[0], type):
+            if _name not in json:
+                kwargs[convert_case(_name)] = None
+            elif isinstance(json[_name], _type[0]):
+                kwargs[convert_case(_name)] = json[_name]
+            else:
+                errors.append(f'{_name} is of the wrong type, expected {_type.__name__}')
+        elif _type is None:
+            kwargs[convert_case(_name)] = json[_name]
         else:
-            kwargs[_name] = json[_name]
+            raise TypeError()
     return errors or None
+
+
+def convert_case(js_name: str) -> str:
+    return sub(r'[A-Z]+', lambda x: '_' + x[0].lower(), js_name).lstrip('_')

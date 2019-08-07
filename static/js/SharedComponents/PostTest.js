@@ -1,5 +1,5 @@
 import React from 'react';
-import Http from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import Card from "@material-ui/core/Card/Card";
 import CardHeader from "@material-ui/core/CardHeader/CardHeader";
 import {getMathJax} from "../HelperFunctions/Utilities";

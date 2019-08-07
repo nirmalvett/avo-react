@@ -1,10 +1,6 @@
-from flask import Blueprint, jsonify, request, abort
-from flask_login import current_user
-from sqlalchemy.orm.exc import NoResultFound
-from server.MathCode.question import AvoQuestion
-
-from server.decorators import login_required, teacher_only, admin_only
-from server.models import db, Set, Question, UserViewsSet, Tag
+from flask import Blueprint, jsonify
+from server.decorators import teacher_only, validate
+from server.models import db, Tag
 
 TagRoutes = Blueprint('TagRoutes', __name__)
 
@@ -34,7 +30,8 @@ def get_tags():
 
 @TagRoutes.route('/putTags', methods=['PUT'])
 @teacher_only
-def put_tags_route():
+@validate(tags=list)
+def put_tags_route(tags: list):
     """
         We will expect the following from the web
         {
@@ -45,29 +42,16 @@ def put_tags_route():
         {'tagName': 'Linear Algebra', 'TAG': 0, 'parent': null, 'childOrder': 0}
 
     """
-    # Step 1: Check if we were given the proper JSON
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    # Step 3: First get the object from the JSON, in this case you'll find data['tags'], let's call it newTagsList
-    data = request.json
-    new_tags_list = data['tags']  # Data from user
-    # Step 4: Validate the datatype, in this case it should be a list i.e. check if not isinstance(newTagsList, list)
-    if not isinstance(new_tags_list, list):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-    tag_ids = []
-    for t in new_tags_list:
-        tag_ids.append(t['TAG'])
+    tag_ids = list(map(lambda t: t['TAG'], tags))
 
-    # Step 5: Now loop through each object from the list
+    # Now loop through each object from the list
     # so first we'll get a list of all the tag objects
     tag_list = Tag.query.filter(Tag.TAG.in_(tag_ids)).all()
     if len(tag_list) != len(tag_ids):
         return jsonify(error="One or more tags not found")
 
     for tag in tag_list:
-        tag_new_data = [d for d in new_tags_list if tag.TAG == d['TAG']]
+        tag_new_data = [d for d in tags if tag.TAG == d['TAG']]
         tag.parent = tag_new_data[0]['parent']
         tag.tagName = tag_new_data[0]['tagName']
         tag.childOrder = tag_new_data[0]['childOrder']
@@ -78,16 +62,12 @@ def put_tags_route():
 
 @TagRoutes.route('/addTag', methods=['POST'])
 @teacher_only
-def add_tag_route():
+@validate(tag=None)
+def add_tag_route(tag):
     """
         Expects
         {tag: {'tagName': 'Linear Algebra' }}
     """
-    if not request.json:
-        # If the request is not json return a 400 error
-        return abort(400)
-    data = request.json  # Data sent from client
-    tag = data['tag']  # dic of tag data
     tag_obj = Tag(None, tag['tagName'], 0)  # Tag to be added to database
     db.session.add(tag_obj)
     db.session.commit()
@@ -99,13 +79,9 @@ def add_tag_route():
 
 @TagRoutes.route("/deleteTag", methods=['POST'])
 @teacher_only
-def delete_tag():
-    if not request.json:
-        # If the request is not JSON then return a 400 error
-        abort(400)
-    data = request.json  # Get the request data
-    print(data)
-    tag_id = data['tag']['TAG']  # ID of tag to be removed
+@validate(tag=None)
+def delete_tag(tag):
+    tag_id = tag['TAG']  # ID of tag to be removed
     if not isinstance(tag_id, int):
         # If not valid data type return error JSON
         return jsonify(error="One or more data type is not correct")
@@ -128,10 +104,10 @@ def delete_tag():
 
 def alchemy_to_dict(obj):
     """
-    Converts SQLalchemy object to dict
-    :param obj: the SQLalchemy object to convert
-    :return: dict of SQLalchemy object
+    Converts SqlAlchemy object to dict
+    :param obj: the SqlAlchemy object to convert
+    :return: dict of SqlAlchemy object
     """
-    dicObj = obj.__dict__
-    dicObj.pop('_sa_instance_state')
-    return dicObj
+    dict_obj = obj.__dict__.copy()
+    dict_obj.pop('_sa_instance_state')
+    return dict_obj

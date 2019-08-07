@@ -22,14 +22,15 @@ import {
     InsertDriveFile as QuestionIcon,
     CreateNewFolder,
 } from '@material-ui/icons';
-import Http, {Set} from '../../HelperFunctions/Http';
+import * as Http from '../../Http';
 import {uniqueKey} from '../../HelperFunctions/Helpers';
 import {getMathJax} from '../../HelperFunctions/Utilities';
 import AnswerInput from '../../AnswerInput/AnswerInput';
 import {ShowSnackBar} from '../../Layout/Layout';
+import {AvoSet} from '../../Http/types';
 
 interface QuestionManagerProps {
-    initWith: [number, number, Set[]];
+    initWith: [number, number, AvoSet[]];
     initBuilder: (state: QuestionManagerState) => void;
     showSnackBar: ShowSnackBar;
 }
@@ -38,7 +39,7 @@ interface QuestionManagerState {
     selectedS: number | null;
     selectedQ: number | null;
     copiedQ: null | [number, number];
-    sets: Set[];
+    sets: AvoSet[];
     preview: {
         prompt: string;
         prompts: string[];

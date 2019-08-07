@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from 'react';
-import Http from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import {copy, getDateString} from "../HelperFunctions/Utilities";
 import {convertListFloatToAnalytics} from "../HelperFunctions/Helpers";
 import Tab from '@material-ui/core/Tab';
@@ -77,8 +77,8 @@ export default class MyClasses extends Component {
 		if (this.props.isTeacher) { // if it's a teacher account
 			this.props.showSnackBar("info", "Only student account attempts are considered in the analytics")
 		}
-		
-		
+
+
 	}
 	tryToJump(){
 		if(this.props.classToJumpTo != null){

@@ -5,7 +5,7 @@ import {withStyles, AppBar, Toolbar, IconButton, Typography} from '@material-ui/
 import {Menu} from '@material-ui/icons';
 import classNames from 'classnames';
 import {Section, ShowSnackBar} from './Layout';
-import {TestResponse} from '../HelperFunctions/Http';
+import {GetTest} from '../Http';
 const drawerWidth = 240;
 
 const styles = (theme: Theme) =>
@@ -39,7 +39,7 @@ interface AvoAppBarProps {
     section: Section;
     name: string;
     showSnackBar: ShowSnackBar;
-    test: (TestResponse & {newAnswers: string[][]}) | undefined;
+    test: (GetTest & {newAnswers: string[][]}) | undefined;
 }
 
 class AvoAppBar extends PureComponent<AvoAppBarProps> {
