@@ -10,7 +10,8 @@ import IconButton           from '@material-ui/core/IconButton';
 import Button               from '@material-ui/core/Button';
 import * as Helpers 		from '../HelperFunctions/Utilities'
 import { CropPortrait } 	from '@material-ui/icons';
-import Fade                 from '@material-ui/core/Fade';
+import Grow                 from '@material-ui/core/Grow';
+import AVOLearnTestCongrat  from './AVOLearnTestCongrat';
 
 const TestStates = {
 	Lesson          : 'LESSON',
@@ -24,9 +25,10 @@ export default class AVOLearnTestComp extends Component {
         this.state = {
             questionIndex 		: 0,
             newAnswers    		: this.props.lesson.data.questions.map(q => ''),
-            currentState  		: TestStates.Lesson,
+            currentState  		: TestStates.TestEnd,
             questionState      	: 1,
-            currentExplanation 	: []
+            currentExplanation 	: [],
+            testEndState        : 0
         };
         this.getSlideTranslation = this.getSlideTranslation.bind(this);
         this.goToPreviousSlide   = this.goToPreviousSlide  .bind(this);
@@ -36,7 +38,7 @@ export default class AVOLearnTestComp extends Component {
 
 	render() {
 		return (
-			<div style={{ width : '100%' }}>
+			<div style={{ width : '100%', position : 'relative' }}>
 				{this.state.currentState === TestStates.Lesson && (
 					<Grid container spacing={8}>
 						<Grid item xs={8}>
@@ -75,53 +77,51 @@ export default class AVOLearnTestComp extends Component {
 					</Grid>
 				)}
 				{this.state.currentState === TestStates.Questions && (
-					<Grid container spacing={8}>
-						<Grid item xs={1}>
-							<center>
-								<IconButton 
-									aria-label="chevron_left" 
-									onClick={this.goToPreviousSlide} 
-									color="primary" 
-									style={{ marginTop : '25vh' }}
+					<Grow in={true} timeout={{ enter : 1000 }}>
+						<Grid container spacing={8}>
+							<Grid item xs={1}>
+								<center>
+									<IconButton 
+										aria-label="chevron_left" 
+										onClick={this.goToPreviousSlide} 
+										color="primary" 
+										style={{ marginTop : '25vh' }}
+									>
+										<Icon>chevron_left</Icon>
+									</IconButton>
+								</center>
+							</Grid>
+							<Grid item xs={10} style={{ position : 'relative' }}>
+								{this.getQuestionsAndExplanations()}
+							</Grid>
+							<Grid item xs={1}>
+								<center>
+									<IconButton 
+										aria-label="chevron_right" 
+										onClick={this.goToNextSlide} 
+										color="primary" 
+										style={{ marginTop : '25vh' }}
+									>
+										<Icon>chevron_right</Icon>
+									</IconButton>
+								</center>
+							</Grid>
+							<div style={{ position : 'absolute', left : '0.25em', top : '0.25em' }}>
+								<Button 
+									onClick={() => this.setState({ currentState : TestStates.Lesson })}
+									variant="outlined" 
+								 	color="primary" 
 								>
-									<Icon>chevron_left</Icon>
-								</IconButton>
-							</center>
+									Go Back To Lesson
+								</Button>
+							</div>
 						</Grid>
-						<Grid item xs={10} style={{ position : 'relative' }}>
-							{this.getQuestionsAndExplanations()}
-						</Grid>
-						<Grid item xs={1}>
-							<center>
-								<IconButton 
-									aria-label="chevron_right" 
-									onClick={this.goToNextSlide} 
-									color="primary" 
-									style={{ marginTop : '25vh' }}
-								>
-									<Icon>chevron_right</Icon>
-								</IconButton>
-							</center>
-						</Grid>
-						<div style={{ position : 'absolute', left : '0.25em', top : '0.25em' }}>
-							<Button 
-								onClick={() => this.setState({ currentState : TestStates.Lesson })}
-								variant="outlined" 
-							 	color="primary" 
-							>
-								Go Back To Lesson
-							</Button>
-						</div>
-					</Grid>
+					</Grow>
 				)}
 				{this.state.currentState === TestStates.TestEnd && (
-					<Fade in={true} timeout={{ enter : 1000 }}>
-						<Grid container spacing={8}>
-							<Grid item xs={8}>
-								<Typography variant={'title'}>{this.props.lesson.Tag}</Typography>
-								<Typography variant={'caption'}>Explanations go here</Typography>
-							</Grid>
-							<Grid item xs={4}>
+					<React.Fragment>
+						<Grow in={this.state.testEndState === 0} timeout={{ enter : 1000, exit : 500 }}> 
+							<div style={{ position : 'absolute', width : '100%' }}>
 								<div
 									className={`avo-card`} 
 									style={{ 
@@ -131,20 +131,49 @@ export default class AVOLearnTestComp extends Component {
 		                                margin        : 'none',
 		                                width         : 'auto',
 		                                display       : 'flex',
+		                                overflow      : 'hidden',
 		                                height        : '50vh', 
 		                                flexDirection : 'column',
 		                                border        : 'none'
 									}}
 								>
-									<AVOMasteryGauge 
-										comprehension={parseInt(parseFloat(this.props.lesson.mastery) * 100)}
+									<AVOLearnTestCongrat 
 		                                colors={['#399103', '#039124', '#809103']}
 		                            />
-									<Typography variant={'caption'}>Improved {this.props.lesson.Tag} by 10%</Typography>
 								</div>
+							</div>
+						</Grow>
+						<Grow in={this.state.testEndState === 1} timeout={{ enter : 1500 }}>
+							<Grid container spacing={8} style={{ position : 'absolute' }}>
+								<Grid item xs={8}>
+									<Typography variant={'title'}>{this.props.lesson.Tag}</Typography>
+									<Typography variant={'caption'}>Explanations go here</Typography>
+								</Grid>
+								<Grid item xs={4}>
+									<div
+										className={`avo-card`} 
+										style={{ 
+											position 	  : 'relative',
+											padding       : '10px',
+			                                flex          : 1,
+			                                margin        : 'none',
+			                                width         : 'auto',
+			                                display       : 'flex',
+			                                height        : '50vh', 
+			                                flexDirection : 'column',
+			                                border        : 'none'
+										}}
+									>
+										<AVOMasteryGauge 
+											comprehension={parseInt(parseFloat(this.props.lesson.mastery) * 100)}
+			                                colors={['#399103', '#039124', '#809103']}
+			                            />
+										<Typography variant={'caption'}>Improved {this.props.lesson.Tag} by 10%</Typography>
+									</div>
+								</Grid>
 							</Grid>
-						</Grid>
-					</Fade>
+						</Grow>
+					</React.Fragment>
 				)}
 			</div>
 		);
@@ -163,7 +192,7 @@ export default class AVOLearnTestComp extends Component {
 	goToNextSlide = () => {
 		const currentIndex = this.state.questionIndex;
 		if(currentIndex > (this.props.lesson.data.questions.length * 2) - 2) 
-			this.setState({ currentState : TestStates.TestEnd });
+			this.switchToTestEnd();
 		this.setState({ 
 			questionIndex : currentIndex + 1, 
 			questionState : !!this.state.questionState ? 0 : 1 
@@ -259,5 +288,12 @@ export default class AVOLearnTestComp extends Component {
                 console.log(err)
             }
         );
+    };
+
+    switchToTestEnd() {
+    	this.setState({ currentState : TestStates.TestEnd });
+    	setTimeout(() => {
+    		this.setState({ testEndState : 1 });
+    	}, 3000);
     };
 };
