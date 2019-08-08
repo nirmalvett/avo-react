@@ -43,6 +43,7 @@ export default class AVOLearnTestComp extends Component {
     };
 
 	render() {
+		console.log(this.props.lesson.mastery)
 		return (
 			<div style={{ width : '100%', position : 'relative' }}>
 				{this.state.currentState === TestStates.Lesson && (
@@ -418,7 +419,9 @@ export default class AVOLearnTestComp extends Component {
                 console.log(res)
                 const temp = this.state.explanations;
                 temp[index] = res.explanation[0];
-                this.setState({ explanations : temp, changedMastery : res.mastery})
+                this.setState({ explanations : temp, changedMastery : res.mastery}, () => {
+					this.props.updateMastery(res.mastery, this.props.lesson.ID)
+				})
             }, 
             err => {
                 console.log(err)

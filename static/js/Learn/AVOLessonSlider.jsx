@@ -16,6 +16,7 @@ export default class AVOLessonSlider extends Component {
         this.state = {
             currentLesson : {},
             currentIndex  : 0,
+            changedCurrency: 0,
         };
         
         this.processSlidesIntoGroups = this.processSlidesIntoGroups.bind(this);
@@ -62,7 +63,7 @@ export default class AVOLessonSlider extends Component {
                 <AVOLessonFSM ref={this.fsmRef}>
                     {!!this.state.currentLesson && (
                         <AVOLearnTestComp 
-                            lesson={this.state.currentLesson}
+                            lesson={this.state.currentLesson} updateMastery={this.props.updateMastery}
                         />
                     )}
                 </AVOLessonFSM>
