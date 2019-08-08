@@ -85,7 +85,7 @@ export default function AVOMasteryGauge(props) {
                             <center className='avo-progression-gauge-text'>
                                 {props.comprehension}%
                                 <br></br>
-                                {/* <span className='avo-progression-gauge-subText'>Mastery</span> */}
+                                <span className='avo-progression-gauge-subText'>Mastery</span>
                             </center>
                         </div>
                     </center>
