@@ -11,7 +11,10 @@ import Button               from '@material-ui/core/Button';
 import * as Helpers 		from '../HelperFunctions/Utilities'
 import { CropPortrait } 	from '@material-ui/icons';
 import Grow                 from '@material-ui/core/Grow';
+import Fade                 from '@material-ui/core/Fade';
 import AVOLearnTestCongrat  from './AVOLearnTestCongrat';
+import { getMathJax } 		from "../HelperFunctions/Utilities";
+import { uniqueKey } 		from "../HelperFunctions/Helpers";
 
 const TestStates = {
 	Lesson          : 'LESSON',
@@ -25,11 +28,13 @@ export default class AVOLearnTestComp extends Component {
         this.state = {
             questionIndex 		: 0,
             newAnswers    		: this.props.lesson.data.questions.map(q => ''),
-            currentState  		: TestStates.TestEnd,
+            currentState  		: TestStates.Lesson,
             questionState      	: 1,
             currentExplanation 	: [],
-            testEndState        : 0
-            explanations 	: this.props.lesson.data.questions.map(q => ''),
+            explanationIndex    : 0,
+            testEndState        : 0,
+            explanations 	    : this.props.lesson.data.questions.map(q => ''),
+            changedMastery      : 0,
         };
         this.getSlideTranslation = this.getSlideTranslation.bind(this);
         this.goToPreviousSlide   = this.goToPreviousSlide  .bind(this);
@@ -44,7 +49,7 @@ export default class AVOLearnTestComp extends Component {
 					<Grid container spacing={8}>
 						<Grid item xs={8}>
 							<Typography variant={'title'}>{this.props.lesson.Tag}</Typography>
-							<Typography variant={'caption'}>{this.props.lesson.string}</Typography>
+							<Typography variant={'caption'}>{getMathJax(this.props.lesson.string, 'body2', uniqueKey())}</Typography>
 						</Grid>
 						<Grid item xs={4}>
 							<div
@@ -148,7 +153,35 @@ export default class AVOLearnTestComp extends Component {
 							<Grid container spacing={8} style={{ position : 'absolute' }}>
 								<Grid item xs={8}>
 									<Typography variant={'title'}>{this.props.lesson.Tag}</Typography>
-									<Typography variant={'caption'}>Explanations go here</Typography>
+									<Grid container spacing={8}>
+										<Grid item xs={2}>
+											<center>
+												<IconButton 
+													aria-label="chevron_left" 
+													onClick={this.goToPreviousExplanationSlide} 
+													color="primary" 
+													style={{ marginTop : '25vh' }}
+												>
+													<Icon>chevron_left</Icon>
+												</IconButton>
+											</center>
+										</Grid>
+										<Grid item xs={8} style={{ position : 'relative' }}>
+											{this.getTestEndExplanationRenderable()}
+										</Grid>
+										<Grid item xs={2}>
+											<center>
+												<IconButton 
+													aria-label="chevron_right" 
+													onClick={this.goToNextExplanationSlide} 
+													color="primary" 
+													style={{ marginTop : '25vh' }}
+												>
+													<Icon>chevron_right</Icon>
+												</IconButton>
+											</center>
+										</Grid>
+									</Grid>
 								</Grid>
 								<Grid item xs={4}>
 									<div
@@ -166,10 +199,10 @@ export default class AVOLearnTestComp extends Component {
 										}}
 									>
 										<AVOMasteryGauge 
-											comprehension={parseInt(parseFloat(this.props.lesson.mastery) * 100)}
+											comprehension={parseInt(parseFloat(this.state.changedMastery) * 100)}
 			                                colors={['#399103', '#039124', '#809103']}
 			                            />
-										<Typography variant={'caption'}>Improved {this.props.lesson.Tag} by 10%</Typography>
+										<Typography variant={'caption'}>Mastery of {this.props.lesson.Tag} changed by {(this.state.changedMastery - this.props.lesson.mastery) * 100}%</Typography>
 									</div>
 								</Grid>
 							</Grid>
@@ -200,10 +233,36 @@ export default class AVOLearnTestComp extends Component {
 		});
 	};
 
+	goToPreviousExplanationSlide = () => {
+		const currentIndex = this.state.explanationIndex;
+		if(currentIndex == 0) 
+			return;
+		this.setState({ 
+			explanationIndex : currentIndex - 1, 
+		});
+	};
+
+	goToNextExplanationSlide = () => {
+		const currentIndex = this.state.explanationIndex;
+		if(currentIndex > this.props.lesson.data.questions.length -2) 
+			return;
+		this.setState({ 
+			explanationIndex : currentIndex + 1, 
+		});
+	};
+
 	getSlideTranslation = (index) => {
 		if(index < this.state.questionIndex)
 			return -75;
 		if(index > this.state.questionIndex)
+			return 75;
+		return 0;
+	};
+
+	getSlideExplanationTranslation = (index) => {
+		if(index < this.state.explanationIndex)
+			return -75;
+		if(index > this.state.explanationIndex)
 			return 75;
 		return 0;
 	};
@@ -271,6 +330,51 @@ export default class AVOLearnTestComp extends Component {
         return output;
     };
 
+    getTestEndExplanationRenderable() {
+    	const output = [];
+    	this.props.lesson.data.questions.forEach((question, index) => {
+    		output.push(
+  			 	<div style={{
+                    position   : 'absolute',
+                    transition : 'transform 1s ease-in, opacity 500ms ease-in',
+                    opacity    : `${!!this.getSlideExplanationTranslation(index) ? 0 : 1}`,
+                    willChange : 'transform',
+                    transform  : `translateX(${this.getSlideExplanationTranslation(index)}vw)`,
+                }}>
+                	<br/>
+                	<br/>
+                	<center>
+                        <AnswerInput
+                            type={question.types[0]}
+                            value={this.state.newAnswers[index]} 
+                            prompt={question.prompt}
+                            disabled={true}
+                            onBlur={() => {
+                                
+                            }}
+                            onChange={value => {
+                               
+                            }}
+                            buttonSave={value => {
+                               
+                            }}
+                        />
+                    </center>
+                	<br/>
+                    {
+                        (this.state.newAnswers[index] && <div>
+                            <h1>{ Helpers.getMathJax(this.state.explanations[index], 'body2', index) }</h1>
+                            </div>) ||
+                        (!this.state.newAnswers[index] && <div>
+                            <Typography variant={'title'}>This Question is missing an answer, therefore no explanation is available.</Typography>
+                        </div>)
+                    }
+                </div>
+    		);
+    	});
+    	return output;
+    };
+
     getExplanation(answers, question, index) {
         console.log(answers)
         console.log(question)
@@ -283,7 +387,7 @@ export default class AVOLearnTestComp extends Component {
                 console.log(res)
                 const temp = this.state.explanations;
                 temp[index] = res.explanation[0];
-                this.setState({explanations: temp})
+                this.setState({ explanations : temp, changedMastery : res.mastery})
             }, 
             err => {
                 console.log(err)

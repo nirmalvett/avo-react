@@ -3,7 +3,9 @@ import React, { Component } from 'react';
 export default class AVOLearnTestCongrat extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {};
+		this.state = {
+			completetion : 0
+		};
 	};
 
 	render() {
@@ -74,7 +76,7 @@ export default class AVOLearnTestCongrat extends Component {
 	                    fill="transparent" 
 	                    stroke="#399103" 
 	                    strokeWidth="0.85" 
-	                    strokeDasharray={`100 0`}
+	                    strokeDasharray={`${this.state.completetion} ${100 - this.state.completetion}`}
 	                    strokeDashoffset="25"
 	                    strokeLinecap='round'>
 	                </circle>
@@ -83,7 +85,7 @@ export default class AVOLearnTestCongrat extends Component {
 	            <center style={{ zIndex : 10, position: 'inherit', top : '28%' }}>
 	                <div className='avo-progression-gauge'>
 	                    <center className='avo-progression-gauge-text'>
-	                        <span className='avo-progression-gauge-subText'>Congrats</span>
+	                        <span className='avo-progression-gauge-subText'>Congrats!<br/>You completed the test.</span>
 	                    </center>
 	                </div>
 	            </center>
@@ -105,39 +107,38 @@ export default class AVOLearnTestCongrat extends Component {
         let additionalRot   = 0;
         let centerX         = 50;
         let centerY         = 50;
-        let radius          = 18;
-        setTimeout(() => {
-			for(let i = 0; i < 12; i++) {
-				let x  = [];
-	            let y  = [];
-	            let ox = [];
-	            let py = [];
-	            for(let j = 0; j < 2; j++) {
-	                let newPoint = rotate(
-	                    centerX,
-	                    centerY,
-	                    centerX + radius,
-	                    centerY + radius,
-	                    360 - ((currentRotation + (rotationAmount * j)) + additionalRot)// remember, svgs tend to be inverted, so we need to invert this
-	                );
-	                let newOffset = rotate(
-	                	centerX,
-	                    centerY,
-	                    centerX + radius,
-	                    centerY + radius,
-	                    360 - ((currentRotation + (rotationAmount * j)) + additionalRot)
-	                );
-	                x.push(newPoint[0] * newOffset[0]);
-	                y.push(newPoint[1] * newOffset[0]);
-	                currentRotation += rotationAmount;
-	            }
-	            if(i == 3 || i == 7) {
-	                additionalRot += (22.5 + (22.5/3));
-	                currentRotation = 0;
-	            }
-				const el = document.getElementById(`learn-congrat-el@${i}`);
-				el.setAttribute('d', `M${centerX}, ${centerY} L${x[0]}, ${y[0]} L${x[1]}, ${y[1]} Z`);
-			};
-        }, 750);
+        let radius          = 22;
+        for(let k = 0; k < 2; k++) {
+        	setTimeout(() => {
+        		if(!!k) radius = 19; 
+        		for(let i = 0; i < 12; i++) {
+					let x = [];
+		            let y = [];
+		            for(let j = 0; j < 2; j++) {
+		                let newPoint = rotate(
+		                    centerX,
+		                    centerY,
+		                    centerX + radius,
+		                    centerY + radius,
+		                    360 - ((currentRotation + (rotationAmount * j)) + additionalRot)// remember, svgs tend to be inverted, so we need to invert this
+		                );
+		                x.push(newPoint[0]);
+		                y.push(newPoint[1]);
+		                currentRotation += rotationAmount;
+		            }
+		            if(i == 3 || i == 7) {
+		                additionalRot += (22.5 + (22.5/3));
+		                currentRotation = 0;
+		            }
+					const el = document.getElementById(`learn-congrat-el@${i}`);
+					el.setAttribute('d', `M${centerX}, ${centerY} L${x[0]}, ${y[0]} L${x[1]}, ${y[1]} Z`);
+				};
+				currentRotation = 0;
+				additionalRot = 0;
+	        }, 500 * (k + 1));
+       	}
+       	setTimeout(() => {
+			this.setState({ completetion : 100 });
+       	}, 500);
 	};
 };

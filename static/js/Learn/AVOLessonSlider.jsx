@@ -110,7 +110,7 @@ export default class AVOLessonSlider extends Component {
                                 colors={['#399103', '#039124', '#809103']}
                             />
                             <Typography variant={'title'}>{lesson.Tag}</Typography>
-                            <Typography variant={'caption'}>{lesson.string}</Typography>
+                            <Typography variant={'caption'}>{lesson.string.substring(0, 20)}...</Typography>
                         </Card>
                     </Grid>
                 );
