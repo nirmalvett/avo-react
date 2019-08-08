@@ -172,8 +172,18 @@ def get_lessons():
     lesson_list = Lesson.query.join(UserLesson, UserLesson.LESSON == Lesson.LESSON).filter((Lesson.LESSON == UserLesson.LESSON) &
                                                        (UserLesson.USER == current_user.USER)).all()
     print(lesson_list)
-    tag_list = Tag.query.filter(Tag.TAG.in_(lesson_list)).all()
-    mastery_list = TagUser.query.filter((TagUser.TAG == Tag.TAG.in_(tag_list)) & (TagUser.USER == current_user.USER)).all()
+    tag_list = []
+    all_tags = Tag.query.all()
+    for tag in all_tags:
+        for lesson in lesson_list:
+            if lesson.TAG == tag.TAG:
+                tag_list.append(tag)
+    all_mastery = TagUser.query.all()
+    mastery_list = []
+    for  mastery in all_mastery:
+        for tag in tag_list:
+            if tag.TAG == mastery.TAG:
+                mastery_list.append(mastery)
     lessons = []
     for lesson in lesson_list:
         for i in range(len(tag_list)):
