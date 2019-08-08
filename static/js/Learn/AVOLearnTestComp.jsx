@@ -26,7 +26,7 @@ export default class AVOLearnTestComp extends Component {
             newAnswers    		: this.props.lesson.data.questions.map(q => ''),
             currentState  		: TestStates.Lesson,
             questionState      	: 1,
-            currentExplanation 	: []
+            explanations 	: this.props.lesson.data.questions.map(q => ''),
         };
         this.getSlideTranslation = this.getSlideTranslation.bind(this);
         this.goToPreviousSlide   = this.goToPreviousSlide  .bind(this);
@@ -216,7 +216,7 @@ export default class AVOLearnTestComp extends Component {
                 </div>
             );
 
-            // Explanation Push
+            // Explanation Pushexplanations
             output.push(
                 <div style={{
                     position   : 'absolute',
@@ -229,7 +229,7 @@ export default class AVOLearnTestComp extends Component {
                 	<br/>
                     {
                         (this.state.newAnswers[index] && <div>
-                            {/*<h1>{ Helpers.getMathJax(this.state.currentExplanation, 'body2', index) }}</h1>*/}
+                            <h1>{ Helpers.getMathJax(this.state.explanations[index], 'body2', index) }</h1>
                             </div>) ||
                         (!this.state.newAnswers[index] && <div>
                             <Typography variant={'title'}>Previous Question is missing an answer, therefore no explanation is available.</Typography>
@@ -251,9 +251,9 @@ export default class AVOLearnTestComp extends Component {
             question.seed, 
             res => {
                 console.log(res)
-                const temp = _this.state.currentExplanation;
-                temp[index] = res;
-                this.setState({currentExplanation: temp})
+                const temp = this.state.explanations;
+                temp[index] = res.explanation[0];
+                this.setState({explanations: temp})
             }, 
             err => {
                 console.log(err)
