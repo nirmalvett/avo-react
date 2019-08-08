@@ -7,26 +7,26 @@ export function createClass(name: string, success: cb<{}>, failure: cb) {
 export interface Home {
     messages: {
         class: {
-            id: number
-            name: string
-        }
+            id: number;
+            name: string;
+        };
         messages: {
-            title: string
-            body: string
-            date: number
-        }
-    }[]
+            title: string;
+            body: string;
+            date: number;
+        };
+    }[];
     dueDates: {
         class: {
-            id: number
-            name: string
-        }
+            id: number;
+            name: string;
+        };
         dueDates: {
-            id: number
-            name: string
-            dueDate: number
-        }[]
-    }[]
+            id: number;
+            name: string;
+            dueDate: number;
+        }[];
+    }[];
 }
 
 export function home(success: cb<Home>, failure: cb) {
@@ -70,15 +70,15 @@ export function getClasses(success: cb<GetClasses>, failure: cb) {
 
 export interface GetClassTestResults {
     results: {
-        userID: number,
-        firstName: string,
-        lastName: string,
+        userID: number;
+        firstName: string;
+        lastName: string;
         tests: {
-            takesID: number,
-            timeSubmitted: number,
-            grade: number
-        }[]
-    }[]
+            takesID: number;
+            timeSubmitted: number;
+            grade: number;
+        }[];
+    }[];
 }
 
 export function getClassTestResults(testID: number, success: cb<GetClassTestResults>, failure: cb) {
@@ -89,14 +89,16 @@ export function CSVDownload(classId: number, success: cb<{}>, failure: cb) {
     _request('GET', `/CSV/ClassMarks/${classId}`, success, failure);
 }
 
-export type Enroll = {} | {
-    classID: number
-    price: number
-    discount: number
-    tax: number
-    totalPrice: number
-    freeTrial: boolean
-};
+export type Enroll =
+    | {}
+    | {
+          classID: number;
+          price: number;
+          discount: number;
+          tax: number;
+          totalPrice: number;
+          freeTrial: boolean;
+      };
 
 export function enroll(key: string, success: cb<Enroll>, failure: cb) {
     _request('POST', '/enroll', success, failure, {key});

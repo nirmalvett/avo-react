@@ -18,7 +18,7 @@ UserRoutes = Blueprint('UserRoutes', __name__)
 
 
 @UserRoutes.route('/register', methods=['POST'])
-@validate(first_name=str, last_name=str, email=str, password=str)
+@validate(firstName=str, lastName=str, email=str, password=str)
 def register(first_name: str, last_name: str, email: str, password: str):
     """
     Registers a new user account
@@ -50,7 +50,7 @@ def register(first_name: str, last_name: str, email: str, password: str):
                f'activate your account. If you have any questions or suggestions for how we can improve, please send '
                f'us an email at contact@avocadocore.com.'
                f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>')
-    return jsonify(message='Account created')
+    return jsonify({})
 
 
 @UserRoutes.route('/confirm/<token>')
@@ -100,9 +100,14 @@ def login(username: str, password: str):
     else:
         # Else log the user in
         login_user(user)
-        return jsonify(first_name=current_user.first_name, last_name=current_user.last_name,
-                       is_teacher=current_user.is_teacher, is_admin=current_user.is_admin,
-                       color=current_user.color, theme=current_user.theme)
+        return jsonify(
+            firstName=current_user.first_name,
+            lastName=current_user.last_name,
+            isTeacher=current_user.is_teacher,
+            isAdmin=current_user.is_admin,
+            color=current_user.color,
+            theme=current_user.theme,
+        )
 
 
 @UserRoutes.route('/getUserInfo')
@@ -113,9 +118,14 @@ def get_user_info():
     """
     try:
         # Returns the current user's data if not logged in return error JSON
-        return jsonify(first_name=current_user.first_name, last_name=current_user.last_name,
-                       is_teacher=current_user.is_teacher, is_admin=current_user.is_admin,
-                       color=current_user.color, theme=current_user.theme)
+        return jsonify(
+            firstName=current_user.first_name,
+            lastName=current_user.last_name,
+            isTeacher=current_user.is_teacher,
+            isAdmin=current_user.is_admin,
+            color=current_user.color,
+            theme=current_user.theme,
+        )
     except AttributeError:
         return jsonify(error='User does not exist')
 
@@ -128,7 +138,7 @@ def logout():
     :return: Confirmation that the user has been logged out
     """
     logout_user()
-    return jsonify(message='Successfully logged out')
+    return jsonify({})
 
 
 # Password reset
@@ -155,14 +165,16 @@ def request_password_reset(email: str):
                f'This link will expire in an hour'
                f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
                )
-    return jsonify(code="email sent")
+    return jsonify({})
 
 
 @UserRoutes.route('/passwordReset/<token>', methods=['GET', 'POST'])
-def password_reset(token):
+@validate(password=[str])
+def password_reset(token, password: str):
     """
     Render Reset page and change users password
     :param token: gotten from email from user
+    :param password: new password
     :return: redirect to login
     """
     serializer = URLSafeTimedSerializer(config.SECRET_KEY)
@@ -179,7 +191,6 @@ def password_reset(token):
     if request.method == 'GET':
         return render_template('index.html')
     elif request.method == 'POST':
-        password = request.json['password']
         # Method is POST change password
         if len(password) < 8:
             # If the password is les then 8 return error JSON
@@ -189,7 +200,7 @@ def password_reset(token):
         user.password = hashed_password
         user.salt = salt
         db.session.commit()
-        return jsonify(code="Password Successfully Updated!")
+        return jsonify({})
     else:
         return jsonify(error='An unexpected error occurred. Reference #1j29')
 
@@ -208,7 +219,7 @@ def change_color(color: int):
     # Commit the users's changes to the DB
     current_user.color = color
     db.session.commit()
-    return jsonify(message='updated')
+    return jsonify({})
 
 
 @UserRoutes.route('/changeTheme', methods=['POST'])
@@ -222,7 +233,7 @@ def change_theme(theme: int):
     # Applies the user's changes to the database
     current_user.theme = theme
     db.session.commit()
-    return jsonify(message='updated')
+    return jsonify({})
 
 
 # Account management (admin only)

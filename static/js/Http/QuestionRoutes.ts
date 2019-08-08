@@ -12,7 +12,7 @@ export function getSets(success: cb<GetSets>, failure: cb) {
 // getAllQuestions
 
 export interface NewSet {
-    setID: number
+    setID: number;
 }
 
 export function newSet(name: string, success: cb<NewSet>, failure: cb) {
@@ -28,7 +28,7 @@ export function deleteSet(id: number, success: cb<{}>, failure: cb) {
 }
 
 export interface NewQuestion {
-    questionID: number
+    questionID: number;
 }
 
 export function newQuestion(
@@ -69,27 +69,29 @@ export function deleteQuestion(id: number, success: cb<{}>, failure: cb) {
 }
 
 export interface GetQuestion {
-    prompt: string
-    prompts: string[]
-    types: number[]
+    prompt: string;
+    prompts: string[];
+    types: number[];
 }
 
 export function getQuestion(question: number, seed: number, success: cb<GetQuestion>, failure: cb) {
     _request('POST', '/getQuestion', success, failure, {question, seed});
 }
 
-export type SampleQuestion = {
-    prompt: string;
-    prompts: string[];
-    types: number[];
-    points: number[];
-} | {
-    prompt: string;
-    prompts: string[];
-    types: number[];
-    explanation: string[];
-    variables: {[variable: string]: string};
-}
+export type SampleQuestion =
+    | {
+          prompt: string;
+          prompts: string[];
+          types: number[];
+          points: number[];
+      }
+    | {
+          prompt: string;
+          prompts: string[];
+          types: number[];
+          explanation: string[];
+          variables: {[variable: string]: string};
+      };
 
 export function sampleQuestion(
     string: string,
