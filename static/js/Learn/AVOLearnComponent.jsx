@@ -34,7 +34,7 @@ export default class AVOLearnComponent extends Component {
         if(this.state.lessons.length == 0) return (<div></div>);
         return (
             <Grid container xs={12} style={{flex: 1, display: 'flex', paddingBottom: 0, padding : '1em', position : 'relative', width : '98% !important'}} id="avo-learn__layout-div">
-                <AVOLessonSlider slides={this.state.lessons} updateMastery={this.updateMastery}/>        
+                <AVOLessonSlider changeToNewMastery={()=>this.changeToNewMastery()}slides={this.state.lessons} updateMastery={this.updateMastery}/>        
             </Grid>
         );
     };
@@ -59,12 +59,22 @@ export default class AVOLearnComponent extends Component {
             const lessons = this.state.lessons
             const index = lessons.findIndex(lesson => lesson.ID === id)
             if (index !== -1) {
-                lessons[index].mastery = mastery 
+                lessons[index].newMastery = mastery 
                 this.setState({
                     lessons
                 })
             }
         }
+    }
+
+    changeToNewMastery = () => {
+        const lessons = this.state.lessons.map(lesson => {
+            if (lesson.newMastery) {
+                lesson.mastery = lesson.newMastery
+            }
+            return lesson
+        })
+        this.setState({lessons})
     }
     getGridStyleProperties(LIndex) {
         const styles = { padding: '1em', zIndex : this.state.lessons.length - LIndex, display : 'flex', position : 'relative'};

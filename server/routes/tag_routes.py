@@ -217,7 +217,10 @@ def get_lesson_question_result():
     current_mastery = TagUser.query.filter((TagUser.TAG == tag.TAG) & (TagUser.USER == current_user.USER)).first()
     if current_mastery is None:
         current_mastery = TagUser(current_user.USER, tag.TAG)
-    current_mastery.mastery += (q.score - question.total) / 100
+    if q.score == question.total:
+        current_mastery.mastery += (q.score) / 100
+    else: 
+        current_mastery.mastery += (q.score - question.total) / 100
     if current_mastery.mastery > 1.0:
         current_mastery.mastery = 1.0
     db.session.add(current_mastery)
