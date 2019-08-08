@@ -292,6 +292,9 @@ export default class AVOLearnTestComp extends Component {
                                 let newAnswerList = this.state.newAnswers;
                                 newAnswerList[index] = value;
                                 this.setState({newAnswers: newAnswerList});
+                                // if(question.types[0] == 2) {
+                                // 	this.getExplanation(newAnswerList, question, index);
+                                // };
                             }}
                             buttonSave={value => {
                                 let newAnswerList = this.state.newAnswers;
@@ -318,7 +321,33 @@ export default class AVOLearnTestComp extends Component {
                 	<br/>
                     {
                         (this.state.newAnswers[index] && <div>
-                            <h1>{ Helpers.getMathJax(this.state.explanations[index], 'body2', index) }</h1>
+                        	<Grid container spacing={8}>
+								<Grid item xs={8}>
+									<h1>{ Helpers.getMathJax(this.state.explanations[index], 'body2', index) }</h1>
+								</Grid>
+								<Grid item xs={4}>
+									<div
+										className={`avo-card`} 
+										style={{ 
+											position 	  : 'relative',
+											padding       : '10px',
+			                                flex          : 1,
+			                                margin        : 'none',
+			                                width         : 'auto',
+			                                display       : 'flex',
+			                                height        : '50vh', 
+			                                flexDirection : 'column',
+			                                border        : 'none'
+										}}
+									>
+										<AVOMasteryGauge 
+											comprehension={parseInt(parseFloat(this.state.changedMastery) * 100)}
+			                                colors={['#399103', '#039124', '#809103']}
+			                            />
+										<Typography variant={'caption'}>Mastery of {this.props.lesson.Tag} changed by {((this.state.changedMastery - this.props.lesson.mastery) * 100).toFixed(2)}%</Typography>
+									</div>
+								</Grid>
+							</Grid>
                             </div>) ||
                         (!this.state.newAnswers[index] && <div>
                             <Typography variant={'title'}>Previous Question is missing an answer, therefore no explanation is available.</Typography>

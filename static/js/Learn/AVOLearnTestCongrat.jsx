@@ -24,7 +24,7 @@ export default class AVOLearnTestCongrat extends Component {
         let additionalRot   = 0;
         let centerX         = 50;
         let centerY         = 50;
-        let radius          = 18;
+        let radius          = 10;
         let items           = [];
         for(let i = 0; i < 12; i++) {
             let x = [];
