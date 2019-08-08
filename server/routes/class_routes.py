@@ -1,3 +1,5 @@
+from typing import List
+
 from flask import Blueprint, jsonify, make_response
 from flask_login import current_user
 from sqlalchemy.orm.exc import NoResultFound
@@ -6,7 +8,6 @@ from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
 from server.decorators import login_required, teacher_only, student_only, admin_only, validate
 from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message
-from server.helper_functions import alchemy_to_dict
 import paypalrestsdk
 import config
 
@@ -53,7 +54,7 @@ def create_class(name: str):
     """
     db.session.add(Class(current_user.USER, name))
     db.session.commit()
-    return jsonify(message='Created!')
+    return jsonify({})
 
 
 @ClassRoutes.route('/home')
@@ -147,7 +148,7 @@ def get_classes():
     classes = {}
     for c in users_classes:
         classes[c.CLASS] = {
-            'id': c.CLASS,
+            'classID': c.CLASS,
             'enrollKey': c.enroll_key,
             'name': c.name,
             'tests': {}
@@ -156,7 +157,7 @@ def get_classes():
     for t in users_tests:
         if t.open_time is not None:
             # If the test has an open time check if it should auto open
-            if t.open_time is not None and t.is_open == False and t.open_time <= now < t.deadline:
+            if t.open_time is not None and not t.is_open and t.open_time <= now < t.deadline:
                 # If the test is withing the open time and deadline open the test and disable the open time
                 test_update = Test.query.get(t.TEST)
                 test_update.open_time = None
@@ -168,53 +169,34 @@ def get_classes():
             test_update.is_open = False
             db.session.commit()
 
-        if t.open_time is None:
-            classes[t.CLASS]['tests'][t.TEST] = {
-                'id': t.TEST,
-                'name': t.name,
-                'open':  t.is_open and t.deadline > now,
-                'open_time': t.open_time,
-                'deadline': t.deadline.timestamp()*1000,
-                'timer': t.timer,
-                'attempts': t.attempts,
-                'total': t.total,
-                'submitted': [],
-                'current': None,
-                'classAverage': 0,
-                'classMedian': 0,
-                'classSize': 0,
-                'standardDeviation': 0,
-            }
-
-        else:
-            classes[t.CLASS]['tests'][t.TEST] = {
-                'id': t.TEST,
-                'name': t.name,
-                'open': (t.open_time >= now or t.is_open) and t.deadline > now,
-                'open_time': t.open_time,
-                'deadline': t.deadline.timestamp()*1000,
-                'timer': t.timer,
-                'attempts': t.attempts,
-                'total': t.total,
-                'submitted': [],
-                'current': None,
-                'classAverage': 0,
-                'classMedian': 0,
-                'classSize': 0,
-                'standardDeviation': 0,
-            }
+        classes[t.CLASS]['tests'][t.TEST] = {
+            'testID': t.TEST,
+            'name': t.name,
+            'open': bool(((t.open_time is not None and t.open_time >= now) or t.is_open) and t.deadline > now),
+            'openTime': t.open_time.timestamp(),
+            'deadline': t.deadline.timestamp()*1000,
+            'timer': t.timer,
+            'attempts': t.attempts,
+            'total': t.total,
+            'submitted': [],
+            'current': None,
+            'classAverage': 0,
+            'classMedian': 0,
+            'classSize': 0,
+            'standardDeviation': 0,
+        }
 
     for t in users_takes:
         if t.CLASS in classes and t.TEST in classes[t.CLASS]['tests']:
             test = classes[t.CLASS]['tests'][t.TEST]
             if t.time_submitted < now:
                 test['submitted'].append({
-                    'takes': t.TAKES,
+                    'takesID': t.TAKES,
                     'timeSubmitted': t.time_submitted.timestamp()*1000,
                     'grade': t.grade
                 })
-                if test['attempts'] == len(test['submitted']):
-                    test['open'] = 0
+                if test['attempts'] >= len(test['submitted']):
+                    test['open'] = False
             else:
                 test['current'] = {
                     'timeStarted': t.time_started.timestamp()*1000,
@@ -252,20 +234,21 @@ def get_class_test_results(test: int):
         return jsonify(error="User doesn't teach class")
     # All users in class
     users = User.query.filter((User.USER == Transaction.USER) & (current_test.CLASS == Transaction.CLASS)).all()
-    for i in range(len(users)):
+    results = []
+    for user in users:
         # For each user get user data and best takes instance and present append to list then return
-        first_name, last_name = users[i].first_name, users[i].last_name
-        takes = Takes.query.filter((Takes.USER == users[i].USER) & (Takes.TEST == test)).order_by(Takes.grade).all()
-        if len(takes) == 0:
-            # If the student hasn't taken the test then return default values else return the marks
-            users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
-                        'tests': []}
-        else:
-            users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
-                        'tests': [{'takes': takes[len(takes) - 1].TAKES,
-                                   'timeSubmitted': takes[-1].time_submitted.timestamp()*1000,
-                                   'grade': takes[len(takes) - 1].grade}]}
-    return jsonify(results=users)
+        takes = Takes.query.filter((Takes.USER == user.USER) & (Takes.TEST == test)).order_by(Takes.grade).all()
+        results.append({
+            'userID': user.USER,
+            'firstName': user.first_name,
+            'lastName': user.last_name,
+            'tests': [] if len(takes) == 0 else [{
+                'takesID': takes[-1].TAKES,
+                'timeSubmitted': takes[-1].time_submitted.timestamp()*1000,
+                'grade': takes[-1].grade
+            }]
+        })
+    return jsonify(results=results)
 
 
 @ClassRoutes.route('/CSV/ClassMarks/<class_id>')
@@ -357,11 +340,11 @@ def enroll(key: str):
                                                 (Transaction.CLASS == current_class.CLASS)).all()
         free_trial = not any(map(lambda t: t.TRANSACTION.startswith("FREETRIAL-"), transactions))
         return jsonify(
-            id=current_class.CLASS,
+            classID=current_class.CLASS,
             price=current_class.price,
             discount=current_class.price_discount,
             tax=round(current_class.price_discount * 0.13, 2),
-            totalprice=round(current_class.price_discount * 1.13, 2),
+            totalPrice=round(current_class.price_discount * 1.13, 2),
             freeTrial=free_trial
         )
 
@@ -377,7 +360,7 @@ def start_free_trial(class_id: int):
     try:
         # See if current class exists
         current_class = Class.query.get(class_id)
-    except:
+    except Exception:
         return jsonify(error="No class found")
     if current_class is None:
         return jsonify(error="No class found")
@@ -394,7 +377,7 @@ def start_free_trial(class_id: int):
     # Commit to database and enroll student
     db.session.add(new_transaction)
     db.session.commit()
-    return jsonify(code="Success")
+    return jsonify({})
 
 
 @ClassRoutes.route('/pay', methods=['POST'])
@@ -576,9 +559,14 @@ def get_messages(class_id: int):
         # If the teacher does not teach the class return error JSON
         return jsonify(error="user does not teach class")
 
-    messages = Message.query.filter(Message.CLASS == class_id).all()  # All messages of the class
-    print(alchemy_to_dict(messages))
-    return jsonify(messages=alchemy_to_dict(messages))
+    messages: List[Message] = Message.query.filter(Message.CLASS == class_id).all()  # All messages of the class
+    return jsonify(messages=list(map(lambda m: {
+        'messageID': m.MESSAGE,
+        'classID': m.CLASS,
+        'title': m.title,
+        'body': m.body,
+        'dateCreated': m.date_created.timestamp()*1000
+    }, messages)))
 
 
 @ClassRoutes.route('/addMessage', methods=['POST'])
@@ -597,7 +585,7 @@ def add_message(class_id: int, title: str, body: str):
     # Commit to database
     db.session.add(new_message)
     db.session.commit()
-    return jsonify(code="Message Created")
+    return jsonify({})
 
 
 @ClassRoutes.route("/deleteMessage", methods=["POST"])
@@ -614,7 +602,7 @@ def delete_message(message_id: int):
     # Remove message from database
     db.session.delete(current_message)
     db.session.commit()
-    return jsonify(code="Message deleted")
+    return jsonify({})
 
 
 @ClassRoutes.route("/editMessage", methods=['POST'])
@@ -637,16 +625,4 @@ def edit_message(message_id: int, title: str, body: str):
     message.body = body
     db.session.commit()
 
-    return jsonify(code="Message Updated")
-
-
-"""Helper Methods"""
-
-
-def time_stamp(t):
-    """
-    Casts DateTime object to int
-    :param t: DateTime
-    :return: int representation of DateTime
-    """
-    return int(f'{t.year:04d}{t.month:02d}{t.day:02d}{t.hour:02d}{t.minute:02d}{t.second:02d}')
+    return jsonify({})

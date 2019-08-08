@@ -1,35 +1,40 @@
 import {_request, cb} from './baseRequest';
 
-export function createClass(name: string, success: cb<never>, failure: cb) {
+export function createClass(name: string, success: cb<{}>, failure: cb) {
     _request('POST', '/createClass', success, failure, {name});
 }
 
-export function home(success: cb<never>, failure: cb) {
+export interface Home {
+    messages: never
+    dueDates: never
+}
+
+export function home(success: cb<Home>, failure: cb) {
     _request('POST', '/home', success, failure);
 }
 
 export interface GetClasses {
     classes: {
-        id: number;
+        classID: number;
         enrollKey: string;
         name: string;
         tests: {
-            id: number;
+            testID: number;
             name: string;
-            open: number;
-            open_time: never;
-            deadline: never;
+            open: boolean;
+            openTime: number;
+            deadline: number;
             timer: number;
             attempts: number;
             total: number;
             submitted: {
-                takes: number;
-                timeSubmitted: never;
+                takesID: number;
+                timeSubmitted: number;
                 grade: number;
             }[];
             current: null | {
-                timeStarted: never;
-                timeSubmitted: never;
+                timeStarted: number;
+                timeSubmitted: number;
             };
             classAverage: number;
             classMedian: number;
@@ -43,7 +48,20 @@ export function getClasses(success: cb<GetClasses>, failure: cb) {
     _request('GET', '/getClasses', success, failure);
 }
 
-export function getClassTestResults(test: number, success: cb<never>, failure: cb) {
+export interface GetClassTestResults {
+    results: {
+        userID: number,
+        firstName: string,
+        lastName: string,
+        tests: {
+            takesID: number,
+            timeSubmitted: number,
+            grade: number
+        }[]
+    }[]
+}
+
+export function getClassTestResults(test: number, success: cb<GetClassTestResults>, failure: cb) {
     _request('POST', '/getClassTestResults', success, failure, {test});
 }
 
@@ -51,21 +69,32 @@ export function CSVDownload(classId: number, success: cb<never>, failure: cb) {
     _request('GET', `/CSV/ClassMarks/${classId}`, success, failure);
 }
 
-export function enroll(key: string, success: cb<never>, failure: cb) {
+export type Enroll = {
+    message: 'Enrolled'
+} | {
+    classID: number
+    price: number
+    discount: number
+    tax: number
+    totalPrice: number
+    freeTrial: boolean
+};
+
+export function enroll(key: string, success: cb<Enroll>, failure: cb) {
     _request('POST', '/enroll', success, failure, {key});
 }
 
-export function freeTrial(classID: number, success: cb<never>, failure: cb) {
+export function freeTrial(classID: number, success: cb<{}>, failure: cb) {
     _request('POST', '/freeTrial', success, failure, {classID});
 }
 
 export interface GetMessages {
     messages: {
-        MESSAGE: number;
-        CLASS: number;
+        messageID: number;
+        classID: number;
         title: string;
         body: string;
-        date_created: never;
+        dateCreated: number;
     }[];
 }
 
@@ -77,13 +106,13 @@ export function addMessage(
     classID: number,
     title: string,
     body: string,
-    success: cb<never>,
+    success: cb<{}>,
     failure: cb,
 ) {
     _request('POST', '/addMessage', success, failure, {classID, title, body});
 }
 
-export function deleteMessage(messageID: number, success: cb<never>, failure: cb) {
+export function deleteMessage(messageID: number, success: cb<{}>, failure: cb) {
     _request('POST', '/deleteMessage', success, failure, {messageID});
 }
 
@@ -91,7 +120,7 @@ export function editMessage(
     messageID: number,
     title: string,
     body: string,
-    success: cb<never>,
+    success: cb<{}>,
     failure: cb,
 ) {
     _request('POST', '/editMessage', success, failure, {messageID, title, body});
