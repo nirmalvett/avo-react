@@ -84,7 +84,7 @@ export default class AVOLearnTestCongrat extends Component {
                     <foreignObject x={30} y={30} width={40} height={40}>
                         <div className='avo-progression-gauge'>
                             <center className='avo-progression-gauge-text'>
-                                <span className='avo-progression-gauge-subText'>Congrats!<br/>You completed<br/> the test.</span>
+                                <span className='avo-progression-gauge-subText'>Congrats!{/*<br/>You completed<br/> the test.*/}</span>
                             </center>
                         </div>
                     </foreignObject>
