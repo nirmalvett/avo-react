@@ -169,10 +169,11 @@ def get_lessons():
                             {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "mastery": 0.76, "string": "this is a test string"}])
 
     """
-    lesson_list = Lesson.join(UserLesson).query.filter((Lesson.LESSON == UserLesson.LESSON) &
+    lesson_list = Lesson.query.join(UserLesson, UserLesson.LESSON == Lesson.LESSON).filter((Lesson.LESSON == UserLesson.LESSON) &
                                                        (UserLesson.USER == current_user.USER)).all()
-    tag_list = Tag.query.filter(Tag.TAG.in_(lesson_list.TAG)).all()
-    mastery_list = TagUser.query.filter((TagUser.TAG == tag_list.TAG) & (TagUser.USER == current_user.USER)).all()
+    print(lesson_list)
+    tag_list = Tag.query.filter(Tag.TAG.in_(lesson_list)).all()
+    mastery_list = TagUser.query.filter((TagUser.TAG == Tag.TAG.in_(tag_list)) & (TagUser.USER == current_user.USER)).all()
     lessons = []
     for lesson in lesson_list:
         for i in range(len(tag_list)):
