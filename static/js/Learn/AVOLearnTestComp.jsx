@@ -34,7 +34,7 @@ export default class AVOLearnTestComp extends Component {
             explanationIndex    : 0,
             testEndState        : 0,
             explanations 	    : this.props.lesson.data.questions.map(q => ''),
-            changedMastery      : 0,
+            changedMastery      : this.props.lesson.mastery,
         };
         this.getSlideTranslation = this.getSlideTranslation.bind(this);
         this.goToPreviousSlide   = this.goToPreviousSlide  .bind(this);
