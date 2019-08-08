@@ -81,14 +81,14 @@ export default class AVOLearnTestCongrat extends Component {
 	                    strokeLinecap='round'>
 	                </circle>
 	                {triangles}
+                    <foreignObject x={30} y={30} width={40} height={40}>
+                        <div className='avo-progression-gauge'>
+                            <center className='avo-progression-gauge-text'>
+                                <span className='avo-progression-gauge-subText'>Congrats!<br/>You completed<br/> the test.</span>
+                            </center>
+                        </div>
+                    </foreignObject>
 	            </svg>
-	            <center style={{ zIndex : 10, position: 'inherit', top : '50px' }}>
-	                <div className='avo-progression-gauge'>
-	                    <center className='avo-progression-gauge-text'>
-	                        <span className='avo-progression-gauge-subText'>Congrats!<br/>You completed<br/> the test.</span>
-	                    </center>
-	                </div>
-	            </center>
 	        </div>
 	    );
 	};

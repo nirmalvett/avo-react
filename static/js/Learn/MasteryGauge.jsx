@@ -79,16 +79,18 @@ export default function AVOMasteryGauge(props) {
                     strokeLinecap='round'>
                 </circle>
                 {triangles}
-            </svg>
-            <center style={{ zIndex : 10, position: 'inherit' }}>
-                <div className='avo-progression-gauge'>
-                    <center className='avo-progression-gauge-text'>
-                        {props.comprehension}%
-                        <br></br>
-                        <span className='avo-progression-gauge-subText'>Mastery</span>
+                <foreignObject x={5} y={5} width={32} height={32}>
+                    <center style={{ zIndex : 10, position: 'inherit' }}>
+                        <div className='avo-progression-gauge'>
+                            <center className='avo-progression-gauge-text'>
+                                {props.comprehension}%
+                                <br></br>
+                                <span className='avo-progression-gauge-subText'>Mastery</span>
+                            </center>
+                        </div>
                     </center>
-                </div>
-            </center>
+                </foreignObject>
+            </svg>
         </div>
     );
 };
