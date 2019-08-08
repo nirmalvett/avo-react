@@ -202,14 +202,16 @@ def get_lesson_question_result():
         abort(400)
     data = request.json
     question_id, answers, seed = data['QuestionID'], data['Answers'], data['seed']
+    print(answers)
     if not isinstance(question_id, int) or not isinstance(answers, list):
         return jsonify(error="one or more data types are not correct")
     question = Question.query.get(question_id)
     if question is None:
         return jsonify(error="question not found")
     q = AvoQuestion(question.string, seed, answers)
-    tag = Tag.join(TagQuestion).query.filter((Tag.TAG == TagQuestion.TAG) &
-                                                         (TagQuestion.QUESTION == question.QUESTION)).all()
+    print(question)
+    tag = Tag.query.join(TagQuestion, TagQuestion.TAG == Tag.TAG and TagQuestion.QUESTION == question.QUESTION).first()
+    print(tag)
     current_mastery = TagUser.query.filter((TagUser.TAG == tag.TAG) & (TagUser.USER == current_user.USER)).first()
     if current_mastery is None:
         current_mastery = TagUser(current_user.USER, tag.TAG)

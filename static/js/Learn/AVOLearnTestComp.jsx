@@ -247,7 +247,7 @@ export default class AVOLearnTestComp extends Component {
         const _this = this;
         Http.getLessonQuestionResult(
             question.ID,
-            answers, 
+            [answers[index]], 
             question.seed, 
             res => {
                 console.log(res)
