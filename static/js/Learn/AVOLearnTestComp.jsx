@@ -202,7 +202,7 @@ export default class AVOLearnTestComp extends Component {
 											comprehension={parseInt(parseFloat(this.state.changedMastery) * 100)}
 			                                colors={['#399103', '#039124', '#809103']}
 			                            />
-										<Typography variant={'caption'}>Mastery of {this.props.lesson.Tag} changed by {(this.state.changedMastery - this.props.lesson.mastery) * 100}%</Typography>
+										<Typography variant={'caption'}>Mastery of {this.props.lesson.Tag} changed by {((this.state.changedMastery - this.props.lesson.mastery) * 100).toFixed(2)}%</Typography>
 									</div>
 								</Grid>
 							</Grid>
@@ -340,6 +340,8 @@ export default class AVOLearnTestComp extends Component {
                     opacity    : `${!!this.getSlideExplanationTranslation(index) ? 0 : 1}`,
                     willChange : 'transform',
                     transform  : `translateX(${this.getSlideExplanationTranslation(index)}vw)`,
+                    height     : '75vh',
+                    overflowY  : 'auto'
                 }}>
                 	<br/>
                 	<br/>
@@ -363,7 +365,7 @@ export default class AVOLearnTestComp extends Component {
                 	<br/>
                     {
                         (this.state.newAnswers[index] && <div>
-                            <h1>{ Helpers.getMathJax(this.state.explanations[index], 'body2', index) }</h1>
+                            <h1>{ Helpers.getMathJax(this.state.explanations[index], 'caption', index) }</h1>
                             </div>) ||
                         (!this.state.newAnswers[index] && <div>
                             <Typography variant={'title'}>This Question is missing an answer, therefore no explanation is available.</Typography>
