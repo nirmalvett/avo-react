@@ -169,21 +169,23 @@ def get_lessons():
                             {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "mastery": 0.76, "string": "this is a test string"}])
 
     """
+
     lesson_list = Lesson.query.join(UserLesson, UserLesson.LESSON == Lesson.LESSON).filter((Lesson.LESSON == UserLesson.LESSON) &
                                                        (UserLesson.USER == current_user.USER)).all()
-    print(lesson_list)
     tag_list = []
     all_tags = Tag.query.all()
     for tag in all_tags:
         for lesson in lesson_list:
             if lesson.TAG == tag.TAG:
                 tag_list.append(tag)
+    print(tag_list)
     all_mastery = TagUser.query.all()
     mastery_list = []
     for  mastery in all_mastery:
         for tag in tag_list:
             if tag.TAG == mastery.TAG:
                 mastery_list.append(mastery)
+    print(mastery_list)
     lessons = []
     for lesson in lesson_list:
         for i in range(len(tag_list)):
@@ -192,6 +194,7 @@ def get_lessons():
                     if tag_list[i].TAG == mastery_list[j].TAG:
                         lessons.append({"ID": lesson.LESSON, "Tag": tag_list[i].tagName,
                                         "mastery": mastery_list[j].mastery, "string": lesson.lesson_string})
+    print(lessons)
     return jsonify(lessons=lessons)
 
 
@@ -202,23 +205,22 @@ def get_lesson_question_result():
         abort(400)
     data = request.json
     question_id, answers, seed = data['QuestionID'], data['Answers'], data['seed']
-    print(answers)
     if not isinstance(question_id, int) or not isinstance(answers, list):
         return jsonify(error="one or more data types are not correct")
     question = Question.query.get(question_id)
     if question is None:
         return jsonify(error="question not found")
     q = AvoQuestion(question.string, seed, answers)
-    print(question)
-    tag = Tag.query.join(TagQuestion, TagQuestion.TAG == Tag.TAG and TagQuestion.QUESTION == question.QUESTION).first()
-    print(tag)
+    print(question_id)
+    tag = Tag.query.join(TagQuestion).filter(TagQuestion.QUESTION == question_id).first()
+    print(tag.TAG)
     current_mastery = TagUser.query.filter((TagUser.TAG == tag.TAG) & (TagUser.USER == current_user.USER)).first()
     if current_mastery is None:
         current_mastery = TagUser(current_user.USER, tag.TAG)
-        db.session.add(current_mastery)
     current_mastery.mastery += (q.score - question.total) / 100
     if current_mastery.mastery > 1.0:
         current_mastery.mastery = 1.0
+    db.session.add(current_mastery)
     db.session.commit()
     return jsonify(explanation=q.explanation, mastery=current_mastery.mastery)
 
