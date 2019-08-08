@@ -64,7 +64,7 @@ export default function AVOMasteryGauge(props) {
     console.log(triangles);
     return (
         <div className='avo-progression-gauge-container'>
-            <svg width="12.5em" height="12.5em" viewBox="0 0 42 42" className="donut">
+            <svg width="200px" height="200px" viewBox="0 0 42 42" className="donut">
                 <circle className="donut-ring" cx="21" cy="21" r="16" fill="transparent" stroke="#fafafa" strokeWidth="0.25" strokeDasharray="0.5"></circle>
                 <circle 
                     class="avo-progression-gauge-svg" 

@@ -66,7 +66,7 @@ export default class AVOLearnTestCongrat extends Component {
 	    console.log(triangles);
 	    return (
 	        <div className='avo-progression-gauge-container' style={{ transform : 'scale(1.25)' }}>
-	            <svg width="22.5em" height="22.5em" viewBox="0 0 100 100" className="donut" style={{ top : '-25%' }}>
+	            <svg width="400px" height="400px" viewBox="0 0 100 100" className="donut" style={{ top : '-122px' }}>
 	                <circle className="donut-ring" cx="50" cy="50" r="25" fill="transparent" stroke="#fafafa" strokeWidth="0.25" strokeDasharray="0.5"></circle>
 	                <circle 
 	                    class="avo-progression-gauge-svg" 
@@ -82,10 +82,10 @@ export default class AVOLearnTestCongrat extends Component {
 	                </circle>
 	                {triangles}
 	            </svg>
-	            <center style={{ zIndex : 10, position: 'inherit', top : '28%' }}>
+	            <center style={{ zIndex : 10, position: 'inherit', top : '50px' }}>
 	                <div className='avo-progression-gauge'>
 	                    <center className='avo-progression-gauge-text'>
-	                        <span className='avo-progression-gauge-subText'>Congrats!<br/>You completed the test.</span>
+	                        <span className='avo-progression-gauge-subText'>Congrats!<br/>You completed<br/> the test.</span>
 	                    </center>
 	                </div>
 	            </center>

@@ -428,10 +428,10 @@ shrink-on-hover {
 }
 
 .avo-progression-gauge-container .avo-progression-gauge{
-  width: 6.075em;
-  height: 6.075em;
+  width: 100px;
+  height: 100px;
   z-index: 2;
-  margin-top: 4.75em;
+  margin-top: 75px;
   border-radius: 50%;
   box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
   color: var(--pri-theme-color);
@@ -440,8 +440,8 @@ shrink-on-hover {
 
 .avo-progression-gauge-text{
   font-family: 'Roboto';
-  font-size: 1.5em;
-  padding-top: 1em;
+  font-size: 24px;
+  padding-top: 24px;
 }
 
 .donut {
