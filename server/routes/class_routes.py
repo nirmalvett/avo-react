@@ -115,7 +115,7 @@ def home():
             current_class = message.CLASS
 
         current_list_messages.append({'title': message.title, 'body': message.body,
-                                      'date': message.date_created})
+                                      'date': message.date_created.timestamp()*1000})
     return_messages.append({"class": current_class_data, "messages": current_list_messages})
 
     return jsonify(messages=return_messages, dueDates=return_due_dates)
@@ -223,13 +223,13 @@ def get_classes():
 
 @ClassRoutes.route('/getClassTestResults', methods=['POST'])
 @teacher_only
-@validate(test=int)
-def get_class_test_results(test: int):
+@validate(testID=int)
+def get_class_test_results(test_id: int):
     """
     Get test results for a test for teacher
     :return: test results data
     """
-    current_test = Test.query.get(test)
+    current_test = Test.query.get(test_id)
     if not teaches_class(current_test.CLASS):
         return jsonify(error="User doesn't teach class")
     # All users in class
@@ -237,7 +237,7 @@ def get_class_test_results(test: int):
     results = []
     for user in users:
         # For each user get user data and best takes instance and present append to list then return
-        takes = Takes.query.filter((Takes.USER == user.USER) & (Takes.TEST == test)).order_by(Takes.grade).all()
+        takes = Takes.query.filter((Takes.USER == user.USER) & (Takes.TEST == test_id)).order_by(Takes.grade).all()
         results.append({
             'userID': user.USER,
             'firstName': user.first_name,
@@ -326,14 +326,14 @@ def enroll(key: str):
                 f"TEACHER-{current_user.USER}-{current_class.CLASS}", current_user.USER, current_class.CLASS, None
             ))
             db.session.commit()
-        return jsonify(message='Enrolled')
+        return jsonify({})
     if current_class.price_discount == 0:
         # Append current user to the class
         db.session.add(Transaction(
             f"FREECLASS-{current_user.USER}-{current_class.CLASS}", current_user.USER, current_class.CLASS, None
         ))
         db.session.commit()
-        return jsonify(message='Enrolled')  # this message cannot be changed as the frontend relies on it
+        return jsonify({})  # this message cannot be changed as the frontend relies on it
     else:
         # Checks if the user has a free trial left
         transactions = Transaction.query.filter((Transaction.USER == current_user.USER) &

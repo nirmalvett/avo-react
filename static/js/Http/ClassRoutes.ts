@@ -5,8 +5,28 @@ export function createClass(name: string, success: cb<{}>, failure: cb) {
 }
 
 export interface Home {
-    messages: never
-    dueDates: never
+    messages: {
+        class: {
+            id: number
+            name: string
+        }
+        messages: {
+            title: string
+            body: string
+            date: number
+        }
+    }[]
+    dueDates: {
+        class: {
+            id: number
+            name: string
+        }
+        dueDates: {
+            id: number
+            name: string
+            dueDate: number
+        }[]
+    }[]
 }
 
 export function home(success: cb<Home>, failure: cb) {
@@ -61,17 +81,15 @@ export interface GetClassTestResults {
     }[]
 }
 
-export function getClassTestResults(test: number, success: cb<GetClassTestResults>, failure: cb) {
-    _request('POST', '/getClassTestResults', success, failure, {test});
+export function getClassTestResults(testID: number, success: cb<GetClassTestResults>, failure: cb) {
+    _request('POST', '/getClassTestResults', success, failure, {testID});
 }
 
-export function CSVDownload(classId: number, success: cb<never>, failure: cb) {
+export function CSVDownload(classId: number, success: cb<{}>, failure: cb) {
     _request('GET', `/CSV/ClassMarks/${classId}`, success, failure);
 }
 
-export type Enroll = {
-    message: 'Enrolled'
-} | {
+export type Enroll = {} | {
     classID: number
     price: number
     discount: number
