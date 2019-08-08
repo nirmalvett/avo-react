@@ -240,6 +240,7 @@ def get_lesson_data():
     lesson = Lesson.query.get(lesson_id)
     if lesson is None:
         return jsonify(error="Lesson not found")
+    print(lesson.question_list)
     question_list = eval(lesson.question_list)
     if not isinstance(question_list, list):
         return jsonify(error="Lesson question list encountered an error")

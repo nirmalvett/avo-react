@@ -320,10 +320,11 @@ class Lesson(db.Model):
     TAG_RELATION = db.relationship("Tag", back_populates="LESSON_RELATION")
     USERLESSON_RELATION = db.relationship("UserLesson", back_populates="LESSON_RELATION", foreign_keys=[USER_LESSON])
 
-    def __init__(self, user, tag, lesson_string):
+    def __init__(self, user, tag, lesson_string, question_list):
         self.USER = user
         self.TAG = tag
         self.lesson_string = lesson_string
+        self.question_list = question_list
 
     def __repr__(self):
         return f'LESSON {self.LESSON} {self.USER} {self.lesson_string}'
