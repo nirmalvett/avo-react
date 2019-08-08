@@ -32,7 +32,7 @@ export default function TreeView() {
           autounselectify: true,
           layout: {
             name: "dagre",
-            spacingFactor: 2
+            spacingFactor: 6
           },
           style: [
             {
