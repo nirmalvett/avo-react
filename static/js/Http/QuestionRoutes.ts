@@ -11,16 +11,24 @@ export function getSets(success: cb<GetSets>, failure: cb) {
 
 // getAllQuestions
 
-export function newSet(name: string, success: cb<never>, failure: cb) {
+export interface NewSet {
+    setID: number
+}
+
+export function newSet(name: string, success: cb<NewSet>, failure: cb) {
     _request('POST', '/newSet', success, failure, {name});
 }
 
-export function renameSet(id: number, name: string, success: cb<never>, failure: cb) {
+export function renameSet(id: number, name: string, success: cb<{}>, failure: cb) {
     _request('POST', '/renameSet', success, failure, {id, name});
 }
 
-export function deleteSet(id: number, success: cb<never>, failure: cb) {
+export function deleteSet(id: number, success: cb<{}>, failure: cb) {
     _request('POST', '/deleteSet', success, failure, {id});
+}
+
+export interface NewQuestion {
+    questionID: number
 }
 
 export function newQuestion(
@@ -29,7 +37,7 @@ export function newQuestion(
     string: string,
     answers: number,
     total: number,
-    success: cb<never>,
+    success: cb<NewQuestion>,
     failure: cb,
 ) {
     _request('POST', '/newQuestion', success, failure, {
@@ -41,7 +49,7 @@ export function newQuestion(
     });
 }
 
-export function renameQuestion(id: number, name: string, success: cb<never>, failure: cb) {
+export function renameQuestion(id: number, name: string, success: cb<{}>, failure: cb) {
     _request('POST', '/renameQuestion', success, failure, {id, name});
 }
 
@@ -50,21 +58,32 @@ export function editQuestion(
     string: string,
     answers: number,
     total: number,
-    success: cb<never>,
+    success: cb<{}>,
     failure: cb,
 ) {
     _request('POST', '/editQuestion', success, failure, {id, string, answers, total});
 }
 
-export function deleteQuestion(id: number, success: cb<never>, failure: cb) {
+export function deleteQuestion(id: number, success: cb<{}>, failure: cb) {
     _request('POST', '/deleteQuestion', success, failure, {id});
 }
 
-export function getQuestion(question: number, seed: number, success: cb<never>, failure: cb) {
+export interface GetQuestion {
+    prompt: string
+    prompts: string[]
+    types: number[]
+}
+
+export function getQuestion(question: number, seed: number, success: cb<GetQuestion>, failure: cb) {
     _request('POST', '/getQuestion', success, failure, {question, seed});
 }
 
-export interface SampleQuestion {
+export type SampleQuestion = {
+    prompt: string;
+    prompts: string[];
+    types: number[];
+    points: number[];
+} | {
     prompt: string;
     prompts: string[];
     types: number[];

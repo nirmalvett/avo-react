@@ -85,7 +85,7 @@ def create_set(name: str):
     user_views_set = UserViewsSet(current_user.USER, new_set.SET, True)  # New user_views_set to be created
     db.session.add(user_views_set)
     db.session.commit()
-    return jsonify(id=new_set.SET)
+    return jsonify(setID=new_set.SET)
 
 
 @QuestionRoutes.route('/renameSet', methods=['POST'])
@@ -103,7 +103,7 @@ def rename_set(set_id: int, name: str):
     new_set.name = name
     # Add change to database
     db.session.commit()
-    return jsonify(code="Updated")
+    return jsonify({})
 
 
 @QuestionRoutes.route('/deleteSet', methods=['POST'])
@@ -119,11 +119,11 @@ def delete_set(set_id: int):
             (UserViewsSet.SET == set_id) & (UserViewsSet.USER == current_user.USER)
         ).first()  # user_views_set to delete
     except NoResultFound:
-        return jsonify(code="Updated")
+        return jsonify({})
     # Add change to database
     db.session.delete(user_views_set)
     db.session.commit()
-    return jsonify(code="Updated")
+    return jsonify({})
 
 
 # Manage questions
@@ -148,7 +148,7 @@ def new_question(set_id: int, name: str, string: str, answers: int, total: int):
     question = Question(set_id, name, string, answers, total)
     db.session.add(question)
     db.session.commit()
-    return jsonify(id=question.QUESTION)
+    return jsonify(questionID=question.QUESTION)
 
 
 @QuestionRoutes.route('/renameQuestion', methods=['POST'])
@@ -164,7 +164,7 @@ def rename_question(question_id: int, name: str):
         return jsonify(error="User not able to edit SET")
     question.name = name
     db.session.commit()
-    return jsonify(code="Updated")
+    return jsonify({})
 
 
 @QuestionRoutes.route('/editQuestion', methods=['POST'])
@@ -188,7 +188,7 @@ def edit_question(question_id: int, string: str, answers: int, total: int):
     question.answers = answers
     question.total = total
     db.session.commit()
-    return jsonify(code="Question updated")
+    return jsonify({})
 
 
 @QuestionRoutes.route('/deleteQuestion', methods=['POST'])
@@ -204,7 +204,7 @@ def delete_question(question_id: int):
         return jsonify(error="User not able to edit SET")
     question.SET = None
     db.session.commit()
-    return jsonify(code="Updated")
+    return jsonify({})
 
 
 # Generate a question
