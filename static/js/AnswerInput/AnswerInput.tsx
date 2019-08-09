@@ -28,9 +28,9 @@ interface AnswerInputProps {
     value: any;
     prompt: string;
     disabled: boolean;
-    onBlur?: () => void;
-    onChange?: (ans: any) => void;
-    buttonSave?: () => void;
+    onBlur: () => void;
+    onChange: (ans: any) => void;
+    buttonSave: () => void;
 }
 
 const BUTTON_INPUT = 0;
@@ -39,6 +39,12 @@ const MANUAL_INPUT = 1;
 const inputMode = BUTTON_INPUT;
 
 export default class AnswerInput extends Component<AnswerInputProps, {}> {
+    static defaultProps = {
+        onBlur: () => undefined,
+        onChange: () => undefined,
+        buttonSave: () => undefined,
+    };
+
     render(): ReactElement {
         const {type} = this.props;
         if (type === CONST_BOOLEAN) {
