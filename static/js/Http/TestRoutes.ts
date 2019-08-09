@@ -85,7 +85,21 @@ export function submitTest(takes: number, success: cb<never>, failure: cb) {
     _request('POST', '/submitTest', success, failure, {takes});
 }
 
-export function postTest(takes: number, success: cb<never>, failure: cb) {
+export interface PostTest {
+    questions: PostTestQuestion[];
+}
+
+export interface PostTestQuestion {
+    prompt: string;
+    prompts: string[];
+    answers: string[][];
+    types: string[];
+    scores: number[];
+    totals: number[];
+    explanation: string[];
+}
+
+export function postTest(takes: number, success: cb<PostTest>, failure: cb) {
     _request('POST', '/postTest', success, failure, {takes});
 }
 

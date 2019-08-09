@@ -28,9 +28,9 @@ interface AnswerInputProps {
     value: any;
     prompt: string;
     disabled: boolean;
-    onBlur: () => void;
-    onChange: (ans: any) => void;
-    buttonSave: () => void;
+    onBlur?: () => void;
+    onChange?: (ans: any) => void;
+    buttonSave?: () => void;
 }
 
 const BUTTON_INPUT = 0;
