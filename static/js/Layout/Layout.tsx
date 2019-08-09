@@ -12,8 +12,6 @@ import ManageClasses from '../ManageClasses/ManageClasses';
 import QuestionManager from '../CourseBuilder/QuestionBuilder/QuestionManager';
 import QuestionBuilder from '../QuestionBuilder/QuestionBuilder';
 import QuestionBuilderDocs from '../CourseBuilder/QuestionBuilder/QuestionBuilderDocs';
-import AVOInClassTools from '../MISC/AVOInClassTools/AVOInClassTools';
-import AVOExplanations from '../MISC/AVOExplanations/AVOExplanations';
 import ExportTools from '../ExportTools/ExportTools';
 import {colorList} from '../SharedComponents/AVOCustomColors';
 import {MuiThemeProvider, createMuiTheme, createStyles, Theme} from '@material-ui/core/styles';
@@ -301,9 +299,6 @@ class Layout extends Component<LayoutProps, LayoutState> {
         if (section === 'Preferences')
             return (
                 <Preferences
-                    showSnackBar={this.showSnackBar}
-                    isTeacher={isTeacher}
-                    colorList={colorList}
                     color={color}
                     theme={theme}
                     setColor={this.props.setColor}
@@ -326,8 +321,6 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     takes={this.state.markEditor}
                 />
             );
-        if (section === 'In Class Tools') return <AVOInClassTools />;
-        if (section === 'Explanations') return <AVOExplanations />;
         if (section === 'Tag Builder') return <TagView />;
         if (section === 'Notify Class') return <NotifyClass />;
     }
