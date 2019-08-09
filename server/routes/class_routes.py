@@ -2,13 +2,12 @@ from typing import List
 
 from flask import Blueprint, jsonify, make_response
 from flask_login import current_user
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
 from server.decorators import login_required, teacher_only, student_only, admin_only, validate
 from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message
-import paypalrestsdk
+import paypalrestsdk as paypal
 import config
 
 ClassRoutes = Blueprint('ClassRoutes', __name__)
@@ -310,42 +309,30 @@ def enroll(key: str):
     Enroll the current user in a class
     :return: Confirmation
     """
-    try:
-        # Find class with said enroll key if no class found return error json
-        current_class = Class.query.filter(Class.enroll_key == key).first()
-    except NoResultFound:
-        return jsonify(error='Invalid enroll key')
+    current_class = Class.query.filter(Class.enroll_key == key).first()
     if current_class is None:
-        # If no class is found return error JSON
         return jsonify(error='Invalid enroll key')
+    user_id = current_user.USER
+    class_id = current_class.CLASS
     if current_user.is_teacher:
-        # If the user is a teacher enroll them into the class
         if not teaches_class(current_class.CLASS):
-            # If the teacher does not teach the class return JSON of success
-            db.session.add(Transaction(
-                f"TEACHER-{current_user.USER}-{current_class.CLASS}", current_user.USER, current_class.CLASS, None
-            ))
+            db.session.add(Transaction(f"TEACHER-{user_id}-{class_id}", user_id, class_id, None))
             db.session.commit()
         return jsonify({})
     if current_class.price_discount == 0:
-        # Append current user to the class
-        db.session.add(Transaction(
-            f"FREECLASS-{current_user.USER}-{current_class.CLASS}", current_user.USER, current_class.CLASS, None
-        ))
+        db.session.add(Transaction(f"FREECLASS-{user_id}-{class_id}", user_id, class_id, None))
         db.session.commit()
-        return jsonify({})  # this message cannot be changed as the frontend relies on it
+        return jsonify({})
     else:
         # Checks if the user has a free trial left
-        transactions = Transaction.query.filter((Transaction.USER == current_user.USER) &
-                                                (Transaction.CLASS == current_class.CLASS)).all()
-        free_trial = not any(map(lambda t: t.TRANSACTION.startswith("FREETRIAL-"), transactions))
+        has_free_trial = Transaction.query.get(f"FREETRIAL-{user_id}-{class_id}") is None
         return jsonify(
             classID=current_class.CLASS,
             price=current_class.price,
             discount=current_class.price_discount,
             tax=round(current_class.price_discount * 0.13, 2),
             totalPrice=round(current_class.price_discount * 1.13, 2),
-            freeTrial=free_trial
+            freeTrial=has_free_trial
         )
 
 
@@ -357,25 +344,14 @@ def start_free_trial(class_id: int):
     Generate free trial for class
     :return:  Confirmation of free trial
     """
-    try:
-        # See if current class exists
-        current_class = Class.query.get(class_id)
-    except Exception:
-        return jsonify(error="No class found")
+    current_class = Class.query.get(class_id)
     if current_class is None:
         return jsonify(error="No class found")
-    transaction = Transaction.query.filter((current_user.USER == Transaction.USER) &
-                                           (current_class.CLASS == Transaction.CLASS)).all()  # Get transaction
-    if len(transaction) > 0:
-        # If transaction not found return error JSON
+    free_trial_string = f"FREETRIAL-{class_id}-{current_user.USER}"
+    if Transaction.query.get(free_trial_string) is not None:
         return jsonify(error="Free Trial Already Taken")
-    free_trial_string = "FREETRIAL-" + str(current_class.CLASS) \
-                        + "-" + str(current_user.USER)  # Generate free trial string
     time = datetime.now() + timedelta(weeks=2)
-    new_transaction = Transaction(free_trial_string, current_user.USER,
-                                  current_class.CLASS, time)  # create new transaction in database
-    # Commit to database and enroll student
-    db.session.add(new_transaction)
+    db.session.add(Transaction(free_trial_string, current_user.USER, current_class.CLASS, time))
     db.session.commit()
     return jsonify({})
 
@@ -389,48 +365,40 @@ def create_payment(class_id: int):
     :return: Transaction ID to the client side PayPal
     """
 
-    existing_tid = TransactionProcessing.query.filter((class_id == TransactionProcessing.CLASS) &
-                                                      (current_user.USER == TransactionProcessing.USER)).first()
-    if existing_tid is not None:
-        # If the user has already tried the payment find payment and return
-        try:
-            # Try to find payment from PayPal
-            payment = paypalrestsdk.Payment.find(existing_tid.TRANSACTIONPROCESSING)
-            if payment.state == 'created':
-                # iF payment is found return Transaction ID
+    existing_tid = TransactionProcessing.query.filter(
+        (class_id == TransactionProcessing.CLASS) & (current_user.USER == TransactionProcessing.USER)
+    ).first()
+    if existing_tid is not None:  # If the user has already tried the payment find payment and return
+        try:  # Try to find payment from PayPal
+            payment = paypal.Payment.find(existing_tid.TRANSACTIONPROCESSING)
+            if payment.state == 'created':  # if payment is found return Transaction ID
                 return jsonify({'tid': existing_tid.TRANSACTIONPROCESSING})
-            else:
-                # Else remove payment from database
+            else:  # Else remove payment from database
                 db.session.delete(existing_tid)
                 db.session.commit()
-        except paypalrestsdk.ResourceNotFound:
+        except paypal.ResourceNotFound:
             # If error is found remove from database
             db.session.delete(existing_tid)
             db.session.commit()
 
-    current_class = Class.query.filter(class_id == Class.CLASS).all()  # Get class
+    current_class = Class.query.get(class_id)  # Get class
 
-    if len(current_class) == 0:
-        # If class is not found return error JSON
+    if current_class is None:
         return jsonify(error="No class found")
 
-    if enrolled_in_class(current_class[0].CLASS):
+    if enrolled_in_class(class_id):
         # If user is already enrolled check if those enrolled are still not expired
         # List of all transactions of that class and user
-        transaction_list = Transaction.query.filter((Transaction.USER == current_user.USER) &
-                                                    (Transaction.CLASS == current_class[0].CLASS)).all()
+        transaction_list = Transaction.query.filter(
+            (Transaction.USER == current_user.USER) & (Transaction.CLASS == class_id)
+        ).all()
         time = datetime.now()  # Current time
-        for i in range(len(transaction_list)):
-            # Check if all transactions have expired
-            if transaction_list[i].expiration is None:
-                # There is no expiration
-                return jsonify(error="User Still has active payment")
-            if transaction_list[i].expiration > time:
-                # The timer is still valid
+        for transaction in transaction_list:
+            if transaction.expiration is None or transaction.expiration > time:
                 return jsonify(error="User Still has active payment")
 
     # Create Payment with PayPal
-    payment = paypalrestsdk.Payment(
+    payment = paypal.Payment(
         {
             'intent': 'sale',
             'payer': {
@@ -445,15 +413,15 @@ def create_payment(class_id: int):
             'transactions': [
                 {
                     'amount': {
-                        'total': "{:4.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
+                        'total': "{:4.2f}".format(round(current_class.price_discount * 1.13, 2)),
                         'currency': 'CAD'
                     },
-                    'description': "32 Week Subscription to " + str(current_class[0].name) + " Through AVO",
+                    'description': "32 Week Subscription to " + str(current_class.name) + " Through AVO",
                     'item_list': {
                         'items': [
                             {
-                                'name': 'Avo ' + current_class[0].name,
-                                'price': "{:4.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
+                                'name': 'Avo ' + current_class.name,
+                                'price': "{:4.2f}".format(round(current_class.price_discount * 1.13, 2)),
                                 'currency': 'CAD',
                                 'quantity': 1
                             }
@@ -466,7 +434,7 @@ def create_payment(class_id: int):
 
     if payment.create():
         # If Payment created create new transaction in database and return Transaction ID
-        new_transaction = TransactionProcessing(payment.id, current_class[0].CLASS, current_user.USER)
+        new_transaction = TransactionProcessing(payment.id, class_id, current_user.USER)
         db.session.add(new_transaction)
         db.session.commit()
         return jsonify(tid=payment.id)
@@ -483,23 +451,17 @@ def confirm_payment(tid: str, payer_id: str):
     If user pays then enroll them in class
     :return: confirmation of payment being processed
     """
-    transaction = Transaction.query.get(tid)  # Attempt to get transaction from the Transaction ID
+    transaction = Transaction.query.get(tid)
     if transaction is not None:
-        # If transaction not found return error JSON
         return jsonify("User Already Enrolled")
-    payment = paypalrestsdk.Payment.find(tid)  # Find payment from PayPal
+    payment = paypal.Payment.find(tid)
     if not payment.execute({'payer_id': payer_id}):
-        # If payment cant be processed return error JSON
-        return jsonify(error=payment.error)
+        return jsonify(error=payment.error)  # If payment can't be processed return error JSON
     transaction_processing = TransactionProcessing.query.get(tid)  # find transaction in transaction processing table
     if transaction_processing is None:
-        # If not found return error JSON
-        return jsonify(error="No Trans Id Found")
+        return jsonify(error="No Transaction id Found")
     time = datetime.now() + timedelta(weeks=32)  # Create expiration of enrolling
-    transaction = Transaction(tid, current_user.USER,
-                              transaction_processing.CLASS, time)  # Create new transaction in table
-    # commit changes to database
-    db.session.add(transaction)
+    db.session.add(Transaction(tid, current_user.USER, transaction_processing.CLASS, time))
     db.session.delete(transaction_processing)
     db.session.commit()
     return jsonify(code="Processed")
@@ -515,10 +477,7 @@ def cancel_order(tid: str):
     """
     transaction_processing = TransactionProcessing.query.get(tid)
     if transaction_processing is None:
-        # If transaction is not in database return error json
         return jsonify(error="Transaction not found")
-
-    # Remove data from database
     db.session.delete(transaction_processing)
     db.session.commit()
     return jsonify(code="Cancelled")
@@ -533,15 +492,12 @@ def unenroll(user_id: int, class_id: int):
     :return: Confirmation of the unenroll
     """
     user = User.query.get(user_id)
-    current_class = Class.query.filter((Class.CLASS == Transaction.CLASS) &
-                                       (user_id == Transaction.USER)).all()
-    if user is None or len(current_class) == 0:
-        # If there is no user found return error JSON
+    current_classes = Class.query.filter((Class.CLASS == Transaction.CLASS) & (user_id == Transaction.USER)).all()
+    if user is None or len(current_classes) == 0:
         return jsonify("No User Found")
-    for i in range(len(current_class)):
-        # For each class check if it is the correct class
-        if current_class[i].CLASS == class_id:
-            user.CLASS_ENROLLED_RELATION.remove(current_class[i])
+    for current_class in current_classes:
+        if current_class.CLASS == class_id:
+            user.CLASS_ENROLLED_RELATION.remove(current_class)
             db.session.commit()
             return jsonify(code="User was removed")
     return jsonify(error="user is not enrolled in class")
@@ -556,17 +512,16 @@ def get_messages(class_id: int):
     :return: List of messages given the class ID
     """
     if not teaches_class(class_id):
-        # If the teacher does not teach the class return error JSON
         return jsonify(error="user does not teach class")
-
-    messages: List[Message] = Message.query.filter(Message.CLASS == class_id).all()  # All messages of the class
-    return jsonify(messages=list(map(lambda m: {
+    messages: List[Message] = Message.query.filter(Message.CLASS == class_id).all()
+    result = list(map(lambda m: {
         'messageID': m.MESSAGE,
         'classID': m.CLASS,
         'title': m.title,
         'body': m.body,
         'dateCreated': m.date_created.timestamp()*1000
-    }, messages)))
+    }, messages))
+    return jsonify(messages=result)
 
 
 @ClassRoutes.route('/addMessage', methods=['POST'])
@@ -577,13 +532,9 @@ def add_message(class_id: int, title: str, body: str):
     Add message to the class
     :return: Confirmation that message has been created
     """
-
     if not teaches_class(class_id):
-        # if class does not exist or class is not taught return error JSON
         return jsonify(error="User does not teach class")
-    new_message = Message(class_id, title, body, datetime.now())  # New message to add to database
-    # Commit to database
-    db.session.add(new_message)
+    db.session.add(Message(class_id, title, body, datetime.now()))
     db.session.commit()
     return jsonify({})
 
@@ -592,14 +543,11 @@ def add_message(class_id: int, title: str, body: str):
 @teacher_only
 @validate(messageID=int)
 def delete_message(message_id: int):
-    current_message = Message.query.get(message_id)  # Message to remove
+    current_message = Message.query.get(message_id)
     if message_id is None:
-        # If no message is found return error JSON
         return jsonify(error="Message not found")
     if not teaches_class(current_message.CLASS):
-        # If user does not teach class return error JSON
         return jsonify(error="User does not teach class")
-    # Remove message from database
     db.session.delete(current_message)
     db.session.commit()
     return jsonify({})
@@ -613,16 +561,10 @@ def edit_message(message_id: int, title: str, body: str):
     Edit an already existing message
     :return: Confirmation that the message has been changed
     """
-
-    message = Message.query.get(message_id)  # Message to updated
-
+    message = Message.query.get(message_id)
     if message is None:
-        # No message was found return error JSON
         return jsonify(error="No Message was found")
-
-    # Update the message and update on database
     message.title = title
     message.body = body
     db.session.commit()
-
     return jsonify({})

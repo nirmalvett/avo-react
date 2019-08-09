@@ -3,12 +3,12 @@ import {_request, cb} from './baseRequest';
 export function saveTest(
     classId: number,
     name: string,
-    deadline: never,
+    deadline: string,
     timer: number,
     attempts: number,
     questionList: number[],
     seedList: number[],
-    openTime: never,
+    openTime: string,
     success: cb<never>,
     failure: cb,
 ) {
