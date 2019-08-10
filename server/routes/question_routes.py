@@ -228,32 +228,38 @@ def get_question(question: int, seed: int):
 
 @QuestionRoutes.route('/sampleQuestion', methods=['POST'])
 @teacher_only
-@validate(string=str, seed=int, answers=[list])
+@validate(string=str, seed=int)
+def sample_question(string: str, seed: int):
+    """
+    Generates sample question
+    :return: data of generated question
+    """
+    # if no answers were provided make false answers
+    try:
+        q = AvoQuestion(string, seed, [])
+    except Exception as e:
+        return jsonify(error="Question failed to be created", message=str(e))
+    var_list = {}
+    if isinstance(q.var_list, list):
+        for i in range(len(q.var_list)):
+            var_list[f'${i+1}'] = repr(q.var_list[i])
+    else:
+        for k in q.var_list:
+            var_list[k] = repr(q.var_list[k])
+    return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, explanation=q.explanation, variables=var_list)
+
+
+@QuestionRoutes.route('/sampleQuestionAnswers', methods=['POST'])
+@teacher_only
+@validate(string=str, seed=int, answers=list)
 def sample_question(string: str, seed: int, answers):
     """
     Generates sample question
     :return: data of generated question
     """
-    if answers is not None:
-        # If answers were provided then test answers
-        try:
-            # Try to create and mark the question if it fails return error JSON
-            q = AvoQuestion(string, seed, answers)
-        except Exception as e:
-            return jsonify(error="Question failed to be created", message=str(e))
-        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, points=q.scores)
-    else:
-        # if no answers were provided make false answers
-        try:
-            # Try to create and mark the question if fails return error JSON
-            q = AvoQuestion(string, seed, [])
-        except Exception as e:
-            return jsonify(error="Question failed to be created", message=str(e))
-        var_list = {}
-        if isinstance(q.var_list, list):
-            for i in range(len(q.var_list)):
-                var_list['$' + str(i+1)] = repr(q.var_list[i])
-        else:
-            for k in q.var_list:
-                var_list[k] = repr(q.var_list[k])
-        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, explanation=q.explanation, variables=var_list)
+    # If answers were provided then test answers
+    try:
+        q = AvoQuestion(string, seed, answers)
+    except Exception as e:
+        return jsonify(error="Question failed to be created", message=str(e))
+    return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, points=q.scores)

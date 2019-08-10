@@ -1,5 +1,3 @@
-import {Class} from './common.models';
-
 export interface Notification {
     title: string;
     body: string;
@@ -8,12 +6,6 @@ export interface Notification {
     date_created: string;
     selected?: boolean;
     showEdit?: boolean;
-}
-
-export interface DueDate {
-    name: string;
-    dueDate: string;
-    id: number;
 }
 
 export interface CalendarTheme {
@@ -35,19 +27,4 @@ export interface CalendarThemeFloatingNav {
 export interface CalendarThemeTextColor {
     active: string;
     default: string;
-}
-
-export interface GetHomeResponse {
-    dueDates: DueDatesResponse[];
-    messages: MessagesResponse[];
-}
-
-export interface DueDatesResponse {
-    class: Class;
-    dueDates: DueDate[];
-}
-
-export interface MessagesResponse {
-    class: Class;
-    messages: Notification[];
 }

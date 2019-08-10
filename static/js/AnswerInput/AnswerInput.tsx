@@ -25,7 +25,7 @@ import {
 
 interface AnswerInputProps {
     type: string;
-    value: any;
+    value?: any;
     prompt: string;
     disabled: boolean;
     onBlur: () => void;

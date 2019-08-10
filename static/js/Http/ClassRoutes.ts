@@ -14,7 +14,7 @@ export interface Home {
             title: string;
             body: string;
             date: number;
-        };
+        }[];
     }[];
     dueDates: {
         class: {

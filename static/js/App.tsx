@@ -99,15 +99,7 @@ class App extends Component<AppProps, AppState> {
             authenticated: true,
             username,
             password,
-            user: {
-                // Todo: make this transformation unnecessary by changing the server
-                firstName: result.first_name,
-                lastName: result.last_name,
-                isTeacher: result.is_teacher,
-                isAdmin: result.is_admin,
-                color: result.color,
-                theme: result.theme ? 'dark' : 'light',
-            },
+            user: {...result, theme: result.theme ? 'dark' : 'light'},
         });
     }
 }

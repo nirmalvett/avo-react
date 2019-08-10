@@ -43,7 +43,7 @@ interface QuestionManagerState {
     preview: {
         prompt: string;
         prompts: string[];
-        types: number[];
+        types: string[];
         explanation: string[];
         variables: {[variable: string]: string};
     };
@@ -297,7 +297,6 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
         Http.sampleQuestion(
             sets[selectedS as number].questions[index].string,
             0,
-            undefined,
             result => this.setState({selectedQ: index, preview: result}),
             () => undefined,
         );

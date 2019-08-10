@@ -78,27 +78,36 @@ export function getQuestion(question: number, seed: number, success: cb<GetQuest
     _request('POST', '/getQuestion', success, failure, {question, seed});
 }
 
-export type SampleQuestion =
-    | {
-          prompt: string;
-          prompts: string[];
-          types: number[];
-          points: number[];
-      }
-    | {
-          prompt: string;
-          prompts: string[];
-          types: number[];
-          explanation: string[];
-          variables: {[variable: string]: string};
-      };
+export interface SampleQuestion {
+    prompt: string;
+    prompts: string[];
+    types: string[];
+    explanation: string[];
+    variables: {[variable: string]: string};
+}
 
 export function sampleQuestion(
     string: string,
     seed: number,
-    answers: string[] | undefined,
     success: cb<SampleQuestion>,
     failure: cb,
 ) {
-    _request('POST', '/sampleQuestion', success, failure, {string, seed, answers});
+    _request('POST', '/sampleQuestion', success, failure, {string, seed});
+}
+
+export interface SampleQuestionAnswers {
+    prompt: string;
+    prompts: string[];
+    types: number[];
+    points: number[];
+}
+
+export function sampleQuestionAnswers(
+    string: string,
+    seed: number,
+    answers: string[],
+    success: cb<SampleQuestionAnswers>,
+    failure: cb,
+) {
+    _request('POST', '/sampleQuestionAnswers', success, failure, {string, seed, answers});
 }
