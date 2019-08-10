@@ -2,7 +2,7 @@ import {_request, cb} from './baseRequest';
 
 export interface GetTags {
     tags: {
-        TAG: number;
+        tagID: number;
         parent: number;
         tagName: string;
         childOrder: number;
@@ -13,9 +13,14 @@ export function getTags(success: cb<GetTags>, failure: cb) {
     _request('GET', '/getTags', success, failure);
 }
 
-type putTagsArg = {tagID: number; parent: number | null; tagName: string; childOrder: number}[];
+export type PutTagsArg = {
+    tagID: number;
+    parent: number | null;
+    tagName: string;
+    childOrder: number;
+}[];
 
-export function putTags(tags: putTagsArg, success: cb<{}>, failure: cb) {
+export function putTags(tags: PutTagsArg, success: cb<{}>, failure: cb) {
     _request('POST', '/putTags', success, failure, {tags});
 }
 

@@ -16,7 +16,7 @@ def get_tags():
     list_dict = []
     for tag in list_of_tags:
         list_dict.append({
-            'TAG': tag.TAG,
+            'tagID': tag.TAG,
             'parent': tag.parent,
             'tagName': tag.tagName,
             'childOrder': tag.childOrder,

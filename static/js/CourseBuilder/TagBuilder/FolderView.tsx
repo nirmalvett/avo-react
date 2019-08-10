@@ -8,7 +8,7 @@ import Grid from '@material-ui/core/Grid/Grid';
 import TextField from '@material-ui/core/TextField';
 
 interface Tag {
-    id: number;
+    tagID: number;
     parentId: number | null;
     childOrder: number;
     children: Tag[];
@@ -22,7 +22,7 @@ interface FolderViewState {
     tagAddInput: string;
     tagDeleteInput: string;
     tagsFromServer: {
-        TAG: number;
+        tagID: number;
         childOrder: number;
         parent: number;
         tagName: string;
@@ -110,7 +110,7 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
             this.state.tagAddInput,
             res => {
                 const newTag = {
-                    id: res.tagID,
+                    tagID: res.tagID,
                     title: this.state.tagAddInput,
                     children: [],
                     childOrder: 0,
@@ -136,43 +136,48 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
     }
 
     formatTagsForServer() {
-        const parents = this.state.tags.map((tag, i) => {
-            return {
-                tagID: tag.id,
-                parent: null,
-                tagName: tag.title,
-                childOrder: i,
-            };
-        });
+        const parents: Http.PutTagsArg = this.state.tags.map((tag, i) => ({
+            tagID: tag.tagID,
+            parent: null,
+            tagName: tag.title,
+            childOrder: i,
+        }));
         const children = this.state.tags.map(tag => this.getListOfChildren(tag.children, tag));
-        children.forEach(child => {
-            child.forEach(ch => {
-                parents.push(ch);
-            });
-        });
+        children.forEach(child =>
+            child
+                .map(t => ({
+                    tagID: t.tagID,
+                    parent: t.parentId,
+                    tagName: t.title,
+                    childOrder: t.childOrder,
+                }))
+                .forEach(ch => parents.push(ch)),
+        );
         return parents;
     }
 
-    getListOfChildren(parents: Tag[], grandparent: Tag) {
+    getListOfChildren(parents: Tag[], grandparent: Tag): Tag[] {
         let c: Tag[] = [];
         parents.forEach((child, i) => {
             if (Array.isArray(child))
                 child.forEach((ch, j) => {
                     c.push({
-                        TAG: ch.id,
-                        parentId: grandparent.id || grandparent.TAG,
-                        tagName: ch.title,
+                        tagID: ch.id,
+                        parentId: grandparent.tagID || grandparent.tagID,
+                        title: ch.title,
                         childOrder: j,
+                        children: [],
                     });
                     if (ch.children != null && ch.children.length > 0)
                         c = c.concat(this.getListOfChildren(ch.children, ch));
                 });
             else {
                 c.push({
-                    TAG: child.id,
-                    parentId: grandparent.id || grandparent.TAG,
-                    tagName: child.title,
+                    tagID: child.tagID,
+                    parentId: grandparent.tagID || grandparent.tagID,
+                    title: child.title,
                     childOrder: i,
+                    children: [],
                 });
                 if (child.children != null && child.children.length > 0)
                     c = c.concat(this.getListOfChildren(child.children, child));
@@ -191,12 +196,13 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
                 const parents: Tag[] = [];
                 let tagCount = tags.length;
                 tags.forEach(tag => {
-                    const hasParent = tags.find(t => tag.parent === t.TAG);
+                    const hasParent = tags.find(t => tag.parent === t.tagID);
                     flatList.push({
-                        id: tag.TAG,
+                        tagID: tag.tagID,
                         parentId: hasParent ? tag.parent : null,
                         title: tag.tagName,
                         childOrder: tag.childOrder,
+                        children: [],
                     });
                     if (tag.parent && !hasParent) {
                         fixTree = true;
@@ -205,15 +211,18 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
                 const addedAlready: number[] = [];
                 while (tagCount > 0)
                     flatList.forEach(tag => {
-                        if (!tag.parentId && addedAlready.findIndex(id => tag.id === id) === -1) {
+                        if (
+                            !tag.parentId &&
+                            addedAlready.findIndex(id => tag.tagID === id) === -1
+                        ) {
                             parents.push({
                                 parentId: null,
-                                id: tag.id,
+                                tagID: tag.tagID,
                                 title: tag.title,
                                 children: [],
                                 childOrder: tag.childOrder,
                             });
-                            addedAlready.push(tag.id);
+                            addedAlready.push(tag.tagID);
                             tagCount -= 1;
                         } else {
                             if (this.checkChildren(tag, parents, addedAlready)) tagCount -= 1;
@@ -239,7 +248,7 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
             tag => tag.tagName === this.state.tagDeleteInput,
         );
         Http.deleteTag(
-            (tag as {TAG: number}).TAG,
+            (tag as {tagID: number}).tagID,
             () =>
                 this.setState({tagDeleteInput: ''}, () => {
                     this.getTags();
@@ -257,19 +266,19 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
         let found = false;
         parents.forEach(parent => {
             if (
-                parent.id === tag.parentId &&
+                parent.tagID === tag.parentId &&
                 !found &&
-                addedAlready.findIndex(id => tag.id === id) === -1
+                addedAlready.findIndex(id => tag.tagID === id) === -1
             ) {
                 found = true;
                 parent.children.push({
                     parentId: tag.parentId,
-                    id: tag.id,
+                    tagID: tag.tagID,
                     title: tag.title,
                     childOrder: tag.childOrder,
                     children: [],
                 });
-                addedAlready.push(tag.id);
+                addedAlready.push(tag.tagID);
             }
         });
         if (!found) {
