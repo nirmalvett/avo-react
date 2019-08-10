@@ -105,12 +105,12 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
             joinClassPopperOpen: false,
             joinClassPopperIdx: 0,
             enrollObj: {
-            	message: undefined,
-            	classID: 0,
+                message: undefined,
+                classID: 0,
                 price: 0,
                 discount: 0,
                 tax: 0,
-				totalPrice: 0,
+                totalPrice: 0,
                 freeTrial: false,
             },
         };
@@ -207,7 +207,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                     <Typography
                         variant='subtitle1'
                         color='textPrimary'
-						style={{textAlign: 'center'}}
+                        style={{textAlign: 'center'}}
                     >
                         Welcome to My Classes
                     </Typography>
@@ -314,125 +314,125 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
     }
 
     enrollInClassPopper() {
-		return (
-			<Popper
-				placement='right-start'
-				open={this.state.joinClassPopperOpen}
-				anchorEl={() =>
-					document.getElementById('avo-myclasses__enroll-button') as HTMLElement
-				}
-				disablePortal={false}
-				modifiers={{
-					flip: {
-						enabled: true,
-					},
-					preventOverflow: {
-						enabled: true,
-						boundariesElement: 'scrollParent',
-					},
-				}}
-			>
-				<Paper style={{marginLeft: '10em', padding: '10px', height: 'auto'}}>
-					{this.state.joinClassPopperIdx === CONST_ENROLL_TAB && (
-						<Fragment>
-							<Typography component={'span'} variant='body1' color='textPrimary'>
-								Please enter the course code for the class you want to enroll
-								in.
-							</Typography>
-							<TextField
-								id='avo-myclasses__enroll-textfield'
-								margin='normal'
-								style={{width: '60%'}}
-								label='Course code'
-								helperText={this.state.enrollErrorMessage + ' '}
-								error={this.state.enrollErrorMessage !== ''}
-							/>
-							<br />
-							<Button color='primary' onClick={() => this.enrollButton()}>
-								Enroll
-							</Button>
-							<Button
-								color='primary'
-								onClick={() => this.setState({joinClassPopperOpen: false})}
-							>
-								Close
-							</Button>
-						</Fragment>
-					)}
-					{this.state.joinClassPopperIdx === CONST_PAYMENT_TAB && (
-						<Fragment>
-							<Typography
-								component={'span'}
-								variant='h4'
-								color='primary'
-								classes={{root: 'avo-padding__16px'}}
-							>
-								Course code is valid.
-							</Typography>
-							<Typography
-								component={'span'}
-								variant='body1'
-								color='textPrimary'
-								classes={{root: 'avo-padding__16px'}}
-							>
-								To confirm your selection please pay via PayPal.
-							</Typography>
-							<br />
-							{!this.state.enrollObj.message && MyClasses.enrollInClass_priceDisplay(
-								this.state.enrollObj.price,
-								this.state.enrollObj.discount,
-								this.state.enrollObj.tax,
-							)}
-							<br />
-							<Divider />
-							<br />
-							<Typography
-								component={'span'}
-								variant='body1'
-								color='textPrimary'
-								classes={{root: 'avo-padding__16px'}}
-								style={{textAlign: 'center'}}
-							>
-								<div id='paypal-button' />
-								<br />
-								{!this.state.enrollObj.message && this.state.enrollObj.freeTrial && (
-									<a
-										style={{
-											color: this.props.theme.color['500'],
-											cursor: 'pointer',
-										}}
-										onClick={() => {
-											if (!this.state.enrollObj.message)
-												Http.freeTrial(
-													this.state.enrollObj.classID,
-													() => {
-														this.setState({joinClassPopperOpen: false});
-														this.loadClasses(
-															'Successfully enrolled in the class!',
-														);
-													},
-													() => {},
-												);
-										}}
-									>
-										14 day free trial
-									</a>
-								)}
-								<br />
-							</Typography>
-							<Button
-								color='primary'
-								onClick={() => {
-									this.setState({joinClassPopperOpen: false});
-								}}
-							>
-								Close
-							</Button>
-						</Fragment>
-					)}
-				</Paper>
-			</Popper>
-		);
+        return (
+            <Popper
+                placement='right-start'
+                open={this.state.joinClassPopperOpen}
+                anchorEl={() =>
+                    document.getElementById('avo-myclasses__enroll-button') as HTMLElement
+                }
+                disablePortal={false}
+                modifiers={{
+                    flip: {
+                        enabled: true,
+                    },
+                    preventOverflow: {
+                        enabled: true,
+                        boundariesElement: 'scrollParent',
+                    },
+                }}
+            >
+                <Paper style={{marginLeft: '10em', padding: '10px', height: 'auto'}}>
+                    {this.state.joinClassPopperIdx === CONST_ENROLL_TAB && (
+                        <Fragment>
+                            <Typography component={'span'} variant='body1' color='textPrimary'>
+                                Please enter the course code for the class you want to enroll in.
+                            </Typography>
+                            <TextField
+                                id='avo-myclasses__enroll-textfield'
+                                margin='normal'
+                                style={{width: '60%'}}
+                                label='Course code'
+                                helperText={this.state.enrollErrorMessage + ' '}
+                                error={this.state.enrollErrorMessage !== ''}
+                            />
+                            <br />
+                            <Button color='primary' onClick={() => this.enrollButton()}>
+                                Enroll
+                            </Button>
+                            <Button
+                                color='primary'
+                                onClick={() => this.setState({joinClassPopperOpen: false})}
+                            >
+                                Close
+                            </Button>
+                        </Fragment>
+                    )}
+                    {this.state.joinClassPopperIdx === CONST_PAYMENT_TAB && (
+                        <Fragment>
+                            <Typography
+                                component={'span'}
+                                variant='h4'
+                                color='primary'
+                                classes={{root: 'avo-padding__16px'}}
+                            >
+                                Course code is valid.
+                            </Typography>
+                            <Typography
+                                component={'span'}
+                                variant='body1'
+                                color='textPrimary'
+                                classes={{root: 'avo-padding__16px'}}
+                            >
+                                To confirm your selection please pay via PayPal.
+                            </Typography>
+                            <br />
+                            {!this.state.enrollObj.message &&
+                                MyClasses.enrollInClass_priceDisplay(
+                                    this.state.enrollObj.price,
+                                    this.state.enrollObj.discount,
+                                    this.state.enrollObj.tax,
+                                )}
+                            <br />
+                            <Divider />
+                            <br />
+                            <Typography
+                                component={'span'}
+                                variant='body1'
+                                color='textPrimary'
+                                classes={{root: 'avo-padding__16px'}}
+                                style={{textAlign: 'center'}}
+                            >
+                                <div id='paypal-button' />
+                                <br />
+                                {!this.state.enrollObj.message && this.state.enrollObj.freeTrial && (
+                                    <a
+                                        style={{
+                                            color: this.props.theme.color['500'],
+                                            cursor: 'pointer',
+                                        }}
+                                        onClick={() => {
+                                            if (!this.state.enrollObj.message)
+                                                Http.freeTrial(
+                                                    this.state.enrollObj.classID,
+                                                    () => {
+                                                        this.setState({joinClassPopperOpen: false});
+                                                        this.loadClasses(
+                                                            'Successfully enrolled in the class!',
+                                                        );
+                                                    },
+                                                    () => {},
+                                                );
+                                        }}
+                                    >
+                                        14 day free trial
+                                    </a>
+                                )}
+                                <br />
+                            </Typography>
+                            <Button
+                                color='primary'
+                                onClick={() => {
+                                    this.setState({joinClassPopperOpen: false});
+                                }}
+                            >
+                                Close
+                            </Button>
+                        </Fragment>
+                    )}
+                </Paper>
+            </Popper>
+        );
     }
 
     enrollButton() {
@@ -725,7 +725,12 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         );
     }
 
-    detailsCard_tabs(bestMark: number, analyticsDataObj: any, selectedClass: Http.GetClasses_Class, selectedTest: Http.GetClasses_Test) {
+    detailsCard_tabs(
+        bestMark: number,
+        analyticsDataObj: any,
+        selectedClass: Http.GetClasses_Class,
+        selectedTest: Http.GetClasses_Test,
+    ) {
         // this is the information that is displayed under each tab
         const {activeTab} = this.state;
         return (
@@ -804,7 +809,9 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                             }}
                         >
                             <b>My Best Attempt:</b>{' '}
-                            {Math.round((bestMark / 100) * (this.state.testStats.totalMark as number))}
+                            {Math.round(
+                                (bestMark / 100) * (this.state.testStats.totalMark as number),
+                            )}
                         </span>
                     </span>
                 </Typography>
@@ -833,7 +840,9 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                             <Select
                                 value={this.state.testStatsDataQuestionIdx}
                                 onChange={e =>
-                                    this.setState({testStatsDataQuestionIdx: Number(e.target.value)})
+                                    this.setState({
+                                        testStatsDataQuestionIdx: Number(e.target.value),
+                                    })
                                 }
                                 input={<Input name='dataSelected' id='test-stats__data-display' />}
                             >
@@ -887,9 +896,8 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                         }}
                     >
                         <b>Std. Dev:</b>
-                        {(this.state.testStats.questions[
-                            this.state.testStatsDataQuestionIdx
-                        ].questionSTDEV as number).toFixed(2)}
+                        {(this.state.testStats.questions[this.state.testStatsDataQuestionIdx]
+                            .questionSTDEV as number).toFixed(2)}
                         %
                     </span>
                 </Typography>
@@ -903,7 +911,12 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         );
     }
 
-    detailsCard_myAttempts(bestMark: number, analyticsDataObj: any, selectedClass: Http.GetClasses_Class, selectedTest: Http.GetClasses_Test) {
+    detailsCard_myAttempts(
+        bestMark: number,
+        analyticsDataObj: any,
+        selectedClass: Http.GetClasses_Class,
+        selectedTest: Http.GetClasses_Test,
+    ) {
         return (
             <Fragment>
                 <br />
@@ -1042,14 +1055,15 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
             throw new Error();
         }
         let dataObj = convertListFloatToAnalytics(
-            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent as number[],
+            this.state.testStats.questions[this.state.testStatsDataQuestionIdx]
+                .topMarksPerStudent as number[],
             this.state.testStats.questions[this.state.testStatsDataQuestionIdx].totalMark as number,
         );
         delete dataObj['studentSizeWhoTookIt'];
         const dataOutArray = [];
         for (let key in dataObj)
             if (dataObj.hasOwnProperty(key))
-				dataOutArray.push((dataObj[key] as {numberOfStudents: number}).numberOfStudents);
+                dataOutArray.push((dataObj[key] as {numberOfStudents: number}).numberOfStudents);
         return [
             {
                 name: 'Number of Students',
@@ -1285,7 +1299,9 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
             const dataOutArray = [];
             for (let key in dataObj)
                 if (dataObj.hasOwnProperty(key))
-					dataOutArray.push((dataObj[key] as {numberOfStudents: number}).numberOfStudents);
+                    dataOutArray.push(
+                        (dataObj[key] as {numberOfStudents: number}).numberOfStudents,
+                    );
             return [
                 {
                     name: 'Number of Students',

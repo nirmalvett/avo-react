@@ -100,7 +100,7 @@ export type Enroll =
           message: 'enrolled';
       }
     | {
-            message: undefined,
+          message: undefined;
           classID: number;
           price: number;
           discount: number;
