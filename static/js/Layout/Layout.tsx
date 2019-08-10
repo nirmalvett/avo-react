@@ -306,13 +306,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         if (section === 'Post Test')
-            return (
-                <PostTest
-                    showSnackBar={this.showSnackBar}
-                    isTeacher={this.props.isTeacher}
-                    takes={this.state.postTest}
-                />
-            );
+            return (<PostTest takes={this.state.postTest as number}/>);
         if (section === 'Mark Editor')
             return (
                 <MarkEditor
