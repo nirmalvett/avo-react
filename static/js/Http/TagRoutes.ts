@@ -17,8 +17,12 @@ export function putTags(tags: number[], success: cb<never>, failure: cb) {
     _request('PUT', '/putTags', success, failure, {tags});
 }
 
-export function addTag(tag: never, success: cb<never>, failure: cb) {
-    _request('POST', '/addTag', success, failure, {tag});
+export interface AddTag {
+    tagID: number
+}
+
+export function addTag(name: string, success: cb<AddTag>, failure: cb) {
+    _request('POST', '/addTag', success, failure, {name});
 }
 
 export function deleteTag(tag: number, success: cb<never>, failure: cb) {

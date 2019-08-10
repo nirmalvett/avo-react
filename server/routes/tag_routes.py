@@ -67,18 +67,17 @@ def put_tags_route(tags: list):
 
 @TagRoutes.route('/addTag', methods=['POST'])
 @teacher_only
-@validate(tag=None)
-def add_tag_route(tag):
+@validate(name=str)
+def add_tag_route(name):
     """
         Expects
         {tag: {'tagName': 'Linear Algebra' }}
     """
-    tag_obj = Tag(None, tag['tagName'], 0)  # Tag to be added to database
+    tag_obj = Tag(None, name, 0)  # Tag to be added to database
     db.session.add(tag_obj)
     db.session.commit()
     return jsonify(
-        message='Changed successfully!',
-        tag=tag_obj.TAG
+        tagID=tag_obj.TAG
     )
 
 

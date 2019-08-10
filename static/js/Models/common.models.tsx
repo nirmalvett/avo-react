@@ -1,6 +1,6 @@
 export interface Class {
     enrollKey: string;
-    id: number;
+    classID: number;
     name: string;
     tests: Test[];
 }
@@ -12,15 +12,15 @@ export interface Test {
     classSize: number;
     current?: any;
     deadline: number;
-    id: number;
+    testID: number;
     name: string;
-    open: number;
+    open: boolean;
     standardDeviation: number;
     submitted: SubmittedTest[];
 }
 
 export interface SubmittedTest {
     grade: number;
-    takes: number;
+    takesID: number;
     timeSubmitted: number;
 }

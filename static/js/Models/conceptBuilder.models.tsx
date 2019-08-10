@@ -1,17 +1,12 @@
-export interface FolderViewState {
-    tags: Tag[];
-    tagAddInput: string;
-    tagDeleteInput: string;
-    tagsFromServer: GetTagsResponse[];
-}
 export interface Tag {
     childOrder: number;
     children: Tag[];
     id: number;
-    parentId: number;
+    parentId: number | null;
     title: string;
     TAG?: number;
 }
+
 export interface GetTagsResponse {
     TAG: number;
     childOrder: number;

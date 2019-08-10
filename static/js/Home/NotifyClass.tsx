@@ -150,11 +150,11 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
     }
 
     addMessage() {
-        const classID = this.state.classes.find(
+        const _class = this.state.classes.find(
             c => c.name === this.state.selectedClassName,
         ) as Class;
         Http.addMessage(
-            classID.id,
+            _class.classID,
             this.state.addMessageInput,
             this.state.messageBodyInput,
             () => {
@@ -170,11 +170,11 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
     deleteMessages() {
         const deleteMessageIDs = this.state.messages.filter(message => message.selected);
         deleteMessageIDs.forEach(message => {
-            Http.deleteMessage(message.MESSAGE, () => undefined, () => undefined);
+            Http.deleteMessage(message.messageID, () => undefined, () => undefined);
         });
         let filtered = this.state.messages;
         deleteMessageIDs.forEach(message => {
-            filtered = filtered.filter(m => m.MESSAGE !== message.MESSAGE);
+            filtered = filtered.filter(m => m.messageID !== message.messageID);
         });
         this.setState({
             messages: filtered,
@@ -183,11 +183,11 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
 
     saveMessage(message: Notification) {
         Http.editMessage(
-            message.MESSAGE,
+            message.messageID,
             this.state.editTitle,
             this.state.editBody,
             () => {
-                const msg = this.state.messages.findIndex(m => m.MESSAGE === message.MESSAGE);
+                const msg = this.state.messages.findIndex(m => m.messageID === message.messageID);
                 const messages = this.state.messages;
                 messages[msg].showEdit = false;
                 messages[msg].title = this.state.editTitle;
@@ -206,7 +206,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
             c => c.name === this.state.selectedClassName,
         ) as Class;
         Http.getMessages(
-            selectedClass.id,
+            selectedClass.classID,
             res => {
                 this.setState({
                     messages: res.messages.map(m => ({...m, selected: false, showEdit: false})),
@@ -299,7 +299,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                 <div
                     onClick={() => {
                         const messageIndex = this.state.messages.findIndex(
-                            m => m.MESSAGE === message.MESSAGE,
+                            m => m.messageID === message.messageID,
                         );
                         let newMessages = this.state.messages;
                         newMessages[messageIndex].selected = !newMessages[messageIndex].selected;
@@ -312,7 +312,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                     style={{clear: 'both'}}
                     onClick={() => {
                         const messageIndex = this.state.messages.findIndex(
-                            m => m.MESSAGE === message.MESSAGE,
+                            m => m.messageID === message.messageID,
                         );
                         const messages = this.state.messages;
                         messages.forEach(m => (m.showEdit = false));
