@@ -24,7 +24,12 @@ def get_tags():
     list_of_tags = Tag.query.all()  # [Tag, Tag...]
     list_dict = []
     for tag in list_of_tags:
-        list_dict.append(alchemy_to_dict(tag))
+        list_dict.append({
+            'TAG': tag.TAG,
+            'parent': tag.parent,
+            'tagName': tag.tagName,
+            'childOrder': tag.childOrder,
+        })
     return list_dict
 
 
@@ -100,14 +105,3 @@ def delete_tag(tag):
     db.session.delete(tag)
     db.session.commit()
     return jsonify(message="Tag deleted")
-
-
-def alchemy_to_dict(obj):
-    """
-    Converts SqlAlchemy object to dict
-    :param obj: the SqlAlchemy object to convert
-    :return: dict of SqlAlchemy object
-    """
-    dict_obj = obj.__dict__.copy()
-    dict_obj.pop('_sa_instance_state')
-    return dict_obj

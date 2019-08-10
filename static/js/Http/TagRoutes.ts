@@ -1,6 +1,15 @@
 import {_request, cb} from './baseRequest';
 
-export function getTags(success: cb<never>, failure: cb) {
+export interface GetTags {
+    tags: {
+        TAG: number;
+        parent: number;
+        tagName: string;
+        childOrder: number;
+    }[];
+}
+
+export function getTags(success: cb<GetTags>, failure: cb) {
     _request('GET', '/getTags', success, failure);
 }
 
