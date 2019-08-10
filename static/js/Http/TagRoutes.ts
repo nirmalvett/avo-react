@@ -13,7 +13,7 @@ export function getTags(success: cb<GetTags>, failure: cb) {
     _request('GET', '/getTags', success, failure);
 }
 
-type putTagsArg = {tagID: number; parent: number; tagName: string; childOrder: number}[];
+type putTagsArg = {tagID: number; parent: number | null; tagName: string; childOrder: number}[];
 
 export function putTags(tags: putTagsArg, success: cb<{}>, failure: cb) {
     _request('POST', '/putTags', success, failure, {tags});

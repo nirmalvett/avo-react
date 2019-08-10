@@ -8,12 +8,11 @@ import Grid from '@material-ui/core/Grid/Grid';
 import TextField from '@material-ui/core/TextField';
 
 interface Tag {
-    childOrder: number;
-    children: Tag[];
     id: number;
     parentId: number | null;
+    childOrder: number;
+    children: Tag[];
     title: string;
-    TAG?: number;
 }
 
 interface FolderViewProps {}
@@ -139,7 +138,7 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
     formatTagsForServer() {
         const parents = this.state.tags.map((tag, i) => {
             return {
-                TAG: tag.id,
+                tagID: tag.id,
                 parent: null,
                 tagName: tag.title,
                 childOrder: i,

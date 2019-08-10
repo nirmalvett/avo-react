@@ -84,9 +84,7 @@ class App extends Component<AppProps, AppState> {
         } else {
             return (
                 <SignIn
-                    login={(u: string, p: string, result: Http.GetUserInfo) =>
-                        this.updateUser(u, p, result)
-                    }
+                    login={this.updateUser}
                     username={this.state.username}
                     password={this.state.password}
                 />
@@ -94,7 +92,7 @@ class App extends Component<AppProps, AppState> {
         }
     }
 
-    updateUser(username: string, password: string, result: Http.GetUserInfo) {
+    updateUser = (username: string, password: string, result: Http.GetUserInfo) => {
         this.setState({
             authenticated: true,
             username,
