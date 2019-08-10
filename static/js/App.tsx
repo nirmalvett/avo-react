@@ -9,25 +9,16 @@ import NotChromeWarningPage from './SignIn/NotChromeWarningPage';
 import {MuiPickersUtilsProvider} from '@material-ui/pickers';
 import {connect} from 'react-redux';
 import {handleLoginData} from './Redux/Actions/shared';
+import {User} from './Models';
+import {createMuiTheme, MuiThemeProvider} from '@material-ui/core';
+import {colorList} from './SharedComponents/AVOCustomColors';
 
 interface AppProps {
     dispatch: (x: any) => void; // todo: figure out the correct signature
 }
 
 interface AppState {
-    authenticated: boolean | null;
-    username: string;
-    password: string;
-    user: User | null;
-}
-
-export interface User {
-    firstName: string;
-    lastName: string;
-    isTeacher: boolean;
-    isAdmin: boolean;
-    color: number;
-    theme: 'dark' | 'light';
+    authenticated: User | false | null;
 }
 
 class App extends Component<AppProps, AppState> {
@@ -35,9 +26,6 @@ class App extends Component<AppProps, AppState> {
         super(props);
         this.state = {
             authenticated: null,
-            username: '',
-            password: '',
-            user: null,
         };
     }
 
@@ -45,10 +33,10 @@ class App extends Component<AppProps, AppState> {
         Http.getUserInfo(
             result => {
                 this.props.dispatch(handleLoginData(result));
-                this.updateUser('', '', result);
+                this.updateUser('', result);
             },
             () => {
-                this.setState({authenticated: false, user: null});
+                this.setState({authenticated: false});
             },
         );
     }
@@ -68,38 +56,38 @@ class App extends Component<AppProps, AppState> {
     }
 
     getContent() {
-        const u = this.state.user as User;
         const urlContainsPasswordRest = window.location.href.indexOf('passwordReset') > -1;
         if (urlContainsPasswordRest) {
             return <PasswordResetPage />;
-        } else if (this.state.authenticated) {
-            return (
-                <Layout
-                    setColor={(color: number) => this.setState({user: {...u, color}})}
-                    setTheme={(theme: 'light' | 'dark') => this.setState({user: {...u, theme}})}
-                    logout={() => this.setState({authenticated: false})}
-                    {...u}
-                />
-            );
+        } else if (this.state.authenticated === false) {
+            return <SignIn login={this.updateUser} />;
         } else {
+            const u = this.state.authenticated as User;
+            const theme = createMuiTheme({palette: {primary: colorList[u.color], type: u.theme}});
             return (
-                <SignIn
-                    login={this.updateUser}
-                    username={this.state.username}
-                    password={this.state.password}
-                />
+                <MuiThemeProvider theme={theme}>
+                    <Layout
+                        setColor={this.setColor}
+                        setTheme={this.setTheme}
+                        logout={() => this.setState({authenticated: false})}
+                        {...u}
+                    />
+                </MuiThemeProvider>
             );
         }
     }
 
-    updateUser = (username: string, password: string, result: Http.GetUserInfo) => {
+    setColor = (color: number) =>
+        this.setState({authenticated: {...(this.state.authenticated as User), color}});
+
+    setTheme = (theme: 'light' | 'dark') =>
+        this.setState({authenticated: {...(this.state.authenticated as User), theme}});
+
+    updateUser = (username: string, result: Http.GetUserInfo) => {
         this.setState({
-            authenticated: true,
-            username,
-            password,
-            user: {...result, theme: result.theme ? 'dark' : 'light'},
+            authenticated: {...result, username, theme: result.theme ? 'dark' : 'light'},
         });
-    }
+    };
 }
 
 export default connect()(App);

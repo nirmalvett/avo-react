@@ -14,8 +14,8 @@ import QuestionBuilder from '../QuestionBuilder/QuestionBuilder';
 import QuestionBuilderDocs from '../CourseBuilder/QuestionBuilder/QuestionBuilderDocs';
 import ExportTools from '../ExportTools/ExportTools';
 import {colorList} from '../SharedComponents/AVOCustomColors';
-import {MuiThemeProvider, createMuiTheme, createStyles, Theme} from '@material-ui/core/styles';
 import NotifyClass from '../Home/NotifyClass';
+import {createStyles, Theme} from '@material-ui/core/styles';
 import {withStyles} from '@material-ui/core';
 import classNames from 'classnames';
 import AvoSideBar from './AvoSidebar';
@@ -44,19 +44,6 @@ const styles = (theme: Theme) =>
         },
     });
 
-interface LayoutProps {
-    classes: LayoutClasses;
-    firstName: string;
-    lastName: string;
-    isTeacher: boolean;
-    isAdmin: boolean;
-    color: number;
-    theme: 'dark' | 'light';
-    logout: () => void;
-    setColor: (color: number) => void;
-    setTheme: (theme: 'light' | 'dark') => void;
-}
-
 export type Section =
     | 'Build Question'
     | 'Create Test'
@@ -74,6 +61,24 @@ export type Section =
     | 'Preferences'
     | 'Tag Builder'
     | 'Take Test';
+
+export type SnackbarVariant = 'success' | 'warning' | 'error' | 'info';
+
+interface LayoutProps {
+    classes: {
+        content: string;
+        contentShift: string;
+    };
+    firstName: string;
+    lastName: string;
+    isTeacher: boolean;
+    isAdmin: boolean;
+    color: number;
+    theme: 'dark' | 'light';
+    logout: () => void;
+    setColor: (color: number) => void;
+    setTheme: (theme: 'light' | 'dark') => void;
+}
 
 interface LayoutState {
     section: Section;
@@ -96,18 +101,11 @@ interface LayoutState {
     questionBuilder: any; // todo
 }
 
-export type SnackbarVariant = 'success' | 'warning' | 'error' | 'info';
-
 export type ShowSnackBar = (
     variant: SnackbarVariant,
     message: string,
     hideDuration: number,
 ) => void;
-
-interface LayoutClasses {
-    content: string;
-    contentShift: string;
-}
 
 class Layout extends Component<LayoutProps, LayoutState> {
     constructor(props: LayoutProps) {
@@ -139,48 +137,45 @@ class Layout extends Component<LayoutProps, LayoutState> {
 
     render() {
         const {classes, theme} = this.props;
-        const color = this.color();
         const open = this.state.open;
         return (
-            <MuiThemeProvider theme={createMuiTheme({palette: {primary: color, type: theme}})}>
+            <div
+                style={{
+                    display: 'flex',
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: theme === 'dark' ? '#303030' : '#fff',
+                }}
+            >
+                <AvoSideBar
+                    isTeacher={this.props.isTeacher}
+                    isAdmin={this.props.isAdmin}
+                    color={this.color()}
+                    theme={this.props.theme}
+                    section={this.state.section}
+                    open={this.state.open}
+                    logout={this.props.logout}
+                    onClick={(section: Section) =>
+                        this.setState({section, classToJumpTo: null, setToJumpTo: null})
+                    }
+                />
+                <AvoAppBar
+                    section={this.state.section}
+                    name={`${this.props.firstName} ${this.props.lastName}`}
+                    open={this.state.open}
+                    toggleDrawer={() => this.setState({open: !open})}
+                    showSnackBar={this.showSnackBar}
+                    test={this.state.test}
+                />
                 <div
-                    style={{
-                        display: 'flex',
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: theme === 'dark' ? '#303030' : '#fff',
-                    }}
+                    className={classNames(classes.content, {
+                        [classes.contentShift]: open,
+                    })}
                 >
-                    <AvoSideBar
-                        isTeacher={this.props.isTeacher}
-                        isAdmin={this.props.isAdmin}
-                        color={this.color()}
-                        theme={this.props.theme}
-                        section={this.state.section}
-                        open={this.state.open}
-                        logout={this.props.logout}
-                        onClick={(section: Section) =>
-                            this.setState({section, classToJumpTo: null, setToJumpTo: null})
-                        }
-                    />
-                    <AvoAppBar
-                        section={this.state.section}
-                        name={`${this.props.firstName} ${this.props.lastName}`}
-                        open={this.state.open}
-                        toggleDrawer={() => this.setState({open: !open})}
-                        showSnackBar={this.showSnackBar}
-                        test={this.state.test}
-                    />
-                    <div
-                        className={classNames(classes.content, {
-                            [classes.contentShift]: open,
-                        })}
-                    >
-                        {this.getContent()}
-                    </div>
-                    <AvoSnackBar {...this.state.snackbar} onClose={this.closeSnackbar} />
+                    {this.getContent()}
                 </div>
-            </MuiThemeProvider>
+                <AvoSnackBar {...this.state.snackbar} onClose={this.closeSnackbar} />
+            </div>
         );
     }
 
@@ -273,7 +268,6 @@ class Layout extends Component<LayoutProps, LayoutState> {
             return (
                 <QuestionBuilder
                     showSnackBar={this.showSnackBar}
-                    theme={createMuiTheme({palette: {primary: this.color(), type: theme}})}
                     initManager={
                         (questionManager: any) =>
                             this.setState({section: 'My Questions', questionManager}) // todo

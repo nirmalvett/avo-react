@@ -24,3 +24,13 @@ export interface SubmittedTest {
     grade: number;
     timeSubmitted: number;
 }
+
+export interface User {
+    username: string;
+    firstName: string;
+    lastName: string;
+    isTeacher: boolean;
+    isAdmin: boolean;
+    color: number;
+    theme: 'dark' | 'light';
+}

@@ -19,10 +19,13 @@ interface Event {
     };
 }
 
+const style = {width: '100%'};
+const theme = createMuiTheme({
+    palette: {primary: {'200': '#f8ee7b', '500': '#399103'}, type: 'light'},
+});
+
 interface SignInProps {
-    login: (u: string, p: string, result: Http.GetUserInfo) => void;
-    username: string;
-    password: string;
+    login: (username: string, result: Http.GetUserInfo) => void;
 }
 
 interface SignInState {
@@ -50,8 +53,8 @@ export default class SignIn extends Component<SignInProps, SignInState> {
             rEmail: '',
             rPassword1: '',
             rPassword2: '',
-            username: this.props.username,
-            password: this.props.password,
+            username: '',
+            password: '',
             signInError: '',
             hasAgreedToTOS: false,
             resetEmail: '',
@@ -59,8 +62,11 @@ export default class SignIn extends Component<SignInProps, SignInState> {
     }
 
     componentDidMount() {
-        /* This runs after the component is rendered */
-        SignIn.confirmedAccountAlert();
+        if (window.location.href.includes('/confirm/')) {
+            alert(
+                'Your account was successfully confirmed! You may now log in and begin using AVO.',
+            );
+        }
     }
 
     updateFirstName = (e: Event) => this.setState({rFirstName: e.target.value});
@@ -80,176 +86,22 @@ export default class SignIn extends Component<SignInProps, SignInState> {
     updateResetEmail = (e: Event) => this.setState({resetEmail: e.target.value});
 
     render() {
-        const style = {width: '100%'};
-
-        let emailError =
-            this.state.rEmail.length > 0 && !/^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(this.state.rEmail);
-        let rPw1Error = this.state.rPassword1.length > 0 && this.state.rPassword1.length < 8;
-        let rPw2Error =
-            this.state.rPassword2.length > 0 && this.state.rPassword2 !== this.state.rPassword1;
-
-        let usernameError =
-            this.state.username.length > 0 &&
-            !/^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(this.state.username);
-        let passwordError = this.state.password.length > 0 && this.state.password.length < 8;
-
+        const s = this.state;
         return (
-            <MuiThemeProvider
-                theme={createMuiTheme({
-                    palette: {primary: {'200': '#f8ee7b', '500': '#399103'}, type: 'light'},
-                })}
-            >
+            <MuiThemeProvider theme={theme}>
                 <Slide in={true} direction={'up'}>
                     <Card className='LoginCard' id='avo-registrator'>
                         <div style={{margin: '5%', width: '100%', height: '90%'}}>
-                            {!this.state.isSigningIn ? (
-                                <Fragment>
-                                    <Typography variant='h5'>Register</Typography>
-                                    <form style={{width: '100%'}}>
-                                        <TextField
-                                            margin='normal'
-                                            style={style}
-                                            label='First Name'
-                                            onChange={this.updateFirstName}
-                                            value={this.state.rFirstName}
-                                        />
-                                        <br />
-                                        <TextField
-                                            margin='normal'
-                                            style={style}
-                                            label='Last Name'
-                                            onChange={this.updateLastName}
-                                            value={this.state.rLastName}
-                                        />
-                                        <br />
-                                        <TextField
-                                            margin='normal'
-                                            style={style}
-                                            label='UWO Email'
-                                            onChange={this.updateEmail}
-                                            value={this.state.rEmail}
-                                            error={emailError}
-                                        />
-                                        <br />
-                                        <TextField
-                                            margin='normal'
-                                            style={style}
-                                            label='Password'
-                                            type='password'
-                                            onChange={this.updatePassword1}
-                                            value={this.state.rPassword1}
-                                            error={rPw1Error}
-                                            helperText='(Minimum 8 characters)'
-                                        />
-                                        <br />
-                                        <TextField
-                                            margin='normal'
-                                            style={style}
-                                            label='Re-Enter Password'
-                                            type='password'
-                                            onChange={this.updatePassword2}
-                                            value={this.state.rPassword2}
-                                            error={rPw2Error}
-                                        />
-                                        <br />
-                                        <Typography variant='caption'>
-                                            <Checkbox
-                                                color='primary'
-                                                checked={this.state.hasAgreedToTOS}
-                                                onClick={() =>
-                                                    this.setState({
-                                                        hasAgreedToTOS: !this.state.hasAgreedToTOS,
-                                                    })
-                                                }
-                                            />
-                                            I agree to the Terms of Service found{' '}
-                                            <a id='ToC-here'>here</a>.
-                                            <br />
-                                            <Typography color='error'>
-                                                {this.state.messageToUser}
-                                            </Typography>
-                                        </Typography>
-                                        <Button
-                                            color='primary'
-                                            classes={{
-                                                root: 'avo-button',
-                                                disabled: 'disabled',
-                                            }}
-                                            className='avo-styles__float-right'
-                                            disabled={!this.state.hasAgreedToTOS}
-                                            onClick={() => this.register()}
-                                        >
-                                            Register
-                                        </Button>
-                                    </form>
-                                    <AVOModal
-                                        title='Terms of Service'
-                                        target='ToC-here'
-                                        acceptText='I Agree'
-                                        declineText='Decline'
-                                        onAccept={() => {
-                                            this.setState({hasAgreedToTOS: true});
-                                        }}
-                                        onDecline={() => {
-                                            this.setState({hasAgreedToTOS: false});
-                                        }}
-                                    >
-                                        {SignIn.getTermsOfService()}
-                                    </AVOModal>
-                                    <br />
-                                </Fragment>
-                            ) : (
-                                <Fragment>
-                                    <Logo theme='light' />
-                                    <Typography variant='h5'>Sign In</Typography>
-                                    <form style={style} noValidate autoComplete='off'>
-                                        <TextField
-                                            margin='normal'
-                                            style={style}
-                                            label='Email'
-                                            onChange={this.updateUsername}
-                                            value={this.state.username}
-                                            error={usernameError}
-                                        />
-                                        <br />
-                                        <TextField
-                                            margin='normal'
-                                            style={style}
-                                            label='Password'
-                                            type='password'
-                                            onChange={this.updatePassword}
-                                            value={this.state.password}
-                                            error={passwordError}
-                                        />
-                                        <br />
-                                        <Typography variant='caption' className='avo-styles__error'>
-                                            {this.state.signInError}
-                                        </Typography>
-                                        <br />
-                                        <Button
-                                            id='avo-signin__button'
-                                            color='primary'
-                                            className='avo-button avo-styles__float-right'
-                                            onClick={() => this.signIn()}
-                                        >
-                                            Sign In
-                                        </Button>
-                                    </form>
-                                    <br />
-                                    <br />
-                                </Fragment>
-                            )}
+                            {s.isSigningIn ? this.renderSignIn() : this.renderRegister()}
                             <footer className='avo-styles__footer'>
                                 <Typography variant='caption'>
-                                    {this.state.isSigningIn
+                                    {s.isSigningIn
                                         ? "Don't have an account? Click "
                                         : 'Already have an Account? Click '}
                                     <a
                                         id='switchRegistration'
                                         className='avo-styles__link'
-                                        onClick={() =>
-                                            this.setState({isSigningIn: !this.state.isSigningIn})
-                                        }
+                                        onClick={() => this.setState({isSigningIn: !s.isSigningIn})}
                                     >
                                         here
                                     </a>
@@ -264,9 +116,158 @@ export default class SignIn extends Component<SignInProps, SignInState> {
         );
     }
 
-    passwordReset() {
+    renderSignIn() {
+        const s = this.state;
+        let usernameError = s.username.length > 0 && !/^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.username);
+        let passwordError = s.password.length > 0 && s.password.length < 8;
         return (
-            this.state.isSigningIn && (
+            <Fragment>
+                <Logo theme='light' />
+                <Typography variant='h5'>Sign In</Typography>
+                <form style={style} noValidate autoComplete='off'>
+                    <TextField
+                        margin='normal'
+                        style={style}
+                        label='Email'
+                        onChange={this.updateUsername}
+                        value={s.username}
+                        error={usernameError}
+                    />
+                    <br />
+                    <TextField
+                        margin='normal'
+                        style={style}
+                        label='Password'
+                        type='password'
+                        onChange={this.updatePassword}
+                        value={s.password}
+                        error={passwordError}
+                    />
+                    <br />
+                    <Typography variant='caption' className='avo-styles__error'>
+                        {s.signInError}
+                    </Typography>
+                    <br />
+                    <Button
+                        id='avo-signin__button'
+                        color='primary'
+                        className='avo-button avo-styles__float-right'
+                        onClick={() => this.signIn()}
+                    >
+                        Sign In
+                    </Button>
+                </form>
+                <br />
+                <br />
+            </Fragment>
+        );
+    }
+
+    renderRegister() {
+        const s = this.state;
+        const emailError = s.rEmail.length > 0 && !/^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.rEmail);
+        const rPw1Error = s.rPassword1.length > 0 && s.rPassword1.length < 8;
+        const rPw2Error = s.rPassword2.length > 0 && s.rPassword2 !== s.rPassword1;
+        return (
+            <Fragment>
+                <Typography variant='h5'>Register</Typography>
+                <form style={{width: '100%'}}>
+                    <TextField
+                        margin='normal'
+                        style={style}
+                        label='First Name'
+                        onChange={this.updateFirstName}
+                        value={s.rFirstName}
+                    />
+                    <br />
+                    <TextField
+                        margin='normal'
+                        style={style}
+                        label='Last Name'
+                        onChange={this.updateLastName}
+                        value={s.rLastName}
+                    />
+                    <br />
+                    <TextField
+                        margin='normal'
+                        style={style}
+                        label='UWO Email'
+                        onChange={this.updateEmail}
+                        value={s.rEmail}
+                        error={emailError}
+                    />
+                    <br />
+                    <TextField
+                        margin='normal'
+                        style={style}
+                        label='Password'
+                        type='password'
+                        onChange={this.updatePassword1}
+                        value={s.rPassword1}
+                        error={rPw1Error}
+                        helperText='(Minimum 8 characters)'
+                    />
+                    <br />
+                    <TextField
+                        margin='normal'
+                        style={style}
+                        label='Re-Enter Password'
+                        type='password'
+                        onChange={this.updatePassword2}
+                        value={s.rPassword2}
+                        error={rPw2Error}
+                    />
+                    <br />
+                    <Typography variant='caption'>
+                        <Checkbox
+                            color='primary'
+                            checked={s.hasAgreedToTOS}
+                            onClick={() =>
+                                this.setState({
+                                    hasAgreedToTOS: !s.hasAgreedToTOS,
+                                })
+                            }
+                        />
+                        I agree to the Terms of Service found <a id='ToC-here'>here</a>.
+                        <br />
+                        <Typography color='error'>{s.messageToUser}</Typography>
+                    </Typography>
+                    <Button
+                        color='primary'
+                        classes={{
+                            root: 'avo-button',
+                            disabled: 'disabled',
+                        }}
+                        className='avo-styles__float-right'
+                        disabled={!s.hasAgreedToTOS}
+                        onClick={() => this.register()}
+                    >
+                        Register
+                    </Button>
+                </form>
+                <AVOModal
+                    title='Terms of Service'
+                    target='ToC-here'
+                    acceptText='I Agree'
+                    declineText='Decline'
+                    onAccept={() => {
+                        this.setState({hasAgreedToTOS: true});
+                    }}
+                    onDecline={() => {
+                        this.setState({hasAgreedToTOS: false});
+                    }}
+                >
+                    {SignIn.getTermsOfService()}
+                </AVOModal>
+                <br />
+            </Fragment>
+        );
+    }
+
+    passwordReset() {
+        const s = this.state;
+        return (
+            s.isSigningIn && (
                 <Fragment>
                     <br />
                     <Typography variant='caption' id='avo-signin__reset-password'>
@@ -279,9 +280,9 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         acceptText='Reset'
                         declineText='Never mind'
                         onAccept={() => {
-                            if (this.state.resetEmail !== '') {
+                            if (s.resetEmail !== '') {
                                 Http.requestPasswordReset(
-                                    this.state.resetEmail,
+                                    s.resetEmail,
                                     () =>
                                         alert(
                                             'Successfully requested password change. ' +
@@ -303,7 +304,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                             label='Email'
                             type='email'
                             id='avo-signin__reset-email'
-                            value={this.state.resetEmail}
+                            value={s.resetEmail}
                             onChange={this.updateResetEmail}
                         />
                         <br />
@@ -316,7 +317,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
     // noinspection JSMethodCanBeStatic
     register() {
         this.setState({messageToUser: 'Loading...'});
-        let s = this.state;
+        const s = this.state;
         if (this.checkInputFields()) {
             Http.register(
                 s.rFirstName,
@@ -364,7 +365,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
         Http.login(
             this.state.username,
             this.state.password,
-            result => this.props.login(this.state.username, this.state.password, result),
+            result => this.props.login(this.state.username, result),
             result => this.setState({signInError: result.error}),
         );
     }
@@ -570,13 +571,5 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                 privacy concern or issue.
             </p>
         );
-    }
-
-    static confirmedAccountAlert() {
-        if (window.location.href.includes('/confirm/')) {
-            alert(
-                'Your account was successfully confirmed! You may now log in and begin using AVO.',
-            );
-        }
     }
 }
