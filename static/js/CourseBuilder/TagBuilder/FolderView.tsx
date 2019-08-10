@@ -6,9 +6,15 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid/Grid';
 import TextField from '@material-ui/core/TextField';
-import * as Models from '../../Models';
-import {Tag} from '../../Models';
-import {GetTagsResponse} from '../../Models';
+
+interface Tag {
+    childOrder: number;
+    children: Tag[];
+    id: number;
+    parentId: number | null;
+    title: string;
+    TAG?: number;
+}
 
 interface FolderViewProps {}
 
@@ -16,7 +22,12 @@ interface FolderViewState {
     tags: Tag[];
     tagAddInput: string;
     tagDeleteInput: string;
-    tagsFromServer: GetTagsResponse[];
+    tagsFromServer: {
+        TAG: number;
+        childOrder: number;
+        parent: number;
+        tagName: string;
+    }[];
 }
 
 export default class FolderView extends Component<FolderViewProps, FolderViewState> {
@@ -122,11 +133,7 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
     }
 
     putTags() {
-        Http.putTags(
-            this.formatTagsForServer(),
-            this.getTags,
-            console.log,
-        );
+        Http.putTags(this.formatTagsForServer(), this.getTags, console.log);
     }
 
     formatTagsForServer() {
@@ -147,14 +154,14 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
         return parents;
     }
 
-    getListOfChildren(parents: Models.Tag[], grandparent: Models.Tag) {
-        let c = [];
+    getListOfChildren(parents: Tag[], grandparent: Tag) {
+        let c: Tag[] = [];
         parents.forEach((child, i) => {
             if (Array.isArray(child))
                 child.forEach((ch, j) => {
                     c.push({
                         TAG: ch.id,
-                        parent: grandparent.id || grandparent.TAG,
+                        parentId: grandparent.id || grandparent.TAG,
                         tagName: ch.title,
                         childOrder: j,
                     });
@@ -164,7 +171,7 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
             else {
                 c.push({
                     TAG: child.id,
-                    parent: grandparent.id || grandparent.TAG,
+                    parentId: grandparent.id || grandparent.TAG,
                     tagName: child.title,
                     childOrder: i,
                 });
@@ -181,7 +188,7 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
                 let fixTree = false;
                 this.setState({tagsFromServer: res.tags});
                 const tags = res.tags;
-                const flatList = [];
+                const flatList: Tag[] = [];
                 const parents: Tag[] = [];
                 let tagCount = tags.length;
                 tags.forEach(tag => {
@@ -234,9 +241,10 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
         );
         Http.deleteTag(
             (tag as {TAG: number}).TAG,
-            () => this.setState({tagDeleteInput: ''}, () => {
-                this.getTags();
-            }),
+            () =>
+                this.setState({tagDeleteInput: ''}, () => {
+                    this.getTags();
+                }),
             console.warn,
         );
     }

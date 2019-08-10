@@ -1,18 +1,18 @@
 export interface Class {
-    enrollKey: string;
     classID: number;
+    enrollKey: string;
     name: string;
     tests: Test[];
 }
 
 export interface Test {
+    testID: number;
     attempts: number;
     classAverage: number;
     classMedian: number;
     classSize: number;
     current?: any;
     deadline: number;
-    testID: number;
     name: string;
     open: boolean;
     standardDeviation: number;
@@ -20,7 +20,7 @@ export interface Test {
 }
 
 export interface SubmittedTest {
-    grade: number;
     takesID: number;
+    grade: number;
     timeSubmitted: number;
 }

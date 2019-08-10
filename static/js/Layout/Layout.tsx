@@ -305,8 +305,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     setTheme={this.props.setTheme}
                 />
             );
-        if (section === 'Post Test')
-            return (<PostTest takes={this.state.postTest as number}/>);
+        if (section === 'Post Test') return <PostTest takes={this.state.postTest as number} />;
         if (section === 'Mark Editor')
             return (
                 <MarkEditor

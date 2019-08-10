@@ -1,4 +1,4 @@
-export type RequestType = 'GET' | 'POST' | 'PUT';
+export type RequestType = 'GET' | 'POST';
 
 interface ErrorResponse {
     error: string;
