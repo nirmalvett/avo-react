@@ -318,11 +318,11 @@ def enroll(key: str):
         if not teaches_class(current_class.CLASS):
             db.session.add(Transaction(f"TEACHER-{user_id}-{class_id}", user_id, class_id, None))
             db.session.commit()
-        return jsonify({})
+        return jsonify(message='enrolled')
     if current_class.price_discount == 0:
         db.session.add(Transaction(f"FREECLASS-{user_id}-{class_id}", user_id, class_id, None))
         db.session.commit()
-        return jsonify({})
+        return jsonify(message='enrolled')
     else:
         # Checks if the user has a free trial left
         has_free_trial = Transaction.query.get(f"FREETRIAL-{user_id}-{class_id}") is None

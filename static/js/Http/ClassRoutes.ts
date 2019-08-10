@@ -34,34 +34,40 @@ export function home(success: cb<Home>, failure: cb) {
 }
 
 export interface GetClasses {
-    classes: {
-        classID: number;
-        enrollKey: string;
-        name: string;
-        tests: {
-            testID: number;
-            name: string;
-            open: boolean;
-            openTime: number;
-            deadline: number;
-            timer: number;
-            attempts: number;
-            total: number;
-            submitted: {
-                takesID: number;
-                timeSubmitted: number;
-                grade: number;
-            }[];
-            current: null | {
-                timeStarted: number;
-                timeSubmitted: number;
-            };
-            classAverage: number;
-            classMedian: number;
-            classSize: number;
-            standardDeviation: number;
-        }[];
-    }[];
+    classes: GetClasses_Class[];
+}
+
+export interface GetClasses_Class {
+    classID: number;
+    enrollKey: string;
+    name: string;
+    tests: GetClasses_Test[];
+}
+
+export interface GetClasses_Test {
+    testID: number;
+    name: string;
+    open: boolean;
+    openTime: number;
+    deadline: number;
+    timer: number;
+    attempts: number;
+    total: number;
+    submitted: GetClasses_TestSubmitted[];
+    current: null | {
+        timeStarted: number;
+        timeSubmitted: number;
+    };
+    classAverage: number;
+    classMedian: number;
+    classSize: number;
+    standardDeviation: number;
+}
+
+export interface GetClasses_TestSubmitted {
+    takesID: number;
+    timeSubmitted: number;
+    grade: number;
 }
 
 export function getClasses(success: cb<GetClasses>, failure: cb) {
@@ -90,8 +96,11 @@ export function CSVDownload(classId: number, success: cb<{}>, failure: cb) {
 }
 
 export type Enroll =
-    | {}
     | {
+          message: 'enrolled';
+      }
+    | {
+            message: undefined,
           classID: number;
           price: number;
           discount: number;

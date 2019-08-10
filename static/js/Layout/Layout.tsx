@@ -222,7 +222,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     setToJumpTo={this.state.setToJumpTo}
                     showSnackBar={this.showSnackBar}
                     isTeacher={isTeacher}
-                    startTest={(cls: {id: number}) => this.startTest(cls)}
+                    startTest={this.startTest}
                     theme={{theme: this.props.theme, color: this.color()}}
                     postTest={(takes: number) => {
                         this.setState({postTest: takes, section: 'Post Test'});
@@ -318,10 +318,10 @@ class Layout extends Component<LayoutProps, LayoutState> {
         this.setState({section: 'Create Test', testCreator: cls});
     }
 
-    startTest(test: {id: number}) {
+    startTest = (test: Http.GetClasses_Test) => {
         console.log(test);
         Http.getTest(
-            test.id,
+            test.testID,
             result => {
                 this.setState({
                     section: 'Take Test',
@@ -330,7 +330,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
             },
             result => alert(result.error),
         );
-    }
+    };
 
     getTimeRemaining(minutesRemainingUponResumingTest: number, testDueDate: number) {
         // When we hit the getTest route we need to know the time remaining we also have test due date in case

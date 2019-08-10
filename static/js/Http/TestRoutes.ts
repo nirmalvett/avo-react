@@ -103,7 +103,25 @@ export function postTest(takes: number, success: cb<PostTest>, failure: cb) {
     _request('POST', '/postTest', success, failure, {takes});
 }
 
-export function getTestStats(test: string, success: cb<never>, failure: cb) {
+export interface TestStats {
+    numberStudents: number;
+    testMean: number;
+    testMedian: number;
+    testSTDEV: number;
+    questions: {
+        numberStudents?: 0;
+        questionMean: number;
+        questionMedian: number;
+        questionSTDEV?: number;
+        questionMark?: 0;
+        topMarksPerStudent?: number[];
+        totalMark?: number;
+    }[];
+    topMarkPerStudent: number[];
+    totalMark: number | [];
+}
+
+export function testStats(test: number, success: cb<never>, failure: cb) {
     _request('POST', '/testStats', success, failure, {id: test});
 }
 
