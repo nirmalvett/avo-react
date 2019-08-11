@@ -56,7 +56,7 @@ def create_class(name: str):
     return jsonify({})
 
 
-@ClassRoutes.route('/home')
+@ClassRoutes.route('/home', methods=['POST'])
 @login_required
 def home():
     # get list of due dates objects

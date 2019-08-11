@@ -252,7 +252,7 @@ def sample_question(string: str, seed: int):
 @QuestionRoutes.route('/sampleQuestionAnswers', methods=['POST'])
 @teacher_only
 @validate(string=str, seed=int, answers=list)
-def sample_question(string: str, seed: int, answers):
+def sample_question_answers(string: str, seed: int, answers):
     """
     Generates sample question
     :return: data of generated question
