@@ -144,7 +144,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     display: 'flex',
                     width: '100%',
                     height: '100%',
-                    backgroundColor: theme === 'dark' ? '#303030' : '#fff',
+                    backgroundColor: theme === 'dark' ? '#303030' : '#fcfcfc',
                 }}
             >
                 <AvoSideBar

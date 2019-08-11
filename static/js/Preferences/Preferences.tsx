@@ -6,6 +6,7 @@ import RadioGroup from '@material-ui/core/RadioGroup/RadioGroup';
 import Typography from '@material-ui/core/Typography/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
 import {colorList} from '../SharedComponents/AVOCustomColors';
+import {Paper} from '@material-ui/core';
 
 interface PreferencesProps {
     setColor: (color: number) => void;
@@ -17,7 +18,7 @@ interface PreferencesProps {
 export default class Preferences extends PureComponent<PreferencesProps> {
     render() {
         return (
-            <div style={{margin: '10px', flex: 1, overflowY: 'auto'}}>
+            <Paper style={{margin: '20px 15%', padding: '10px', flex: 1, overflowY: 'auto'}}>
                 <Typography variant='h5'>Please select a color</Typography>
                 <table>
                     <tbody>
@@ -43,7 +44,7 @@ export default class Preferences extends PureComponent<PreferencesProps> {
                         label='Dark Theme'
                     />
                 </RadioGroup>
-            </div>
+            </Paper>
         );
     }
 
@@ -59,12 +60,10 @@ export default class Preferences extends PureComponent<PreferencesProps> {
     }
 
     changeColor = (color: number) => {
-        Http.changeColor(color, () => {}, () => {});
-        this.props.setColor(color);
+        Http.changeColor(color, () => this.props.setColor(color), () => {});
     };
 
     changeTheme = (theme: 'light' | 'dark') => {
-        Http.changeTheme(theme === 'dark' ? 1 : 0, () => {}, () => {});
-        this.props.setTheme(theme);
+        Http.changeTheme(theme === 'dark' ? 1 : 0, () => this.props.setTheme(theme), () => {});
     };
 }
