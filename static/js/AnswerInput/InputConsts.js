@@ -10,8 +10,11 @@ export const CONST_NUMBER = '2';
 export const CONST_LINEAR_EXPRESSION = '3';
 export const CONST_MANUAL_INPUT = '4';
 export const CONST_MANUAL_INPUT_POLYNOMIAL = '5';
-export const CONST_VECTOR = '6';
-export const CONST_VECTOR_HORIZONTAL = "5";
+// export const CONST_VECTOR = '6';
 export const CONST_VECTOR_LINEAR_EXPRESSION = '7';
 export const CONST_MATRIX = '8';
 export const CONST_BASIS = '9';
+
+
+// for demo
+export const CONST_VECTOR_HORIZONTAL = "6";

@@ -348,7 +348,7 @@ export default class ButtonInputHorizontalVector extends React.Component {
 						direction="row"
 						justify="center"
 						alignItems="center">
-						<div style={{ float: 'left', paddingRight:'20px' }}><b><h1>[</h1></b></div>
+						<div style={{ float: 'left', marginRight:'50px' }}><b><h1>(</h1></b></div>
 						{ // We're mapping the vector inputs here
 							this.state.dynamicVectorInputs.map((idName, index) => {
 								return (
@@ -373,7 +373,7 @@ export default class ButtonInputHorizontalVector extends React.Component {
 								)
 							})
 						}
-						<div style={{ float: 'right' }}><b><h1>]</h1></b></div>
+						<div style={{ float: 'right' }}><b><h1>)</h1></b></div>
 					</Grid>
 					<br />
 					<div>
