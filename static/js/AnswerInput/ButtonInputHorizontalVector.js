@@ -348,14 +348,14 @@ export default class ButtonInputHorizontalVector extends React.Component {
 						direction="row"
 						justify="center"
 						alignItems="center">
-						<div style={{ float: 'left', marginRight:'50px' }}><b><h1>(</h1></b></div>
+						<div style={{ float: 'left', marginRight:'43px' }}><b><h1>(</h1></b></div>
 						{ // We're mapping the vector inputs here
 							this.state.dynamicVectorInputs.map((idName, index) => {
 								return (
-									<div style={{ width: '200px' }}>
+									<div style={{ width: '200px', margin: 5 }}>
 										<TextField
 											id={'vector-Input-:' + idName}
-											style={{ float: 'right', paddingLeft:'20px', paddingRight:'20px' }}
+											style={{ float: 'right', marginLeft:'20px', marginRight:'20px' }}
 											name={`${index}-0`}
 											value={this.state.dimensionStorage[index]}
 											onChange={(e) => this.handleVectorInput(e)}
