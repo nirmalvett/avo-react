@@ -16,7 +16,6 @@ export default class AVOLessonSlider extends Component {
         this.state = {
             currentLesson : {},
             currentIndex  : 0,
-            changedCurrency: 0,
         };
         
         this.processSlidesIntoGroups = this.processSlidesIntoGroups.bind(this);
@@ -60,10 +59,10 @@ export default class AVOLessonSlider extends Component {
                         </IconButton>
                     </center>
                 </Grid>
-                <AVOLessonFSM changeToNewMastery={this.props.changeToNewMastery} ref={this.fsmRef}>
+                <AVOLessonFSM ref={this.fsmRef}>
                     {!!this.state.currentLesson && (
                         <AVOLearnTestComp 
-                            lesson={this.state.currentLesson} updateMastery={this.props.updateMastery}
+                            lesson={this.state.currentLesson}
                         />
                     )}
                 </AVOLessonFSM>
@@ -107,11 +106,11 @@ export default class AVOLessonSlider extends Component {
                                 <Icon>fullscreen</Icon>
                             </IconButton>
                             <AVOMasteryGauge 
-                                comprehension={parseInt(parseFloat(lesson.newMastery || lesson.mastery) * 100)}
+                                comprehension={parseInt(parseFloat(lesson.mastery) * 100)}
                                 colors={['#399103', '#039124', '#809103']}
                             />
                             <Typography variant={'title'}>{lesson.Tag}</Typography>
-                            <Typography variant={'caption'}>{lesson.string.substring(0, 20)}...</Typography>
+                            <Typography variant={'caption'}>{lesson.string}</Typography>
                         </Card>
                     </Grid>
                 );
