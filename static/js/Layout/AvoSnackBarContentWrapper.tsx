@@ -30,7 +30,7 @@ const styles = (theme: Theme) => ({
     },
     iconVariant: {
         opacity: 0.9,
-        marginRight: theme.spacing,
+        marginRight: theme.spacing(2),
     },
     message: {
         display: 'flex',
