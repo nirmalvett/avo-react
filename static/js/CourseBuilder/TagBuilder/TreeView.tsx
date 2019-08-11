@@ -13,7 +13,7 @@ export default function TreeView() {
         data.forEach(el => {
             nodes.push({
                 data: {
-                    id: 'node-' + el.TAG,
+                    id: 'node-' + el.tagID,
                 },
                 style: {
                     content:
@@ -22,7 +22,7 @@ export default function TreeView() {
             });
             if (el.parent !== null) {
                 edges.push({
-                    data: {target: 'node-' + el.TAG, source: 'node-' + el.parent},
+                    data: {target: 'node-' + el.tagID, source: 'node-' + el.parent},
                 });
             }
         });

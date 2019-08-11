@@ -1360,9 +1360,9 @@ class ManageClasses extends Component {
   }
 
   getTestStats (testID, cIndex, tIndex) {
-	Http.getTestStats (
+	Http.testStats (
 		testID,
-		(result) => {
+		result => {
 		  Http.getClassTestResults (this.state.classes[cIndex].tests[tIndex].id,
 			  _result => {
 				let resultsIndexArray = [];
