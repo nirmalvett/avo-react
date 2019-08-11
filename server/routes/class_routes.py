@@ -6,6 +6,7 @@ from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
 from server.decorators import login_required, teacher_only, student_only, admin_only, validate
+from server.helpers import timestamp
 from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message
 import paypalrestsdk as paypal
 import config
@@ -114,7 +115,7 @@ def home():
             current_class = message.CLASS
 
         current_list_messages.append({'title': message.title, 'body': message.body,
-                                      'date': message.date_created.timestamp()*1000})
+                                      'date': timestamp(message.date_created)})
     return_messages.append({"class": current_class_data, "messages": current_list_messages})
 
     return jsonify(messages=return_messages, dueDates=return_due_dates)
@@ -172,8 +173,8 @@ def get_classes():
             'testID': t.TEST,
             'name': t.name,
             'open': bool(((t.open_time is not None and t.open_time >= now) or t.is_open) and t.deadline > now),
-            'openTime': t.open_time.timestamp(),
-            'deadline': t.deadline.timestamp()*1000,
+            'openTime': timestamp(t.open_time),
+            'deadline': timestamp(t.deadline),
             'timer': t.timer,
             'attempts': t.attempts,
             'total': t.total,
@@ -191,15 +192,15 @@ def get_classes():
             if t.time_submitted < now:
                 test['submitted'].append({
                     'takesID': t.TAKES,
-                    'timeSubmitted': t.time_submitted.timestamp()*1000,
+                    'timeSubmitted': timestamp(t.time_submitted),
                     'grade': t.grade
                 })
                 if test['attempts'] >= len(test['submitted']):
                     test['open'] = False
             else:
                 test['current'] = {
-                    'timeStarted': t.time_started.timestamp()*1000,
-                    'timeSubmitted': t.time_submitted.timestamp()*1000
+                    'timeStarted': timestamp(t.time_started),
+                    'timeSubmitted': timestamp(t.time_submitted)
                 }
 
     for s in users_test_stats:
@@ -243,7 +244,7 @@ def get_class_test_results(test_id: int):
             'lastName': user.last_name,
             'tests': [] if len(takes) == 0 else [{
                 'takesID': takes[-1].TAKES,
-                'timeSubmitted': takes[-1].time_submitted.timestamp()*1000,
+                'timeSubmitted': timestamp(takes[-1].time_submitted),
                 'grade': takes[-1].grade
             }]
         })
@@ -519,7 +520,7 @@ def get_messages(class_id: int):
         'classID': m.CLASS,
         'title': m.title,
         'body': m.body,
-        'dateCreated': m.date_created.timestamp()*1000
+        'dateCreated': timestamp(m.date_created)
     }, messages))
     return jsonify(messages=result)
 

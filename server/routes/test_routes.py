@@ -8,6 +8,7 @@ import statistics
 
 from server.decorators import login_required, teacher_only, validate
 from server.auth import teaches_class, enrolled_in_class, access_to_class
+from server.helpers import timestamp
 from server.models import db, Class, Test, Takes, Question, User, Transaction
 
 TestRoutes = Blueprint('TestRoutes', __name__)
@@ -208,7 +209,7 @@ def get_test(test_id: int):
             questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
         return jsonify(
             takes=takes.TAKES,
-            time_submitted=int(takes.time_submitted.timestamp()*1000),
+            time_submitted=timestamp(takes.time_submitted),
             answers=eval(takes.answers),
             questions=questions
         )
