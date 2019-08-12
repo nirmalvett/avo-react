@@ -38,6 +38,22 @@ class Class(db.Model):
     def __repr__(self):
         return f'<Class {self.CLASS} {self.USER} {self.name} {self.enroll_key}>'
 
+class ClassWhitelist(db.Model):
+    __tablename__ = "class_whitelist"
+    
+    ID = db.Column(db.Integer, primary_key=True, nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+
+    USER_RELATION = db.relationship("User",  foreign_keys=[USER])
+    CLASS_RELATION = db.relationship("Class", foreign_keys=[CLASS])
+
+    def __init__(self, USER, CLASS):
+        self.USER = USER
+        self.CLASS = CLASS
+
+    def __repr__(self):
+        return f'class_whitelist {self.ID} {self.USER} {self.CLASS}'
 
 class Takes(db.Model):
     __tablename__ = "takes"
