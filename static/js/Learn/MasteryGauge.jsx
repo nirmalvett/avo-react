@@ -64,7 +64,7 @@ export default function AVOMasteryGauge(props) {
     console.log(triangles);
     return (
         <div className='avo-progression-gauge-container'>
-            <svg width="12.5em" height="12.5em" viewBox="0 0 42 42" className="donut">
+            <svg width="200px" height="200px" viewBox="0 0 42 42" className="donut">
                 <circle className="donut-ring" cx="21" cy="21" r="16" fill="transparent" stroke="#fafafa" strokeWidth="0.25" strokeDasharray="0.5"></circle>
                 <circle 
                     class="avo-progression-gauge-svg" 
@@ -79,16 +79,18 @@ export default function AVOMasteryGauge(props) {
                     strokeLinecap='round'>
                 </circle>
                 {triangles}
-            </svg>
-            <center style={{ zIndex : 10, position: 'inherit' }}>
-                <div className='avo-progression-gauge'>
-                    <center className='avo-progression-gauge-text'>
-                        {props.comprehension}%
-                        <br></br>
-                        <span className='avo-progression-gauge-subText'>Mastery</span>
+                <foreignObject x={5} y={5} width={32} height={32}>
+                    <center style={{ zIndex : 10, position: 'inherit' }}>
+                        <div className='avo-progression-gauge'>
+                            <center className='avo-progression-gauge-text'>
+                                {props.comprehension}%
+                                <br></br>
+                                {/* <span className='avo-progression-gauge-subText'>Mastery</span> */}
+                            </center>
+                        </div>
                     </center>
-                </div>
-            </center>
+                </foreignObject>
+            </svg>
         </div>
     );
 };

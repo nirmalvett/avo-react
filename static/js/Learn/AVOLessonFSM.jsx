@@ -137,6 +137,7 @@ export default class AVOLessonFSM extends Component {
     };
 
     closeFSM(cardID){
+        this.props.changeToNewMastery()
         var $this = document.getElementById(cardID);
         const _this = this;
         setTimeout(function(){
