@@ -191,8 +191,8 @@ export default class Http {
 		Http._request('POST', '/tagMastery', success, failure, { tagNames : tagArray });
 	};
 
-	static getLessonData(ID, success, failure) {
-		Http._request('POST', '/getLessonData', success, failure, { ID });
+	static getLessonData(lessonID, success, failure) {
+		Http._request('POST', '/getLessonData', success, failure, { lessonID : lessonID });
 	};
 }
 
