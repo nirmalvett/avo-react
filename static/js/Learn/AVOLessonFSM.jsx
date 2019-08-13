@@ -40,7 +40,7 @@ export default class AVOLessonFSM extends Component {
                 id="avo-lesson__expanded-card" 
                 style={{ 
                     pointerEvents : 'none', 
-                    transition    : 'all 500ms ease-in', 
+                    transition    : 'transform 500ms ease-out, opacity, 500ms ease-out', 
                     background    : 'white', 
                     maxHeight     : 'none',
                     overflowY     : 'hidden', 
@@ -104,11 +104,9 @@ export default class AVOLessonFSM extends Component {
             );
             $this.style.position        = "absolute";
             $this.style.opacity         = '0';
-            $this.style.top             = Math.abs(this.cardPosition.top ) - 20  + 'px';
-            $this.style.left            = Math.abs(this.cardPosition.left) - 300 + 'px';
             $this.style.width           = '95%';
             $this.style.height          = '90%';
-            $this.style.transformOrigin = 'top left';
+            $this.style.transformOrigin = `${Math.abs(this.cardPosition.left)}px ${Math.abs(this.cardPosition.top) - 25}px`;
             $this.style.pointerEvents   = 'auto';
             $this.style.transform       = `scale(${this.scaleX}, ${this.scaleY})`;
 
@@ -143,8 +141,6 @@ export default class AVOLessonFSM extends Component {
         setTimeout(function(){
             $this.style.position      = "absolute";
             $this.style.margin        = '16px';
-            $this.style.top           = _this.cardPosition.top  + 'px';
-            $this.style.left          = _this.cardPosition.left + 'px';
             $this.style.transform     = `scale(${_this.scaleX}, ${_this.scaleY})`;
             $this.style.opacity       = '0';
             $this.style.pointerEvents = 'none';

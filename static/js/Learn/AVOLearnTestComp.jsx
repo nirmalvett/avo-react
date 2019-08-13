@@ -275,7 +275,8 @@ export default class AVOLearnTestComp extends Component {
             output.push(
                 <div style={{
                     position   : 'absolute',
-                    transition : 'transform 1s ease-in',
+                    transition : 'transform 1s ease-in, opacity 500ms ease-in',
+                    opacity    : `${!!this.getSlideTranslation(output.length) ? 0 : 1}`,
                     willChange : 'transform',
                     transform  : `translateX(${this.getSlideTranslation(output.length)}vw)`,
                     width      : '100%',
@@ -313,7 +314,8 @@ export default class AVOLearnTestComp extends Component {
             output.push(
                 <div style={{
                     position   : 'absolute',
-                    transition : 'transform 1s ease-in',
+                    transition : 'transform 1s ease-in, opacity 500ms ease-in',
+                    opacity    : `${!!this.getSlideTranslation(output.length) ? 0 : 1}`,
                     willChange : 'transform',
                     transform  : `translateX(${this.getSlideTranslation(output.length)}vw)`,
                 }}>
@@ -366,7 +368,7 @@ export default class AVOLearnTestComp extends Component {
     		output.push(
   			 	<div style={{
                     position   : 'absolute',
-                    transition : 'transform 1s ease-in, opacity 250ms ease-in',
+                    transition : 'transform 1s ease-in, opacity 500ms ease-in',
                     opacity    : `${!!this.getSlideExplanationTranslation(index) ? 0 : 1}`,
                     willChange : 'transform',
                     transform  : `translateX(${this.getSlideExplanationTranslation(index)}vw)`,

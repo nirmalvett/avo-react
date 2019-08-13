@@ -59,7 +59,7 @@ export default class AVOLearnTestCongrat extends Component {
                 />
             );
             if(i == 3 || i == 7 || i == 11) {
-                triangles.push(<g style={{ transformOrigin : 'center'}} cx={centerX} cy={centerY}>{items}</g>);
+                triangles.push(<g style={{ transformOrigin : 'center'}} cx={centerX} cy={centerY} className={`avo-progression-gauge-triangle-group${triangles.length + 1}`}>{items}</g>);
                 items = [];
             }
         }
