@@ -102,7 +102,7 @@ export default class Whitelist extends Component<any, any> {
                 </form>
                 <Paper className='drop-area' id='drop-area' style={this.state.style}>
                     <Typography variant='title' align='center' style={{ marginLeft: -15, padding: "15px", width: "100%" }}>
-                        Drag and drop your CSVs to add students to a class's whitelist!
+                        Drag and drop your CSVs to add students to a class!
                     </Typography>
                     <div style={{ width: "100%" }}>
                         {/*Display a spinner while loading class data*/}
