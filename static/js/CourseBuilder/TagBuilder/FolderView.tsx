@@ -44,7 +44,7 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
     render() {
         return (
             <React.Fragment>
-                <CardContent>
+                <CardContent style={{height: 595, padding: 0 }}>
                     <div style={{width: '100%', height: 600}}>
                         <SortableTree
                             treeData={this.state.tags}
@@ -61,9 +61,6 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
                     }}
                 >
                     <Grid container direction='row' justify='flex-start' alignItems='flex-start'>
-                        <Button variant='contained' onClick={() => this.addTag()}>
-                            Add new tag
-                        </Button>
                         <TextField
                             style={{
                                 margin: 0,
@@ -78,11 +75,14 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
                             onChange={e => this.setState({tagAddInput: e.target.value})}
                             margin='normal'
                         />
+                        <Button style={{marginRight: 10}} variant='contained' onClick={() => this.addTag()}>
+                            Add new tag
+                        </Button>
                         <Button variant='contained' onClick={() => this.deleteTag()}>
                             Delete tag
                         </Button>
                         <TextField
-                            style={{margin: 0, width: 200, marginTop: -12, marginLeft: 10}}
+                            style={{margin: 0, width: 200, marginTop: -12, marginLeft: 10, marginRight: 10}}
                             id='tag-input'
                             label='Delete tag...'
                             value={this.state.tagDeleteInput}

@@ -13,6 +13,7 @@ import QuestionManager from '../CourseBuilder/QuestionBuilder/QuestionManager';
 import QuestionBuilder from '../QuestionBuilder/QuestionBuilder';
 import QuestionBuilderDocs from '../CourseBuilder/QuestionBuilder/QuestionBuilderDocs';
 import ExportTools from '../ExportTools/ExportTools';
+import AVOLearnComponent from '../Learn/AVOLearnComponent';
 import {colorList} from '../SharedComponents/AVOCustomColors';
 import NotifyClass from '../Home/NotifyClass';
 import {createStyles, Theme} from '@material-ui/core/styles';
@@ -52,6 +53,7 @@ export type Section =
     | 'Export Tools'
     | 'Home'
     | 'In Class Tools'
+    | 'Learn'
     | 'Manage Classes'
     | 'Mark Editor'
     | 'My Classes'
@@ -310,6 +312,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
             );
         if (section === 'Tag Builder') return <TagView />;
         if (section === 'Notify Class') return <NotifyClass />;
+        if (section === 'Learn') return <AVOLearnComponent/>;
     }
 
     // ============================== Methods that perform some type of data manipulation =======================

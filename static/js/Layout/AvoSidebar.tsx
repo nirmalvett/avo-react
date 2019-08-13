@@ -83,6 +83,7 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                 >
                     {this.listItem(HomeOutlined, 'Home')}
                     {this.listItem(ClassOutlined, 'My Classes')}
+                    {this.listItem(ClassOutlined, 'Learn')}
                 </List>
                 {isTeacher ? ( // if it is the teacher then we will the buttons that is allowed for teachers
                     <div>

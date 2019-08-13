@@ -17,7 +17,7 @@ export default function TreeView() {
                 },
                 style: {
                     content:
-                        el.tagName.length > 10 ? el.tagName.substring(0, 15) + '...' : el.tagName,
+                        el.tagName,
                 },
             });
             if (el.parent !== null) {
@@ -33,7 +33,7 @@ export default function TreeView() {
             autounselectify: true,
             layout: {
                 name: 'dagre',
-                spacingFactor: 2,
+                spacingFactor: 6,
             },
             style: [
                 {
@@ -56,7 +56,7 @@ export default function TreeView() {
             elements: {nodes, edges},
         });
     }, console.warn);
-    return <div id='cy' style={{width: 800, height: 790}} />;
+    return <div id="cy" style={{ width: '60vw', height: 790, overflow: 'hidden' }} />;
 }
 
 const data: ElementsDefinition = {
