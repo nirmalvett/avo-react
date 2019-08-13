@@ -188,7 +188,7 @@ export default class Whitelist extends Component<any, any> {
                     <div style={{ overflowY: "auto", height: 370, overflowX: 'hidden' }}>
                         {this.state.showResponse &&
                             Object.keys(this.state.responseMap).map(key => (
-                                <Typography variant='title' align='center' style={{ margin: "15px", width: "100%" }}>
+                                <Typography variant='title' align='left' style={{ margin: "15px", width: "100%" }}>
                                     {`${key}: ${this.state.responseMap[key]["message"] || this.state.responseMap[key]["error"]}`}
                                 </Typography>
                             ))}
