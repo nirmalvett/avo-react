@@ -25,7 +25,7 @@ import { MySnackbarContentWrapper } from "../SharedComponents/AVOSnackBar";
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
 import {withStyles, List, AppBar, Drawer, Divider, Toolbar, IconButton,
     Typography, ListItem, ListItemText, ListSubheader, Snackbar } from '@material-ui/core';
-import { HomeOutlined, BuildOutlined, HelpOutline,
+import { SchoolOutlined, HomeOutlined,  AssignmentTurnedInOutlined, BuildOutlined, HelpOutline,
     ClassOutlined, SettingsOutlined, ExitToAppOutlined, Menu, AssignmentReturnedOutlined } from "@material-ui/icons";
 import {red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, amber, orange,
     deepOrange, brown, grey, blueGrey} from '@material-ui/core/colors';
@@ -173,19 +173,19 @@ class Layout extends Component {
                     <div style={{overflowY: 'auto'}}>
                         <List subheader={isTeacher ? <ListSubheader>Student Tools</ListSubheader> : undefined}>
                             {this.listItem(HomeOutlined, 'Home')}
+                            {this.listItem(SchoolOutlined, 'Learn')}
                             {this.listItem(ClassOutlined, 'My Classes')}
-                            {this.listItem(ClassOutlined, 'Learn')}
                         </List>
                         {isTeacher  // if it is the teacher then we will the buttons that is allowed for teachers
                             ? <div>
                                 <Divider/>
                                 <List subheader={<ListSubheader>Teacher Tools</ListSubheader>}>
                                     {this.listItem(ClassOutlined, 'Manage Classes')}
+                                    {this.listItem(AssignmentTurnedInOutlined, 'Add Students To Class')}
                                     {this.listItem(BuildOutlined, 'My Questions')}
                                     {this.listItem(HelpOutline, 'Documentation')}
-                                    {this.listItem(AssignmentReturnedOutlined, 'Export Tools')}
-                                    {this.listItem(ClassOutlined, 'Add Students To Class')}
                                     {this.listItem(BuildOutlined, 'Tag Builder')}
+                                    {this.listItem(AssignmentReturnedOutlined, 'Export Tools')}
 
                                 </List>
                             </div>
