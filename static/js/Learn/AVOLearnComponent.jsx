@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Http from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import Card from '@material-ui/core/Card';
 import Tabs from '@material-ui/core/Tabs';
 import List from '@material-ui/core/List';
@@ -34,7 +34,7 @@ export default class AVOLearnComponent extends Component {
         if(this.state.lessons.length == 0) return (<div></div>);
         return (
             <Grid container xs={12} style={{flex: 1, display: 'flex', paddingBottom: 0, padding : '1em', position : 'relative', width : '98% !important'}} id="avo-learn__layout-div">
-                <AVOLessonSlider changeToNewMastery={()=>this.changeToNewMastery()}slides={this.state.lessons} updateMastery={this.updateMastery}/>        
+                <AVOLessonSlider changeToNewMastery={()=>this.changeToNewMastery()}slides={this.state.lessons} updateMastery={this.updateMastery}/>
             </Grid>
         );
     };
@@ -59,7 +59,7 @@ export default class AVOLearnComponent extends Component {
             const lessons = this.state.lessons
             const index = lessons.findIndex(lesson => lesson.ID === id)
             if (index !== -1) {
-                lessons[index].newMastery = mastery 
+                lessons[index].newMastery = mastery
                 this.setState({
                     lessons
                 })

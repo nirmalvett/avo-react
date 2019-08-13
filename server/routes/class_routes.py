@@ -1,12 +1,14 @@
-from flask import Blueprint, jsonify, request, make_response, abort
+from typing import List
+
+from flask import Blueprint, jsonify, make_response
 from flask_login import current_user
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
-from server.decorators import login_required, teacher_only, student_only, admin_only
-from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing
-import paypalrestsdk
+from server.decorators import login_required, teacher_only, student_only, admin_only, validate
+from server.helpers import timestamp
+from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message
+import paypalrestsdk as paypal
 import config
 
 ClassRoutes = Blueprint('ClassRoutes', __name__)
@@ -30,30 +32,93 @@ with open('server/SQL/student_tests_medians.sql', 'r') as sql:
     student_tests_medians = sql.read()
 with open('server/SQL/teacher_tests_medians.sql', 'r') as sql:
     teacher_tests_medians = sql.read()
-
+with open('server/SQL/student_messages.sql', 'r') as sql:
+    student_messages = sql.read()
+with open('server/SQL/teacher_messages.sql', 'r') as sql:
+    teacher_messages = sql.read()
+with open('server/SQL/student_due_dates.sql', 'r') as sql:
+    student_due_dates = sql.read()
+with open('server/SQL/teacher_due_dates.sql', 'r') as sql:
+    teacher_due_dates = sql.read()
 
 # Routes for managing classes
 
 
 @ClassRoutes.route('/createClass', methods=['POST'])
 @teacher_only
-def create_class():
+@validate(name=str)
+def create_class(name: str):
     """
     Creates a class with the current user as the teacher
     :return: Confirmation that the class was created
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    name = request.json['name']  # Name of the new class
-    if not isinstance(name, str):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-    new_class = Class(current_user.USER, name)  # Class to be created
-    # Add to database and commit
-    db.session.add(new_class)
+    db.session.add(Class(current_user.USER, name))
     db.session.commit()
-    return jsonify(message='Created!')
+    return jsonify({})
+
+
+@ClassRoutes.route('/home', methods=['POST'])
+@login_required
+def home():
+    # get list of due dates objects
+
+    due_dates = []  # Result of the due date SQL calls
+
+    due_dates += db.session.execute(text(student_due_dates),
+                                    params={'user': current_user.USER}).fetchall()
+
+    if current_user.is_teacher:
+        # If the user is a teacher run a teacher due dates SQL call
+        due_dates += db.session.execute(text(teacher_due_dates),
+                                        params={'user': current_user.USER}).fetchall()
+
+    return_due_dates = []  # Return data for due dates
+    current_list_due_dates = []  # Due dates of current indexed class
+    current_class_data = {"name": due_dates[0].name, "id": due_dates[0].CLASS}
+    current_class = due_dates[0].CLASS  # Current class of indexed due dates
+
+    for due_date in due_dates:
+        # For each due date index to list
+        if current_class != due_date.CLASS:
+            # If the its a new class then move the messages in
+            return_due_dates.append({"class": current_class_data, "dueDates": current_list_due_dates})
+            current_class_data = {"name": due_date.name, "id": due_date.CLASS}
+            current_list_due_dates = []
+            current_class = due_date.CLASS
+
+        current_list_due_dates.append({'name': due_date.name, 'dueDate': due_date.deadline,
+                                      'id': due_date.TEST})
+    return_due_dates.append({"class": current_class_data, "messages": current_list_due_dates})
+
+    messages = []  # Messages returned by the SQL query
+
+    messages += db.session.execute(text(student_messages),
+                                   params={'user': current_user.USER}).fetchall()
+
+    if current_user.is_teacher:
+        # If the current user is a teacher add the teacher result
+        messages += db.session.execute(text(teacher_messages),
+                                       params={'user': current_user.USER}).fetchall()
+    # Get list of messages
+    return_messages = []  # Messages to return to the client
+    current_list_messages = []  # Current messages from the class
+    current_class_data = {"name": messages[0].name, "id": messages[0].CLASS}
+    current_class = messages[0].CLASS  # Current class info
+
+    for message in messages:
+        # For each message result add it to the JSON
+        if current_class != message.CLASS:
+            # If the its a new class then move the messages in
+            return_messages.append({"class": current_class_data, "messages": current_list_messages})
+            current_class_data = {"name": message.name, "id": message.CLASS}
+            current_list_messages = []
+            current_class = message.CLASS
+
+        current_list_messages.append({'title': message.title, 'body': message.body,
+                                      'date': timestamp(message.date_created)})
+    return_messages.append({"class": current_class_data, "messages": current_list_messages})
+
+    return jsonify(messages=return_messages, dueDates=return_due_dates)
 
 
 @ClassRoutes.route('/getClasses')
@@ -83,7 +148,7 @@ def get_classes():
     classes = {}
     for c in users_classes:
         classes[c.CLASS] = {
-            'id': c.CLASS,
+            'classID': c.CLASS,
             'enrollKey': c.enroll_key,
             'name': c.name,
             'tests': {}
@@ -92,7 +157,7 @@ def get_classes():
     for t in users_tests:
         if t.open_time is not None:
             # If the test has an open time check if it should auto open
-            if t.open_time is not None and t.is_open == False and t.open_time <= now < t.deadline:
+            if t.open_time is not None and not t.is_open and t.open_time <= now < t.deadline:
                 # If the test is withing the open time and deadline open the test and disable the open time
                 test_update = Test.query.get(t.TEST)
                 test_update.open_time = None
@@ -104,57 +169,38 @@ def get_classes():
             test_update.is_open = False
             db.session.commit()
 
-        if t.open_time is None:
-            classes[t.CLASS]['tests'][t.TEST] = {
-                'id': t.TEST,
-                'name': t.name,
-                'open':  t.is_open and t.deadline > now,
-                'open_time': t.open_time,
-                'deadline': time_stamp(t.deadline),
-                'timer': t.timer,
-                'attempts': t.attempts,
-                'total': t.total,
-                'submitted': [],
-                'current': None,
-                'classAverage': 0,
-                'classMedian': 0,
-                'classSize': 0,
-                'standardDeviation': 0,
-            }
-
-        else:
-            classes[t.CLASS]['tests'][t.TEST] = {
-                'id': t.TEST,
-                'name': t.name,
-                'open': (t.open_time >= now or t.is_open) and t.deadline > now,
-                'open_time': t.open_time,
-                'deadline': time_stamp(t.deadline),
-                'timer': t.timer,
-                'attempts': t.attempts,
-                'total': t.total,
-                'submitted': [],
-                'current': None,
-                'classAverage': 0,
-                'classMedian': 0,
-                'classSize': 0,
-                'standardDeviation': 0,
-            }
+        classes[t.CLASS]['tests'][t.TEST] = {
+            'testID': t.TEST,
+            'name': t.name,
+            'open': bool(((t.open_time is not None and t.open_time >= now) or t.is_open) and t.deadline > now),
+            'openTime': timestamp(t.open_time),
+            'deadline': timestamp(t.deadline),
+            'timer': t.timer,
+            'attempts': t.attempts,
+            'total': t.total,
+            'submitted': [],
+            'current': None,
+            'classAverage': 0,
+            'classMedian': 0,
+            'classSize': 0,
+            'standardDeviation': 0,
+        }
 
     for t in users_takes:
         if t.CLASS in classes and t.TEST in classes[t.CLASS]['tests']:
             test = classes[t.CLASS]['tests'][t.TEST]
             if t.time_submitted < now:
                 test['submitted'].append({
-                    'takes': t.TAKES,
-                    'timeSubmitted': time_stamp(t.time_submitted),
+                    'takesID': t.TAKES,
+                    'timeSubmitted': timestamp(t.time_submitted),
                     'grade': t.grade
                 })
-                if test['attempts'] == len(test['submitted']):
-                    test['open'] = 0
+                if test['attempts'] >= len(test['submitted']):
+                    test['open'] = False
             else:
                 test['current'] = {
-                    'timeStarted': time_stamp(t.time_started),
-                    'timeSubmitted': time_stamp(t.time_submitted)
+                    'timeStarted': timestamp(t.time_started),
+                    'timeSubmitted': timestamp(t.time_submitted)
                 }
 
     for s in users_test_stats:
@@ -177,38 +223,32 @@ def get_classes():
 
 @ClassRoutes.route('/getClassTestResults', methods=['POST'])
 @teacher_only
-def get_class_test_results():
+@validate(testID=int)
+def get_class_test_results(test_id: int):
     """
     Get test results for a test for teacher
     :return: test results data
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    data = request.json
-    test = data['test']  # Data from client
-    if not isinstance(test, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-    current_test = Test.query.get(test)
+    current_test = Test.query.get(test_id)
     if not teaches_class(current_test.CLASS):
         return jsonify(error="User doesn't teach class")
     # All users in class
     users = User.query.filter((User.USER == Transaction.USER) & (current_test.CLASS == Transaction.CLASS)).all()
-    for i in range(len(users)):
+    results = []
+    for user in users:
         # For each user get user data and best takes instance and present append to list then return
-        first_name, last_name = users[i].first_name, users[i].last_name
-        takes = Takes.query.filter((Takes.USER == users[i].USER) & (Takes.TEST == test)).order_by(Takes.grade).all()
-        if len(takes) == 0:
-            # If the student hasn't taken the test then return default values else return the marks
-            users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
-                        'tests': []}
-        else:
-            users[i] = {'user': users[i].USER, 'firstName': first_name, 'lastName': last_name,
-                        'tests': [{'takes': takes[len(takes) - 1].TAKES,
-                                   'timeSubmitted': time_stamp(takes[-1].time_submitted),
-                                   'grade': takes[len(takes) - 1].grade}]}
-    return jsonify(results=users)
+        takes = Takes.query.filter((Takes.USER == user.USER) & (Takes.TEST == test_id)).order_by(Takes.grade).all()
+        results.append({
+            'userID': user.USER,
+            'firstName': user.first_name,
+            'lastName': user.last_name,
+            'tests': [] if len(takes) == 0 else [{
+                'takesID': takes[-1].TAKES,
+                'timeSubmitted': timestamp(takes[-1].time_submitted),
+                'grade': takes[-1].grade
+            }]
+        })
+    return jsonify(results=results)
 
 
 @ClassRoutes.route('/CSV/ClassMarks/<class_id>')
@@ -222,7 +262,7 @@ def csv_class_marks(class_id):
 
     if not teaches_class(class_id):
         # If the teacher is not in the class return a 400 error page
-        return abort(400)
+        return "User does not teach the class", 400
     # Query the database for data on the test class and students data
     output_class = Class.query.get(class_id)
     student_array = User.query.filter((Transaction.CLASS == class_id) & (Transaction.USER == User.USER)).all()
@@ -264,158 +304,102 @@ def csv_class_marks(class_id):
 
 @ClassRoutes.route('/enroll', methods=['POST'])
 @login_required
-def enroll():
+@validate(key=str)
+def enroll(key: str):
     """
     Enroll the current user in a class
     :return: Confirmation
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    key = request.json['key']  # Data sent from user
-
-    if not isinstance(key, str):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-    try:
-        # Find class with said enroll key if no class found return error json
-        current_class = Class.query.filter(Class.enroll_key == key).first()
-    except NoResultFound:
-        return jsonify(error='Invalid enroll key')
+    current_class = Class.query.filter(Class.enroll_key == key).first()
     if current_class is None:
-        # If no class is found return error JSON
         return jsonify(error='Invalid enroll key')
+    user_id = current_user.USER
+    class_id = current_class.CLASS
     if current_user.is_teacher:
-        # If the user is a teacher enroll them into the class
         if not teaches_class(current_class.CLASS):
-            # If the teacher does not teach the class return JSON of success
-            db.session.add(Transaction(
-                f"TEACHER-{current_user.USER}-{current_class.CLASS}", current_user.USER, current_class.CLASS, None
-            ))
+            db.session.add(Transaction(f"TEACHER-{user_id}-{class_id}", user_id, class_id, None))
             db.session.commit()
-        return jsonify(message='Enrolled')
+        return jsonify(message='enrolled')
     if current_class.price_discount == 0:
-        # Append current user to the class
-        db.session.add(Transaction(
-            f"FREECLASS-{current_user.USER}-{current_class.CLASS}", current_user.USER, current_class.CLASS, None
-        ))
+        db.session.add(Transaction(f"FREECLASS-{user_id}-{class_id}", user_id, class_id, None))
         db.session.commit()
-        return jsonify(message='Enrolled')  # this message cannot be changed as the frontend relies on it
+        return jsonify(message='enrolled')
     else:
         # Checks if the user has a free trial left
-        transactions = Transaction.query.filter((Transaction.USER == current_user.USER) &
-                                                (Transaction.CLASS == current_class.CLASS)).all()
-        free_trial = not any(map(lambda t: t.TRANSACTION.startswith("FREETRIAL-"), transactions))
+        has_free_trial = Transaction.query.get(f"FREETRIAL-{user_id}-{class_id}") is None
         return jsonify(
-            id=current_class.CLASS,
+            classID=current_class.CLASS,
             price=current_class.price,
             discount=current_class.price_discount,
             tax=round(current_class.price_discount * 0.13, 2),
-            totalprice=round(current_class.price_discount * 1.13, 2),
-            freeTrial=free_trial
+            totalPrice=round(current_class.price_discount * 1.13, 2),
+            freeTrial=has_free_trial
         )
 
 
 @ClassRoutes.route('/freeTrial', methods=['POST'])
 @student_only
-def start_free_trial():
+@validate(classID=int)
+def start_free_trial(class_id: int):
     """
     Generate free trial for class
     :return:  Confirmation of free trial
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-
-    # Data from client
-    data = request.json
-    class_id = data['classID']
-    if not isinstance(class_id, int):
-        # If data isn't correct return error JSON
-        return jsonify(error="One or more data is not correct")
-    try:
-        # See if current class exists
-        current_class = Class.query.get(class_id)
-    except:
-        return jsonify(error="No class found")
+    current_class = Class.query.get(class_id)
     if current_class is None:
         return jsonify(error="No class found")
-    transaction = Transaction.query.filter((current_user.USER == Transaction.USER) &
-                                           (current_class.CLASS == Transaction.CLASS)).all()  # Get transaction
-    if len(transaction) > 0:
-        # If transaction not found return error JSON
+    free_trial_string = f"FREETRIAL-{class_id}-{current_user.USER}"
+    if Transaction.query.get(free_trial_string) is not None:
         return jsonify(error="Free Trial Already Taken")
-    free_trial_string = "FREETRIAL-" + str(current_class.CLASS) \
-                        + "-" + str(current_user.USER)  # Generate free trial string
     time = datetime.now() + timedelta(weeks=2)
-    new_transaction = Transaction(free_trial_string, current_user.USER,
-                                  current_class.CLASS, time)  # create new transaction in database
-    # Commit to database and enroll student
-    db.session.add(new_transaction)
+    db.session.add(Transaction(free_trial_string, current_user.USER, current_class.CLASS, time))
     db.session.commit()
-    return jsonify(code="Success")
+    return jsonify({})
 
 
 @ClassRoutes.route('/pay', methods=['POST'])
 @student_only
-def create_payment():
+@validate(classID=int)
+def create_payment(class_id: int):
     """
     Creates PayPal payment in the database for enrolling user in class
     :return: Transaction ID to the client side PayPal
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
 
-    # Data from the client
-    data = request.json
-    class_id = data['classID']
-    if not isinstance(class_id, int):
-        # If data is not correct formatting return error JSON
-        return jsonify(error="One or more data is not correct")
-
-    existing_tid = TransactionProcessing.query.filter((class_id == TransactionProcessing.CLASS) &
-                                                      (current_user.USER == TransactionProcessing.USER)).first()
-    if existing_tid is not None:
-        # If the user has already tried the payment find payment and return
-        try:
-            # Try to find payment from PayPal
-            payment = paypalrestsdk.Payment.find(existing_tid.TRANSACTIONPROCESSING)
-            if payment.state == 'created':
-                # iF payment is found return Transaction ID
+    existing_tid = TransactionProcessing.query.filter(
+        (class_id == TransactionProcessing.CLASS) & (current_user.USER == TransactionProcessing.USER)
+    ).first()
+    if existing_tid is not None:  # If the user has already tried the payment find payment and return
+        try:  # Try to find payment from PayPal
+            payment = paypal.Payment.find(existing_tid.TRANSACTIONPROCESSING)
+            if payment.state == 'created':  # if payment is found return Transaction ID
                 return jsonify({'tid': existing_tid.TRANSACTIONPROCESSING})
-            else:
-                # Else remove payment from database
+            else:  # Else remove payment from database
                 db.session.delete(existing_tid)
                 db.session.commit()
-        except paypalrestsdk.ResourceNotFound:
+        except paypal.ResourceNotFound:
             # If error is found remove from database
             db.session.delete(existing_tid)
             db.session.commit()
 
-    current_class = Class.query.filter(class_id == Class.CLASS).all()  # Get class
+    current_class = Class.query.get(class_id)  # Get class
 
-    if len(current_class) == 0:
-        # If class is not found return error JSON
+    if current_class is None:
         return jsonify(error="No class found")
 
-    if enrolled_in_class(current_class[0].CLASS):
+    if enrolled_in_class(class_id):
         # If user is already enrolled check if those enrolled are still not expired
         # List of all transactions of that class and user
-        transaction_list = Transaction.query.filter((Transaction.USER == current_user.USER) &
-                                                    (Transaction.CLASS == current_class[0].CLASS)).all()
+        transaction_list = Transaction.query.filter(
+            (Transaction.USER == current_user.USER) & (Transaction.CLASS == class_id)
+        ).all()
         time = datetime.now()  # Current time
-        for i in range(len(transaction_list)):
-            # Check if all transactions have expired
-            if transaction_list[i].expiration is None:
-                # There is no expiration
-                return jsonify(error="User Still has active payment")
-            if transaction_list[i].expiration > time:
-                # The timer is still valid
+        for transaction in transaction_list:
+            if transaction.expiration is None or transaction.expiration > time:
                 return jsonify(error="User Still has active payment")
 
     # Create Payment with PayPal
-    payment = paypalrestsdk.Payment(
+    payment = paypal.Payment(
         {
             'intent': 'sale',
             'payer': {
@@ -430,15 +414,15 @@ def create_payment():
             'transactions': [
                 {
                     'amount': {
-                        'total': "{:4.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
+                        'total': "{:4.2f}".format(round(current_class.price_discount * 1.13, 2)),
                         'currency': 'CAD'
                     },
-                    'description': "32 Week Subscription to " + str(current_class[0].name) + " Through AVO",
+                    'description': "32 Week Subscription to " + str(current_class.name) + " Through AVO",
                     'item_list': {
                         'items': [
                             {
-                                'name': 'Avo ' + current_class[0].name,
-                                'price': "{:4.2f}".format(round(current_class[0].price_discount * 1.13, 2)),
+                                'name': 'Avo ' + current_class.name,
+                                'price': "{:4.2f}".format(round(current_class.price_discount * 1.13, 2)),
                                 'currency': 'CAD',
                                 'quantity': 1
                             }
@@ -451,10 +435,10 @@ def create_payment():
 
     if payment.create():
         # If Payment created create new transaction in database and return Transaction ID
-        new_transaction = TransactionProcessing(payment.id, current_class[0].CLASS, current_user.USER)
+        new_transaction = TransactionProcessing(payment.id, class_id, current_user.USER)
         db.session.add(new_transaction)
         db.session.commit()
-        return jsonify({'tid': payment.id})
+        return jsonify(tid=payment.id)
     else:
         # If PayPal encounters error return error JSON
         return jsonify(error='Unable to create payment')
@@ -462,39 +446,23 @@ def create_payment():
 
 @ClassRoutes.route('/postPay', methods=['POST'])
 @student_only
-def confirm_payment():
+@validate(tid=str, payerID=str)
+def confirm_payment(tid: str, payer_id: str):
     """
     If user pays then enroll them in class
     :return: confirmation of payment being processed
     """
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-
-    # Data from client
-    data = request.json
-    tid, payer = data['tid'], data['payerID']
-    if not isinstance(tid, str) or not isinstance(payer, str):
-        # If data isn't correct return error JSON
-        return jsonify(error="One or more data is not correct")
-
-    transaction = Transaction.query.get(tid)  # Attempt to get transaction from the Transaction ID
+    transaction = Transaction.query.get(tid)
     if transaction is not None:
-        # If transaction not found return error JSON
         return jsonify("User Already Enrolled")
-    payment = paypalrestsdk.Payment.find(tid)  # Find payment from PayPal
-    if not payment.execute({'payer_id': payer}):
-        # If payment cant be processed return error JSON
-        return jsonify(error=payment.error)
+    payment = paypal.Payment.find(tid)
+    if not payment.execute({'payer_id': payer_id}):
+        return jsonify(error=payment.error)  # If payment can't be processed return error JSON
     transaction_processing = TransactionProcessing.query.get(tid)  # find transaction in transaction processing table
     if transaction_processing is None:
-        # If not found return error JSON
-        return jsonify(error="No Trans Id Found")
+        return jsonify(error="No Transaction id Found")
     time = datetime.now() + timedelta(weeks=32)  # Create expiration of enrolling
-    transaction = Transaction(tid, current_user.USER,
-                              transaction_processing.CLASS, time)  # Create new transaction in table
-    # commit changes to database
-    db.session.add(transaction)
+    db.session.add(Transaction(tid, current_user.USER, transaction_processing.CLASS, time))
     db.session.delete(transaction_processing)
     db.session.commit()
     return jsonify(code="Processed")
@@ -502,22 +470,15 @@ def confirm_payment():
 
 @ClassRoutes.route('/cancel', methods=['POST'])
 @student_only
-def cancel_order():
+@validate(tid=str)
+def cancel_order(tid: str):
     """
     Cancel Payment by removing from Transaction Processing Table
     :return: Confirmation
     """
-    if not request.json:
-        # If the request is not JSON return a 400 error
-        return abort(400)
-
-    tid = request.json['tid']  # Data from client
     transaction_processing = TransactionProcessing.query.get(tid)
     if transaction_processing is None:
-        # If transaction is not in database return error json
         return jsonify(error="Transaction not found")
-
-    # Remove data from database
     db.session.delete(transaction_processing)
     db.session.commit()
     return jsonify(code="Cancelled")
@@ -525,41 +486,86 @@ def cancel_order():
 
 @ClassRoutes.route('/unenroll', methods=['POST'])
 @admin_only
-def unenroll():
+@validate(userID=int, classID=int)
+def unenroll(user_id: int, class_id: int):
     """
     Unenroll student from class
     :return: Confirmation of the unenroll
     """
-    if not request.json:
-        return abort(400)
-    data = request.json
-    user_id, class_id = data['userID'], data['classID']
-
-    if not isinstance(user_id, int) or not isinstance(class_id, int):
-        return jsonify(error="One or more data type is invalid")
-
     user = User.query.get(user_id)
-    current_class = Class.query.filter((Class.CLASS == Transaction.CLASS) &
-                                       (user_id == Transaction.USER)).all()
-    if user is None or len(current_class) == 0:
-        # If there is no user found return error JSON
+    current_classes = Class.query.filter((Class.CLASS == Transaction.CLASS) & (user_id == Transaction.USER)).all()
+    if user is None or len(current_classes) == 0:
         return jsonify("No User Found")
-    for i in range(len(current_class)):
-        # For each class check if it is the correct class
-        if current_class[i].CLASS == class_id:
-            user.CLASS_ENROLLED_RELATION.remove(current_class[i])
+    for current_class in current_classes:
+        if current_class.CLASS == class_id:
+            user.CLASS_ENROLLED_RELATION.remove(current_class)
             db.session.commit()
             return jsonify(code="User was removed")
     return jsonify(error="user is not enrolled in class")
 
 
-# Helper methods
+@ClassRoutes.route('/getMessages', methods=['POST'])
+@teacher_only
+@validate(classID=int)
+def get_messages(class_id: int):
+    """
+    Get list of all messages for a given class
+    :return: List of messages given the class ID
+    """
+    if not teaches_class(class_id):
+        return jsonify(error="user does not teach class")
+    messages: List[Message] = Message.query.filter(Message.CLASS == class_id).all()
+    result = list(map(lambda m: {
+        'messageID': m.MESSAGE,
+        'classID': m.CLASS,
+        'title': m.title,
+        'body': m.body,
+        'dateCreated': timestamp(m.date_created)
+    }, messages))
+    return jsonify(messages=result)
 
 
-def time_stamp(t):
+@ClassRoutes.route('/addMessage', methods=['POST'])
+@teacher_only
+@validate(classID=int, title=str, body=str)
+def add_message(class_id: int, title: str, body: str):
     """
-    Casts DateTime object to int
-    :param t: DateTime
-    :return: int representation of DateTime
+    Add message to the class
+    :return: Confirmation that message has been created
     """
-    return int(f'{t.year:04d}{t.month:02d}{t.day:02d}{t.hour:02d}{t.minute:02d}{t.second:02d}')
+    if not teaches_class(class_id):
+        return jsonify(error="User does not teach class")
+    db.session.add(Message(class_id, title, body, datetime.now()))
+    db.session.commit()
+    return jsonify({})
+
+
+@ClassRoutes.route("/deleteMessage", methods=["POST"])
+@teacher_only
+@validate(messageID=int)
+def delete_message(message_id: int):
+    current_message = Message.query.get(message_id)
+    if message_id is None:
+        return jsonify(error="Message not found")
+    if not teaches_class(current_message.CLASS):
+        return jsonify(error="User does not teach class")
+    db.session.delete(current_message)
+    db.session.commit()
+    return jsonify({})
+
+
+@ClassRoutes.route("/editMessage", methods=['POST'])
+@teacher_only
+@validate(messageID=int, title=str, body=str)
+def edit_message(message_id: int, title: str, body: str):
+    """
+    Edit an already existing message
+    :return: Confirmation that the message has been changed
+    """
+    message = Message.query.get(message_id)
+    if message is None:
+        return jsonify(error="No Message was found")
+    message.title = title
+    message.body = body
+    db.session.commit()
+    return jsonify({})

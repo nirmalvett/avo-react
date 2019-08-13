@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, render_template, abort, url_for, redirect
+from flask import Blueprint, jsonify, request, render_template, url_for, redirect
 from flask_login import logout_user, login_user, current_user
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 from sqlalchemy.orm.exc import NoResultFound
@@ -7,7 +7,7 @@ from server.Encoding.PasswordHash import check_password, generate_salt, hash_pas
 import re
 
 import config
-from server.decorators import login_required, admin_only
+from server.decorators import login_required, admin_only, validate
 from server.auth import send_email
 from server.models import db, User, Class, Transaction, Takes
 
@@ -18,20 +18,12 @@ UserRoutes = Blueprint('UserRoutes', __name__)
 
 
 @UserRoutes.route('/register', methods=['POST'])
-def register():
+@validate(firstName=str, lastName=str, email=str, password=str)
+def register(first_name: str, last_name: str, email: str, password: str):
     """
     Registers a new user account
     :return: Confirmation to the client
     """
-    if not request.json:
-        # If the request is not json return a 400 error
-        return abort(400)
-    data = request.json  # Data sent from client
-    first_name, last_name, email, password = data['first_name'], data['last_name'], data['email'], data['password']
-    if not isinstance(first_name, str) or not isinstance(last_name, str) or not \
-            isinstance(email, str) or not isinstance(password, str):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
     if not re.fullmatch(r'[a-zA-Z]{2,}\d*@uwo\.ca+', email):
         # Checks if the email is a UWO if not return an error JSON
         return jsonify(error='Invalid uwo email')
@@ -58,7 +50,7 @@ def register():
                f'activate your account. If you have any questions or suggestions for how we can improve, please send '
                f'us an email at contact@avocadocore.com.'
                f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>')
-    return jsonify(message='Account created')
+    return jsonify({})
 
 
 @UserRoutes.route('/confirm/<token>')
@@ -88,19 +80,12 @@ def confirm(token):
 
 
 @UserRoutes.route('/login', methods=['POST'])
-def login():
+@validate(username=str, password=str)
+def login(username: str, password: str):
     """
     Login the user
     :return: Confirmation that the user has been logged in
     """
-    if not request.json:
-        # If the request isn't JSON return a 400 error
-        return abort(400)
-    data = request.json  # Data from the client
-    username, password = data['username'], data['password']
-    if not isinstance(username, str) or not isinstance(password, str):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify("One or more data is not correct")
     try:
         # Try to create the user from the email if not throw error JSON
         user = User.query.filter(User.email == username).one()
@@ -115,9 +100,14 @@ def login():
     else:
         # Else log the user in
         login_user(user)
-        return jsonify(first_name=current_user.first_name, last_name=current_user.last_name,
-                       is_teacher=current_user.is_teacher, is_admin=current_user.is_admin,
-                       color=current_user.color, theme=current_user.theme)
+        return jsonify(
+            firstName=current_user.first_name,
+            lastName=current_user.last_name,
+            isTeacher=current_user.is_teacher,
+            isAdmin=current_user.is_admin,
+            color=current_user.color,
+            theme=current_user.theme,
+        )
 
 
 @UserRoutes.route('/getUserInfo')
@@ -128,9 +118,14 @@ def get_user_info():
     """
     try:
         # Returns the current user's data if not logged in return error JSON
-        return jsonify(first_name=current_user.first_name, last_name=current_user.last_name,
-                       is_teacher=current_user.is_teacher, is_admin=current_user.is_admin,
-                       color=current_user.color, theme=current_user.theme)
+        return jsonify(
+            firstName=current_user.first_name,
+            lastName=current_user.last_name,
+            isTeacher=current_user.is_teacher,
+            isAdmin=current_user.is_admin,
+            color=current_user.color,
+            theme=current_user.theme,
+        )
     except AttributeError:
         return jsonify(error='User does not exist')
 
@@ -143,19 +138,15 @@ def logout():
     :return: Confirmation that the user has been logged out
     """
     logout_user()
-    return jsonify(message='Successfully logged out')
+    return jsonify({})
 
 
 # Password reset
 
 
 @UserRoutes.route('/requestPasswordReset', methods=['POST'])
-def request_password_reset():
-
-    if not request.json:
-        return abort(400)
-
-    email = request.json['email']
+@validate(email=str)
+def request_password_reset(email: str):
     try:
         user = User.query.filter(User.email == email).first()
     except NoResultFound:
@@ -174,14 +165,16 @@ def request_password_reset():
                f'This link will expire in an hour'
                f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
                )
-    return jsonify(code="email sent")
+    return jsonify({})
 
 
 @UserRoutes.route('/passwordReset/<token>', methods=['GET', 'POST'])
-def password_reset(token):
+@validate(password=[str])
+def password_reset(token, password: str):
     """
     Render Reset page and change users password
     :param token: gotten from email from user
+    :param password: new password
     :return: redirect to login
     """
     serializer = URLSafeTimedSerializer(config.SECRET_KEY)
@@ -198,7 +191,6 @@ def password_reset(token):
     if request.method == 'GET':
         return render_template('index.html')
     elif request.method == 'POST':
-        password = request.json['password']
         # Method is POST change password
         if len(password) < 8:
             # If the password is les then 8 return error JSON
@@ -208,7 +200,7 @@ def password_reset(token):
         user.password = hashed_password
         user.salt = salt
         db.session.commit()
-        return jsonify(code="Password Successfully Updated!")
+        return jsonify({})
     else:
         return jsonify(error='An unexpected error occurred. Reference #1j29')
 
@@ -218,45 +210,30 @@ def password_reset(token):
 
 @UserRoutes.route('/changeColor', methods=['POST'])
 @login_required
-def change_color():
+@validate(color=int)
+def change_color(color: int):
     """
     Changes the current user's color theme
     :return: Confirmation
     """
-    if not request.json:
-        # If the request isn't JSON return a 400 error
-        return abort(400)
-    data = request.json  # Data from client
-    color = data['color']
-    if not isinstance(color, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-
     # Commit the users's changes to the DB
     current_user.color = color
     db.session.commit()
-    return jsonify(message='updated')
+    return jsonify({})
 
 
 @UserRoutes.route('/changeTheme', methods=['POST'])
 @login_required
-def change_theme():
+@validate(theme=int)
+def change_theme(theme: int):
     """
     Changes the current user's theme
     :return: Confirmation of the change
     """
-    if not request.json:
-        # If the request isn't JSON return a 400 error
-        return abort(400)
-    data = request.json  # Data from the client
-    theme = data['theme']
-    if not isinstance(theme, int):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
     # Applies the user's changes to the database
     current_user.theme = theme
     db.session.commit()
-    return jsonify(message='updated')
+    return jsonify({})
 
 
 # Account management (admin only)
@@ -283,14 +260,8 @@ def admin_login(user_id):
 
 @UserRoutes.route('/removeAccount', methods=['POST'])
 @admin_only
-def remove_account():
-    if not request.json:
-        return abort(400)
-    data = request.json
-    user_id = data['userID']
-
-    if not isinstance(user_id, int):
-        return jsonify(error="One or more data types are not correct")
+@validate(userID=int)
+def remove_account(user_id: int):
     try:
         user = User.query.filter(User.USER == user_id).first()
     except NoResultFound:

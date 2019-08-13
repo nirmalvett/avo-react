@@ -5,7 +5,7 @@ export default class LearnExplanationContainer extends Component<
   Models.LearnExplanationContainerProps,
   Models.LearnExplanationContainerState
 > {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.state = {
       explanationIndex: 0

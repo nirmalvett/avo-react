@@ -1,4 +1,4 @@
-import Http from "../../HelperFunctions/Http";
+import * as Http from '../../Http';
 
 export const CONST_CREATE_TEST_ADD_CLASS_ID = "CONST_CREATE_TEST_ADD_CLASS_ID";
 export const CONST_CREATE_TEST_GET_QUESTIONS = "CONST_CREATE_TEST_GET_QUESTIONS";

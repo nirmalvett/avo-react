@@ -7,7 +7,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/es/TextField/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-import Http from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import {copy, getMathJax} from '../HelperFunctions/Utilities';
 import {
     buildMathCode, buildPlainText, compile, extractReferences, formatString,

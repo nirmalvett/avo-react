@@ -22,6 +22,7 @@ class Class(db.Model):
     TEST_RELATION = db.relationship("Test", back_populates="CLASS_RELATION")
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="CLASS_RELATION")
     TRANSACTION_PROCESSING_RELATION = db.relationship("TransactionProcessing", back_populates="CLASS_RELATION")
+    MESSAGE_RELATION = db.relationship("Message", back_populates="CLASS_RELATION")
 
     # noinspection PyPep8Naming
     def __init__(self, USER, name, price=59.99):
@@ -37,6 +38,24 @@ class Class(db.Model):
 
     def __repr__(self):
         return f'<Class {self.CLASS} {self.USER} {self.name} {self.enroll_key}>'
+
+
+class ClassWhitelist(db.Model):
+    __tablename__ = "class_whitelist"
+
+    ID = db.Column(db.Integer, primary_key=True, nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+
+    USER_RELATION = db.relationship("User",  foreign_keys=[USER])
+    CLASS_RELATION = db.relationship("Class", foreign_keys=[CLASS])
+
+    def __init__(self, USER, CLASS):
+        self.USER = USER
+        self.CLASS = CLASS
+
+    def __repr__(self):
+        return f'class_whitelist {self.ID} {self.USER} {self.CLASS}'
 
 
 class Takes(db.Model):
@@ -90,7 +109,7 @@ class User(UserMixin, db.Model):
     TAKES_RELATION = db.relationship("Takes", back_populates="USER_RELATION")
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="USER_RELATION")
-    
+
     TAGUSER_RELATION = db.relationship("TagUser", back_populates="USER_RELATION")
     LESSON_RELATION = db.relationship("Lesson", back_populates="USER_RELATION")
     USERLESSON_RELATION = db.relationship("UserLesson", back_populates="USER_RELATION", foreign_keys=[USER_LESSON])
@@ -266,6 +285,27 @@ class Tag(db.Model):
 
     def __repr__(self):
         return f'TAG {self.TAG} {self.parent} {self.tagName} {self.childOrder}'
+
+
+class Message(db.Model):
+    __tablename__ = 'MESSAGE'
+
+    MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    body = db.Column(db.String(1000), nullable=False)
+    date_created = db.Column(db.DATETIME, nullable=False)
+
+    CLASS_RELATION = db.relationship("Class", back_populates="MESSAGE_RELATION")
+
+    def __init__(self, CLASS, title, body, date_created):
+        self.CLASS = CLASS
+        self.title = title
+        self.body = body
+        self.date_created = date_created
+
+    def __repr__(self):
+        return f'{self.MESSAGE} {self.CLASS} {self.title} {self.body} {self.date_created}'
 
 
 class TagQuestion(db.Model):

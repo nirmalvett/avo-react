@@ -1,41 +1,36 @@
-from flask import Blueprint, jsonify, request, abort
+from flask import Blueprint, jsonify
 from flask_login import current_user
 from server.MathCode.question import AvoQuestion
-
 from random import randint
-
-from server.decorators import login_required, teacher_only, admin_only
-from server.models import db, Set, Question, UserViewsSet, Tag, TagUser, Lesson, UserLesson, TagQuestion
+from server.decorators import login_required, teacher_only, validate
+from server.models import db, Question, Tag, TagUser, Lesson, UserLesson, TagQuestion
 
 TagRoutes = Blueprint('TagRoutes', __name__)
 
 
 @TagRoutes.route('/getTags')
 @teacher_only
-def get_tags_route():
+def get_tags():
     """
     For now this route will return all tags from the database
     :return: The list of tags
     """
-    return jsonify(tags=get_tags())
-
-
-def get_tags():
-    """
-    For now this route will return all tags from the database
-    :return: List, of dict objects each of which represents a tag
-    """
-    # Get list of available sets for current user
-    list_of_tags = Tag.query.all()  # [Tag, Tag...]
+    list_of_tags = Tag.query.all()
     list_dict = []
     for tag in list_of_tags:
-        list_dict.append(alchemy_to_dict(tag))
-    return list_dict
+        list_dict.append({
+            'tagID': tag.TAG,
+            'parent': tag.parent,
+            'tagName': tag.tagName,
+            'childOrder': tag.childOrder,
+        })
+    return jsonify(tags=list_dict)
 
 
-@TagRoutes.route('/putTags', methods=['PUT'])
+@TagRoutes.route('/putTags', methods=['POST'])
 @teacher_only
-def put_tags_route():
+@validate(tags=list)
+def put_tags(tags: list):
     """
         We will expect the following from the web
         {
@@ -44,91 +39,58 @@ def put_tags_route():
 
         Where each object in the lists will contain information for a given concept. Here is an example
         {'tagName': 'Linear Algebra', 'TAG': 0, 'parent': null, 'childOrder': 0}
-
     """
-    # Step 1: Check if we were given the proper JSON
-    if not request.json:
-        # If the request isn't JSON then return a 400 error
-        return abort(400)
-    # Step 3: First get the object from the JSON, in this case you'll find data['tags'], let's call it newTagsList
-    data = request.json
-    new_tags_list = data['tags']  # Data from user
-    # Step 4: Validate the datatype, in this case it should be a list i.e. check if not isinstance(newTagsList, list)
-    if not isinstance(new_tags_list, list):
-        # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="One or more data is not correct")
-    tag_ids = []
-    for t in new_tags_list:
-        tag_ids.append(t['TAG'])
+    input_tags = tags
+    tag_ids = list(map(lambda t: t['tagID'], input_tags))
 
-    # Step 5: Now loop through each object from the list
+    if len(set(tag_ids)) == len(tag_ids):
+        return jsonify(error="Duplicate tag")
+
+    # Now loop through each object from the list
     # so first we'll get a list of all the tag objects
     tag_list = Tag.query.filter(Tag.TAG.in_(tag_ids)).all()
     if len(tag_list) != len(tag_ids):
         return jsonify(error="One or more tags not found")
 
     for tag in tag_list:
-        tag_new_data = [d for d in new_tags_list if tag.TAG == d['TAG']]
-        tag.parent = tag_new_data[0]['parent']
-        tag.tagName = tag_new_data[0]['tagName']
-        tag.childOrder = tag_new_data[0]['childOrder']
+        tag_new_data = list(filter(lambda t: tag.TAG == t['tagID'], input_tags))[0]
+        tag.parent = tag_new_data['parent']
+        tag.tagName = tag_new_data['tagName']
+        tag.childOrder = tag_new_data['childOrder']
     db.session.commit()
 
-    return jsonify(message='Changed successfully!')
+    return jsonify({})
 
 
 @TagRoutes.route('/addTag', methods=['POST'])
 @teacher_only
-def add_tag_route():
-    """
-        Expects
-        {tag: {'tagName': 'Linear Algebra' }}
-    """
-    if not request.json:
-        # If the request is not json return a 400 error
-        return abort(400)
-    data = request.json  # Data sent from client
-    tag = data['tag']  # dic of tag data
-    tag_obj = Tag(None, tag['tagName'], 0)  # Tag to be added to database
+@validate(name=str)
+def add_tag(name):
+    tag_obj = Tag(None, name, 0)
     db.session.add(tag_obj)
     db.session.commit()
-    return jsonify(
-        message='Changed successfully!',
-        tag=tag_obj.TAG
-    )
+    return jsonify(tagID=tag_obj.TAG)
 
 
 @TagRoutes.route("/deleteTag", methods=['POST'])
 @teacher_only
-def delete_tag():
-    if not request.json:
-        # If the request is not JSON then return a 400 error
-        abort(400)
-    data = request.json  # Get the request data
-    tag_id = data['tag']['TAG']  # ID of tag to be removed
-    if not isinstance(tag_id, int):
-        # If not valid data type return error JSON
-        return jsonify(error="One or more data type is not correct")
-    tag = Tag.query.get(tag_id)  # Get the tag from the database
+@validate(tagID=None)
+def delete_tag(tag_id):
+    tag = Tag.query.get(tag_id)
     if tag is None:
-        # if no tag found return error JSON
         return jsonify(error="Tag does not exist")
     child_tags = tag.query.filter(Tag.parent == tag.parent).all()  # Get all child tags of current tag
-    if len(child_tags) != 0:
-        # There are child tags
-        for child in child_tags:
-            # For each child tag set its parent equal to the parent of the current tag
-            child.parent = tag.parent
-        db.session.commit()
-    # Delete tag and commit
+    for child in child_tags:
+        child.parent = tag.parent  # For each child tag set its parent equal to the parent of the current tag
     db.session.delete(tag)
     db.session.commit()
-    return jsonify(message="Tag deleted")
+    return jsonify({})
 
 
 @TagRoutes.route("/tagMastery", methods=["POST"])
 @login_required
-def tag_mastery():
+@validate(tagNames=[list])
+def tag_mastery(tag_names: list):
     """
     Given a array of tag IDs give the tag IDs names and mastery to client
     :return: array of tag mastery names and Ids to client
@@ -139,8 +101,6 @@ def tag_mastery():
                              "mastery": 1.0},
                             {"ID": 7, "name": "Inverse", "mastery": 0.0}])
     """
-    if not request.json:
-        return abort(400)
     master_list = TagUser.query.filter(current_user.USER == TagUser.USER).all()
     tag_list = Tag.query.filter(Tag.TAG.in_(master_list.TAG)).all()
     return_list = []
@@ -159,15 +119,21 @@ def get_lessons():
     :return: Array of lessons with the ID tag associated with lesson and lesson string
     """
     """
-    return jsonify(lessons=[{"ID": 1, "Tag": "Vectors", "mastery": 0.5, "string": "this is a test string"},
-                            {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-                            {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-                            {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-                            {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-                            {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-                            {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-                            {"ID": 15, "Tag": "Addition of negative square roots to the power of the square root of 27.mp4", "mastery": 0.76, "string": "this is a test string"}])
-
+    return jsonify(lessons=[
+        {"ID": 1, "Tag": "Vectors", "mastery": 0.5, "string": "this is a test string"},
+        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+        {
+            "ID": 15,
+            "Tag": "Addition of negative square roots to the power of the square root of 27.mp4",
+            "mastery": 0.76,
+            "string": "this is a test string"
+        }
+    ])
     """
 
     lesson_list = Lesson.query.join(UserLesson, UserLesson.LESSON == Lesson.LESSON).filter((Lesson.LESSON == UserLesson.LESSON) &
@@ -200,26 +166,19 @@ def get_lessons():
 
 @TagRoutes.route("/getLessonQuestionResult", methods=['POST'])
 @login_required
-def get_lesson_question_result():
-    if not request.json:
-        abort(400)
-    data = request.json
-    question_id, answers, seed = data['QuestionID'], data['Answers'], data['seed']
-    if not isinstance(question_id, int) or not isinstance(answers, list):
-        return jsonify(error="one or more data types are not correct")
+@validate(questionID=int, answers=list, seed=int)
+def get_lesson_question_result(question_id: int, answers: list, seed: int):
     question = Question.query.get(question_id)
     if question is None:
         return jsonify(error="question not found")
     q = AvoQuestion(question.string, seed, answers)
-    print(question_id)
     tag = Tag.query.join(TagQuestion).filter(TagQuestion.QUESTION == question_id).first()
-    print(tag.TAG)
     current_mastery = TagUser.query.filter((TagUser.TAG == tag.TAG) & (TagUser.USER == current_user.USER)).first()
     if current_mastery is None:
         current_mastery = TagUser(current_user.USER, tag.TAG)
     if q.score == question.total:
-        current_mastery.mastery += (q.score) / 100
-    else: 
+        current_mastery.mastery += q.score / 100
+    else:
         current_mastery.mastery += (q.score - question.total) / 100
     if current_mastery.mastery > 1.0:
         current_mastery.mastery = 1.0
@@ -230,20 +189,13 @@ def get_lesson_question_result():
 
 @TagRoutes.route("/getLessonData", methods=["POST"])
 @login_required
-def get_lesson_data():
+@validate(lessonID=int)
+def get_lesson_data(lesson_id: int):
     """
     Given a Lesson ID return Lesson string and questions
     :return: Lesson string and question Ids a strings
-    """
-    """
     return jsonify(String="This is the lesson string yaw yeet boys", questions=[{"ID": 5, "prompt":"If \\(\\vec u=\\left(-2, 2\\right)\\) and \\(\\vec v=\\left(4, 5\\right)\\), find \\(2\\vec u-3\\vec v\\).","prompts":[""],"types":["6"],"seed":1},
     """
-    if not request.json:
-        abort(400)
-    data = request.json
-    lesson_id = data["ID"]
-    if not isinstance(lesson_id, int):
-        return jsonify(error="One or more data type are not correct")
     lesson = Lesson.query.get(lesson_id)
     if lesson is None:
         return jsonify(error="Lesson not found")
@@ -258,14 +210,3 @@ def get_lesson_data():
         q = AvoQuestion(question.string, seed=seed)
         gened_questions.append({"ID": question.QUESTION, "prompt": q.prompt, "prompts": q.prompts, "types": q.types, "seed": seed})
     return jsonify(String=lesson.lesson_string, questions=gened_questions)
-
-
-def alchemy_to_dict(obj):
-    """
-    Converts SQLalchemy object to dict
-    :param obj: the SQLalchemy object to convert
-    :return: dict of SQLalchemy object
-    """
-    dicObj = obj.__dict__
-    dicObj.pop('_sa_instance_state')
-    return dicObj

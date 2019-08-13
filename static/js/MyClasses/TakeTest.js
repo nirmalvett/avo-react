@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import Http from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import {copy, getMathJax} from '../HelperFunctions/Utilities';
 import AnswerInput from '../AnswerInput/AnswerInput';
 import Card from '@material-ui/core/Card/Card';
@@ -25,7 +25,7 @@ function getFirstCard() {
 }
 
 
-class TakeTest extends Component {
+export default class TakeTest extends Component {
 	constructor(props) {
 		super(props);
 		this.state = this.props.test;

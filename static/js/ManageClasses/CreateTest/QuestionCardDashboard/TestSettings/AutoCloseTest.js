@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {InlineDateTimePicker} from "material-ui-pickers";
+import {DateTimePicker} from "@material-ui/pickers";
 import {actionCreateAutoClose, actionCreateTestToggleCloseTime} from "../../../../Redux/Actions/actionsCreateTest";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -27,12 +27,13 @@ class AutoCloseTest extends React.Component {
 		  />
 		  {
 			this.props.hasCloseTime
-				? <InlineDateTimePicker
+				? <DateTimePicker
 					margin='normal'
 					style={{width: '46%', margin: '2%'}}
 					label="Deadline"
 					value={this.props.closeTime}
 					onChange={e => this.changeAutoClose (e)}
+					variant='inline'
 				/>
 				: null
 		  }

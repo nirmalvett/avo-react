@@ -1,19 +1,13 @@
 import {Card, CardHeader, TextField,} from "@material-ui/core";
 import React from "react";
 import {connect} from "react-redux";
-import {InlineDateTimePicker} from "material-ui-pickers";
 import {
   actionCreateAttemptLimit,
-  actionCreateAutoClose,
-  actionCreateAutoOpen,
   actionCreateTestSetTestName,
-  actionCreateTestSubmitTest,
-  actionCreateTimeLimit
+  actionCreateTestSubmitTest
 } from "../../../../Redux/Actions/actionsCreateTest";
 import {Done} from '@material-ui/icons';
 import IconButton from "@material-ui/core/IconButton";
-import Switch from '@material-ui/core/Switch';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import AutoCloseTest from "./AutoCloseTest"
 import AutoOpenTest from "./AutoOpenTest"
 import Attempts from "./Attempts"

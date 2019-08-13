@@ -4,7 +4,7 @@ import LearnQuestionCard from "./LearnQuestionCard";
 import LearnLessonCard from "./LearnLessonCard";
 // going to leave the state and props of this as any as I'm sure you'll need to change things
 export default class LearnTestComponent extends Component<any, any> {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     const states = {
       LESSON: "lesson",

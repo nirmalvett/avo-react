@@ -3,7 +3,7 @@ import AVOMasteryGauge      from './MasteryGauge';
 import LearnQuestionCard    from "./LearnQuestionCard";
 import Icon                 from '@material-ui/core/Icon';
 import Grid                 from '@material-ui/core/Grid';
-import Http                 from '../HelperFunctions/Http';
+import * as Http            from '../Http';
 import AnswerInput          from '../AnswerInput/AnswerInput'
 import Typography           from '@material-ui/core/Typography';
 import IconButton           from '@material-ui/core/IconButton';
@@ -54,27 +54,27 @@ export default class AVOLearnTestComp extends Component {
 						</Grid>
 						<Grid item xs={4}>
 							<div
-								className={`avo-card`} 
-								style={{ 
+								className={`avo-card`}
+								style={{
 									position 	  : 'relative',
 									padding       : '10px',
 	                                flex          : 1,
 	                                margin        : 'none',
 	                                width         : 'auto',
 	                                display       : 'flex',
-	                                height        : '50vh', 
+	                                height        : '50vh',
 	                                flexDirection : 'column',
 	                                border        : 'none'
 								}}
 							>
-								<AVOMasteryGauge 
+								<AVOMasteryGauge
 									comprehension={parseInt(parseFloat(this.props.lesson.mastery) * 100)}
 	                                colors={['#399103', '#039124', '#809103']}
 	                            />
 							</div>
-							 <Button 
-							 	variant="outlined" 
-							 	color="primary" 
+							 <Button
+							 	variant="outlined"
+							 	color="primary"
 							 	onClick={() => this.setState({ currentState : TestStates.Questions })}
 							 	style={{ float : 'right' }}
 							>
@@ -88,10 +88,10 @@ export default class AVOLearnTestComp extends Component {
 						<Grid container spacing={8}>
 							<Grid item xs={1}>
 								<center>
-									<IconButton 
-										aria-label="chevron_left" 
-										onClick={this.goToPreviousSlide} 
-										color="primary" 
+									<IconButton
+										aria-label="chevron_left"
+										onClick={this.goToPreviousSlide}
+										color="primary"
 										style={{ marginTop : '25vh' }}
 									>
 										<Icon>chevron_left</Icon>
@@ -103,10 +103,10 @@ export default class AVOLearnTestComp extends Component {
 							</Grid>
 							<Grid item xs={1}>
 								<center>
-									<IconButton 
-										aria-label="chevron_right" 
-										onClick={this.goToNextSlide} 
-										color="primary" 
+									<IconButton
+										aria-label="chevron_right"
+										onClick={this.goToNextSlide}
+										color="primary"
 										style={{ marginTop : '25vh' }}
 									>
 										<Icon>chevron_right</Icon>
@@ -114,10 +114,10 @@ export default class AVOLearnTestComp extends Component {
 								</center>
 							</Grid>
 							<div style={{ position : 'absolute', left : '0.25em', top : '0.25em' }}>
-								<Button 
+								<Button
 									onClick={() => this.setState({ currentState : TestStates.Lesson })}
-									variant="outlined" 
-								 	color="primary" 
+									variant="outlined"
+								 	color="primary"
 								>
 									Go Back To Lesson
 								</Button>
@@ -127,11 +127,11 @@ export default class AVOLearnTestComp extends Component {
 				)}
 				{this.state.currentState === TestStates.TestEnd && (
 					<React.Fragment>
-						<Grow in={this.state.testEndState === 0} timeout={{ enter : 1000, exit : 500 }}> 
+						<Grow in={this.state.testEndState === 0} timeout={{ enter : 1000, exit : 500 }}>
 							<div style={{ position : 'absolute', width : '100%' }}>
 								<div
-									className={`avo-card`} 
-									style={{ 
+									className={`avo-card`}
+									style={{
 										position 	  : 'relative',
 										padding       : '10px',
 		                                flex          : 1,
@@ -139,12 +139,12 @@ export default class AVOLearnTestComp extends Component {
 		                                width         : 'auto',
 		                                display       : 'flex',
 		                                overflow      : 'hidden',
-		                                height        : '50vh', 
+		                                height        : '50vh',
 		                                flexDirection : 'column',
 		                                border        : 'none'
 									}}
 								>
-									<AVOLearnTestCongrat 
+									<AVOLearnTestCongrat
 		                                colors={['#399103', '#039124', '#809103']}
 		                            />
 								</div>
@@ -157,10 +157,10 @@ export default class AVOLearnTestComp extends Component {
 									<Grid container spacing={8}>
 										<Grid item xs={2}>
 											<center>
-												<IconButton 
-													aria-label="chevron_left" 
-													onClick={this.goToPreviousExplanationSlide} 
-													color="primary" 
+												<IconButton
+													aria-label="chevron_left"
+													onClick={this.goToPreviousExplanationSlide}
+													color="primary"
 													style={{ marginTop : '25vh' }}
 												>
 													<Icon>chevron_left</Icon>
@@ -172,10 +172,10 @@ export default class AVOLearnTestComp extends Component {
 										</Grid>
 										<Grid item xs={2}>
 											<center>
-												<IconButton 
-													aria-label="chevron_right" 
-													onClick={this.goToNextExplanationSlide} 
-													color="primary" 
+												<IconButton
+													aria-label="chevron_right"
+													onClick={this.goToNextExplanationSlide}
+													color="primary"
 													style={{ marginTop : '25vh' }}
 												>
 													<Icon>chevron_right</Icon>
@@ -186,20 +186,20 @@ export default class AVOLearnTestComp extends Component {
 								</Grid>
 								<Grid item xs={4}>
 									<div
-										className={`avo-card`} 
-										style={{ 
+										className={`avo-card`}
+										style={{
 											position 	  : 'relative',
 											padding       : '10px',
 			                                flex          : 1,
 			                                margin        : 'none',
 			                                width         : 'auto',
 			                                display       : 'flex',
-			                                height        : '50vh', 
+			                                height        : '50vh',
 			                                flexDirection : 'column',
 			                                border        : 'none'
 										}}
 									>
-										<AVOMasteryGauge 
+										<AVOMasteryGauge
 											comprehension={parseInt(parseFloat(this.state.changedMastery) * 100)}
 			                                colors={['#399103', '#039124', '#809103']}
 			                            />
@@ -216,39 +216,39 @@ export default class AVOLearnTestComp extends Component {
 
 	goToPreviousSlide = () => {
 		const currentIndex = this.state.questionIndex;
-		if(currentIndex == 0) 
+		if(currentIndex == 0)
 			return;
-		this.setState({ 
-			questionIndex : currentIndex - 1, 
-			questionState : !!this.state.questionState ? 0 : 1 
+		this.setState({
+			questionIndex : currentIndex - 1,
+			questionState : !!this.state.questionState ? 0 : 1
 		});
 	};
 
 	goToNextSlide = () => {
 		const currentIndex = this.state.questionIndex;
-		if(currentIndex > (this.props.lesson.data.questions.length * 2) - 2) 
+		if(currentIndex > (this.props.lesson.data.questions.length * 2) - 2)
 			this.switchToTestEnd();
-		this.setState({ 
-			questionIndex : currentIndex + 1, 
-			questionState : !!this.state.questionState ? 0 : 1 
+		this.setState({
+			questionIndex : currentIndex + 1,
+			questionState : !!this.state.questionState ? 0 : 1
 		});
 	};
 
 	goToPreviousExplanationSlide = () => {
 		const currentIndex = this.state.explanationIndex;
-		if(currentIndex == 0) 
+		if(currentIndex == 0)
 			return;
-		this.setState({ 
-			explanationIndex : currentIndex - 1, 
+		this.setState({
+			explanationIndex : currentIndex - 1,
 		});
 	};
 
 	goToNextExplanationSlide = () => {
 		const currentIndex = this.state.explanationIndex;
-		if(currentIndex > this.props.lesson.data.questions.length -2) 
+		if(currentIndex > this.props.lesson.data.questions.length -2)
 			return;
-		this.setState({ 
-			explanationIndex : currentIndex + 1, 
+		this.setState({
+			explanationIndex : currentIndex + 1,
 		});
 	};
 
@@ -285,10 +285,10 @@ export default class AVOLearnTestComp extends Component {
                     <center>
                         <AnswerInput
                             type={question.types[0]}
-                            value={this.state.newAnswers[index]} 
+                            value={this.state.newAnswers[index]}
                             prompt={question.prompt}
                             onBlur={() => {
-                                
+
                             }}
                             onChange={value => {
                                 let newAnswerList = this.state.newAnswers;
@@ -330,20 +330,20 @@ export default class AVOLearnTestComp extends Component {
 								</Grid>
 								<Grid item xs={4}>
 									<div
-										className={`avo-card`} 
-										style={{ 
+										className={`avo-card`}
+										style={{
 											position 	  : 'relative',
 											padding       : '10px',
 			                                flex          : 1,
 			                                margin        : 'none',
 			                                width         : 'auto',
 			                                display       : 'flex',
-			                                height        : '50vh', 
+			                                height        : '50vh',
 			                                flexDirection : 'column',
 			                                border        : 'none'
 										}}
 									>
-										<AVOMasteryGauge 
+										<AVOMasteryGauge
 											comprehension={parseInt(parseFloat(this.state.changedMastery) * 100)}
 			                                colors={['#399103', '#039124', '#809103']}
 			                            />
@@ -380,17 +380,17 @@ export default class AVOLearnTestComp extends Component {
                 	<center>
                         <AnswerInput
                             type={question.types[0]}
-                            value={this.state.newAnswers[index]} 
+                            value={this.state.newAnswers[index]}
                             prompt={question.prompt}
                             disabled={true}
                             onBlur={() => {
-                                
+
                             }}
                             onChange={value => {
-                               
+
                             }}
                             buttonSave={value => {
-                               
+
                             }}
                         />
                     </center>
@@ -415,8 +415,8 @@ export default class AVOLearnTestComp extends Component {
         const _this = this;
         Http.getLessonQuestionResult(
             question.ID,
-            [answers[index]], 
-            question.seed, 
+            [answers[index]],
+            question.seed,
             res => {
                 console.log(res)
                 const temp = this.state.explanations;
@@ -424,7 +424,7 @@ export default class AVOLearnTestComp extends Component {
                 this.setState({ explanations : temp, changedMastery : res.mastery}, () => {
 					this.props.updateMastery(res.mastery, this.props.lesson.ID)
 				})
-            }, 
+            },
             err => {
                 console.log(err)
             }
