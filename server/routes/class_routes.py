@@ -5,7 +5,7 @@ from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
 from server.decorators import login_required, teacher_only, student_only, admin_only
-from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing
+from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, ClassWhitelist
 import paypalrestsdk
 import config
 
@@ -33,7 +33,31 @@ with open('server/SQL/teacher_tests_medians.sql', 'r') as sql:
 
 
 # Routes for managing classes
+@ClassRoutes.route('/addToWhitelist', methods=['POST'])
+@teacher_only
+def add_to_whitelist():
+    """
+    Adds a user to a class's whitelist for enrolment 
+    :return: Confirmation that the users were added to the whitelise
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    CLASS, uwoUser = request.json['CLASS'], request.json['user']  # class ID and a list of user's emails to add to the whitelist
+    if not isinstance(CLASS, int) and not isinstance(uwoUser, str) :
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    userEmail = uwoUser + "@uwo.ca"
+    user = User.query.filter((User.email == userEmail)).first()
+    if not isinstance(user, User) :
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="User does not exist")
+    new_whitelist_entry = ClassWhitelist(user.USER, CLASS)
+    db.session.add(new_whitelist_entry)
 
+    # Add to database and commit
+    db.session.commit()
+    return jsonify(message='Created!')
 
 @ClassRoutes.route('/createClass', methods=['POST'])
 @teacher_only

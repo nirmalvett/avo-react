@@ -17,6 +17,8 @@ import QuestionBuilderDocs from "../CourseBuilder/QuestionBuilder/QuestionBuilde
 import AVOInClassTools from "../MISC/AVOInClassTools/AVOInClassTools";
 import AVOExplanations from "../MISC/AVOExplanations/AVOExplanations";
 import ExportTools from '../ExportTools/ExportTools'
+import Whitelist from '../Whitelist/Whitelist'
+
 import AVOLearnComponent from '../Learn/AVOLearnComponent';
 import { avoGreen } from "../SharedComponents/AVOCustomColors";
 import { MySnackbarContentWrapper } from "../SharedComponents/AVOSnackBar";
@@ -182,6 +184,7 @@ class Layout extends Component {
                                     {this.listItem(BuildOutlined, 'My Questions')}
                                     {this.listItem(HelpOutline, 'Documentation')}
                                     {this.listItem(AssignmentReturnedOutlined, 'Export Tools')}
+                                    {this.listItem(ClassOutlined, 'Whitelist Class')}
                                     {this.listItem(BuildOutlined, 'Tag Builder')}
 
                                 </List>
@@ -307,6 +310,7 @@ class Layout extends Component {
         if (section === 'Explanations') return (<AVOExplanations/>);
         if (section === 'Tag Builder') return (<TagView/>)
         if (section === 'Learn') return (<AVOLearnComponent/>);
+        if (section === 'Whitelist Class') return (<Whitelist  theme={{theme: this.state.theme, color: this.state.color}}/>)
     }
 
     timerInTopBar(){
