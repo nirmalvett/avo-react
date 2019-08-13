@@ -184,7 +184,7 @@ class Layout extends Component {
                                     {this.listItem(BuildOutlined, 'My Questions')}
                                     {this.listItem(HelpOutline, 'Documentation')}
                                     {this.listItem(AssignmentReturnedOutlined, 'Export Tools')}
-                                    {this.listItem(ClassOutlined, 'Whitelist Class')}
+                                    {this.listItem(ClassOutlined, 'Add Students To Class')}
                                     {this.listItem(BuildOutlined, 'Tag Builder')}
 
                                 </List>
@@ -310,7 +310,7 @@ class Layout extends Component {
         if (section === 'Explanations') return (<AVOExplanations/>);
         if (section === 'Tag Builder') return (<TagView/>)
         if (section === 'Learn') return (<AVOLearnComponent/>);
-        if (section === 'Whitelist Class') return (<Whitelist  theme={{theme: this.state.theme, color: this.state.color}}/>)
+        if (section === 'Add Students To Class') return (<Whitelist  theme={{theme: this.state.theme, color: this.state.color}}/>)
     }
 
     timerInTopBar(){
