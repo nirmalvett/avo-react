@@ -47,7 +47,7 @@ export default class PostTest extends Component<PostTestProps, Http.PostTest> {
         );
     }
 
-    getQuestionCard = (question: Http.PostTestQuestion) => {
+    getQuestionCard = (question: Http.PostTest_Question) => {
         return (
             <Card
                 key={uniqueKey()}

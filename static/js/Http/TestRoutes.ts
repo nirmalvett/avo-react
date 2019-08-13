@@ -1,19 +1,23 @@
 import {_request, cb} from './baseRequest';
 
+export interface SaveTest {
+    testID: number
+}
+
 export function saveTest(
-    classId: number,
+    classID: number,
     name: string,
-    deadline: string,
+    openTime: number,
+    deadline: number,
     timer: number,
     attempts: number,
     questionList: number[],
     seedList: number[],
-    openTime: string,
-    success: cb<never>,
+    success: cb<SaveTest>,
     failure: cb,
 ) {
     _request('POST', '/saveTest', success, failure, {
-        classId,
+        classID,
         name,
         deadline,
         timer,
@@ -25,35 +29,35 @@ export function saveTest(
 }
 
 export function changeTest(
-    test: number,
+    testID: number,
     timer: number,
     name: string,
-    deadline: never,
-    openTime: never,
+    deadline: number,
+    openTime: number,
     attempts: number,
-    success: cb<never>,
+    success: cb<{}>,
     failure: cb,
 ) {
     _request('POST', `/changeTest`, success, failure, {
-        test: test,
-        timer: timer,
-        name: name,
-        deadline: deadline,
-        attempts: attempts,
-        openTime: openTime,
+        testID,
+        timer,
+        name,
+        deadline,
+        attempts,
+        openTime,
     });
 }
 
-export function deleteTest(test: number, success: cb<never>, failure: cb) {
-    _request('POST', '/deleteTest', success, failure, {test});
+export function deleteTest(testID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/deleteTest', success, failure, {testID});
 }
 
-export function openTest(test: number, success: cb<never>, failure: cb) {
-    _request('POST', '/openTest', success, failure, {test});
+export function openTest(testID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/openTest', success, failure, {testID});
 }
 
-export function closeTest(test: number, success: cb<never>, failure: cb) {
-    _request('POST', '/closeTest', success, failure, {test});
+export function closeTest(testID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/closeTest', success, failure, {testID});
 }
 
 export interface GetTest {
@@ -67,29 +71,35 @@ export interface GetTest {
     };
 }
 
-export function getTest(test: number, success: cb<GetTest>, failure: cb) {
-    _request('POST', '/getTest', success, failure, {test});
+export function getTest(testID: number, success: cb<GetTest>, failure: cb) {
+    _request('POST', '/getTest', success, failure, {testID});
+}
+
+export interface SaveAnswer {
+    message: 'answer saved' | 'answer saved, but an error occurred while grading'
 }
 
 export function saveAnswer(
-    takes: number,
+    takesID: number,
     question: number,
-    answer: never,
-    success: cb<never>,
+    answer: string[],
+    success: cb<SaveAnswer>,
     failure: cb,
 ) {
-    _request('POST', '/saveAnswer', success, failure, {takes, question, answer});
+    _request('POST', '/saveAnswer', success, failure, {takesID, question, answer});
 }
 
-export function submitTest(takes: number, success: cb<never>, failure: cb) {
-    _request('POST', '/submitTest', success, failure, {takes});
+
+
+export function submitTest(takesID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/submitTest', success, failure, {takesID});
 }
 
 export interface PostTest {
-    questions: PostTestQuestion[];
+    questions: PostTest_Question[];
 }
 
-export interface PostTestQuestion {
+export interface PostTest_Question {
     prompt: string;
     prompts: string[];
     answers: string[][];
@@ -99,8 +109,8 @@ export interface PostTestQuestion {
     explanation: string[];
 }
 
-export function postTest(takes: number, success: cb<PostTest>, failure: cb) {
-    _request('POST', '/postTest', success, failure, {takes});
+export function postTest(takesID: number, success: cb<PostTest>, failure: cb) {
+    _request('POST', '/postTest', success, failure, {takesID});
 }
 
 export interface TestStats {
@@ -121,10 +131,10 @@ export interface TestStats {
     totalMark: number | [];
 }
 
-export function testStats(test: number, success: cb<never>, failure: cb) {
-    _request('POST', '/testStats', success, failure, {id: test});
+export function testStats(testID: number, success: cb<TestStats>, failure: cb) {
+    _request('POST', '/testStats', success, failure, {testID});
 }
 
-export function changeMark(takeId: number, markArray: number[][], success: cb<never>, failure: cb) {
-    _request('POST', '/changeMark', success, failure, {takeId, markArray});
+export function changeMark(takesID: number, markArray: number[][], success: cb<never>, failure: cb) {
+    _request('POST', '/changeMark', success, failure, {takesID, markArray});
 }

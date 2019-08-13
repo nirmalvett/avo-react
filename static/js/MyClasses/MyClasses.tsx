@@ -664,7 +664,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                 {this.state.apexChartEl}
                                 <Typography
                                     component={'span'}
-                                    variant='body1'
+                                    variant='body2'
                                     color='textPrimary'
                                     classes={{root: 'avo-padding__16px'}}
                                 >
@@ -673,7 +673,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                 </Typography>
                                 <Typography
                                     component={'span'}
-                                    variant='body1'
+                                    variant='body2'
                                     color='textPrimary'
                                     classes={{root: 'avo-padding__16px'}}
                                 >
