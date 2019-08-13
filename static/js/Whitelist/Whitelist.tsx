@@ -42,7 +42,9 @@ export default class Whitelist extends Component<any, any> {
             jsonObjects: {},
             loadingClass: false,
             // The classIDs of the selected list items
-            selected: []
+            selected: [],
+            showResponse: false,
+            responseMap: {}
         };
 
         // Bindings
@@ -99,10 +101,10 @@ export default class Whitelist extends Component<any, any> {
                     </FormControl>
                 </form>
                 <Paper className='drop-area' id='drop-area' style={this.state.style}>
-                    <Typography variant='title' align='center' style={{ margin: "15px", width: "100%" }}>
-                        Drag and drop your CSVs here to be processed
+                    <Typography variant='title' align='center' style={{ marginLeft: -15, padding: "15px", width: "100%" }}>
+                        Drag and drop your CSVs to add students to a class's whitelist!
                     </Typography>
-                    <div style={{ width: "300px", padding: "20px" }}>
+                    <div style={{ width: "100%" }}>
                         {/*Display a spinner while loading class data*/}
                         {this.displaySpinner()}
                         {/*Display the export button and file names only after there is a file to export*/}
@@ -180,7 +182,19 @@ export default class Whitelist extends Component<any, any> {
             let selected = [...this.state.selected];
             let fileList = Object.keys(jsonObjects).map(classId => this.getListItem(classId, selected));
 
-            return <div style={{ overflow: "auto", height: "400px" }}>{fileList}</div>;
+            return (
+                <div >
+                    {fileList}
+                    <div style={{ overflowY: "auto", height: 370, overflowX: 'hidden' }}>
+                        {this.state.showResponse &&
+                            Object.keys(this.state.responseMap).map(key => (
+                                <Typography variant='title' align='center' style={{ margin: "15px", width: "100%" }}>
+                                    {`${key}: ${this.state.responseMap[key]["message"] || this.state.responseMap[key]["error"]}`}
+                                </Typography>
+                            ))}
+                    </div>
+                </div>
+            );
         }
     }
 
@@ -270,7 +284,7 @@ export default class Whitelist extends Component<any, any> {
             let copy = JSON.parse(JSON.stringify(this.state.jsonObjects[classId]));
             copy.name = filename;
             objectsCopy[classId] = copy;
-            this.setState({ jsonObjects: objectsCopy });
+            this.setState({ jsonObjects: objectsCopy, showResponse: false });
         };
         reader.readAsText(file);
     }
@@ -376,6 +390,7 @@ export default class Whitelist extends Component<any, any> {
         Object.keys(jsonObjects).forEach(classID => {
             const studentsToAdd = jsonObjects[classID]["Student ID"];
             console.log(classID);
+            const responseMap: any = {};
             Object.keys(studentsToAdd).forEach(student => {
                 console.log(student);
                 Http.addStudentsToWhitelist(
@@ -383,9 +398,19 @@ export default class Whitelist extends Component<any, any> {
                     student,
                     res => {
                         console.log(res);
+                        responseMap[student] = res;
+                        console.log(responseMap);
+                        if (Object.keys(responseMap).length === Object.keys(studentsToAdd).length) {
+                            this.setState({ responseMap, showResponse: true });
+                        }
                     },
                     err => {
                         console.log(err);
+                        responseMap[student] = err;
+                        console.log(responseMap);
+                        if (Object.keys(responseMap).length === Object.keys(studentsToAdd).length) {
+                            this.setState({ responseMap, showResponse: true });
+                        }
                     }
                 );
             });

@@ -51,13 +51,13 @@ def add_to_whitelist():
     user = User.query.filter((User.email == userEmail)).first()
     if not isinstance(user, User) :
         # Checks if all data given is of correct type if not return error JSON
-        return jsonify(error="User does not exist")
+        return jsonify(error="User not added to whitelist, user does not exist")
     new_whitelist_entry = ClassWhitelist(user.USER, CLASS)
     db.session.add(new_whitelist_entry)
 
     # Add to database and commit
     db.session.commit()
-    return jsonify(message='Created!')
+    return jsonify(message='User added to whitelist!')
 
 @ClassRoutes.route('/createClass', methods=['POST'])
 @teacher_only
