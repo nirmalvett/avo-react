@@ -237,7 +237,6 @@ class Layout extends Component<LayoutProps, LayoutState> {
             return (
                 <ManageClasses
                     showSnackBar={this.showSnackBar}
-                    isTeacher={isTeacher}
                     createTest={(cls: number) => this.startCreateTest(cls)}
                     theme={{theme: this.props.theme, color: this.color()}}
                     postTest={(takes: number) => {
