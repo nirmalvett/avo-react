@@ -107,7 +107,7 @@ class ExportTools extends Component {
         </form>
         <Paper className="drop-area" id="drop-area" style={this.state.style}>
           <Typography
-            variant="title"
+            variant="h6"
             align="center"
             style={{ margin: "15px", width: "100%" }}
           >
@@ -240,7 +240,7 @@ class ExportTools extends Component {
         key={classId}
         style={style}
         onClick={() => this.toggleSelected(classId)}
-        variant="subheading"
+        variant="subtitle1"
       >
         {this.state.jsonObjects[classId]["name"]}
       </Typography>
