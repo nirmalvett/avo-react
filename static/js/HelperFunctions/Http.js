@@ -24,6 +24,10 @@ export default class Http {
 		};
 		http.send(JSON.stringify(data));
 	}
+	static getClassWhitelist(CLASS, success, failure) {
+		Http._request('POST', '/getClassWhitelist', success, failure, {CLASS})
+	}
+
 	static addStudentsToWhitelist(CLASS, user, success, failure) {
 		Http._request('POST', '/addToWhitelist', success, failure, {CLASS, user})
 	}

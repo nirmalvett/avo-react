@@ -58,6 +58,30 @@ def add_to_whitelist():
     # Add to database and commit
     db.session.commit()
     return jsonify(message='User added to class!')
+@ClassRoutes.route('/getClassWhitelist', methods=['POST'])
+@teacher_only
+def get_whitelist():
+    """
+    Adds a user to a class's whitelist for enrolment 
+    :return: Confirmation that the users were added to the whitelise
+    """
+    print(request)
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    CLASS = request.json['CLASS']  # class ID to get whitelist
+    if not isinstance(CLASS, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    whitelist = ClassWhitelist.query.join(User, User.USER == ClassWhitelist.USER).filter((ClassWhitelist.CLASS == CLASS)).all()
+    if not isinstance(whitelist, list) :
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="Error getting whitelist")
+    
+    whitelistRes = []
+    for student in whitelist: 
+        whitelistRes.append({'userEmail': student.USER_RELATION.email})
+    return jsonify(whitelistRes)
 
 @ClassRoutes.route('/createClass', methods=['POST'])
 @teacher_only

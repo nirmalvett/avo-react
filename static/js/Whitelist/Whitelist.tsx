@@ -18,7 +18,8 @@ export default class Whitelist extends Component<any, any> {
                 height: "480px",
                 margin: "50px auto",
                 padding: "20px",
-                flexShrink: "0"
+                flexShrink: "0",
+                overflowY: "auto"
             },
             highlighted: {
                 width: "600px",
@@ -26,6 +27,7 @@ export default class Whitelist extends Component<any, any> {
                 margin: "50px auto",
                 padding: "20px",
                 flexShrink: "0",
+                overflowY: "auto",
                 backgroundColor: props.theme.color["500"]
             }
         };
@@ -44,7 +46,9 @@ export default class Whitelist extends Component<any, any> {
             // The classIDs of the selected list items
             selected: [],
             showResponse: false,
-            responseMap: {}
+            responseMap: {},
+            showStudents: false,
+            selectedClassStudents: []
         };
 
         // Bindings
@@ -102,7 +106,9 @@ export default class Whitelist extends Component<any, any> {
                 </form>
                 <Paper className='drop-area' id='drop-area' style={this.state.style}>
                     <Typography variant='title' align='center' style={{ marginLeft: -15, padding: "15px", width: "100%" }}>
-                        Drag and drop your CSVs to add students to a class!
+                        {this.state.currentClassId === -1
+                            ? "Select a class to add student's to with OWL export"
+                            : "Drag and drop your CSVs to add students to a class!"}
                     </Typography>
                     <div style={{ width: "100%" }}>
                         {/*Display a spinner while loading class data*/}
@@ -117,8 +123,24 @@ export default class Whitelist extends Component<any, any> {
         );
     }
 
+    getStudentsInWhitelist = CLASS => {
+        console.log(CLASS);
+        Http.getClassWhitelist(
+            parseInt(CLASS),
+            res => {
+                console.log(res);
+                this.setState({ showStudents: true, selectedClassStudents: res });
+            },
+            err => {
+                console.log(err);
+            }
+        );
+    };
+
     handleChange(event) {
+        console.log(event.target.value);
         this.setState({ currentClassId: event.target.value });
+        this.getStudentsInWhitelist(event.target.value);
     }
 
     getMenuItems() {
@@ -178,24 +200,51 @@ export default class Whitelist extends Component<any, any> {
     // Responsible for displaying the names of the dropped files
     displayFiles() {
         const { jsonObjects } = this.state;
-        if (!this.isEmpty(jsonObjects)) {
-            let selected = [...this.state.selected];
-            let fileList = Object.keys(jsonObjects).map(classId => this.getListItem(classId, selected));
+        // if (!this.isEmpty(jsonObjects)) {
+        let selected = [...this.state.selected];
+        let fileList = Object.keys(jsonObjects).map(classId => this.getListItem(classId, selected));
 
-            return (
-                <div >
-                    {fileList}
-                    <div style={{ overflowY: "auto", height: 370, overflowX: 'hidden' }}>
-                        {this.state.showResponse &&
-                            Object.keys(this.state.responseMap).map(key => (
-                                <Typography variant='title' align='left' style={{ margin: "15px", width: "100%" }}>
+        return (
+            <div style={{ overflowY: "auto" }}>
+                {fileList}
+                <div style={{ overflowX: "hidden" }}>
+                    {this.state.showStudents &&
+                        this.state.selectedClassStudents.map((student, i) =>
+                            i !== 0 ? (
+                                <Typography variant='subheading' align='left' style={{ margin: "15px", width: "100%" }}>
+                                    {`${i + 1}. ${student.userEmail}`}
+                                </Typography>
+                            ) : (
+                                <div>
+                                    <Typography variant='title' align='left'>
+                                        Student's allowed to enroll in this class
+                                    </Typography>
+                                    <Typography variant='subheading' align='left' style={{ margin: "15px", width: "100%" }}>
+                                        {`${i + 1}. ${student.userEmail} `}
+                                    </Typography>
+                                </div>
+                            )
+                        )}
+                    {this.state.showResponse &&
+                        Object.keys(this.state.responseMap).map((key, i) =>
+                            i !== 0 ? (
+                                <Typography variant='subheading' align='left' style={{ margin: "15px", width: "100%" }}>
                                     {`${key}: ${this.state.responseMap[key]["message"] || this.state.responseMap[key]["error"]}`}
                                 </Typography>
-                            ))}
-                    </div>
+                            ) : (
+                                <div>
+                                    <Typography variant='title' align='left'>
+                                        Upload report
+                                    </Typography>
+                                    <Typography variant='subheading' align='left' style={{ margin: "15px", width: "100%" }}>
+                                        {`${key}: ${this.state.responseMap[key]["message"] || this.state.responseMap[key]["error"]}`}
+                                    </Typography>
+                                </div>
+                            )
+                        )}
                 </div>
-            );
-        }
+            </div>
+        );
     }
 
     getListItem(classId, selected) {
@@ -401,7 +450,7 @@ export default class Whitelist extends Component<any, any> {
                         responseMap[student] = res;
                         console.log(responseMap);
                         if (Object.keys(responseMap).length === Object.keys(studentsToAdd).length) {
-                            this.setState({ responseMap, showResponse: true });
+                            this.setState({ responseMap, showResponse: true }, () => this.getStudentsInWhitelist(this.state.currentClassId));
                         }
                     },
                     err => {
@@ -409,7 +458,7 @@ export default class Whitelist extends Component<any, any> {
                         responseMap[student] = err;
                         console.log(responseMap);
                         if (Object.keys(responseMap).length === Object.keys(studentsToAdd).length) {
-                            this.setState({ responseMap, showResponse: true });
+                            this.setState({ responseMap, showResponse: true }, () => this.getStudentsInWhitelist(this.state.currentClassId));
                         }
                     }
                 );
