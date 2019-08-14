@@ -22,19 +22,21 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         return (
             <div
                 style={{
-                    minWidth: '60vw',
-                    minHeight: 500,
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
                     margin: 25,
-                    overflow: 'auto',
                 }}
             >
-                <Card style={{width: '100%', margin: 0, padding: 0, height: 790, overflow: 'auto'}}>
-                    <Button onClick={() => this.setState({currentView: 'folderView'})}>
-                        Tag Folder View
-                    </Button>
-                    <Button onClick={() => this.setState({currentView: 'tagTreeView'})}>
-                        Tag Tree View
-                    </Button>
+                <Card style={{width: '100%', margin: 0, padding: 0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden'}}>
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <Button onClick={() => this.setState({currentView: 'folderView'})}>
+                            Tag Folder View
+                        </Button>
+                        <Button onClick={() => this.setState({currentView: 'tagTreeView'})}>
+                            Tag Tree View
+                        </Button>
+                    </div>
                     {this.state.currentView === 'folderView' && <FolderView />}
                     {this.state.currentView === 'tagTreeView' && <TreeView />}
                 </Card>

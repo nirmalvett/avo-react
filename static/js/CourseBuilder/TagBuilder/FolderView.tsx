@@ -1,11 +1,8 @@
-import React, {Component} from 'react';
+import React, {Component, Fragment} from 'react';
 import SortableTree from 'react-sortable-tree';
 import * as Http from '../../Http';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid/Grid';
-import TextField from '@material-ui/core/TextField';
+import {CardActions, CardContent, FormControl, IconButton, Input, InputAdornment, InputLabel} from '@material-ui/core';
+import {Add, Delete, Save} from '@material-ui/icons';
 
 interface Tag {
     tagID: number;
@@ -43,65 +40,58 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
 
     render() {
         return (
-            <React.Fragment>
-                <CardContent style={{height: 595, padding: 0 }}>
-                    <div style={{width: '100%', height: 600}}>
-                        <SortableTree
-                            treeData={this.state.tags}
-                            onChange={(tags: Tag[]) => this.setState({tags})}
-                        />
-                    </div>
+            <Fragment>
+                <CardContent style={{flex: 1, display: 'flex', flexDirection: 'column', padding: 0, width: '100%' }}>
+                    <SortableTree
+                        treeData={this.state.tags}
+                        onChange={(tags: Tag[]) => this.setState({tags})}
+                    />
                 </CardContent>
                 <CardActions
                     style={{
                         padding: 0,
-                        margin: 25,
+                        margin: 16,
                         boxSizing: 'border-box',
-                        marginTop: 60,
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between'
                     }}
                 >
-                    <Grid container direction='row' justify='flex-start' alignItems='flex-start'>
-                        <TextField
-                            style={{
-                                margin: 0,
-                                width: 200,
-                                marginTop: -12,
-                                marginLeft: 10,
-                                marginRight: 10,
-                            }}
-                            id='tag-input'
-                            label='New tag...'
+                    <FormControl>
+                        <InputLabel htmlFor="add-tag">New tag...</InputLabel>
+                        <Input
+                            id="add-tag"
                             value={this.state.tagAddInput}
                             onChange={e => this.setState({tagAddInput: e.target.value})}
-                            margin='normal'
+                            endAdornment={
+                                <InputAdornment position="end">
+                                    <IconButton style={{top: -8}} onClick={() => this.addTag()}>
+                                        <Add/>
+                                    </IconButton>
+                                </InputAdornment>
+                            }
                         />
-                        <Button style={{marginRight: 10}} variant='contained' onClick={() => this.addTag()}>
-                            Add new tag
-                        </Button>
-                        <Button variant='contained' onClick={() => this.deleteTag()}>
-                            Delete tag
-                        </Button>
-                        <TextField
-                            style={{margin: 0, width: 200, marginTop: -12, marginLeft: 10, marginRight: 10}}
-                            id='tag-input'
-                            label='Delete tag...'
+                    </FormControl>
+                    <FormControl>
+                        <InputLabel htmlFor="delete-tag">Delete tag...</InputLabel>
+                        <Input
+                            id="delete-tag"
                             value={this.state.tagDeleteInput}
                             onChange={e => this.setState({tagDeleteInput: e.target.value})}
-                            margin='normal'
+                            endAdornment={
+                                <InputAdornment position="end">
+                                    <IconButton style={{top: -8}} onClick={() => this.deleteTag()}>
+                                        <Delete/>
+                                    </IconButton>
+                                </InputAdornment>
+                            }
                         />
-                        <div style={{marginLeft: 'auto'}}>
-                            <Button
-                                variant='contained'
-                                onClick={() => {
-                                    this.putTags();
-                                }}
-                            >
-                                Save
-                            </Button>
-                        </div>
-                    </Grid>
+                    </FormControl>
+                    <IconButton onClick={() => this.putTags()}>
+                        <Save color='primary'/>
+                    </IconButton>
                 </CardActions>
-            </React.Fragment>
+            </Fragment>
         );
     }
 
