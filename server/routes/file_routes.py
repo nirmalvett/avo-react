@@ -13,6 +13,16 @@ def serve_web_app():
     return render_template('index.html')
 
 
+@FileRoutes.route('/css/app.css')
+def serve_css():
+    return send_file('../static/css/app.css')
+
+
+@FileRoutes.route('/img/<filename>')
+def serve_img(filename):
+    return send_file(f'../static/img/{filename}')
+
+
 @FileRoutes.route('/favicon.ico')
 def serve_icon():
     """
