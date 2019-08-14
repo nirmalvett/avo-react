@@ -261,22 +261,15 @@ const MONTHS = [
     'December',
 ];
 
-// Takes a number of the form YYYYMMDDhhmmss
+// Takes a unix timestamp
 export function getDateString(date: number): string {
-    const dateString = date.toString();
-    let hour = parseInt(dateString.slice(8, 10));
-    let x = hour > 11 ? 'pm' : 'am';
-    hour = ((hour + 11) % 12) + 1;
-    return (
-        MONTHS[Number(dateString.slice(4, 6)) - 1] +
-        ' ' +
-        dateString.slice(6, 8) + //+ ', ' + date.slice(0, 4)
-        ' at ' +
-        hour +
-        ':' +
-        dateString.slice(10, 12) +
-        x
-    );
+    const d = new Date(date);
+    const hour24 = d.getHours();
+    const am_pm = hour24 > 11 ? 'pm' : 'am';
+    const hour12 = (((hour24 + 11) % 12) + 1).toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
+    const month = MONTHS[d.getMonth() - 1];
+    return `${month} ${d.getDate()} at ${hour12}:${minutes}${am_pm}`;
 }
 
 export function copy<T>(object: T): T {
