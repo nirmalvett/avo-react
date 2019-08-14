@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import * as Http from '../Http';
-import HomePage from '../Home/HomePage';
+// import HomePage from '../Home/HomePage';
+import HomePageOld from '../Home/HomePageOld';
 import TagView from '../CourseBuilder/TagBuilder/TagView';
 import PostTest from '../SharedComponents/PostTest';
 import MarkEditor from '../ManageClasses/MarkEditor';
@@ -207,14 +208,15 @@ class Layout extends Component<LayoutProps, LayoutState> {
         const {isTeacher, color, theme} = this.props;
         const {section} = this.state;
         if (section === 'Home')
-            return (
-                <HomePage
-                    jumpToClass={this.jumpToClass.bind(this)}
-                    jumpToSet={this.jumpToSet.bind(this)}
-                    color={this.color()}
-                    showSnackBar={this.showSnackBar}
-                />
-            );
+            // return (
+            //     <HomePage
+            //         jumpToClass={this.jumpToClass.bind(this)}
+            //         jumpToSet={this.jumpToSet.bind(this)}
+            //         color={this.color()}
+            //         showSnackBar={this.showSnackBar}
+            //     />
+            // );
+            return <HomePageOld showSnackBar={this.showSnackBar}/>;
         if (section === 'Export Tools')
             return <ExportTools theme={{theme: this.props.theme, color: this.color()}} />;
         if (section === 'My Classes')
