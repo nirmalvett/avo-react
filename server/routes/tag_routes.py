@@ -43,7 +43,7 @@ def put_tags(tags: list):
     input_tags = tags
     tag_ids = list(map(lambda t: t['tagID'], input_tags))
 
-    if len(set(tag_ids)) == len(tag_ids):
+    if len(set(tag_ids)) != len(tag_ids):
         return jsonify(error="Duplicate tag")
 
     # Now loop through each object from the list
