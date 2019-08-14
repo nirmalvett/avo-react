@@ -139,7 +139,7 @@ export default class Whitelist extends Component<any, any> {
 
     handleChange(event) {
         console.log(event.target.value);
-        this.setState({ currentClassId: event.target.value });
+        this.setState({ currentClassId: event.target.value, showResponse: false });
         this.getStudentsInWhitelist(event.target.value);
     }
 

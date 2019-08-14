@@ -65,7 +65,6 @@ def get_whitelist():
     Adds a user to a class's whitelist for enrolment 
     :return: Confirmation that the users were added to the whitelise
     """
-    print(request)
     if not request.json:
         # If the request isn't JSON then return a 400 error
         return abort(400)
