@@ -16,6 +16,7 @@ const styles = (theme: Theme) =>
                 duration: theme.transitions.duration.leavingScreen,
             }),
             display: 'flex',
+            backgroundColor: theme.palette.primary.main,
         },
         appBarShift: {
             width: `calc(100% - ${drawerWidth}px)`,

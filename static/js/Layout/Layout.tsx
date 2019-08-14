@@ -216,7 +216,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
             //         showSnackBar={this.showSnackBar}
             //     />
             // );
-            return <HomePageOld showSnackBar={this.showSnackBar}/>;
+            return <HomePageOld showSnackBar={this.showSnackBar} />;
         if (section === 'Export Tools')
             return <ExportTools theme={{theme: this.props.theme, color: this.color()}} />;
         if (section === 'My Classes')
@@ -314,7 +314,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
             );
         if (section === 'Tag Builder') return <TagView />;
         if (section === 'Notify Class') return <NotifyClass />;
-        if (section === 'Learn') return <AVOLearnComponent/>;
+        if (section === 'Learn') return <AVOLearnComponent />;
     }
 
     // ============================== Methods that perform some type of data manipulation =======================
