@@ -42,7 +42,7 @@ class QuestionCard extends React.Component {
 				  </div>
 				}
 			/>
-			{getMathJax (question.prompt, 'subheading')}
+			{getMathJax (question.prompt, 'subtitle1')}
 			{getAnswerInputs (question, question.prompts, questionIndex)}
 		  </Card>
 	  )

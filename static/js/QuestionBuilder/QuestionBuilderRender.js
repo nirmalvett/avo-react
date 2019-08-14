@@ -86,7 +86,7 @@ export function Preview(props) {
         <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
             <div style={{flex: 8, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
                 <Card style={cardStyle}>
-                    <Typography variant='title' style={{marginTop: 10, marginBottom: 10}}>Math</Typography>
+                    <Typography variant='h6' style={{marginTop: 10, marginBottom: 10}}>Math</Typography>
                     {state.editorMath.map(x => x.comment === ''
                         ? getMathJax('\\(\\small ' + x.LaTeX + "\\)")
                         : getMathJax('\\(\\small ' + x.LaTeX + "\\color{grey}{\\text{ # " + x.comment + "}}\\)")

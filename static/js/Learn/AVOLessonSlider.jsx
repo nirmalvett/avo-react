@@ -110,7 +110,7 @@ export default class AVOLessonSlider extends Component {
                                 comprehension={parseInt(parseFloat(lesson.newMastery || lesson.mastery) * 100)}
                                 colors={['#399103', '#039124', '#809103']}
                             />
-                            <Typography variant={'title'}>{lesson.Tag}</Typography>
+                            <Typography variant={'h6'}>{lesson.Tag}</Typography>
                             <Typography variant={'caption'}>{lesson.string.substring(0, 20)}...</Typography>
                         </Card>
                     </Grid>

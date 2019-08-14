@@ -154,7 +154,7 @@ class ManageClasses extends Component {
 	return (
 		<Paper classes={{root: 'avo-sidebar'}} square style={{width: '100%', flex: 1, display: 'flex'}}>
 		  <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
-			<Typography component={'span'} variant='subheading' color='textPrimary' align='center'>
+			<Typography component={'span'} variant='subtitle1' color='textPrimary' align='center'>
 			  Manage My Classes
 			</Typography>
 			<br/>

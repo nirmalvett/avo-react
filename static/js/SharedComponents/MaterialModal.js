@@ -17,7 +17,7 @@ export default class AVOModal extends React.Component {
         return (
             <Modal open={this.state.isOpen}>
                 <Card className={`avo-modal__card ${this.state.hasLoaded ? 'active' : ''}`}>
-                    <Typography variant='headline'>
+                    <Typography variant='h5'>
                         {this.props.title}
                     </Typography>
                     {this.props.children}
@@ -40,18 +40,18 @@ export default class AVOModal extends React.Component {
         return (
             <footer className="avo-modal__card-footer">
                 <Button
-                    color='primary' 
-                    className='avo-button' 
+                    color='primary'
+                    className='avo-button'
                     onClick={() => {
                         this.props.onDecline();
                         this.closeModal();
                     }}
                 >
                     {this.props.declineText}
-                </Button>            
-                <Button 
-                    color='primary' 
-                    className='avo-button' 
+                </Button>
+                <Button
+                    color='primary'
+                    className='avo-button'
                     onClick={() => {
                         if(this.props.noDefaultClose) {
                             this.props.onAccept(this.closeModal.bind(this));
@@ -62,7 +62,7 @@ export default class AVOModal extends React.Component {
                     }}
                 >
                     {this.props.acceptText}
-                </Button>            
+                </Button>
             </footer>
         );
     };

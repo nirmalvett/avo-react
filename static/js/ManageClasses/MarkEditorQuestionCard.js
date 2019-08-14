@@ -50,7 +50,7 @@ export default class MarkEditorQuestionCard extends React.Component {
 							title={getMathJax(`(Question ${this.props.index + 1}): ${this.props.question.prompt}`)}
 							style={{position: 'relative'}}
 							action={
-								<Typography variant='headline' color='primary'>
+								<Typography variant='h5' color='primary'>
 									{`${this.state.marksScored}/${this.maxMarks}`}
 								</Typography>
 							}

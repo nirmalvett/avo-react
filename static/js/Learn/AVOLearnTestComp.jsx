@@ -49,7 +49,7 @@ export default class AVOLearnTestComp extends Component {
 				{this.state.currentState === TestStates.Lesson && (
 					<Grid container spacing={8}>
 						<Grid item xs={8}>
-							<Typography variant={'title'}>{this.props.lesson.Tag}</Typography>
+							<Typography variant={'h6'}>{this.props.lesson.Tag}</Typography>
 							<Typography variant={'caption'}>{getMathJax(this.props.lesson.string, 'body2', uniqueKey())}</Typography>
 						</Grid>
 						<Grid item xs={4}>
@@ -153,7 +153,7 @@ export default class AVOLearnTestComp extends Component {
 						<Grow in={this.state.testEndState === 1} timeout={{ enter : 1500 }}>
 							<Grid container spacing={8} style={{ position : 'absolute' }}>
 								<Grid item xs={8}>
-									<Typography variant={'title'}>{this.props.lesson.Tag}</Typography>
+									<Typography variant={'h6'}>{this.props.lesson.Tag}</Typography>
 									<Grid container spacing={8}>
 										<Grid item xs={2}>
 											<center>
@@ -351,7 +351,7 @@ export default class AVOLearnTestComp extends Component {
 							</Grid>
                             </div>) ||
                         (!this.state.newAnswers[index] && <div>
-                            <Typography variant={'title'}>Previous Question is missing an answer, therefore no explanation is available.</Typography>
+                            <Typography variant={'h6'}>Previous Question is missing an answer, therefore no explanation is available.</Typography>
                         </div>)
                     }
                 </div>
@@ -398,7 +398,7 @@ export default class AVOLearnTestComp extends Component {
                             <h1>{ Helpers.getMathJax(this.state.explanations[index], 'caption', index) }</h1>
                             </div>) ||
                         (!this.state.newAnswers[index] && <div>
-                            <Typography variant={'title'}>This Question is missing an answer, therefore no explanation is available.</Typography>
+                            <Typography variant={'h6'}>This Question is missing an answer, therefore no explanation is available.</Typography>
                         </div>)
                     }
                 </div>

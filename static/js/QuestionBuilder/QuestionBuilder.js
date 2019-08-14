@@ -168,7 +168,7 @@ export default class QuestionBuilder extends Component {
             return (
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <Typography variant='title'>Math</Typography>
+                        <Typography variant='h6'>Math</Typography>
                         <div>
                             <IconButton onClick={() => this.cancel()}><Cancel/></IconButton>
                             <IconButton disabled={errors.length > 0} onClick={() => this.saveMath()}><Done/></IconButton>
@@ -198,7 +198,7 @@ export default class QuestionBuilder extends Component {
         else return (
             <Fragment>
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <Typography variant='title'>Math</Typography>
+                    <Typography variant='h6'>Math</Typography>
                     <IconButton onClick={() => this.startEditingMath()}><Edit/></IconButton>
                 </div>
                 {this.state.editorMath.map((x, y) => (
@@ -216,7 +216,7 @@ export default class QuestionBuilder extends Component {
             return (
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <Typography variant='title'>Main Prompt</Typography>
+                        <Typography variant='h6'>Main Prompt</Typography>
                         <div>
                             <IconButton onClick={() => this.cancel()}><Cancel/></IconButton>
                             <IconButton disabled={errors.length > 0} onClick={() => this.saveMainPrompt()}>
@@ -237,7 +237,7 @@ export default class QuestionBuilder extends Component {
                 return (
                     <Fragment>
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <Typography variant='title'>Main Prompt</Typography>
+                            <Typography variant='h6'>Main Prompt</Typography>
                             <IconButton onClick={() => this.startEditingMainPrompt()}><Edit/></IconButton>
                         </div>
                         {getMathJax(formatString(editorPrompt.prompt, editorPrompt.strings))}
@@ -247,7 +247,7 @@ export default class QuestionBuilder extends Component {
                 return (
                     <Fragment>
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <Typography variant='title'>Main Prompt</Typography>
+                            <Typography variant='h6'>Main Prompt</Typography>
                             <IconButton onClick={() => this.startEditingMainPrompt()}><Edit/></IconButton>
                         </div>
                         {getMathJax(editorPrompt.prompt)}
@@ -264,7 +264,7 @@ export default class QuestionBuilder extends Component {
             return (
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <Typography variant='title'>Prompt {y + 1}</Typography>
+                        <Typography variant='h6'>Prompt {y + 1}</Typography>
                         <div>
                             <IconButton onClick={() => {
                                 let prompts = copy(this.state.editorPrompts);
@@ -310,7 +310,7 @@ export default class QuestionBuilder extends Component {
                 return (
                     <Fragment>
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <Typography variant='title'>Prompt {y + 1}</Typography>
+                            <Typography variant='h6'>Prompt {y + 1}</Typography>
                             <IconButton onClick={() => this.startEditingSubPrompt(y)}><Edit/></IconButton>
                         </div>
                         <AnswerInput disabled type={x.type} prompt={prompt}/>
@@ -321,7 +321,7 @@ export default class QuestionBuilder extends Component {
                 return (
                     <Fragment>
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <Typography variant='title'>Prompt {y + 1}</Typography>
+                            <Typography variant='h6'>Prompt {y + 1}</Typography>
                             <IconButton onClick={() => this.startEditingSubPrompt(y)}><Edit/></IconButton>
                         </div>
                         <AnswerInput disabled type={x.type} prompt={prompt}/>
@@ -340,7 +340,7 @@ export default class QuestionBuilder extends Component {
             return (
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <Typography variant='title'>Criteria {y + 1}</Typography>
+                        <Typography variant='h6'>Criteria {y + 1}</Typography>
                         <div>
                             <IconButton onClick={() => {
                                 let criteria = copy(this.state.editorCriteria);
@@ -385,7 +385,7 @@ export default class QuestionBuilder extends Component {
             return (
                 <Fragment>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <Typography variant='title'>Criteria {y + 1} ({x.points} points)</Typography>
+                        <Typography variant='h6'>Criteria {y + 1} ({x.points} points)</Typography>
                         <IconButton onClick={() => this.startEditingCriteria(y)}>
                             <Edit/></IconButton>
                     </div>
