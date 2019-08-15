@@ -111,7 +111,6 @@ class User(UserMixin, db.Model):
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="USER_RELATION")
 
     TAG_USER_RELATION = db.relationship("TagUser", back_populates="USER_RELATION")
-    USER_LESSON_RELATION = db.relationship("UserLesson", back_populates="USER_RELATION")
     CLASS_WHITELIST_RELATION = db.relationship("ClassWhitelist", back_populates="USER_RELATION")
 
     # noinspection PyPep8Naming
