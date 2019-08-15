@@ -571,6 +571,8 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
             editTest_attempts: selectedTest.attempts.toString(),
             _editTest_date: selectedTest.deadline,
             editTest_date: selectedTest.deadline,
+            _editTest_openTime: selectedTest.openTime || Number(new Date()),
+            editTest_openTime: selectedTest.openTime || Number(new Date()),
         });
     }
 
