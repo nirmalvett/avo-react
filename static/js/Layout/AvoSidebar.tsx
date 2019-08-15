@@ -20,7 +20,7 @@ import {
     SettingsOutlined,
     ExitToAppOutlined,
     AssignmentReturnedOutlined,
-    SvgIconComponent,
+    SvgIconComponent, SchoolOutlined, AssignmentTurnedInOutlined,
 } from '@material-ui/icons';
 import {Section} from './Layout';
 const drawerWidth = 240;
@@ -83,13 +83,14 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                 >
                     {this.listItem(HomeOutlined, 'Home')}
                     {this.listItem(ClassOutlined, 'My Classes')}
-                    {this.listItem(ClassOutlined, 'Learn')}
+                    {this.listItem(SchoolOutlined, 'Learn')}
                 </List>
                 {isTeacher ? ( // if it is the teacher then we will the buttons that is allowed for teachers
                     <div>
                         <Divider />
                         <List subheader={<ListSubheader>Teacher Tools</ListSubheader>}>
                             {this.listItem(ClassOutlined, 'Manage Classes')}
+                            {this.listItem(AssignmentTurnedInOutlined, 'Add Students To Class')}
                             {this.listItem(BuildOutlined, 'My Questions')}
                             {this.listItem(HelpOutline, 'Documentation')}
                             {this.listItem(BuildOutlined, 'Tag Builder')}

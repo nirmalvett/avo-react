@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import AvoSideBar from './AvoSidebar';
 import AvoAppBar from './AvoAppBar';
 import AvoSnackBar from './AvoSnackBar';
+import Whitelist from '../Whitelist/Whitelist';
 const drawerWidth = 240;
 
 const styles = (theme: Theme) =>
@@ -47,6 +48,7 @@ const styles = (theme: Theme) =>
     });
 
 export type Section =
+    | 'Add Students To Class'
     | 'Build Question'
     | 'Create Test'
     | 'Documentation'
@@ -194,6 +196,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
             section: 'My Classes',
         });
     }
+
     jumpToClass(c: number) {
         this.setState({
             classToJumpTo: c,
@@ -314,6 +317,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
         if (section === 'Tag Builder') return <TagView />;
         if (section === 'Notify Class') return <NotifyClass />;
         if (section === 'Learn') return <AVOLearnComponent />;
+        if (section === 'Add Students To Class')
+            return (<Whitelist theme={{theme: this.props.theme, color: this.props.color}}/>);
     }
 
     // ============================== Methods that perform some type of data manipulation =======================

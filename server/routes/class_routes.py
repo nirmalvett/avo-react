@@ -5,9 +5,9 @@ from flask_login import current_user
 from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
-from server.decorators import login_required, teacher_only, student_only, admin_only, validate
+from server.decorators import login_required, teacher_only, student_only, admin_only, validate, request, abort
 from server.helpers import timestamp
-from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message
+from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message, ClassWhitelist
 import paypalrestsdk as paypal
 import config
 
@@ -43,6 +43,60 @@ with open('server/SQL/teacher_due_dates.sql', 'r') as sql:
 
 # Routes for managing classes
 
+
+@ClassRoutes.route('/addToWhitelist', methods=['POST'])
+@teacher_only
+def add_to_whitelist():
+    """
+    Adds a user to a class's whitelist for enrolment
+    :return: Confirmation that the users were added to the whitelise
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    # class ID and a list of user's emails to add to the whitelist
+    class_id, uwo_user = request.json['CLASS'], request.json['user']
+    if not isinstance(class_id, int) and not isinstance(uwo_user, str):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    userEmail = uwo_user + "@uwo.ca"
+    user = User.query.filter((User.email == userEmail)).first()
+    if not isinstance(user, User) :
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="User not added to class, user does not exist")
+    new_whitelist_entry = ClassWhitelist(user.USER, class_id)
+    exists = ClassWhitelist.query.filter((ClassWhitelist.CLASS == class_id and ClassWhitelist.USER == user.USER)).first()
+    if exists is None:
+        print(exists)
+        db.session.add(new_whitelist_entry)
+        db.session.commit()
+        return jsonify(message='User added to class!')
+    return jsonify(error='User not added to class, user already in class')
+
+
+@ClassRoutes.route('/getClassWhitelist', methods=['POST'])
+@teacher_only
+def get_whitelist():
+    """
+    Adds a user to a class's whitelist for enrolment
+    :return: Confirmation that the users were added to the whitelise
+    """
+    if not request.json:
+        # If the request isn't JSON then return a 400 error
+        return abort(400)
+    CLASS = request.json['CLASS']  # class ID to get whitelist
+    if not isinstance(CLASS, int):
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="One or more data is not correct")
+    whitelist = ClassWhitelist.query.join(User, User.USER == ClassWhitelist.USER).filter((ClassWhitelist.CLASS == CLASS)).all()
+    if not isinstance(whitelist, list) :
+        # Checks if all data given is of correct type if not return error JSON
+        return jsonify(error="Error getting whitelist")
+
+    whitelistRes = []
+    for student in whitelist:
+        whitelistRes.append({'userEmail': student.USER_RELATION.email})
+    return jsonify(whitelistRes)
 
 @ClassRoutes.route('/createClass', methods=['POST'])
 @teacher_only
@@ -315,7 +369,20 @@ def enroll(key: str):
         return jsonify(error='Invalid enroll key')
     user_id = current_user.USER
     class_id = current_class.CLASS
+
+    # Check if user is in whitelist
+    whitelist = ClassWhitelist.query.join(User, ClassWhitelist.USER == User.USER).filter(
+        (ClassWhitelist.CLASS == current_class.CLASS)).all()
+    if len(whitelist) > 0:
+        found = False
+        for student in whitelist:
+            if student.USER_RELATION.USER == current_user.USER:
+                found = True
+        if not found:
+            return jsonify(error="You are not on the class's whitelist")
+
     if current_user.is_teacher:
+        # If the user is a teacher enroll them into the class
         if not teaches_class(current_class.CLASS):
             db.session.add(Transaction(f"TEACHER-{user_id}-{class_id}", user_id, class_id, None))
             db.session.commit()

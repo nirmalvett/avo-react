@@ -502,10 +502,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                         );
                     }, 250);
                 },
-                () =>
-                    this.setState({
-                        enrollErrorMessage: 'Invalid code',
-                    }),
+                e => this.setState({enrollErrorMessage: e.error}),
             );
         } else
             this.setState({

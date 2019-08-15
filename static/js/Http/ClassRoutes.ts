@@ -1,5 +1,13 @@
 import {_request, cb} from './baseRequest';
 
+export function getClassWhitelist(CLASS: number, success: cb<never>, failure: cb) {
+    _request('POST', '/getClassWhitelist', success, failure, {CLASS})
+}
+
+export function addStudentsToWhitelist(CLASS: number, user: string, success: cb<never>, failure: cb) {
+    _request('POST', '/addToWhitelist', success, failure, {CLASS, user})
+}
+
 export function createClass(name: string, success: cb<{}>, failure: cb) {
     _request('POST', '/createClass', success, failure, {name});
 }
