@@ -10,7 +10,7 @@ import {
     Input,
     InputLabel,
     List,
-    ListItem,
+    ListItem, ListItemIcon,
     ListItemSecondaryAction,
     ListItemText,
     ListSubheader,
@@ -185,7 +185,6 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
             >
                 <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
                     <Typography
-                        component={'span'}
                         variant='subtitle1'
                         color='textPrimary'
                         style={{textAlign: 'center'}}
@@ -196,8 +195,10 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
                     <Divider />
                     <ListSubheader style={{position: 'relative'}}>Class Creation</ListSubheader>
                     <ListItem button id='avo-manageclasses__create-button'>
-                        <AddBoxOutlined color='action' />
-                        <ListItemText inset primary='Create Class' />
+                        <ListItemIcon>
+                            <AddBoxOutlined color='action' />
+                        </ListItemIcon>
+                        <ListItemText primary='Create Class' />
                     </ListItem>
                     <Divider />
                     <ListSubheader style={{position: 'relative'}}>My Classes</ListSubheader>
@@ -238,8 +239,10 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
                         this.handleClassListItemClick();
                     }}
                 >
-                    <PeopleOutlined color='action' />
-                    <ListItemText inset primary={cls.name} />
+                    <ListItemIcon>
+                        <PeopleOutlined color='action' />
+                    </ListItemIcon>
+                    <ListItemText primary={cls.name} />
                     {cls.open ? (
                         <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'} />
                     ) : (
@@ -262,11 +265,13 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
                                     this.getTestStats(test.testID, cIndex, tIndex);
                                 }}
                             >
-                                <AssessmentOutlined
-                                    color={test.open ? 'primary' : 'disabled'}
-                                    style={{marginLeft: '10px'}}
-                                />
-                                <ListItemText inset primary={test.name} />
+                                <ListItemIcon>
+                                    <AssessmentOutlined
+                                        color={test.open ? 'primary' : 'disabled'}
+                                        style={{marginLeft: '10px'}}
+                                    />
+                                </ListItemIcon>
+                                <ListItemText primary={test.name} />
                             </ListItem>
                         ))}
                     </List>
