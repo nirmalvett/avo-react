@@ -388,8 +388,8 @@ export default class MyClasses extends Component {
 						}, '#paypal-button')
 					}, 250)
 				},
-				() => this.setState({
-					enrollErrorMessage: 'Invalid code'
+				(err) => this.setState({
+					enrollErrorMessage: err.error
 				}),
 			)
 		} else this.setState({

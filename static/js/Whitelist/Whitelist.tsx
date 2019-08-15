@@ -438,25 +438,19 @@ export default class Whitelist extends Component<any, any> {
         const { filesForExport, jsonObjects } = this.state;
         Object.keys(jsonObjects).forEach(classID => {
             const studentsToAdd = jsonObjects[classID]["Student ID"];
-            console.log(classID);
             const responseMap: any = {};
             Object.keys(studentsToAdd).forEach(student => {
-                console.log(student);
                 Http.addStudentsToWhitelist(
-                    classID,
+                    this.state.currentClassId,
                     student,
                     res => {
-                        console.log(res);
                         responseMap[student] = res;
-                        console.log(responseMap);
                         if (Object.keys(responseMap).length === Object.keys(studentsToAdd).length) {
                             this.setState({ responseMap, showResponse: true }, () => this.getStudentsInWhitelist(this.state.currentClassId));
                         }
                     },
                     err => {
-                        console.log(err);
                         responseMap[student] = err;
-                        console.log(responseMap);
                         if (Object.keys(responseMap).length === Object.keys(studentsToAdd).length) {
                             this.setState({ responseMap, showResponse: true }, () => this.getStudentsInWhitelist(this.state.currentClassId));
                         }

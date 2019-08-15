@@ -53,11 +53,13 @@ def add_to_whitelist():
         # Checks if all data given is of correct type if not return error JSON
         return jsonify(error="User not added to class, user does not exist")
     new_whitelist_entry = ClassWhitelist(user.USER, CLASS)
-    db.session.add(new_whitelist_entry)
-
-    # Add to database and commit
-    db.session.commit()
-    return jsonify(message='User added to class!')
+    exists = ClassWhitelist.query.filter((ClassWhitelist.CLASS == CLASS and ClassWhitelist.USER == user.USER)).first()
+    if exists is None:
+        print(exists)
+        db.session.add(new_whitelist_entry)
+        db.session.commit()
+        return jsonify(message='User added to class!')
+    return jsonify(error='User not added to class, user already in class')
 @ClassRoutes.route('/getClassWhitelist', methods=['POST'])
 @teacher_only
 def get_whitelist():
@@ -333,6 +335,16 @@ def enroll():
         # If no class is found return error JSON
         return jsonify(error='Invalid enroll key')
     if current_user.is_teacher:
+        # Check if user is in whitelist
+        whitelist = ClassWhitelist.query.join(User, ClassWhitelist.USER == User.USER).filter((ClassWhitelist.CLASS == current_class.CLASS)).all()
+        if len(whitelist) > 0:
+            found = False
+            for student in whitelist:
+                print(student)
+                if student.USER_RELATION.USER == current_user.USER:
+                    found = True
+            if not found:
+                return jsonify(error='You are not on the class\'s whitelist')
         # If the user is a teacher enroll them into the class
         if not teaches_class(current_class.CLASS):
             # If the teacher does not teach the class return JSON of success
