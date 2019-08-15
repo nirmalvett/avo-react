@@ -103,7 +103,6 @@ class User(UserMixin, db.Model):
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     color = db.Column(db.Integer, nullable=False, default=9)
     theme = db.Column(db.Boolean, nullable=False, default=False)
-    USER_LESSON = db.Column(db.Integer, db.ForeignKey("user_lesson.USER_LESSON"), nullable=False)
 
     CLASS_RELATION = db.relationship("Class", back_populates="USER_RELATION")
     TAKES_RELATION = db.relationship("Takes", back_populates="USER_RELATION")
