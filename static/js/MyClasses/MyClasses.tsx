@@ -41,6 +41,7 @@ import paypal from 'paypal-checkout';
 // @ts-ignore
 import paypal_mode from 'js-yaml-loader!../../../config.yaml';
 import {ShowSnackBar} from '../Layout/Layout';
+import {generateChartOptions, getTestCardGraphOptions, getPerQuestionGraphOptions} from './chartOptions';
 
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
@@ -79,7 +80,6 @@ interface MyClassesState {
     enrollErrorMessage: string;
     activeTab: number;
     testStats: null | Http.TestStats;
-    testStatsIdx: undefined;
     testStatsDataSelectIdx: number;
     testStatsDataQuestionIdx: number;
     joinClassPopperOpen: boolean;
@@ -99,7 +99,6 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
             enrollErrorMessage: '',
             activeTab: 0,
             testStats: null,
-            testStatsIdx: undefined,
             testStatsDataSelectIdx: 3,
             testStatsDataQuestionIdx: 0,
             joinClassPopperOpen: false,
@@ -138,7 +137,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                 this.handleClassListItemClick();
             }
             if (this.props.setToJumpTo != null) {
-                const setToJumpTo = this.state.classes[this.state.c as number].tests.findIndex(
+                const setToJumpTo = this.selectedClass().tests.findIndex(
                     test => test.testID === this.props.setToJumpTo,
                 );
                 if (setToJumpTo !== -1) {
@@ -593,7 +592,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
     }
 
     detailsCard() {
-        let selectedClass = this.state.classes[this.state.c as number];
+        let selectedClass = this.selectedClass();
         const testStats = this.state.testStats as Http.TestStats;
         // Class with tests
         if (this.state.t != null) {
@@ -952,104 +951,6 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         );
     }
 
-    getPerQuestionGraphOptions() {
-        if (!this.state.testStats) {
-            throw new Error();
-        }
-        let dataObj = convertListFloatToAnalytics(
-            this.state.testStats.questions[this.state.testStatsDataQuestionIdx]
-                .topMarksPerStudent as number[],
-            this.state.testStats.questions[this.state.testStatsDataQuestionIdx].totalMark as number,
-        );
-        return {
-            chart: {
-                fontFamily: 'Roboto',
-                foreColor: `${this.props.theme.theme === 'light' ? '#000000' : '#ffffff'}`,
-                id: 'basic-bar',
-                type: 'line',
-            },
-            colors: [
-                `${this.props.theme.color['500']}`,
-                `${this.props.theme.color['200']}`,
-                `${this.props.theme.color['100']}`,
-            ],
-            stroke: {
-                curve: 'smooth',
-            },
-            labels: (() => {
-                const dataOutArray = [];
-                for (let key in dataObj)
-                    if (dataObj.hasOwnProperty(key) && key !== 'studentSizeWhoTookIt')
-                        dataOutArray.push(key);
-                return dataOutArray;
-            })(),
-            xaxis: {
-                title: {
-                    text: this.state.testStatsDataSelectIdx === 3 ? 'Marks Scored' : '',
-                },
-            },
-            yaxis: {
-                title: {
-                    text:
-                        this.state.testStatsDataSelectIdx === 3 ? 'Number of Students' : 'Mark(%)',
-                },
-                min: 0,
-                max: dataObj.studentSizeWhoTookIt,
-                tickAmount: dataObj.studentSizeWhoTookIt >= 10 ? 10 : dataObj.studentSizeWhoTookIt,
-            },
-            fill: {
-                opacity: 1,
-                type: 'solid',
-                colors: [
-                    this.props.theme.color['500'],
-                    this.props.theme.color['200'],
-                    this.props.theme.color['100'],
-                ],
-            },
-            legend: {
-                itemMargin: {
-                    horizontal: 20,
-                    vertical: 5,
-                },
-                containerMargin: {
-                    left: 5,
-                    top: 12,
-                },
-                onItemClick: {
-                    toggleDataSeries: true,
-                },
-                onItemHover: {
-                    highlightDataSeries: true,
-                },
-            },
-            dataLabels: {
-                enabled: false,
-                formatter: (val: any) => val,
-                textAnchor: 'middle',
-                offsetX: 0,
-                offsetY: 0,
-                style: {
-                    fontSize: '14px',
-                    fontFamily: 'Helvetica, Arial, sans-serif',
-                    colors:
-                        this.props.theme.theme === 'light'
-                            ? ['#000000', '#000000', '#000000']
-                            : ['#ffffff', '#ffffff', '#ffffff'],
-                },
-                dropShadow: {
-                    enabled: false,
-                    top: 1,
-                    left: 1,
-                    blur: 1,
-                    opacity: 0.45,
-                },
-            },
-            tooltip: {
-                theme: this.props.theme.theme,
-            },
-        };
-    }
-
     getPerQuestionGraphData() {
         if (!this.state.testStats) {
             throw new Error();
@@ -1073,123 +974,12 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         ];
     }
 
-    getTestCardGraphOptions() {
-        if (!this.state.testStats) {
-            throw new Error();
-        }
-        let selectedTest = this.state.classes[this.state.c as number].tests[this.state.t as number];
-        return {
-            chart: {
-                fontFamily: 'Roboto',
-                foreColor: this.props.theme.theme === 'light' ? '#000000' : '#ffffff',
-                id: 'basic-bar',
-                type: 'line',
-            },
-            colors: [
-                this.props.theme.color['500'],
-                this.props.theme.color['200'],
-                this.props.theme.color['100'],
-            ],
-            stroke: {
-                curve: 'smooth',
-            },
-            labels:
-                this.state.testStatsDataSelectIdx === 2 && selectedTest.submitted.length > 0
-                    ? selectedTest.submitted.map((obj, idx) => 'Attempt ' + (idx + 1))
-                    : this.state.testStatsDataSelectIdx === 3
-                    ? (() => {
-                          const dataObj = convertListFloatToAnalytics(
-                              this.state.testStats.topMarkPerStudent,
-                              this.state.testStats.totalMark as number,
-                          );
-                          delete dataObj['studentSizeWhoTookIt'];
-                          const dataOutArray = [];
-                          for (let key in dataObj)
-                              if (dataObj.hasOwnProperty(key)) dataOutArray.push(key);
-                          return dataOutArray;
-                      })()
-                    : ['', selectedTest.name, ''],
-            xaxis: {
-                title: {
-                    text: this.state.testStatsDataSelectIdx === 3 ? 'Marks Scored' : '',
-                },
-            },
-            yaxis: {
-                title: {
-                    text:
-                        this.state.testStatsDataSelectIdx === 3 ? 'Number of Students' : 'Mark(%)',
-                },
-                min: 0,
-                max:
-                    this.state.testStatsDataSelectIdx === 3
-                        ? convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this
-                              .state.testStats.totalMark as number).studentSizeWhoTookIt
-                        : 100,
-                tickAmount: Math.min(
-                    convertListFloatToAnalytics(this.state.testStats.topMarkPerStudent, this.state
-                        .testStats.totalMark as number).studentSizeWhoTookIt as number,
-                    10,
-                ),
-            },
-            fill: {
-                opacity: 1,
-                type: 'solid',
-                colors: [
-                    this.props.theme.color['500'],
-                    this.props.theme.color['200'],
-                    this.props.theme.color['100'],
-                ],
-            },
-            legend: {
-                itemMargin: {
-                    horizontal: 20,
-                    vertical: 5,
-                },
-                containerMargin: {
-                    left: 5,
-                    top: 12,
-                },
-                onItemClick: {
-                    toggleDataSeries: true,
-                },
-                onItemHover: {
-                    highlightDataSeries: true,
-                },
-            },
-            dataLabels: {
-                enabled: false,
-                formatter: (val: any) => val,
-                textAnchor: 'middle',
-                offsetX: 0,
-                offsetY: 0,
-                style: {
-                    fontSize: '14px',
-                    fontFamily: 'Helvetica, Arial, sans-serif',
-                    colors:
-                        this.props.theme.theme === 'light'
-                            ? ['#000000', '#000000', '#000000']
-                            : ['#ffffff', '#ffffff', '#ffffff'],
-                },
-                dropShadow: {
-                    enabled: false,
-                    top: 1,
-                    left: 1,
-                    blur: 1,
-                    opacity: 0.45,
-                },
-            },
-            tooltip: {
-                theme: this.props.theme.theme,
-            },
-        };
-    }
-
     getTestCardGraphSeries() {
         if (!this.state.testStats) {
             throw new Error();
         }
         const testStats: Http.TestStats = this.state.testStats;
-        let selectedTest = this.state.classes[this.state.c as number].tests[this.state.t as number];
+        let selectedTest = this.selectedTest();
         if (this.state.testStatsDataSelectIdx === 0) {
             let testAverage = 0;
             selectedTest.submitted.forEach(obj => {
@@ -1359,7 +1149,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
     }
 
     processClassChartData() {
-        let selectedClass = this.state.classes[this.state.c as number];
+        let selectedClass = this.selectedClass();
         let classAvg = [];
         let myMark = [];
         let standardDev = [];
@@ -1398,92 +1188,33 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         ];
     }
 
+    selectedClass(): Http.GetClasses_Class {
+        return this.state.classes[this.state.c as number];
+    }
+
+    selectedTest(): Http.GetClasses_Test {
+        return this.selectedClass().tests[this.state.t as number];
+    }
+
     generateChartOptions() {
-        let selectedClass = this.state.classes[this.state.c as number];
-        let xCategories = [];
-        for (let i = 0; i < selectedClass.tests.length; i++) {
-            xCategories.push(selectedClass.tests[i].name);
-        }
-        return {
-            chart: {
-                fontFamily: 'Roboto',
-                foreColor: this.props.theme.theme === 'light' ? '#000000' : '#ffffff',
-                id: 'basic-bar',
-                type: 'line',
-            },
-            colors: [
-                this.props.theme.color['500'],
-                this.props.theme.color['200'],
-                this.props.theme.color['100'],
-            ],
-            xaxis: {
-                labels: {
-                    formatter: (val: string) => {
-                        for (let i = 0; i < selectedClass.tests.length; i++) {
-                            if (selectedClass.tests[i].name === val) {
-                                return `${val} (size: ${selectedClass.tests[i].classSize})`;
-                            }
-                        }
-                    },
-                },
-                categories: xCategories,
-            },
-            yaxis: {
-                min: 0,
-                max: 100,
-                tickAmount: 10,
-                categories: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-            },
-            fill: {
-                opacity: 1,
-                type: 'solid',
-                colors: [
-                    this.props.theme.color['500'],
-                    this.props.theme.color['200'],
-                    this.props.theme.color['100'],
-                ],
-            },
-            legend: {
-                itemMargin: {
-                    horizontal: 20,
-                    vertical: 5,
-                },
-                containerMargin: {
-                    left: 5,
-                    top: 12,
-                },
-                onItemClick: {
-                    toggleDataSeries: true,
-                },
-                onItemHover: {
-                    highlightDataSeries: true,
-                },
-            },
-            dataLabels: {
-                enabled: false,
-                formatter: (val: any) => val,
-                textAnchor: 'middle',
-                offsetX: 0,
-                offsetY: 0,
-                style: {
-                    fontSize: '14px',
-                    fontFamily: 'Helvetica, Arial, sans-serif',
-                    colors:
-                        this.props.theme.theme === 'light'
-                            ? ['#000000', '#000000', '#000000']
-                            : ['#ffffff', '#ffffff', '#ffffff'],
-                },
-                dropShadow: {
-                    enabled: false,
-                    top: 1,
-                    left: 1,
-                    blur: 1,
-                    opacity: 0.45,
-                },
-            },
-            tooltip: {
-                theme: this.props.theme.theme,
-            },
-        };
+        return generateChartOptions(this.selectedClass(), this.props.theme);
+    }
+
+    getTestCardGraphOptions() {
+        return getTestCardGraphOptions(
+            this.selectedTest(),
+            this.state.testStats as Http.TestStats,
+            this.props.theme,
+            this.state.testStatsDataSelectIdx
+        );
+    }
+
+    getPerQuestionGraphOptions() {
+        return getPerQuestionGraphOptions(
+            this.state.testStats as Http.TestStats,
+            this.state.testStatsDataQuestionIdx,
+            this.state.testStatsDataSelectIdx,
+            this.props.theme
+        );
     }
 }
