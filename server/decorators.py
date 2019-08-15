@@ -120,7 +120,10 @@ def validate(**types):
 def describe(types):
     schema = {}
     for _name, _type in types.items():
-        schema[_name] = _type.__name__
+        if isinstance(_type, list):
+            schema[_name] = _type[0].__name__
+        else:
+            schema[_name] = _type.__name__
     return schema
 
 
@@ -140,7 +143,7 @@ def find_errors(types, json, kwargs):
             elif isinstance(json[_name], _type[0]):
                 kwargs[convert_case(_name)] = json[_name]
             else:
-                errors.append(f'{_name} is of the wrong type, expected {_type.__name__}')
+                errors.append(f'{_name} is of the wrong type, expected {_type[0].__name__}')
         elif _type is None:
             kwargs[convert_case(_name)] = json[_name]
         else:

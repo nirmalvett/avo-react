@@ -149,7 +149,7 @@ export function actionCreateTestSetTestName (testName) {
 export function actionCreateAttemptLimit (attemptInt) {
   return {
 	type: CONST_CREATE_TEST_ATTEMPT_LIMIT,
-	attemptInt: attemptInt,
+	attempts: attemptInt,
   }
 }
 
@@ -248,13 +248,10 @@ export function actionCreateTestSubmitTest (onCreate, props) {
   let timeLimit = s.timeLimit;
   if (!props.hasTimeLimit)  timeLimit = -1;
   // If there is no close time then close time should be set to 200 years from today
-  let deadlineDate = s.closeTime;
-  if (!props.hasCloseTime) deadlineDate = daysFromToday(200);
-  const deadline = convertDateToServerFormat(deadlineDate).replace (/[\-T:]/g, '');
+  let deadlineDate = (props.hasCloseTime) ? s.closeTime : daysFromToday(200);
+  const deadline = Number(new Date(deadlineDate));
   // If there is no open time then open time should be set to 100 years from today
-  let openTimeDate = s.openTime;
-  if (!props.hasOpentime) openTimeDate = daysFromToday(100);
-  const openTime = convertDateToServerFormat(openTimeDate).replace (/[\-T:]/g, '');
+  const openTime = props.hasOpentime ? Number(new Date(s.openTime)) : Number(new Date());
   const questions = s.testQuestions.map (x => x.id);
   const seeds = s.testQuestions.map (x => x.locked ? x.seed : -1);
 
@@ -262,12 +259,12 @@ export function actionCreateTestSubmitTest (onCreate, props) {
   Http.saveTest (
 	  s.classId,
 	  s.name,
+	  openTime,
 	  deadline,
-	  timeLimit.toString(),
-	  attempts.toString(),
+	  Number(timeLimit),
+	  Number(attempts),
 	  questions,
 	  seeds,
-	  openTime,
 	  () => { props.onCreate()},
 	  (e) => { alert (e.error)});
 }
