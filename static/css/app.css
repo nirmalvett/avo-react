@@ -539,3 +539,15 @@ shrink-on-hover {
   width: 100px;
   height: 100px;
 }
+
+.avo-clickable-item {
+  width: 100%;
+  padding-top: 5px;
+  padding-left: 5px;
+  padding-bottom: 5px;
+  cursor: pointer;
+}
+
+.avo-clickable-item:hover{
+  background: rgba(0,0,0,0.25);
+}

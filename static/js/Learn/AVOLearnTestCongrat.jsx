@@ -59,7 +59,7 @@ export default class AVOLearnTestCongrat extends Component {
                 />
             );
             if(i == 3 || i == 7 || i == 11) {
-                triangles.push(<g style={{ transformOrigin : 'center'}} cx={centerX} cy={centerY}>{items}</g>);
+                triangles.push(<g style={{ transformOrigin : 'center'}} cx={centerX} cy={centerY} className={`avo-progression-gauge-triangle-group${triangles.length + 1}`}>{items}</g>);
                 items = [];
             }
         }
@@ -83,11 +83,16 @@ export default class AVOLearnTestCongrat extends Component {
 	                {triangles}
                     <foreignObject x={30} y={30} width={40} height={40}>
                         <div className='avo-progression-gauge'>
-                            <center className='avo-progression-gauge-text'>
-                                <span className='avo-progression-gauge-subText'>Congrats!<br/>You completed<br/> the test.</span>
-                            </center>
                         </div>
                     </foreignObject>
+                    <defs>
+                        <style>
+                            @import url("https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i");
+                        </style>
+                    </defs>
+                    <text x="43.5" y="46" style={{ fontSize : '3px' }} fill='lightslategrey' font-family="Roboto">Congrats!</text>
+                    <text x="40.5" y="50" style={{ fontSize : '3px' }} fill='lightslategrey' font-family="Roboto">You completed</text>
+                    <text x="44.5" y="54" style={{ fontSize : '3px' }} fill='lightslategrey' font-family="Roboto">the test.</text>
 	            </svg>
 	        </div>
 	    );

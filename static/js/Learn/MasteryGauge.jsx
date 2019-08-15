@@ -84,12 +84,16 @@ export default function AVOMasteryGauge(props) {
                         <div className='avo-progression-gauge'>
                             <center className='avo-progression-gauge-text'>
                                 {props.comprehension}%
-                                <br></br>
-                                <span className='avo-progression-gauge-subText'>Mastery</span>
                             </center>
                         </div>
                     </center>
                 </foreignObject>
+                <defs>
+                    <style>
+                        @import url("https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i");
+                    </style>
+                </defs>
+                <text x="15.5" y="25" style={{ fontSize : '3px' }} fill='lightslategrey' font-family="Roboto">Mastery</text>
             </svg>
         </div>
     );

@@ -84,109 +84,74 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
     render() {
         const {value} = this.state;
         return (
-            <div style={{margin: '20px', flex: 1, overflowY: 'auto'}}>
-                <Grid container direction='column' justify='flex-start' alignItems='flex-start'>
-                    <Grid container>
-                        <Grid container direction='row' justify='center' alignItems='center'>
-                            <Grid
-                                item
-                                xs={12}
-                                sm={12}
-                                md={8}
-                                lg={8}
-                                style={{
-                                    maxWidth: '100%',
-                                    flexBasis: '100%',
-                                    margin: '5px',
-                                    padding: '5px',
-                                }}
+            <div style={{ flex: 1, overflowY: 'auto'}}>
+                <Grid container>
+                    <Card
+                        className="avo-card"
+                        style={{
+                            width: '94%',
+                            maxWidth: '100%',
+                        }}
+                    >
+                        <div style={{ position : 'inherit' }}>
+                            <Tabs
+                                value={value}
+                                onChange={(e, v) => this.changeTab(v)}
+                                indicatorColor='primary'
+                                textColor='primary'
+                                fullWidth
                             >
+                                <Tab label='Due dates' />
+                                <Tab label='Messages' />
+                            </Tabs>
+                            {value === 0 && (
                                 <Grid
                                     container
-                                    direction='column'
-                                    justify='flex-start'
-                                    alignItems='flex-start'
                                 >
-                                    <Card
-                                        style={{
-                                            width: '100%',
-                                            maxWidth: '100%',
-                                        }}
+                                    <Grid
+                                        item
+                                        xs={6}
+                                        sm={6}
+                                        md={6}
+                                        lg={6}
+                                        xl={6}
                                     >
-                                        <CardContent>
-                                            <div>
-                                                <AppBar position='static' color='default'>
-                                                    <Tabs
-                                                        value={value}
-                                                        onChange={(e, v) => this.changeTab(v)}
-                                                        indicatorColor='primary'
-                                                        textColor='primary'
-                                                        scrollButtons='auto'
-                                                    >
-                                                        <Tab label='Due dates' />
-                                                        <Tab label='Messages' />
-                                                    </Tabs>
-                                                </AppBar>
-                                                {value === 0 && (
-                                                    <TabContainer>
-                                                        <Grid
-                                                            container
-                                                            direction='row'
-                                                            justify='flex-start'
-                                                            alignItems='flex-start'
-                                                        >
-                                                            <Grid
-                                                                item
-                                                                xs={12}
-                                                                sm={12}
-                                                                md={12}
-                                                                lg={12}
-                                                                xl={6}
-                                                            >
-                                                                <InfiniteCalendar
-                                                                    onSelect={this.handleDateChange}
-                                                                    width={600}
-                                                                    height={400}
-                                                                    selected={today}
-                                                                    minDate={today}
-                                                                    theme={this.state.calendarTheme}
-                                                                />
-                                                            </Grid>
-                                                            <Grid
-                                                                item
-                                                                xs={12}
-                                                                sm={12}
-                                                                md={12}
-                                                                lg={12}
-                                                                xl={6}
-                                                            >
-                                                                {this.dueDates()}
-                                                            </Grid>
-                                                        </Grid>
-                                                    </TabContainer>
-                                                )}
-                                                {value === 1 && (
-                                                    <TabContainer>
-                                                        <Grid item xs={12} sm={12} md={12} lg={12}>
-                                                            <Grid
-                                                                container
-                                                                direction='column'
-                                                                justify='flex-start'
-                                                                alignItems='flex-start'
-                                                            >
-                                                                <List>{this.notifications()}</List>
-                                                            </Grid>
-                                                        </Grid>
-                                                    </TabContainer>
-                                                )}
-                                            </div>
-                                        </CardContent>
-                                        <CardActions />
-                                    </Card>
+                                        <InfiniteCalendar
+                                            onSelect={this.handleDateChange}
+                                            height={300}
+                                            width={'90%'}
+                                            selected={today}
+                                            minDate={today}
+                                            theme={this.state.calendarTheme}
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        item
+                                        xs={6}
+                                        sm={6}
+                                        md={6}
+                                        lg={6}
+                                        xl={6}
+                                    >
+                                        <Typography variant='subtitle1' color='textPrimary'>
+                                            Due Dates
+                                        </Typography>
+                                        <hr/>
+                                        {this.dueDates()}
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                        </Grid>
-                    </Grid>
+                            )}
+                            {value === 1 && (
+                                <Grid item xs={12} sm={12} md={12} lg={12}>
+                                    <Grid
+                                        container
+                                    >
+                                        {this.notifications()}
+                                    </Grid>
+                                </Grid>
+                            )}
+                        </div>
+                    </Card>
                 </Grid>
             </div>
         );
@@ -194,33 +159,27 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
 
     notifications() {
         return this.state.notifications.map(notification => (
-            <div>
-                <ListItem button onClick={() => this.props.jumpToClass(notification.class.id)}>
-                    <Typography variant='h4' color='textPrimary'>
+            <Grid item xs={12}>
+                <div className='avo-clickable-item' onClick={() => this.props.jumpToClass(notification.class.id)}>
+                    <Typography variant='h6' color='textPrimary'>
                         {notification.class.name + ':'}
                     </Typography>
-                </ListItem>
-                <br />
+                </div>
                 {notification.messages.map((notificationMsg, i) => (
                     <div
+                        className='avo-clickable-item'
                         key={JSON.stringify(notificationMsg) + i}
                         onClick={() => this.props.jumpToClass(notification.class.id)}
                     >
-                        <ListItem button>
-                            <Typography variant='h4' color='textPrimary'>
-                                {notificationMsg.title}
-                            </Typography>
-                        </ListItem>
-                        <ListItem button>
-                            <Typography variant='body1' color='textPrimary'>
-                                {notificationMsg.body}
-                            </Typography>
-                        </ListItem>
-                        <br />
+                        <Typography variant='subtitle1' color='textPrimary'>
+                            {notificationMsg.title}
+                        </Typography>
+                        <Typography variant='subtitle2' color='textPrimary'>
+                            {notificationMsg.body}
+                        </Typography>
                     </div>
                 ))}
-                <br />
-            </div>
+            </Grid>
         ));
     }
 
@@ -235,35 +194,34 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
                 );
             }
             return (
-                <List key={i}>
-                    <ListItem button onClick={() => this.props.jumpToClass(dd.class.id)}>
-                        <Typography variant='h4' color='textPrimary'>
+                <div key={i}>
+                    <div className='avo-clickable-item' onClick={() => this.props.jumpToClass(dd.class.id)}>
+                        <Typography variant='h6' color='textPrimary'>
                             {dd.class.name + ':'}
                         </Typography>
-                    </ListItem>
-                    <br />
+                    </div>
                     {datesToShow.length > 0 ? (
                         datesToShow.map((dueDate, i) => (
-                            <ListItem
+                            <div
+                                className='avo-clickable-item'
                                 key={JSON.stringify(dueDate) + i}
-                                button
                                 onClick={() => this.props.jumpToSet(dd.class.id, dueDate.id)}
                             >
-                                <Typography variant='body1' color='textPrimary'>
+                                <Typography variant='subtitle2' color='textPrimary'>
                                     {dueDate.name +
                                         ' - ' +
                                         new Date(dueDate.dueDate).toDateString()}
                                 </Typography>
-                            </ListItem>
+                            </div>
                         ))
                     ) : (
-                        <ListItem button onClick={() => this.props.jumpToClass(dd.class.id)}>
-                            <Typography variant='body1' color='textPrimary'>
+                        <div>
+                            <Typography variant='subtitle2' color='textPrimary'>
                                 {'No due dates today'}
                             </Typography>
-                        </ListItem>
+                        </div>
                     )}
-                </List>
+                </div>
             );
         });
     }
@@ -272,7 +230,7 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
         this.setState({value: Number(value)});
     }
 
-    handleDateChange = (date: Date) => this.setState({selectedDate: date});
+    handleDateChange(date: Date) { this.setState({selectedDate: date}) };
 
     componentDidMount() {
         if (!isChrome()) {

@@ -50,7 +50,7 @@ export default class AVOLearnTestComp extends Component {
 					<Grid container spacing={8}>
 						<Grid item xs={8}>
 							<Typography variant={'h6'}>{this.props.lesson.Tag}</Typography>
-							<Typography variant={'caption'}>{getMathJax(this.props.lesson.string, 'body2', uniqueKey())}</Typography>
+							<Typography variant={'subtitle1'}>{getMathJax(this.props.lesson.string, 'body2', uniqueKey())}</Typography>
 						</Grid>
 						<Grid item xs={4}>
 							<div
@@ -203,7 +203,7 @@ export default class AVOLearnTestComp extends Component {
 											comprehension={parseInt(parseFloat(this.state.changedMastery) * 100)}
 			                                colors={['#399103', '#039124', '#809103']}
 			                            />
-										<Typography variant={'caption'}>Mastery of {this.props.lesson.Tag} changed by {((this.state.changedMastery - this.props.lesson.mastery) * 100).toFixed(2)}%</Typography>
+										<Typography variant={'subtitle2'}>Mastery of {this.props.lesson.Tag} changed by {((this.state.changedMastery - this.props.lesson.mastery) * 100).toFixed(2)}%</Typography>
 									</div>
 								</Grid>
 							</Grid>
@@ -275,7 +275,8 @@ export default class AVOLearnTestComp extends Component {
             output.push(
                 <div style={{
                     position   : 'absolute',
-                    transition : 'transform 1s ease-in',
+                    transition : 'transform 1s ease-in, opacity 500ms ease-in',
+                    opacity    : `${!!this.getSlideTranslation(output.length) ? 0 : 1}`,
                     willChange : 'transform',
                     transform  : `translateX(${this.getSlideTranslation(output.length)}vw)`,
                     width      : '100%',
@@ -313,7 +314,8 @@ export default class AVOLearnTestComp extends Component {
             output.push(
                 <div style={{
                     position   : 'absolute',
-                    transition : 'transform 1s ease-in',
+                    transition : 'transform 1s ease-in, opacity 500ms ease-in',
+                    opacity    : `${!!this.getSlideTranslation(output.length) ? 0 : 1}`,
                     willChange : 'transform',
                     transform  : `translateX(${this.getSlideTranslation(output.length)}vw)`,
                 }}>
@@ -345,7 +347,7 @@ export default class AVOLearnTestComp extends Component {
 											comprehension={parseInt(parseFloat(this.state.changedMastery) * 100)}
 			                                colors={['#399103', '#039124', '#809103']}
 			                            />
-										<Typography variant={'caption'}>Mastery of {this.props.lesson.Tag} changed by {((this.state.changedMastery - this.props.lesson.mastery) * 100).toFixed(2)}%</Typography>
+										<Typography variant={'subtitle2'}>Mastery of {this.props.lesson.Tag} changed by {((this.state.changedMastery - this.props.lesson.mastery) * 100).toFixed(2)}%</Typography>
 									</div>
 								</Grid>
 							</Grid>
@@ -366,7 +368,7 @@ export default class AVOLearnTestComp extends Component {
     		output.push(
   			 	<div style={{
                     position   : 'absolute',
-                    transition : 'transform 1s ease-in, opacity 250ms ease-in',
+                    transition : 'transform 1s ease-in, opacity 500ms ease-in',
                     opacity    : `${!!this.getSlideExplanationTranslation(index) ? 0 : 1}`,
                     willChange : 'transform',
                     transform  : `translateX(${this.getSlideExplanationTranslation(index)}vw)`,
@@ -395,7 +397,7 @@ export default class AVOLearnTestComp extends Component {
                 	<br/>
                     {
                         (this.state.newAnswers[index] && <div>
-                            <h1>{ Helpers.getMathJax(this.state.explanations[index], 'caption', index) }</h1>
+                            <h1>{ Helpers.getMathJax(this.state.explanations[index], 'subtitle1', index) }</h1>
                             </div>) ||
                         (!this.state.newAnswers[index] && <div>
                             <Typography variant={'h6'}>This Question is missing an answer, therefore no explanation is available.</Typography>
