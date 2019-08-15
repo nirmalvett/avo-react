@@ -268,7 +268,7 @@ export function getDateString(date: number): string {
     const am_pm = hour24 > 11 ? 'pm' : 'am';
     const hour12 = (((hour24 + 11) % 12) + 1).toString().padStart(2, '0');
     const minutes = d.getMinutes().toString().padStart(2, '0');
-    const month = MONTHS[d.getMonth() - 1];
+    const month = MONTHS[d.getMonth()];
     return `${month} ${d.getDate()} at ${hour12}:${minutes}${am_pm}`;
 }
 

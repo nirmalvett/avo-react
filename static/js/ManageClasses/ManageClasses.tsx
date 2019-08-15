@@ -51,6 +51,7 @@ import {actionCreateTestAddClassId} from '../Redux/Actions/actionsCreateTest';
 import {connect} from 'react-redux';
 import {addDays} from '../Redux/Reducers/reducerCreateTest';
 import {ShowSnackBar} from '../Layout/Layout';
+import moment, {Moment} from 'moment';
 
 const cardStyle: CSSProperties = {
     marginBottom: '10%',
@@ -97,12 +98,12 @@ interface ManageClassesState {
     resultsIndexArray: number[];
     editTestPopperOpen: boolean;
     editTest_name: string;
-    editTest_time: string;
+    editTest_timer: string;
     editTest_attempts: string;
-    editTest_date: string;
-    _editTest_date: string;
-    editTest_openTime: string;
-    _editTest_openTime: string;
+    editTest_date: number;
+    _editTest_date: number;
+    editTest_openTime: number;
+    _editTest_openTime: number;
     editTest_confirm_text: string;
 }
 
@@ -130,11 +131,11 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
             // Edit Test Settings: Let teacher modify test after it's made
             editTestPopperOpen: false,
             editTest_attempts: '',
-            editTest_time: '',
-            editTest_date: Number(addDays(new Date(), 1)).toString(),
-            editTest_openTime: Number(new Date()).toString(),
-            _editTest_date: Number(addDays(new Date(), 1)).toString(),
-            _editTest_openTime: Number(new Date()).toString(),
+            editTest_timer: '',
+            editTest_date: Number(addDays(new Date(), 1)),
+            editTest_openTime: Number(new Date()),
+            _editTest_date: Number(addDays(new Date(), 1)),
+            _editTest_openTime: Number(new Date()),
             editTest_name: '',
             editTest_confirm_text: 'Confirm', // first time it's Confirm after that it's "Change Again"
         };
@@ -559,14 +560,12 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
     }
 
     loadEditTestPopper(selectedTest: Http.GetClasses_Test) {
-        const currentDate = getDateString(selectedTest.deadline);
-
         this.setState({
             editTest_name: selectedTest.name,
-            editTest_time: selectedTest.timer.toString(),
+            editTest_timer: selectedTest.timer.toString(),
             editTest_attempts: selectedTest.attempts.toString(),
-            _editTest_date: currentDate,
-            editTest_date: currentDate,
+            _editTest_date: selectedTest.deadline,
+            editTest_date: selectedTest.deadline,
         });
     }
 
@@ -607,8 +606,8 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
                                 label='Time Limit in Minutes'
                                 type='number'
                                 style={{width: '46%', margin: '2%'}}
-                                value={this.state.editTest_time}
-                                onChange={e => this.setState({editTest_time: e.target.value})}
+                                value={this.state.editTest_timer}
+                                onChange={e => this.setState({editTest_timer: e.target.value})}
                             />
                             <br />
                             <TextField
@@ -623,7 +622,7 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
                                 margin='normal'
                                 style={{width: '46%', margin: '2%'}}
                                 label='Deadline'
-                                value={this.state._editTest_date}
+                                value={moment(this.state._editTest_date)}
                                 onChange={this.handleDateChange}
                                 variant='inline'
                             />
@@ -631,7 +630,7 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
                                 margin='normal'
                                 style={{width: '46%', margin: '2%'}}
                                 label='Automatic Opening Time'
-                                value={this.state._editTest_openTime}
+                                value={moment(this.state._editTest_openTime)}
                                 onChange={this.handleOpenTestChange}
                                 variant='inline'
                             />
@@ -655,7 +654,7 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
                                     onClick={() => {
                                         Http.changeTest(
                                             selectedTest.testID,
-                                            Number(this.state.editTest_time),
+                                            Number(this.state.editTest_timer),
                                             this.state.editTest_name,
                                             Number(new Date(this.state._editTest_date)),
                                             Number(new Date(this.state._editTest_openTime)),
@@ -693,31 +692,19 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
     //     this.setState({classes});
     // }
 
-    handleDateChange = (date: string) => {
-        let d = new Date(date);
-        let _date =
-            ('00' + (d.getMonth() + 1)).slice(-2) +
-            ('00' + d.getDate()).slice(-2) +
-            ('00' + d.getHours()).slice(-2) +
-            ('00' + d.getMinutes()).slice(-2);
-        _date = d.getFullYear() + _date;
+    handleDateChange = (date: Moment | null) => {
+        const d = (date as Moment).toDate();
         this.setState({
-            editTest_date: _date,
-            _editTest_date: date,
+            editTest_date: Number(d),
+            _editTest_date: Number(d),
         });
     };
 
-    handleOpenTestChange = (date: string) => {
-        let d = new Date(date);
-        let _date =
-            ('00' + (d.getMonth() + 1)).slice(-2) +
-            ('00' + d.getDate()).slice(-2) +
-            ('00' + d.getHours()).slice(-2) +
-            ('00' + d.getMinutes()).slice(-2);
-        _date = d.getFullYear() + _date;
+    handleOpenTestChange = (date: Moment | null) => {
+        const d = (date as Moment).toDate();
         this.setState({
-            editTest_openTime: _date,
-            _editTest_openTime: date,
+            editTest_openTime: Number(d),
+            _editTest_openTime: Number(d),
         });
     };
 
