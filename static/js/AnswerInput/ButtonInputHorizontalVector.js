@@ -143,8 +143,8 @@ export default class ButtonInputHorizontalVector extends React.Component {
 		if (type === CONST_VECTOR_HORIZONTAL || type === CONST_VECTOR_LINEAR_EXPRESSION) {
 			const vector = validateVector(previousAnswer);
 			return Array.isArray(vector)
-				? '\\(\\begin{bmatrix}' + vector.join('\\\\') + '\\end{bmatrix}\\)'
-				: '\\(\\begin{bmatrix}' + previousAnswer.split(",").join('\\\\') + '\\end{bmatrix}\\)'
+				? '\\(\\left(' + vector.join(', ') + '\\right)\\)'
+				: '\\(\\left(' + previousAnswer.split(",").join(', ') + '\\right)\\)'
 		} else if (type === CONST_MATRIX) {
 			const matrix = validateMatrix(previousAnswer);
 			return Array.isArray(matrix)
@@ -994,8 +994,8 @@ export default class ButtonInputHorizontalVector extends React.Component {
 		const { dimensionStorage, type } = this.state;
 		// CASE 0: Vector input
 		if (type === CONST_VECTOR_HORIZONTAL || type === CONST_VECTOR_LINEAR_EXPRESSION) {
-			const vectorParsed = this.parseVector(dimensionStorage, " \\\\ ");
-			this.state.latexString = this.latexMatrix(vectorParsed.latexString);
+			const vectorParsed = this.parseVector(dimensionStorage, ", ");
+			this.state.latexString = '\\(\\left(' + vectorParsed.latexString + '\\right)\\)';
 			this.state.dataForServer = vectorParsed.dataForServer;
 		} else if (type === CONST_MATRIX) {
 			let matrixLatex = ""; // Now we just we just need to accumulate the vector latex to show students

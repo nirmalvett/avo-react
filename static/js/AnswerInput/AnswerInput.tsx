@@ -55,18 +55,20 @@ export default class AnswerInput extends Component<AnswerInputProps, {}> {
             return this.renderNumber();
         } else if (type === CONST_LINEAR_EXPRESSION) {
             return this.renderLinearExpression();
-        } else if (type === CONST_MANUAL_INPUT) return this.renderManualInput();
-        // else if (type === CONST_MANUAL_INPUT_POLYNOMIAL)
+        } else if (type === CONST_MANUAL_INPUT) {
+            return this.renderManualInput();
+        // }
+        // else if (type === CONST_MANUAL_INPUT_POLYNOMIAL) {
         //     return null;
-        else if (type === CONST_VECTOR) {
-            if (inputMode === BUTTON_INPUT) {
-                return this.renderVectorButtonInput();
-            } else if (inputMode === MANUAL_INPUT) {
-                return this.renderVectorManualInput();
-            }
-            // } else if (type === CONST_VECTOR_LINEAR_EXPRESSION) {
-            //     return null;
-        } else if (type === CONST_VECTOR_HORIZONTAL) {
+        // } else if (type === CONST_VECTOR) {
+        //     if (inputMode === BUTTON_INPUT) {
+        //         return this.renderVectorButtonInput();
+        //     } else if (inputMode === MANUAL_INPUT) {
+        //         return this.renderVectorManualInput();
+        //     }
+        // } else if (type === CONST_VECTOR_LINEAR_EXPRESSION) {
+        //     return null;
+        } else if (type === CONST_VECTOR_HORIZONTAL || type === CONST_VECTOR) {
             return this.renderVectorHorizontal();
         } else if (type === CONST_MATRIX) {
             if (inputMode === BUTTON_INPUT) return this.renderMatrixButtonInput();
