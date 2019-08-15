@@ -349,7 +349,7 @@ export default class ButtonInputHorizontalVector extends React.Component {
 						direction="row"
 						justify="center"
 						alignItems="center">
-						<div style={{ float: 'left', marginRight:'43px' }}><b><h1>(</h1></b></div>
+						<div style={{ float: 'left' }}><b><h1>(</h1></b></div>
 						{ // We're mapping the vector inputs here
 							this.state.dynamicVectorInputs.map((idName, index) => {
 								return (
