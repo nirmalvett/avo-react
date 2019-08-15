@@ -111,7 +111,6 @@ class User(UserMixin, db.Model):
 
     TAGUSER_RELATION = db.relationship("TagUser", back_populates="USER_RELATION")
     LESSON_RELATION = db.relationship("Lesson", back_populates="USER_RELATION")
-    USERLESSON_RELATION = db.relationship("UserLesson", back_populates="USER_RELATION", foreign_keys=[USER_LESSON])
 
     # noinspection PyPep8Naming
     def __init__(self, email, first_name, last_name, password, is_teacher, color, theme):
