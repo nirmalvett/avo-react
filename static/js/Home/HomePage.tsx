@@ -1,15 +1,10 @@
 import React, {Component, ReactElement} from 'react';
 import {
     Typography,
-    ListItem,
-    List,
-    AppBar,
     Tabs,
     Tab,
     Grid,
     Card,
-    CardActions,
-    CardContent,
 } from '@material-ui/core';
 import {isChrome} from '../HelperFunctions/Helpers';
 import * as Http from '../Http';
@@ -99,7 +94,6 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
                                 onChange={(e, v) => this.changeTab(v)}
                                 indicatorColor='primary'
                                 textColor='primary'
-                                fullWidth
                             >
                                 <Tab label='Due dates' />
                                 <Tab label='Messages' />
@@ -119,7 +113,6 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
                                         <InfiniteCalendar
                                             onSelect={this.handleDateChange}
                                             height={300}
-                                            width={'90%'}
                                             selected={today}
                                             minDate={today}
                                             theme={this.state.calendarTheme}

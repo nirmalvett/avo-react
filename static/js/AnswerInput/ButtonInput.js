@@ -13,6 +13,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Slide from '@material-ui/core/Slide';
 import {objectSize} from "../HelperFunctions/Helpers";
 import Typography from '@material-ui/core/Typography/Typography';
+import Fab from '@material-ui/core/Fab';
 
 
 // This is a link that basically says need help inputting an answer? And links to a google doc
@@ -242,15 +243,15 @@ export default class ButtonInput extends React.Component {
 			buttonText = "Clear Vector Answer"
 		} else (console.warn("clearAnswerButton(), type: " + type + " not accounted for in logic"));
 		return (
-				<Button
-						variant="extendedFab"
+				<Fab
+						variant="extended"
 						color="primary"
 						aria-label="Delete"
 						onClick={() => this.resetAll()}
 						disabled={disabled}
 				>
 					{buttonText}
-				</Button>
+				</Fab>
 		)
 	}
 
@@ -264,14 +265,14 @@ export default class ButtonInput extends React.Component {
 				      justify="center"
 				      alignItems="center">
 					{/*<br/>*/}
-					<Button
+					<Fab
 							disabled={this.state.disabled}
-							variant="extendedFab"
+							variant="extended"
 							color="primary"
 							onClick={() => this.setState({stage: CONST_SELECT_DIMENSION})}
 					>
 						Create Vector
-					</Button>
+					</Fab>
 
 				</Grid>
 		)
@@ -290,13 +291,13 @@ export default class ButtonInput extends React.Component {
 							onChange={(e) => this.handleVectorSize(e)}/>
 					<br/>
 
-					<Button
-							variant="extendedFab"
+					<Fab
+							variant="extended"
 							color="primary"
 							onClick={(e) => this.handleVectorDimensionSubmit(e)}
 					>
 						Confirm Dimension
-					</Button>
+					</Fab>
 				</Grid>
 		)
 	}
@@ -347,8 +348,8 @@ export default class ButtonInput extends React.Component {
 						})
 					}
 					<br/>
-					<Button
-							variant="extendedFab"
+					<Fab
+							variant="extended"
 							color="primary"
 							onClick={(e) => {
 								this.handleFinishAnswer(e);
@@ -356,7 +357,7 @@ export default class ButtonInput extends React.Component {
 
 					>
 						Finish Answer
-					</Button>
+					</Fab>
 					<br/>
 					{this.clearAnswerButton()}
 				</Grid>
@@ -428,14 +429,14 @@ export default class ButtonInput extends React.Component {
 				      justify="center"
 				      alignItems="center">
 					<br/>
-					<Button
+					<Fab
 							disabled={this.state.disabled}
-							variant="extendedFab"
+							variant="extended"
 							color="primary"
 							onClick={() => this.setState({stage: CONST_SELECT_DIMENSION})}
 					>
 						Create Matrix
-					</Button>
+					</Fab>
 				</Grid>
 		)
 	}
@@ -457,13 +458,13 @@ export default class ButtonInput extends React.Component {
 							value={this.state.matrixRowLength}
 							onChange={(e) => this.handleMatrixRowLength(e)}/>
 					<br/>
-					<Button
-							variant="extendedFab"
+					<Fab
+							variant="extended"
 							color="primary"
 							onClick={(e) => this.handleMatrixDimensionSubmit(e)}
 					>
 						Confirm Dimension
-					</Button>
+					</Fab>
 					<br/>
 				</Grid>
 		)
@@ -531,8 +532,8 @@ export default class ButtonInput extends React.Component {
 						})
 					}
 					<br/>
-					<Button
-							variant="extendedFab"
+					<Fab
+							variant="extended"
 							color="primary"
 							onClick={(e) => {
 								this.handleFinishAnswer(e);
@@ -540,7 +541,7 @@ export default class ButtonInput extends React.Component {
 
 					>
 						Finish Answer
-					</Button>
+					</Fab>
 					<br/>
 					{this.clearAnswerButton()}
 				</Grid>
@@ -636,14 +637,14 @@ export default class ButtonInput extends React.Component {
 				      justify="center"
 				      alignItems="center">
 					<br/>
-					<Button
+					<Fab
 							disabled={this.state.disabled}
-							variant="extendedFab"
+							variant="extended"
 							color="primary"
 							onClick={() => this.setState({stage: CONST_SELECT_DIMENSION})}
 					>
 						Create Basis
-					</Button>
+					</Fab>
 				</Grid>
 		)
 	}
@@ -665,13 +666,13 @@ export default class ButtonInput extends React.Component {
 							value={this.state.matrixRowLength}
 							onChange={(e) => this.handleBasisRowLength(e)}/>
 					<br/>
-					<Button
-							variant="extendedFab"
+					<Fab
+							variant="extended"
 							color="primary"
 							onClick={(e) => this.handleBasisDimensionSubmit(e)}
 					>
 						Confirm Dimension
-					</Button>
+					</Fab>
 					<br/>
 				</Grid>
 		)
@@ -741,8 +742,8 @@ export default class ButtonInput extends React.Component {
 						})
 					}
 					<br/>
-					<Button
-							variant="extendedFab"
+					<Fab
+							variant="extended"
 							color="primary"
 							onClick={(e) => {
 								this.handleFinishAnswer(e);
@@ -750,7 +751,7 @@ export default class ButtonInput extends React.Component {
 
 					>
 						Finish Answer
-					</Button>
+					</Fab>
 					<br/>
 					{this.clearAnswerButton()}
 				</Grid>

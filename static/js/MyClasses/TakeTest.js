@@ -57,7 +57,7 @@ export default class TakeTest extends Component {
 				{this.state.questions.map((x, y) => this.getQuestionCard(x, this.state.answers[y], y))}
 				<div style={{marginLeft: '10px', marginRight: '10px', marginTop: '20px', marginBottom: '20px'}}>
 					<Button color='primary'
-							variant='raised'
+							variant='contained'
 							style={{width: '100%', color: 'white'}}
 							id="avo-test__submit-button"
 							onClick={() => this.submitTest()}

@@ -24,7 +24,7 @@ import {
     FormControl,
     ListItemText,
     ListSubheader,
-    ListItemSecondaryAction,
+    ListItemSecondaryAction, ListItemIcon,
 } from '@material-ui/core';
 import {
     ExpandLess,
@@ -169,11 +169,11 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         return (
             <div className='avo-user__background' style={{width: '100%', flex: 1, display: 'flex'}}>
                 <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
-                    <div style={{flex: 3, display: 'flex'}}>{this.sideMenu()}</div>
+                    <div style={{flex: 4, display: 'flex'}}>{this.sideMenu()}</div>
                     {/* Border From Menu To Main*/}
                     <div style={{flex: 1}} />
                     {/* Right hand side cards, see detailsCard() */}
-                    <div style={{flex: 7, display: 'flex'}}>
+                    <div style={{flex: 10, display: 'flex'}}>
                         <Card
                             className='avo-card'
                             style={{
@@ -257,8 +257,10 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                         this.handleClassListItemClick();
                                     }}
                                 >
-                                    <PeopleOutlinedIcon color='action' />
-                                    <ListItemText inset primary={cls.name} />
+                                    <ListItemIcon>
+                                        <PeopleOutlinedIcon color='action' />
+                                    </ListItemIcon>
+                                    <ListItemText primary={cls.name} />
                                     {cls.open ? (
                                         <ExpandLess
                                             color={cls.tests.length === 0 ? 'disabled' : 'action'}
@@ -288,11 +290,13 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                                     this.getTestStats(test.testID, cIndex, tIndex);
                                                 }}
                                             >
-                                                <AssessmentOutlinedIcon
-                                                    color={test.open ? 'primary' : 'disabled'}
-                                                    style={{marginLeft: '10px'}}
-                                                />
-                                                <ListItemText inset primary={test.name} />
+                                                <ListItemIcon>
+                                                    <AssessmentOutlinedIcon
+                                                        color={test.open ? 'primary' : 'disabled'}
+                                                        style={{marginLeft: '10px'}}
+                                                    />
+                                                </ListItemIcon>
+                                                <ListItemText primary={test.name} />
                                             </ListItem>
                                         ))}
                                     </List>
@@ -790,6 +794,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                         >
                             <b>Mean Scores:</b> {this.state.testStats.testMean}
                         </span>
+                        <br/>
                         <span
                             style={{
                                 marginLeft: '0.75em',
@@ -867,19 +872,20 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                             marginRight: '1.0em',
                         }}
                     >
-                        <b>Median Score:</b>
+                        <b>Median Score: </b>
                         {
                             this.state.testStats.questions[this.state.testStatsDataQuestionIdx]
                                 .questionMedian
                         }
                     </span>
+                    <br/>
                     <span
                         style={{
                             marginLeft: '1.0em',
                             marginRight: '1.0em',
                         }}
                     >
-                        <b>Mean Score:</b>
+                        <b>Mean Score: </b>
                         {
                             this.state.testStats.questions[this.state.testStatsDataQuestionIdx]
                                 .questionMean
