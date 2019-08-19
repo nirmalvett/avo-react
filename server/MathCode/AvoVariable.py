@@ -351,37 +351,42 @@ class AvoVariable:
 
     def __eq__(self, other):
         types = get_types(self, other)
-        explanation = steps(r'{0} = {1}', 3, [self, other], [4, 4])
+        explanation_eq = steps(r'{0} = {1}', 3, [self, other], [4, 4])
+        explanation_ne = steps(r'{0} \color{{red}}{{\neq}} {1}', 3, [self, other], [4, 4])
         if types == (BOOLEAN, bool):
-            return boolean(self.val == other, explanation)
+            result = self.val == other
         elif types in ((NUMBER, int), (NUMBER, float)):
-            return boolean(abs(self.val - other) < 0.001, explanation)
+            result = abs(self.val - other) < 0.001
         elif types == (NUMBER, NUMBER):
-            return boolean(abs(self.val - other.val) < 0.001, explanation)
+            result = abs(self.val - other.val) < 0.001
         elif types == (MATRIX, list) and isinstance(other[0], (int, float)) and self.is_v():
-            return boolean(all(map(lambda x, y: x[0] == y, self.val, other)), explanation)
+            result = all(map(lambda x, y: x[0] == y, self.val, other))
         elif types == (MATRIX, list):
-            return boolean(self.val == other, explanation)
+            result = self.val == other
         elif types == (MATRIX, int) and other == 0:
-            return boolean(all(map(lambda r: all(map(lambda c: c == 0, r)), self.val)), explanation)
+            result = all(map(lambda r: all(map(lambda c: c == 0, r)), self.val))
         elif types == (BASIS, int) and other == 0:
-            return boolean(len(self.val) == 0, explanation)
+            result = len(self.val) == 0
         elif types in ((BOOLEAN, BOOLEAN), (MATRIX, MATRIX)):
-            return boolean(self.val == other.val, explanation)
+            result = self.val == other.val
         elif types == (BASIS, BASIS) and self.mod == 0 and other.mod == 0:
-            return boolean(bool(self.proj == other.proj), explanation)
+            result = bool(self.proj == other.proj)
         elif types == (BASIS, BASIS) and self.mod == other.mod:
-            return boolean(self.cols == (self+other).cols, explanation)
+            result = self.cols == (self+other).cols
         elif types == (VECTOR_FREE_VARS, VECTOR_FREE_VARS):
             return (self.rows == other.rows and (self.val[0] - other.val[0]).in_span(self.val[1])
-                    and self.val[1] == other.val[1]).set_explanation(explanation)
+                    and self.val[1] == other.val[1]).set_explanation(explanation_eq)
         elif types == (POLYNOMIAL, POLYNOMIAL):
-            return boolean(self.val == other.val and self.mod == other.mod, explanation)
-        return error(undefined, explanation)
+            result = self.val == other.val and self.mod == other.mod
+        else:
+            return error(undefined, explanation_ne)
+        return boolean(result, explanation_eq if result else explanation_ne)
 
     def __ne__(self, other):
-        explanation = steps(r'{0} \neq {1}', 3, [self, other], [4, 4])
-        return (self.__eq__(other).__invert__()).set_explanation(explanation)
+        explanation_ne = steps(r'{0} \neq {1}', 3, [self, other], [4, 4])
+        explanation_eq = steps(r'{0} \color{{red}}{{=}} {1}', 3, [self, other], [4, 4])
+        result = self.__eq__(other).__invert__()
+        return result.set_explanation(explanation_ne if result else explanation_eq)
 
     def __gt__(self, other):
         explanation = steps(r'{0} > {1}', 3, [self, other], [4, 4])
