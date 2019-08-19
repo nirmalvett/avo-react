@@ -499,7 +499,7 @@ class AvoVariable:
         return error(undefined, explanation)
 
     def norm(self):
-        explanation = steps(r'\text{{norm}}\left( {0} \right)', 8, [self], [0])
+        explanation = steps(r'\left|\left| {0} \right|\right|', 8, [self], [0])
         if self.is_v() and self.mod == 0:
             return number(float(Matrix(self.val).norm()), 0, explanation)
         return error(undefined, explanation)
