@@ -111,6 +111,7 @@ export default class TakeTest extends Component {
 				{question.prompts.map((x, y) => [
 					<Divider style={{marginTop: '10px', marginBottom: '10px'}}/>,
 					<AnswerInput
+                        showSnackBar={this.props.showSnackBar}
 						type={question.types[y]} value={answer[y]} prompt={x}
 						onBlur={save}
 						onChange={value => {

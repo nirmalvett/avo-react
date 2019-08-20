@@ -11,6 +11,7 @@ import Typography from '@material-ui/core/Typography/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
 import ButtonInput from './ButtonInput';
 import ButtonInputHorizontalVector from './ButtonInputHorizontalVector';
+import {ShowSnackBar} from '../Layout/Layout';
 import {
     CONST_VECTOR,
     CONST_BASIS,
@@ -31,6 +32,7 @@ interface AnswerInputProps {
     onBlur: () => void;
     onChange: (ans: any) => void;
     buttonSave: () => void;
+    showSnackBar?: ShowSnackBar;
 }
 
 const BUTTON_INPUT = 0;
@@ -109,9 +111,12 @@ export default class AnswerInput extends Component<AnswerInputProps, {}> {
                     onChange={async () => {
                         await this.props.onChange(false);
                         this.props.onBlur();
+                        if (this.props.showSnackBar)
+                            this.props.showSnackBar('info', 'True/False answer updated!', 1000);
                     }}
                     label='False'
                 />
+                <Typography>A popup will appear when you change your answer, to help prevent accidental changes while scrolling.</Typography>
             </Fragment>
         );
     }
@@ -137,12 +142,15 @@ export default class AnswerInput extends Component<AnswerInputProps, {}> {
                             onChange={async () => {
                                 await this.props.onChange(y.toString());
                                 this.props.onBlur();
+                                if (this.props.showSnackBar)
+                                    this.props.showSnackBar('info', 'Multiple choice answer updated!', 1000);
                             }}
                             label={getMathJax(x)}
                         />
                         <br />
                     </Fragment>
                 ))}
+                <Typography>A popup will appear when you change your answer, to help prevent accidental changes while scrolling.</Typography>
             </Fragment>
         );
     }
