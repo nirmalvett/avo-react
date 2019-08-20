@@ -19,12 +19,12 @@ export function newSet(name: string, success: cb<NewSet>, failure: cb) {
     _request('POST', '/newSet', success, failure, {name});
 }
 
-export function renameSet(id: number, name: string, success: cb<{}>, failure: cb) {
-    _request('POST', '/renameSet', success, failure, {id, name});
+export function renameSet(setID: number, name: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/renameSet', success, failure, {setID, name});
 }
 
-export function deleteSet(id: number, success: cb<{}>, failure: cb) {
-    _request('POST', '/deleteSet', success, failure, {id});
+export function deleteSet(setID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/deleteSet', success, failure, {setID});
 }
 
 export interface NewQuestion {
@@ -32,7 +32,7 @@ export interface NewQuestion {
 }
 
 export function newQuestion(
-    set: number,
+    setID: number,
     name: string,
     string: string,
     answers: number,
@@ -41,7 +41,7 @@ export function newQuestion(
     failure: cb,
 ) {
     _request('POST', '/newQuestion', success, failure, {
-        set,
+        setID,
         name,
         string,
         answers,
@@ -49,23 +49,23 @@ export function newQuestion(
     });
 }
 
-export function renameQuestion(id: number, name: string, success: cb<{}>, failure: cb) {
-    _request('POST', '/renameQuestion', success, failure, {id, name});
+export function renameQuestion(questionID: number, name: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/renameQuestion', success, failure, {questionID, name});
 }
 
 export function editQuestion(
-    id: number,
+    questionID: number,
     string: string,
     answers: number,
     total: number,
     success: cb<{}>,
     failure: cb,
 ) {
-    _request('POST', '/editQuestion', success, failure, {id, string, answers, total});
+    _request('POST', '/editQuestion', success, failure, {questionID, string, answers, total});
 }
 
-export function deleteQuestion(id: number, success: cb<{}>, failure: cb) {
-    _request('POST', '/deleteQuestion', success, failure, {id});
+export function deleteQuestion(questionID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/deleteQuestion', success, failure, {questionID});
 }
 
 export interface GetQuestion {

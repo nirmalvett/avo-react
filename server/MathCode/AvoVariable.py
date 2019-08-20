@@ -871,7 +871,10 @@ class AvoVariable:
         elif self.type == NUMBER and self.mod >= 2:
             return str(self.val)
         elif self.type == MATRIX:
-            return r'\begin{bmatrix}' + r'\\'.join(map(lambda r: ('&'.join(map(lambda c: repr(c), r))), self.val)) \
+            if self.cols == 1:
+                return r'\left(' + ', '.join(map(lambda row: str(row[0]), self.val)) + r'\right)'
+            else:
+                return r'\begin{bmatrix}' + r'\\'.join(map(lambda r: ('&'.join(map(lambda c: repr(c), r))), self.val)) \
                    + r'\end{bmatrix}'
         elif self.type == BASIS:
             return r'\left\{' + ','.join(map(lambda v: str(v), self.val)) + r'\right\}'
