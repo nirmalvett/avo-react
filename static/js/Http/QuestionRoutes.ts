@@ -71,7 +71,7 @@ export function deleteQuestion(questionID: number, success: cb<{}>, failure: cb)
 export interface GetQuestion {
     prompt: string;
     prompts: string[];
-    types: number[];
+    types: string[];
 }
 
 export function getQuestion(question: number, seed: number, success: cb<GetQuestion>, failure: cb) {

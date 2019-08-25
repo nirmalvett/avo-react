@@ -254,8 +254,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
             return (
                 <CreateTest
                     showSnackBar={this.showSnackBar}
-                    isTeacher={isTeacher}
-                    classID={this.state.testCreator}
+                    classID={this.state.testCreator as number}
                     onCreate={() => this.setState({section: 'Manage Classes'})}
                 />
             );
@@ -318,7 +317,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
         if (section === 'Notify Class') return <NotifyClass />;
         if (section === 'Learn') return <AVOLearnComponent />;
         if (section === 'Add Students To Class')
-            return (<Whitelist theme={{theme: this.props.theme, color: this.props.color}}/>);
+            return <Whitelist theme={{theme: this.props.theme, color: this.props.color}} />;
     }
 
     // ============================== Methods that perform some type of data manipulation =======================
