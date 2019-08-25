@@ -20,7 +20,9 @@ import {
     SettingsOutlined,
     ExitToAppOutlined,
     AssignmentReturnedOutlined,
-    SvgIconComponent, SchoolOutlined, AssignmentTurnedInOutlined,
+    SvgIconComponent,
+    SchoolOutlined,
+    AssignmentTurnedInOutlined,
 } from '@material-ui/icons';
 import {Section} from './Layout';
 const drawerWidth = 240;

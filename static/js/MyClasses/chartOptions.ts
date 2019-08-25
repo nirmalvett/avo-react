@@ -22,11 +22,7 @@ export function generateChartOptions(selectedClass: Http.GetClasses_Class, theme
             id: 'basic-bar',
             type: 'line',
         },
-        colors: [
-            theme.color['500'],
-            theme.color['200'],
-            theme.color['100'],
-        ],
+        colors: [theme.color['500'], theme.color['200'], theme.color['100']],
         xaxis: {
             labels: {
                 formatter: (val: string) => {
@@ -48,11 +44,7 @@ export function generateChartOptions(selectedClass: Http.GetClasses_Class, theme
         fill: {
             opacity: 1,
             type: 'solid',
-            colors: [
-                theme.color['500'],
-                theme.color['200'],
-                theme.color['100'],
-            ],
+            colors: [theme.color['500'], theme.color['200'], theme.color['100']],
         },
         legend: {
             itemMargin: {
@@ -98,7 +90,12 @@ export function generateChartOptions(selectedClass: Http.GetClasses_Class, theme
     };
 }
 
-export function getTestCardGraphOptions(selectedTest: Http.GetClasses_Test, testStats: Http.TestStats, theme: ThemeObj, testStatsDataSelectIdx: number) {
+export function getTestCardGraphOptions(
+    selectedTest: Http.GetClasses_Test,
+    testStats: Http.TestStats,
+    theme: ThemeObj,
+    testStatsDataSelectIdx: number,
+) {
     return {
         chart: {
             fontFamily: 'Roboto',
@@ -106,11 +103,7 @@ export function getTestCardGraphOptions(selectedTest: Http.GetClasses_Test, test
             id: 'basic-bar',
             type: 'line',
         },
-        colors: [
-            theme.color['500'],
-            theme.color['200'],
-            theme.color['100'],
-        ],
+        colors: [theme.color['500'], theme.color['200'], theme.color['100']],
         stroke: {
             curve: 'smooth',
         },
@@ -137,27 +130,28 @@ export function getTestCardGraphOptions(selectedTest: Http.GetClasses_Test, test
         },
         yaxis: {
             title: {
-                text:
-                    testStatsDataSelectIdx === 3 ? 'Number of Students' : 'Mark(%)',
+                text: testStatsDataSelectIdx === 3 ? 'Number of Students' : 'Mark(%)',
             },
             min: 0,
             max:
                 testStatsDataSelectIdx === 3
-                    ? convertListFloatToAnalytics(testStats.topMarkPerStudent, testStats.totalMark as number).studentSizeWhoTookIt
+                    ? convertListFloatToAnalytics(
+                          testStats.topMarkPerStudent,
+                          testStats.totalMark as number,
+                      ).studentSizeWhoTookIt
                     : 100,
             tickAmount: Math.min(
-                convertListFloatToAnalytics(testStats.topMarkPerStudent, testStats.totalMark as number).studentSizeWhoTookIt as number,
+                convertListFloatToAnalytics(
+                    testStats.topMarkPerStudent,
+                    testStats.totalMark as number,
+                ).studentSizeWhoTookIt as number,
                 10,
             ),
         },
         fill: {
             opacity: 1,
             type: 'solid',
-            colors: [
-                theme.color['500'],
-                theme.color['200'],
-                theme.color['100'],
-            ],
+            colors: [theme.color['500'], theme.color['200'], theme.color['100']],
         },
         legend: {
             itemMargin: {
@@ -203,13 +197,17 @@ export function getTestCardGraphOptions(selectedTest: Http.GetClasses_Test, test
     };
 }
 
-export function getPerQuestionGraphOptions(testStats: Http.TestStats, testStatsDataQuestionIdx: number, testStatsDataSelectIdx: number, theme: ThemeObj) {
+export function getPerQuestionGraphOptions(
+    testStats: Http.TestStats,
+    testStatsDataQuestionIdx: number,
+    testStatsDataSelectIdx: number,
+    theme: ThemeObj,
+) {
     if (!testStats) {
-            throw new Error();
+        throw new Error();
     }
     let dataObj = convertListFloatToAnalytics(
-        testStats.questions[testStatsDataQuestionIdx]
-            .topMarksPerStudent as number[],
+        testStats.questions[testStatsDataQuestionIdx].topMarksPerStudent as number[],
         testStats.questions[testStatsDataQuestionIdx].totalMark as number,
     );
     return {
@@ -219,11 +217,7 @@ export function getPerQuestionGraphOptions(testStats: Http.TestStats, testStatsD
             id: 'basic-bar',
             type: 'line',
         },
-        colors: [
-            `${theme.color['500']}`,
-            `${theme.color['200']}`,
-            `${theme.color['100']}`,
-        ],
+        colors: [`${theme.color['500']}`, `${theme.color['200']}`, `${theme.color['100']}`],
         stroke: {
             curve: 'smooth',
         },
@@ -241,8 +235,7 @@ export function getPerQuestionGraphOptions(testStats: Http.TestStats, testStatsD
         },
         yaxis: {
             title: {
-                text:
-                    testStatsDataSelectIdx === 3 ? 'Number of Students' : 'Mark(%)',
+                text: testStatsDataSelectIdx === 3 ? 'Number of Students' : 'Mark(%)',
             },
             min: 0,
             max: dataObj.studentSizeWhoTookIt,
@@ -251,11 +244,7 @@ export function getPerQuestionGraphOptions(testStats: Http.TestStats, testStatsD
         fill: {
             opacity: 1,
             type: 'solid',
-            colors: [
-                theme.color['500'],
-                theme.color['200'],
-                theme.color['100'],
-            ],
+            colors: [theme.color['500'], theme.color['200'], theme.color['100']],
         },
         legend: {
             itemMargin: {

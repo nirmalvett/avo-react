@@ -24,7 +24,8 @@ import {
     FormControl,
     ListItemText,
     ListSubheader,
-    ListItemSecondaryAction, ListItemIcon,
+    ListItemSecondaryAction,
+    ListItemIcon,
 } from '@material-ui/core';
 import {
     ExpandLess,
@@ -41,7 +42,11 @@ import paypal from 'paypal-checkout';
 // @ts-ignore
 import paypal_mode from 'js-yaml-loader!../../../config.yaml';
 import {ShowSnackBar} from '../Layout/Layout';
-import {generateChartOptions, getTestCardGraphOptions, getPerQuestionGraphOptions} from './chartOptions';
+import {
+    generateChartOptions,
+    getTestCardGraphOptions,
+    getPerQuestionGraphOptions,
+} from './chartOptions';
 
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
@@ -794,7 +799,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                         >
                             <b>Mean Scores:</b> {this.state.testStats.testMean}
                         </span>
-                        <br/>
+                        <br />
                         <span
                             style={{
                                 marginLeft: '0.75em',
@@ -878,7 +883,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                 .questionMedian
                         }
                     </span>
-                    <br/>
+                    <br />
                     <span
                         style={{
                             marginLeft: '1.0em',
@@ -1208,7 +1213,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
             this.selectedTest(),
             this.state.testStats as Http.TestStats,
             this.props.theme,
-            this.state.testStatsDataSelectIdx
+            this.state.testStatsDataSelectIdx,
         );
     }
 
@@ -1217,7 +1222,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
             this.state.testStats as Http.TestStats,
             this.state.testStatsDataQuestionIdx,
             this.state.testStatsDataSelectIdx,
-            this.props.theme
+            this.props.theme,
         );
     }
 }

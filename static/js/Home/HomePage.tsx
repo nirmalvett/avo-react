@@ -1,11 +1,5 @@
 import React, {Component, ReactElement} from 'react';
-import {
-    Typography,
-    Tabs,
-    Tab,
-    Grid,
-    Card,
-} from '@material-ui/core';
+import {Typography, Tabs, Tab, Grid, Card} from '@material-ui/core';
 import {isChrome} from '../HelperFunctions/Helpers';
 import * as Http from '../Http';
 import InfiniteCalendar from 'react-infinite-calendar';
@@ -79,16 +73,16 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
     render() {
         const {value} = this.state;
         return (
-            <div style={{ flex: 1, overflowY: 'auto'}}>
+            <div style={{flex: 1, overflowY: 'auto'}}>
                 <Grid container>
                     <Card
-                        className="avo-card"
+                        className='avo-card'
                         style={{
                             width: '94%',
                             maxWidth: '100%',
                         }}
                     >
-                        <div style={{ position : 'inherit' }}>
+                        <div style={{position: 'inherit'}}>
                             <Tabs
                                 value={value}
                                 onChange={(e, v) => this.changeTab(v)}
@@ -99,17 +93,8 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
                                 <Tab label='Messages' />
                             </Tabs>
                             {value === 0 && (
-                                <Grid
-                                    container
-                                >
-                                    <Grid
-                                        item
-                                        xs={6}
-                                        sm={6}
-                                        md={6}
-                                        lg={6}
-                                        xl={6}
-                                    >
+                                <Grid container>
+                                    <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
                                         <InfiniteCalendar
                                             onSelect={this.handleDateChange}
                                             height={300}
@@ -118,29 +103,18 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
                                             theme={this.state.calendarTheme}
                                         />
                                     </Grid>
-                                    <Grid
-                                        item
-                                        xs={6}
-                                        sm={6}
-                                        md={6}
-                                        lg={6}
-                                        xl={6}
-                                    >
+                                    <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
                                         <Typography variant='subtitle1' color='textPrimary'>
                                             Due Dates
                                         </Typography>
-                                        <hr/>
+                                        <hr />
                                         {this.dueDates()}
                                     </Grid>
                                 </Grid>
                             )}
                             {value === 1 && (
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
-                                    <Grid
-                                        container
-                                    >
-                                        {this.notifications()}
-                                    </Grid>
+                                    <Grid container>{this.notifications()}</Grid>
                                 </Grid>
                             )}
                         </div>
@@ -153,7 +127,10 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
     notifications() {
         return this.state.notifications.map(notification => (
             <Grid item xs={12}>
-                <div className='avo-clickable-item' onClick={() => this.props.jumpToClass(notification.class.id)}>
+                <div
+                    className='avo-clickable-item'
+                    onClick={() => this.props.jumpToClass(notification.class.id)}
+                >
                     <Typography variant='h6' color='textPrimary'>
                         {notification.class.name + ':'}
                     </Typography>
@@ -188,7 +165,10 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
             }
             return (
                 <div key={i}>
-                    <div className='avo-clickable-item' onClick={() => this.props.jumpToClass(dd.class.id)}>
+                    <div
+                        className='avo-clickable-item'
+                        onClick={() => this.props.jumpToClass(dd.class.id)}
+                    >
                         <Typography variant='h6' color='textPrimary'>
                             {dd.class.name + ':'}
                         </Typography>
@@ -223,7 +203,9 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
         this.setState({value: Number(value)});
     }
 
-    handleDateChange(date: Date) { this.setState({selectedDate: date}) };
+    handleDateChange(date: Date) {
+        this.setState({selectedDate: date});
+    }
 
     componentDidMount() {
         if (!isChrome()) {

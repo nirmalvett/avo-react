@@ -1,7 +1,7 @@
 import {_request, cb} from './baseRequest';
 
 export interface SaveTest {
-    testID: number
+    testID: number;
 }
 
 export function saveTest(
@@ -76,7 +76,7 @@ export function getTest(testID: number, success: cb<GetTest>, failure: cb) {
 }
 
 export interface SaveAnswer {
-    message: 'answer saved' | 'answer saved, but an error occurred while grading'
+    message: 'answer saved' | 'answer saved, but an error occurred while grading';
 }
 
 export function saveAnswer(
@@ -88,8 +88,6 @@ export function saveAnswer(
 ) {
     _request('POST', '/saveAnswer', success, failure, {takesID, question, answer});
 }
-
-
 
 export function submitTest(takesID: number, success: cb<{}>, failure: cb) {
     _request('POST', '/submitTest', success, failure, {takesID});
@@ -135,6 +133,11 @@ export function testStats(testID: number, success: cb<TestStats>, failure: cb) {
     _request('POST', '/testStats', success, failure, {testID});
 }
 
-export function changeMark(takesID: number, markArray: number[][], success: cb<never>, failure: cb) {
+export function changeMark(
+    takesID: number,
+    markArray: number[][],
+    success: cb<never>,
+    failure: cb,
+) {
     _request('POST', '/changeMark', success, failure, {takesID, markArray});
 }
