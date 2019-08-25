@@ -309,8 +309,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
             return (
                 <MarkEditor
                     showSnackBar={this.showSnackBar}
-                    isTeacher={this.props.isTeacher}
-                    takes={this.state.markEditor}
+                    takes={this.state.markEditor as number}
                 />
             );
         if (section === 'Tag Builder') return <TagView />;

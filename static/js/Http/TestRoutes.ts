@@ -100,7 +100,7 @@ export interface PostTest {
 export interface PostTest_Question {
     prompt: string;
     prompts: string[];
-    answers: string[][];
+    answers: string[];
     types: string[];
     scores: number[];
     totals: number[];
