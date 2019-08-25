@@ -5,7 +5,4 @@ import '../css/app.css';
 import {unregister} from './serviceWorker';
 
 unregister();
-ReactDOM.render(
-    <App />,
-    document.getElementById('root'),
-);
+ReactDOM.render(<App />, document.getElementById('root'));
