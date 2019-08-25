@@ -25,7 +25,7 @@ const theme = createMuiTheme({
 });
 
 interface SignInProps {
-    login: (username: string, result: Http.GetUserInfo) => void;
+    login: (result: Http.GetUserInfo) => void;
 }
 
 interface SignInState {
@@ -365,7 +365,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
         Http.login(
             this.state.username,
             this.state.password,
-            result => this.props.login(this.state.username, result),
+            result => this.props.login(result),
             result => this.setState({signInError: result.error}),
         );
     }

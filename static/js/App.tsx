@@ -26,14 +26,7 @@ export default class App extends Component<AppProps, AppState> {
     }
 
     componentDidMount() {
-        Http.getUserInfo(
-            result => {
-                this.updateUser('', result);
-            },
-            () => {
-                this.setState({authenticated: false});
-            },
-        );
+        Http.getUserInfo(this.updateUser, this.authError);
     }
 
     render() {
@@ -64,7 +57,7 @@ export default class App extends Component<AppProps, AppState> {
                     <Layout
                         setColor={this.setColor}
                         setTheme={this.setTheme}
-                        logout={() => this.setState({authenticated: false})}
+                        logout={this.logout}
                         {...u}
                     />
                 </MuiThemeProvider>
@@ -72,15 +65,16 @@ export default class App extends Component<AppProps, AppState> {
         }
     }
 
+    updateUser = (result: Http.GetUserInfo) =>
+        this.setState({authenticated: {...result, theme: result.theme ? 'dark' : 'light'}});
+
+    authError = () => this.setState({authenticated: false});
+
+    logout = () => this.setState({authenticated: false});
+
     setColor = (color: number) =>
         this.setState({authenticated: {...(this.state.authenticated as User), color}});
 
     setTheme = (theme: 'light' | 'dark') =>
         this.setState({authenticated: {...(this.state.authenticated as User), theme}});
-
-    updateUser = (username: string, result: Http.GetUserInfo) => {
-        this.setState({
-            authenticated: {...result, username, theme: result.theme ? 'dark' : 'light'},
-        });
-    };
 }

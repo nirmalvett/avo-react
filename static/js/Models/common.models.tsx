@@ -26,7 +26,6 @@ export interface SubmittedTest {
 }
 
 export interface User {
-    username: string;
     firstName: string;
     lastName: string;
     isTeacher: boolean;
