@@ -48,9 +48,6 @@ import AVOModal from '../SharedComponents/MaterialModal';
 import Chart from 'react-apexcharts';
 import {convertListFloatToAnalytics} from '../HelperFunctions/Helpers';
 import {DateTimePicker} from '@material-ui/pickers';
-import {actionCreateTestAddClassId} from '../Redux/Actions/actionsCreateTest';
-import {connect} from 'react-redux';
-import {addDays} from '../Redux/Reducers/reducerCreateTest';
 import {ShowSnackBar} from '../Layout/Layout';
 import moment, {Moment} from 'moment';
 
@@ -108,7 +105,7 @@ interface ManageClassesState {
     editTest_confirm_text: string;
 }
 
-class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
+export default class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
     constructor(props: ManageClassesProps) {
         super(props);
         this.state = {
@@ -133,9 +130,9 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
             editTestPopperOpen: false,
             editTest_attempts: '',
             editTest_timer: '',
-            editTest_date: Number(addDays(new Date(), 1)),
+            editTest_date: Number(new Date()),
             editTest_openTime: Number(new Date()),
-            _editTest_date: Number(addDays(new Date(), 1)),
+            _editTest_date: Number(new Date()),
             _editTest_openTime: Number(new Date()),
             editTest_name: '',
             editTest_confirm_text: 'Confirm', // first time it's Confirm after that it's "Change Again"
@@ -1683,5 +1680,3 @@ class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
         };
     }
 }
-
-export default connect()(ManageClasses);

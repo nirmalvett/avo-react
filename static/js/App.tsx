@@ -7,21 +7,17 @@ import PasswordResetPage from './SignIn/PasswordReset';
 import {isChrome, isSafari} from './HelperFunctions/Helpers';
 import NotChromeWarningPage from './SignIn/NotChromeWarningPage';
 import {MuiPickersUtilsProvider} from '@material-ui/pickers';
-import {connect} from 'react-redux';
-import {handleLoginData} from './Redux/Actions/shared';
 import {User} from './Models';
 import {createMuiTheme, MuiThemeProvider} from '@material-ui/core';
 import {colorList} from './SharedComponents/AVOCustomColors';
 
-interface AppProps {
-    dispatch: (x: any) => void; // todo: figure out the correct signature
-}
+interface AppProps {}
 
 interface AppState {
     authenticated: User | false | null;
 }
 
-class App extends Component<AppProps, AppState> {
+export default class App extends Component<AppProps, AppState> {
     constructor(props: AppProps) {
         super(props);
         this.state = {
@@ -32,7 +28,6 @@ class App extends Component<AppProps, AppState> {
     componentDidMount() {
         Http.getUserInfo(
             result => {
-                this.props.dispatch(handleLoginData(result));
                 this.updateUser('', result);
             },
             () => {
@@ -89,5 +84,3 @@ class App extends Component<AppProps, AppState> {
         });
     };
 }
-
-export default connect()(App);
