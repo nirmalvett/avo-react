@@ -6,12 +6,12 @@ import {ShowSnackBar} from '../Layout/Layout';
 import MarkEditorQuestionCard from './MarkEditorQuestionCard';
 
 interface MarkEditorProps {
-    showSnackBar: ShowSnackBar
-    takes: number
+    showSnackBar: ShowSnackBar;
+    takes: number;
 }
 
 interface MarkEditorState {
-    questions: Http.PostTest_Question[]
+    questions: Http.PostTest_Question[];
 }
 
 export default class MarkEditor extends Component<MarkEditorProps, MarkEditorState> {
@@ -37,26 +37,28 @@ export default class MarkEditor extends Component<MarkEditorProps, MarkEditorSta
 
     render() {
         return (
-            <div style={{
-                flex: 1,
-                paddingLeft: '10%',
-                paddingRight: '10%',
-                paddingTop: '20px',
-                paddingBottom: '20px',
-                overflowY: 'auto',
-            }}>
-                {this.state.questions.map((x, y) =>
+            <div
+                style={{
+                    flex: 1,
+                    paddingLeft: '10%',
+                    paddingRight: '10%',
+                    paddingTop: '20px',
+                    paddingBottom: '20px',
+                    overflowY: 'auto',
+                }}
+            >
+                {this.state.questions.map((x, y) => (
                     <MarkEditorQuestionCard
                         key={`QuestionCard-QIndex:${y}`}
                         question={x}
                         index={y}
                         update={this.updateQ}
-                    />,
-                )}
+                    />
+                ))}
                 <div style={{position: 'relative'}}>
                     <Button
-                        variant="contained"
-                        color="primary"
+                        variant='contained'
+                        color='primary'
                         classes={{root: 'avo-generic__low-shadow'}}
                         style={{
                             position: 'fixed',
@@ -66,10 +68,10 @@ export default class MarkEditor extends Component<MarkEditorProps, MarkEditorSta
                             width: '4.5em',
                             borderRadius: '50%',
                         }}
-                        aria-label="Save"
+                        aria-label='Save'
                         onClick={this.saveChanges}
                     >
-                        <Save/>
+                        <Save />
                     </Button>
                 </div>
             </div>
@@ -92,9 +94,10 @@ export default class MarkEditor extends Component<MarkEditorProps, MarkEditorSta
 
     onSave = () => this.props.showSnackBar('success', 'Marks successfully updated!', 2000);
 
-    onSaveError = () => this.props.showSnackBar(
-        'error',
-        'An issue occurred when saving to the server please try again.',
-        2000
-    );
+    onSaveError = () =>
+        this.props.showSnackBar(
+            'error',
+            'An issue occurred when saving to the server please try again.',
+            2000,
+        );
 }

@@ -59,8 +59,7 @@ export default class AnswerInput extends Component<AnswerInputProps, {}> {
             return this.renderLinearExpression();
         } else if (type === CONST_MANUAL_INPUT) {
             return this.renderManualInput();
-        // }
-        // else if (type === CONST_MANUAL_INPUT_POLYNOMIAL) {
+        // } else if (type === CONST_MANUAL_INPUT_POLYNOMIAL) {
         //     return null;
         // } else if (type === CONST_VECTOR) {
         //     if (inputMode === BUTTON_INPUT) {
@@ -116,7 +115,10 @@ export default class AnswerInput extends Component<AnswerInputProps, {}> {
                     }}
                     label='False'
                 />
-                <Typography>A popup will appear when you change your answer, to help prevent accidental changes while scrolling.</Typography>
+                <Typography>
+                    A popup will appear when you change your answer, to help prevent accidental
+                    changes while scrolling.
+                </Typography>
             </Fragment>
         );
     }
@@ -143,14 +145,21 @@ export default class AnswerInput extends Component<AnswerInputProps, {}> {
                                 await this.props.onChange(y.toString());
                                 this.props.onBlur();
                                 if (this.props.showSnackBar)
-                                    this.props.showSnackBar('info', 'Multiple choice answer updated!', 1000);
+                                    this.props.showSnackBar(
+                                        'info',
+                                        'Multiple choice answer updated!',
+                                        1000,
+                                    );
                             }}
                             label={getMathJax(x)}
                         />
                         <br />
                     </Fragment>
                 ))}
-                <Typography>A popup will appear when you change your answer, to help prevent accidental changes while scrolling.</Typography>
+                <Typography>
+                    A popup will appear when you change your answer, to help prevent accidental
+                    changes while scrolling.
+                </Typography>
             </Fragment>
         );
     }
