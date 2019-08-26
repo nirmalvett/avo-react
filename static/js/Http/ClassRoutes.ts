@@ -167,3 +167,15 @@ export function editMessage(
 ) {
     _request('POST', '/editMessage', success, failure, {messageID, title, body});
 }
+
+export interface GetClassData {
+	names: string[]
+    totals: number[]
+	data: {
+		[studentID: string]: (number | null)[]
+	}
+}
+
+export function getClassData(classID: number, success: cb<GetClassData>, failure: cb) {
+    _request('POST', '/getClassData', success, failure, {classID});
+}

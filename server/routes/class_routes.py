@@ -636,3 +636,26 @@ def edit_message(message_id: int, title: str, body: str):
     message.body = body
     db.session.commit()
     return jsonify({})
+
+
+@ClassRoutes.route('/getClassData', methods=['POST'])
+@teacher_only
+@validate(classID=int)
+def get_class_data(class_id: int):
+    if not teaches_class(class_id):
+        return jsonify(error="User does not teach the class")
+    students = User.query.filter((Transaction.CLASS == class_id) & (Transaction.USER == User.USER)).all()
+    tests = Test.query.filter(Test.CLASS == class_id).all()
+    test_names = list(map(lambda x: x.name, tests))
+    test_totals = list(map(lambda x: x.total, tests))
+    test_data = {}
+    for student in students:
+        top_marks = []
+        for test in tests:
+            takes_list = Takes.query.filter((Takes.TEST == test.TEST) & (student.USER == Takes.USER)).all()
+            if len(takes_list) != 0:
+                top_marks.append(max(map(lambda x: x.grade, takes_list)))
+            else:
+                top_marks.append(None)
+        test_data[student.email] = top_marks
+    return jsonify(names=test_names, totals=test_totals, data=test_data)
