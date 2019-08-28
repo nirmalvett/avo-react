@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from random import SystemRandom
 from string import ascii_letters, digits
 from server.PasswordHash import generate_salt, hash_password
+from datetime import datetime
 
 # Initialize Database
 db = SQLAlchemy()
@@ -435,3 +436,23 @@ class UserLesson(db.Model):
 
     def __repr__(self):
         return f'user_lesson {self.USER_LESSON} {self.USER} {self.LESSON}'
+
+
+class DataStore(db.Model):
+    __tablename__ = "store"
+    __bind_key__ = "data_store"
+
+    STORE = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
+    USER = db.Column(db.Integer, nullable=False)
+    DATA = db.Column(db.String(20000), nullable=False)
+    TYPE = db.Column(db.String(16), nullable=False)
+    TIME = db.Column(db.DATETIME, nullable=False)
+
+    def __init__(self, USER, DATA, TYPE):
+        self.USER = int(USER)
+        self.DATA = str(DATA)
+        self.TYPE = str(TYPE)
+        self.TIME = datetime.now()
+
+    def __repr__(self):
+        return f'store {self.USER} {self.DATA} {self.TYPE} {self.TIME}'

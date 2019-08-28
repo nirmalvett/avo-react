@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from flask_login import current_user
 
 from server.MathCode.question import AvoQuestion
@@ -9,7 +9,7 @@ import statistics
 from server.decorators import login_required, teacher_only, validate
 from server.auth import teaches_class, enrolled_in_class, access_to_class
 from server.helpers import timestamp, from_timestamp
-from server.models import db, Class, Test, Takes, Question, User, Transaction
+from server.models import db, Class, Test, Takes, Question, User, Transaction, DataStore
 
 TestRoutes = Blueprint('TestRoutes', __name__)
 
@@ -190,11 +190,31 @@ def get_test(test_id: int):
         question_ids = eval(test.question_list)  # IDs of questions in test
         seeds = eval(takes.seeds)  # Seeds of questions in test if -1 gen random seed
         questions_in_test = Question.query.filter(Question.QUESTION.in_(question_ids)).all()  # All questions in test
+        store_questions = []
+        store_answers = []
         for i in range(len(question_ids)):
             # For each question id get the question data and add to question list
             current_question = next((x for x in questions_in_test if x.QUESTION == question_ids[i]), None)
+            store_questions.append(current_question.string)
+            store_answers.append(current_question.answers)
             q = AvoQuestion(current_question.string, seeds[i])
             questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
+        # TODO look for better way to store question data
+        store = DataStore(current_user.get_id(), {
+            'takes': takes.TAKES,
+            'time_started': takes.time_started,
+            'time_submitted': takes.time_submitted,
+            'answers': takes.answers,
+            'questions': store_questions,
+            'total_answers': store_answers,
+            'seeds': takes.seeds,
+            'ip': get_ip(),
+            'test': takes.TEST,
+            'marks': takes.marks,
+            'grade': takes.grade,
+        }, 'GET_TEST')
+        db.session.add(store)
+        db.session.commit()
         return jsonify(
             takes=takes.TAKES,
             time_submitted=timestamp(takes.time_submitted),
@@ -241,6 +261,22 @@ def save_answer(takes_id: int, question: int, answer: list):
     except:
         print(f'unable to change mark for takes {takes.TAKES}')
         return jsonify(message='answer saved, but an error occurred while grading')
+    store = DataStore(current_user.get_id(), {
+        'takes': takes_id,
+        'time_started': takes.time_started,
+        'time_submitted': takes.time_submitted,
+        'question': current_question.string,
+        'total_answers': current_question.answers,
+        'total': current_question.total,
+        'seed': eval(takes.seeds)[question],
+        'answer': answer,
+        'marks': takes.marks,
+        'grade': takes.grade,
+        'ip': get_ip(),
+        'test': takes.TEST
+    }, 'SAVE_ANSWER')
+    db.session.add(store)
+    db.session.commit()
     return jsonify(message='answer saved')
 
 
@@ -262,6 +298,33 @@ def submit_test(takes_id: int):
     if (takes.time_submitted + timedelta(seconds=60)) < time:
         return jsonify(error="Test already has been submitted")
     takes.time_submitted = datetime.now() - timedelta(seconds=1)
+    db.session.commit()
+
+    test = Test.query.get(takes.TEST)
+    question_ids = eval(test.question_list)
+    questions_in_test = Question.query.filter(Question.QUESTION.in_(question_ids)).all()
+
+    store_questions = []
+    store_answers = []
+    for i in range(len(question_ids)):
+        # For each question id get the question data and add to question list
+        current_question = next((x for x in questions_in_test if x.QUESTION == question_ids[i]), None)
+        store_questions.append(current_question.string)
+        store_answers.append(current_question.answers)
+    store = DataStore(current_user.get_id(), {
+        'takes': takes.TAKES,
+        'time_started': takes.time_started,
+        'time_submitted': takes.time_submitted,
+        'answers': takes.answers,
+        'questions': store_questions,
+        'total_answers': store_answers,
+        'seeds': takes.seeds,
+        'ip': get_ip(),
+        'test': takes.TEST,
+        'marks': takes.marks,
+        'grade': takes.grade,
+    }, 'GET_TEST')
+    db.session.add(store)
     db.session.commit()
     return jsonify({})
 
@@ -498,3 +561,10 @@ def create_takes(test, user):
     db.session.add(takes)
     db.session.commit()
     return None if takes is None else takes
+
+
+def get_ip():
+    if 'HTTP_X_FORWARDED_FOR' in request.headers:
+        return request.headers['HTTP_X_FORWARDED_FOR']
+    else:
+        return request.remote_addr
