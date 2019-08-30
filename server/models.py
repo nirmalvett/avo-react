@@ -2,7 +2,7 @@ from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from random import SystemRandom
 from string import ascii_letters, digits
-from server.Encoding.PasswordHash import generate_salt, hash_password
+from server.PasswordHash import generate_salt, hash_password
 
 # Initialize Database
 db = SQLAlchemy()

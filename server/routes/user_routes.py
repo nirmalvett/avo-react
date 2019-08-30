@@ -3,7 +3,7 @@ from flask_login import logout_user, login_user, current_user
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 from sqlalchemy.orm.exc import NoResultFound
 
-from server.Encoding.PasswordHash import check_password, generate_salt, hash_password
+from server.PasswordHash import check_password, generate_salt, hash_password
 import re
 
 import config
