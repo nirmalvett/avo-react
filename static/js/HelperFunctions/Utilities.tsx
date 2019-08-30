@@ -280,5 +280,5 @@ export function copy<T>(object: T): T {
 }
 
 export function arrayEq<T>(x1: T[], x2: T[]): boolean {
-    return x1.length === x2.length && x1.filter((_, y) => x1[y] !== x2[y]).length === 0
+    return x1.length === x2.length && x1.filter((_, y) => x1[y] !== x2[y]).length === 0;
 }

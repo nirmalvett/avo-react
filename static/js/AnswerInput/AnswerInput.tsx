@@ -44,21 +44,25 @@ export default class AnswerInput extends PureComponent<AnswerInputProps> {
         const {type} = this.props;
         const props = this.getProps();
         if (type === '0') {
-            return <_0_TrueFalse {...props}/>;
+            return <_0_TrueFalse {...props} />;
         } else if (type === '1') {
-            return <_1_MultipleChoice {...props}/>;
+            return <_1_MultipleChoice {...props} />;
         } else if (type === '2') {
-            return <_2_Number {...props}/>;
+            return <_2_Number {...props} />;
         } else if (type === '3') {
-            return <_3_Expression {...props}/>;
+            return <_3_Expression {...props} />;
         } else if (type === '6') {
-            return <_6_Vector {...props}/>;
+            return <_6_Vector {...props} />;
         } else if (type === '8') {
-            return <_8_Matrix {...props}/>;
+            return <_8_Matrix {...props} />;
         } else if (type === '9') {
-            return <_9_Basis {...props}/>;
+            return <_9_Basis {...props} />;
         } else {
-            return <Typography variant='body2' color='error'>Invalid answer type</Typography>;
+            return (
+                <Typography variant='body2' color='error'>
+                    Invalid answer type
+                </Typography>
+            );
         }
     }
 }

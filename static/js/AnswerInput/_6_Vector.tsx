@@ -21,14 +21,14 @@ export class _6_Vector extends PureComponent<AnswerInputImplementationProps> {
                         disabled={cells.length <= 2}
                         onClick={this.deleteColumn}
                     >
-                        <DeleteOutlined/>
+                        <DeleteOutlined />
                     </IconButton>
                     <IconButton
                         style={{margin: '4px'}}
                         disabled={cells.length >= 5}
                         onClick={this.addColumn}
                     >
-                        <Add/>
+                        <Add />
                     </IconButton>
                 </div>
             </div>
@@ -53,7 +53,7 @@ export class _6_Vector extends PureComponent<AnswerInputImplementationProps> {
         const cells = this.props.value.split(',').map(x => x.trim());
         cells[index] = value;
         this.props.onChange(cells.join(','));
-    };
+    }
 
     addColumn = () => {
         const cells = this.props.value.split(',').map(x => x.trim());

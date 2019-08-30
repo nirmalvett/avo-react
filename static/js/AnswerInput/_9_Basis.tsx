@@ -15,20 +15,22 @@ export class _9_Basis extends PureComponent<AnswerInputImplementationProps> {
                     <Typography style={size}>{'{'}</Typography>
                     {cells.map(this.renderColumn)}
                     <Typography style={size}>{'}'}</Typography>
-                    <div style={{display: 'flex', flexDirection: 'column', alignSelf: 'flex-start'}}>
+                    <div
+                        style={{display: 'flex', flexDirection: 'column', alignSelf: 'flex-start'}}
+                    >
                         <IconButton
                             style={{margin: '4px'}}
                             disabled={cells[0].length <= 2}
                             onClick={this.deleteRow}
                         >
-                            <DeleteOutlined/>
+                            <DeleteOutlined />
                         </IconButton>
                         <IconButton
                             style={{margin: '4px'}}
                             disabled={cells[0].length >= 4}
                             onClick={this.addRow}
                         >
-                            <Add/>
+                            <Add />
                         </IconButton>
                     </div>
                 </div>
@@ -38,14 +40,14 @@ export class _9_Basis extends PureComponent<AnswerInputImplementationProps> {
                         disabled={cells.length <= 2}
                         onClick={this.deleteColumn}
                     >
-                        <DeleteOutlined/>
+                        <DeleteOutlined />
                     </IconButton>
                     <IconButton
                         style={{margin: '4px'}}
                         disabled={cells.length >= 4}
                         onClick={this.addColumn}
                     >
-                        <Add/>
+                        <Add />
                     </IconButton>
                 </div>
             </div>
@@ -92,7 +94,7 @@ export class _9_Basis extends PureComponent<AnswerInputImplementationProps> {
         const cells = this.getArray();
         cells[index1][index2] = value;
         this.props.onChange(cells.map(x => x.join(',')).join('\n'));
-    };
+    }
 
     addRow = () => {
         const cells = this.getArray();

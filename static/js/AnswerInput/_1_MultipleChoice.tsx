@@ -15,10 +15,7 @@ export function _1_MultipleChoice(props: AnswerInputImplementationProps) {
                 <Fragment key={answer + index}>
                     <FormControlLabel
                         control={
-                            <Radio
-                                color='primary'
-                                checked={props.value === index.toString()}
-                            />
+                            <Radio color='primary' checked={props.value === index.toString()} />
                         }
                         disabled={props.disabled}
                         onChange={() => props.save(index.toString())}

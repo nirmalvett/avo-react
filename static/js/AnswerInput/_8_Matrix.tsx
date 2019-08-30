@@ -17,20 +17,22 @@ export class _8_Matrix extends PureComponent<AnswerInputImplementationProps> {
                         {cells.map(this.renderRow)}
                     </div>
                     <Typography style={size}>]</Typography>
-                    <div style={{display: 'flex', flexDirection: 'column', alignSelf: 'flex-start'}}>
+                    <div
+                        style={{display: 'flex', flexDirection: 'column', alignSelf: 'flex-start'}}
+                    >
                         <IconButton
                             style={{margin: '4px'}}
                             disabled={cells.length <= 2}
                             onClick={this.deleteRow}
                         >
-                            <DeleteOutlined/>
+                            <DeleteOutlined />
                         </IconButton>
                         <IconButton
                             style={{margin: '4px'}}
                             disabled={cells.length >= 5}
                             onClick={this.addRow}
                         >
-                            <Add/>
+                            <Add />
                         </IconButton>
                     </div>
                 </div>
@@ -40,14 +42,14 @@ export class _8_Matrix extends PureComponent<AnswerInputImplementationProps> {
                         disabled={cells[0].length <= 2}
                         onClick={this.deleteColumn}
                     >
-                        <DeleteOutlined/>
+                        <DeleteOutlined />
                     </IconButton>
                     <IconButton
                         style={{margin: '4px'}}
                         disabled={cells[0].length >= 5}
                         onClick={this.addColumn}
                     >
-                        <Add/>
+                        <Add />
                     </IconButton>
                 </div>
             </div>
@@ -85,7 +87,7 @@ export class _8_Matrix extends PureComponent<AnswerInputImplementationProps> {
         const cells = this.getArray();
         cells[index1][index2] = value;
         this.props.onChange(cells.map(x => x.join(',')).join('\n'));
-    };
+    }
 
     addColumn = () => {
         const cells = this.getArray();

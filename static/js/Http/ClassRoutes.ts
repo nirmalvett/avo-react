@@ -169,11 +169,11 @@ export function editMessage(
 }
 
 export interface GetClassData {
-	names: string[]
-    totals: number[]
-	data: {
-		[studentID: string]: (number | null)[]
-	}
+    names: string[];
+    totals: number[];
+    data: {
+        [studentID: string]: (number | null)[];
+    };
 }
 
 export function getClassData(classID: number, success: cb<GetClassData>, failure: cb) {
