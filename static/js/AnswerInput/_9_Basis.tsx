@@ -21,14 +21,14 @@ export class _9_Basis extends PureComponent<AnswerInputImplementationProps> {
                     >
                         <IconButton
                             style={{margin: '4px'}}
-                            disabled={cells[0].length <= 2}
+                            disabled={cells[0].length <= 2 || this.props.disabled}
                             onClick={this.deleteRow}
                         >
                             <DeleteOutlined />
                         </IconButton>
                         <IconButton
                             style={{margin: '4px'}}
-                            disabled={cells[0].length >= 4}
+                            disabled={cells[0].length >= 4 || this.props.disabled}
                             onClick={this.addRow}
                         >
                             <Add />
@@ -38,14 +38,14 @@ export class _9_Basis extends PureComponent<AnswerInputImplementationProps> {
                 <div style={{display: 'flex', flexDirection: 'row'}}>
                     <IconButton
                         style={{margin: '4px'}}
-                        disabled={cells.length <= 2}
+                        disabled={cells.length <= 2 || this.props.disabled}
                         onClick={this.deleteColumn}
                     >
                         <DeleteOutlined />
                     </IconButton>
                     <IconButton
                         style={{margin: '4px'}}
-                        disabled={cells.length >= 4}
+                        disabled={cells.length >= 4 || this.props.disabled}
                         onClick={this.addColumn}
                     >
                         <Add />
@@ -87,6 +87,7 @@ export class _9_Basis extends PureComponent<AnswerInputImplementationProps> {
                 onBlur={() => this.props.save(this.props.value)}
                 helperText={typeof x === 'string' ? x : undefined}
                 error={typeof x === 'string'}
+                disabled={this.props.disabled}
             />
         );
     };

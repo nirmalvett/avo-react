@@ -19,14 +19,14 @@ export class _6_Vector extends PureComponent<AnswerInputImplementationProps> {
                 <div style={{display: 'flex', flexDirection: 'row'}}>
                     <IconButton
                         style={{margin: '4px'}}
-                        disabled={cells.length <= 2}
+                        disabled={cells.length <= 2 || this.props.disabled}
                         onClick={this.deleteColumn}
                     >
                         <DeleteOutlined />
                     </IconButton>
                     <IconButton
                         style={{margin: '4px'}}
-                        disabled={cells.length >= 5}
+                        disabled={cells.length >= 5 || this.props.disabled}
                         onClick={this.addColumn}
                     >
                         <Add />
@@ -46,6 +46,7 @@ export class _6_Vector extends PureComponent<AnswerInputImplementationProps> {
                 onBlur={() => this.props.save(this.props.value)}
                 helperText={typeof x === 'string' ? x : undefined}
                 error={typeof x === 'string'}
+                disabled={this.props.disabled}
             />
         );
     };

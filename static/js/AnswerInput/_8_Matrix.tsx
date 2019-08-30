@@ -23,14 +23,14 @@ export class _8_Matrix extends PureComponent<AnswerInputImplementationProps> {
                     >
                         <IconButton
                             style={{margin: '4px'}}
-                            disabled={cells.length <= 2}
+                            disabled={cells.length <= 2 || this.props.disabled}
                             onClick={this.deleteRow}
                         >
                             <DeleteOutlined />
                         </IconButton>
                         <IconButton
                             style={{margin: '4px'}}
-                            disabled={cells.length >= 5}
+                            disabled={cells.length >= 5 || this.props.disabled}
                             onClick={this.addRow}
                         >
                             <Add />
@@ -40,14 +40,14 @@ export class _8_Matrix extends PureComponent<AnswerInputImplementationProps> {
                 <div style={{display: 'flex', flexDirection: 'row'}}>
                     <IconButton
                         style={{margin: '4px'}}
-                        disabled={cells[0].length <= 2}
+                        disabled={cells[0].length <= 2 || this.props.disabled}
                         onClick={this.deleteColumn}
                     >
                         <DeleteOutlined />
                     </IconButton>
                     <IconButton
                         style={{margin: '4px'}}
-                        disabled={cells[0].length >= 5}
+                        disabled={cells[0].length >= 5 || this.props.disabled}
                         onClick={this.addColumn}
                     >
                         <Add />
@@ -80,6 +80,7 @@ export class _8_Matrix extends PureComponent<AnswerInputImplementationProps> {
                 onBlur={() => this.props.save(this.props.value)}
                 helperText={typeof x === 'string' ? x : undefined}
                 error={typeof x === 'string'}
+                disabled={this.props.disabled}
             />
         );
     };
