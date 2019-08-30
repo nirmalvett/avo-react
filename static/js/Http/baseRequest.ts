@@ -28,10 +28,6 @@ export function _request<S, T>(
                     );
                     failure(JSON.parse(http.responseText));
                 } else {
-                    console.debug('----------------------------------------');
-                    console.debug('url: ', url);
-                    console.debug('data sent to server: ', data);
-                    console.debug('returned Object from server: ', JSON.parse(http.responseText));
                     success(JSON.parse(http.responseText));
                 }
             } catch (e) {
