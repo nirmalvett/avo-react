@@ -84,7 +84,7 @@ export function getMathJax(text: string, variant: ThemeStyle = 'body2', key?: st
     );
 }
 
-export function validateNumber(text: string): string | string[] {
+export function validateNumber(text: string): string | [string] {
     // Remove whitespace and check if string is empty
     if (text === undefined || text.replace(/ /g, '').length === 0) return ['']; // No error, but also no text to display
 
@@ -277,4 +277,8 @@ export function getDateString(date: number): string {
 
 export function copy<T>(object: T): T {
     return JSON.parse(JSON.stringify(object));
+}
+
+export function arrayEq<T>(x1: T[], x2: T[]): boolean {
+    return x1.length === x2.length && x1.filter((_, y) => x1[y] !== x2[y]).length === 0
 }
