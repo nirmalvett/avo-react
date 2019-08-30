@@ -385,7 +385,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         <Fragment key={`Action-:${uniqueKey1} ${selectedClass.name}`}>
                             <Tooltip title='Create a new Test'>
                                 <IconButton
-                                    onClick={() => this.createTestHelper(selectedClass.classID)}
+                                    onClick={() => this.props.createTest(selectedClass.classID)}
                                 >
                                     <NoteAddOutlined />
                                 </IconButton>
@@ -437,12 +437,6 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 </div>
             </Fragment>
         );
-    }
-
-    createTestHelper(id: number) {
-        // @ts-ignore
-        this.props.dispatch(actionCreateTestAddClassId(id));
-        this.props.createTest(id);
     }
 
     detailsCard_selectedTest(
