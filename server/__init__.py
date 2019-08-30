@@ -5,8 +5,10 @@ from server.models import db
 from server.routes import ClassRoutes, FileRoutes, QuestionRoutes, ServerRoutes, TestRoutes, UserRoutes, TagRoutes
 import paypalrestsdk
 import config
-
-
+from flask_cors import CORS
+import os
+env = os.environ.get("ENV", None)
+print(env)
 # Configure PayPal
 print(">>> PayPal is set to " + config.PAYPAL_MODE + " <<<")
 paypalrestsdk.configure({
@@ -32,3 +34,4 @@ app.register_blueprint(TagRoutes)
 
 # Add gzip support
 Compress(app)
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://avo-frontend.s3-website.us-east-2.amazonaws.com/*", "http://localhost/*", "https://d1tnjp7zr1fy56.cloudfront.net/*"] if env != 'prod' else "http://avo-frontend.s3-website.us-east-2.amazonaws.com/*"}})
