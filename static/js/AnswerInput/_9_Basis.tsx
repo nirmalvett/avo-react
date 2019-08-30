@@ -1,8 +1,7 @@
 import React, {PureComponent, Fragment} from 'react';
 import {AnswerInputImplementationProps} from './AnswerInput';
-import TextField from '@material-ui/core/TextField';
 import {getMathJax, validateNumber} from '../HelperFunctions/Utilities';
-import {IconButton, Typography} from '@material-ui/core';
+import {IconButton, TextField, Typography} from '@material-ui/core';
 import {Add, DeleteOutlined} from '@material-ui/icons';
 
 export class _9_Basis extends PureComponent<AnswerInputImplementationProps> {
