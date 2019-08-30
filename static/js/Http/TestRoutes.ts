@@ -67,8 +67,8 @@ export interface GetTest {
     questions: {
         prompt: string;
         prompts: string[];
-        types: number[];
-    };
+        types: string[];
+    }[];
 }
 
 export function getTest(testID: number, success: cb<GetTest>, failure: cb) {

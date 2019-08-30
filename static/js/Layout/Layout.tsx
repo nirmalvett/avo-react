@@ -281,14 +281,10 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         if (section === 'Documentation') return <QuestionBuilderDocs />;
-        if (section === 'Take Test')
+        if (section === 'Take Test' && this.state.test)
             return (
                 <TakeTest
                     showSnackBar={this.showSnackBar}
-                    isTeacher={isTeacher}
-                    getTimeRemaining={(minutes: number, dueDate: number) =>
-                        this.getTimeRemaining(minutes, dueDate)
-                    }
                     test={this.state.test}
                     submitTest={(takes: number) =>
                         this.setState({postTest: takes, section: 'Post Test'})
@@ -338,15 +334,6 @@ class Layout extends Component<LayoutProps, LayoutState> {
             result => alert(result.error),
         );
     };
-
-    getTimeRemaining(minutesRemainingUponResumingTest: number, testDueDate: number) {
-        // When we hit the getTest route we need to know the time remaining we also have test due date in case
-        // it's an assignment because we would want to display that instead
-        this.setState({
-            minutesRemainingUponResumingTest: minutesRemainingUponResumingTest,
-            testDueDate: testDueDate,
-        });
-    }
 
     showSnackBar = (variant: SnackbarVariant, message: string, hideDuration: number) => {
         /**
