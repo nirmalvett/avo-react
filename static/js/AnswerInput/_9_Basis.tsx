@@ -1,7 +1,7 @@
 import React, {PureComponent, Fragment} from 'react';
 import {AnswerInputImplementationProps} from './AnswerInput';
 import TextField from '@material-ui/core/TextField';
-import {validateNumber} from '../HelperFunctions/Utilities';
+import {getMathJax, validateNumber} from '../HelperFunctions/Utilities';
 import {IconButton, Typography} from '@material-ui/core';
 import {Add, DeleteOutlined} from '@material-ui/icons';
 
@@ -11,6 +11,7 @@ export class _9_Basis extends PureComponent<AnswerInputImplementationProps> {
         const size = this.getSize();
         return (
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                {getMathJax(this.props.prompt)}
                 <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                     <Typography style={size}>{'{'}</Typography>
                     {cells.map(this.renderColumn)}

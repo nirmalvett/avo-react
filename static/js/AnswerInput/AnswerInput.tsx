@@ -16,7 +16,7 @@ interface AnswerInputProps {
     disabled: boolean;
     onChange: (answer: string) => void;
     save: (answer: string) => void;
-    showSnackBar?: ShowSnackBar;
+    showSnackBar: ShowSnackBar;
 }
 
 export interface AnswerInputImplementationProps {
@@ -33,12 +33,8 @@ export default class AnswerInput extends PureComponent<AnswerInputProps> {
         disabled: false,
         onChange: () => undefined,
         save: () => undefined,
+        showSnackBar: () => undefined,
     };
-
-    getProps() {
-        const {value, prompt, disabled, onChange, save} = this.props;
-        return {value, prompt, disabled, onChange, save};
-    }
 
     render(): ReactElement {
         const {type} = this.props;
@@ -64,5 +60,10 @@ export default class AnswerInput extends PureComponent<AnswerInputProps> {
                 </Typography>
             );
         }
+    }
+
+    getProps() {
+        const {value, prompt, disabled, onChange, save} = this.props;
+        return {value, prompt, disabled, onChange, save};
     }
 }
