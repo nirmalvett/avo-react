@@ -261,9 +261,9 @@ export default class CreateTest extends Component<CreateTestProps, CreateTestSta
         );
     }
 
-    setOpenTime = (e: any) => this.setState({openTime: new Date(e._d)});
+    setOpenTime = (openTime: Date) => this.setState({openTime});
 
-    setCloseTime = (e: any) => this.setState({closeTime: new Date(e._d)});
+    setCloseTime = (closeTime: Date) => this.setState({closeTime});
 
     addQuestion(question: {id: number; name: string}) {
         const seed = Math.floor(Math.random() * 65536);
