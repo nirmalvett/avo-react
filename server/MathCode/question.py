@@ -2,79 +2,136 @@ from server.MathCode.AnswerUtilities import parse_answer
 from server.MathCode.AvoVariable import AvoVariable, AvoRandom, error, boolean, number, matrix, basis
 from inspect import signature
 from re import fullmatch
-from server.MathCode.question2 import AvoQuestion as AvoQuestion2
 
+SEP1 = '；'
+SEP2 = '，'
+SEP3 = '—'
+
+
+# q = AvoQuestion(string: str, seed: int)
+#   This can be used to initialize a question. It only does the steps necessary to generate the prompts.
+# q.prompt
+#   This contains the main prompt
+# q.prompts
+#   This contains a list of sub-prompts
+# q.types
+#   This contains a list of variable types
+
+# q.get_score(*answers: list(str))
+#   This can be used to mark a question. It does the extra steps that were not done by the constructor.
+# q.score
+#   This contains the student's total score
+# q.scores
+#   This contains the list of scores for each part
+# q.totals
+#   This contains the list of maximum scores for each part
+# q.explanation
+#   This contains an array of explanations for each part
+
+# q.var_list
+#   This contains the list of variables
 
 class AvoQuestion:
     def __init__(self, question: str, seed=0, answers=None):
-        self._alternate = question.count('；') == 8  # 9 segments
-        if self._alternate:
-            self._q = AvoQuestion2(question, seed, answers)
-            self.prompt = self._q.prompt
-            self.prompts = self._q.prompts
-            self.types = self._q.types
-            self.var_list = self._q.var_list
-            self.score = self._q.score
-            self.scores = self._q.scores
-            self.totals = self._q.totals
-            self.explanation = self._q.explanation
-            return
-        question = question.split('；')
-        if len(question) != 5:
+        question = tuple(map(lambda x: x.split(SEP2), question.split(SEP1)))
+        if len(question) != 9:
             raise SyntaxError(f'Received wrong number of parts: {len(question)}')
-        self.steps, self.prompts, self.types, self.notes, _ = map(lambda x: x.split('，'), question)
+        _math, _var_names, _strings, _prompts, self.types, self._points, self._criteria, _explanations, _ = question
+        if _strings == ['']:
+            _strings = []
+        if self.types == ['']:
+            self.types = []
 
         self.random = AvoRandom(seed)
         self.score = 0
         self.scores = []
         self.explanation = []
-        self.var_list = []
+        self.var_list = {
+            '$pi': number(3.141592653589793),
+            '$e': number(2.718281828459045),
+        }
         self.str_list = []
         self.ans_list = []
         self.totals = []
+        self.steps = [] if _math == [''] else _math
 
-        while len(self.steps) > 0 and '@' not in self.steps[0]:
-            self.step(self.steps.pop(0))
+        for i in range(len(self.steps)):
+            result = self._step(self.steps[i])
+            var_names = _var_names[i].split(SEP3)
+            for j in range(min(len(result), len(var_names))):
+                self.var_list[var_names[j]] = result[j]
 
-        try:
-            self.prompts = tuple(map(lambda prompt: prompt.format(*self.str_list), self.prompts))
-            self.notes = list(map(lambda prompt: prompt.format(*self.str_list), self.notes))
-        except IndexError:
-            raise SyntaxError("Error: undefined string variable reference")
+        for i in range(len(_strings)):
+            string = self._step(_strings[i])
+            if len(string) != 1:
+                raise SyntaxError("Each string expression must return exactly one string")
+            self.str_list.append(string[0])
+
+        self.prompts = list(map(lambda x: x.format(*self.str_list), _prompts))
+        formatted_explanations = list(map(lambda x: x.format(*self.str_list), _explanations))
         self.prompt, self.prompts = self.prompts[0], self.prompts[1:]
 
         if len(self.prompts) != len(self.types):
+            print(self.prompts)
+            print(self.types)
             raise SyntaxError("The number of prompts and answer fields don't match")
 
         if answers is not None:
+            # Read in the answer list
             if len(answers) != len(self.types):
                 if all(map(lambda a: a == '', answers)):
                     answers = [''] * len(self.types)
                 else:
                     raise ValueError("Wrong number of answers")
-            for i in range(len(answers)):
-                self.ans_list.append(parse_answer(i, answers[i], self.types[i], self.prompts[i]))
-            while len(self.steps) != 0:
-                self.step(self.steps.pop(0))
+            for i in range(len(self.types)):
+                self.ans_list.append(parse_answer(i, answers[i], self.types[i], self.prompts[i], self))
 
-    def step(self, token_list):
+            # Evaluate the criteria
+            for i in range(len(self._criteria)):
+                condition = self._step(self._criteria[i])[0]
+                amount = self._points[i]
+
+                explanation = formatted_explanations[i]
+                if str(explanation).startswith('/'):
+                    self.explanation.append(explanation[1:])
+                else:
+                    if condition.explanation[0][1] == -1:
+                        step = condition.explanation[0][0] + r'$\\$'
+                    else:
+                        step = rf'For \({amount}\) point{"" if float(amount) == 1 else "s"}, ' \
+                               rf'the following expression must be true:\[{condition.explanation[0][0]}\]'
+                        if len(condition.explanation) > 2:
+                            step += 'This can be simplified as follows:'
+                            for s in condition.explanation[1:-1]:
+                                step += r'\[' + s[0] + r'\]'
+                    if explanation != '':
+                        step += r'$\\$Notes:$\\$' + explanation
+                    self.explanation.append(step)
+                if condition:
+                    self.score += float(amount)
+                    self.scores.append(float(amount))
+                else:
+                    self.scores.append(0)
+                self.totals.append(float(amount))
+
+    def _step(self, token_list):
         token_list = token_list.split(' ')
         stack = []
         for token in token_list:
             # >> Variable Reference
-            if fullmatch(r'\$\d+', token):
-                index = int(token[1:])
-                if index < len(self.var_list):
-                    stack.append(self.var_list[index])
+            if fullmatch(r'\$\w+', token):
+                if token in self.var_list:
+                    stack.append(self.var_list[token])
                 else:
-                    raise SyntaxError(f"Error: undefined variable reference: '${index + 1}'")
+                    raise SyntaxError(f"Error: undefined variable reference: '{token}',"
+                                      f" in user defined dict {self.var_list}")
             # >> Answer Reference
             elif fullmatch(r'@\d+', token):
                 index = int(token[1:])
                 if index < len(self.ans_list):
                     stack.append(self.ans_list[index])
                 else:
-                    raise SyntaxError(f"Error: undefined answer variable reference: '@{index + 1}'")
+                    raise SyntaxError(f"Error: undefined answer variable reference: '@{index}'")
             # >> Literal Number (Integer)
             elif fullmatch(r'-?\d+(\.\d+)?', token):
                 stack.append(number(float(token)))
@@ -99,62 +156,30 @@ class AvoQuestion:
             # >> Method call
             elif token in methods:
                 method = methods[token]
-                is_q = 'AvoQuestion' in str(method)
                 is_r = 'AvoRandom' in str(method)
-                arg_count = -len(signature(method).parameters) + (1 if is_q or is_r else 0)
+                arg_count = -len(signature(method).parameters) + (1 if is_r else 0)
                 stack, args = stack[:arg_count], stack[arg_count:]
                 try:
-                    if is_q:
-                        result = method(self, *args)
-                    elif is_r:
+                    if is_r:
                         result = method(self.random, *args)
                     else:
                         result = method(*args)
                 except SyntaxError:
                     result = error('unknown error')
-                if isinstance(result, tuple):
+                if isinstance(result, tuple) or isinstance(result, list):
                     stack += list(result)
-                elif isinstance(result, AvoVariable):
+                else:
                     stack.append(result)
-                elif isinstance(result, str):
-                    self.str_list.append(result)
             else:
                 raise SyntaxError(token)
-        self.var_list += stack
-
-    def increment_score(self, condition, amount):
-        if str(self.notes[0]).startswith('/'):
-            self.explanation.append(self.notes[0][1:])
-        else:
-            if condition.explanation[0][1] == -1:
-                step = condition.explanation[0][0] + r'$\\$'
-            else:
-                step = rf'For \({amount}\) point{"s" if float(amount) != 1 else ""}, the following expression must be ' \
-                       rf'true:\[{condition.explanation[0][0]}\]'
-                if len(condition.explanation) > 2:
-                    step += 'This can be simplified as follows:'
-                    for s in condition.explanation[1:-1]:
-                        step += r'\[' + s[0] + r'\]'
-            if self.notes[0] != '':
-                step += r'$\\$Notes:$\\$' + self.notes[0]
-            self.explanation.append(step)
-        self.notes.pop(0)
-        if condition:
-            self.score += float(amount)
-            self.scores.append(float(amount))
-        else:
-            self.scores.append(0)
-        self.totals.append(float(amount))
+        return stack
 
 
 methods = {
-    # *#    Variable reference
     # #     Literal number
     # ]     Build matrix
     # }     Build basis
     # *T|*F Literal boolean
-
-    '%': AvoQuestion.increment_score,
 
     'AA': AvoRandom.boolean,
     'AB': AvoRandom.number,
@@ -162,7 +187,6 @@ methods = {
     'AD': AvoRandom.code_vector,
     'AE': AvoRandom.matrix_rank,
     'AF': AvoRandom.matrix_eigenvector,
-    # 'AG': Removed
     'AH': AvoRandom.matrix_rank_mod5,
     'AI': AvoRandom.basis_orthogonal,
 
@@ -226,7 +250,6 @@ methods = {
     'GD': AvoVariable.is_orthogonal,
     'GE': AvoVariable.exactly_equal,
     'GF': AvoVariable.gram_schmidt,
-    # 'GG': Removed
     'GH': AvoVariable.projection_matrix,
     'GI': AvoVariable.normalize,
     'GJ': AvoVariable.dim,
@@ -235,6 +258,8 @@ methods = {
     'HA': AvoVariable.multiple_choice,
     'HB': AvoVariable.true_false,
     'HC': AvoVariable.reset,
+
+    "LN": AvoVariable.ln,
 
     '_A': lambda x: repr(x),
     '_B': AvoVariable.system_of_equations,
