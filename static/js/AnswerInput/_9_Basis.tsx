@@ -60,7 +60,7 @@ export class _9_Basis extends PureComponent<AnswerInputImplementationProps> {
     }
 
     getSize() {
-        return {fontSize: `${2.5 * this.getArray()[0].length}rem`};
+        return {fontSize: `${2.5 * this.getArray()[0].length}rem`, color: 'gray'};
     }
 
     renderColumn = (row: string[], index1: number) => {

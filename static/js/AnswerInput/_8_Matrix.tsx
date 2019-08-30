@@ -7,7 +7,7 @@ import {Add, DeleteOutlined} from '@material-ui/icons';
 export class _8_Matrix extends PureComponent<AnswerInputImplementationProps> {
     render() {
         const cells = this.getArray();
-        const size = {fontSize: `${2.5 * cells.length}rem`};
+        const size = {fontSize: `${2.5 * cells.length}rem`, color: 'gray'};
         return (
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                 {getMathJax(this.props.prompt)}
