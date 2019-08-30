@@ -1,349 +1,64 @@
-import React, {Component, Fragment, ReactElement} from 'react';
-import {
-    getMathJax,
-    validateMatrix,
-    validateNumber,
-    validateVector,
-} from '../HelperFunctions/Utilities';
-import Radio from '@material-ui/core/Radio/Radio';
-import TextField from '@material-ui/core/TextField/TextField';
+import React, {PureComponent, ReactElement} from 'react';
 import Typography from '@material-ui/core/Typography/Typography';
-import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
-import ButtonInput from './ButtonInput';
-import ButtonInputHorizontalVector from './ButtonInputHorizontalVector';
 import {ShowSnackBar} from '../Layout/Layout';
-import {
-    CONST_VECTOR,
-    CONST_BASIS,
-    CONST_BOOLEAN,
-    CONST_LINEAR_EXPRESSION,
-    CONST_MANUAL_INPUT,
-    CONST_MATRIX,
-    CONST_MULTIPLE_CHOICE,
-    CONST_NUMBER,
-    CONST_VECTOR_HORIZONTAL,
-} from './InputConsts';
+import {_0_TrueFalse} from './_0_TrueFalse';
+import {_1_MultipleChoice} from './_1_MultipleChoice';
+import {_2_Number} from './_2_Number';
+import {_3_Expression} from './_3_Expression';
+import {_6_Vector} from './_6_Vector';
+import {_8_Matrix} from './_8_Matrix';
+import {_9_Basis} from './_9_Basis';
 
 interface AnswerInputProps {
     type: string;
-    value?: any;
+    value: string;
     prompt: string;
     disabled: boolean;
-    onBlur: () => void;
-    onChange: (ans: any) => void;
-    buttonSave: () => void;
+    onChange: (answer: string) => void;
+    save: (answer: string) => void;
     showSnackBar?: ShowSnackBar;
 }
 
-const BUTTON_INPUT = 0;
-const MANUAL_INPUT = 1;
+export interface AnswerInputImplementationProps {
+    value: string;
+    prompt: string;
+    disabled?: boolean;
+    onChange: (ans: string) => void;
+    save: (ans: string) => void;
+}
 
-const inputMode = BUTTON_INPUT;
-
-export default class AnswerInput extends Component<AnswerInputProps, {}> {
+export default class AnswerInput extends PureComponent<AnswerInputProps> {
     static defaultProps = {
-        onBlur: () => undefined,
+        value: '',
+        disabled: false,
         onChange: () => undefined,
-        buttonSave: () => undefined,
+        save: () => undefined,
     };
+
+    getProps() {
+        const {value, prompt, disabled, onChange, save} = this.props;
+        return {value, prompt, disabled, onChange, save};
+    }
 
     render(): ReactElement {
         const {type} = this.props;
-        if (type === CONST_BOOLEAN) {
-            return this.renderBoolean();
-        } else if (type === CONST_MULTIPLE_CHOICE) {
-            return this.renderMultipleChoice();
-        } else if (type === CONST_NUMBER) {
-            return this.renderNumber();
-        } else if (type === CONST_LINEAR_EXPRESSION) {
-            return this.renderLinearExpression();
-        } else if (type === CONST_MANUAL_INPUT) {
-            return this.renderManualInput();
-        // } else if (type === CONST_MANUAL_INPUT_POLYNOMIAL) {
-        //     return null;
-        // } else if (type === CONST_VECTOR) {
-        //     if (inputMode === BUTTON_INPUT) {
-        //         return this.renderVectorButtonInput();
-        //     } else if (inputMode === MANUAL_INPUT) {
-        //         return this.renderVectorManualInput();
-        //     }
-        // } else if (type === CONST_VECTOR_LINEAR_EXPRESSION) {
-        //     return null;
-        } else if (type === CONST_VECTOR_HORIZONTAL || type === CONST_VECTOR) {
-            return this.renderVectorHorizontal();
-        } else if (type === CONST_MATRIX) {
-            if (inputMode === BUTTON_INPUT) return this.renderMatrixButtonInput();
-            else {
-                return this.renderMatrixManualInput();
-            }
-        } else if (type === CONST_BASIS) {
-            if (inputMode === BUTTON_INPUT) return this.renderBasisButtonInput();
-            else {
-                return this.renderBasisManualInput();
-            }
+        const props = this.getProps();
+        if (type === '0') {
+            return <_0_TrueFalse {...props}/>;
+        } else if (type === '1') {
+            return <_1_MultipleChoice {...props}/>;
+        } else if (type === '2') {
+            return <_2_Number {...props}/>;
+        } else if (type === '3') {
+            return <_3_Expression {...props}/>;
+        } else if (type === '6') {
+            return <_6_Vector {...props}/>;
+        } else if (type === '8') {
+            return <_8_Matrix {...props}/>;
+        } else if (type === '9') {
+            return <_9_Basis {...props}/>;
+        } else {
+            return <Typography variant='body2' color='error'>Invalid answer type</Typography>;
         }
-        return (
-            <Typography variant='body2' color='error'>
-                Invalid answer type
-            </Typography>
-        );
-    }
-
-    renderBoolean() {
-        return (
-            <Fragment>
-                {getMathJax(this.props.prompt)}
-                <FormControlLabel
-                    disabled={this.props.disabled}
-                    value={true}
-                    control={<Radio color='primary' checked={this.props.value === true} />}
-                    onChange={async () => {
-                        await this.props.onChange(true);
-                        this.props.onBlur();
-                    }}
-                    label='True'
-                />
-                <FormControlLabel
-                    disabled={this.props.disabled}
-                    value={false}
-                    control={<Radio color='primary' checked={this.props.value === false} />}
-                    onChange={async () => {
-                        await this.props.onChange(false);
-                        this.props.onBlur();
-                        if (this.props.showSnackBar)
-                            this.props.showSnackBar('info', 'True/False answer updated!', 1000);
-                    }}
-                    label='False'
-                />
-                <Typography>
-                    A popup will appear when you change your answer, to help prevent accidental
-                    changes while scrolling.
-                </Typography>
-            </Fragment>
-        );
-    }
-
-    renderMultipleChoice() {
-        const p = this.props.prompt
-            .replace('不都', 'None of the above')
-            .replace('都', 'All of the above')
-            .split('—');
-        return (
-            <Fragment>
-                {getMathJax(p[0])}
-                {p.slice(1).map((x, y) => (
-                    <Fragment key={x + y}>
-                        <FormControlLabel
-                            control={
-                                <Radio
-                                    color='primary'
-                                    checked={this.props.value === y.toString()}
-                                />
-                            }
-                            disabled={this.props.disabled}
-                            onChange={async () => {
-                                await this.props.onChange(y.toString());
-                                this.props.onBlur();
-                                if (this.props.showSnackBar)
-                                    this.props.showSnackBar(
-                                        'info',
-                                        'Multiple choice answer updated!',
-                                        1000,
-                                    );
-                            }}
-                            label={getMathJax(x)}
-                        />
-                        <br />
-                    </Fragment>
-                ))}
-                <Typography>
-                    A popup will appear when you change your answer, to help prevent accidental
-                    changes while scrolling.
-                </Typography>
-            </Fragment>
-        );
-    }
-
-    renderNumber() {
-        const message = validateNumber(this.props.value);
-        return (
-            <div>
-                {getMathJax(this.props.prompt)}
-                <TextField
-                    value={this.props.value}
-                    onChange={e => this.props.onChange(e.target.value)}
-                    onBlur={() => this.props.onBlur()}
-                    error={!this.props.disabled && !Array.isArray(message)}
-                    label='Enter number'
-                    disabled={this.props.disabled}
-                    helperText={!Array.isArray(message) ? message : undefined}
-                />
-                <br />
-                <br />
-                {Array.isArray(message) ? getMathJax('\\(' + message[0] + '\\)') : undefined}
-            </div>
-        );
-    }
-
-    renderLinearExpression() {
-        return (
-            <div>
-                {getMathJax(this.props.prompt)}
-                <TextField
-                    value={this.props.value}
-                    onChange={e => this.props.onChange(e.target.value)}
-                    onBlur={() => this.props.onBlur()}
-                    label='Enter expression'
-                    disabled={this.props.disabled}
-                />
-            </div>
-        );
-    }
-
-    renderManualInput() {
-        return (
-            <TextField
-                value={this.props.value}
-                onChange={e => this.props.onChange(e.target.value)}
-                onBlur={() => this.props.onBlur()}
-                disabled={this.props.disabled}
-            />
-        );
-    }
-
-    renderVectorButtonInput() {
-        return (
-            <ButtonInput
-                prompt={this.props.prompt}
-                type={CONST_VECTOR} // this is the type
-                disabled={this.props.disabled} // this is whether the input is disabled
-                value={this.props.value} // this is the value if a test is resumed
-                buttonSave={this.props.buttonSave} // this essentially submits
-                onChange={this.props.onChange} // this is the onChange method that modifies the data
-            />
-        );
-    }
-
-    renderVectorManualInput() {
-        const vector = validateVector(this.props.value);
-        return (
-            <div>
-                {getMathJax(this.props.prompt)}
-                <TextField
-                    disabled={this.props.disabled}
-                    value={this.props.value}
-                    label='Enter vector'
-                    onChange={e => this.props.onChange(e.target.value)}
-                    onBlur={() => this.props.onBlur()}
-                    error={!this.props.disabled && !Array.isArray(vector)}
-                    helperText={!Array.isArray(vector) ? vector : undefined}
-                />
-                <br />
-                <br />
-                {Array.isArray(vector)
-                    ? getMathJax(
-                          '\\(\\begin{bmatrix}' + vector.join('\\\\') + '\\end{bmatrix}\\)',
-                          'body2',
-                      )
-                    : undefined}
-            </div>
-        );
-    }
-
-    renderVectorHorizontal() {
-        return (
-            <ButtonInputHorizontalVector
-                prompt={this.props.prompt}
-                type={CONST_VECTOR_HORIZONTAL} // this is the type
-                disabled={this.props.disabled} // this is whether the input is disabled
-                value={this.props.value} // this is the value if a test is resumed
-                buttonSave={this.props.buttonSave} // this essentially submits
-                onChange={this.props.onChange} // this is the onChange method that modifies the data
-            />
-        );
-    }
-
-    renderMatrixButtonInput() {
-        return (
-            <ButtonInput
-                prompt={this.props.prompt}
-                type={CONST_MATRIX} // this is the type
-                disabled={this.props.disabled} // this is whether the input is disabled
-                value={this.props.value} // this is the value if a test is resumed
-                buttonSave={this.props.buttonSave} // this essentially submits
-                onChange={this.props.onChange} // this is the onChange method that modifies the data
-            />
-        );
-    }
-
-    renderMatrixManualInput() {
-        const matrix = validateMatrix(this.props.value) as string[][];
-        return (
-            <div>
-                {getMathJax(this.props.prompt)}
-                <TextField
-                    disabled={this.props.disabled}
-                    multiline
-                    value={this.props.value}
-                    label='Enter matrix'
-                    onChange={e => this.props.onChange(e.target.value)}
-                    onBlur={() => this.props.onBlur()}
-                    error={!this.props.disabled && !Array.isArray(matrix)}
-                    helperText={!Array.isArray(matrix) ? matrix : undefined}
-                />
-                <br />
-                <br />
-                {Array.isArray(matrix)
-                    ? getMathJax(
-                          '\\(\\begin{bmatrix}' +
-                              matrix.map(x => x.join('&')).join('\\\\') +
-                              '\\end{bmatrix}\\)',
-                          'body2',
-                      )
-                    : undefined}
-            </div>
-        );
-    }
-
-    renderBasisButtonInput() {
-        return (
-            <ButtonInput
-                prompt={this.props.prompt}
-                type={CONST_BASIS} // this is the type
-                disabled={this.props.disabled} // this is whether the input is disabled
-                value={this.props.value} // this is the value if a test is resumed
-                buttonSave={this.props.buttonSave} // this essentially submits
-                onChange={this.props.onChange} // this is the onChange method that modifies the data
-            />
-        );
-    }
-
-    renderBasisManualInput() {
-        const basis = validateMatrix(this.props.value) as string[][];
-        return (
-            <div>
-                {getMathJax(this.props.prompt)}
-                <TextField
-                    disabled={this.props.disabled}
-                    multiline
-                    value={this.props.value}
-                    label='Enter basis'
-                    onChange={e => this.props.onChange(e.target.value)}
-                    onBlur={() => this.props.onBlur()}
-                    error={!this.props.disabled && !Array.isArray(basis)}
-                    helperText={!Array.isArray(basis) ? basis : undefined}
-                />
-                <br />
-                <br />
-                {Array.isArray(basis) &&
-                    getMathJax(
-                        '\\(\\left\\{' +
-                            basis
-                                .map(x => `\\begin{bmatrix}${x.join('\\\\')}\\end{bmatrix}`)
-                                .join(',') +
-                            '\\right\\}\\)',
-                    )}
-            </div>
-        );
     }
 }

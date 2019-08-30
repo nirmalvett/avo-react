@@ -476,13 +476,16 @@ def parse_expression(question, expr):
 
 def parse_answer(i, answer, answer_type, prompt, question=None):
     ans = error('Invalid answer')
+    if not isinstance(answer, str):
+        print(f'Invalid answer: {answer}')
+        return ans
     try:
         if len(str(answer)) == 0 and answer_type not in ('0', '1'):
             ans = error("No answer given")
         elif answer_type == '0':  # True/False
-            if answer is True:
+            if answer == 'true':
                 ans = tf_ans(True, prompt)
-            elif answer is False:
+            elif answer == 'false':
                 ans = tf_ans(False, prompt)
             else:
                 ans = tf_ans(None, prompt)
