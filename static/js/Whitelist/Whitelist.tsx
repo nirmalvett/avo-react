@@ -1,15 +1,37 @@
-import React, { Component } from "react";
-import { Button, Paper, Typography } from "@material-ui/core";
-import * as Http from "../Http";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import React, {Component, CSSProperties} from 'react';
+import {Button, CircularProgress, FormControl, InputLabel, MenuItem, Paper, Select, Typography} from '@material-ui/core';
+import * as Http from '../Http';
+import {copy} from '../HelperFunctions/Utilities';
 
-export default class Whitelist extends Component<any, any> {
-    styles: any;
-    constructor(props: any) {
+interface WhitelistProps {
+    theme: {
+        color: {
+            '500': string
+        }
+    }
+}
+
+interface WhitelistState {
+    currentClassId: string;
+    showStudents: boolean;
+    showResponse: boolean;
+    style: CSSProperties;
+    selectedClassStudents: string[]; // email addresses
+    loadingClass: boolean;
+    selected: string[];
+
+    filesForExport: any; // todo
+    jsonObjects: {[key: string]: any}; // todo
+    availableClasses: {[key: string]: Http.GetClasses_Class};
+    responseMap: {[key: string]: string}; // maps users to outcomes when trying to add them
+}
+
+export default class Whitelist extends Component<WhitelistProps, WhitelistState> {
+    styles: {
+        dropArea: CSSProperties;
+        highlighted: CSSProperties;
+    };
+    constructor(props: WhitelistProps) {
         super(props);
         this.styles = {
             dropArea: {
@@ -17,7 +39,7 @@ export default class Whitelist extends Component<any, any> {
                 height: "480px",
                 margin: "50px auto",
                 padding: "20px",
-                flexShrink: "0",
+                flexShrink: 0,
                 overflowY: "auto"
             },
             highlighted: {
@@ -25,7 +47,7 @@ export default class Whitelist extends Component<any, any> {
                 height: "480px",
                 margin: "50px auto",
                 padding: "20px",
-                flexShrink: "0",
+                flexShrink: 0,
                 overflowY: "auto",
                 backgroundColor: props.theme.color["500"]
             }
@@ -34,9 +56,7 @@ export default class Whitelist extends Component<any, any> {
             style: this.styles.dropArea,
             // Dictionary of all class names for the user with keys as IDs
             availableClasses: {},
-            currentClassId: -1,
-            // Dictionary that holds objects that represent classes
-            classData: {},
+            currentClassId: '-1',
             // Holds the files ready for export
             filesForExport: {},
             // Holds the objects that have been converted to JSON
@@ -49,25 +69,6 @@ export default class Whitelist extends Component<any, any> {
             showStudents: false,
             selectedClassStudents: []
         };
-
-        // Bindings
-        this.setState = this.setState.bind(this);
-        this.handleDrop = this.handleDrop.bind(this);
-        this.processFile = this.processFile.bind(this);
-        this.highlight = this.highlight.bind(this);
-        this.unhighlight = this.unhighlight.bind(this);
-        this.csvToJSON = this.csvToJSON.bind(this);
-        this.fileToJSON = this.fileToJSON.bind(this);
-        this.downloadFiles = this.downloadFiles.bind(this);
-        this.exportFiles = this.exportFiles.bind(this);
-        this.getMenuItems = this.getMenuItems.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.displaySpinner = this.displaySpinner.bind(this);
-        this.toggleSelected = this.toggleSelected.bind(this);
-        this.displayFiles = this.displayFiles.bind(this);
-        this.getListItem = this.getListItem.bind(this);
-        this.displayDelete = this.displayDelete.bind(this);
-        this.deleteToggled = this.deleteToggled.bind(this);
     }
 
     render() {
@@ -105,7 +106,7 @@ export default class Whitelist extends Component<any, any> {
                 </form>
                 <Paper className='drop-area' id='drop-area' style={this.state.style}>
                     <Typography variant='h6' align='center' style={{ marginLeft: -15, padding: "15px", width: "100%" }}>
-                        {this.state.currentClassId === -1
+                        {this.state.currentClassId === '-1'
                             ? "Select a class to add student's to with OWL export"
                             : "Drag and drop your CSVs to add students to a class!"}
                     </Typography>
@@ -122,13 +123,13 @@ export default class Whitelist extends Component<any, any> {
         );
     }
 
-    getStudentsInWhitelist = (CLASS: any) => {
+    getStudentsInWhitelist = (CLASS: string) => {
         console.log(CLASS);
         Http.getClassWhitelist(
             parseInt(CLASS),
             res => {
                 console.log(res);
-                this.setState({ showStudents: true, selectedClassStudents: res });
+                this.setState({ showStudents: true, selectedClassStudents: res.whitelist });
             },
             err => {
                 console.log(err);
@@ -136,11 +137,11 @@ export default class Whitelist extends Component<any, any> {
         );
     };
 
-    handleChange(event: any) {
-        console.log(event.target.value);
-        this.setState({ currentClassId: event.target.value, showResponse: false });
-        this.getStudentsInWhitelist(event.target.value);
-    }
+    handleChange = (e: any) => {
+        console.log(e.target.value);
+        this.setState({ currentClassId: e.target.value, showResponse: false });
+        this.getStudentsInWhitelist(e.target.value);
+    };
 
     getMenuItems() {
         const { availableClasses } = this.state;
@@ -177,7 +178,7 @@ export default class Whitelist extends Component<any, any> {
 
     // Responsible for displaying the export button if there are files that have been dropped
     displayExport() {
-        if (!this.isEmpty(this.state.jsonObjects) && !this.state.loadingClass) {
+        if (!isEmpty(this.state.jsonObjects) && !this.state.loadingClass) {
             return (
                 <Button color='primary' variant='contained' onClick={this.exportFiles}>
                     Add to class
@@ -199,7 +200,7 @@ export default class Whitelist extends Component<any, any> {
     // Responsible for displaying the names of the dropped files
     displayFiles() {
         const { jsonObjects } = this.state;
-        // if (!this.isEmpty(jsonObjects)) {
+        // if (!isEmpty(jsonObjects)) {
         let selected = [...this.state.selected];
         let fileList = Object.keys(jsonObjects).map(classId => this.getListItem(classId, selected));
 
@@ -208,10 +209,10 @@ export default class Whitelist extends Component<any, any> {
                 {fileList}
                 <div style={{ overflowX: "hidden" }}>
                     {this.state.showStudents &&
-                        this.state.selectedClassStudents.map((student: any, i: number) =>
+                        this.state.selectedClassStudents.map((student, i) =>
                             i !== 0 ? (
                                 <Typography variant='subtitle1' align='left' style={{ margin: "15px", width: "100%" }}>
-                                    {`${i + 1}. ${student.userEmail}`}
+                                    {`${i + 1}. ${student}`}
                                 </Typography>
                             ) : (
                                 <div>
@@ -219,7 +220,7 @@ export default class Whitelist extends Component<any, any> {
                                         Student's allowed to enroll in this class
                                     </Typography>
                                     <Typography variant='subtitle1' align='left' style={{ margin: "15px", width: "100%" }}>
-                                        {`${i + 1}. ${student.userEmail} `}
+                                        {`${i + 1}. ${student} `}
                                     </Typography>
                                 </div>
                             )
@@ -228,7 +229,7 @@ export default class Whitelist extends Component<any, any> {
                         Object.keys(this.state.responseMap).map((key, i) =>
                             i !== 0 ? (
                                 <Typography variant='subtitle1' align='left' style={{ margin: "15px", width: "100%" }}>
-                                    {`${key}: ${this.state.responseMap[key]["message"] || this.state.responseMap[key]["error"]}`}
+                                    {`${key}: ${this.state.responseMap[key]}`}
                                 </Typography>
                             ) : (
                                 <div>
@@ -236,7 +237,7 @@ export default class Whitelist extends Component<any, any> {
                                         Upload report
                                     </Typography>
                                     <Typography variant='subtitle1' align='left' style={{ margin: "15px", width: "100%" }}>
-                                        {`${key}: ${this.state.responseMap[key]["message"] || this.state.responseMap[key]["error"]}`}
+                                        {`${key}: ${this.state.responseMap[key]}`}
                                     </Typography>
                                 </div>
                             )
@@ -246,7 +247,7 @@ export default class Whitelist extends Component<any, any> {
         );
     }
 
-    getListItem(classId: any, selected: any) {
+    getListItem(classId: string, selected: string[]) {
         let style = selected.includes(classId)
             ? { padding: "5px", paddingLeft: "0px", textDecoration: "line-through" }
             : { padding: "5px", paddingLeft: "0px" };
@@ -257,25 +258,25 @@ export default class Whitelist extends Component<any, any> {
         );
     }
 
-    toggleSelected(classId: any) {
-        let copy = [...this.state.selected];
+    toggleSelected(classId: string) {
+        const selected = [...this.state.selected];
         if (this.state.selected.includes(classId)) {
-            copy.splice(copy.indexOf(classId), 1);
-            this.setState({ selected: copy });
+            selected.splice(selected.indexOf(classId), 1);
+            this.setState({ selected: selected });
         } else {
-            copy.push(classId);
-            this.setState({ selected: copy });
+            selected.push(classId);
+            this.setState({ selected: selected });
         }
     }
 
-    deleteToggled() {
+    deleteToggled = () => {
         const { selected } = this.state;
-        selected.forEach((classId: any) => {
+        selected.forEach(classId => {
             delete this.state.jsonObjects[classId];
             delete this.state.filesForExport[classId];
         });
         this.setState({ selected: [] });
-    }
+    };
 
     // Set up event handlers on the drop box that take care of highlighting
     // when a file is dragged over
@@ -284,7 +285,7 @@ export default class Whitelist extends Component<any, any> {
         Http.getClasses(
             response => {
                 // Create a dictionary of class objects with the id as the key
-                let classes: any = {};
+                const classes: {[key: string]: Http.GetClasses_Class} = {};
                 response.classes.forEach(classObject => {
                     classes[classObject.classID] = classObject;
                 });
@@ -294,57 +295,47 @@ export default class Whitelist extends Component<any, any> {
         );
 
         let dropArea = document.getElementById("drop-area") as HTMLElement;
-        ["dragenter", "dragover", "dragleave", "drop"].forEach(event => dropArea.addEventListener(event, this.preventDefaults, false));
+        ["dragenter", "dragover", "dragleave", "drop"].forEach(event => dropArea.addEventListener(event, preventDefaults, false));
         dropArea.addEventListener("drop", this.handleDrop, false);
         ["dragenter", "dragover"].forEach(event => dropArea.addEventListener(event, this.highlight, false));
         ["dragleave", "drop"].forEach(event => dropArea.addEventListener(event, this.unhighlight, false));
     }
 
-    preventDefaults(e: any) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
+    highlight = () => this.setState({ style: this.styles.highlighted });
 
-    highlight(e: any) {
-        this.setState({ style: this.styles.highlighted });
-    }
-
-    unhighlight(e: any) {
-        this.setState({ style: this.styles.dropArea });
-    }
+    unhighlight = () => this.setState({ style: this.styles.dropArea });
 
     // Get each file that was dropped and process them
-    handleDrop(e: any) {
-        const { currentClassId, classData } = this.state;
-        if (currentClassId !== -1 && !this.state.loadingClass) {
+    handleDrop = (e: any) => {
+        const {currentClassId} = this.state;
+        if (currentClassId !== '-1' && !this.state.loadingClass) {
             let files = e.dataTransfer.files;
             [...files].forEach(file => this.processFile(file, currentClassId));
         }
-    }
+    };
 
     // Add the filename to this list and read its contents in to a JSON object
-    processFile(file: any, classId: any) {
+    processFile(file: any, classId: string) {
         let reader = new FileReader();
         reader.onload = e => {
             this.fileToJSON(e, classId);
-            let objectsCopy = JSON.parse(JSON.stringify(this.state.jsonObjects));
+            let objectsCopy = copy(this.state.jsonObjects);
             const filename = this.state.availableClasses[classId]["name"] + ": " + file.name;
-            let copy = JSON.parse(JSON.stringify(this.state.jsonObjects[classId]));
-            copy.name = filename;
-            objectsCopy[classId] = copy;
+            const copyOfJsonObjectsClassID = copy(this.state.jsonObjects[classId]);
+            copyOfJsonObjectsClassID.name = filename;
+            objectsCopy[classId] = copyOfJsonObjectsClassID;
             this.setState({ jsonObjects: objectsCopy, showResponse: false });
         };
         reader.readAsText(file);
     }
 
     // Turns the file into a JSON object and adds that object into the list
-    fileToJSON(e: any, classId: any) {
+    fileToJSON(e: any, classId: string) {
         let contents = e.target.result;
         let json = this.csvToJSON(contents);
-        // this.setState({ jsonObjects: [...this.state.jsonObjects, json] });
-        let copy = JSON.parse(JSON.stringify(this.state.jsonObjects));
-        copy[classId] = json;
-        this.setState({ jsonObjects: copy });
+        let jsonObjects = copy(this.state.jsonObjects);
+        jsonObjects[classId] = json;
+        this.setState({ jsonObjects });
     }
 
     // The logic for processing a CSV in the browser and turning it into a
@@ -399,11 +390,11 @@ export default class Whitelist extends Component<any, any> {
         // Headers of the CSV
         let file = headers.toString() + "\n";
 
-        for (const student in students) {
+        for (const student in students) if (students.hasOwnProperty(student)) {
             // Add the student's name and a blank space for OWL
             file += student + ",";
             courses.forEach((course: any) => {
-                // The first comma completes the blank and seperates the rest of the values
+                // The first comma completes the blank and separates the rest of the values
 
                 // Check that the course has a corresponding value
                 if (students[student].hasOwnProperty(course) && students[student][course] !== null && students[student][course] !== undefined) {
@@ -419,37 +410,36 @@ export default class Whitelist extends Component<any, any> {
 
     // Starts the conversion of all the new files that have been dropped in, then
     // then starts the download of all the converted files
-    exportFiles() {
-        const { filesForExport, jsonObjects, classData } = this.state;
+    exportFiles = () => {
+        const { filesForExport, jsonObjects } = this.state;
 
         for (const file in jsonObjects) {
             if (jsonObjects.hasOwnProperty(file)) {
                 if (!(file in filesForExport)) {
-                    let convertedFile = this.jsonToCSV(jsonObjects[file]);
-                    filesForExport[file] = convertedFile;
+                    filesForExport[file] = this.jsonToCSV(jsonObjects[file]);
                 }
             }
         }
         this.downloadFiles();
-    }
+    };
 
     downloadFiles() {
-        const { filesForExport, jsonObjects } = this.state;
-        Object.keys(jsonObjects).forEach(classID => {
+        const {jsonObjects} = this.state;
+        Object.keys(jsonObjects).forEach((classID) => {
             const studentsToAdd = jsonObjects[classID]["Student ID"];
-            const responseMap: any = {};
+            const responseMap: {[user: string]: string} = {};
             Object.keys(studentsToAdd).forEach(student => {
                 Http.addStudentsToWhitelist(
-                    this.state.currentClassId,
+                    Number(this.state.currentClassId),
                     student,
-                    (res: any) => {
-                        responseMap[student] = res;
+                    () => {
+                        responseMap[student] = 'User added to class!';
                         if (Object.keys(responseMap).length === Object.keys(studentsToAdd).length) {
                             this.setState({ responseMap, showResponse: true }, () => this.getStudentsInWhitelist(this.state.currentClassId));
                         }
                     },
-                    (err: any) => {
-                        responseMap[student] = err;
+                    ({error}) => {
+                        responseMap[student] = error;
                         if (Object.keys(responseMap).length === Object.keys(studentsToAdd).length) {
                             this.setState({ responseMap, showResponse: true }, () => this.getStudentsInWhitelist(this.state.currentClassId));
                         }
@@ -458,8 +448,13 @@ export default class Whitelist extends Component<any, any> {
             });
         });
     }
+}
 
-    isEmpty(object: any) {
-        return Object.keys(object).length === 0 && object.constructor === Object;
-    }
+function isEmpty(object: object) {
+    return object.constructor === Object && Object.keys(object).length === 0;
+}
+
+function preventDefaults(e: Event) {
+    e.preventDefault();
+    e.stopPropagation();
 }
