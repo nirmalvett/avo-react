@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Button, CircularProgress, FormControl, InputLabel, MenuItem, Paper, Select, Typography } from "@material-ui/core";
 import * as Http from '../Http';
 
-class ExportTools extends Component {
+export default class ExportTools extends Component {
   constructor(props) {
     super(props);
     this.styles = {
@@ -493,5 +493,3 @@ class ExportTools extends Component {
     return Object.keys(object).length === 0 && object.constructor === Object;
   }
 }
-
-export default ExportTools;
