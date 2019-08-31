@@ -11,9 +11,13 @@ export class _6_Vector extends PureComponent<AnswerInputImplementationProps> {
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                 {getMathJax(this.props.prompt)}
                 <div style={{display: 'flex', flexDirection: 'row'}}>
-                    <Typography variant='h5' style={{color: 'gray'}}>(</Typography>
+                    <Typography variant='h5' style={{color: 'gray'}}>
+                        (
+                    </Typography>
                     {cells.map(this.renderCell)}
-                    <Typography variant='h5' style={{color: 'gray'}}>)</Typography>
+                    <Typography variant='h5' style={{color: 'gray'}}>
+                        )
+                    </Typography>
                 </div>
                 <div style={{display: 'flex', flexDirection: 'row'}}>
                     <IconButton
