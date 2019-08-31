@@ -1,11 +1,23 @@
-import React from  'react';
-import Modal from '@material-ui/core/Modal';
-import Card from '@material-ui/core/Card/Card';
-import Typography from '@material-ui/core/Typography/Typography';
-import Button from '@material-ui/core/Button/Button';
+import React, {Component} from 'react';
+import {Button, Card, Modal, Typography} from '@material-ui/core';
 
-export default class AVOModal extends React.Component {
-    constructor(props = {}) {
+interface AVOModalProps {
+    title: string;
+    target: string;
+    onAccept: (cb?: () => void) => void;
+    onDecline: () => void;
+    acceptText: string;
+    declineText: string;
+    noDefaultClose: boolean;
+}
+
+interface AVOModalState {
+    isOpen: boolean;
+    hasLoaded: boolean;
+}
+
+export default class AVOModal extends Component<AVOModalProps, AVOModalState> {
+    constructor(props: AVOModalProps) {
         super(props);
         this.state = {
             isOpen : false,
@@ -28,7 +40,7 @@ export default class AVOModal extends React.Component {
     };
 
     componentDidMount() {
-        document.getElementById(this.props.target).addEventListener('click', () => {
+        (document.getElementById(this.props.target) as HTMLElement).addEventListener('click', () => {
             this.setState({ isOpen : true });
             setTimeout(() => {
                 this.setState({ hasLoaded : true });
@@ -54,8 +66,8 @@ export default class AVOModal extends React.Component {
                     className='avo-button'
                     onClick={() => {
                         if(this.props.noDefaultClose) {
-                            this.props.onAccept(this.closeModal.bind(this));
-                        }else{
+                            this.props.onAccept(this.closeModal);
+                        } else {
                             this.props.onAccept();
                             this.closeModal();
                         }
@@ -67,7 +79,7 @@ export default class AVOModal extends React.Component {
         );
     };
 
-    closeModal() {
+    closeModal = () => {
         this.setState({ hasLoaded : false });
         setTimeout(() => {
             this.setState({ isOpen : false });
