@@ -4,10 +4,8 @@ import * as Http from '../Http';
 import {copy} from '../HelperFunctions/Utilities';
 
 interface WhitelistProps {
-    theme: {
-        color: {
-            '500': string
-        }
+    color: {
+        '500': string
     }
 }
 
@@ -88,7 +86,7 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
                     padding: "20px",
                     flexShrink: 0,
                     overflowY: "auto",
-                    backgroundColor: this.state.highlighted ? this.props.theme.color["500"] : undefined,
+                    backgroundColor: this.state.highlighted ? this.props.color["500"] : undefined,
                 }}>
                     <Typography variant='h6' align='center' style={{ marginLeft: -15, padding: "15px", width: "100%" }}>
                         {this.state.currentClassId === '-1'

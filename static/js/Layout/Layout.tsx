@@ -319,7 +319,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
         } else if (section === 'Learn') {
             return <AVOLearnComponent />;
         } else if (section === 'Add Students To Class') {
-            return <Whitelist theme={{theme: this.props.theme, color: this.props.color}} />;
+            return <Whitelist color={this.color()} />;
         }
     }
 
