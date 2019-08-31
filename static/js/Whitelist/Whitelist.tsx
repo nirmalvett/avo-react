@@ -325,7 +325,7 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
 
     // The logic for processing a CSV in the browser and turning it into a
     // JSON object
-    csvToJSON(csv: any) {
+    csvToJSON(csv: string) {
         let lines = csv.split("\n");
         let headers = lines[0].split(",").map((header: any) => header.trim());
         let json: any = {};
@@ -347,8 +347,8 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
         json[listName] = {};
         for (let i = 1; i < lines.length; i++) {
             // Trim each value
-            let line = lines[i].split(",").map((value: any) => value.trim());
-            let name = line.shift();
+            let line = lines[i].split(",").map(value => value.trim());
+            let name = line.shift() as string;
             // Remove blank column added by OWL
             line.shift();
             // Create a new object within the outer object to represent a student
@@ -369,7 +369,7 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
             return "";
         }
         // Everything after the first 2 columns is an assessment value
-        let courses = headers.slice(2, headers.length);
+        let courses: string[] = headers.slice(2, headers.length);
         let students = json[headers[0]];
 
         // Headers of the CSV
@@ -378,7 +378,7 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
         for (const student in students) if (students.hasOwnProperty(student)) {
             // Add the student's name and a blank space for OWL
             file += student + ",";
-            courses.forEach((course: any) => {
+            courses.forEach(course => {
                 // The first comma completes the blank and separates the rest of the values
 
                 // Check that the course has a corresponding value
