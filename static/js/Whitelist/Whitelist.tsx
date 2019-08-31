@@ -1,4 +1,4 @@
-import React, {Component, CSSProperties} from 'react';
+import React, {Component} from 'react';
 import {Button, CircularProgress, FormControl, InputLabel, MenuItem, Paper, Select, Typography} from '@material-ui/core';
 import * as Http from '../Http';
 import {copy} from '../HelperFunctions/Utilities';
@@ -12,10 +12,10 @@ interface WhitelistProps {
 }
 
 interface WhitelistState {
+    highlighted: boolean;
     currentClassId: string;
     showStudents: boolean;
     showResponse: boolean;
-    style: CSSProperties;
     selectedClassStudents: string[]; // email addresses
     loadingClass: boolean;
     selected: string[];
@@ -27,33 +27,10 @@ interface WhitelistState {
 }
 
 export default class Whitelist extends Component<WhitelistProps, WhitelistState> {
-    styles: {
-        dropArea: CSSProperties;
-        highlighted: CSSProperties;
-    };
     constructor(props: WhitelistProps) {
         super(props);
-        this.styles = {
-            dropArea: {
-                width: "600px",
-                height: "480px",
-                margin: "50px auto",
-                padding: "20px",
-                flexShrink: 0,
-                overflowY: "auto"
-            },
-            highlighted: {
-                width: "600px",
-                height: "480px",
-                margin: "50px auto",
-                padding: "20px",
-                flexShrink: 0,
-                overflowY: "auto",
-                backgroundColor: props.theme.color["500"]
-            }
-        };
         this.state = {
-            style: this.styles.dropArea,
+            highlighted: false,
             // Dictionary of all class names for the user with keys as IDs
             availableClasses: {},
             currentClassId: '-1',
@@ -104,7 +81,15 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
                         </Select>
                     </FormControl>
                 </form>
-                <Paper className='drop-area' id='drop-area' style={this.state.style}>
+                <Paper className='drop-area' id='drop-area' style={{
+                    width: "600px",
+                    height: "480px",
+                    margin: "50px auto",
+                    padding: "20px",
+                    flexShrink: 0,
+                    overflowY: "auto",
+                    backgroundColor: this.state.highlighted ? this.props.theme.color["500"] : undefined,
+                }}>
                     <Typography variant='h6' align='center' style={{ marginLeft: -15, padding: "15px", width: "100%" }}>
                         {this.state.currentClassId === '-1'
                             ? "Select a class to add student's to with OWL export"
@@ -301,9 +286,9 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
         ["dragleave", "drop"].forEach(event => dropArea.addEventListener(event, this.unhighlight, false));
     }
 
-    highlight = () => this.setState({ style: this.styles.highlighted });
+    highlight = () => this.setState({ highlighted: true });
 
-    unhighlight = () => this.setState({ style: this.styles.dropArea });
+    unhighlight = () => this.setState({ highlighted: false });
 
     // Get each file that was dropped and process them
     handleDrop = (e: any) => {
