@@ -30,7 +30,7 @@ interface WhitelistState {
         name: string;
         whitelist: {
             name: string;
-            added: boolean; // for different class IDs
+            added: boolean;
         }[];
     }[];
     selectedClass: number;
@@ -157,7 +157,6 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
 
     handleChange = (e: any) => this.setState({selectedClass: e.target.value});
 
-    // Responsible for displaying the names of the dropped files
     displayFiles() {
         const {files} = this.state;
         return (
