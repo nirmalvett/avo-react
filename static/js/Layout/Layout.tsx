@@ -189,40 +189,41 @@ class Layout extends Component<LayoutProps, LayoutState> {
         this.setState({snackbar: {hideDuration, variant, message, isOpen: false}});
     };
 
-    jumpToSet(c: number, s: number) {
+    jumpToSet = (c: number, s: number) => {
         this.setState({
             classToJumpTo: c,
             setToJumpTo: s,
             section: 'My Classes',
         });
-    }
+    };
 
-    jumpToClass(c: number) {
+    jumpToClass = (c: number) => {
         this.setState({
             classToJumpTo: c,
             setToJumpTo: null,
             section: 'My Classes',
         });
-    }
+    };
+
     // ============================== Methods that return parts of what is rendered ==========================
 
     getContent() {
         // this helper returns the logic for what is loaded in the right side of the menu
         const {isTeacher, color, theme} = this.props;
         const {section} = this.state;
-        if (section === 'Home')
+        if (section === 'Home') {
+            return <HomePageOld showSnackBar={this.showSnackBar} />;
             // return (
             //     <HomePage
-            //         jumpToClass={this.jumpToClass.bind(this)}
-            //         jumpToSet={this.jumpToSet.bind(this)}
+            //         jumpToClass={this.jumpToClass}
+            //         jumpToSet={this.jumpToSet}
             //         color={this.color()}
             //         showSnackBar={this.showSnackBar}
             //     />
             // );
-            return <HomePageOld showSnackBar={this.showSnackBar} />;
-        if (section === 'Export Tools')
+        } else if (section === 'Export Tools') {
             return <ExportTools theme={{theme: this.props.theme, color: this.color()}} />;
-        if (section === 'My Classes')
+        } else if (section === 'My Classes') {
             return (
                 <MyClasses
                     classToJumpTo={this.state.classToJumpTo}
@@ -236,7 +237,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     }}
                 />
             );
-        if (section === 'Manage Classes')
+        } else if (section === 'Manage Classes') {
             return (
                 <ManageClasses
                     showSnackBar={this.showSnackBar}
@@ -250,7 +251,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     }}
                 />
             );
-        if (section === 'Create Test')
+        } else if (section === 'Create Test') {
             return (
                 <CreateTest
                     showSnackBar={this.showSnackBar}
@@ -258,7 +259,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     onCreate={() => this.setState({section: 'Manage Classes'})}
                 />
             );
-        if (section === 'My Questions')
+        } else if (section === 'My Questions') {
             return (
                 <QuestionManager
                     showSnackBar={this.showSnackBar}
@@ -269,7 +270,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     initWith={this.state.questionManager}
                 />
             );
-        if (section === 'Build Question')
+        } else if (section === 'Build Question') {
             return (
                 <QuestionBuilder
                     showSnackBar={this.showSnackBar}
@@ -280,8 +281,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     initWith={this.state.questionBuilder}
                 />
             );
-        if (section === 'Documentation') return <QuestionBuilderDocs />;
-        if (section === 'Take Test' && this.state.test)
+        } else if (section === 'Documentation') {
+            return QuestionBuilderDocs;
+        } else if (section === 'Take Test' && this.state.test) {
             return (
                 <TakeTest
                     showSnackBar={this.showSnackBar}
@@ -291,7 +293,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     }
                 />
             );
-        if (section === 'Preferences')
+        } else if (section === 'Preferences') {
             return (
                 <Preferences
                     color={color}
@@ -301,19 +303,24 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     showSnackBar={this.showSnackBar}
                 />
             );
-        if (section === 'Post Test') return <PostTest takes={this.state.postTest as number} />;
-        if (section === 'Mark Editor')
+        } else if (section === 'Post Test') {
+            return <PostTest takes={this.state.postTest as number} />;
+        } else if (section === 'Mark Editor') {
             return (
                 <MarkEditor
                     showSnackBar={this.showSnackBar}
                     takes={this.state.markEditor as number}
                 />
             );
-        if (section === 'Tag Builder') return <TagView />;
-        if (section === 'Notify Class') return <NotifyClass />;
-        if (section === 'Learn') return <AVOLearnComponent />;
-        if (section === 'Add Students To Class')
+        } else if (section === 'Tag Builder') {
+            return <TagView />;
+        } else if (section === 'Notify Class') {
+            return <NotifyClass />;
+        } else if (section === 'Learn') {
+            return <AVOLearnComponent />;
+        } else if (section === 'Add Students To Class') {
             return <Whitelist theme={{theme: this.props.theme, color: this.props.color}} />;
+        }
     }
 
     // ============================== Methods that perform some type of data manipulation =======================
