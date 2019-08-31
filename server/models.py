@@ -51,9 +51,9 @@ class ClassWhitelist(db.Model):
     USER_RELATION = db.relationship("User",  back_populates="CLASS_WHITELIST_RELATION")
     CLASS_RELATION = db.relationship("Class", back_populates="CLASS_WHITELIST_RELATION")
 
-    def __init__(self, USER, CLASS):
-        self.USER = USER
-        self.CLASS = CLASS
+    def __init__(self, user, class_id):
+        self.USER = user
+        self.CLASS = class_id
 
     def __repr__(self):
         return f'class_whitelist {self.ID} {self.USER} {self.CLASS}'
