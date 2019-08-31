@@ -204,7 +204,8 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
         );
     }
 
-    add = (index: number) => () => { // todo: the complexity of this function is too high
+    add = (index: number) => () => {
+        // todo: the complexity of this function is too high
         const {selectedClass} = this.state;
         const files = [...this.state.files];
         const deletedFile = files.splice(index, 1)[0];

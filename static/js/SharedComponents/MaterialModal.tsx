@@ -20,37 +20,38 @@ export default class AVOModal extends Component<AVOModalProps, AVOModalState> {
     constructor(props: AVOModalProps) {
         super(props);
         this.state = {
-            isOpen : false,
-            hasLoaded: false
+            isOpen: false,
+            hasLoaded: false,
         };
-    };
+    }
 
     render() {
         return (
             <Modal open={this.state.isOpen}>
                 <Card className={`avo-modal__card ${this.state.hasLoaded ? 'active' : ''}`}>
-                    <Typography variant='h5'>
-                        {this.props.title}
-                    </Typography>
+                    <Typography variant='h5'>{this.props.title}</Typography>
                     {this.props.children}
                     {this.getFooter()}
                 </Card>
             </Modal>
         );
-    };
+    }
 
     componentDidMount() {
-        (document.getElementById(this.props.target) as HTMLElement).addEventListener('click', () => {
-            this.setState({ isOpen : true });
-            setTimeout(() => {
-                this.setState({ hasLoaded : true });
-            }, 100);
-        });
-    };
+        (document.getElementById(this.props.target) as HTMLElement).addEventListener(
+            'click',
+            () => {
+                this.setState({isOpen: true});
+                setTimeout(() => {
+                    this.setState({hasLoaded: true});
+                }, 100);
+            },
+        );
+    }
 
     getFooter() {
         return (
-            <footer className="avo-modal__card-footer">
+            <footer className='avo-modal__card-footer'>
                 <Button
                     color='primary'
                     className='avo-button'
@@ -65,7 +66,7 @@ export default class AVOModal extends Component<AVOModalProps, AVOModalState> {
                     color='primary'
                     className='avo-button'
                     onClick={() => {
-                        if(this.props.noDefaultClose) {
+                        if (this.props.noDefaultClose) {
                             this.props.onAccept(this.closeModal);
                         } else {
                             this.props.onAccept(() => {});
@@ -77,12 +78,12 @@ export default class AVOModal extends Component<AVOModalProps, AVOModalState> {
                 </Button>
             </footer>
         );
-    };
+    }
 
     closeModal = () => {
-        this.setState({ hasLoaded : false });
+        this.setState({hasLoaded: false});
         setTimeout(() => {
-            this.setState({ isOpen : false });
+            this.setState({isOpen: false});
         }, 550);
     };
-};
+}

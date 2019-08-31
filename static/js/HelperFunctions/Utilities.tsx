@@ -288,6 +288,6 @@ export function sortFunc<T>(func: (x: T) => number | string): (x: T, y: T) => nu
     return (x: T, y: T) => {
         const xx = func(x);
         const yy = func(y);
-        return (xx > yy) ? 1 : (xx < yy) ? -1 : 0;
+        return xx > yy ? 1 : xx < yy ? -1 : 0;
     };
 }
