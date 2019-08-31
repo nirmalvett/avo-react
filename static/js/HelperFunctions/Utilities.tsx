@@ -84,6 +84,7 @@ export function getMathJax(text: string, variant: ThemeStyle = 'body2', key?: st
     );
 }
 
+// todo: rewrite this function to be typesafe
 export function validateNumber(text: string): string | [string] {
     // Remove whitespace and check if string is empty
     if (text === undefined || text.replace(/ /g, '').length === 0) return ['']; // No error, but also no text to display
