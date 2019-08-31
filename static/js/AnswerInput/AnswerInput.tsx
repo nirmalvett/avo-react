@@ -25,6 +25,7 @@ export interface AnswerInputImplementationProps {
     disabled?: boolean;
     onChange: (ans: string) => void;
     save: (ans: string) => void;
+    showSnackBar: ShowSnackBar;
 }
 
 export default class AnswerInput extends PureComponent<AnswerInputProps> {
@@ -63,7 +64,7 @@ export default class AnswerInput extends PureComponent<AnswerInputProps> {
     }
 
     getProps() {
-        const {value, prompt, disabled, onChange, save} = this.props;
-        return {value, prompt, disabled, onChange, save};
+        const {value, prompt, disabled, onChange, save, showSnackBar} = this.props;
+        return {value, prompt, disabled, onChange, save, showSnackBar};
     }
 }

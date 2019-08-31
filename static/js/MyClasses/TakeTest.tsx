@@ -113,6 +113,7 @@ export default class TakeTest extends Component<TakeTestProps, TakeTestState> {
                         value={this.state.newAnswers[index][promptIndex]}
                         onChange={this.onChange(index, promptIndex)}
                         save={this.save(index, promptIndex)}
+                        showSnackBar={this.props.showSnackBar}
                     />,
                 ])}
             </Card>
