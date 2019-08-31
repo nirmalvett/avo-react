@@ -1,12 +1,6 @@
 import React, { Component } from "react";
-import Typography from "@material-ui/core/es/Typography/Typography";
-import { Button, Paper } from "@material-ui/core/es";
+import { Button, CircularProgress, FormControl, InputLabel, MenuItem, Paper, Select, Typography } from "@material-ui/core";
 import * as Http from '../Http';
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import CircularProgress from "@material-ui/core/CircularProgress";
 
 class ExportTools extends Component {
   constructor(props) {
