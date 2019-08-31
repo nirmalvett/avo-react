@@ -5,7 +5,7 @@ from flask_login import current_user
 from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
-from server.decorators import login_required, teacher_only, student_only, admin_only, validate, request, abort
+from server.decorators import login_required, teacher_only, student_only, admin_only, validate
 from server.helpers import timestamp
 from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message, ClassWhitelist
 import paypalrestsdk as paypal
@@ -46,23 +46,29 @@ with open('server/SQL/teacher_due_dates.sql', 'r') as sql:
 
 @ClassRoutes.route('/addToWhitelist', methods=['POST'])
 @teacher_only
-@validate(classID=int, uwoUser=str)
-def add_to_whitelist(class_id: int, uwo_user: str):
+@validate(classID=int, uwoUsers=list)
+def add_to_whitelist(class_id: int, uwo_users: list):
     """
-    Adds a user to a class's whitelist for enrolment
+    Adds a list of users to a class's whitelist for enrolment
     :return: Confirmation that the users were added to the whitelist
     """
-    user_email = uwo_user + "@uwo.ca"
-    user = User.query.filter((User.email == user_email)).first()
-    if user is None:
-        return jsonify(error="User not added to class, user does not exist")
-    exists = ClassWhitelist.query.filter((ClassWhitelist.CLASS == class_id and ClassWhitelist.USER == user.USER)).first()
-    if exists is None:
-        print(exists)
+    results = []
+    for uwo_user in uwo_users:
+        user_email = uwo_user + '@uwo.ca'
+        user = User.query.filter((User.email == user_email)).first()
+        if user is None:
+            results.append(False)  # User does not exist
+            continue
+        whitelist_entry = ClassWhitelist.query.filter(
+            (ClassWhitelist.CLASS == class_id) & (ClassWhitelist.USER == user.USER)
+        ).first()
+        if whitelist_entry is not None:
+            results.append(True)  # User not added to class, user already in class
+            continue
         db.session.add(ClassWhitelist(user.USER, class_id))
-        db.session.commit()
-        return jsonify({})
-    return jsonify(error='User not added to class, user already in class')
+        results.append(True)  # User added to whitelist
+    db.session.commit()
+    return jsonify(results=results)
 
 
 @ClassRoutes.route('/getClassWhitelist', methods=['POST'])

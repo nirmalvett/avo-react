@@ -8,13 +8,17 @@ export function getClassWhitelist(classID: number, success: cb<GetClassWhitelist
     _request('POST', '/getClassWhitelist', success, failure, {classID});
 }
 
+export interface AddStudentsToWhitelist {
+    results: boolean[];
+}
+
 export function addStudentsToWhitelist(
     classID: number,
-    uwoUser: string,
-    success: cb<{}>,
+    uwoUsers: string[],
+    success: cb<AddStudentsToWhitelist>,
     failure: cb,
 ) {
-    _request('POST', '/addToWhitelist', success, failure, {classID, uwoUser});
+    _request('POST', '/addToWhitelist', success, failure, {classID, uwoUsers});
 }
 
 export function createClass(name: string, success: cb<{}>, failure: cb) {

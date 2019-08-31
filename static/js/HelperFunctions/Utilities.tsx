@@ -282,3 +282,11 @@ export function copy<T>(object: T): T {
 export function arrayEq<T>(x1: T[], x2: T[]): boolean {
     return x1.length === x2.length && x1.filter((_, y) => x1[y] !== x2[y]).length === 0;
 }
+
+export function sortFunc<T>(func: (x: T) => number | string): (x: T, y: T) => number {
+    return (x: T, y: T) => {
+        const xx = func(x);
+        const yy = func(y);
+        return (xx > yy) ? 1 : (xx < yy) ? -1 : 0;
+    };
+}
