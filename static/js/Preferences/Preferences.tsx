@@ -1,18 +1,15 @@
 import React, {PureComponent} from 'react';
+import {Avatar, FormControlLabel, Paper, Radio, RadioGroup, Typography} from '@material-ui/core';
 import * as Http from '../Http';
-import Radio from '@material-ui/core/Radio/Radio';
-import Avatar from '@material-ui/core/Avatar/Avatar';
-import RadioGroup from '@material-ui/core/RadioGroup/RadioGroup';
-import Typography from '@material-ui/core/Typography/Typography';
-import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
 import {colorList} from '../SharedComponents/AVOCustomColors';
-import {Paper} from '@material-ui/core';
+import {ShowSnackBar} from '../Layout/Layout';
 
 interface PreferencesProps {
-    setColor: (color: number) => void;
-    setTheme: (theme: 'light' | 'dark') => void;
+    setColor: (color: number) => () => void;
+    setTheme: (theme: 'light' | 'dark') => () => void;
     color: number;
     theme: 'light' | 'dark';
+    showSnackBar: ShowSnackBar;
 }
 
 export default class Preferences extends PureComponent<PreferencesProps> {
@@ -60,10 +57,12 @@ export default class Preferences extends PureComponent<PreferencesProps> {
     }
 
     changeColor = (color: number) => {
-        Http.changeColor(color, () => this.props.setColor(color), () => {});
+        Http.changeColor(color, this.props.setColor(color), this.onError);
     };
 
     changeTheme = (theme: 'light' | 'dark') => {
-        Http.changeTheme(theme === 'dark' ? 1 : 0, () => this.props.setTheme(theme), () => {});
+        Http.changeTheme(theme === 'dark' ? 1 : 0, this.props.setTheme(theme), this.onError);
     };
+
+    onError = () => this.props.showSnackBar('error', 'An error occurred', 2000);
 }

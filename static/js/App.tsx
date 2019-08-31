@@ -72,9 +72,9 @@ export default class App extends Component<AppProps, AppState> {
 
     logout = () => this.setState({authenticated: false});
 
-    setColor = (color: number) =>
+    setColor = (color: number) => () =>
         this.setState({authenticated: {...(this.state.authenticated as User), color}});
 
-    setTheme = (theme: 'light' | 'dark') =>
+    setTheme = (theme: 'light' | 'dark') => () =>
         this.setState({authenticated: {...(this.state.authenticated as User), theme}});
 }

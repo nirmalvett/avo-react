@@ -81,8 +81,8 @@ interface LayoutProps {
     color: number;
     theme: 'dark' | 'light';
     logout: () => void;
-    setColor: (color: number) => void;
-    setTheme: (theme: 'light' | 'dark') => void;
+    setColor: (color: number) => () => void;
+    setTheme: (theme: 'light' | 'dark') => () => void;
 }
 
 interface LayoutState {
@@ -298,6 +298,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     theme={theme}
                     setColor={this.props.setColor}
                     setTheme={this.props.setTheme}
+                    showSnackBar={this.showSnackBar}
                 />
             );
         if (section === 'Post Test') return <PostTest takes={this.state.postTest as number} />;
