@@ -28,7 +28,7 @@ export interface AnswerInputImplementationProps {
     showSnackBar: ShowSnackBar;
 }
 
-export default class AnswerInput extends PureComponent<AnswerInputProps> {
+export class AnswerInput extends PureComponent<AnswerInputProps> {
     static defaultProps = {
         value: '',
         disabled: false,

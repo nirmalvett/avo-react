@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import * as Http from '../Http';
 import {arrayEq, getMathJax} from '../HelperFunctions/Utilities';
-import AnswerInput from '../AnswerInput/AnswerInput';
+import {AnswerInput} from '../AnswerInput';
 import {
     Button,
     Card,

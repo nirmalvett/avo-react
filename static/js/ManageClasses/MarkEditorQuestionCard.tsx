@@ -2,7 +2,7 @@ import React, {Fragment} from 'react';
 import {Card, CardHeader, Divider, IconButton, Tooltip, Typography} from '@material-ui/core';
 import {Check, Close} from '@material-ui/icons';
 import {getMathJax} from '../HelperFunctions/Utilities';
-import AnswerInput from '../AnswerInput/AnswerInput';
+import {AnswerInput} from '../AnswerInput';
 import * as Http from '../Http';
 
 interface MarkEditorQuestionCardProps {

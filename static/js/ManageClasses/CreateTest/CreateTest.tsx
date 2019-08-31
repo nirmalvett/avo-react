@@ -17,7 +17,7 @@ import {AvoSet} from '../../Http/types';
 import {ShowSnackBar} from '../../Layout/Layout';
 import {HashLoader} from 'react-spinners';
 import {getMathJax} from '../../HelperFunctions/Utilities';
-import AnswerInput from '../../AnswerInput/AnswerInput';
+import {AnswerInput} from '../../AnswerInput';
 import {FolderIcon} from './FolderIcon';
 import {DatePicker} from './DatePicker';
 
