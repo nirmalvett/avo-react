@@ -4,11 +4,11 @@ import {Button, Card, Modal, Typography} from '@material-ui/core';
 interface AVOModalProps {
     title: string;
     target: string;
-    onAccept: (cb?: () => void) => void;
+    onAccept: (cb: () => void) => void;
     onDecline: () => void;
     acceptText: string;
     declineText: string;
-    noDefaultClose: boolean;
+    noDefaultClose?: boolean;
 }
 
 interface AVOModalState {
@@ -68,7 +68,7 @@ export default class AVOModal extends Component<AVOModalProps, AVOModalState> {
                         if(this.props.noDefaultClose) {
                             this.props.onAccept(this.closeModal);
                         } else {
-                            this.props.onAccept();
+                            this.props.onAccept(() => {});
                             this.closeModal();
                         }
                     }}
