@@ -7,17 +7,6 @@ export function uniqueKey(): string {
         .substr(2, 9);
 }
 
-export function objectSize(obj: object): number {
-    let size = 0,
-        key;
-    for (key in obj) {
-        if (obj.hasOwnProperty(key)) {
-            size++;
-        }
-    }
-    return size;
-}
-
 export function isChrome(): boolean {
     // please note,
     // that IE11 now returns undefined again for window.chrome
