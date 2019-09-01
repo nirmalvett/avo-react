@@ -53,6 +53,10 @@ interface MarkEditor {
     takesID: number;
 }
 
+interface Mastery {
+    name: 'Mastery';
+}
+
 interface MyClasses {
     name: 'My Classes';
     _class: number | null;
@@ -95,6 +99,7 @@ export type Section =
     | Learn
     | ManageClasses
     | MarkEditor
+    | Mastery
     | MyClasses
     | MyQuestions
     | NotifyClass

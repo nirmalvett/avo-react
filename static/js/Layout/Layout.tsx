@@ -17,6 +17,7 @@ import QuestionBuilder from '../QuestionBuilder/QuestionBuilder';
 import QuestionBuilderDocs from '../CourseBuilder/QuestionBuilder/QuestionBuilderDocs';
 import ExportTools from '../ExportTools/ExportTools';
 import AVOLearnComponent from '../Learn/AVOLearnComponent';
+import MasteryHome from '../Learn/MasteryHome';
 import {colorList} from '../SharedComponents/AVOCustomColors';
 import NotifyClass from '../Home/NotifyClass';
 import {createStyles, Theme} from '@material-ui/core/styles';
@@ -203,6 +204,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
             );
         } else if (section.name === 'Mark Editor') {
             return <MarkEditor showSnackBar={this.showSnackBar} takes={section.takesID} />;
+        } else if (section.name === 'Mastery') {
+            return <MasteryHome />;
         } else if (section.name === 'My Classes') {
             return (
                 <MyClasses
