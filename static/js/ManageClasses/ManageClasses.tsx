@@ -1,4 +1,4 @@
-import React, {Component, CSSProperties, Fragment, ReactElement} from 'react';
+import React, {Component, Fragment} from 'react';
 import {
     Button,
     Card,
@@ -51,13 +51,6 @@ import {DateTimePicker} from '@material-ui/pickers';
 import {ShowSnackBar} from '../Layout/Layout';
 import moment, {Moment} from 'moment';
 
-const cardStyle: CSSProperties = {
-    marginBottom: '10%',
-    padding: '10px',
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-};
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
 const CONST_TAB_MY_ATTEMPTS = 2;
@@ -78,14 +71,14 @@ interface ManageClassesProps {
 }
 
 interface ManageClassesState {
-    classes: (Http.GetClasses_Class & {open?: boolean})[];
+    classes: (Http.GetClasses_Class & {open: boolean})[];
     classesLoaded: boolean;
     c: null | number;
     t: null | number;
     studentNameSearchLabels: {label: string}[];
     anchorEl: null;
     createClassErrorMessage: string;
-    apexChartEl: undefined | ReactElement;
+    chartWidth: number;
     results: undefined | Http.GetClassTestResults['results'];
     deleteTestPopperOpen: boolean;
     activeTab: number;
@@ -116,7 +109,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             studentNameSearchLabels: [],
             anchorEl: null,
             createClassErrorMessage: '',
-            apexChartEl: undefined,
+            chartWidth: 200,
             results: undefined,
             deleteTestPopperOpen: false,
             activeTab: 0,
@@ -140,14 +133,18 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     }
 
     componentDidMount() {
+        this.handleResize();
         this.loadClasses();
     }
 
     loadClasses(snackBarString?: string) {
         // this gets the class results
         Http.getClasses(
-            result => this.setState({...result, classesLoaded: true}),
-            result => console.log(result),
+            result => this.setState({
+                classes: result.classes.map(x => ({...x, open: false})),
+                classesLoaded: true,
+            }),
+            console.warn,
         );
         if (snackBarString !== undefined) {
             this.props.showSnackBar('success', snackBarString, 2000);
@@ -158,12 +155,19 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         return (
             <div style={{width: '100%', flex: 1, display: 'flex'}}>
                 <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
-                    <div style={{flex: 3, display: 'flex'}}>{this.sideBar()}</div>
+                    <div style={{flex: 4, display: 'flex'}}>{this.sideBar()}</div>
                     <div style={{flex: 1}} />
-                    <div style={{flex: 7, display: 'flex'}}>
-                        <Card classes={{root: 'avo-card'}} style={cardStyle}>
-                            {this.detailsCard() /* This is the card on the right hand side */}
-                        </Card>
+                    <div
+                        id='avo-apex__chart-container'
+                        style={{
+                            flex: 10,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            overflowY: 'auto',
+                            padding: '16px',
+                        }}
+                    >
+                        {this.detailsCard()}
                     </div>
                     <div style={{flex: 1}} />
                 </div>
@@ -181,16 +185,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 square
                 style={{width: '100%', flex: 1, display: 'flex'}}
             >
-                <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
-                    <Typography
-                        variant='subtitle1'
-                        color='textPrimary'
-                        style={{textAlign: 'center'}}
-                    >
-                        Manage My Classes
-                    </Typography>
-                    <br />
-                    <Divider />
+                <List style={{flex: 1, overflowY: 'auto', paddingTop: 0}}>
                     <ListSubheader style={{position: 'relative'}}>Class Creation</ListSubheader>
                     <ListItem button id='avo-manageclasses__create-button'>
                         <ListItemIcon>
@@ -230,13 +225,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         }
         return this.state.classes.map((cls, cIndex) => (
             <Fragment key={'ManageClasses' + cls.classID + '-' + cIndex}>
-                <ListItem
-                    button
-                    onClick={() => {
-                        this.selectClass(cIndex);
-                        this.handleClassListItemClick();
-                    }}
-                >
+                <ListItem button onClick={() => this.selectClass(cIndex)}>
                     <ListItemIcon>
                         <PeopleOutlined color='action' />
                     </ListItemIcon>
@@ -393,7 +382,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                             <Tooltip title='Download CSV'>
                                 <IconButton
                                     onClick={() =>
-                                        (window.location.href = `/CSV/ClassMarks/${selectedClass.classID}`)
+                                        window.location.href = `/CSV/ClassMarks/${selectedClass.classID}`
                                     }
                                 >
                                     <GetAppOutlined />
@@ -402,13 +391,18 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         </Fragment>
                     }
                 />
-                <div className='mixed-chart' id='avo-apex__chart-container'>
+                <div className='mixed-chart'>
                     {selectedClass.tests.length !== 0 ? ( // if there is at least one test then display data
                         <Fragment>
-                            {this.state.apexChartEl}
+                            <Chart
+                                options={this.generateChartOptions()}
+                                series={this.processClassChartData()}
+                                type='line'
+                                width={this.state.chartWidth}
+                            />
                             <Typography
                                 component={'span'}
-                                variant='body1'
+                                variant='body2'
                                 color='textPrimary'
                                 classes={{root: 'avo-padding__16px'}}
                             >
@@ -417,7 +411,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                             </Typography>
                             <Typography
                                 component={'span'}
-                                variant='body1'
+                                variant='body2'
                                 color='textPrimary'
                                 classes={{root: 'avo-padding__16px'}}
                             >
@@ -499,60 +493,56 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
 
     deleteTestPopper(selectedTest: Http.GetClasses_Test) {
         return (
-            <Fragment>
-                <List style={{flex: 1, overflowY: 'auto'}} dense>
-                    <Popper
-                        placement='left-start'
-                        open={this.state.deleteTestPopperOpen}
-                        anchorEl={() =>
-                            document.getElementById('avo-manageclasses__delete-button') as any
-                        }
-                        disablePortal={false}
-                        modifiers={{
-                            flip: {
-                                enabled: true,
-                            },
-                            preventOverflow: {
-                                enabled: true,
-                                boundariesElement: 'scrollParent',
-                            },
-                        }}
+            <Popper
+                placement='left-start'
+                open={this.state.deleteTestPopperOpen}
+                anchorEl={() =>
+                    document.getElementById('avo-manageclasses__delete-button') as any
+                }
+                disablePortal={false}
+                modifiers={{
+                    flip: {
+                        enabled: true,
+                    },
+                    preventOverflow: {
+                        enabled: true,
+                        boundariesElement: 'scrollParent',
+                    },
+                }}
+            >
+                <Paper style={{padding: '10px', height: '6em'}}>
+                    <Typography
+                        component={'span'}
+                        variant='body1'
+                        color='textPrimary'
+                        classes={{root: 'avo-padding__16px'}}
                     >
-                        <Paper style={{padding: '10px', height: '6em'}}>
-                            <Typography
-                                component={'span'}
-                                variant='body1'
-                                color='textPrimary'
-                                classes={{root: 'avo-padding__16px'}}
-                            >
-                                Are you sure you want to delete {selectedTest.name}?
-                                <br />
-                                Once a test has been deleted it can not be recovered!
-                            </Typography>
-                            <br />
-                            <div style={{float: 'right', position: 'relative'}}>
-                                <Button
-                                    classes={{root: 'avo-button'}}
-                                    onClick={() => this.setState({deleteTestPopperOpen: false})}
-                                    color='primary'
-                                >
-                                    Never mind
-                                </Button>
-                                <Button
-                                    classes={{root: 'avo-button'}}
-                                    onClick={() => {
-                                        this.setState({deleteTestPopperOpen: false});
-                                        this.deleteTest();
-                                    }}
-                                    color='primary'
-                                >
-                                    Delete
-                                </Button>
-                            </div>
-                        </Paper>
-                    </Popper>
-                </List>
-            </Fragment>
+                        Are you sure you want to delete {selectedTest.name}?
+                        <br />
+                        Once a test has been deleted it can not be recovered!
+                    </Typography>
+                    <br />
+                    <div style={{float: 'right', position: 'relative'}}>
+                        <Button
+                            classes={{root: 'avo-button'}}
+                            onClick={() => this.setState({deleteTestPopperOpen: false})}
+                            color='primary'
+                        >
+                            Never mind
+                        </Button>
+                        <Button
+                            classes={{root: 'avo-button'}}
+                            onClick={() => {
+                                this.setState({deleteTestPopperOpen: false});
+                                this.deleteTest();
+                            }}
+                            color='primary'
+                        >
+                            Delete
+                        </Button>
+                    </div>
+                </Paper>
+            </Popper>
         );
     }
 
@@ -570,113 +560,109 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
 
     editTestPopper(selectedTest: Http.GetClasses_Test) {
         return (
-            <Fragment>
-                <List style={{flex: 1, overflowY: 'auto'}} dense>
-                    <Popper
-                        placement='left-start'
-                        open={this.state.editTestPopperOpen}
-                        anchorEl={() =>
-                            document.getElementById('avo-manageclasses__delete-button') as any
-                        }
-                        disablePortal={false}
-                        modifiers={{
-                            flip: {
-                                enabled: true,
-                            },
-                            preventOverflow: {
-                                enabled: true,
-                                boundariesElement: 'scrollParent',
-                            },
-                        }}
-                    >
-                        <Card
-                            style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}
+            <Popper
+                placement='left-start'
+                open={this.state.editTestPopperOpen}
+                anchorEl={() =>
+                    document.getElementById('avo-manageclasses__delete-button') as any
+                }
+                disablePortal={false}
+                modifiers={{
+                    flip: {
+                        enabled: true,
+                    },
+                    preventOverflow: {
+                        enabled: true,
+                        boundariesElement: 'scrollParent',
+                    },
+                }}
+            >
+                <Card
+                    style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}
+                >
+                    <CardHeader title={`Adjust ${selectedTest.name} Settings`} />
+                    <TextField
+                        margin='normal'
+                        label='Name'
+                        style={{width: '46%', margin: '2%'}}
+                        value={this.state.editTest_name}
+                        onChange={e => this.setState({editTest_name: e.target.value})}
+                    />
+                    <TextField
+                        margin='normal'
+                        label='Time Limit in Minutes'
+                        type='number'
+                        style={{width: '46%', margin: '2%'}}
+                        value={this.state.editTest_timer}
+                        onChange={e => this.setState({editTest_timer: e.target.value})}
+                    />
+                    <br />
+                    <TextField
+                        margin='normal'
+                        label='Attempts'
+                        type='number'
+                        style={{width: '46%', margin: '2%'}}
+                        value={this.state.editTest_attempts}
+                        onChange={e => this.setState({editTest_attempts: e.target.value})}
+                    />
+                    <DateTimePicker
+                        margin='normal'
+                        style={{width: '46%', margin: '2%'}}
+                        label='Deadline'
+                        value={moment(this.state._editTest_date)}
+                        onChange={this.handleDateChange}
+                        variant='inline'
+                    />
+                    <DateTimePicker
+                        margin='normal'
+                        style={{width: '46%', margin: '2%'}}
+                        label='Automatic Opening Time'
+                        value={moment(this.state._editTest_openTime)}
+                        onChange={this.handleOpenTestChange}
+                        variant='inline'
+                    />
+                    <br />
+                    <div style={{float: 'right', position: 'relative'}}>
+                        <Button
+                            classes={{root: 'avo-button'}}
+                            onClick={() =>
+                                this.setState({
+                                    editTestPopperOpen: false,
+                                    editTest_confirm_text: 'Confirm', // set back to default
+                                    editTest_name: '',
+                                })
+                            }
+                            color='primary'
                         >
-                            <CardHeader title={`Adjust ${selectedTest.name} Settings`} />
-                            <TextField
-                                margin='normal'
-                                label='Name'
-                                style={{width: '46%', margin: '2%'}}
-                                value={this.state.editTest_name}
-                                onChange={e => this.setState({editTest_name: e.target.value})}
-                            />
-                            <TextField
-                                margin='normal'
-                                label='Time Limit in Minutes'
-                                type='number'
-                                style={{width: '46%', margin: '2%'}}
-                                value={this.state.editTest_timer}
-                                onChange={e => this.setState({editTest_timer: e.target.value})}
-                            />
-                            <br />
-                            <TextField
-                                margin='normal'
-                                label='Attempts'
-                                type='number'
-                                style={{width: '46%', margin: '2%'}}
-                                value={this.state.editTest_attempts}
-                                onChange={e => this.setState({editTest_attempts: e.target.value})}
-                            />
-                            <DateTimePicker
-                                margin='normal'
-                                style={{width: '46%', margin: '2%'}}
-                                label='Deadline'
-                                value={moment(this.state._editTest_date)}
-                                onChange={this.handleDateChange}
-                                variant='inline'
-                            />
-                            <DateTimePicker
-                                margin='normal'
-                                style={{width: '46%', margin: '2%'}}
-                                label='Automatic Opening Time'
-                                value={moment(this.state._editTest_openTime)}
-                                onChange={this.handleOpenTestChange}
-                                variant='inline'
-                            />
-                            <br />
-                            <div style={{float: 'right', position: 'relative'}}>
-                                <Button
-                                    classes={{root: 'avo-button'}}
-                                    onClick={() =>
+                            Close
+                        </Button>
+                        <Button
+                            classes={{root: 'avo-button'}}
+                            onClick={() => {
+                                Http.changeTest(
+                                    selectedTest.testID,
+                                    Number(this.state.editTest_timer),
+                                    this.state.editTest_name,
+                                    Number(new Date(this.state._editTest_date)),
+                                    Number(new Date(this.state._editTest_openTime)),
+                                    parseInt(this.state.editTest_attempts),
+                                    () => {
                                         this.setState({
-                                            editTestPopperOpen: false,
-                                            editTest_confirm_text: 'Confirm', // set back to default
-                                            editTest_name: '',
-                                        })
-                                    }
-                                    color='primary'
-                                >
-                                    Close
-                                </Button>
-                                <Button
-                                    classes={{root: 'avo-button'}}
-                                    onClick={() => {
-                                        Http.changeTest(
-                                            selectedTest.testID,
-                                            Number(this.state.editTest_timer),
-                                            this.state.editTest_name,
-                                            Number(new Date(this.state._editTest_date)),
-                                            Number(new Date(this.state._editTest_openTime)),
-                                            parseInt(this.state.editTest_attempts),
-                                            () => {
-                                                this.setState({
-                                                    deleteTestPopperOpen: false,
-                                                    editTest_confirm_text: 'Change again',
-                                                });
-                                                this.loadClasses('Change successful!');
-                                            },
-                                            e => this.props.showSnackBar('error', e.error, 2000),
-                                        );
-                                    }}
-                                    color='primary'
-                                >
-                                    {this.state.editTest_confirm_text}
-                                </Button>
-                            </div>
-                        </Card>
-                    </Popper>
-                </List>
-            </Fragment>
+                                            deleteTestPopperOpen: false,
+                                            editTest_confirm_text: 'Change again',
+                                        });
+                                        this.loadClasses('Change successful!');
+                                    },
+                                    e => this.props.showSnackBar('error', e.error, 2000),
+                                );
+                            }}
+                            color='primary'
+                        >
+                            {this.state.editTest_confirm_text}
+                        </Button>
+                    </div>
+                </Card>
+            </Popper>
         );
     }
 
@@ -1071,70 +1057,10 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         return outArray;
     }
 
-    // renderSuggestion({suggestion, index, itemProps, highlightedIndex, selectedItem}) {
-    //     const isHighlighted = highlightedIndex === index;
-    //     const isSelected = (selectedItem || '').indexOf(suggestion.label) > -1;
-    //     return (
-    //         <MenuItem
-    //             {...itemProps}
-    //             key={suggestion.label}
-    //             selected={isHighlighted}
-    //             component='div'
-    //             style={{fontWeight: isSelected ? 500 : 400}}
-    //         >
-    //             {suggestion.label}
-    //         </MenuItem>
-    //     );
-    // }
-
-    // getSuggestion(value: string) {
-    //     const inputVal = value.toLowerCase();
-    //     const inputLen = value.length;
-    //     return inputLen === 0 ? [] : this.state.studentNameSearchLabels.filter(() => {});
-    // }
-    //
-    // handleVertClick(event: any) {
-    //     this.setState({anchorEl: event.currentTarget});
-    // }
-    //
-    // handleVertClose() {
-    //     this.setState({anchorEl: null});
-    // }
-
-    handleClassListItemClick() {
-        this.setState({apexChartEl: undefined});
-        setTimeout(() => {
-            let apexContainerWidth = (document.getElementById(
-                'avo-apex__chart-container',
-            ) as HTMLElement).clientWidth;
-            this.setState({
-                apexChartEl: (
-                    <Chart
-                        options={this.generateChartOptions()}
-                        series={this.processClassChartData()}
-                        type='line'
-                        width={apexContainerWidth}
-                    />
-                ),
-            });
-            window.onresize = this.handleResize.bind(this);
-        }, 50);
-    }
-
     handleResize() {
-        let apexContainerWidth = (document.getElementById(
-            'avo-apex__chart-container',
-        ) as HTMLElement).clientWidth;
-        this.setState({
-            apexChartEl: (
-                <Chart
-                    options={this.generateChartOptions()}
-                    series={this.processClassChartData()}
-                    type='line'
-                    width={apexContainerWidth}
-                />
-            ),
-        });
+        const apexContainer = document.getElementById('avo-apex__chart-container');
+        if (apexContainer === null) return;
+        this.setState({chartWidth: apexContainer.clientWidth - 32});
     }
 
     getPerQuestionGraphOptions() {

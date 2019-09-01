@@ -1116,7 +1116,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
     handleResize = () => {
         const container = document.getElementById('avo-apex__chart-container');
         if (container === null) return;
-        this.setState({chartWidth: Math.floor(container.clientWidth - 20)});
+        this.setState({chartWidth: Math.floor(container.clientWidth - 32)});
     };
 
     processClassChartData() {
