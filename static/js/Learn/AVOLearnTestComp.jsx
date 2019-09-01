@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import AVOMasteryGauge      from './MasteryGauge';
-import LearnQuestionCard    from "./LearnQuestionCard";
 import Icon                 from '@material-ui/core/Icon';
 import Grid                 from '@material-ui/core/Grid';
 import * as Http            from '../Http';
@@ -9,9 +8,7 @@ import Typography           from '@material-ui/core/Typography';
 import IconButton           from '@material-ui/core/IconButton';
 import Button               from '@material-ui/core/Button';
 import * as Helpers 		from '../HelperFunctions/Utilities'
-import { CropPortrait } 	from '@material-ui/icons';
 import Grow                 from '@material-ui/core/Grow';
-import Fade                 from '@material-ui/core/Fade';
 import AVOLearnTestCongrat  from './AVOLearnTestCongrat';
 import { getMathJax } 		from "../HelperFunctions/Utilities";
 import { uniqueKey } 		from "../HelperFunctions/Helpers";
@@ -43,7 +40,7 @@ export default class AVOLearnTestComp extends Component {
     };
 
 	render() {
-		console.log(this.props.lesson.mastery)
+		console.log(this.props.lesson.mastery);
 		return (
 			<div style={{ width : '100%', position : 'relative' }}>
 				{this.state.currentState === TestStates.Lesson && (
@@ -302,7 +299,7 @@ export default class AVOLearnTestComp extends Component {
                                 let newAnswerList = this.state.newAnswers;
                                 newAnswerList[index] = value;
                                 this.setState({newAnswers: newAnswerList});
-                                console.log(newAnswerList)
+                                console.log(newAnswerList);
                                 this.getExplanation(newAnswerList, question, index)
                             }}
                         />
@@ -410,15 +407,14 @@ export default class AVOLearnTestComp extends Component {
     };
 
     getExplanation(answers, question, index) {
-        console.log(answers)
-        console.log(question)
-        const _this = this;
+        console.log(answers);
+        console.log(question);
         Http.getLessonQuestionResult(
             question.ID,
             [answers[index]],
             question.seed,
             res => {
-                console.log(res)
+                console.log(res);
                 const temp = this.state.explanations;
                 temp[index] = res.explanation[0];
                 this.setState({ explanations : temp, changedMastery : res.mastery}, () => {

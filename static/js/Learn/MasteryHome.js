@@ -1,29 +1,21 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import {
-	Popper, Card, Grid, List, Divider, Tooltip, Paper, MenuItem, TextField, Button, Collapse, ListItem,
-	CardHeader, IconButton, Typography, ListItemText, ListSubheader, ListItemSecondaryAction, Tabs, Tab, Select,
-	Input, InputLabel, FormControl
+	Grid, Paper, IconButton, Typography, Select, InputLabel, FormControl
 } from '@material-ui/core';
 import {
-	Stop, PlayArrow, ExpandLess, ExpandMore, RemoveRedEyeOutlined, EditOutlined, AddBoxOutlined,
-	DeleteOutlined, GetAppOutlined, PeopleOutlined, NoteAddOutlined, AssignmentLate, AssignmentTurnedIn, ChevronRight, ChevronLeft,
-	AssessmentOutlined, Done, BookmarkBorder
+	ChevronRight, ChevronLeft, BookmarkBorder
 } from '@material-ui/icons';
-import Http from '../HelperFunctions/Http';
+import * as Http from '../Http';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
-import FilledInput from '@material-ui/core/FilledInput';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import NativeSelect from '@material-ui/core/NativeSelect';
 import AVOMasteryGauge from './MasteryGauge';
 import AVOMasteryChart from './AVOMasteryComps/MasteryChart';
-import AVOBarChart from './AVOMasteryComps/AVOBarChart';
 
 export default class MasteryHome extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            tags : [], 
+            tags : [],
             selectedTags: [],
             activeTag : null,
             currentIndex : 0,
@@ -109,7 +101,7 @@ export default class MasteryHome extends Component {
                 let num = parseInt(Math.random(9) * 10) * 10;
                 output[i].push(num);
             }
-        } 
+        }
         return output;
     }
 
@@ -154,7 +146,7 @@ export default class MasteryHome extends Component {
                 <Grid item xs={10}>
                     <FormControl variant="outlined">
                         <InputLabel htmlFor="contextSelectionBase">
-                           
+
                         </InputLabel>
                         <Select
                             native
@@ -184,7 +176,7 @@ export default class MasteryHome extends Component {
             </Grid>
         );
         for(let i = 0; i < this.state.selectedTags.length; i++) {
-            if(this.filterTags(this.state.selectedTags[i].TAG).length == 0) continue;
+            if(this.filterTags(this.state.selectedTags[i].TAG).length === 0) continue;
             output.push(
                 <Grid container xs={4}>
                     <Grid item xs={2}>
@@ -195,7 +187,7 @@ export default class MasteryHome extends Component {
                     <Grid item xs={10}>
                         <FormControl variant="outlined">
                             <InputLabel htmlFor={`contextSelectionBase-${i}`}>
-                                
+
                             </InputLabel>
                             <Select
                                 native
@@ -233,14 +225,14 @@ export default class MasteryHome extends Component {
                     </Grid>
                 </Grid>
             );
-        };
+        }
         let currentElsInCombined = 0;
         let combinedOutputIndex  = 0;
         let combination          = [];
         output.forEach((el, index) => {
             combination.push(el);
             currentElsInCombined++;
-            if(currentElsInCombined % 3 == 0 || index == output.length - 1)
+            if(currentElsInCombined % 3 === 0 || index === output.length - 1)
             {
                 combinedOutput[combinedOutputIndex] = (
                     <Grid container xs={12} spacing={6} style={{
@@ -294,7 +286,7 @@ export default class MasteryHome extends Component {
 
     getTags() {
         this.setState({ tags : [
-            {'tagName': 'Linear Algebra'       , 'TAG': 0, 'parent': null, 'childOrder': 0, 'chartingData' : [60,40,30,40,50], 'compAtTime': ['Jan. 12 2019', 'Feb. 12 2019', 'Mar. 12 2019', 'Apr. 12 2019', 'Jun. 12 2019'], 'comprehension' : 96 }, 
+            {'tagName': 'Linear Algebra'       , 'TAG': 0, 'parent': null, 'childOrder': 0, 'chartingData' : [60,40,30,40,50], 'compAtTime': ['Jan. 12 2019', 'Feb. 12 2019', 'Mar. 12 2019', 'Apr. 12 2019', 'Jun. 12 2019'], 'comprehension' : 96 },
             {'tagName': 'Vector Operations'    , 'TAG': 1, 'parent': null, 'childOrder': 0, 'chartingData' : [20,20,30,40,60], 'compAtTime': ['Jan. 12 2019', 'Feb. 12 2019', 'Mar. 12 2019', 'Apr. 12 2019', 'Jun. 12 2019'], 'comprehension' : 49 },
             {'tagName': 'Vector Operations 1 1', 'TAG': 2, 'parent': 1   , 'childOrder': 0, 'chartingData' : [30,20,23,40,77, 99], 'compAtTime': ['Jan. 12 2019', 'Feb. 12 2019', 'Mar. 12 2019', 'Apr. 12 2019', 'Jun. 12 2019', 'Jul. 12 2019'], 'comprehension' : 69 },
             {'tagName': 'Vector Operations 1 2', 'TAG': 3, 'parent': 1   , 'childOrder': 0, 'chartingData' : [40,20,70,40,50], 'compAtTime': ['Jan. 12 2019', 'Feb. 12 2019', 'Mar. 12 2019', 'Apr. 12 2019', 'Jun. 12 2019'], 'comprehension' : 85 },

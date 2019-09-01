@@ -18,7 +18,7 @@ export default class AVOLearnTestCongrat extends Component {
                 nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
                 ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
             return [nx, ny];
-        }
+        };
         let currentRotation = 0;
         let rotationAmount  = 45;
         let additionalRot   = 0;
@@ -41,24 +41,24 @@ export default class AVOLearnTestCongrat extends Component {
                 y.push(newPoint[1]);
                 currentRotation += rotationAmount;
             }
-            if(i == 3 || i == 7) {
+            if(i === 3 || i === 7) {
                 additionalRot += (22.5 + (22.5/3));
                 currentRotation = 0;
             }
             const tri_color = !!props.colors[triangles.length] ? props.colors[triangles.length] : '#399103';
-            items.push( 
-                <path 
-                    className='avo-progression-gauge-triangle' 
-                    d={`M${centerX}, ${centerY} L${x[0]}, ${y[0]} L${x[1]}, ${y[1]} Z`} 
-                    fill={tri_color} 
-                    fillOpacity='0.25' 
-                    stroke={tri_color} 
-                    strokeWidth='0.25' 
+            items.push(
+                <path
+                    className='avo-progression-gauge-triangle'
+                    d={`M${centerX}, ${centerY} L${x[0]}, ${y[0]} L${x[1]}, ${y[1]} Z`}
+                    fill={tri_color}
+                    fillOpacity='0.25'
+                    stroke={tri_color}
+                    strokeWidth='0.25'
                     strokeLinecap='round'
                   	id={`learn-congrat-el@${i}`}
                 />
             );
-            if(i == 3 || i == 7 || i == 11) {
+            if(i === 3 || i === 7 || i === 11) {
                 triangles.push(<g style={{ transformOrigin : 'center'}} cx={centerX} cy={centerY} className={`avo-progression-gauge-triangle-group${triangles.length + 1}`}>{items}</g>);
                 items = [];
             }
@@ -68,14 +68,14 @@ export default class AVOLearnTestCongrat extends Component {
 	        <div className='avo-progression-gauge-container' style={{ transform : 'scale(1.25)' }}>
 	            <svg width="400px" height="400px" viewBox="0 0 100 100" className="donut" style={{ top : '-122px' }}>
 	                <circle className="donut-ring" cx="50" cy="50" r="25" fill="transparent" stroke="#fafafa" strokeWidth="0.25" strokeDasharray="0.5"></circle>
-	                <circle 
-	                    class="avo-progression-gauge-svg" 
-	                    cx="50" 
-	                    cy="50" 
-	                    r="25" 
-	                    fill="transparent" 
-	                    stroke="#399103" 
-	                    strokeWidth="0.85" 
+	                <circle
+	                    class="avo-progression-gauge-svg"
+	                    cx="50"
+	                    cy="50"
+	                    r="25"
+	                    fill="transparent"
+	                    stroke="#399103"
+	                    strokeWidth="0.85"
 	                    strokeDasharray={`${this.state.completetion} ${100 - this.state.completetion}`}
 	                    strokeDashoffset="25"
 	                    strokeLinecap='round'>
@@ -106,7 +106,7 @@ export default class AVOLearnTestCongrat extends Component {
                 nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
                 ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
             return [nx, ny];
-        }
+        };
         let currentRotation = 0;
         let rotationAmount  = 45;
         let additionalRot   = 0;
@@ -115,7 +115,7 @@ export default class AVOLearnTestCongrat extends Component {
         let radius          = 22;
         for(let k = 0; k < 2; k++) {
         	setTimeout(() => {
-        		if(!!k) radius = 19; 
+        		if(!!k) radius = 19;
         		for(let i = 0; i < 12; i++) {
 					let x = [];
 		            let y = [];
@@ -131,7 +131,7 @@ export default class AVOLearnTestCongrat extends Component {
 		                y.push(newPoint[1]);
 		                currentRotation += rotationAmount;
 		            }
-		            if(i == 3 || i == 7) {
+		            if(i === 3 || i === 7) {
 		                additionalRot += (22.5 + (22.5/3));
 		                currentRotation = 0;
 		            }
