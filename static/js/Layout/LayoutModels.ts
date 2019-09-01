@@ -57,7 +57,7 @@ interface MyClasses {
 
 interface MyQuestions {
     name: 'My Questions';
-    initWith: [number, number, AvoSet[]];
+    initWith: [number | null, number | null, AvoSet[]];
 }
 
 interface NotifyClass {

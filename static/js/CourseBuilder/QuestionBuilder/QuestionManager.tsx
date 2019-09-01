@@ -30,7 +30,7 @@ import {ShowSnackBar} from '../../Layout/Layout';
 import {AvoSet} from '../../Http/types';
 
 interface QuestionManagerProps {
-    initWith: [number, number, AvoSet[]];
+    initWith: [number | null, number | null, AvoSet[]];
     initBuilder: (state: QuestionManagerState) => void;
     showSnackBar: ShowSnackBar;
 }

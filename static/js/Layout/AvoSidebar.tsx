@@ -24,7 +24,7 @@ import {
     SchoolOutlined,
     AssignmentTurnedInOutlined,
 } from '@material-ui/icons';
-import {Section} from './Layout';
+import {Section} from './LayoutModels';
 const drawerWidth = 240;
 
 const styles = () =>
@@ -80,38 +80,12 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
         const {isTeacher} = this.props;
         return (
             <div style={{overflowY: 'auto'}}>
-                <List
-                    subheader={isTeacher ? <ListSubheader>Student Tools</ListSubheader> : undefined}
-                >
-                    {this.listItem(HomeOutlined, 'Home')}
-                    {this.listItem(ClassOutlined, 'My Classes')}
-                    {this.listItem(SchoolOutlined, 'Learn')}
-                </List>
-                {isTeacher ? ( // if it is the teacher then we will the buttons that is allowed for teachers
-                    <div>
-                        <Divider />
-                        <List subheader={<ListSubheader>Teacher Tools</ListSubheader>}>
-                            {this.listItem(ClassOutlined, 'Manage Classes')}
-                            {this.listItem(AssignmentTurnedInOutlined, 'Add Students To Class')}
-                            {this.listItem(BuildOutlined, 'My Questions')}
-                            {this.listItem(HelpOutline, 'Documentation')}
-                            {this.listItem(BuildOutlined, 'Tag Builder')}
-                            {this.listItem(AssignmentReturnedOutlined, 'Export Tools')}
-                        </List>
-                    </div>
-                ) : null}
-                {showTestFeatures ? (
-                    <Fragment>
-                        <Divider />
-                        <List subheader={<ListSubheader>Experimental Features</ListSubheader>}>
-                            {this.listItem(BuildOutlined, 'In Class Tools')}
-                            {this.listItem(BuildOutlined, 'Explanations')}
-                        </List>
-                    </Fragment>
-                ) : null}
+                {this.studentSections()}
+                {isTeacher && this.teacherSections()}
+                {showTestFeatures && this.testFeatures()}
                 <Divider />
                 <List>
-                    {this.listItem(SettingsOutlined, 'Preferences')}
+                    {this.listItem(SettingsOutlined, {name: 'Preferences'})}
                     <SidebarListItem
                         section={this.props.section}
                         Icon={ExitToAppOutlined}
@@ -125,15 +99,59 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
         );
     }
 
-    listItem(Icon: SvgIconComponent, text: Section) {
+    studentSections() {
+        const {isTeacher} = this.props;
+        return (
+            <List subheader={isTeacher ? <ListSubheader>Student Tools</ListSubheader> : undefined}>
+                {this.listItem(HomeOutlined, {name: 'Home'})}
+                {this.listItem(ClassOutlined, {name: 'My Classes', _class: null, _quiz: null})}
+                {this.listItem(SchoolOutlined, {name: 'Learn'})}
+            </List>
+        );
+    }
+
+    teacherSections() {
+        return (
+            <Fragment>
+                <Divider />
+                <List subheader={<ListSubheader>Teacher Tools</ListSubheader>}>
+                    {this.listItem(ClassOutlined, {name: 'Manage Classes'})}
+                    {this.listItem(AssignmentTurnedInOutlined, {
+                        name: 'Add Students To Class',
+                    })}
+                    {this.listItem(BuildOutlined, {
+                        name: 'My Questions',
+                        initWith: [null, null, []],
+                    })}
+                    {this.listItem(HelpOutline, {name: 'Documentation'})}
+                    {this.listItem(BuildOutlined, {name: 'Tag Builder'})}
+                    {this.listItem(AssignmentReturnedOutlined, {name: 'Export Tools'})}
+                </List>
+            </Fragment>
+        );
+    }
+
+    testFeatures() {
+        return (
+            <Fragment>
+                <Divider />
+                <List subheader={<ListSubheader>Experimental Features</ListSubheader>}>
+                    {this.listItem(BuildOutlined, {name: 'In Class Tools'})}
+                    {this.listItem(BuildOutlined, {name: 'Explanations'})}
+                </List>
+            </Fragment>
+        );
+    }
+
+    listItem(Icon: SvgIconComponent, section: Section) {
         return (
             <SidebarListItem
                 section={this.props.section}
-                onClick={() => this.props.onClick(text)}
+                onClick={() => this.props.onClick(section)}
                 Icon={Icon}
                 color={this.props.color}
                 theme={this.props.theme}
-                text={text}
+                text={section.name}
             />
         );
     }
@@ -151,7 +169,7 @@ interface SidebarListItemProps {
 }
 
 function SidebarListItem({section, Icon, color, theme, onClick, text}: SidebarListItemProps) {
-    const selected = section === text;
+    const selected = section.name === text;
     const bg = selected || theme === 'dark' ? 'white' : 'rgba(0,0,0,0.5)';
     return (
         <ListItem
