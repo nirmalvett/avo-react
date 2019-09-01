@@ -101,7 +101,7 @@ interface LayoutState {
         message: string;
         variant: SnackbarVariant;
     };
-    test: (Http.GetTest & {newAnswers: string[][]}) | undefined;
+    test: Http.GetTest | undefined;
     questionManager: any; // todo
     questionBuilder: any; // todo
 }
@@ -251,11 +251,11 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     }}
                 />
             );
-        } else if (section === 'Create Test') {
+        } else if (section === 'Create Test' && this.state.testCreator !== null) {
             return (
                 <CreateTest
                     showSnackBar={this.showSnackBar}
-                    classID={this.state.testCreator as number}
+                    classID={this.state.testCreator}
                     onCreate={() => this.setState({section: 'Manage Classes'})}
                 />
             );
@@ -303,13 +303,13 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     showSnackBar={this.showSnackBar}
                 />
             );
-        } else if (section === 'Post Test') {
-            return <PostTest takes={this.state.postTest as number} />;
-        } else if (section === 'Mark Editor') {
+        } else if (section === 'Post Test' && this.state.postTest !== null) {
+            return <PostTest takes={this.state.postTest} />;
+        } else if (section === 'Mark Editor' && this.state.markEditor !== null) {
             return (
                 <MarkEditor
                     showSnackBar={this.showSnackBar}
-                    takes={this.state.markEditor as number}
+                    takes={this.state.markEditor}
                 />
             );
         } else if (section === 'Tag Builder') {
@@ -330,13 +330,12 @@ class Layout extends Component<LayoutProps, LayoutState> {
     }
 
     startTest = (test: Http.GetClasses_Test) => {
-        console.log(test);
         Http.getTest(
             test.testID,
-            result => {
+            test => {
                 this.setState({
                     section: 'Take Test',
-                    test: {...result, newAnswers: result.answers},
+                    test,
                 });
             },
             result => alert(result.error),

@@ -40,7 +40,7 @@ interface AvoAppBarProps {
     section: Section;
     name: string;
     showSnackBar: ShowSnackBar;
-    test: (GetTest & {newAnswers: string[][]}) | undefined;
+    test: GetTest | undefined;
 }
 
 class AvoAppBar extends PureComponent<AvoAppBarProps> {

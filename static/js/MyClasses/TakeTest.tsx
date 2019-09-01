@@ -16,15 +16,13 @@ import {ShowSnackBar} from '../Layout/Layout';
 
 interface TakeTestProps {
     showSnackBar: ShowSnackBar;
-    test: TakeTestState;
+    test: Http.GetTest;
     submitTest: (takes: number) => void;
 }
 
 export interface TakeTestState {
     answers: string[][];
     newAnswers: string[][];
-    questions: Question[];
-    takes: number;
 }
 
 interface Question {
@@ -37,7 +35,10 @@ export default class TakeTest extends Component<TakeTestProps, TakeTestState> {
     constructor(props: TakeTestProps) {
         super(props);
         // todo: props shouldn't be copied into state
-        this.state = this.props.test;
+        this.state = {
+            answers: this.props.test.answers,
+            newAnswers: this.props.test.answers
+        };
     }
 
     render() {
@@ -58,7 +59,7 @@ export default class TakeTest extends Component<TakeTestProps, TakeTestState> {
                         team will be quick to respond and assist you.
                     </Typography>
                 </Card>
-                {this.state.questions.map(this.getQuestionCard)}
+                {this.props.test.questions.map(this.getQuestionCard)}
                 <div
                     style={{
                         marginLeft: '10px',
@@ -140,7 +141,7 @@ export default class TakeTest extends Component<TakeTestProps, TakeTestState> {
     saveAnswer = (index: number) => () => {
         if (arrayEq(this.state.answers[index], this.state.newAnswers[index])) return;
         Http.saveAnswer(
-            this.state.takes,
+            this.props.test.takes,
             index,
             this.state.newAnswers[index],
             this.onSave(index, this.state.newAnswers[index]),
@@ -158,8 +159,8 @@ export default class TakeTest extends Component<TakeTestProps, TakeTestState> {
 
     submitTest = () => {
         Http.submitTest(
-            this.state.takes,
-            () => this.props.submitTest(this.state.takes),
+            this.props.test.takes,
+            () => this.props.submitTest(this.props.test.takes),
             () => alert('Something went wrong'),
         );
     };
