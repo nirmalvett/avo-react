@@ -24,6 +24,7 @@ class Class(db.Model):
     TRANSACTION_PROCESSING_RELATION = db.relationship("TransactionProcessing", back_populates="CLASS_RELATION")
     MESSAGE_RELATION = db.relationship("Message", back_populates="CLASS_RELATION")
     CLASS_WHITELIST_RELATION = db.relationship("ClassWhitelist", back_populates="CLASS_RELATION")
+    BACKLOG_WHITELIST_RELATION = db.relationship("ClassWhitelistBacklog", back_populates="CLASS_RELATION")
 
     # noinspection PyPep8Naming
     def __init__(self, USER, name, price=59.99):
@@ -58,6 +59,21 @@ class ClassWhitelist(db.Model):
     def __repr__(self):
         return f'class_whitelist {self.ID} {self.USER} {self.CLASS}'
 
+class ClassWhitelistBacklog(db.Model):
+    __tablename__ = "backlog_whitelist"
+
+    ID = db.Column(db.Integer, primary_key=True, nullable=False)
+    USER_ID = db.Column(db.String(100), nullable=False)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+
+    CLASS_RELATION = db.relationship("Class", back_populates="BACKLOG_WHITELIST_RELATION")
+
+    def __init__(self, user_id, class_id):
+        self.USER_ID = user_id
+        self.CLASS = class_id
+
+    def __repr__(self):
+        return f'backlog_whitelist {self.ID} {self.USER_ID} {self.CLASS}'
 
 class Takes(db.Model):
     __tablename__ = "takes"
