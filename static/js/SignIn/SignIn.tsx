@@ -145,12 +145,11 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         error={passwordError}
                     />
                     <br />
-                    <Typography variant='caption' className='avo-styles__error'>
+                    <Typography variant='caption' color='error'>
                         {s.signInError}
                     </Typography>
                     <br />
                     <Button
-                        id='avo-signin__button'
                         color='primary'
                         className='avo-button avo-styles__float-right'
                         onClick={() => this.signIn()}
