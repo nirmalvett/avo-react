@@ -286,8 +286,8 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                                     s.resetEmail,
                                     () =>
                                         alert(
-                                            'Successfully requested password change. ' +
-                                                'Please check your email in 10-15 minutes.',
+                                            'An email has been sent with a reset link, ' +
+                                                'please check your inbox.',
                                         ),
                                     e => alert(e.error),
                                 );
