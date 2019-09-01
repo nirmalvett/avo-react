@@ -1,51 +1,51 @@
 import React, {Component, Fragment} from 'react';
+import {
+    Button,
+    CardHeader,
+    Collapse,
+    Divider,
+    FormControl,
+    IconButton,
+    Input,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemSecondaryAction,
+    ListItemText,
+    ListSubheader,
+    MenuItem,
+    Paper,
+    Popper,
+    Select,
+    Tab,
+    Tabs,
+    TextField,
+    Tooltip,
+    Typography,
+} from '@material-ui/core';
+import {
+    AddBoxOutlined,
+    AssessmentOutlined,
+    DescriptionOutlined,
+    ExpandLess,
+    ExpandMore,
+    PeopleOutlined,
+} from '@material-ui/icons';
 import * as Http from '../Http';
 import {copy, getDateString} from '../HelperFunctions/Utilities';
 import {convertListFloatToAnalytics} from '../HelperFunctions/Helpers';
-import {
-    Tab,
-    Tabs,
-    List,
-    Input,
-    Paper,
-    Button,
-    Select,
-    Popper,
-    Tooltip,
-    Divider,
-    Collapse,
-    ListItem,
-    MenuItem,
-    TextField,
-    CardHeader,
-    IconButton,
-    Typography,
-    FormControl,
-    ListItemText,
-    ListSubheader,
-    ListItemSecondaryAction,
-    ListItemIcon,
-} from '@material-ui/core';
-import {
-    ExpandLess,
-    ExpandMore,
-    AddBoxOutlined as AddBoxOutlinedIcon,
-    PeopleOutlined as PeopleOutlinedIcon,
-    AssessmentOutlined as AssessmentOutlinedIcon,
-    DescriptionOutlined as DescriptionOutlinedIcon,
-} from '@material-ui/icons';
-// @ts-ignore
-import Chart from 'react-apexcharts';
-// @ts-ignore
-import paypal from 'paypal-checkout';
-// @ts-ignore
-import paypal_mode from 'js-yaml-loader!../../../config.yaml';
 import {ShowSnackBar} from '../Layout/Layout';
 import {
     generateChartOptions,
     getTestCardGraphOptions,
     getPerQuestionGraphOptions,
 } from './chartOptions';
+// @ts-ignore
+import Chart from 'react-apexcharts';
+// @ts-ignore
+import paypal from 'paypal-checkout';
+// @ts-ignore
+import paypal_mode from 'js-yaml-loader!../../../config.yaml';
 
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
@@ -214,7 +214,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                         }
                     >
                         <ListItemIcon>
-                            <AddBoxOutlinedIcon color='action' />
+                            <AddBoxOutlined color='action' />
                         </ListItemIcon>
                         <ListItemText primary='Enroll in Class' />
                     </ListItem>
@@ -248,7 +248,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                     }}
                                 >
                                     <ListItemIcon>
-                                        <PeopleOutlinedIcon color='action' />
+                                        <PeopleOutlined color='action' />
                                     </ListItemIcon>
                                     <ListItemText primary={cls.name} />
                                     {cls.open ? (
@@ -281,7 +281,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                                 }}
                                             >
                                                 <ListItemIcon>
-                                                    <AssessmentOutlinedIcon
+                                                    <AssessmentOutlined
                                                         color={test.open ? 'primary' : 'disabled'}
                                                         style={{marginLeft: '10px'}}
                                                     />
@@ -938,7 +938,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                             this.props.postTest(x.takesID);
                                         }}
                                     >
-                                        <DescriptionOutlinedIcon />
+                                        <DescriptionOutlined />
                                     </IconButton>
                                 </Tooltip>
                             </ListItemSecondaryAction>
