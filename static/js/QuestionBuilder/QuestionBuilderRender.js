@@ -3,7 +3,7 @@ import Card from '@material-ui/core/Card';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import {getMathJax} from '../HelperFunctions/Utilities';
-import AnswerInput from '../AnswerInput/AnswerInput';
+import {AnswerInput} from '../AnswerInput';
 
 
 export function renderHints(currentlyEditing) {

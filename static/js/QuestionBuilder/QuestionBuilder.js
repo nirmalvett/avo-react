@@ -13,7 +13,7 @@ import {
     buildMathCode, buildPlainText, compile, extractReferences, formatString,
     formatStringForEditing, init, initOld, validateString, function_regex, FUNCTIONS
 } from './QuestionBuilderUtils';
-import AnswerInput from '../AnswerInput/AnswerInput';
+import {AnswerInput} from '../AnswerInput';
 import Done from '@material-ui/icons/Done';
 import Edit from '@material-ui/icons/Edit';
 import Save from '@material-ui/icons/Save';

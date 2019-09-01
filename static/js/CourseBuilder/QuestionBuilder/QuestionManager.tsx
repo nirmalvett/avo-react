@@ -25,7 +25,7 @@ import {
 import * as Http from '../../Http';
 import {uniqueKey} from '../../HelperFunctions/Helpers';
 import {getMathJax} from '../../HelperFunctions/Utilities';
-import AnswerInput from '../../AnswerInput/AnswerInput';
+import {AnswerInput} from '../../AnswerInput';
 import {ShowSnackBar} from '../../Layout/Layout';
 import {AvoSet} from '../../Http/types';
 
