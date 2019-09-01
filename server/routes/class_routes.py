@@ -122,9 +122,9 @@ def home():
             current_list_due_dates = []
             current_class = due_date.CLASS
 
-        current_list_due_dates.append({'name': due_date.name, 'dueDate': due_date.deadline,
+        current_list_due_dates.append({'name': due_date.name, 'dueDate': timestamp(due_date.deadline),
                                       'id': due_date.TEST})
-    return_due_dates.append({"class": current_class_data, "messages": current_list_due_dates})
+    return_due_dates.append({"class": current_class_data, "dueDates": current_list_due_dates})
 
     messages = []  # Messages returned by the SQL query
 

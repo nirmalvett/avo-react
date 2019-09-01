@@ -11,6 +11,10 @@ interface BuildQuestion {
     questionManagerState: QuestionManagerState;
 }
 
+interface ConceptBuilder {
+    name: 'Concept Builder';
+}
+
 interface CreateTest {
     name: 'Create Test';
     classID: number;
@@ -73,10 +77,6 @@ interface Preferences {
     name: 'Preferences';
 }
 
-interface TagBuilder {
-    name: 'Tag Builder';
-}
-
 interface TakeTest {
     name: 'Take Test';
     test: GetTest;
@@ -85,6 +85,7 @@ interface TakeTest {
 export type Section =
     | AddStudentsToClass
     | BuildQuestion
+    | ConceptBuilder
     | CreateTest
     | Documentation
     | Explanations
@@ -99,5 +100,4 @@ export type Section =
     | NotifyClass
     | PostTest
     | Preferences
-    | TagBuilder
     | TakeTest;

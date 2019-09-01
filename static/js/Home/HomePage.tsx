@@ -1,11 +1,13 @@
 import React, {Component, ReactElement} from 'react';
 import {Typography, Tabs, Tab, Grid, Card} from '@material-ui/core';
-import {isChrome} from '../HelperFunctions/Helpers';
 import * as Http from '../Http';
 import InfiniteCalendar from 'react-infinite-calendar';
 import 'react-infinite-calendar/styles.css';
 import moment from 'moment';
 import {CalendarTheme} from '../Models';
+import {DatePicker} from '@material-ui/pickers';
+import {MaterialUiPickersDate} from '@material-ui/pickers/typings/date';
+
 // Or import the input component
 let today = new Date();
 function TabContainer(props: {children?: any}): ReactElement {
@@ -55,10 +57,9 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
         },
     };
 
-    componentWillMount() {
+    componentDidMount() {
         Http.home(
             response => {
-                console.log(response);
                 this.setState({
                     dueDates: response.dueDates,
                     notifications: response.messages,
@@ -95,13 +96,21 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
                             {value === 0 && (
                                 <Grid container>
                                     <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
-                                        <InfiniteCalendar
-                                            onSelect={this.handleDateChange}
-                                            height={300}
-                                            selected={today}
-                                            minDate={today}
-                                            theme={this.state.calendarTheme}
+                                        <DatePicker
+                                            autoOk
+                                            orientation='landscape'
+                                            variant='static'
+                                            openTo='date'
+                                            value={this.state.selectedDate}
+                                            onChange={this.handleDateChange}
                                         />
+                                        {/*<InfiniteCalendar*/}
+                                        {/*    onSelect={this.handleDateChange}*/}
+                                        {/*    height={300}*/}
+                                        {/*    selected={today}*/}
+                                        {/*    minDate={today}*/}
+                                        {/*    theme={this.state.calendarTheme}*/}
+                                        {/*/>*/}
                                     </Grid>
                                     <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
                                         <Typography variant='subtitle1' color='textPrimary'>
@@ -153,15 +162,17 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
         ));
     }
 
-    dueDates() {
+    dueDates = () => {
         return this.state.dueDates.map((dd, i) => {
             let datesToShow: {id: number; name: string; dueDate: number}[] = [];
-            if (dd.dueDates !== undefined) {
-                datesToShow = dd.dueDates.filter(dueDate =>
-                    moment(new Date(dueDate.dueDate))
-                        .endOf('day')
-                        .isSame(moment(this.state.selectedDate).endOf('day')),
-                );
+            if (dd.dueDates) {
+                datesToShow = dd.dueDates.filter(dueDate => {
+                    const d1 = moment(new Date(dueDate.dueDate)).startOf('day');
+                    const selectedDate = moment(this.state.selectedDate).startOf('day');
+                    return moment(d1)
+                        .startOf('day')
+                        .isSame(selectedDate.startOf('day'));
+                });
             }
             return (
                 <div key={i}>
@@ -183,7 +194,7 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
                                 <Typography variant='subtitle2' color='textPrimary'>
                                     {dueDate.name +
                                         ' - ' +
-                                        new Date(dueDate.dueDate).toDateString()}
+                                        moment(this.state.selectedDate).toDate().toDateString()}
                                 </Typography>
                             </div>
                         ))
@@ -197,25 +208,14 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
                 </div>
             );
         });
-    }
+    };
 
     changeTab(value: Date) {
         this.setState({value: Number(value)});
     }
 
-    handleDateChange(date: Date) {
-        this.setState({selectedDate: date});
-    }
-
-    componentDidMount() {
-        if (!isChrome()) {
-            this.props.showSnackBar(
-                'warning',
-                'We have detected that you are currently not using ' +
-                    'Google Chrome Browser. This is not recommended as AVO has not been properly tested in your current ' +
-                    'browser and many of the basic functionality may not work.',
-                10000000000000,
-            );
-        }
-    }
+    handleDateChange = (date: MaterialUiPickersDate) => {
+        if (!date) return;
+        this.setState({selectedDate: new Date(date.toDate())});
+    };
 }
