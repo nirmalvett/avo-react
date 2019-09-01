@@ -1,7 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {
     Button,
-    CardHeader,
     Collapse,
     Divider,
     FormControl,
@@ -606,9 +605,10 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
+                            marginBottom: '16px',
                         }}
                     >
-                        <Typography variant='h6'> {selectedTest.name}</Typography>
+                        <Typography variant='h5' color='textPrimary' style={{paddingLeft: '8px'}}>{selectedTest.name}</Typography>
                         <Button
                             color='primary'
                             classes={{
@@ -633,12 +633,13 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         else if (this.state.c !== null)
             return (
                 <Fragment>
-                    <CardHeader
-                        classes={{
-                            root: 'avo-card__header',
-                        }}
-                        title={selectedClass.name}
-                    />
+                    <Typography
+                        variant='h5'
+                        color='textPrimary'
+                        style={{paddingLeft: '8px', marginBottom: '16px'}}
+                    >
+                        {selectedClass.name}
+                    </Typography>
                     <Typography
                         component={'span'}
                         variant='body1'
@@ -684,7 +685,13 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         else
             return (
                 <Fragment>
-                    <CardHeader classes={{root: 'avo-card__header'}} title={'Hey there!'} />
+                    <Typography
+                        variant='h5'
+                        color='textPrimary'
+                        style={{paddingLeft: '8px', marginBottom: '16px'}}
+                    >
+                        Hey there!
+                    </Typography>
                     <Typography
                         component={'span'}
                         variant='body1'
