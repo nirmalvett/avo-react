@@ -1,7 +1,15 @@
 import React, {Component, Fragment} from 'react';
 import SortableTree from 'react-sortable-tree';
 import * as Http from '../../Http';
-import {CardActions, CardContent, FormControl, IconButton, Input, InputAdornment, InputLabel} from '@material-ui/core';
+import {
+    CardActions,
+    CardContent,
+    FormControl,
+    IconButton,
+    Input,
+    InputAdornment,
+    InputLabel,
+} from '@material-ui/core';
 import {Add, Delete, Save} from '@material-ui/icons';
 
 interface Tag {
@@ -41,7 +49,15 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
     render() {
         return (
             <Fragment>
-                <CardContent style={{flex: 1, display: 'flex', flexDirection: 'column', padding: 0, width: '100%' }}>
+                <CardContent
+                    style={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: 0,
+                        width: '100%',
+                    }}
+                >
                     <SortableTree
                         treeData={this.state.tags}
                         onChange={(tags: Tag[]) => this.setState({tags})}
@@ -54,41 +70,41 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
                         boxSizing: 'border-box',
                         display: 'flex',
                         flexDirection: 'row',
-                        justifyContent: 'space-between'
+                        justifyContent: 'space-between',
                     }}
                 >
                     <FormControl>
-                        <InputLabel htmlFor="add-tag">New tag...</InputLabel>
+                        <InputLabel htmlFor='add-tag'>New tag...</InputLabel>
                         <Input
-                            id="add-tag"
+                            id='add-tag'
                             value={this.state.tagAddInput}
                             onChange={e => this.setState({tagAddInput: e.target.value})}
                             endAdornment={
-                                <InputAdornment position="end">
+                                <InputAdornment position='end'>
                                     <IconButton style={{top: -8}} onClick={() => this.addTag()}>
-                                        <Add/>
+                                        <Add />
                                     </IconButton>
                                 </InputAdornment>
                             }
                         />
                     </FormControl>
                     <FormControl>
-                        <InputLabel htmlFor="delete-tag">Delete tag...</InputLabel>
+                        <InputLabel htmlFor='delete-tag'>Delete tag...</InputLabel>
                         <Input
-                            id="delete-tag"
+                            id='delete-tag'
                             value={this.state.tagDeleteInput}
                             onChange={e => this.setState({tagDeleteInput: e.target.value})}
                             endAdornment={
-                                <InputAdornment position="end">
+                                <InputAdornment position='end'>
                                     <IconButton style={{top: -8}} onClick={() => this.deleteTag()}>
-                                        <Delete/>
+                                        <Delete />
                                     </IconButton>
                                 </InputAdornment>
                             }
                         />
                     </FormControl>
                     <IconButton onClick={() => this.putTags()}>
-                        <Save color='primary'/>
+                        <Save color='primary' />
                     </IconButton>
                 </CardActions>
             </Fragment>

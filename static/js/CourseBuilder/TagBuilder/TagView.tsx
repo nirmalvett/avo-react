@@ -28,7 +28,17 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     margin: 25,
                 }}
             >
-                <Card style={{width: '100%', margin: 0, padding: 0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden'}}>
+                <Card
+                    style={{
+                        width: '100%',
+                        margin: 0,
+                        padding: 0,
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflow: 'hidden',
+                    }}
+                >
                     <div style={{display: 'flex', flexDirection: 'row'}}>
                         <Button onClick={() => this.setState({currentView: 'folderView'})}>
                             Tag Folder View

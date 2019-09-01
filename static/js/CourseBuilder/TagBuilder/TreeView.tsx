@@ -16,8 +16,7 @@ export default function TreeView() {
                     id: 'node-' + el.tagID,
                 },
                 style: {
-                    content:
-                        el.tagName,
+                    content: el.tagName,
                 },
             });
             if (el.parent !== null) {
@@ -56,7 +55,7 @@ export default function TreeView() {
             elements: {nodes, edges},
         });
     }, console.warn);
-    return <div id="cy" style={{ flex: 1, overflow: 'hidden' }} />;
+    return <div id='cy' style={{flex: 1, overflow: 'hidden'}} />;
 }
 
 const data: ElementsDefinition = {
