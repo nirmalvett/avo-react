@@ -1,10 +1,9 @@
-import React, {Component, Fragment, ReactElement} from 'react';
+import React, {Component, Fragment} from 'react';
 import * as Http from '../Http';
 import {copy, getDateString} from '../HelperFunctions/Utilities';
 import {convertListFloatToAnalytics} from '../HelperFunctions/Helpers';
 import {
     Tab,
-    Card,
     Tabs,
     List,
     Input,
@@ -77,9 +76,9 @@ interface MyClassesProps {
 }
 
 interface MyClassesState {
-    classes: (Http.GetClasses_Class & {open?: boolean})[];
+    classes: (Http.GetClasses_Class & {open: boolean})[];
     classesLoaded: boolean;
-    apexChartEl: undefined | ReactElement;
+    chartWidth: number;
     c: null | number;
     t: null | number;
     enrollErrorMessage: string;
@@ -98,7 +97,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         this.state = {
             classes: [],
             classesLoaded: false,
-            apexChartEl: undefined,
+            chartWidth: 200,
             c: null, // Selected class
             t: null, // Selected test
             enrollErrorMessage: '',
@@ -121,6 +120,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
     }
 
     componentDidMount() {
+        this.handleResize();
         this.loadClasses();
         if (this.props.isTeacher) {
             // if it's a teacher account
@@ -139,7 +139,6 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
             );
             if (classToJumpTo !== -1) {
                 this.selectClass(classToJumpTo);
-                this.handleClassListItemClick();
             }
             if (this.props.setToJumpTo != null) {
                 const setToJumpTo = this.selectedClass().tests.findIndex(
@@ -156,7 +155,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         Http.getClasses(
             result => {
                 this.setState({
-                    classes: result.classes,
+                    classes: result.classes.map(x => ({...x, open: x.tests.length > 0})),
                     classesLoaded: true,
                 });
                 this.tryToJump();
@@ -178,19 +177,17 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                     {/* Border From Menu To Main*/}
                     <div style={{flex: 1}} />
                     {/* Right hand side cards, see detailsCard() */}
-                    <div style={{flex: 10, display: 'flex'}}>
-                        <Card
-                            className='avo-card'
-                            style={{
-                                marginBottom: '10%',
-                                padding: '10px',
-                                flex: 1,
-                                display: 'flex',
-                                flexDirection: 'column',
-                            }}
-                        >
-                            {this.detailsCard()}
-                        </Card>
+                    <div
+                        id='avo-apex__chart-container'
+                        style={{
+                            flex: 10,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            overflowY: 'auto',
+                            padding: '16px',
+                        }}
+                    >
+                        {this.detailsCard()}
                     </div>
                     <div style={{flex: 1}} />
                 </div>
@@ -207,21 +204,8 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                 square
                 style={{width: '100%', flex: 1, display: 'flex'}}
             >
-                <List style={{flex: 1, overflowY: 'auto', marginTop: '5px', marginBottom: '5px'}}>
-                    <Typography
-                        variant='subtitle1'
-                        color='textPrimary'
-                        style={{textAlign: 'center'}}
-                    >
-                        Welcome to My Classes
-                    </Typography>
-                    <br />
-                    <Divider />
+                <List style={{flex: 1, overflowY: 'auto', paddingTop: 0}}>
                     <ListSubheader style={{position: 'relative'}}>Class Enrollment</ListSubheader>
-                    {/*<ListItem button disabled>*/}
-                    {/*<BarChartOutlinedIcon color='action'/>*/}
-                    {/*<ListItemText inset primary='My Analytics'/>*/}
-                    {/*</ListItem>*/}
                     <ListItem
                         button
                         id='avo-myclasses__enroll-button'
@@ -229,8 +213,10 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                             this.setState({joinClassPopperOpen: true, joinClassPopperIdx: 0})
                         }
                     >
-                        <AddBoxOutlinedIcon color='action' />
-                        <ListItemText inset primary='Enroll in Class' />
+                        <ListItemIcon>
+                            <AddBoxOutlinedIcon color='action' />
+                        </ListItemIcon>
+                        <ListItemText primary='Enroll in Class' />
                     </ListItem>
                     <Divider />
                     <ListSubheader style={{position: 'relative'}}>Classes</ListSubheader>
@@ -259,7 +245,6 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                     button
                                     onClick={() => {
                                         this.selectClass(cIndex);
-                                        this.handleClassListItemClick();
                                     }}
                                 >
                                     <ListItemIcon>
@@ -663,10 +648,15 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                         {selectedClass.tests.length === 0 &&
                             "This class doesn't have any tests or assignments yet!"}
                     </Typography>
-                    <div className='mixed-chart' id='avo-apex__chart-container'>
+                    <div className='mixed-chart'>
                         {selectedClass.tests.length !== 0 ? ( // if there is at least one test then display data
                             <Fragment>
-                                {this.state.apexChartEl}
+                                <Chart
+                                    options={this.generateChartOptions()}
+                                    series={this.processClassChartData()}
+                                    type='line'
+                                    width={this.state.chartWidth}
+                                />
                                 <Typography
                                     component={'span'}
                                     variant='body2'
@@ -1123,38 +1113,11 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         );
     }
 
-    handleClassListItemClick() {
-        setTimeout(() => {
-            let container = document.getElementById('avo-apex__chart-container');
-            if (container === null) return;
-            this.setState({
-                apexChartEl: (
-                    <Chart
-                        options={this.generateChartOptions()}
-                        series={this.processClassChartData()}
-                        type='line'
-                        width={container.clientWidth}
-                    />
-                ),
-            });
-            window.onresize = this.handleResize.bind(this);
-        }, 50);
-    }
-
-    handleResize() {
-        let container = document.getElementById('avo-apex__chart-container');
+    handleResize = () => {
+        const container = document.getElementById('avo-apex__chart-container');
         if (container === null) return;
-        this.setState({
-            apexChartEl: (
-                <Chart
-                    options={this.generateChartOptions()}
-                    series={this.processClassChartData()}
-                    type='line'
-                    width={container.clientWidth}
-                />
-            ),
-        });
-    }
+        this.setState({chartWidth: Math.floor(container.clientWidth - 20)});
+    };
 
     processClassChartData() {
         let selectedClass = this.selectedClass();
