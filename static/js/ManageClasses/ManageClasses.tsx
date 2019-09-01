@@ -140,10 +140,11 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     loadClasses(snackBarString?: string) {
         // this gets the class results
         Http.getClasses(
-            result => this.setState({
-                classes: result.classes.map(x => ({...x, open: false})),
-                classesLoaded: true,
-            }),
+            result =>
+                this.setState({
+                    classes: result.classes.map(x => ({...x, open: false})),
+                    classesLoaded: true,
+                }),
             console.warn,
         );
         if (snackBarString !== undefined) {
@@ -382,7 +383,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                             <Tooltip title='Download CSV'>
                                 <IconButton
                                     onClick={() =>
-                                        window.location.href = `/CSV/ClassMarks/${selectedClass.classID}`
+                                        (window.location.href = `/CSV/ClassMarks/${selectedClass.classID}`)
                                     }
                                 >
                                     <GetAppOutlined />
@@ -496,9 +497,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             <Popper
                 placement='left-start'
                 open={this.state.deleteTestPopperOpen}
-                anchorEl={() =>
-                    document.getElementById('avo-manageclasses__delete-button') as any
-                }
+                anchorEl={() => document.getElementById('avo-manageclasses__delete-button') as any}
                 disablePortal={false}
                 modifiers={{
                     flip: {
@@ -563,9 +562,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             <Popper
                 placement='left-start'
                 open={this.state.editTestPopperOpen}
-                anchorEl={() =>
-                    document.getElementById('avo-manageclasses__delete-button') as any
-                }
+                anchorEl={() => document.getElementById('avo-manageclasses__delete-button') as any}
                 disablePortal={false}
                 modifiers={{
                     flip: {
@@ -577,9 +574,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     },
                 }}
             >
-                <Card
-                    style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}
-                >
+                <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
                     <CardHeader title={`Adjust ${selectedTest.name} Settings`} />
                     <TextField
                         margin='normal'
