@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {createMuiTheme, MuiThemeProvider, Button, Card, TextField, Typography} from '@material-ui/core';
+import {
+    createMuiTheme,
+    MuiThemeProvider,
+    Button,
+    Card,
+    TextField,
+    Typography,
+} from '@material-ui/core';
 import * as Http from '../Http';
 import Logo from '../SharedComponents/Logo';
 import {green} from '@material-ui/core/colors';
@@ -34,16 +41,25 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
         const {newPassword, confirmPassword} = this.state;
         const passwordsMatch = newPassword === confirmPassword;
         const longEnough = newPassword.length >= 8;
-        const errorMessage = newPassword.length === 0
-            ? ''
-            : !longEnough
-            ? 'Passwords must be at least 8 characters long!'
-            : !passwordsMatch
-            ? 'Passwords do not match!'
-            : '';
+        const errorMessage =
+            newPassword.length === 0
+                ? ''
+                : !longEnough
+                ? 'Passwords must be at least 8 characters long!'
+                : !passwordsMatch
+                ? 'Passwords do not match!'
+                : '';
         return (
             <MuiThemeProvider theme={createMuiTheme({palette: {primary: green}})}>
-                <div style={{width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                <div
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
                     <Card classes={{root: 'avo-card'}} style={{width: '40ch', maxWidth: '90%'}}>
                         <Logo theme='light' />
                         <Typography variant='h5'>Change Password</Typography>
