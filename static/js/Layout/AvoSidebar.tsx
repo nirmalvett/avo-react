@@ -22,6 +22,7 @@ import {
     AssignmentReturnedOutlined,
     SvgIconComponent,
     SchoolOutlined,
+    MessageOutlined,
     AssignmentTurnedInOutlined,
 } from '@material-ui/icons';
 import {Section} from './LayoutModels';
@@ -119,6 +120,7 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                     {this.listItem(AssignmentTurnedInOutlined, {
                         name: 'Add Students To Class',
                     })}
+                    {this.listItem(MessageOutlined, {name: 'Notify Class'})}
                     {this.listItem(BuildOutlined, {
                         name: 'My Questions',
                         s: null,
