@@ -159,10 +159,9 @@ def request_password_reset(email: str):
     token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
     confirm_url = url_for('UserRoutes.password_reset', token=token, _external=True)
     send_email(user.email, "Password Reset Request",
-               f'<html><body>Hi {user.first_name},<br/><br/>'
-               f'You have requested to change you password. Please click <a href="{confirm_url}">here</a> to '
-               f'change your password. If you did not request to change your password please ignore this email. '
-               f'This link will expire in an hour'
+               f'<html><body>Hi,<br/><br/>'
+               f'Please click <a href="{confirm_url}">here</a> to change your password. If you did not request a '
+               f'password reset, you do not need to do anything. This link will expire in one hour.'
                f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
                )
     return jsonify({})
