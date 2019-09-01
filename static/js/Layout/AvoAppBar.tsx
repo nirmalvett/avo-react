@@ -4,8 +4,8 @@ import {createStyles, Theme} from '@material-ui/core/styles';
 import {withStyles, AppBar, Toolbar, IconButton, Typography} from '@material-ui/core';
 import {Menu} from '@material-ui/icons';
 import classNames from 'classnames';
-import {Section, ShowSnackBar} from './Layout';
-import {GetTest} from '../Http';
+import {ShowSnackBar} from './Layout';
+import {Section} from './LayoutModels';
 const drawerWidth = 240;
 
 const styles = (theme: Theme) =>
@@ -28,19 +28,16 @@ const styles = (theme: Theme) =>
         },
     });
 
-interface AvoAppBarClasses {
-    appBar: string;
-    appBarShift: string;
-}
-
 interface AvoAppBarProps {
+    classes: {
+        appBar: string;
+        appBarShift: string;
+    };
     open: boolean;
     toggleDrawer: () => void;
-    classes: AvoAppBarClasses;
     section: Section;
     name: string;
     showSnackBar: ShowSnackBar;
-    test: GetTest | undefined;
 }
 
 class AvoAppBar extends PureComponent<AvoAppBarProps> {
@@ -68,11 +65,11 @@ class AvoAppBar extends PureComponent<AvoAppBarProps> {
     }
 
     timerInTopBar() {
-        if (this.props.section !== 'Take Test' || this.props.test === undefined) return null;
+        if (this.props.section.name !== 'Take Test') return null;
         return (
             <Timer
                 showSnackBar={this.props.showSnackBar}
-                deadline={this.props.test.time_submitted}
+                deadline={this.props.section.test.time_submitted}
                 onCompletionFunc={() => {
                     try {
                         // @ts-ignore

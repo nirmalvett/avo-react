@@ -35,7 +35,7 @@ interface QuestionManagerProps {
     showSnackBar: ShowSnackBar;
 }
 
-interface QuestionManagerState {
+export interface QuestionManagerState {
     selectedS: number | null;
     selectedQ: number | null;
     copiedQ: null | [number, number];

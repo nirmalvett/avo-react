@@ -10,7 +10,9 @@ import MyClasses from '../MyClasses/MyClasses';
 import CreateTest from '../ManageClasses/CreateTest/CreateTest';
 import Preferences from '../Preferences/Preferences';
 import ManageClasses from '../ManageClasses/ManageClasses';
-import QuestionManager from '../CourseBuilder/QuestionBuilder/QuestionManager';
+import QuestionManager, {
+    QuestionManagerState,
+} from '../CourseBuilder/QuestionBuilder/QuestionManager';
 import QuestionBuilder from '../QuestionBuilder/QuestionBuilder';
 import QuestionBuilderDocs from '../CourseBuilder/QuestionBuilder/QuestionBuilderDocs';
 import ExportTools from '../ExportTools/ExportTools';
@@ -24,6 +26,8 @@ import AvoSideBar from './AvoSidebar';
 import AvoAppBar from './AvoAppBar';
 import AvoSnackBar from './AvoSnackBar';
 import Whitelist from '../Whitelist/Whitelist';
+import {Section} from './LayoutModels';
+import {AvoSet} from '../Http/types';
 const drawerWidth = 240;
 
 const styles = (theme: Theme) =>
@@ -47,26 +51,6 @@ const styles = (theme: Theme) =>
         },
     });
 
-export type Section =
-    | 'Add Students To Class'
-    | 'Build Question'
-    | 'Create Test'
-    | 'Documentation'
-    | 'Explanations'
-    | 'Export Tools'
-    | 'Home'
-    | 'In Class Tools'
-    | 'Learn'
-    | 'Manage Classes'
-    | 'Mark Editor'
-    | 'My Classes'
-    | 'My Questions'
-    | 'Notify Class'
-    | 'Post Test'
-    | 'Preferences'
-    | 'Tag Builder'
-    | 'Take Test';
-
 export type SnackbarVariant = 'success' | 'warning' | 'error' | 'info';
 
 interface LayoutProps {
@@ -88,22 +72,12 @@ interface LayoutProps {
 interface LayoutState {
     section: Section;
     open: boolean;
-    testCreator: null | number;
-    postTest: null | number;
-    markEditor: null | number;
-    minutesRemainingUponResumingTest: null | number;
-    testDueDate: null | number;
-    classToJumpTo: null | number;
-    setToJumpTo: null | number;
     snackbar: {
         hideDuration: number;
         isOpen: boolean;
         message: string;
         variant: SnackbarVariant;
     };
-    test: Http.GetTest | undefined;
-    questionManager: any; // todo
-    questionBuilder: any; // todo
 }
 
 export type ShowSnackBar = (
@@ -116,25 +90,14 @@ class Layout extends Component<LayoutProps, LayoutState> {
     constructor(props: LayoutProps) {
         super(props);
         this.state = {
-            test: undefined,
-            section: 'Home',
+            section: {name: 'Home'},
             open: true,
-            testCreator: null,
-            postTest: null,
-            markEditor: null,
-            minutesRemainingUponResumingTest: null,
-            testDueDate: null,
-            questionManager: [null, null, []], // todo
-            questionBuilder: null, // todo
-
             snackbar: {
                 hideDuration: 5000,
                 isOpen: true,
                 message: 'AVO AI Assistant Online',
                 variant: 'success',
             },
-            classToJumpTo: null,
-            setToJumpTo: null,
         };
     }
 
@@ -160,9 +123,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     section={this.state.section}
                     open={this.state.open}
                     logout={this.props.logout}
-                    onClick={(section: Section) =>
-                        this.setState({section, classToJumpTo: null, setToJumpTo: null})
-                    }
+                    onClick={(section: Section) => this.setState({section})}
                 />
                 <AvoAppBar
                     section={this.state.section}
@@ -170,7 +131,6 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     open={this.state.open}
                     toggleDrawer={() => this.setState({open: !open})}
                     showSnackBar={this.showSnackBar}
-                    test={this.state.test}
                 />
                 <div
                     className={classNames(classes.content, {
@@ -189,29 +149,35 @@ class Layout extends Component<LayoutProps, LayoutState> {
         this.setState({snackbar: {hideDuration, variant, message, isOpen: false}});
     };
 
-    jumpToSet = (c: number, s: number) => {
-        this.setState({
-            classToJumpTo: c,
-            setToJumpTo: s,
-            section: 'My Classes',
-        });
-    };
-
-    jumpToClass = (c: number) => {
-        this.setState({
-            classToJumpTo: c,
-            setToJumpTo: null,
-            section: 'My Classes',
-        });
-    };
-
     // ============================== Methods that return parts of what is rendered ==========================
 
     getContent() {
         // this helper returns the logic for what is loaded in the right side of the menu
         const {isTeacher, color, theme} = this.props;
         const {section} = this.state;
-        if (section === 'Home') {
+        if (section.name === 'Add Students To Class') {
+            return <Whitelist color={this.color()} />;
+        } else if (section.name === 'Build Question') {
+            return (
+                <QuestionBuilder
+                    showSnackBar={this.showSnackBar}
+                    initManager={this.myQuestions}
+                    initWith={section.questionManagerState}
+                />
+            );
+        } else if (section.name === 'Create Test') {
+            return (
+                <CreateTest
+                    showSnackBar={this.showSnackBar}
+                    classID={section.classID}
+                    onCreate={this.manageClasses}
+                />
+            );
+        } else if (section.name === 'Documentation') {
+            return QuestionBuilderDocs;
+        } else if (section.name === 'Export Tools') {
+            return <ExportTools theme={{theme: this.props.theme, color: this.color()}} />;
+        } else if (section.name === 'Home') {
             return <HomePageOld showSnackBar={this.showSnackBar} />;
             // return (
             //     <HomePage
@@ -221,79 +187,45 @@ class Layout extends Component<LayoutProps, LayoutState> {
             //         showSnackBar={this.showSnackBar}
             //     />
             // );
-        } else if (section === 'Export Tools') {
-            return <ExportTools theme={{theme: this.props.theme, color: this.color()}} />;
-        } else if (section === 'My Classes') {
-            return (
-                <MyClasses
-                    classToJumpTo={this.state.classToJumpTo}
-                    setToJumpTo={this.state.setToJumpTo}
-                    showSnackBar={this.showSnackBar}
-                    isTeacher={isTeacher}
-                    startTest={this.startTest}
-                    theme={{theme: this.props.theme, color: this.color()}}
-                    postTest={(takes: number) => {
-                        this.setState({postTest: takes, section: 'Post Test'});
-                    }}
-                />
-            );
-        } else if (section === 'Manage Classes') {
+        } else if (section.name === 'Learn') {
+            return <AVOLearnComponent />;
+        } else if (section.name === 'Manage Classes') {
             return (
                 <ManageClasses
                     showSnackBar={this.showSnackBar}
-                    createTest={(cls: number) => this.startCreateTest(cls)}
+                    createTest={this.createTest}
                     theme={{theme: this.props.theme, color: this.color()}}
-                    postTest={(takes: number) => {
-                        this.setState({postTest: takes, section: 'Post Test'});
-                    }}
-                    markEditor={(takes: number) => {
-                        this.setState({markEditor: takes, section: 'Mark Editor'});
-                    }}
+                    postTest={this.postTest}
+                    markEditor={this.markEditor}
                 />
             );
-        } else if (section === 'Create Test' && this.state.testCreator !== null) {
+        } else if (section.name === 'Mark Editor') {
+            return <MarkEditor showSnackBar={this.showSnackBar} takes={section.takesID} />;
+        } else if (section.name === 'My Classes') {
             return (
-                <CreateTest
+                <MyClasses
+                    classToJumpTo={section._class}
+                    setToJumpTo={section._quiz}
                     showSnackBar={this.showSnackBar}
-                    classID={this.state.testCreator}
-                    onCreate={() => this.setState({section: 'Manage Classes'})}
+                    isTeacher={isTeacher}
+                    startTest={this.takeTest}
+                    theme={{theme: this.props.theme, color: this.color()}}
+                    postTest={this.postTest}
                 />
             );
-        } else if (section === 'My Questions') {
+        } else if (section.name === 'My Questions') {
             return (
                 <QuestionManager
                     showSnackBar={this.showSnackBar}
-                    initBuilder={
-                        (questionBuilder: any) =>
-                            this.setState({section: 'Build Question', questionBuilder}) // todo
-                    }
-                    initWith={this.state.questionManager}
+                    initBuilder={this.buildQuestion}
+                    initWith={section.initWith}
                 />
             );
-        } else if (section === 'Build Question') {
-            return (
-                <QuestionBuilder
-                    showSnackBar={this.showSnackBar}
-                    initManager={
-                        (questionManager: any) =>
-                            this.setState({section: 'My Questions', questionManager}) // todo
-                    }
-                    initWith={this.state.questionBuilder}
-                />
-            );
-        } else if (section === 'Documentation') {
-            return QuestionBuilderDocs;
-        } else if (section === 'Take Test' && this.state.test) {
-            return (
-                <TakeTest
-                    showSnackBar={this.showSnackBar}
-                    test={this.state.test}
-                    submitTest={(takes: number) =>
-                        this.setState({postTest: takes, section: 'Post Test'})
-                    }
-                />
-            );
-        } else if (section === 'Preferences') {
+        } else if (section.name === 'Notify Class') {
+            return <NotifyClass />;
+        } else if (section.name === 'Post Test') {
+            return <PostTest takes={section.takesID} />;
+        } else if (section.name === 'Preferences') {
             return (
                 <Preferences
                     color={color}
@@ -303,40 +235,49 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     showSnackBar={this.showSnackBar}
                 />
             );
-        } else if (section === 'Post Test' && this.state.postTest !== null) {
-            return <PostTest takes={this.state.postTest} />;
-        } else if (section === 'Mark Editor' && this.state.markEditor !== null) {
+        } else if (section.name === 'Tag Builder') {
+            return <TagView />;
+        } else if (section.name === 'Take Test') {
             return (
-                <MarkEditor
+                <TakeTest
                     showSnackBar={this.showSnackBar}
-                    takes={this.state.markEditor}
+                    test={section.test}
+                    submitTest={this.postTest}
                 />
             );
-        } else if (section === 'Tag Builder') {
-            return <TagView />;
-        } else if (section === 'Notify Class') {
-            return <NotifyClass />;
-        } else if (section === 'Learn') {
-            return <AVOLearnComponent />;
-        } else if (section === 'Add Students To Class') {
-            return <Whitelist color={this.color()} />;
         }
     }
 
     // ============================== Methods that perform some type of data manipulation =======================
 
-    startCreateTest(cls: number) {
-        this.setState({section: 'Create Test', testCreator: cls});
+    navigate(section: Section) {
+        this.setState({section});
     }
 
-    startTest = (test: Http.GetClasses_Test) => {
+    buildQuestion = (questionManagerState: QuestionManagerState) =>
+        this.navigate({name: 'Build Question', questionManagerState});
+
+    createTest = (classID: number) => this.navigate({name: 'Create Test', classID});
+
+    manageClasses = () => this.navigate({name: 'Manage Classes'});
+
+    markEditor = (takesID: number) => this.navigate({name: 'Mark Editor', takesID});
+
+    jumpToSet = (_class: number, _quiz: number) =>
+        this.navigate({name: 'My Classes', _class, _quiz});
+
+    jumpToClass = (_class: number) => this.navigate({name: 'My Classes', _class, _quiz: null});
+
+    myQuestions = (initWith: [number, number, AvoSet[]]) =>
+        this.navigate({name: 'My Questions', initWith});
+
+    postTest = (takesID: number) => this.navigate({name: 'Post Test', takesID});
+
+    takeTest = (test: Http.GetClasses_Test) => {
         Http.getTest(
             test.testID,
             test => {
-                this.setState({
-                    section: 'Take Test',
-                    test,
-                });
+                this.setState({section: {name: 'Take Test', test}});
             },
             result => alert(result.error),
         );
