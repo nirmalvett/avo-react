@@ -6,3 +6,4 @@ __pycache__/
 desktop.ini
 config.*
 DS_Store
+.vscode
