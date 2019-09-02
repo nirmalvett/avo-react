@@ -6,7 +6,7 @@ import {getMathJax} from '../HelperFunctions/Utilities';
 import {AnswerInput} from '../AnswerInput';
 
 
-export function renderHints(currentlyEditing) {
+export function renderHints(currentlyEditing: null | string) {
     if (currentlyEditing === null) return (
         <Typography>
             Hints will appear here when you start editing something. We are constantly
@@ -72,7 +72,26 @@ export function renderHints(currentlyEditing) {
     );
 }
 
-export function Preview(props) {
+interface PreviewProps {
+    state: {
+        editorMath: {
+            LaTeX: string;
+            comment: string;
+        }[]
+        editorPrompts: {
+            type: string
+        }[]
+        editorCriteria: string[]
+        preview: {
+            prompt: string
+            prompts: string[]
+            explanation: string[]
+            variables: {[key: string]: string}
+        }
+    }
+}
+
+export function Preview(props: PreviewProps) {
     let {state} = props;
     let cardStyle = {margin: 8, paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10};
     let dividerStyle = {marginTop: 15, marginBottom: 15};
