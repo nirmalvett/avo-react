@@ -291,3 +291,19 @@ export function sortFunc<T>(func: (x: T) => number | string): (x: T, y: T) => nu
         return xx > yy ? 1 : xx < yy ? -1 : 0;
     };
 }
+
+export function format(str: string, ...args: any[]) {
+    let result = "";
+    const re = /{(\d+)}|{{|}}/;
+    for(let m=re.exec(str); m !== null; m=re.exec(str)) {
+        result += str.slice(0, m.index);
+        str = str.slice(m.index + m[0].length);
+        if (m[0] === "{{")
+            result += "{";
+        else if (m[0] === "}}")
+            result += "}";
+        else
+            result += args[Number(m[1])];
+    }
+    return result + str;
+}

@@ -1,32 +1,14 @@
 import Typography from "@material-ui/core/Typography";
-import React from "react";
+import React, {ReactElement} from 'react';
 import {createMuiTheme} from "@material-ui/core";
+import {ShowSnackBar} from '../Layout/Layout';
 
-String.prototype.format = function(...args) {
-    let str = this.toString();
-    args = args.map(x => x.toString());
-    let result = "";
-    let re = /{(\d+)}|{{|}}/;
-    // noinspection JSValidateTypes
-    for(let m=re.exec(str); m !== null; m=re.exec(str)) {
-        result += str.slice(0, m.index);
-        str = str.slice(m.index + m[0].length);
-        if (m[0] === "{{")
-            result += "{";
-        else if (m[0] === "}}")
-            result += "}";
-        else
-            result += args[m[1]];
-    }
-    return result + str;
-};
-
-export const CONSTANTS = {
+export const CONSTANTS: {[key: string]: [string, string, string]} = {
     "true": ["*T", "true", "\\color{green}✔"],
     "false": ["*F", "false", "\\color{red}✘"],
 };
 // noinspection SpellCheckingInspection
-export const FUNCTIONS = {
+export const FUNCTIONS: {[key: string]: [string, null | string, null | string, string]} = {
     "boolean": ["AA", null, null, ""],
     "number": ["AB", null, null, "min, max, zeroes/mod=0"],
     "matrix": ["AC", null, null, "min, max, zeroes/mod=0, rows, cols=1"],
@@ -75,7 +57,7 @@ export const FUNCTIONS = {
     "point": ["_E", null, null, "v"],
     "augment": ["_F", null, null, "m, v"],
 };
-export const OPERATORS = {
+export const OPERATORS: {[key: string]: [number, string, string, string, number, number, number | null, number | null, number | null, number | null]} = {
     "or": [0, "BA", "or", "&0 \\text{ or } &1", 0, 0, 0, 0, 0, 0],
     "and": [1, "BB", "and", "&0 \\text{ and } &1", 1, 1, 1, 1, 1, 1],
     "not": [2, "BC", "not", "\\text{not } &0", 2, 2, null, 2, null, 2],
@@ -111,7 +93,7 @@ for(let f in FUNCTIONS) if (FUNCTIONS.hasOwnProperty(f)) {
     if (FUNCTIONS[f][1] === null) FUNCTIONS[f][1] = f + '(' + arg_string + ')';
     if (FUNCTIONS[f][2] === null) FUNCTIONS[f][2] = '\\text{' + f + '}\\left(' + arg_string + '\\right)';
 }
-let formatRegex = array => array.map(x => x.replace(/[\[\]\-\\.+*?^$(){}=!<>|:]/g, "\\$&"));
+let formatRegex = (array: string[]) => array.map(x => x.replace(/[\[\]\-\\.+*?^$(){}=!<>|:]/g, "\\$&"));
 const unary_regex = "\\$\\w+|@\\d+|\\d+(?:\\.\\d+)?|[\\)\\]\\}]|" + formatRegex(Object.keys(CONSTANTS)
     .concat(Object.keys(OPERATORS).filter(x => OPERATORS[x][7] === null))).join("|");
 // noinspection JSCheckFunctionSignatures
@@ -135,16 +117,16 @@ const REGEX = unary_regex + "|" + function_regex + part1 + part2 + "]";
  * @param mathCode This is the math code string to convert to plain text
  * @returns {*[]} An array of plain text expressions, most likely with just one element
  */
-export function buildPlainText(mathCode) {
-    let stack = [];
-    let constants = {};
+export function buildPlainText(mathCode: string): string[] {
+    let stack: [string, number][] = [];
+    let constants: {[key: string]: string} = {};
     for (let c in CONSTANTS) if (CONSTANTS.hasOwnProperty(c))
         constants[CONSTANTS[c][0]] = c;
-    let operators = {};
+    let operators: {[key: string]: [string, number, number | null, number | null]} = {};
     for (let o in OPERATORS) if (OPERATORS.hasOwnProperty(o))
         operators[OPERATORS[o][1]] = [o, OPERATORS[o][0], OPERATORS[o][6], OPERATORS[o][7]];
     operators["CA"][0] = "-";
-    let functions = {};
+    let functions: {[key: string]: (string | number)[]} = {};
     for (let f in FUNCTIONS) if (FUNCTIONS.hasOwnProperty(f))
         functions[FUNCTIONS[f][0]] = [f, (FUNCTIONS[f][3] === "") ? 0 : FUNCTIONS[f][3].split(",").length];
     let tokens = mathCode.split(" ");
@@ -153,12 +135,12 @@ export function buildPlainText(mathCode) {
         if (/^\$\w+$/.test(token)) {
             stack.push([token, 8]);
         } else if (/^@\d+$/.test(token)) {
-            stack.push(["@" + (token.slice(1) - 0 + 1), 8]);
+            stack.push(["@" + (Number(token.slice(1)) + 1), 8]);
         } else if (/^-?\d+(\.\d+)?$/.test(token)) {
             stack.push([token, 8]);
         } else if (token === "]") {
-            let rows = stack.splice(-2, 1)[0][0];
-            let cols = stack.splice(-1, 1)[0][0];
+            let rows = Number(stack.splice(-2, 1)[0][0]);
+            let cols = Number(stack.splice(-1, 1)[0][0]);
             let args = stack.splice(-rows * cols);
             let rowList = [];
             for(let r=0; r<rows; r++)
@@ -174,23 +156,28 @@ export function buildPlainText(mathCode) {
         } else if (constants[token] !== undefined) {
             stack.push([constants[token], 8]);
         } else if (operators[token] !== undefined) {
-            let o = operators[token];
+            const o = operators[token];
             let str = o[0];
-            if (o[3] !== null) {
+            const o1 = o[1];
+            const o2 = o[2];
+            const o3 = o[3];
+            if (o3 !== null) {
                 let x = stack.pop();
-                if (x[1] > o[3])
+                if (x === undefined) throw new Error();
+                if (x[1] > o3)
                     str += " " + x[0];
                 else
                     str += " (" + x[0] + ")";
             }
-            if (o[2] !== null) {
+            if (o2 !== null) {
                 let x = stack.pop();
-                if (x[1] >= o[2])
+                if (x === undefined) throw new Error();
+                if (x[1] >= o2)
                     str = x[0] + " " + str;
                 else
                     str = "(" + x[0] + ") " + str;
             }
-            stack.push([str, o[1]]);
+            stack.push([str, o1]);
         } else if (functions[token] !== undefined) {
             let f = functions[token];
             stack.push([f[0] + "(" + stack.splice(-f[1]).map(x => x[0]).join(", ") + ")", 8])
@@ -204,7 +191,7 @@ export function buildPlainText(mathCode) {
  * @param text The plain text expression to parse
  * @returns {*} An object with the attributes {mathCode, formattedPT, LaTeX}
  */
-export function buildMathCode(text) {
+export function buildMathCode(text: string): ReactElement | {mathCode: string, formattedPT: string, LaTeX: string} {
     if (/^ *$/.test(text))
         return <Typography color='error'>No expression given</Typography>;
     for (let i = 0; i < REPLACE.length; i++)
@@ -219,7 +206,7 @@ export function buildMathCode(text) {
     //     if (!this.hints.functions.includes(m[0].slice(0, -1)))
     //         this.hints.functions.push(m[0].slice(0, -1));
 
-    let tokens = text.split(" ");
+    let tokens: any[] = text.split(" ");
 
     for (let i = 0; i < tokens.length; i++) {
         if (tokens[i] === "-" && (i === 0 || !new RegExp("^(?:" + unary_regex + ")$").test(tokens[i - 1]))) {
@@ -250,7 +237,7 @@ export function buildMathCode(text) {
         return <Typography>{str}</Typography>;
 
     let brackets = 0;
-    let operations = [];
+    let operations: [string, number][] = [];
     for (let i = 0; i < tokens.length; i++) {
         let token = tokens[i];
         if (/^-?\d+(?:\.\d+)?$/.test(token))
@@ -258,9 +245,9 @@ export function buildMathCode(text) {
         else if (/^\$\w+$/.test(token))
             tokens[i] = [token, token, "\\color{DarkOrange}{" + token + "}", 8, 8];
         else if (/^@\d+$/.test(token))
-            tokens[i] = ["@" + (token.substr(1) - 1), token, "\\color{Green}{" + token + "}", 8, 8];
+            tokens[i] = ["@" + (Number(token.substr(1)) - 1), token, "\\color{Green}{" + token + "}", 8, 8];
         else if (token in CONSTANTS)
-            tokens[i] = CONSTANTS[token].concat([8, 8]);
+            tokens[i] = [...CONSTANTS[token], 8, 8];
         else if (token in OPERATORS) {
             tokens[i] = [token, brackets + 1000 * OPERATORS[token][0] - i];
             operations.push(tokens[i]);
@@ -312,7 +299,7 @@ export function buildMathCode(text) {
             }
             result[0] = args.map(x => x[0]).join(" ") + " " + result[0];
             for (let i = 0; i < args.length; i++)
-                result[2] = result[2].replace("&" + i, tx_p[i] > args[i][4] ? "\\left(" + args[i][2] + "\\right)" : args[i][2]);
+                result[2] = (result[2] as string).replace("&" + i, (tx_p[i] as number) > args[i][4] ? "\\left(" + args[i][2] + "\\right)" : args[i][2]);
             tokens[pos] = result;
         } else if (o.substr(o.length - 1) === "(" && o.slice(0, -1) in FUNCTIONS) {
             let data = FUNCTIONS[o.slice(0, -1)];
@@ -329,7 +316,7 @@ export function buildMathCode(text) {
                         return <Typography color='error'>Can't parse arguments in function</Typography>;
                 } else if (tokens[pos + 1] === ",") {
                     tokens.splice(pos + 1, 1);
-                    let value = signature[args.length][1];
+                    let value: undefined | string = signature[args.length][1];
                     if (value === undefined)
                         return <Typography color='error'>Non-default arguments cannot be left blank</Typography>;
                     args.push([value, value, value, 8, 8])
@@ -338,7 +325,7 @@ export function buildMathCode(text) {
             }
             tokens.splice(pos + 1, 1);
             while (args.length < signature.length) {
-                let value = signature[args.length][1];
+                let value: undefined | string = signature[args.length][1];
                 if (value === undefined)
                     return <Typography color='error'>Non-default arguments cannot be left blank</Typography>;
                 args.push([value, value, value, 8, 8])
@@ -380,7 +367,7 @@ export function buildMathCode(text) {
                     cols += 1;
             }
             if (cols % rows !== 0)
-                return "Row length must be consistent within a matrix";
+                return <Typography color='error'>Row length must be consistent within a matrix</Typography>;
             cols /= rows;
             let result = ["", "[", "\\begin{bmatrix}"];
             for (let r = 1; r <= rows; r++) {
@@ -419,10 +406,8 @@ export function buildMathCode(text) {
                 -1, -1
             ];
             tokens.splice(pos, 4);
-        }
-         else {
-            alert("Something went wrong when evaluating '" + o + "'");
-            return;
+        } else {
+            return <Typography color='error'>Something went wrong</Typography>;
         }
     }
 
@@ -443,10 +428,9 @@ export function buildMathCode(text) {
  * @param strings The string list to use to format it
  * @returns {string} The formatted string
  */
-export function formatString(str, strings) {
+export function formatString(str: string, strings: {LaTeX: string}[]) {
     let result = "";
     let re = /{(\d+)}|{{|}}/;
-    // noinspection JSValidateTypes
     for(let m=re.exec(str); m!==null; m=re.exec(str)) {
         result += str.slice(0, m.index);
         str = str.slice(m.index + m[0].length);
@@ -466,7 +450,7 @@ export function formatString(str, strings) {
  * @param strings The string list to use to format it
  * @returns {string} The formatted string
  */
-export function formatStringForEditing(str, strings) {
+export function formatStringForEditing(str: string, strings: {expr: string}[]) {
     let result = "";
     let re = /{(\d+)}|{{|}}|\$\\\\\$/;
     // noinspection JSValidateTypes
@@ -485,7 +469,7 @@ export function formatStringForEditing(str, strings) {
     return (result + str).replace(/—/g, '\n@');
 }
 
-export function extractReferences(str, snackbar=()=>{}) {
+export function extractReferences(str: string, snackbar: ShowSnackBar=()=>{}) {
     let string = "";
     let strings = [];
     let re = /`(.+?)`|{|}|(\$\w+)/;
@@ -502,7 +486,7 @@ export function extractReferences(str, snackbar=()=>{}) {
             string += '{' + strings.length + '}';
             // noinspection JSValidateTypes
             didTheDumbImplicitQuoteThing = didTheDumbImplicitQuoteThing || m[1] === undefined;
-            let {LaTeX, mathCode} = buildMathCode(m[1] ? m[1] : m[2]);
+            let {LaTeX, mathCode} = buildMathCode(m[1] ? m[1] : m[2]) as {LaTeX: string, mathCode: string};
             let expr = buildPlainText(mathCode);
             strings.push({expr, LaTeX, mathCode});
         }
@@ -512,20 +496,20 @@ export function extractReferences(str, snackbar=()=>{}) {
     return {string, strings};
 }
 
-export function validateString(str) {
+export function validateString(str: string) {
     let errors = [];
     let re = /`(.+?)`/;
     // noinspection JSValidateTypes
     for(let m=re.exec(str); m!==null; m=re.exec(str)) {
         str = str.slice(m.index + m[0].length);
-        let x = buildMathCode(m[1]);
+        let x = buildMathCode(m[1]) as {mathCode: string};
         if (x.mathCode === undefined)
             errors.push(x);
     }
     return errors;
 }
 
-function reduceStrings(string, strings) {
+function reduceStrings(string: string, strings: {expr: string}[]) {
     return extractReferences(formatStringForEditing(string, strings));
 }
 
@@ -545,7 +529,7 @@ There are 9 parts of the compiled string:
     8) Comments
  */
 
-export function initOld(string) {
+export function initOld(string: string) {
     /**
      * 0: steps
      * 1: prompts
@@ -557,30 +541,30 @@ export function initOld(string) {
     let editorMath = [];
     let editorPrompts = [];
     let editorCriteria = [];
-    let strings = [];
+    let strings: {expr: string, mathCode: string, LaTeX: string}[] = [];
     let i;
     let steps = sections[0];
     for(i=0; i<steps.length && !steps[i].includes('_') && !steps[i].includes('%'); i++) {
-        let step = steps[i].split(' ').map(x => /^\$\d+$/.test(x) ? '$' + (Number(/^\$(\d+)$/.exec(x)[1]) + 1) : x).join(' ');
+        let step = steps[i].split(' ').map(x => /^\$\d+$/.test(x) ? '$' + (Number((/^\$(\d+)$/.exec(x) as string[])[1]) + 1) : x).join(' ');
         let expr = buildPlainText(step)[0];
-        let {mathCode, LaTeX} = buildMathCode(expr);
+        let {mathCode, LaTeX} = buildMathCode(expr) as {mathCode: string, LaTeX: string};
         editorMath.push({varNames: ['$' + (i+1)], expr, mathCode, LaTeX, comment: sections[4][i]});
     }
     for(; i<steps.length && !steps[i].includes('%'); i++) {
-        let str = steps[i].split(' ').map(x => /^\$\d+$/.test(x) ? '$' + (Number(/^\$(\d+)$/.exec(x)[1]) + 1) : x).join(' ');
+        let str = steps[i].split(' ').map(x => /^\$\d+$/.test(x) ? '$' + (Number((/^\$(\d+)$/.exec(x) as string[])[1]) + 1) : x).join(' ');
         if (str.endsWith(' _A'))
             str = str.slice(0, -3);
         let expr = buildPlainText(str)[0];
-        let {mathCode, LaTeX} = buildMathCode(expr);
+        let {mathCode, LaTeX} = buildMathCode(expr) as {mathCode: string, LaTeX: string};
         strings.push({expr, mathCode, LaTeX});
     }
     for(; i<steps.length; i++) {
-        let step = steps[i].split(' ').map(x => /^\$\d+$/.test(x) ? '$' + (Number(/^\$(\d+)$/.exec(x)[1]) + 1) : x).join(' ');
+        let step = steps[i].split(' ').map(x => /^\$\d+$/.test(x) ? '$' + (Number((/^\$(\d+)$/.exec(x) as string[])[1]) + 1) : x).join(' ');
         let match = /^(.*) (\d+(?:\.\d+)?) %$/.exec(step);
-        let expr = buildPlainText(match[1])[0];
-        let {mathCode, LaTeX} = buildMathCode(expr);
+        let expr = buildPlainText((match as string[])[1])[0];
+        let {mathCode, LaTeX} = buildMathCode(expr) as {mathCode: string, LaTeX: string};
         let x = reduceStrings(sections[3].splice(0, 1)[0], strings);
-        editorCriteria.push({expr, mathCode, LaTeX, points: match[2], explanation: x.string, strings: x.strings});
+        editorCriteria.push({expr, mathCode, LaTeX, points: (match as string[])[2], explanation: x.string, strings: x.strings});
     }
     let x = reduceStrings(sections[1][0], strings);
     let editorPrompt = {prompt: x.string, strings: x.strings};
@@ -595,19 +579,19 @@ export function initOld(string) {
     return {editorMath, editorPrompt, editorPrompts, editorCriteria};
 }
 
-export function init(string) {
+export function init(string: string) {
     let sections = string.split(SEP1).map(x => x.split(SEP2));
     if (sections[0].length === 1 && sections[0][0] === '') sections[0] = [];
     if (sections[2].length === 1 && sections[2][0] === '') sections[2] = [];
     if (sections[6].length === 1 && sections[6][0] === '') sections[6] = [];
     let strings = sections[2].filter(x => x.length > 0).map((mathCode) => {
         let expr = buildPlainText(mathCode)[0];
-        let {LaTeX} = buildMathCode(expr);
+        let {LaTeX} = buildMathCode(expr) as {LaTeX: string};
         return {expr, mathCode, LaTeX};
     });
     let editorMath = sections[0].map((mc, i) => {
         let expr = buildPlainText(mc)[0];
-        let {mathCode, LaTeX} = buildMathCode(expr);
+        let {mathCode, LaTeX} = buildMathCode(expr) as {mathCode: string, LaTeX: string};
         return {varNames: sections[1][i].split(SEP3), expr, mathCode, LaTeX, comment: sections[8][i]};
     });
     let editorPrompt = {prompt: sections[3].splice(0, 1)[0], strings};
@@ -616,27 +600,27 @@ export function init(string) {
     });
     let editorCriteria = sections[6].map((criteria, i) => {
         let expr = buildPlainText(criteria)[0];
-        let {mathCode, LaTeX} = buildMathCode(expr);
+        let {mathCode, LaTeX} = buildMathCode(expr) as {mathCode: string, LaTeX: string};
         return {points: sections[5][i], expr, mathCode, LaTeX, explanation: sections[7][i], strings: strings};
     });
     return {editorMath, editorPrompt, editorPrompts, editorCriteria};
 }
 
-export function compile(state) {
+export function compile(state: any) {
     let {editorMath, editorPrompt, editorPrompts, editorCriteria} = state;
-    let PART0 = editorMath.map(x => x.mathCode);
-    let PART1 = editorMath.map(x => x.varNames.join(SEP3));
-    let PART2 = [];
+    let PART0 = editorMath.map((x: {mathCode: string}) => x.mathCode);
+    let PART1 = editorMath.map((x: {varNames: string[]}) => x.varNames.join(SEP3));
+    let PART2: string[] = [];
     let PART3 = [editorPrompt].concat(editorPrompts).map(x => compileStringList(x.prompt, x.strings, PART2));
-    let PART4 = editorPrompts.map(x => x.type);
-    let PART5 = editorCriteria.map(x => x.points);
-    let PART6 = editorCriteria.map(x => x.mathCode);
-    let PART7 = editorCriteria.map(x => compileStringList(x.explanation, x.strings, PART2));
-    let PART8 = editorMath.filter(x => x.mathCode).map(x => x.comment);
+    let PART4 = editorPrompts.map((x: {type: string}) => x.type);
+    let PART5 = editorCriteria.map((x: {points: string}) => x.points);
+    let PART6 = editorCriteria.map((x: {mathCode: string}) => x.mathCode);
+    let PART7 = editorCriteria.map((x: {explanation: string, strings: {mathCode: string}[]}) => compileStringList(x.explanation, x.strings, PART2));
+    let PART8 = editorMath.filter((x: {mathCode: string}) => x.mathCode).map((x: {comment: string}) => x.comment);
     return [PART0, PART1, PART2, PART3, PART4, PART5, PART6, PART7, PART8].map(x => x.join(SEP2)).join(SEP1);
 }
 
-function compileStringList(string, strings, outputStrings) {
+function compileStringList(string: string, strings: {mathCode: string}[], outputStrings: string[]) {
     let result = "";
     let re = /{(\d+)}|{{|}}/;
     // noinspection JSValidateTypes
