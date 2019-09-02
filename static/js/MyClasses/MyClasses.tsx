@@ -608,7 +608,9 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                             marginBottom: '16px',
                         }}
                     >
-                        <Typography variant='h5' color='textPrimary' style={{paddingLeft: '8px'}}>{selectedTest.name}</Typography>
+                        <Typography variant='h5' color='textPrimary' style={{paddingLeft: '8px'}}>
+                            {selectedTest.name}
+                        </Typography>
                         <Button
                             color='primary'
                             classes={{

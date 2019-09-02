@@ -37,7 +37,7 @@ export default class TakeTest extends Component<TakeTestProps, TakeTestState> {
         // todo: props shouldn't be copied into state
         this.state = {
             answers: this.props.test.answers,
-            newAnswers: this.props.test.answers
+            newAnswers: this.props.test.answers,
         };
     }
 
