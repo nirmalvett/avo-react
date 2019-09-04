@@ -1,10 +1,13 @@
+from typing import List
 from flask import Blueprint, jsonify
 from flask_login import current_user
 from server.MathCode.question import AvoQuestion
 from random import randint
 from server.decorators import login_required, teacher_only, validate
-from server.models import db, Question, Tag, TagUser, Lesson, UserLesson, TagQuestion, TagClass, Class
+from server.models import db, Question, Tag, TagUser, Lesson, UserLesson, TagQuestion, TagClass, Test
 from server.helpers import get_tree
+from datetime import datetime
+
 TagRoutes = Blueprint('TagRoutes', __name__)
 
 
@@ -184,21 +187,25 @@ def get_lesson_question_result(question_id: int, answers: list, seed: int):
     if question is None:
         return jsonify(error="question not found")
     q = AvoQuestion(question.string, seed, answers)
-    tag = Tag.query.join(TagQuestion).filter(
-        TagQuestion.QUESTION == question_id).first()
+    tag = Tag.query.join(TagQuestion).filter(TagQuestion.QUESTION == question_id).first()
     current_mastery = TagUser.query.filter(
-        (TagUser.TAG == tag.TAG) & (TagUser.USER == current_user.USER)).first()
+        (TagUser.TAG == tag.TAG) & (TagUser.USER == current_user.USER)
+    ).order_by(TagUser.time_created.desc()).first()
     if current_mastery is None:
-        current_mastery = TagUser(current_user.USER, tag.TAG)
-    if q.score == question.total:
-        current_mastery.mastery += q.score / 100
+        mastery_val = current_mastery.mastery
     else:
-        current_mastery.mastery += (q.score - question.total) / 100
-    if current_mastery.mastery > 1.0:
-        current_mastery.mastery = 1.0
-    db.session.add(current_mastery)
+        mastery_val = 0
+    new_mastery = TagUser(current_user.USER, tag.TAG)
+    new_mastery.time_created = datetime.now()
+    if q.score == question.total:
+        new_mastery.mastery = mastery_val + (q.score / 100)
+    else:
+        new_mastery.mastery = mastery_val + ((q.score - question.total) / 100)
+    if new_mastery.mastery > 1.0:
+        new_mastery.mastery = 1.0
+    db.session.add(new_mastery)
     db.session.commit()
-    return jsonify(explanation=q.explanation, mastery=current_mastery.mastery)
+    return jsonify(explanation=q.explanation, mastery=new_mastery.mastery)
 
 
 @TagRoutes.route("/getLessonData", methods=["POST"])
@@ -226,3 +233,36 @@ def get_lesson_data(lesson_id: int):
         gened_questions.append({"ID": question.QUESTION, "prompt": q.prompt,
                                 "prompts": q.prompts, "types": q.types, "seed": seed})
     return jsonify(String=lesson.lesson_string, questions=gened_questions)
+
+
+@TagRoutes.route("/getMastery", methods=['POST'])
+@login_required
+@validate(classID=int)
+def get_mastery(class_id: int):
+    """
+    Gets the mastery levels over time (1 daily) of the users mastery level
+    :param class_id: class the user is mastering
+    :return: array of mastery w/ timestamps of when they achieved it
+    """
+    tests: List[Test] = Test.query.filter(Test.CLASS == class_id).all()
+    questions = set()
+    for test in tests:
+        questions.update(eval(test.question_list))
+    question_tags: List[TagQuestion] = TagQuestion.query.filter(TagQuestion.QUESTION.in_(questions)).all()
+    user_tags: List[TagUser] = TagUser.query.filter(TagUser.USER == current_user.USER) \
+        .filter(TagUser.TAG.in_([tag.TAG for tag in question_tags])) \
+        .order_by(TagUser.time_created.asc()) \
+        .all()
+    if len(user_tags) == 0:
+        return jsonify({'masteryTimestamps': []})
+    timestamps = [{'timestamp': user_tags[0].time_created, 'mastery': 0}]
+    for tag in user_tags:
+        tag_timestamp = tag.time_created
+        prev_timestamp = timestamps[-1]
+        if tag_timestamp.date() == prev_timestamp['timestamp'].date():
+            prev_timestamp['mastery'] += tag.mastery
+        else:
+            timestamps.append({'timestamp': tag_timestamp, 'mastery': tag.mastery})
+    for timestamp in timestamps:
+        timestamp['mastery'] /= len(question_tags)
+    return jsonify({'masteryTimestamps': timestamps})

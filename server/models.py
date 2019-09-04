@@ -5,6 +5,8 @@ from string import ascii_letters, digits
 from server.PasswordHash import generate_salt, hash_password
 from datetime import datetime
 
+import json
+
 # Initialize Database
 db = SQLAlchemy()
 
@@ -384,6 +386,7 @@ class TagUser(db.Model):
     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
     TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
     mastery = db.Column(db.Float, nullable=False)
+    time_created = db.Column(db.DATETIME, nullable=False)
 
     USER_RELATION = db.relationship("User", back_populates="TAG_USER_RELATION")
     TAG_RELATION = db.relationship("Tag", back_populates="TAG_USER_RELATION")
@@ -394,7 +397,7 @@ class TagUser(db.Model):
         self.mastery = mastery
 
     def __repr__(self):
-        return f'TAG_USER {self.TAGUSER} {self.USER} {self.TAG} {self.mastery}'
+        return f'TAG_USER {self.TAGUSER} {self.USER} {self.TAG} {self.mastery} {self.time_created}'
 
 
 class Lesson(db.Model):
@@ -444,15 +447,15 @@ class DataStore(db.Model):
 
     STORE = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
     USER = db.Column(db.Integer, nullable=False)
-    DATA = db.Column(db.String(20000), nullable=False)
-    TYPE = db.Column(db.String(16), nullable=False)
-    TIME = db.Column(db.DATETIME, nullable=False)
+    data = db.Column(db.String(20000), nullable=False)
+    type = db.Column(db.String(16), nullable=False)
+    time_created = db.Column(db.DATETIME, nullable=False)
 
-    def __init__(self, USER, DATA, TYPE):
-        self.USER = int(USER)
-        self.DATA = str(DATA)
-        self.TYPE = str(TYPE)
-        self.TIME = datetime.now()
+    def __init__(self, USER: int, DATA, TYPE: str):
+        self.USER = USER
+        self.data = json.dumps(DATA)
+        self.type = TYPE
+        self.time_created = datetime.now()
 
     def __repr__(self):
-        return f'store {self.USER} {self.DATA} {self.TYPE} {self.TIME}'
+        return f'store {self.USER} {self.data} {self.type} {self.time_created}'

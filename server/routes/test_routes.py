@@ -199,7 +199,12 @@ def get_test(test_id: int):
             store_answers.append(current_question.answers)
             q = AvoQuestion(current_question.string, seeds[i])
             questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
-        # TODO look for better way to store question data
+        tests_before = Takes.query.filter(
+            (current_user.USER == Takes.USER)
+        ).count()
+        current_tests_before = Takes.query.filter(
+            ((current_user.USER == Takes.USER) & (test == Takes.TEST))
+        ).count()
         store = DataStore(current_user.get_id(), {
             'takes': takes.TAKES,
             'time_started': takes.time_started,
@@ -212,6 +217,8 @@ def get_test(test_id: int):
             'test': takes.TEST,
             'marks': takes.marks,
             'grade': takes.grade,
+            'tests_done_before': tests_before,
+            'current_tests_done_before': current_tests_before
         }, 'GET_TEST')
         db.session.add(store)
         db.session.commit()
@@ -261,6 +268,12 @@ def save_answer(takes_id: int, question: int, answer: list):
     except:
         print(f'unable to change mark for takes {takes.TAKES}')
         return jsonify(message='answer saved, but an error occurred while grading')
+    tests_before = Takes.query.filter(
+        (current_user.USER == Takes.USER)
+    ).count()
+    current_tests_before = Takes.query.filter(
+        ((current_user.USER == Takes.USER) & (test == Takes.TEST))
+    ).count()
     store = DataStore(current_user.get_id(), {
         'takes': takes_id,
         'time_started': takes.time_started,
@@ -273,7 +286,9 @@ def save_answer(takes_id: int, question: int, answer: list):
         'marks': takes.marks,
         'grade': takes.grade,
         'ip': get_ip(),
-        'test': takes.TEST
+        'test': takes.TEST,
+        'tests_done_before': tests_before,
+        'current_tests_done_before': current_tests_before
     }, 'SAVE_ANSWER')
     db.session.add(store)
     db.session.commit()
@@ -311,6 +326,12 @@ def submit_test(takes_id: int):
         current_question = next((x for x in questions_in_test if x.QUESTION == question_ids[i]), None)
         store_questions.append(current_question.string)
         store_answers.append(current_question.answers)
+    tests_before = Takes.query.filter(
+        (current_user.USER == Takes.USER)
+    ).count()
+    current_tests_before = Takes.query.filter(
+        ((current_user.USER == Takes.USER) & (test == Takes.TEST))
+    ).count()
     store = DataStore(current_user.get_id(), {
         'takes': takes.TAKES,
         'time_started': takes.time_started,
@@ -323,7 +344,9 @@ def submit_test(takes_id: int):
         'test': takes.TEST,
         'marks': takes.marks,
         'grade': takes.grade,
-    }, 'GET_TEST')
+        'tests_done_before': tests_before,
+        'current_tests_done_before': current_tests_before
+    }, 'SUBMIT_TEST')
     db.session.add(store)
     db.session.commit()
     return jsonify({})
