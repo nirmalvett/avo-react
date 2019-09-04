@@ -25,6 +25,7 @@ class Class(db.Model):
     MESSAGE_RELATION = db.relationship("Message", back_populates="CLASS_RELATION")
     CLASS_WHITELIST_RELATION = db.relationship("ClassWhitelist", back_populates="CLASS_RELATION")
     BACKLOG_WHITELIST_RELATION = db.relationship("ClassWhitelistBacklog", back_populates="CLASS_RELATION")
+    TAG_CLASS_RELATION = db.relationship("TagClass", back_populates="CLASS_RELATION")
 
     # noinspection PyPep8Naming
     def __init__(self, USER, name, price=59.99):
@@ -294,6 +295,7 @@ class Tag(db.Model):
     TAG_USER_RELATION = db.relationship("TagUser", back_populates="TAG_RELATION")
     LESSON_RELATION = db.relationship("Lesson", back_populates="TAG_RELATION")
     TAG_QUESTION_RELATION = db.relationship("TagQuestion", back_populates="TAG_RELATION")
+    TAG_CLASS_RELATION = db.relationship("TagClass", back_populates="TAG_RELATION")
 
     def __init__(self, parent, tagName, childOrder):
         self.parent = parent
@@ -342,6 +344,22 @@ class TagQuestion(db.Model):
     def __repr__(self):
         return f'TAG_QUESTION {self.TAG_QUESTION} {self.TAG} {self.QUESTION}'
 
+class TagClass(db.Model):
+    __tablename__ = "tag_class"
+
+    TAG_CLASS = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+
+    TAG_RELATION = db.relationship("Tag", back_populates="TAG_CLASS_RELATION")
+    CLASS_RELATION = db.relationship("Class", back_populates="TAG_CLASS_RELATION")
+
+    def __init__(self, TAG, CLASS):
+        self.TAG = TAG
+        self.CLASS = CLASS
+
+    def __repr__(self):
+        return f'TAG_CLASS {self.TAG_CLASS} {self.TAG} {self.CLASS}'
 
 class TagUser(db.Model):
     __tablename__ = "tag_user"

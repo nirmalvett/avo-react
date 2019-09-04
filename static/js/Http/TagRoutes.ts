@@ -9,8 +9,8 @@ export interface GetTags {
     }[];
 }
 
-export function getTags(success: cb<GetTags>, failure: cb) {
-    _request('GET', '/getTags', success, failure);
+export function getTags(class_id: number, success: cb<GetTags>, failure: cb) {
+    _request('POST', '/getTags', success, failure, {class_id});
 }
 
 export type PutTagsArg = {
