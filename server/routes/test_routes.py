@@ -203,12 +203,12 @@ def get_test(test_id: int):
             (current_user.USER == Takes.USER)
         ).count()
         current_tests_before = Takes.query.filter(
-            ((current_user.USER == Takes.USER) & (test == Takes.TEST))
+            ((current_user.USER == Takes.USER) & (test.TEST == Takes.TEST))
         ).count()
         store = DataStore(current_user.get_id(), {
             'takes': takes.TAKES,
-            'time_started': takes.time_started,
-            'time_submitted': takes.time_submitted,
+            'time_started': takes.time_started.timestamp(),
+            'time_submitted': takes.time_submitted.timestamp(),
             'answers': takes.answers,
             'questions': store_questions,
             'total_answers': store_answers,
@@ -272,12 +272,12 @@ def save_answer(takes_id: int, question: int, answer: list):
         (current_user.USER == Takes.USER)
     ).count()
     current_tests_before = Takes.query.filter(
-        ((current_user.USER == Takes.USER) & (test == Takes.TEST))
+        ((current_user.USER == Takes.USER) & (test.TEST == Takes.TEST))
     ).count()
     store = DataStore(current_user.get_id(), {
         'takes': takes_id,
-        'time_started': takes.time_started,
-        'time_submitted': takes.time_submitted,
+        'time_started': takes.time_started.timestamp(),
+        'time_submitted': takes.time_submitted.timestamp(),
         'question': current_question.string,
         'total_answers': current_question.answers,
         'total': current_question.total,
@@ -330,12 +330,12 @@ def submit_test(takes_id: int):
         (current_user.USER == Takes.USER)
     ).count()
     current_tests_before = Takes.query.filter(
-        ((current_user.USER == Takes.USER) & (test == Takes.TEST))
+        ((current_user.USER == Takes.USER) & (test.TEST == Takes.TEST))
     ).count()
     store = DataStore(current_user.get_id(), {
         'takes': takes.TAKES,
-        'time_started': takes.time_started,
-        'time_submitted': takes.time_submitted,
+        'time_started': takes.time_started.timestamp(),
+        'time_submitted': takes.time_submitted.timestamp(),
         'answers': takes.answers,
         'questions': store_questions,
         'total_answers': store_answers,
