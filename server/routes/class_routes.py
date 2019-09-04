@@ -80,7 +80,7 @@ def add_to_whitelist(class_id: int, uwo_users: list):
 
 @ClassRoutes.route('/getClassWhitelist', methods=['POST'])
 @teacher_only
-@validate(classID=int)
+@validate(class_id=int)
 def get_whitelist(class_id):
     whitelist = ClassWhitelist.query.join(User, User.USER == ClassWhitelist.USER).filter((ClassWhitelist.CLASS == class_id)).all()
     backlog = ClassWhitelistBacklog.query.filter((ClassWhitelist.CLASS == class_id)).all()
