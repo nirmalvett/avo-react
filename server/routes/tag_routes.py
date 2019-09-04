@@ -19,12 +19,10 @@ def get_tags(class_id: int):
     ret_tags = []
     list_of_tags = []
     all_tags = Tag.query.all()
-    tag_class = TagClass.query.all()
-    parent_tags = list(filter(lambda tag_class: tag_class.CLASS == class_id, tag_class))
-    if tag_class is None or len(tag_class) == 0:
+    tag_class = TagClass.query.filter(TagClass.CLASS == class_id).first()
+    if tag_class is None:
         return jsonify(error="Class has no tags")
-    for tag in parent_tags:
-        list_of_tags.extend(get_tree(tag.TAG, all_tags))
+    list_of_tags.extend(get_tree(tag_class.TAG, all_tags))
     for tag in list_of_tags:
         ret_tags.append({
             'tagID': tag.TAG,
@@ -61,7 +59,8 @@ def put_tags(tags: list):
         return jsonify(error="One or more tags not found")
 
     for tag in tag_list:
-        tag_new_data = list(filter(lambda t: tag.TAG == t['tagID'], input_tags))[0]
+        tag_new_data = list(
+            filter(lambda t: tag.TAG == t['tagID'], input_tags))[0]
         tag.parent = tag_new_data['parent']
         tag.tagName = tag_new_data['tagName']
         tag.childOrder = tag_new_data['childOrder']
@@ -87,9 +86,11 @@ def delete_tag(tag_id):
     tag = Tag.query.get(tag_id)
     if tag is None:
         return jsonify(error="Tag does not exist")
-    child_tags = tag.query.filter(Tag.parent == tag.parent).all()  # Get all child tags of current tag
+    # Get all child tags of current tag
+    child_tags = tag.query.filter(Tag.parent == tag.parent).all()
     for child in child_tags:
-        child.parent = tag.parent  # For each child tag set its parent equal to the parent of the current tag
+        # For each child tag set its parent equal to the parent of the current tag
+        child.parent = tag.parent
     db.session.delete(tag)
     db.session.commit()
     return jsonify({})
@@ -115,7 +116,8 @@ def tag_mastery(tag_names: list):
     for i in range(len(master_list)):
         if not master_list[i].TAG == tag_list[i].TAG:
             return jsonify(error="Tag not found")
-        return_list.append({"ID": tag_list[i].TAG, "name": tag_list[i].name, "mastery": master_list[i].mastery})
+        return_list.append(
+            {"ID": tag_list[i].TAG, "name": tag_list[i].name, "mastery": master_list[i].mastery})
     return jsonify(mastery=return_list)
 
 
@@ -145,7 +147,7 @@ def get_lessons():
     """
 
     lesson_list = Lesson.query.join(UserLesson, UserLesson.LESSON == Lesson.LESSON).filter((Lesson.LESSON == UserLesson.LESSON) &
-                                                       (UserLesson.USER == current_user.USER)).all()
+                                                                                           (UserLesson.USER == current_user.USER)).all()
     tag_list = []
     all_tags = Tag.query.all()
     for tag in all_tags:
@@ -155,7 +157,7 @@ def get_lessons():
     print(tag_list)
     all_mastery = TagUser.query.all()
     mastery_list = []
-    for  mastery in all_mastery:
+    for mastery in all_mastery:
         for tag in tag_list:
             if tag.TAG == mastery.TAG:
                 mastery_list.append(mastery)
@@ -180,8 +182,10 @@ def get_lesson_question_result(question_id: int, answers: list, seed: int):
     if question is None:
         return jsonify(error="question not found")
     q = AvoQuestion(question.string, seed, answers)
-    tag = Tag.query.join(TagQuestion).filter(TagQuestion.QUESTION == question_id).first()
-    current_mastery = TagUser.query.filter((TagUser.TAG == tag.TAG) & (TagUser.USER == current_user.USER)).first()
+    tag = Tag.query.join(TagQuestion).filter(
+        TagQuestion.QUESTION == question_id).first()
+    current_mastery = TagUser.query.filter(
+        (TagUser.TAG == tag.TAG) & (TagUser.USER == current_user.USER)).first()
     if current_mastery is None:
         current_mastery = TagUser(current_user.USER, tag.TAG)
     if q.score == question.total:
@@ -211,10 +215,12 @@ def get_lesson_data(lesson_id: int):
     question_list = eval(lesson.question_list)
     if not isinstance(question_list, list):
         return jsonify(error="Lesson question list encountered an error")
-    questions = Question.query.filter(Question.QUESTION.in_(question_list)).all()
+    questions = Question.query.filter(
+        Question.QUESTION.in_(question_list)).all()
     gened_questions = []
     for question in questions:
         seed = randint(0, 65535)
         q = AvoQuestion(question.string, seed=seed)
-        gened_questions.append({"ID": question.QUESTION, "prompt": q.prompt, "prompts": q.prompts, "types": q.types, "seed": seed})
+        gened_questions.append({"ID": question.QUESTION, "prompt": q.prompt,
+                                "prompts": q.prompts, "types": q.types, "seed": seed})
     return jsonify(String=lesson.lesson_string, questions=gened_questions)

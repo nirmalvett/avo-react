@@ -7,11 +7,9 @@ interface TreeViewProps {
     classID: number;
 }
 export default function TreeView(props: TreeViewProps) {
-    console.log(props.classID)
     Http.getTags(
         props.classID,
         res => {
-            console.log(res)
             const data = res.tags;
             const nodes: ElementsDefinition['nodes'] = [];
             const edges: ElementsDefinition['edges'] = [];
