@@ -4,8 +4,8 @@ export interface GetClassWhitelist {
     whitelist: string[];
 }
 
-export function getClassWhitelist(classID: number, success: cb<GetClassWhitelist>, failure: cb) {
-    _request('POST', '/getClassWhitelist', success, failure, {classID});
+export function getClassWhitelist(class_id: number, success: cb<GetClassWhitelist>, failure: cb) {
+    _request('POST', '/getClassWhitelist', success, failure, {class_id});
 }
 
 export interface AddStudentsToWhitelist {
