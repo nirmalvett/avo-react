@@ -265,4 +265,5 @@ def get_mastery(class_id: int):
             timestamps.append({'timestamp': tag_timestamp, 'mastery': tag.mastery})
     for timestamp in timestamps:
         timestamp['mastery'] /= len(question_tags)
+        timestamp['timestamp'] = timestamp['timestamp'].timestamp()
     return jsonify({'masteryTimestamps': timestamps})
