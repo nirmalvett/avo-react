@@ -549,3 +549,12 @@ shrink-on-hover {
 .avo-clickable-item:hover{
   background: rgba(0,0,0,0.25);
 }
+
+.avo-select{
+  margin-top: 0.65em !important;
+}
+
+.avo-select > select {
+  padding-bottom: 8px !important;
+  padding-top: 8px !important;
+}

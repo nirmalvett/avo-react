@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import {
-	Grid, Paper, IconButton, Typography, Select, InputLabel, FormControl
+	Grid, Paper, IconButton, Typography, Select, InputLabel, FormControl, Grow
 } from '@material-ui/core';
 import {
-	ChevronRight, ChevronLeft, BookmarkBorder
+	ChevronRight, ChevronLeft, BookmarkBorder, ArrowBack, ArrowForward
 } from '@material-ui/icons';
 import * as Http from '../Http';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import AVOMasteryGauge from './MasteryGauge';
 import AVOMasteryChart from './AVOMasteryComps/MasteryChart';
+import AVODynamicBackground from '../SharedComponents/AVODynamicBackground';
 
 export default class MasteryHome extends Component {
 
@@ -36,58 +37,54 @@ export default class MasteryHome extends Component {
 
     render() {
         const _this = this;
-        if(this.state.selectedTags.length == 0) return <div>Getting concept data, please wait</div>;
         return (
-            <Grid container spacing={8}>
-                <Grid item xs={1}/>
-                <Grid item xs={10}>
-                    <Paper className='avo-card' style={{ padding : '1em', width : 'auto' }}>
-                        <Grid container>
-                            <Grid item xs={1}>
-                                <center>
-                                    <IconButton onClick={this.goToPreviousSlide} aria-label="Go Back">
-                                        <ChevronLeft />
-                                    </IconButton>
-                                </center>
-                            </Grid>
+            <AVODynamicBackground>
+                {this.state.selectedTags.length !== 0 && (
+                    <Grow in={this.state.selectedTags.length !== 0}>
+                        <Grid container spacing={8}>
+                            <Grid item xs={1}/>
                             <Grid item xs={10}>
-                                {this.getDropdownSlides()}
+                                <Paper className='avo-card' style={{ padding : '1em', width : 'auto' }}>
+                                    <Grid container>
+                                        <Grid item xs={1}>
+                                            <center>
+                                                <IconButton onClick={this.goToPreviousSlide} aria-label="Go Back">
+                                                    <ArrowBack />
+                                                </IconButton>
+                                            </center>
+                                        </Grid>
+                                        <Grid item xs={10}>
+                                            {this.getDropdownSlides()}
+                                        </Grid>
+                                        <Grid item xs={1}>
+                                            <center>
+                                                <IconButton onClick={this.goToNextSlide} aria-label="Go Forward">
+                                                    <ArrowForward />
+                                                </IconButton>
+                                            </center>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <br/>
+                                        <Typography variant="h6" gutterBottom>
+                                            {`${this.getRelevantTag().tagName}`}
+                                        </Typography>
+                                        <Grid container>
+                                            <Grid item xs={8}>
+                                                <AVOMasteryChart dataPoints={this.getRelevantTag().chartingData} dataLabels={this.getRelevantTag().compAtTime} height='400px'/>
+                                            </Grid>
+                                            <Grid item xs={4}>
+                                                <AVOMasteryGauge comprehension={this.getRelevantTag().comprehension}/>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Paper>
                             </Grid>
-                            <Grid item xs={1}>
-                                <center>
-                                    <IconButton onClick={this.goToNextSlide} aria-label="Go Forward">
-                                        <ChevronRight />
-                                    </IconButton>
-                                </center>
-                            </Grid>
+                            <Grid item xs={1}/>
                         </Grid>
-                        <Grid item xs={12}>
-                            <br/>
-                            <Typography variant="h6" gutterBottom>
-                                {`${this.getRelevantTag().tagName}`}
-                            </Typography>
-                            <Grid container>
-                                <Grid item xs={8}>
-                                    {/*<AVOBarChart dataPoints={this.getArrayFromStateChange()} labels={['a', 'b', 'c']} colors={['#399103', '#45af04', '#59e105']}height='400px'/>*/}
-                                    <AVOMasteryChart dataPoints={this.getRelevantTag().chartingData} dataLabels={this.getRelevantTag().compAtTime} height='400px'/>
-                                    {/* {this.getLineChart()} */}
-                                </Grid>
-                                <Grid item xs={4}>
-                                    <AVOMasteryGauge comprehension={this.getRelevantTag().comprehension}/>
-                                    {/* <Chart
-                                        options={this.getDonutOptions()}
-                                        series={this.getDonutData()}
-                                        type="donut"
-                                        width='100%'
-                                        height='400px'
-                                    /> */}
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                    </Paper>
-                </Grid>
-                <Grid item xs={1}/>
-            </Grid>
+                    </Grow>
+                )}      
+            </AVODynamicBackground>
         );
     };
 
@@ -144,23 +141,22 @@ export default class MasteryHome extends Component {
                     </div>
                 </Grid>
                 <Grid item xs={10}>
-                    <FormControl variant="outlined">
+                    <FormControl variant="outlined" style={{ width : '91%' }}>
                         <InputLabel htmlFor="contextSelectionBase">
 
                         </InputLabel>
                         <Select
+                            className='avo-select'
                             native
-                            style={{
-                                paddingBottom : '8px !important',
-                                paddingTop : '8px !important'
-                            }}
                             onClick={() => { _this.setState({ activeTag : _this.state.selectedTags[0] }); }}
                             onChange={(event) => {
                                 let selectedTagsCopy = [_this.state.tags[_this.filterTags(null).map(x => x.TAG).indexOf(parseInt(event.target.value))]];
                                 _this.setState({ selectedTags : selectedTagsCopy, activeTag : selectedTagsCopy[0] });
                             }}
                             input={
-                                <OutlinedInput id="contextSelectionBase" />
+                                <OutlinedInput 
+                                    id="contextSelectionBase"
+                                />
                             }
                         >
                             {
@@ -180,52 +176,58 @@ export default class MasteryHome extends Component {
             output.push(
                 <Grid container xs={4}>
                     <Grid item xs={2}>
-                        <div style={{ marginTop : '1em' }}>
-                            <ChevronRight/>
-                        </div>
+                        <Grow in={true}>
+                            <div style={{ marginTop : '1em' }}>
+                                <ChevronRight/>
+                            </div>
+                        </Grow>
                     </Grid>
                     <Grid item xs={10}>
-                        <FormControl variant="outlined">
-                            <InputLabel htmlFor={`contextSelectionBase-${i}`}>
+                        <Grow in={true}>
+                            <FormControl variant="outlined">
+                                <InputLabel htmlFor={`contextSelectionBase-${i}`}>
 
-                            </InputLabel>
-                            <Select
-                                native
-                                key={`@key:select=${i}-${_this.state.selectedTags[i].TAG}`}
-                                style={{
-                                    paddingBottom : '8px !important',
-                                    paddingTop : '8px !important'
-                                }}
-                                onClick={(event) => {
-                                    const thisTag = _this.state.selectedTags[i + 1];
-                                    if(!!thisTag)
-                                        _this.setState({ activeTag : _this.state.selectedTags[i + 1] });
-                                }}
-                                onChange={(event) => {
-                                    let selectedTagsCopy = _this.state.selectedTags;
-                                    selectedTagsCopy = selectedTagsCopy.splice(0, i + 1);
-                                    let childTag = _this.filterTags(selectedTagsCopy[i].TAG).filter(x => x.TAG == parseInt(event.target.value));
-                                    selectedTagsCopy.push(childTag[0]);
-                                    _this.setState({ selectedTags : selectedTagsCopy, activeTag : childTag[0] });
-                                }}
-                                input={
-                                    <OutlinedInput id={`contextSelectionBase-${i}`}/>
-                                }
-                            >
-                                <option value={0} selected disabled>None</option>
-                                {
-                                    this.filterTags(this.state.selectedTags[i].TAG).map((tag) => {
-                                        return (
-                                            <option value={tag.TAG}>{tag.tagName}</option>
-                                        );
-                                    })
-                                }
-                            </Select>
-                        </FormControl>
+                                </InputLabel>
+                                <Select
+                                    native
+                                    className='avo-select'
+                                    key={`@key:select=${i}-${_this.state.selectedTags[i].TAG}`}
+                                    onClick={(event) => {
+                                        const thisTag = _this.state.selectedTags[i + 1];
+                                        if(!!thisTag)
+                                            _this.setState({ activeTag : _this.state.selectedTags[i + 1] });
+                                    }}
+                                    onChange={(event) => {
+                                        let selectedTagsCopy = _this.state.selectedTags;
+                                        selectedTagsCopy = selectedTagsCopy.splice(0, i + 1);
+                                        let childTag = _this.filterTags(selectedTagsCopy[i].TAG).filter(x => x.TAG == parseInt(event.target.value));
+                                        selectedTagsCopy.push(childTag[0]);
+                                        console.log(i, selectedTagsCopy.length)
+                                        if(i + 1 % 2 == 0 && i != 0) 
+                                            setTimeout(() => _this.goToNextSlide(), 300);
+                                        _this.setState({ selectedTags : selectedTagsCopy, activeTag : childTag[0] });
+                                    }}
+                                    input={
+                                        <OutlinedInput 
+                                            id={`contextSelectionBase-${i}`}
+                                        />
+                                    }
+                                >
+                                    <option value={0} selected disabled>None</option>
+                                    {
+                                        this.filterTags(this.state.selectedTags[i].TAG).map((tag) => {
+                                            return (
+                                                <option value={tag.TAG}>{tag.tagName}</option>
+                                            );
+                                        })
+                                    }
+                                </Select>
+                            </FormControl>
+                        </Grow>
                     </Grid>
                 </Grid>
             );
-        }
+        }        
         let currentElsInCombined = 0;
         let combinedOutputIndex  = 0;
         let combination          = [];
@@ -237,11 +239,13 @@ export default class MasteryHome extends Component {
                 combinedOutput[combinedOutputIndex] = (
                     <Grid container xs={12} spacing={6} style={{
                         position   : 'absolute',
-                        transition : 'transform 1s ease-in',
+                        transition : 'transform 500ms ease-in, opacity 500ms ease-in',
                         willChange : 'transform',
+                        opacity    : `${combinedOutput.length == this.state.currentIndex ? 1 : 0}`,
                         top        : '2.25em',
                         width      : '85%',
                         transform  : `translateX(${this.getSlideTranslation(combinedOutput.length)}vw)`
+
                     }}>
                         {combination}
                     </Grid>
@@ -271,7 +275,7 @@ export default class MasteryHome extends Component {
 
     goToNextSlide = () => {
         const currentIndex = this.state.currentIndex;
-        if(currentIndex > Math.ceil(this.state.selectedTags.length / 3) )
+        if(currentIndex > Math.ceil(this.state.selectedTags.length / 3) - 1)
             return;
         this.setState({ currentIndex : currentIndex + 1 });
     };
@@ -279,10 +283,6 @@ export default class MasteryHome extends Component {
     filterTags(pTagCriteria) {
         return this.state.tags.filter((tag) => tag.parent == pTagCriteria);
     }
-
-    handleChange(id, parentId) {
-
-    };
 
     getTags() {
         this.setState({ tags : [
