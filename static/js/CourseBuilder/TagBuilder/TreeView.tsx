@@ -3,60 +3,67 @@ import cytoscape, {ElementsDefinition} from 'cytoscape';
 // @ts-ignore
 import dagre from 'cytoscape-dagre';
 import * as Http from '../../Http';
+interface TreeViewProps {
+    classID: number;
+}
+export default function TreeView(props: TreeViewProps) {
+    console.log(props.classID)
+    Http.getTags(
+        props.classID,
+        res => {
+            console.log(res)
+            const data = res.tags;
+            const nodes: ElementsDefinition['nodes'] = [];
+            const edges: ElementsDefinition['edges'] = [];
 
-export default function TreeView() {
-    Http.getTags(res => {
-        const data = res.tags;
-        const nodes: ElementsDefinition['nodes'] = [];
-        const edges: ElementsDefinition['edges'] = [];
-
-        data.forEach(el => {
-            nodes.push({
-                data: {
-                    id: 'node-' + el.tagID,
-                },
-                style: {
-                    content:
-                        el.tagName,
-                },
-            });
-            if (el.parent !== null) {
-                edges.push({
-                    data: {target: 'node-' + el.tagID, source: 'node-' + el.parent},
+            data.forEach(el => {
+                nodes.push({
+                    data: {
+                        id: 'node-' + el.tagID,
+                    },
+                    style: {
+                        content: el.tagName,
+                    },
                 });
-            }
-        });
-        cytoscape.use(dagre);
-        (window as any).cy = cytoscape({
-            container: document.getElementById('cy'),
-            boxSelectionEnabled: false,
-            autounselectify: true,
-            layout: {
-                name: 'dagre',
-                spacingFactor: 6,
-            },
-            style: [
-                {
-                    selector: 'node',
-                    style: {
-                        'background-color': '#11479e',
-                    },
+                if (el.parent !== null) {
+                    edges.push({
+                        data: {target: 'node-' + el.tagID, source: 'node-' + el.parent},
+                    });
+                }
+            });
+            cytoscape.use(dagre);
+            (window as any).cy = cytoscape({
+                container: document.getElementById('cy'),
+                boxSelectionEnabled: false,
+                autounselectify: true,
+                layout: {
+                    name: 'dagre',
+                    spacingFactor: 6,
                 },
-                {
-                    selector: 'edge',
-                    style: {
-                        width: 4,
-                        'target-arrow-shape': 'triangle',
-                        'line-color': '#9dbaea',
-                        'target-arrow-color': '#9dbaea',
-                        'curve-style': 'bezier',
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': '#11479e',
+                        },
                     },
-                },
-            ],
-            elements: {nodes, edges},
-        });
-    }, console.warn);
-    return <div id="cy" style={{ flex: 1, overflow: 'hidden' }} />;
+                    {
+                        selector: 'edge',
+                        style: {
+                            width: 4,
+                            'target-arrow-shape': 'triangle',
+                            'line-color': '#9dbaea',
+                            'target-arrow-color': '#9dbaea',
+                            'curve-style': 'bezier',
+                        },
+                    },
+                ],
+                elements: {nodes, edges},
+            });
+        },
+        console.warn,
+    );
+    return <div id='cy' style={{flex: 1, overflow: 'hidden'}} />;
 }
 
 const data: ElementsDefinition = {

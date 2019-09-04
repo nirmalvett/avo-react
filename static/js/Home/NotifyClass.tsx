@@ -132,14 +132,14 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                                 margin='normal'
                             />
                             <div style={{marginLeft: 'auto'}}>
-                                <Button variant='contained' onClick={() => this.addMessage()}>
+                                <Button style={{borderRadius: '2.5em'}} variant='outlined' onClick={() => this.addMessage()}>
                                     Add new message
                                 </Button>
                             </div>
 
                             <div style={{padding: 5}} />
 
-                            <Button variant='contained' onClick={() => this.deleteMessages()}>
+                            <Button style={{borderRadius: '2.5em'}} variant='outlined' onClick={() => this.deleteMessages()}>
                                 Delete selected messages
                             </Button>
                         </Grid>

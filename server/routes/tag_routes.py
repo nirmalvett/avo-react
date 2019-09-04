@@ -3,28 +3,36 @@ from flask_login import current_user
 from server.MathCode.question import AvoQuestion
 from random import randint
 from server.decorators import login_required, teacher_only, validate
-from server.models import db, Question, Tag, TagUser, Lesson, UserLesson, TagQuestion
-
+from server.models import db, Question, Tag, TagUser, Lesson, UserLesson, TagQuestion, TagClass, Class
+from server.helpers import get_tree
 TagRoutes = Blueprint('TagRoutes', __name__)
 
 
-@TagRoutes.route('/getTags')
+@TagRoutes.route('/getTags', methods=['POST'])
 @teacher_only
-def get_tags():
+@validate(class_id=int)
+def get_tags(class_id: int):
     """
     For now this route will return all tags from the database
     :return: The list of tags
     """
-    list_of_tags = Tag.query.all()
-    list_dict = []
+    ret_tags = []
+    list_of_tags = []
+    all_tags = Tag.query.all()
+    tag_class = TagClass.query.all()
+    parent_tags = list(filter(lambda tag_class: tag_class.CLASS == class_id, tag_class))
+    if tag_class is None or len(tag_class) == 0:
+        return jsonify(error="Class has no tags")
+    for tag in parent_tags:
+        list_of_tags.extend(get_tree(tag.TAG, all_tags))
     for tag in list_of_tags:
-        list_dict.append({
+        ret_tags.append({
             'tagID': tag.TAG,
             'parent': tag.parent,
             'tagName': tag.tagName,
             'childOrder': tag.childOrder,
         })
-    return jsonify(tags=list_dict)
+    return jsonify(tags=ret_tags)
 
 
 @TagRoutes.route('/putTags', methods=['POST'])
