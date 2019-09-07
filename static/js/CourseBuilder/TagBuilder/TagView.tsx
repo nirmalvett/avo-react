@@ -66,7 +66,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             <Button onClick={() => this.setState({currentView: 'tagTreeView'})}>
                                 Tag Tree View
                             </Button>
-                            <div style={{marginLeft: 'auto', padding: 5}}>
+                            <div style={{marginLeft: 'auto', padding: 15}}>
                                 <Select
                                     value={this.state.selectedClassName}
                                     input={<Input name='data' id='select-class' />}
@@ -97,7 +97,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             </div>
         );
     }
-
+   
     getClasses() {
         Http.getClasses(
             res => {

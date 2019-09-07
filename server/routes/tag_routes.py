@@ -71,9 +71,10 @@ def put_tags(tags: list):
 
 @TagRoutes.route('/addTag', methods=['POST'])
 @teacher_only
-@validate(name=str)
-def add_tag(name):
-    tag_obj = Tag(None, name, 0)
+@validate(name=str, class_id=int)
+def add_tag(name, class_id):
+    parent_tag = TagClass.query.join(Tag, TagClass.CLASS == class_id).first()
+    tag_obj = Tag(parent_tag.TAG_RELATION.TAG, name, 0)
     db.session.add(tag_obj)
     db.session.commit()
     return jsonify(tagID=tag_obj.TAG)
@@ -87,10 +88,11 @@ def delete_tag(tag_id):
     if tag is None:
         return jsonify(error="Tag does not exist")
     # Get all child tags of current tag
-    child_tags = tag.query.filter(Tag.parent == tag.parent).all()
+    child_tags = Tag.query.filter(Tag.parent == tag.TAG).all()
     for child in child_tags:
         # For each child tag set its parent equal to the parent of the current tag
         child.parent = tag.parent
+        db.session.add(child)
     db.session.delete(tag)
     db.session.commit()
     return jsonify({})
