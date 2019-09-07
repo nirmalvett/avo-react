@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
 from server.decorators import login_required, teacher_only, student_only, admin_only, validate
 from server.helpers import timestamp
-from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message, ClassWhitelist, ClassWhitelistBacklog
+from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message, ClassWhitelist, ClassWhitelistBacklog, Tag, TagClass
 import paypalrestsdk as paypal
 import config
 
@@ -98,7 +98,13 @@ def create_class(name: str):
     Creates a class with the current user as the teacher
     :return: Confirmation that the class was created
     """
-    db.session.add(Class(current_user.USER, name))
+    c = Class(current_user.USER, name)
+    t = Tag(None, name, 0)
+    db.session.add(c)
+    db.session.add(t)
+    db.session.flush()
+    t_c = TagClass(t.TAG, c.CLASS)
+    db.session.add(t_c)
     db.session.commit()
     return jsonify({})
 
