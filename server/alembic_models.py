@@ -3,12 +3,29 @@ from flask_sqlalchemy import SQLAlchemy
 from random import SystemRandom
 from string import ascii_letters, digits
 from server.PasswordHash import generate_salt, hash_password
+from sqlalchemy.ext.declarative import declarative_base
 
+
+Base = declarative_base()
 # Initialize Database
 db = SQLAlchemy()
+class LessonContent(Base):
+    __tablename__ = "lesson_content"
+
+    ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
+    LESSON_CONTENT = db.Column(db.Text, nullable=False)
+    TAG_RELATION = db.relationship("Tag", back_populates="LESSON_CONTENT_RELATION")
+
+    def __init__(self, TAG, LESSON_CONTENT):
+        self.TAG = TAG
+        self.LESSON_CONTENT = LESSON_CONTENT
+
+    def __repr__(self):
+        return f'LESSON_CONTENT {self.ID} {self.TAG} {self.LESSON_CONTENT}'
 
 
-class Class(db.Model):
+class Class(Base):
     __tablename__ = "CLASS"
 
     CLASS = db.Column(db.Integer, primary_key=True)
@@ -42,22 +59,8 @@ class Class(db.Model):
     def __repr__(self):
         return f'<Class {self.CLASS} {self.USER} {self.name} {self.enroll_key}>'
 
-class LessonContent(db.Model):
-    __tablename__ = "lesson_content"
 
-    ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
-    LESSON_CONTENT = db.Column(db.Text, nullable=False)
-    TAG_RELATION = db.relationship("Tag", back_populates="LESSON_CONTENT_RELATION")
-
-    def __init__(self, TAG, LESSON_CONTENT):
-        self.TAG = TAG
-        self.LESSON_CONTENT = LESSON_CONTENT
-
-    def __repr__(self):
-        return f'LESSON_CONTENT {self.ID} {self.TAG} {self.LESSON_CONTENT}'
-
-class ClassWhitelist(db.Model):
+class ClassWhitelist(Base):
     __tablename__ = "class_whitelist"
 
     ID = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -74,7 +77,7 @@ class ClassWhitelist(db.Model):
     def __repr__(self):
         return f'class_whitelist {self.ID} {self.USER} {self.CLASS}'
 
-class ClassWhitelistBacklog(db.Model):
+class ClassWhitelistBacklog(Base):
     __tablename__ = "backlog_whitelist"
 
     ID = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -90,7 +93,7 @@ class ClassWhitelistBacklog(db.Model):
     def __repr__(self):
         return f'backlog_whitelist {self.ID} {self.USER_ID} {self.CLASS}'
 
-class Takes(db.Model):
+class Takes(Base):
     __tablename__ = "takes"
 
     TAKES = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -121,7 +124,7 @@ class Takes(db.Model):
                f'{self.grade} {self.marks} {self.answers} {self.seeds}>'
 
 
-class User(UserMixin, db.Model):
+class User(UserMixin, Base):
     __tablename__ = "USER"
 
     USER = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -167,7 +170,7 @@ class User(UserMixin, db.Model):
         return self.USER
 
 
-class Question(db.Model):
+class Question(Base):
     __tablename__ = "QUESTION"
 
     QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -191,7 +194,7 @@ class Question(db.Model):
         return f'<Question {self.QUESTION} {self.SET} {self.name} {self.string} {self.answers} {self.total}>'
 
 
-class Set(db.Model):
+class Set(Base):
     __tablename__ = "SET"
 
     SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -207,7 +210,7 @@ class Set(db.Model):
         return f'<Set {self.SET} {self.name}>'
 
 
-class Test(db.Model):
+class Test(Base):
     __tablename__ = "TEST"
 
     TEST = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -242,7 +245,7 @@ class Test(db.Model):
                f'{self.deadline} {self.timer} {self.attempts} {self.question_list} {self.seed_list} {self.total}>'
 
 
-class UserViewsSet(db.Model):
+class UserViewsSet(Base):
     __tablename__ = "user_views_set"
 
     USER_VIEWS_SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -262,7 +265,7 @@ class UserViewsSet(db.Model):
         return f'UserViewsSet {self.USER_VIEWS_SET} {self.USER} {self.SET} {self.can_edit}'
 
 
-class Transaction(db.Model):
+class Transaction(Base):
     __tablename__ = 'transaction'
 
     TRANSACTION = db.Column(db.String(30), primary_key=True)
@@ -283,7 +286,7 @@ class Transaction(db.Model):
         return f'Transaction {self.TRANSACTION} {self.USER} {self.CLASS} {self.expiration}'
 
 
-class TransactionProcessing(db.Model):
+class TransactionProcessing(Base):
     __tablename__ = 'transaction_processing'
 
     TRANSACTIONPROCESSING = db.Column(db.String(30), primary_key=True)
@@ -298,7 +301,7 @@ class TransactionProcessing(db.Model):
         self.USER = user
 
 
-class Tag(db.Model):
+class Tag(Base):
     __tablename__ = 'TAG'
 
     TAG = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -310,7 +313,6 @@ class Tag(db.Model):
     LESSON_RELATION = db.relationship("Lesson", back_populates="TAG_RELATION")
     TAG_QUESTION_RELATION = db.relationship("TagQuestion", back_populates="TAG_RELATION")
     TAG_CLASS_RELATION = db.relationship("TagClass", back_populates="TAG_RELATION")
-    LESSON_CONTENT_RELATION = db.relationship("LessonContent", back_populates="TAG_RELATION")
 
     def __init__(self, parent, tagName, childOrder):
         self.parent = parent
@@ -321,7 +323,7 @@ class Tag(db.Model):
         return f'TAG {self.TAG} {self.parent} {self.tagName} {self.childOrder}'
 
 
-class Message(db.Model):
+class Message(Base):
     __tablename__ = 'MESSAGE'
 
     MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -342,7 +344,7 @@ class Message(db.Model):
         return f'{self.MESSAGE} {self.CLASS} {self.title} {self.body} {self.date_created}'
 
 
-class TagQuestion(db.Model):
+class TagQuestion(Base):
     __tablename__ = "tag_question"
 
     TAG_QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -359,7 +361,7 @@ class TagQuestion(db.Model):
     def __repr__(self):
         return f'TAG_QUESTION {self.TAG_QUESTION} {self.TAG} {self.QUESTION}'
 
-class TagClass(db.Model):
+class TagClass(Base):
     __tablename__ = "tag_class"
 
     TAG_CLASS = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -376,7 +378,7 @@ class TagClass(db.Model):
     def __repr__(self):
         return f'TAG_CLASS {self.TAG_CLASS} {self.TAG} {self.CLASS}'
 
-class TagUser(db.Model):
+class TagUser(Base):
     __tablename__ = "tag_user"
 
     TAGUSER = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -396,7 +398,7 @@ class TagUser(db.Model):
         return f'TAG_USER {self.TAGUSER} {self.USER} {self.TAG} {self.mastery}'
 
 
-class Lesson(db.Model):
+class Lesson(Base):
     __tablename__ = "LESSON"
 
     LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -419,7 +421,7 @@ class Lesson(db.Model):
         return f'LESSON {self.LESSON} {self.USER} {self.lesson_string}'
 
 
-class UserLesson(db.Model):
+class UserLesson(Base):
     __tablename__ = "user_lesson"
 
     USER_LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)

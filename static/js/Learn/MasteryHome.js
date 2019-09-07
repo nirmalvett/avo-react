@@ -34,6 +34,7 @@ export default class MasteryHome extends Component {
         this.getTags();
         this.getClasses();
         this.getLessons();
+        
         setTimeout(() => {
             const availableTags = [this.filterTags(null)[0]];
             this.setState({ selectedTags : availableTags, activeTag : availableTags[0] });

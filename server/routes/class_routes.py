@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
 from server.decorators import login_required, teacher_only, student_only, admin_only, validate
 from server.helpers import timestamp
-from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message, ClassWhitelist
+from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message, ClassWhitelist, ClassWhitelistBacklog, Tag, TagClass
 import paypalrestsdk as paypal
 import config
 
@@ -57,7 +57,14 @@ def add_to_whitelist(class_id: int, uwo_users: list):
         user_email = uwo_user + '@uwo.ca'
         user = User.query.filter((User.email == user_email)).first()
         if user is None:
-            results.append(False)  # User does not exist
+            backlog_entry = ClassWhitelistBacklog.query.filter(
+                (ClassWhitelistBacklog.CLASS == class_id) & (ClassWhitelistBacklog.USER_ID == uwo_user)
+            ).first()
+            if backlog_entry is not None:
+                results.append(True)  # User not added to backlog, user already in backlog
+                continue
+            db.session.add(ClassWhitelistBacklog(uwo_user, class_id))
+            results.append(True)  # User added to backlog
             continue
         whitelist_entry = ClassWhitelist.query.filter(
             (ClassWhitelist.CLASS == class_id) & (ClassWhitelist.USER == user.USER)
@@ -73,10 +80,13 @@ def add_to_whitelist(class_id: int, uwo_users: list):
 
 @ClassRoutes.route('/getClassWhitelist', methods=['POST'])
 @teacher_only
-@validate(classID=int)
+@validate(class_id=int)
 def get_whitelist(class_id):
     whitelist = ClassWhitelist.query.join(User, User.USER == ClassWhitelist.USER).filter((ClassWhitelist.CLASS == class_id)).all()
+    backlog = ClassWhitelistBacklog.query.filter((ClassWhitelist.CLASS == class_id)).all()
+    backlogEmails = list(map(lambda x: x.USER_ID + "@uwo.ca", backlog))
     emails = list(map(lambda x: x.USER_RELATION.email, whitelist))
+    emails.extend(backlogEmails)
     return jsonify(whitelist=emails)
 
 
@@ -88,7 +98,13 @@ def create_class(name: str):
     Creates a class with the current user as the teacher
     :return: Confirmation that the class was created
     """
-    db.session.add(Class(current_user.USER, name))
+    c = Class(current_user.USER, name)
+    t = Tag(None, name, 0)
+    db.session.add(c)
+    db.session.add(t)
+    db.session.flush()
+    t_c = TagClass(t.TAG, c.CLASS)
+    db.session.add(t_c)
     db.session.commit()
     return jsonify({})
 
@@ -110,21 +126,22 @@ def home():
 
     return_due_dates = []  # Return data for due dates
     current_list_due_dates = []  # Due dates of current indexed class
-    current_class_data = {"name": due_dates[0].name, "id": due_dates[0].CLASS}
-    current_class = due_dates[0].CLASS  # Current class of indexed due dates
+    if len(due_dates) > 0:
+        current_class_data = {"name": due_dates[0].name, "id": due_dates[0].CLASS}
+        current_class = due_dates[0].CLASS  # Current class of indexed due dates
 
-    for due_date in due_dates:
-        # For each due date index to list
-        if current_class != due_date.CLASS:
-            # If the its a new class then move the messages in
-            return_due_dates.append({"class": current_class_data, "dueDates": current_list_due_dates})
-            current_class_data = {"name": due_date.name, "id": due_date.CLASS}
-            current_list_due_dates = []
-            current_class = due_date.CLASS
+        for due_date in due_dates:
+            # For each due date index to list
+            if current_class != due_date.CLASS:
+                # If the its a new class then move the messages in
+                return_due_dates.append({"class": current_class_data, "dueDates": current_list_due_dates})
+                current_class_data = {"name": due_date.name, "id": due_date.CLASS}
+                current_list_due_dates = []
+                current_class = due_date.CLASS
 
-        current_list_due_dates.append({'name': due_date.name, 'dueDate': timestamp(due_date.deadline),
-                                      'id': due_date.TEST})
-    return_due_dates.append({"class": current_class_data, "dueDates": current_list_due_dates})
+            current_list_due_dates.append({'name': due_date.name, 'dueDate': timestamp(due_date.deadline),
+                                        'id': due_date.TEST})
+        return_due_dates.append({"class": current_class_data, "dueDates": current_list_due_dates})
 
     messages = []  # Messages returned by the SQL query
 
@@ -138,21 +155,22 @@ def home():
     # Get list of messages
     return_messages = []  # Messages to return to the client
     current_list_messages = []  # Current messages from the class
-    current_class_data = {"name": messages[0].name, "id": messages[0].CLASS}
-    current_class = messages[0].CLASS  # Current class info
+    if len(messages) > 0:
+        current_class_data = {"name": messages[0].name, "id": messages[0].CLASS}
+        current_class = messages[0].CLASS  # Current class info
 
-    for message in messages:
-        # For each message result add it to the JSON
-        if current_class != message.CLASS:
-            # If the its a new class then move the messages in
-            return_messages.append({"class": current_class_data, "messages": current_list_messages})
-            current_class_data = {"name": message.name, "id": message.CLASS}
-            current_list_messages = []
-            current_class = message.CLASS
+        for message in messages:
+            # For each message result add it to the JSON
+            if current_class != message.CLASS:
+                # If the its a new class then move the messages in
+                return_messages.append({"class": current_class_data, "messages": current_list_messages})
+                current_class_data = {"name": message.name, "id": message.CLASS}
+                current_list_messages = []
+                current_class = message.CLASS
 
-        current_list_messages.append({'title': message.title, 'body': message.body,
-                                      'date': timestamp(message.date_created)})
-    return_messages.append({"class": current_class_data, "messages": current_list_messages})
+            current_list_messages.append({'title': message.title, 'body': message.body,
+                                        'date': timestamp(message.date_created)})
+        return_messages.append({"class": current_class_data, "messages": current_list_messages})
 
     return jsonify(messages=return_messages, dueDates=return_due_dates)
 
@@ -360,7 +378,18 @@ def enroll(key: str):
         for student in whitelist:
             if student.USER_RELATION.USER == current_user.USER:
                 found = True
+                break
         if not found:
+            backlog_whitelist = ClassWhitelistBacklog.query.join(Class, ClassWhitelistBacklog.CLASS == Class.CLASS).all()
+            for student in backlog_whitelist:
+                user_str_id = current_user.email.split('@')[0]
+                user2_str_id = student.USER_ID
+                print(user_str_id, user2_str_id)
+                if user_str_id == user2_str_id:
+                    found = True
+                    break
+                    
+        if not found:            
             return jsonify(error="You are not on the class's whitelist")
 
     if current_user.is_teacher:

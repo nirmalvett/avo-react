@@ -3,6 +3,16 @@ import cytoscape, {ElementsDefinition} from 'cytoscape';
 // @ts-ignore
 import dagre from 'cytoscape-dagre';
 import * as Http from '../../Http';
+interface TreeViewProps {
+    classID: number;
+}
+export default function TreeView(props: TreeViewProps) {
+    Http.getTags(
+        props.classID,
+        res => {
+            const data = res.tags;
+            const nodes: ElementsDefinition['nodes'] = [];
+            const edges: ElementsDefinition['edges'] = [];
 
 export default function TreeView() {
     Http.getTags(res => {
@@ -39,18 +49,10 @@ export default function TreeView() {
                     selector: 'node',
                     style: {
                         'background-color': '#11479e',
-                    },
-                },
-                {
-                    selector: 'edge',
-                    style: {
-                        width: 4,
-                        'target-arrow-shape': 'triangle',
-                        'line-color': '#9dbaea',
-                        'target-arrow-color': '#9dbaea',
-                        'curve-style': 'bezier',
-                    },
-                },
+            data.forEach(el => {
+                nodes.push({
+                    data: {
+                        id: 'node-' + el.tagID,
             ],
             elements: {nodes, edges},
         });

@@ -15,6 +15,7 @@ export default function Message(props: MessageProps) {
             <Typography component={'span'} variant='h4' color='textPrimary'>
                 {props.message.title}
             </Typography>
+            <br />
             <Typography component={'span'} variant='body1' color='textPrimary'>
                 {props.message.body}
             </Typography>

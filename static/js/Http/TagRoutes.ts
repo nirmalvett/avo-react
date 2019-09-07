@@ -9,8 +9,8 @@ export interface GetTags {
     }[];
 }
 
-export function getTags(success: cb<GetTags>, failure: cb) {
-    _request('GET', '/getTags', success, failure);
+export function getTags(class_id: number, success: cb<GetTags>, failure: cb) {
+    _request('POST', '/getTags', success, failure, {class_id});
 }
 
 export type PutTagsArg = {
@@ -28,8 +28,8 @@ export interface AddTag {
     tagID: number;
 }
 
-export function addTag(name: string, success: cb<AddTag>, failure: cb) {
-    _request('POST', '/addTag', success, failure, {name});
+export function addTag(name: string, class_id: number, success: cb<AddTag>, failure: cb) {
+    _request('POST', '/addTag', success, failure, {name, class_id});
 }
 
 export function deleteTag(tagID: number, success: cb<{}>, failure: cb) {
