@@ -16,10 +16,13 @@ export default class MasteryHome extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            tags : [],
-            selectedTags: [],
-            activeTag : null,
-            currentIndex : 0,
+            tags          : [],
+            selectedTags  : [],
+            activeTag     : null,
+            currentIndex  : 0,
+            classes       : [],
+            lessons       : [],
+            classesLoaded : false,
         };
         this.getSlideTranslation = this.getSlideTranslation.bind(this);
         this.goToPreviousSlide   = this.goToPreviousSlide  .bind(this);
@@ -29,6 +32,8 @@ export default class MasteryHome extends Component {
     componentDidMount()
     {
         this.getTags();
+        this.getClasses();
+        this.getLessons();
         setTimeout(() => {
             const availableTags = [this.filterTags(null)[0]];
             this.setState({ selectedTags : availableTags, activeTag : availableTags[0] });
@@ -47,21 +52,21 @@ export default class MasteryHome extends Component {
                                 <Paper className='avo-card' style={{ padding : '1em', width : 'auto' }}>
                                     <Grid container>
                                         <Grid item xs={1}>
-                                            <center>
-                                                <IconButton onClick={this.goToPreviousSlide} aria-label="Go Back">
+                                            <span style={{ float : 'left', marginLeft : '8px' }}>
+                                                <IconButton color="primary" onClick={this.goToPreviousSlide} aria-label="Go Back">
                                                     <ArrowBack />
                                                 </IconButton>
-                                            </center>
+                                            </span>
                                         </Grid>
                                         <Grid item xs={10}>
                                             {this.getDropdownSlides()}
                                         </Grid>
                                         <Grid item xs={1}>
-                                            <center>
-                                                <IconButton onClick={this.goToNextSlide} aria-label="Go Forward">
+                                            <span style={{ float : 'right', marginRight : '8px' }}>
+                                                <IconButton color="primary" onClick={this.goToNextSlide} aria-label="Go Forward">
                                                     <ArrowForward />
                                                 </IconButton>
-                                            </center>
+                                            </span>
                                         </Grid>
                                     </Grid>
                                     <Grid item xs={12}>
@@ -202,8 +207,7 @@ export default class MasteryHome extends Component {
                                         selectedTagsCopy = selectedTagsCopy.splice(0, i + 1);
                                         let childTag = _this.filterTags(selectedTagsCopy[i].TAG).filter(x => x.TAG == parseInt(event.target.value));
                                         selectedTagsCopy.push(childTag[0]);
-                                        console.log(i, selectedTagsCopy.length)
-                                        if(i + 1 % 2 == 0 && i != 0) 
+                                        if((i + 2) % 3 == 0) 
                                             setTimeout(() => _this.goToNextSlide(), 300);
                                         _this.setState({ selectedTags : selectedTagsCopy, activeTag : childTag[0] });
                                     }}
@@ -275,7 +279,11 @@ export default class MasteryHome extends Component {
 
     goToNextSlide = () => {
         const currentIndex = this.state.currentIndex;
-        if(currentIndex > Math.ceil(this.state.selectedTags.length / 3) - 1)
+        if(currentIndex > (Math.ceil(this.state.selectedTags.length / 3) +  
+            this.filterTags(
+                this.state.activeTag.TAG
+            ).length) - 2
+        )
             return;
         this.setState({ currentIndex : currentIndex + 1 });
     };
@@ -283,6 +291,31 @@ export default class MasteryHome extends Component {
     filterTags(pTagCriteria) {
         return this.state.tags.filter((tag) => tag.parent == pTagCriteria);
     }
+
+    getLessons() {
+        Http.getLessons(
+            (res) => {
+                console.log(res);
+                this.setState({ lessons : res.lessons });
+            },
+            () => {}
+        );
+    };
+
+    getClasses() {
+        Http.getClasses(
+            result => {
+                this.setState({
+                    classes: result.classes,
+                    classesLoaded: true,
+                });
+                this.tryToJump();
+            },
+            result => {
+                console.log(result);
+            },
+        );
+    };
 
     getTags() {
         this.setState({ tags : [
