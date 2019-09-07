@@ -1,20 +1,17 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_script import Manager
-from flask_migrate import Migrate, MigrateCommand
 from flask_login import UserMixin
+from flask_sqlalchemy import SQLAlchemy
+from random import SystemRandom
+from string import ascii_letters, digits
+from server.PasswordHash import generate_salt, hash_password
+from sqlalchemy.ext.declarative import declarative_base
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:dro0fr7e@35.226.169.53/dev'
 
-db = SQLAlchemy(app)
+Base = declarative_base()
+# Initialize Database
+db = SQLAlchemy()
 
-migrate = Migrate(app, db)
-manager = Manager(app)
-manager.add_command('db', MigrateCommand)
 
-# ADD MODELS HERE FOR MIGRATION
-class Class(db.Model):
+class Class(Base):
     __tablename__ = "CLASS"
 
     CLASS = db.Column(db.Integer, primary_key=True)
@@ -49,7 +46,7 @@ class Class(db.Model):
         return f'<Class {self.CLASS} {self.USER} {self.name} {self.enroll_key}>'
 
 
-class ClassWhitelist(db.Model):
+class ClassWhitelist(Base):
     __tablename__ = "class_whitelist"
 
     ID = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -66,7 +63,7 @@ class ClassWhitelist(db.Model):
     def __repr__(self):
         return f'class_whitelist {self.ID} {self.USER} {self.CLASS}'
 
-class ClassWhitelistBacklog(db.Model):
+class ClassWhitelistBacklog(Base):
     __tablename__ = "backlog_whitelist"
 
     ID = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -82,7 +79,7 @@ class ClassWhitelistBacklog(db.Model):
     def __repr__(self):
         return f'backlog_whitelist {self.ID} {self.USER_ID} {self.CLASS}'
 
-class Takes(db.Model):
+class Takes(Base):
     __tablename__ = "takes"
 
     TAKES = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -113,7 +110,7 @@ class Takes(db.Model):
                f'{self.grade} {self.marks} {self.answers} {self.seeds}>'
 
 
-class User(UserMixin, db.Model):
+class User(UserMixin, Base):
     __tablename__ = "USER"
 
     USER = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -159,7 +156,7 @@ class User(UserMixin, db.Model):
         return self.USER
 
 
-class Question(db.Model):
+class Question(Base):
     __tablename__ = "QUESTION"
 
     QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -183,7 +180,7 @@ class Question(db.Model):
         return f'<Question {self.QUESTION} {self.SET} {self.name} {self.string} {self.answers} {self.total}>'
 
 
-class Set(db.Model):
+class Set(Base):
     __tablename__ = "SET"
 
     SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -199,7 +196,7 @@ class Set(db.Model):
         return f'<Set {self.SET} {self.name}>'
 
 
-class Test(db.Model):
+class Test(Base):
     __tablename__ = "TEST"
 
     TEST = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -234,7 +231,7 @@ class Test(db.Model):
                f'{self.deadline} {self.timer} {self.attempts} {self.question_list} {self.seed_list} {self.total}>'
 
 
-class UserViewsSet(db.Model):
+class UserViewsSet(Base):
     __tablename__ = "user_views_set"
 
     USER_VIEWS_SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -254,7 +251,7 @@ class UserViewsSet(db.Model):
         return f'UserViewsSet {self.USER_VIEWS_SET} {self.USER} {self.SET} {self.can_edit}'
 
 
-class Transaction(db.Model):
+class Transaction(Base):
     __tablename__ = 'transaction'
 
     TRANSACTION = db.Column(db.String(30), primary_key=True)
@@ -275,7 +272,7 @@ class Transaction(db.Model):
         return f'Transaction {self.TRANSACTION} {self.USER} {self.CLASS} {self.expiration}'
 
 
-class TransactionProcessing(db.Model):
+class TransactionProcessing(Base):
     __tablename__ = 'transaction_processing'
 
     TRANSACTIONPROCESSING = db.Column(db.String(30), primary_key=True)
@@ -290,7 +287,7 @@ class TransactionProcessing(db.Model):
         self.USER = user
 
 
-class Tag(db.Model):
+class Tag(Base):
     __tablename__ = 'TAG'
 
     TAG = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -312,7 +309,7 @@ class Tag(db.Model):
         return f'TAG {self.TAG} {self.parent} {self.tagName} {self.childOrder}'
 
 
-class Message(db.Model):
+class Message(Base):
     __tablename__ = 'MESSAGE'
 
     MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -333,7 +330,7 @@ class Message(db.Model):
         return f'{self.MESSAGE} {self.CLASS} {self.title} {self.body} {self.date_created}'
 
 
-class TagQuestion(db.Model):
+class TagQuestion(Base):
     __tablename__ = "tag_question"
 
     TAG_QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -350,7 +347,7 @@ class TagQuestion(db.Model):
     def __repr__(self):
         return f'TAG_QUESTION {self.TAG_QUESTION} {self.TAG} {self.QUESTION}'
 
-class TagClass(db.Model):
+class TagClass(Base):
     __tablename__ = "tag_class"
 
     TAG_CLASS = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -367,7 +364,7 @@ class TagClass(db.Model):
     def __repr__(self):
         return f'TAG_CLASS {self.TAG_CLASS} {self.TAG} {self.CLASS}'
 
-class TagUser(db.Model):
+class TagUser(Base):
     __tablename__ = "tag_user"
 
     TAGUSER = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -387,7 +384,7 @@ class TagUser(db.Model):
         return f'TAG_USER {self.TAGUSER} {self.USER} {self.TAG} {self.mastery}'
 
 
-class Lesson(db.Model):
+class Lesson(Base):
     __tablename__ = "LESSON"
 
     LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -410,7 +407,7 @@ class Lesson(db.Model):
         return f'LESSON {self.LESSON} {self.USER} {self.lesson_string}'
 
 
-class UserLesson(db.Model):
+class UserLesson(Base):
     __tablename__ = "user_lesson"
 
     USER_LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -426,8 +423,3 @@ class UserLesson(db.Model):
 
     def __repr__(self):
         return f'user_lesson {self.USER_LESSON} {self.USER} {self.LESSON}'
-
-# ADD MODELS HERE FOR MIGRATION
-
-if __name__ == '__main__':
-    manager.run()
