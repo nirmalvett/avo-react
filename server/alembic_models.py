@@ -9,6 +9,20 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 # Initialize Database
 db = SQLAlchemy()
+class LessonContent(Base):
+    __tablename__ = "lesson_content"
+
+    ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
+    LESSON_CONTENT = db.Column(db.Text, nullable=False)
+    TAG_RELATION = db.relationship("Tag", back_populates="LESSON_CONTENT_RELATION")
+
+    def __init__(self, TAG, LESSON_CONTENT):
+        self.TAG = TAG
+        self.LESSON_CONTENT = LESSON_CONTENT
+
+    def __repr__(self):
+        return f'LESSON_CONTENT {self.ID} {self.TAG} {self.LESSON_CONTENT}'
 
 
 class Class(Base):
