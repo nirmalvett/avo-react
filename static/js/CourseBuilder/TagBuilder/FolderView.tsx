@@ -47,7 +47,11 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
         };
         this.getTags();
     }
-
+    componentDidUpdate(prevProps: FolderViewProps) {
+        if (prevProps.classID !== this.props.classID) {
+            this.getTags();
+        }
+    }
     render() {
         return (
             <Fragment>
@@ -116,6 +120,7 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
     addTag() {
         Http.addTag(
             this.state.tagAddInput,
+            this.props.classID,
             res => {
                 const newTag = {
                     tagID: res.tagID,
@@ -146,7 +151,7 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
     formatTagsForServer() {
         const parents: Http.PutTagsArg = this.state.tags.map((tag, i) => ({
             tagID: tag.tagID,
-            parent: null,
+            parent: tag.parentId,
             tagName: tag.title,
             childOrder: i,
         }));
@@ -161,6 +166,7 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
                 }))
                 .forEach(ch => parents.push(ch)),
         );
+        console.log(parents)
         return parents;
     }
 
@@ -201,14 +207,20 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
                 let fixTree = false;
                 this.setState({tagsFromServer: res.tags});
                 const tags = res.tags;
+                const rootTag = tags.find(t => !t.parent) || {
+                    tagID: null,
+                    parent: null,
+                    tagName: null,
+                    childOrder: null,
+                };
                 const flatList: Tag[] = [];
                 const parents: Tag[] = [];
-                let tagCount = tags.length;
+                let tagCount = tags.length - 1;
                 tags.forEach(tag => {
                     const hasParent = tags.find(t => tag.parent === t.tagID);
                     flatList.push({
                         tagID: tag.tagID,
-                        parentId: hasParent ? tag.parent : null,
+                        parentId: hasParent ? tag.parent : rootTag.tagID,
                         title: tag.tagName,
                         childOrder: tag.childOrder,
                         children: [],
@@ -221,11 +233,11 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
                 while (tagCount > 0)
                     flatList.forEach(tag => {
                         if (
-                            !tag.parentId &&
+                            (tag.parentId === rootTag.tagID && tag.tagID !== rootTag.tagID) &&
                             addedAlready.findIndex(id => tag.tagID === id) === -1
                         ) {
                             parents.push({
-                                parentId: null,
+                                parentId: tag.parentId,
                                 tagID: tag.tagID,
                                 title: tag.title,
                                 children: [],
