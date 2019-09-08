@@ -1,12 +1,9 @@
 import React, {Fragment, PureComponent, ReactElement} from 'react';
-import Typography from '@material-ui/core/Typography';
+import {IconButton, TextField, Typography} from '@material-ui/core';
+import {Cancel, Done, Edit} from '@material-ui/icons';
 import {buildMathCode} from '../mathCodeUtils';
-import IconButton from '@material-ui/core/IconButton';
-import Cancel from '@material-ui/core/SvgIcon/SvgIcon';
-import TextField from '@material-ui/core/TextField';
 import {getMathJax} from '../../HelperFunctions/Utilities';
 import {CompileSuccess, EditorMath, QuestionBuilderMode} from '../QuestionBuilder.models';
-import {Done, Edit} from '@material-ui/icons';
 
 interface MathCardProps {
     mode: QuestionBuilderMode;

@@ -1,13 +1,10 @@
 import React, {Fragment, PureComponent} from 'react';
+import {IconButton, TextField, Typography} from '@material-ui/core';
+import {Cancel, Delete, Done, Edit} from '@material-ui/icons';
 import {buildMathCode, formatString, validateString} from '../mathCodeUtils';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
 import {getMathJax} from '../../HelperFunctions/Utilities';
-import Delete from '@material-ui/core/SvgIcon/SvgIcon';
-import TextField from '@material-ui/core/TextField';
 import {EditorCriteria, QuestionBuilderMode} from '../QuestionBuilder.models';
 import {editText} from '../editText';
-import {Cancel, Done, Edit} from '@material-ui/icons';
 
 interface CriteriaCardProps {
     mode: QuestionBuilderMode;

@@ -1,9 +1,15 @@
 import React, {Component, CSSProperties, Fragment, ReactElement} from 'react';
 import {Button, Card, Divider} from '@material-ui/core';
-import {ButtonsPreview} from './components/ButtonsPreview';
-import {ButtonsEditor} from './components/ButtonsEditor';
-import {Preview} from './components/Preview';
-import {Hints} from './components/Hints';
+import {
+    ButtonsEditor,
+    ButtonsPreview,
+    Hints,
+    MainPromptCard,
+    MathCard,
+    Preview,
+    SubPromptCard,
+    CriteriaCard,
+} from './components';
 import {
     buildMathCode,
     buildPlainText,
@@ -22,10 +28,6 @@ import {
 } from './QuestionBuilder.models';
 import * as Http from '../Http';
 import {copy} from '../HelperFunctions/Utilities';
-import {MainPromptCard} from './components/MainPromptCard';
-import {MathCard} from './components/MathCard';
-import {SubPromptCard} from './components/SubPromptCard';
-import {CriteriaCard} from './components/CriteriaCard';
 
 const cardStyle: CSSProperties = {
     margin: 8,
@@ -292,9 +294,39 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
 
     // actions
 
-    addPrompt = () => undefined; // todo
+    addPrompt = () =>
+        this.setState({
+            editorPrompts: [...this.state.editorPrompts, {type: '0', prompt: '', strings: []}],
+            mode: {
+                name: 'prompt',
+                index: this.state.editorPrompts.length,
+                content: {type: '0', prompt: ''},
+            },
+        });
 
-    addCriteria = () => undefined; // todo
+    addCriteria = () =>
+        this.setState({
+            editorCriteria: [
+                ...this.state.editorCriteria,
+                {
+                    expr: 'true',
+                    points: '1',
+                    explanation: '',
+                    mathCode: '*T',
+                    LaTeX: '\\color{green}✔',
+                    strings: [],
+                },
+            ],
+            mode: {
+                name: 'criteria',
+                index: this.state.editorCriteria.length,
+                content: {
+                    points: '1',
+                    criteria: '',
+                    explanation: '',
+                },
+            },
+        });
 
     deletePrompt(index: number) {
         let editorPrompts = [...this.state.editorPrompts];

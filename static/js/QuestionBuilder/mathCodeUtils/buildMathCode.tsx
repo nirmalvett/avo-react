@@ -1,5 +1,5 @@
 import React, {ReactElement} from 'react';
-import Typography from '@material-ui/core/Typography';
+import {Typography} from '@material-ui/core';
 import {CONSTANTS, FUNCTIONS, OPERATORS, REGEX, REPLACE, unaryRegex} from '../constants';
 import {createMuiTheme} from '@material-ui/core';
 import {CompileFailure, CompileSuccess} from '../QuestionBuilder.models';

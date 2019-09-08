@@ -1,12 +1,9 @@
 import React, {Fragment, PureComponent} from 'react';
+import {IconButton, TextField, Typography} from '@material-ui/core';
+import {Cancel, Done, Edit} from '@material-ui/icons';
 import {formatString, validateString} from '../mathCodeUtils';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import Cancel from '@material-ui/core/SvgIcon/SvgIcon';
-import TextField from '@material-ui/core/TextField';
 import {getMathJax} from '../../HelperFunctions/Utilities';
 import {EditorPrompt, QuestionBuilderMode} from '../QuestionBuilder.models';
-import {Done, Edit} from '@material-ui/icons';
 import {editText} from '../editText';
 
 interface MainPromptCardProps {

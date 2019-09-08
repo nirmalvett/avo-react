@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import IconButton from '@material-ui/core/IconButton';
+import {IconButton} from '@material-ui/core';
 import {ArrowBack, Assignment, Save, Warning} from '@material-ui/icons';
 
 interface ButtonsEditorProps {

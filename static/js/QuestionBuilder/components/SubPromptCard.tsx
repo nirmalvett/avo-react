@@ -1,14 +1,9 @@
 import React, {Fragment, PureComponent} from 'react';
+import {IconButton, MenuItem, Select, TextField, Typography} from '@material-ui/core';
+import {Cancel, Delete, Done, Edit} from '@material-ui/icons';
 import {formatString, validateString} from '../mathCodeUtils';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import Delete from '@material-ui/core/SvgIcon/SvgIcon';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import TextField from '@material-ui/core/TextField';
 import {AnswerInput} from '../../AnswerInput';
 import {EditorSubPrompt, QuestionBuilderMode} from '../QuestionBuilder.models';
-import {Cancel, Done, Edit} from '@material-ui/icons';
 import {editText} from '../editText';
 
 interface SubPromptCardProps {

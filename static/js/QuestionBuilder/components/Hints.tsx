@@ -1,5 +1,5 @@
 import React, {ReactElement} from 'react';
-import Typography from '@material-ui/core/Typography';
+import {Typography} from '@material-ui/core';
 import {QuestionBuilderMode} from '../QuestionBuilder.models';
 
 export function Hints(props: {mode: QuestionBuilderMode}): ReactElement | null {
