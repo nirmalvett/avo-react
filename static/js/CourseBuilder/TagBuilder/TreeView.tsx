@@ -1,7 +1,5 @@
 import React from 'react';
 import cytoscape, {ElementsDefinition} from 'cytoscape';
-// @ts-ignore
-import dagre from 'cytoscape-dagre';
 import * as Http from '../../Http';
 interface TreeViewProps {
     classID: number;
