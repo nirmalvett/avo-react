@@ -178,7 +178,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
         } else if (section.name === 'Documentation') {
             return QuestionBuilderDocs;
         } else if (section.name === 'Export Tools') {
-            return <ExportTools theme={{theme: this.props.theme, color: this.color()}} />;
+            return <ExportTools color={this.color()} />;
         } else if (section.name === 'Home') {
             // return (
             //     <HomePage

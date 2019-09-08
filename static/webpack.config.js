@@ -4,6 +4,9 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 const config = {
     entry:  __dirname + '/js/index.tsx',
     devtool: 'inline-source-map',
+    node: {
+        fs: "empty",
+    },
     output: {
         path: __dirname + '/dist',
         filename: 'bundle.js',
