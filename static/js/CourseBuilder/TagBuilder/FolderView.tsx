@@ -62,6 +62,7 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
                         flexDirection: 'column',
                         padding: 0,
                         width: '100%',
+                        color: 'black',
                     }}
                 >
                     <SortableTree
