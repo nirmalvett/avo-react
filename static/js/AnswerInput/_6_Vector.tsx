@@ -43,6 +43,7 @@ export class _6_Vector extends PureComponent<AnswerInputImplementationProps> {
         const x = validateNumber(cell);
         return (
             <TextField
+                key={'cell' + cell + index}
                 style={{maxWidth: '12ch', margin: '0 4px'}}
                 value={cell}
                 onChange={e => this.onChange(e.target.value, index)}

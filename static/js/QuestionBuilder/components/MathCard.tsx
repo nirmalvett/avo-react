@@ -82,8 +82,8 @@ export class MathCard extends PureComponent<MathCardProps> {
                     </div>
                     <table>
                         <tbody>
-                            {errors.map(error => (
-                                <tr>
+                            {errors.map((error, index) => (
+                                <tr key={'error' + error[0] + index}>
                                     <td style={{padding: 2}}>
                                         <Typography>Line {error[0] + 1}</Typography>
                                     </td>
