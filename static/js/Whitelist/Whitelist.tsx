@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, DragEvent} from 'react';
 import {
     FormControl,
     IconButton,
@@ -239,24 +239,24 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
         this.setState({files});
     };
 
-    highlight = (e: any) => {
+    highlight = (e: DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
         this.setState({highlighted: true});
     };
 
-    onDrop = (e: any) => {
+    onDrop = (e: DragEvent<HTMLDivElement>) => {
         this.handleDrop(e);
         this.unhighlight(e);
     };
 
-    unhighlight = (e: any) => {
+    unhighlight = (e: DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
         this.setState({highlighted: false});
     };
 
-    handleDrop = (e: any) => {
+    handleDrop = (e: DragEvent<HTMLDivElement>) => {
         [...e.dataTransfer.files].forEach(file => this.processFile(file));
     };
 
