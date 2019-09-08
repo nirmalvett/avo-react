@@ -68,7 +68,7 @@ export function buildPlainText(mathCode: string): string[] {
                     ')',
                 priority: 8,
             });
-        } else {
+        } else if (token !== '_A') {
             console.error('Unhandled token: ' + token);
         }
     }
