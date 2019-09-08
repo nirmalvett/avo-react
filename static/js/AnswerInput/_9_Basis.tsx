@@ -80,6 +80,7 @@ export class _9_Basis extends PureComponent<AnswerInputImplementationProps> {
         const x = validateNumber(cell);
         return (
             <TextField
+                key={'cell' + index1 + index2}
                 style={{maxWidth: '12ch', margin: '4px'}}
                 value={cell}
                 onChange={e => this.onChange(e.target.value, index1, index2)}
