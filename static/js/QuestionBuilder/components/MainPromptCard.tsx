@@ -1,0 +1,98 @@
+import React, {Fragment, PureComponent} from 'react';
+import {formatString, validateString} from '../mathCodeUtils';
+import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton';
+import Cancel from '@material-ui/core/SvgIcon/SvgIcon';
+import TextField from '@material-ui/core/TextField';
+import {getMathJax} from '../../HelperFunctions/Utilities';
+import {EditorPrompt, QuestionBuilderMode} from '../QuestionBuilder.models';
+import {Done, Edit} from '@material-ui/icons';
+import {editText} from '../editText';
+
+interface MainPromptCardProps {
+    mode: QuestionBuilderMode;
+    cancelEdit: () => void;
+    startEdit: () => void;
+    save: () => void;
+    editorPrompt: EditorPrompt;
+    onChange: (v: string) => void;
+}
+
+export class MainPromptCard extends PureComponent<MainPromptCardProps> {
+    render() {
+        const {mode, cancelEdit, startEdit, save, editorPrompt} = this.props;
+        if (mode.name === 'mainPrompt') {
+            let errors = validateString(mode.content);
+            return (
+                <Fragment>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Typography variant='h6'>Main Prompt</Typography>
+                        <div>
+                            <IconButton onClick={cancelEdit}>
+                                <Cancel />
+                            </IconButton>
+                            <IconButton disabled={errors.length > 0} onClick={save}>
+                                <Done />
+                            </IconButton>
+                        </div>
+                    </div>
+                    <div>
+                        <TextField
+                            multiline
+                            value={mode.content}
+                            style={{width: '100%'}}
+                            inputProps={{onKeyDown: editText}}
+                            onChange={v => this.props.onChange(v.target.value)}
+                        />
+                    </div>
+                    {errors}
+                </Fragment>
+            );
+        } else {
+            if (editorPrompt.strings) {
+                return (
+                    <Fragment>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Typography variant='h6'>Main Prompt</Typography>
+                            <IconButton onClick={startEdit}>
+                                <Edit />
+                            </IconButton>
+                        </div>
+                        {getMathJax(formatString(editorPrompt.prompt, editorPrompt.strings))}
+                    </Fragment>
+                );
+            } else {
+                return (
+                    <Fragment>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Typography variant='h6'>Main Prompt</Typography>
+                            <IconButton onClick={startEdit}>
+                                <Edit />
+                            </IconButton>
+                        </div>
+                        {getMathJax(editorPrompt.prompt)}
+                        {/*<Typography>{editorPrompt.errors}</Typography> todo*/}
+                    </Fragment>
+                );
+            }
+        }
+    }
+}

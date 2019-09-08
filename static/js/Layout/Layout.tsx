@@ -10,10 +10,8 @@ import MyClasses from '../MyClasses/MyClasses';
 import CreateTest from '../ManageClasses/CreateTest/CreateTest';
 import Preferences from '../Preferences/Preferences';
 import ManageClasses from '../ManageClasses/ManageClasses';
-import QuestionManager, {
-    QuestionManagerState,
-} from '../CourseBuilder/QuestionBuilder/QuestionManager';
-import QuestionBuilder from '../QuestionBuilder/QuestionBuilder';
+import QuestionManager from '../CourseBuilder/QuestionBuilder/QuestionManager';
+import {QuestionBuilder} from '../QuestionBuilder/QuestionBuilder';
 import QuestionBuilderDocs from '../CourseBuilder/QuestionBuilder/QuestionBuilderDocs';
 import ExportTools from '../ExportTools/ExportTools';
 import AVOLearnComponent from '../Learn/AVOLearnComponent';
@@ -162,7 +160,10 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 <QuestionBuilder
                     showSnackBar={this.showSnackBar}
                     initManager={this.myQuestions}
-                    initWith={section.questionManagerState}
+                    updateProps={this.buildQuestion}
+                    s={section.s}
+                    q={section.q}
+                    sets={section.sets}
                 />
             );
         } else if (section.name === 'Concept Builder') {
@@ -220,7 +221,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 <QuestionManager
                     showSnackBar={this.showSnackBar}
                     initBuilder={this.buildQuestion}
-                    initWith={section.initWith}
+                    s={section.s}
+                    q={section.q}
+                    sets={section.sets}
                 />
             );
         } else if (section.name === 'Notify Class') {
@@ -254,8 +257,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
         this.setState({section});
     }
 
-    buildQuestion = (questionManagerState: QuestionManagerState) =>
-        this.navigate({name: 'Build Question', questionManagerState});
+    buildQuestion = (s: number, q: number, sets: AvoSet[]) =>
+        this.navigate({name: 'Build Question', s, q, sets});
 
     createTest = (classID: number) => this.navigate({name: 'Create Test', classID});
 
@@ -268,8 +271,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
 
     jumpToClass = (_class: number) => this.navigate({name: 'My Classes', _class, _quiz: null});
 
-    myQuestions = (initWith: [number, number, AvoSet[]]) =>
-        this.navigate({name: 'My Questions', initWith});
+    myQuestions = (s: number, q: number, sets: AvoSet[]) =>
+        this.navigate({name: 'My Questions', s, q, sets});
 
     postTest = (takesID: number) => this.navigate({name: 'Post Test', takesID});
 

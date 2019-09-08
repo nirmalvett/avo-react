@@ -30,8 +30,10 @@ import {ShowSnackBar} from '../../Layout/Layout';
 import {AvoSet} from '../../Http/types';
 
 interface QuestionManagerProps {
-    initWith: [number | null, number | null, AvoSet[]];
-    initBuilder: (state: QuestionManagerState) => void;
+    s: number | null;
+    q: number | null;
+    sets: AvoSet[];
+    initBuilder: (s: number, q: number, sets: AvoSet[]) => void;
     showSnackBar: ShowSnackBar;
 }
 
@@ -53,10 +55,10 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     constructor(props: QuestionManagerProps) {
         super(props);
         this.state = {
-            selectedS: this.props.initWith[0], // Selected Set
+            selectedS: this.props.s, // Selected Set
             selectedQ: null, // Selected Question
             copiedQ: null, // [Set, Question]
-            sets: this.props.initWith[2],
+            sets: this.props.sets,
             preview: {
                 prompt: '',
                 prompts: [],
@@ -65,8 +67,12 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                 variables: {},
             },
         };
-        if (this.props.initWith[2] !== []) this.getSets();
-        if (this.props.initWith[1] !== null) this.selectQuestion(this.props.initWith[1]);
+        if (this.props.sets.length === 0) {
+            this.getSets();
+        }
+        if (this.props.q !== null) {
+            this.selectQuestion(this.props.q);
+        }
     }
 
     getSets = () => {
@@ -354,7 +360,8 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     }
 
     editQuestion() {
-        this.props.initBuilder(this.state);
+        const {selectedS, selectedQ, sets} = this.state;
+        this.props.initBuilder(selectedS as number, selectedQ as number, sets);
     }
 
     deleteQuestion() {
