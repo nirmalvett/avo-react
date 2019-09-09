@@ -3,7 +3,7 @@ from flask_login import current_user
 from server.MathCode.question import AvoQuestion
 from random import randint
 from server.decorators import login_required, teacher_only, validate
-from server.models import db, Question, Tag, TagUser, Lesson, UserLesson, TagQuestion, TagClass, Class
+from server.models import db, Question, Tag, TagUser, Lesson, TagQuestion, TagClass, Class, Transaction, TransactionProcessing
 from server.helpers import get_tree
 TagRoutes = Blueprint('TagRoutes', __name__)
 
@@ -125,6 +125,7 @@ def tag_mastery(tag_names: list):
 
 @TagRoutes.route("/getLessons", methods=["GET"])
 @login_required
+@validate()
 def get_lessons():
     """
     Get list of lessons for client with the tags associated with them and the lesson string and ID
@@ -147,9 +148,15 @@ def get_lessons():
         }
     ])
     """
+    teacher_classes = Class.query.filter(current_user.USER == Class.USER).all()
+    enrolled_classes = Transaction.query.filter(current_user.USER == Transaction.USER).all()
 
-    lesson_list = Lesson.query.join(UserLesson, UserLesson.LESSON == Lesson.LESSON).filter((Lesson.LESSON == UserLesson.LESSON) &
-                                                                                           (UserLesson.USER == current_user.USER)).all()
+    classes = []
+    classes.extend(teacher_classes)
+    classes.extend(enrolled_classes)
+    lesson_list = Lesson.query.join(Class).all()
+    lesson_list = list(filter(lambda lesson: lesson.CLASS in classes, lesson_list))
+    print(lesson_list)
     tag_list = []
     all_tags = Tag.query.all()
     for tag in all_tags:

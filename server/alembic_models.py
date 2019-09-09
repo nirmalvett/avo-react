@@ -9,20 +9,6 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 # Initialize Database
 db = SQLAlchemy()
-class LessonContent(Base):
-    __tablename__ = "lesson_content"
-
-    ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
-    LESSON_CONTENT = db.Column(db.Text, nullable=False)
-    TAG_RELATION = db.relationship("Tag", back_populates="LESSON_CONTENT_RELATION")
-
-    def __init__(self, TAG, LESSON_CONTENT):
-        self.TAG = TAG
-        self.LESSON_CONTENT = LESSON_CONTENT
-
-    def __repr__(self):
-        return f'LESSON_CONTENT {self.ID} {self.TAG} {self.LESSON_CONTENT}'
 
 
 class Class(Base):
@@ -34,6 +20,8 @@ class Class(Base):
     enroll_key = db.Column(db.String(10), nullable=False)
     price = db.Column(db.Float, nullable=False)
     price_discount = db.Column(db.Float, nullable=False)
+
+    LESSON_RELATION = db.relationship("Lesson", back_populates="CLASS_RELATION")
 
     USER_RELATION = db.relationship("User", back_populates="CLASS_RELATION")
     TEST_RELATION = db.relationship("Test", back_populates="CLASS_RELATION")
@@ -59,6 +47,20 @@ class Class(Base):
     def __repr__(self):
         return f'<Class {self.CLASS} {self.USER} {self.name} {self.enroll_key}>'
 
+class LessonContent(Base):
+    __tablename__ = "lesson_content"
+
+    ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
+    LESSON_CONTENT = db.Column(db.Text, nullable=False)
+    TAG_RELATION = db.relationship("Tag", back_populates="LESSON_CONTENT_RELATION")
+
+    def __init__(self, TAG, LESSON_CONTENT):
+        self.TAG = TAG
+        self.LESSON_CONTENT = LESSON_CONTENT
+
+    def __repr__(self):
+        return f'LESSON_CONTENT {self.ID} {self.TAG} {self.LESSON_CONTENT}'
 
 class ClassWhitelist(Base):
     __tablename__ = "class_whitelist"
@@ -145,9 +147,9 @@ class User(UserMixin, Base):
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="USER_RELATION")
 
     TAG_USER_RELATION = db.relationship("TagUser", back_populates="USER_RELATION")
-    LESSON_RELATION = db.relationship("Lesson", back_populates="USER_RELATION")
+    # LESSON_RELATION = db.relationship("Lesson", back_populates="USER_RELATION")
     CLASS_WHITELIST_RELATION = db.relationship("ClassWhitelist", back_populates="USER_RELATION")
-    USER_LESSON_RELATION = db.relationship("UserLesson", back_populates="USER_RELATION")
+    # USER_LESSON_RELATION = db.relationship("UserLesson", back_populates="USER_RELATION")
 
     # noinspection PyPep8Naming
     def __init__(self, email, first_name, last_name, password, is_teacher, color, theme):
@@ -313,6 +315,7 @@ class Tag(Base):
     LESSON_RELATION = db.relationship("Lesson", back_populates="TAG_RELATION")
     TAG_QUESTION_RELATION = db.relationship("TagQuestion", back_populates="TAG_RELATION")
     TAG_CLASS_RELATION = db.relationship("TagClass", back_populates="TAG_RELATION")
+    LESSON_CONTENT_RELATION = db.relationship("LessonContent", back_populates="TAG_RELATION")
 
     def __init__(self, parent, tagName, childOrder):
         self.parent = parent
@@ -402,38 +405,37 @@ class Lesson(Base):
     __tablename__ = "LESSON"
 
     LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
     TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
     lesson_string = db.Column(db.Text, nullable=False)
     question_list = db.Column(db.String(500), nullable=False)
 
-    USER_RELATION = db.relationship("User", back_populates="LESSON_RELATION")
+    CLASS_RELATION = db.relationship("Class", back_populates="LESSON_RELATION")
     TAG_RELATION = db.relationship("Tag", back_populates="LESSON_RELATION")
-    USER_LESSON_RELATION = db.relationship("UserLesson", back_populates="LESSON_RELATION")
 
-    def __init__(self, user, tag, lesson_string, question_list):
-        self.USER = user
+    def __init__(self, CLASS, tag, lesson_string, question_list):
+        self.CLASS = CLASS
         self.TAG = tag
         self.lesson_string = lesson_string
         self.question_list = question_list
 
     def __repr__(self):
-        return f'LESSON {self.LESSON} {self.USER} {self.lesson_string}'
+        return f'LESSON {self.LESSON} {self.CLASS} {self.lesson_string}'
 
 
-class UserLesson(Base):
-    __tablename__ = "user_lesson"
+# class UserLesson(Base):
+#     __tablename__ = "user_lesson"
 
-    USER_LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
-    LESSON = db.Column(db.Integer, db.ForeignKey("LESSON.LESSON"), nullable=False)
+#     USER_LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+#     LESSON = db.Column(db.Integer, db.ForeignKey("LESSON.LESSON"), nullable=False)
 
-    USER_RELATION = db.relationship("User",  back_populates="USER_LESSON_RELATION")
-    LESSON_RELATION = db.relationship("Lesson", back_populates="USER_LESSON_RELATION")
+#     USER_RELATION = db.relationship("User",  back_populates="USER_LESSON_RELATION")
+#     LESSON_RELATION = db.relationship("Lesson", back_populates="USER_LESSON_RELATION")
 
-    def __init__(self, USER, LESSON):
-        self.USER = USER
-        self.LESSON = LESSON
+#     def __init__(self, USER, LESSON):
+#         self.USER = USER
+#         self.LESSON = LESSON
 
-    def __repr__(self):
-        return f'user_lesson {self.USER_LESSON} {self.USER} {self.LESSON}'
+#     def __repr__(self):
+#         return f'user_lesson {self.USER_LESSON} {self.USER} {self.LESSON}'
