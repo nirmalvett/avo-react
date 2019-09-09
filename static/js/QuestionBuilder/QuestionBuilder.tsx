@@ -478,28 +478,33 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
         let {target} = event;
         const hints: HintsObj = {
             currentFunctions: [],
-            selectedFunction: "",
+            selectedFunction: '',
             errors: [],
-            suggestedFunctions: this.state.hints.suggestedFunctions
+            suggestedFunctions: this.state.hints.suggestedFunctions,
         };
         let {selectionStart, selectionEnd} = target;
         let content = target.value;
-        let match = new RegExp(functionRegex + "$").exec(content.substr(0, selectionStart) + '(');
-        let args = match === null ? "" : FUNCTIONS[match[0].slice(0, -1)].args;
-        if (event.key === "(") {
+        let match = new RegExp(functionRegex + '$').exec(content.substr(0, selectionStart) + '(');
+        let args = match === null ? '' : FUNCTIONS[match[0].slice(0, -1)].args;
+        if (event.key === '(') {
             event.preventDefault();
-            document.execCommand('insertText', false, "(" + args + ")");
-            content = content.substr(0, selectionStart) + "(" + args + ")" + content.substr(selectionStart);
+            document.execCommand('insertText', false, '(' + args + ')');
+            content =
+                content.substr(0, selectionStart) +
+                '(' +
+                args +
+                ')' +
+                content.substr(selectionStart);
             selectionEnd = (selectionStart += 1) + args.length;
-        } else if (event.key === "[") {
+        } else if (event.key === '[') {
             event.preventDefault();
-            document.execCommand('insertText', false, "[]");
-            content = content.substr(0, selectionStart) + "[]" + content.substr(selectionStart);
+            document.execCommand('insertText', false, '[]');
+            content = content.substr(0, selectionStart) + '[]' + content.substr(selectionStart);
             selectionEnd = selectionStart += 1;
-        } else if (event.key === "{") {
+        } else if (event.key === '{') {
             event.preventDefault();
-            document.execCommand('insertText', false, "{}");
-            content = content.substr(0, selectionStart) + "{}" + content.substr(selectionStart);
+            document.execCommand('insertText', false, '{}');
+            content = content.substr(0, selectionStart) + '{}' + content.substr(selectionStart);
             selectionEnd = selectionStart += 1;
         }
         this.extracted(selectionStart, hints, content);
@@ -510,13 +515,14 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                     hints,
                     mode: {
                         name: 'math',
-                        content
-                    }
+                        content,
+                    },
                 },
                 () => {
-                target.selectionStart = selectionStart;
-                target.selectionEnd = selectionEnd;
-            });
+                    target.selectionStart = selectionStart;
+                    target.selectionEnd = selectionEnd;
+                },
+            );
         } else if (mode.name === 'criteria') {
             this.setState(
                 {
@@ -528,30 +534,36 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                             explanation: mode.content.explanation,
                             points: mode.content.points,
                             criteria: content,
-                        }
-                    }
+                        },
+                    },
                 },
                 () => {
-                target.selectionStart = selectionStart;
-                target.selectionEnd = selectionEnd;
-            });
+                    target.selectionStart = selectionStart;
+                    target.selectionEnd = selectionEnd;
+                },
+            );
         }
     };
 
     generateHints = (event: any) => {
         const {target} = event;
-        const hints: HintsObj = {currentFunctions: [], selectedFunction: "", errors: [], suggestedFunctions: []};
+        const hints: HintsObj = {
+            currentFunctions: [],
+            selectedFunction: '',
+            errors: [],
+            suggestedFunctions: [],
+        };
 
         const {selectionStart} = target;
         const string = target.value;
 
         let x = selectionStart;
-        while (/\w/.test(string.substr(x-1, 1))) x--;
+        while (/\w/.test(string.substr(x - 1, 1))) x--;
         let y = selectionStart;
         while (/\w/.test(string.substr(y, 1))) y++;
         const f = string.substring(x, y);
         if (f.length > 2) {
-            for(let i in FUNCTIONS) {
+            for (let i in FUNCTIONS) {
                 if (FUNCTIONS.hasOwnProperty(i)) {
                     if (i.includes(f) && i !== f) {
                         hints.suggestedFunctions.push(i);
@@ -565,26 +577,21 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
     };
 
     extracted(selectionStart: number, hints: HintsObj, string: string) {
-        let function_regex2 = new RegExp(functionRegex, "g");
+        let function_regex2 = new RegExp(functionRegex, 'g');
         for (let m = function_regex2.exec(string); m !== null; m = function_regex2.exec(string)) {
             let fn = m[0].slice(0, -1);
             let fnStart = m.index + m[0].length;
             let fnStop = m.index + m[0].length;
             let arg = 0;
             for (let brackets = 1; brackets > 0 && fnStop < selectionStart; fnStop++) {
-                if (brackets === 1 && string[fnStop] === "," && fnStop < selectionStart)
-                    arg++;
-                else if ("([{".includes(string[fnStop]))
-                    brackets++;
-                else if (")]}".includes(string[fnStop]))
-                    brackets--;
-                if (brackets === 0)
-                    arg = -1;
+                if (brackets === 1 && string[fnStop] === ',' && fnStop < selectionStart) arg++;
+                else if ('([{'.includes(string[fnStop])) brackets++;
+                else if (')]}'.includes(string[fnStop])) brackets--;
+                if (brackets === 0) arg = -1;
             }
             if (m.index <= selectionStart && selectionStart < m.index + m[0].length)
                 hints.selectedFunction = fn;
-            else if (fnStart <= selectionStart && arg >= 0)
-                hints.currentFunctions.push([fn, arg]);
+            else if (fnStart <= selectionStart && arg >= 0) hints.currentFunctions.push([fn, arg]);
         }
     }
 
@@ -594,27 +601,34 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
         const {hints} = this.state;
         let hints_functions: string[] = [];
         for (let i = 0; i < hints.currentFunctions.length; i++) {
-        	let fn = hints.currentFunctions[i];
-        	let args: (ReactElement | string)[] = FUNCTIONS[fn[0]].args.split(",").map(x => x.trim());
-        	args[fn[1]] = <strong style={{color: '#399103'}}>{args[fn[1]]}</strong>;
-        	str.push(
-        	    <Fragment>
-                    {fn[0]}({args.map((x, y) => (
-                        <Fragment>
-                            {y === 0 ? null : ', '}{x}
-                        </Fragment>
-                    ))})
-        	    </Fragment>
-            );
-        	hints_functions = hints_functions.filter(x => x !== fn[0])
-        }
-
-        if (hints.selectedFunction !== "") {  // Adds a function to the list if the cursor was on the title
+            let fn = hints.currentFunctions[i];
+            let args: (ReactElement | string)[] = FUNCTIONS[fn[0]].args
+                .split(',')
+                .map(x => x.trim());
+            args[fn[1]] = <strong style={{color: '#399103'}}>{args[fn[1]]}</strong>;
             str.push(
                 <Fragment>
-                    {hints.selectedFunction}
-                    (<span style={{color: '#399103'}}>{FUNCTIONS[hints.selectedFunction].args}</span>)
-                </Fragment>
+                    {fn[0]}(
+                    {args.map((x, y) => (
+                        <Fragment>
+                            {y === 0 ? null : ', '}
+                            {x}
+                        </Fragment>
+                    ))}
+                    )
+                </Fragment>,
+            );
+            hints_functions = hints_functions.filter(x => x !== fn[0]);
+        }
+
+        if (hints.selectedFunction !== '') {
+            // Adds a function to the list if the cursor was on the title
+            str.push(
+                <Fragment>
+                    {hints.selectedFunction}(
+                    <span style={{color: '#399103'}}>{FUNCTIONS[hints.selectedFunction].args}</span>
+                    )
+                </Fragment>,
             );
         }
 
@@ -622,17 +636,17 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
             <Fragment>
                 {str.map((x, y) => (
                     <Fragment key={y}>
-                        <br/>
+                        <br />
                         {x}
                     </Fragment>
                 ))}
                 {hints_functions.map(x => (
                     <Fragment>
-                        <br/>
+                        <br />
                         {x}({FUNCTIONS[x].args})
                     </Fragment>
                 ))}
-                <br/>
+                <br />
                 {hints.suggestedFunctions.join(', ')}
             </Fragment>
         );
