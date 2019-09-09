@@ -25,9 +25,11 @@ import {
     EditorSubPrompt,
     QuestionBuilderProps,
     QuestionBuilderState,
+    HintsObj,
 } from './QuestionBuilder.models';
 import * as Http from '../Http';
 import {copy} from '../HelperFunctions/Utilities';
+import {FUNCTIONS, functionRegex} from './constants';
 
 const cardStyle: CSSProperties = {
     margin: 8,
@@ -48,6 +50,12 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
             mode: {name: null},
             editorSeed: Math.round(65536 * Math.random()),
             initError: questionString !== compileString,
+            hints: {
+                currentFunctions: [],
+                selectedFunction: '',
+                suggestedFunctions: [],
+                errors: [],
+            },
             ...init(questionString),
         };
 
@@ -177,7 +185,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                 onChange={content => this.setState({mode: {name: 'math', content}})}
                 edit={this.editMath}
                 generateHints={this.generateHints}
-                getHints={this.getHints}
+                hints={this.getHints()}
             />
         );
     }
@@ -467,155 +475,166 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
     // hints
 
     editMath = (event: any) => {
-        // let {target} = event;
-        // let hints = {
-        //     functions: [],
-        //     currentFunctions: [],
-        //     selectedFunction: "",
-        //     errors: [],
-        //     suggestedFunctions: this.state.hints.suggestedFunctions
-        // };
-        //
-        // let {selectionStart, selectionEnd} = target;
-        // let content = target.value;
-        // let match = new RegExp(function_regex + "$").exec(content.substr(0, selectionStart) + '(');
-        // let args = match === null ? "" : FUNCTIONS[match[0].slice(0, -1)][3];
-        // if (event.key === "(") {
-        //     event.preventDefault();
-        //     document.execCommand('insertText', false, "(" + args + ")");
-        //     content = content.substr(0, selectionStart) + "(" + args + ")" + content.substr(selectionStart);
-        //     selectionEnd = (selectionStart += 1) + args.length;
-        // } else if (event.key === "[") {
-        //     event.preventDefault();
-        //     document.execCommand('insertText', false, "[]");
-        //     content = content.substr(0, selectionStart) + "[]" + content.substr(selectionStart);
-        //     selectionEnd = selectionStart += 1;
-        // } else if (event.key === "{") {
-        //     event.preventDefault();
-        //     document.execCommand('insertText', false, "{}");
-        //     content = content.substr(0, selectionStart) + "{}" + content.substr(selectionStart);
-        //     selectionEnd = selectionStart += 1;
-        // }
-        // let string = content;
-        // let function_regex2 = new RegExp(function_regex, "g");
-        // for (let m = function_regex2.exec(string); m !== null; m = function_regex2.exec(string)) {
-        //     let fn = m[0].slice(0, -1);
-        //     let fnStart = m.index + m[0].length;
-        //     let fnStop = m.index + m[0].length;
-        //     let arg = 0;
-        //     for (let brackets = 1; brackets > 0 && fnStop < selectionStart; fnStop++) {
-        //         if (brackets === 1 && string[fnStop] === "," && fnStop < selectionStart)
-        //             arg++;
-        //         else if ("([{".includes(string[fnStop]))
-        //             brackets++;
-        //         else if (")]}".includes(string[fnStop]))
-        //             brackets--;
-        //         if (brackets === 0)
-        //             arg = -1;
-        //     }
-        //     if (m.index <= selectionStart && selectionStart < m.index + m[0].length)
-        //         hints.selectedFunction = fn;
-        //     else if (fnStart <= selectionStart && arg >= 0)
-        //         hints.currentFunctions.push([fn, arg]);
-        // }
-        // this.setState({content, hints}, () => {
-        //     target.selectionStart = selectionStart;
-        //     target.selectionEnd = selectionEnd;
-        // });
-        // todo
+        let {target} = event;
+        const hints: HintsObj = {
+            currentFunctions: [],
+            selectedFunction: "",
+            errors: [],
+            suggestedFunctions: this.state.hints.suggestedFunctions
+        };
+        let {selectionStart, selectionEnd} = target;
+        let content = target.value;
+        let match = new RegExp(functionRegex + "$").exec(content.substr(0, selectionStart) + '(');
+        let args = match === null ? "" : FUNCTIONS[match[0].slice(0, -1)].args;
+        if (event.key === "(") {
+            event.preventDefault();
+            document.execCommand('insertText', false, "(" + args + ")");
+            content = content.substr(0, selectionStart) + "(" + args + ")" + content.substr(selectionStart);
+            selectionEnd = (selectionStart += 1) + args.length;
+        } else if (event.key === "[") {
+            event.preventDefault();
+            document.execCommand('insertText', false, "[]");
+            content = content.substr(0, selectionStart) + "[]" + content.substr(selectionStart);
+            selectionEnd = selectionStart += 1;
+        } else if (event.key === "{") {
+            event.preventDefault();
+            document.execCommand('insertText', false, "{}");
+            content = content.substr(0, selectionStart) + "{}" + content.substr(selectionStart);
+            selectionEnd = selectionStart += 1;
+        }
+        this.extracted(selectionStart, hints, content);
+        const {mode} = this.state;
+        if (mode.name === 'math') {
+            this.setState(
+                {
+                    hints,
+                    mode: {
+                        name: 'math',
+                        content
+                    }
+                },
+                () => {
+                target.selectionStart = selectionStart;
+                target.selectionEnd = selectionEnd;
+            });
+        } else if (mode.name === 'criteria') {
+            this.setState(
+                {
+                    hints,
+                    mode: {
+                        name: 'criteria',
+                        index: mode.index,
+                        content: {
+                            explanation: mode.content.explanation,
+                            points: mode.content.points,
+                            criteria: content,
+                        }
+                    }
+                },
+                () => {
+                target.selectionStart = selectionStart;
+                target.selectionEnd = selectionEnd;
+            });
+        }
     };
 
-    generateHints(event: any) {
-        // let {target} = event;
-        // this.hints = {functions: [], currentFunctions: [], selectedFunction: "", errors: [], suggestedFunctions: []};
-        //
-        // let {selectionStart} = target;
-        // let string = target.value;
-        //
-        // let x = selectionStart;
-        // while (/\w/.test(string.substr(x-1, 1))) x--;
-        // let y = selectionStart;
-        // while (/\w/.test(string.substr(y, 1))) y++;
-        // let f = string.substring(x, y);
-        // if (f.length > 2)
-        //     for(let i in FUNCTIONS) if (FUNCTIONS.hasOwnProperty(i)) if (i.includes(f) && i !== f)
-        //         this.hints.suggestedFunctions.push(i);
-        //
-        // let function_regex2 = new RegExp(function_regex, "g");
-        // for (let m = function_regex2.exec(string); m !== null; m = function_regex2.exec(string)) {
-        //     let fn = m[0].slice(0, -1);
-        //     let fnStart = m.index + m[0].length;
-        //     let fnStop = m.index + m[0].length;
-        //     let arg = 0;
-        //     for (let brackets = 1; brackets > 0 && fnStop < selectionStart; fnStop++) {
-        //         if (brackets === 1 && string[fnStop] === "," && fnStop < selectionStart)
-        //             arg++;
-        //         else if ("([{".includes(string[fnStop]))
-        //             brackets++;
-        //         else if (")]}".includes(string[fnStop]))
-        //             brackets--;
-        //         if (brackets === 0)
-        //             arg = -1;
-        //     }
-        //     if (m.index <= selectionStart && selectionStart < m.index + m[0].length)
-        //         this.hints.selectedFunction = fn;
-        //     else if (fnStart <= selectionStart && arg >= 0)
-        //         this.hints.currentFunctions.push([fn, arg]);
-        // }
-        // this.setState({hints: this.hints});
-        // todo
+    generateHints = (event: any) => {
+        const {target} = event;
+        const hints: HintsObj = {currentFunctions: [], selectedFunction: "", errors: [], suggestedFunctions: []};
+
+        const {selectionStart} = target;
+        const string = target.value;
+
+        let x = selectionStart;
+        while (/\w/.test(string.substr(x-1, 1))) x--;
+        let y = selectionStart;
+        while (/\w/.test(string.substr(y, 1))) y++;
+        const f = string.substring(x, y);
+        if (f.length > 2) {
+            for(let i in FUNCTIONS) {
+                if (FUNCTIONS.hasOwnProperty(i)) {
+                    if (i.includes(f) && i !== f) {
+                        hints.suggestedFunctions.push(i);
+                    }
+                }
+            }
+        }
+
+        this.extracted(selectionStart, hints, string);
+        this.setState({hints});
+    };
+
+    extracted(selectionStart: number, hints: HintsObj, string: string) {
+        let function_regex2 = new RegExp(functionRegex, "g");
+        for (let m = function_regex2.exec(string); m !== null; m = function_regex2.exec(string)) {
+            let fn = m[0].slice(0, -1);
+            let fnStart = m.index + m[0].length;
+            let fnStop = m.index + m[0].length;
+            let arg = 0;
+            for (let brackets = 1; brackets > 0 && fnStop < selectionStart; fnStop++) {
+                if (brackets === 1 && string[fnStop] === "," && fnStop < selectionStart)
+                    arg++;
+                else if ("([{".includes(string[fnStop]))
+                    brackets++;
+                else if (")]}".includes(string[fnStop]))
+                    brackets--;
+                if (brackets === 0)
+                    arg = -1;
+            }
+            if (m.index <= selectionStart && selectionStart < m.index + m[0].length)
+                hints.selectedFunction = fn;
+            else if (fnStart <= selectionStart && arg >= 0)
+                hints.currentFunctions.push([fn, arg]);
+        }
     }
 
     getHints(): ReactElement {
-        // let str = [];
-        //
-        // let {hints} = this.state;
-        // hints.functions = [];
-        // for (let i = 0; i < hints.currentFunctions.length; i++) {
-        // 	let fn = hints.currentFunctions[i];
-        // 	let args = FUNCTIONS[fn[0]][3].split(",").map(x => x.trim());
-        // 	// noinspection CheckTagEmptyBody
-        // 	args[fn[1]] = <strong style={{color: '#399103'}}>{args[fn[1]]}</strong>;
-        // 	str.push(
-        // 	    <Fragment>
-        //             {fn[0]}({args.map((x, y) => (
-        //                 <Fragment>
-        //                     {y === 0 ? null : ', '}{x}
-        //                 </Fragment>
-        //             ))})
-        // 	    </Fragment>
-        //     );
-        // 	hints.functions = hints.functions.filter(x => x !== fn[0])
-        // }
-        //
-        // if (hints.selectedFunction !== "") {  // Adds a function to the list if the cursor was on the title
-        // 	// noinspection CheckTagEmptyBody
-        //     str.push(
-        //         <Fragment>
-        //             {hints.selectedFunction}
-        //             (<span style={{color: '#399103'}}>{FUNCTIONS[hints.selectedFunction][3]}</span>)
-        //         </Fragment>
-        //     );
-        // }
-        //
-        // return (
-        //     <Fragment>
-        //         {str.map((x, y) => (
-        //             <Fragment key={y}>
-        //                 <br/>
-        //                 {x}
-        //             </Fragment>
-        //         ))}
-        //         {hints.functions.map(x => (
-        //             <Fragment>
-        //                 <br/>
-        //                 {x}({FUNCTIONS[x][3]})
-        //             </Fragment>
-        //         ))}
-        //         <br/>
-        //         {hints.suggestedFunctions.join(', ')}
-        //     </Fragment>
-        // );
-        return <span />; // todo
+        let str = [];
+
+        const {hints} = this.state;
+        let hints_functions: string[] = [];
+        for (let i = 0; i < hints.currentFunctions.length; i++) {
+        	let fn = hints.currentFunctions[i];
+        	let args: (ReactElement | string)[] = FUNCTIONS[fn[0]].args.split(",").map(x => x.trim());
+        	args[fn[1]] = <strong style={{color: '#399103'}}>{args[fn[1]]}</strong>;
+        	str.push(
+        	    <Fragment>
+                    {fn[0]}({args.map((x, y) => (
+                        <Fragment>
+                            {y === 0 ? null : ', '}{x}
+                        </Fragment>
+                    ))})
+        	    </Fragment>
+            );
+        	hints_functions = hints_functions.filter(x => x !== fn[0])
+        }
+
+        if (hints.selectedFunction !== "") {  // Adds a function to the list if the cursor was on the title
+            str.push(
+                <Fragment>
+                    {hints.selectedFunction}
+                    (<span style={{color: '#399103'}}>{FUNCTIONS[hints.selectedFunction].args}</span>)
+                </Fragment>
+            );
+        }
+
+        return (
+            <Fragment>
+                {str.map((x, y) => (
+                    <Fragment key={y}>
+                        <br/>
+                        {x}
+                    </Fragment>
+                ))}
+                {hints_functions.map(x => (
+                    <Fragment>
+                        <br/>
+                        {x}({FUNCTIONS[x].args})
+                    </Fragment>
+                ))}
+                <br/>
+                {hints.suggestedFunctions.join(', ')}
+            </Fragment>
+        );
     }
 }

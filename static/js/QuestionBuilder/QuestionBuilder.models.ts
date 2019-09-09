@@ -70,6 +70,14 @@ export interface QuestionBuilderState {
     editorPrompts: EditorSubPrompt[];
     editorCriteria: EditorCriteria[];
     editorSeed: number;
+    hints: HintsObj;
+}
+
+export interface HintsObj {
+    currentFunctions: [string, number][];
+    selectedFunction: string;
+    suggestedFunctions: string[];
+    errors: never[];
 }
 
 export type QuestionBuilderMode =

@@ -14,7 +14,7 @@ interface MathCardProps {
     onChange: (v: string) => void;
     edit: (event: any) => void;
     generateHints: (event: any) => void;
-    getHints: () => any;
+    hints: ReactElement;
 }
 
 export class MathCard extends PureComponent<MathCardProps> {
@@ -89,7 +89,7 @@ export class MathCard extends PureComponent<MathCardProps> {
                             ))}
                         </tbody>
                     </table>
-                    <Typography>{this.props.getHints()}</Typography>
+                    <Typography>{this.props.hints}</Typography>
                 </Fragment>
             );
         } else {
