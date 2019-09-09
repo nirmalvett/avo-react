@@ -455,6 +455,7 @@ shrink-on-hover {
 
 .avo-linechart-text{
   font-size: 5px;
+  font-family: 'Open Sans', sans-serif;
   color: lightslategrey;
 }
 
@@ -468,6 +469,7 @@ shrink-on-hover {
 }
 
 #avo-line-chart-tooltip{
+  font-family: 'Open Sans', sans-serif;
   opacity: 0;
   position: absolute;
   top: 0em;
@@ -546,4 +548,13 @@ shrink-on-hover {
 
 .avo-clickable-item:hover{
   background: rgba(0,0,0,0.25);
+}
+
+.avo-select{
+  margin-top: 0.65em !important;
+}
+
+.avo-select > select {
+  padding-bottom: 8px !important;
+  padding-top: 8px !important;
 }

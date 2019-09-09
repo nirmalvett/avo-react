@@ -10,7 +10,7 @@ export default function AVOMasteryGauge(props) {
                 nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
                 ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
             return [nx, ny];
-        };
+        }
         let currentRotation = 0;
         let rotationAmount  = 45;
         let additionalRot   = 0;
@@ -35,27 +35,16 @@ export default function AVOMasteryGauge(props) {
                     y.push(newPoint[1]);
                     currentRotation += rotationAmount;
                 }
-                if(i === 3 || i === 7) {
+                if(i == 3 || i == 7) {
                     additionalRot += (22.5 + (22.5/3));
                     currentRotation = 0;
                 }
             }else{
                 x = [centerX, centerX];
                 y = [centerY, centerY];
-            }
-            const tri_color = !!props.colors && !!props.colors[triangles.length] ? props.colors[triangles.length] : '#399103';
-            items.push(
-                <path
-                    className='avo-progression-gauge-triangle'
-                    d={`M${centerX}, ${centerY} L${x[0]}, ${y[0]} L${x[1]}, ${y[1]} Z`}
-                    fill={tri_color}
-                    fillOpacity='0.25'
-                    stroke={tri_color}
-                    strokeWidth='0.25'
-                    strokeLinecap='round'
-                />
-            );
-            if(i === 3 || i === 7 || i === 11) {
+            };
+            items.push( <path className='avo-progression-gauge-triangle' d={`M${centerX}, ${centerY} L${x[0]}, ${y[0]} L${x[1]}, ${y[1]} Z`} fill='#399103' fillOpacity='0.25' stroke='#399103' strokeWidth='0.25' strokeLinecap='round'/>);
+            if(i == 3 || i == 7 || i == 11) {
                 triangles.push(<g style={{ transformOrigin : 'center'}} cx={centerX} cy={centerY} className={`avo-progression-gauge-triangle-group${triangles.length + 1}`}>{items}</g>);
                 items = [];
             }
@@ -64,37 +53,29 @@ export default function AVOMasteryGauge(props) {
     console.log(triangles);
     return (
         <div className='avo-progression-gauge-container'>
-            <svg width="200px" height="200px" viewBox="0 0 42 42" className="donut">
-                <circle className="donut-ring" cx="21" cy="21" r="16" fill="transparent" stroke="#fafafa" strokeWidth="0.25" strokeDasharray="0.5"></circle>
-                <circle
-                    class="avo-progression-gauge-svg"
-                    cx="21"
-                    cy="21"
-                    r="16"
-                    fill="transparent"
-                    stroke="#399103"
-                    strokeWidth="0.85"
+            <svg width="17.5em" height="17.5em" viewBox="0 0 42 42" class="donut">
+                <circle class="donut-ring" cx="21" cy="21" r="16" fill="transparent" stroke="#fafafa" strokeWidth="0.25" strokeDasharray="0.5"></circle>
+                <circle 
+                    class="avo-progression-gauge-svg" 
+                    cx="21" 
+                    cy="21" 
+                    r="16" 
+                    fill="transparent" 
+                    stroke="#399103" 
+                    strokeWidth="0.85" 
                     strokeDasharray={`${props.comprehension} ${100 - (props.comprehension)}`}
                     strokeDashoffset="25"
                     strokeLinecap='round'>
                 </circle>
                 {triangles}
-                <foreignObject x={5} y={5} width={32} height={32}>
-                    <center style={{ zIndex : 10, position: 'inherit' }}>
-                        <div className='avo-progression-gauge'>
-                            <center className='avo-progression-gauge-text'>
-                                {props.comprehension}%
-                            </center>
-                        </div>
-                    </center>
-                </foreignObject>
-                <defs>
-                    <style>
-                        @import url("https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i");
-                    </style>
-                </defs>
-                <text x="15.5" y="25" style={{ fontSize : '3px' }} fill='lightslategrey' font-family="Roboto">Mastery</text>
             </svg>
+            <div className='avo-progression-gauge'>
+                <center className='avo-progression-gauge-text'>
+                    {props.comprehension}%
+                    <br></br>
+                    <span className='avo-progression-gauge-subText'>Mastery</span>
+                </center>
+            </div>
         </div>
     );
 };

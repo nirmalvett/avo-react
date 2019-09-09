@@ -60,6 +60,7 @@
     "file-saver": "^2.0.2",
     "js-yaml-loader": "1.0.1",
     "moment": "2.24.0",
+    "npm": "^6.11.3",
     "paypal-checkout": "4.0.239",
     "prop-types": "latest",
     "react": "^16.8.0",

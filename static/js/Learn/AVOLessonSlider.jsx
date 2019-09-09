@@ -115,7 +115,7 @@ export default class AVOLessonSlider extends Component {
                         </Card>
                     </Grid>
                 );
-            })
+            });
             output.push(
                 <Grid container xs={12} spacing={6} style={{
                     position   : 'absolute',
@@ -160,9 +160,9 @@ export default class AVOLessonSlider extends Component {
             if(slideCounter === 0) {
                 output.push([]);
                 groupCounter++;
-            };
+            }
             output[groupCounter].push(slide);
-            if(slideCounter == 2)
+            if(slideCounter === 2)
                 slideCounter = 0;
             else
                 slideCounter++;
