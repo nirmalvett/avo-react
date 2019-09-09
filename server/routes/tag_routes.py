@@ -154,9 +154,9 @@ def get_lessons():
     classes = []
     classes.extend(teacher_classes)
     classes.extend(enrolled_classes)
+    classes = list(map(lambda c: c.CLASS, classes))
     lesson_list = Lesson.query.join(Class).all()
     lesson_list = list(filter(lambda lesson: lesson.CLASS in classes, lesson_list))
-    print(lesson_list)
     tag_list = []
     all_tags = Tag.query.all()
     for tag in all_tags:
