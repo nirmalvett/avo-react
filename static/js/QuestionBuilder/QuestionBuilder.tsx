@@ -206,6 +206,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
     renderSubPromptCard = (prompt: EditorSubPrompt, index: number) => {
         return (
             <SubPromptCard
+                key={'prompt' + index}
                 mode={this.state.mode}
                 index={index}
                 editorPrompt={prompt}
@@ -229,6 +230,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
     renderCriteriaCard = (criteria: EditorCriteria, index: number) => {
         return (
             <CriteriaCard
+                key={'criteria' + index}
                 mode={this.state.mode}
                 index={index}
                 cancelEdit={this.editorCancelPreview}
