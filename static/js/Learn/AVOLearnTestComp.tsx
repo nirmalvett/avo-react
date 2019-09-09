@@ -11,22 +11,24 @@ import {uniqueKey} from '../HelperFunctions/Helpers';
 type TestState = 'LESSON' | 'QUESTIONS' | 'TEST_END';
 
 interface AVOLearnTestCompProps {
-    lesson: {
-        data: {
-            questions: {
-                prompt: string;
-                prompts: string[];
-                types: string[];
-                ID: number;
-                seed: number;
-            }[];
-        };
-        mastery: number;
-        Tag: never;
-        string: string;
-        ID: number;
-    };
+    lesson: AvoLesson;
     updateMastery: (mastery: number, lessonID: number) => void;
+}
+
+export interface AvoLesson {
+    data: {
+        questions: {
+            prompt: string;
+            prompts: string[];
+            types: string[];
+            ID: number;
+            seed: number;
+        }[];
+    };
+    mastery: number;
+    Tag: never;
+    string: string;
+    ID: number;
 }
 
 interface AVOLearnTestCompState {
