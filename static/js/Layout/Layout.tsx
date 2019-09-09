@@ -205,7 +205,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
         } else if (section.name === 'Mark Editor') {
             return <MarkEditor showSnackBar={this.showSnackBar} takes={section.takesID} />;
         } else if (section.name === 'Mastery') {
-            return <MasteryHome />;
+            return <MasteryHome theme={{theme: this.props.theme, color: this.color()}}/>;
         } else if (section.name === 'My Classes') {
             return (
                 <MyClasses

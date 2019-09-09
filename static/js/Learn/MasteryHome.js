@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import {
-	Grid, Paper, IconButton, Typography, Select, InputLabel, FormControl, Grow
+    Grid, Paper, IconButton, Typography, Select, InputLabel, FormControl, Grow
 } from '@material-ui/core';
 import {
-	ChevronRight, ChevronLeft, BookmarkBorder, ArrowBack, ArrowForward
+    ChevronRight, ChevronLeft, BookmarkBorder, ArrowBack, ArrowForward
 } from '@material-ui/icons';
 import * as Http from '../Http';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
@@ -34,7 +34,7 @@ export default class MasteryHome extends Component {
         this.getTags();
         this.getClasses();
         this.getLessons();
-        
+
         setTimeout(() => {
             const availableTags = [this.filterTags(null)[0]];
             this.setState({ selectedTags : availableTags, activeTag : availableTags[0] });
@@ -44,13 +44,13 @@ export default class MasteryHome extends Component {
     render() {
         const _this = this;
         return (
-            <AVODynamicBackground>
+            <div style={{ width: '-webkit-fill-available' }}>
                 {this.state.selectedTags.length !== 0 && (
                     <Grow in={this.state.selectedTags.length !== 0}>
                         <Grid container spacing={8}>
                             <Grid item xs={1}/>
                             <Grid item xs={10}>
-                                <Paper className='avo-card' style={{ padding : '1em', width : 'auto' }}>
+                                <Paper className='avo-card' style={{ padding : '1em', width : 'auto', height : '70vh', maxHeight : '70vh', overflowY : 'hidden' }}>
                                     <Grid container>
                                         <Grid item xs={1}>
                                             <span style={{ float : 'left', marginLeft : '8px' }}>
@@ -59,7 +59,7 @@ export default class MasteryHome extends Component {
                                                 </IconButton>
                                             </span>
                                         </Grid>
-                                        <Grid item xs={10}>
+                                        <Grid item xs={10} style={{ position : 'relative' }}>
                                             {this.getDropdownSlides()}
                                         </Grid>
                                         <Grid item xs={1}>
@@ -71,13 +71,40 @@ export default class MasteryHome extends Component {
                                         </Grid>
                                     </Grid>
                                     <Grid item xs={12}>
-                                        <br/>
-                                        <Typography variant="h6" gutterBottom>
-                                            {`${this.getRelevantTag().tagName}`}
-                                        </Typography>
+                                        <Grid container spacing={8}>
+                                            <Grid item xs={2}>
+                                                <FormControl variant="outlined" style={{ width : '100%' }}>
+                                                    <InputLabel htmlFor="classSelectionBase">
+                                                    </InputLabel>
+                                                    <Select
+                                                        className='avo-select'
+                                                        native
+                                                        onChange={(event) => {}}
+                                                        input={
+                                                            <OutlinedInput 
+                                                                id="classSelectionBase"
+                                                            />
+                                                        }
+                                                    >
+                                                        {
+                                                            this.state.classes.map((avo_class) => {
+                                                                return (
+                                                                    <option value={avo_class.classID} key={avo_class.classID}>{avo_class.name}</option>
+                                                                );
+                                                            })
+                                                        }
+                                                    </Select>
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={10}>
+                                                <Typography style={{ marginTop : '0.5em' }} variant="h6" gutterBottom>
+                                                    {`${this.getRelevantTag().tagName}`}
+                                                </Typography>
+                                            </Grid>
+                                        </Grid>
                                         <Grid container>
                                             <Grid item xs={8}>
-                                                <AVOMasteryChart dataPoints={this.getRelevantTag().chartingData} dataLabels={this.getRelevantTag().compAtTime} height='400px'/>
+                                                <AVOMasteryChart theme={this.props.theme} dataPoints={this.getRelevantTag().chartingData} dataLabels={this.getRelevantTag().compAtTime} height='400px'/>
                                             </Grid>
                                             <Grid item xs={4}>
                                                 <AVOMasteryGauge comprehension={this.getRelevantTag().comprehension}/>
@@ -90,7 +117,7 @@ export default class MasteryHome extends Component {
                         </Grid>
                     </Grow>
                 )}      
-            </AVODynamicBackground>
+            </div>
         );
     };
 
@@ -247,8 +274,7 @@ export default class MasteryHome extends Component {
                         transition : 'transform 500ms ease-in, opacity 500ms ease-in',
                         willChange : 'transform',
                         opacity    : `${combinedOutput.length == this.state.currentIndex ? 1 : 0}`,
-                        top        : '2.25em',
-                        width      : '85%',
+                        top        : '1.25em',
                         transform  : `translateX(${this.getSlideTranslation(combinedOutput.length)}vw)`
 
                     }}>
@@ -310,7 +336,20 @@ export default class MasteryHome extends Component {
                     classes: result.classes,
                     classesLoaded: true,
                 });
-                this.tryToJump();
+                Http.getTags(
+                    result.classes[0].classID,
+                    res => {
+                        console.log(res, Http.getTagTimeStamps);
+                        Http.getTagTimeStamps(
+                            result.classes[0].classID,
+                            r => console.log(r),
+                            e => console.log(e)
+                        );
+                    },
+                    err => {
+                        console.log(err);
+                    },
+                );
             },
             result => {
                 console.log(result);

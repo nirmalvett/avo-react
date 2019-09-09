@@ -91,3 +91,7 @@ export interface GetLessonData {
 export function getLessonData(lessonID: number, success: cb<GetLessonData>, failure: cb) {
     _request('POST', '/getLessonData', success, failure, {lessonID});
 }
+
+export function getTagTimeStamps(classID: number, success: cb, failure: cb) {
+    _request('POST', '/getMastery', success, failure, {classID});
+}
