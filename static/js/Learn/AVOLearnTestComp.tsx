@@ -41,13 +41,16 @@ interface AVOLearnTestCompState {
     changedMastery: number;
 }
 
-export default class AVOLearnTestComp extends Component<AVOLearnTestCompProps, AVOLearnTestCompState> {
+export default class AVOLearnTestComp extends Component<
+    AVOLearnTestCompProps,
+    AVOLearnTestCompState
+> {
     constructor(props: AVOLearnTestCompProps) {
         super(props);
         this.state = {
             questionIndex: 0,
             newAnswers: this.props.lesson.data.questions.map(() => ''),
-            currentState: "LESSON",
+            currentState: 'LESSON',
             questionState: 1,
             currentExplanation: [],
             explanationIndex: 0,
@@ -62,7 +65,7 @@ export default class AVOLearnTestComp extends Component<AVOLearnTestCompProps, A
         console.log(this.props.lesson.mastery);
         return (
             <div style={{width: '100%', position: 'relative'}}>
-                {this.state.currentState === "LESSON" && (
+                {this.state.currentState === 'LESSON' && (
                     <Grid container spacing={8}>
                         <Grid item xs={8}>
                             <Typography variant={'h6'}>{this.props.lesson.Tag}</Typography>
@@ -93,7 +96,7 @@ export default class AVOLearnTestComp extends Component<AVOLearnTestCompProps, A
                             <Button
                                 variant='outlined'
                                 color='primary'
-                                onClick={() => this.setState({currentState: "QUESTIONS"})}
+                                onClick={() => this.setState({currentState: 'QUESTIONS'})}
                                 style={{float: 'right'}}
                             >
                                 Go to test
@@ -101,7 +104,7 @@ export default class AVOLearnTestComp extends Component<AVOLearnTestCompProps, A
                         </Grid>
                     </Grid>
                 )}
-                {this.state.currentState === "QUESTIONS" && (
+                {this.state.currentState === 'QUESTIONS' && (
                     <Grow in={true} timeout={{enter: 1000}}>
                         <Grid container spacing={8}>
                             <Grid item xs={1}>
@@ -133,7 +136,7 @@ export default class AVOLearnTestComp extends Component<AVOLearnTestCompProps, A
                             </Grid>
                             <div style={{position: 'absolute', left: '0.25em', top: '0.25em'}}>
                                 <Button
-                                    onClick={() => this.setState({currentState: "LESSON"})}
+                                    onClick={() => this.setState({currentState: 'LESSON'})}
                                     variant='outlined'
                                     color='primary'
                                 >
@@ -143,7 +146,7 @@ export default class AVOLearnTestComp extends Component<AVOLearnTestCompProps, A
                         </Grid>
                     </Grow>
                 )}
-                {this.state.currentState === "TEST_END" && (
+                {this.state.currentState === 'TEST_END' && (
                     <React.Fragment>
                         <Grow in={this.state.testEndState === 0} timeout={{enter: 1000, exit: 500}}>
                             <div style={{position: 'absolute', width: '100%'}}>
@@ -218,7 +221,9 @@ export default class AVOLearnTestComp extends Component<AVOLearnTestCompProps, A
                                         }}
                                     >
                                         <AVOMasteryGauge
-                                            comprehension={Math.floor(this.state.changedMastery * 100)}
+                                            comprehension={Math.floor(
+                                                this.state.changedMastery * 100,
+                                            )}
                                             colors={['#399103', '#039124', '#809103']}
                                         />
                                         <Typography variant={'subtitle2'}>
@@ -369,7 +374,9 @@ export default class AVOLearnTestComp extends Component<AVOLearnTestCompProps, A
                                         }}
                                     >
                                         <AVOMasteryGauge
-                                            comprehension={Math.floor(this.state.changedMastery * 100)}
+                                            comprehension={Math.floor(
+                                                this.state.changedMastery * 100,
+                                            )}
                                             colors={['#399103', '#039124', '#809103']}
                                         />
                                         <Typography variant={'subtitle2'}>
@@ -453,7 +460,7 @@ export default class AVOLearnTestComp extends Component<AVOLearnTestCompProps, A
         return output;
     }
 
-    getExplanation(answers: string[], question: {ID: number, seed: number}, index: number) {
+    getExplanation(answers: string[], question: {ID: number; seed: number}, index: number) {
         console.log(answers);
         console.log(question);
         Http.getLessonQuestionResult(
@@ -464,9 +471,8 @@ export default class AVOLearnTestComp extends Component<AVOLearnTestCompProps, A
                 console.log(res);
                 const temp = this.state.explanations;
                 temp[index] = res.explanation[0];
-                this.setState(
-                    {explanations: temp, changedMastery: res.mastery},
-                    () => this.props.updateMastery(res.mastery, this.props.lesson.ID)
+                this.setState({explanations: temp, changedMastery: res.mastery}, () =>
+                    this.props.updateMastery(res.mastery, this.props.lesson.ID),
                 );
             },
             err => {
@@ -476,7 +482,7 @@ export default class AVOLearnTestComp extends Component<AVOLearnTestCompProps, A
     }
 
     switchToTestEnd() {
-        this.setState({currentState: "TEST_END"});
+        this.setState({currentState: 'TEST_END'});
         setTimeout(() => {
             this.setState({testEndState: 1});
         }, 3000);
