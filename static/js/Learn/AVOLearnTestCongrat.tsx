@@ -1,24 +1,24 @@
 import React, { Component } from 'react';
 
-export default class AVOLearnTestCongrat extends Component {
-	constructor(props) {
+interface AVOLearnTestCongratProps {
+	colors: string[];
+}
+
+interface AVOLearnTestCongratState {
+	completion: 0 | 100;
+}
+
+export default class AVOLearnTestCongrat extends Component<AVOLearnTestCongratProps, AVOLearnTestCongratState> {
+	constructor(props: AVOLearnTestCongratProps) {
 		super(props);
 		this.state = {
-			completetion : 0
+			completion : 0
 		};
 	};
 
 	render() {
 		const props = this.props;
 		const triangles = [];
-        const rotate = (cx, cy, x, y, angle) => {
-            var radians = (Math.PI / 180) * angle,
-                cos = Math.cos(radians),
-                sin = Math.sin(radians),
-                nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
-                ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
-            return [nx, ny];
-        };
         let currentRotation = 0;
         let rotationAmount  = 45;
         let additionalRot   = 0;
@@ -35,7 +35,7 @@ export default class AVOLearnTestCongrat extends Component {
                     centerY,
                     centerX + radius,
                     centerY + radius,
-                    360 - ((currentRotation + (rotationAmount * j)) + additionalRot)// remember, svgs tend to be inverted, so we need to invert this
+                    360 - ((currentRotation + (rotationAmount * j)) + additionalRot) // remember, svgs tend to be inverted, so we need to invert this
                 );
                 x.push(newPoint[0]);
                 y.push(newPoint[1]);
@@ -67,16 +67,16 @@ export default class AVOLearnTestCongrat extends Component {
 	    return (
 	        <div className='avo-progression-gauge-container' style={{ transform : 'scale(1.25)' }}>
 	            <svg width="400px" height="400px" viewBox="0 0 100 100" className="donut" style={{ top : '-122px' }}>
-	                <circle className="donut-ring" cx="50" cy="50" r="25" fill="transparent" stroke="#fafafa" strokeWidth="0.25" strokeDasharray="0.5"></circle>
+	                <circle className="donut-ring" cx="50" cy="50" r="25" fill="transparent" stroke="#fafafa" strokeWidth="0.25" strokeDasharray="0.5"/>
 	                <circle
-	                    class="avo-progression-gauge-svg"
+	                    className="avo-progression-gauge-svg"
 	                    cx="50"
 	                    cy="50"
 	                    r="25"
 	                    fill="transparent"
 	                    stroke="#399103"
 	                    strokeWidth="0.85"
-	                    strokeDasharray={`${this.state.completetion} ${100 - this.state.completetion}`}
+	                    strokeDasharray={`${this.state.completion} ${100 - this.state.completion}`}
 	                    strokeDashoffset="25"
 	                    strokeLinecap='round'>
 	                </circle>
@@ -99,14 +99,6 @@ export default class AVOLearnTestCongrat extends Component {
 	};
 
 	componentDidMount() {
-		const rotate = (cx, cy, x, y, angle) => {
-            var radians = (Math.PI / 180) * angle,
-                cos = Math.cos(radians),
-                sin = Math.sin(radians),
-                nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
-                ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
-            return [nx, ny];
-        };
         let currentRotation = 0;
         let rotationAmount  = 45;
         let additionalRot   = 0;
@@ -135,15 +127,24 @@ export default class AVOLearnTestCongrat extends Component {
 		                additionalRot += (22.5 + (22.5/3));
 		                currentRotation = 0;
 		            }
-					const el = document.getElementById(`learn-congrat-el@${i}`);
+					const el = document.getElementById(`learn-congrat-el@${i}`) as HTMLElement;
 					el.setAttribute('d', `M${centerX}, ${centerY} L${x[0]}, ${y[0]} L${x[1]}, ${y[1]} Z`);
-				};
+				}
 				currentRotation = 0;
 				additionalRot = 0;
 	        }, 500 * (k + 1));
        	}
        	setTimeout(() => {
-			this.setState({ completetion : 100 });
+			this.setState({ completion : 100 });
        	}, 500);
 	};
 };
+
+function rotate(cx: number, cy: number, x: number, y: number, angle: number) {
+	var radians = (Math.PI / 180) * angle,
+		cos = Math.cos(radians),
+		sin = Math.sin(radians),
+		nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
+		ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
+	return [nx, ny];
+}
