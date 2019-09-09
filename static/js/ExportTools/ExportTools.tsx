@@ -58,18 +58,18 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
         super(props);
         this.styles = {
             dropArea: {
-                width: '600px',
-                height: '480px',
+                width: '80%',
+                maxWidth: '60ch',
                 margin: '50px auto',
                 padding: '20px',
-                flexShrink: 0,
+                flex: 1,
             },
             highlighted: {
-                width: '600px',
-                height: '480px',
+                width: '80%',
+                maxWidth: '60ch',
                 margin: '50px auto',
                 padding: '20px',
-                flexShrink: 0,
+                flex: 1,
                 backgroundColor: props.color['500'],
             },
         };
@@ -117,7 +117,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
                     }}
                 >
                     <FormControl
-                        style={{width: '600px', flexShrink: 0}}
+                        style={{width: '600px'}}
                         className='export-form-control'
                     >
                         <InputLabel htmlFor='export-form-control'>Course</InputLabel>
@@ -128,12 +128,13 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
                                 name: 'course',
                                 id: 'course-select',
                             }}
+                            style={{marginBottom: '5px'}}
                         >
                             {this.getMenuItems()}
                         </Select>
                     </FormControl>
                     <FormControl
-                        style={{width: '600px', flexShrink: 0}}
+                        style={{width: '600px'}}
                         className='fileType-control'
                     >
                         <InputLabel htmlFor='fileType-control'>File Type</InputLabel>
