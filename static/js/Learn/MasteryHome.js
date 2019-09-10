@@ -10,6 +10,7 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import AVOMasteryGauge from './MasteryGauge';
 import AVOMasteryChart from './AVOMasteryComps/MasteryChart';
 import AVODynamicBackground from '../SharedComponents/AVODynamicBackground';
+import {getDateString} from '../HelperFunctions/Utilities';
 
 export default class MasteryHome extends Component {
 
@@ -31,14 +32,8 @@ export default class MasteryHome extends Component {
 
     componentDidMount()
     {
-        this.getTags();
         this.getClasses();
         this.getLessons();
-
-        setTimeout(() => {
-            const availableTags = [this.filterTags(null)[0]];
-            this.setState({ selectedTags : availableTags, activeTag : availableTags[0] });
-        }, 10);
     }
 
     render() {
@@ -102,7 +97,7 @@ export default class MasteryHome extends Component {
                                                 <AVOMasteryChart theme={this.props.theme} dataPoints={this.getRelevantTag().chartingData} dataLabels={this.getRelevantTag().compAtTime} height='400px'/>
                                             </Grid>
                                             <Grid item xs={4}>
-                                                <AVOMasteryGauge comprehension={this.getRelevantTag().comprehension}/>
+                                                <AVOMasteryGauge theme={this.props.theme} comprehension={this.getRelevantTag().comprehension}/>
                                             </Grid>
                                         </Grid>
                                     </Grid>
@@ -131,7 +126,6 @@ export default class MasteryHome extends Component {
     }
 
     getRelevantTag() {
-        console.log(this.state.activeTag);
         return this.state.activeTag;
     };
 
@@ -212,7 +206,7 @@ export default class MasteryHome extends Component {
                     </Grid>
                     <Grid item xs={10}>
                         <Grow in={true}>
-                            <FormControl variant="outlined">
+                            <FormControl variant="outlined" style={{ width : '92%' }}>
                                 <InputLabel htmlFor={`contextSelectionBase-${i}`}>
 
                                 </InputLabel>
@@ -324,6 +318,7 @@ export default class MasteryHome extends Component {
     };
 
     getClasses() {
+        const _this = this;
         Http.getClasses(
             result => {
                 this.setState({
@@ -333,10 +328,29 @@ export default class MasteryHome extends Component {
                 Http.getTags(
                     result.classes[0].classID,
                     res => {
-                        console.log(res, Http.getTagTimeStamps);
                         Http.getTagTimeStamps(
                             result.classes[0].classID,
-                            r => console.log(r),
+                            r => {
+                                let tags = res.tags;
+                                let timestamps = r.masteryTimestamps;
+                                let classTag = tags[0];
+                                tags.shift();
+                                tags.map((tag) => {
+                                    const relatedTimeStamp = timestamps[tag.tagID];
+                                    tag.TAG = tag.tagID;
+                                    if(tag.parent == classTag.tagID) tag.parent = null;
+                                    tag.comprehension = !!relatedTimeStamp ? parseInt(relatedTimeStamp[relatedTimeStamp.length - 1].mastery * 100) : 0;
+                                    tag.chartingData = !!relatedTimeStamp ? relatedTimeStamp.map(ts => parseInt(ts.mastery * 100)) : [];
+                                    tag.compAtTime = !!relatedTimeStamp ? relatedTimeStamp.map(ts => getDateString(new Date(ts.timestamp)).split(' at')[0]) : [];
+                                    return tag;
+                                });
+                                console.log(tags);
+                                this.setState({ tags : tags });
+                                setTimeout(() => {
+                                    const availableTags = [this.filterTags(null)[0]];
+                                    this.setState({ selectedTags : availableTags, activeTag : availableTags[0] });
+                                }, 10);
+                            },
                             e => console.log(e)
                         );
                     },

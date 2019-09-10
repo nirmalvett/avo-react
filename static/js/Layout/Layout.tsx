@@ -191,7 +191,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
             );
             // return <HomePageOld showSnackBar={this.showSnackBar} />;
         } else if (section.name === 'Learn') {
-            return <AVOLearnComponent />;
+            return <AVOLearnComponent theme={{theme: this.props.theme, color: this.color()}}/>;
         } else if (section.name === 'Manage Classes') {
             return (
                 <ManageClasses

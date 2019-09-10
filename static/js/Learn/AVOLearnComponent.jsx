@@ -15,7 +15,7 @@ export default class AVOLearnComponent extends Component {
         if(this.state.lessons.length === 0) return (<div/>);
         return (
             <Grid container xs={12} style={{flex: 1, display: 'flex', paddingBottom: 0, padding : '1em', position : 'relative', width : '98% !important'}} id="avo-learn__layout-div">
-                <AVOLessonSlider changeToNewMastery={()=>this.changeToNewMastery()} slides={this.state.lessons} updateMastery={this.updateMastery}/>
+                <AVOLessonSlider theme={this.props.theme} changeToNewMastery={()=>this.changeToNewMastery()} slides={this.state.lessons} updateMastery={this.updateMastery}/>
             </Grid>
         );
     };

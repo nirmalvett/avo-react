@@ -7,6 +7,14 @@ import * as Http from '../Http';
 
 interface AVOLessonSliderProps {
     slides: (AvoLesson & {newMastery: number})[];
+    theme: {
+        color: {
+            '100': string;
+            '200': string;
+            '500': string;
+        };
+        theme: 'light' | 'dark';
+    };
     changeToNewMastery: () => void;
     updateMastery: () => void;
 }
@@ -112,6 +120,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                                 <Icon>fullscreen</Icon>
                             </IconButton>
                             <AVOMasteryGauge
+                                theme={this.props.theme}
                                 comprehension={Math.floor(
                                     (lesson.newMastery || lesson.mastery) * 100,
                                 )}
