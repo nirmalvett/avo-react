@@ -111,7 +111,7 @@ export default class AVOLearnTestCongrat extends Component<
                     />
                     {triangles}
                     <foreignObject x={30} y={30} width={40} height={40}>
-                        <div className='avo-progression-gauge'/>
+                        <div className='avo-progression-gauge' />
                     </foreignObject>
                     <defs>
                         <style>

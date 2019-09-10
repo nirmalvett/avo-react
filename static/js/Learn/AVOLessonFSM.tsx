@@ -3,7 +3,7 @@ import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Fade from '@material-ui/core/Fade';
 import {FullscreenExit} from '@material-ui/icons';
-import {AvoLesson} from './AVOLearnTestComp';
+import {AvoLesson} from './AVOLearnComponent';
 
 interface AVOLessonFSMProps {
     changeToNewMastery: () => void;
