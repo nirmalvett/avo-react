@@ -30,6 +30,7 @@ import {
 import * as Http from '../Http';
 import {copy} from '../HelperFunctions/Utilities';
 import {FUNCTIONS, functionRegex} from './constants';
+import {CategoryCard} from './components/CategoryCard';
 
 const cardStyle: CSSProperties = {
     margin: 8,
@@ -56,6 +57,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                 suggestedFunctions: [],
                 errors: [],
             },
+            tags: [],
             ...init(questionString),
         };
 
@@ -89,6 +91,25 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
         }
     }
 
+    componentDidMount() {
+        Http.getClasses(({classes}) => this.loadTags(classes.map(x => x.classID)), console.warn);
+    }
+
+    loadTags(classIDs: number[]) {
+        if (classIDs.length === 0) {
+            return;
+        } else {
+            Http.getTags(
+                classIDs[0],
+                ({tags}) =>
+                    this.setState({tags: [...this.state.tags, ...tags]}, () =>
+                        this.loadTags(classIDs.slice(1)),
+                    ),
+                console.warn,
+            );
+        }
+    }
+
     savedString(): string {
         return this.props.sets[this.props.s].questions[this.props.q].string;
     }
@@ -111,6 +132,9 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                     preview={this.editorPreview}
                 />
                 <div style={{flex: 8, paddingTop: 10, paddingBottom: 10, overflowY: 'auto'}}>
+                    <Card style={cardStyle}>{this.renderCategoryCard()}</Card>
+                    <Divider style={dividerStyle} />
+
                     <Card style={cardStyle}>{this.renderMathCard()}</Card>
                     <Divider style={dividerStyle} />
 
@@ -172,6 +196,17 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                 </Fragment>
             );
         }
+    }
+
+    renderCategoryCard() {
+        return (
+            <CategoryCard
+                category={0}
+                setCategory={x => () => alert(x)}
+                tags={this.state.tags}
+                clickTag={console.log}
+            />
+        );
     }
 
     renderMathCard() {
