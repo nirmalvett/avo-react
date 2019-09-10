@@ -88,13 +88,13 @@ export default class LessonBuilder extends React.Component<any, any> {
                                 <div style={{display: 'flex', flexDirection: 'column'}}>
                                     {this.state.lessons.map((lesson: any) => (
                                         <Card
-                                            onClick={() =>{
-                                                console.log(lesson)
+                                            onClick={() => {
+                                                console.log(lesson);
                                                 this.setState({
                                                     selectedLesson: lesson,
                                                     editLessonText: lesson.lesson.lessonString,
-                                                })}
-                                            }
+                                                });
+                                            }}
                                             style={{margin: 25, padding: 25, cursor: 'pointer'}}
                                         >
                                             <CardContent>
@@ -143,6 +143,17 @@ export default class LessonBuilder extends React.Component<any, any> {
                             )) ||
                                 (this.state.selectedLesson && !this.state.showAdd && (
                                     <div style={{display: 'flex', flexDirection: 'column'}}>
+                                        <Button
+                                            variant='outlined'
+                                            onClick={() =>
+                                                this.deleteLesson(
+                                                    this.state.selectedLesson.lesson.LESSON,
+                                                )
+                                            }
+                                            style={{marginLeft: 'auto'}}
+                                        >
+                                            Delete
+                                        </Button>
                                         <TextField
                                             id='filled-full-width'
                                             label='Enter lesson content...'
@@ -195,7 +206,10 @@ export default class LessonBuilder extends React.Component<any, any> {
                                             Save Lesson
                                         </Button>
                                         <Button
-                                            onClick={() => this.setState({selectedLesson: null})}
+                                            onClick={() => {
+                                                this.setState({selectedLesson: null});
+                                                this.fetchLessons();
+                                            }}
                                             variant='outlined'
                                             style={{borderRadius: '2.5em'}}
                                         >
@@ -261,6 +275,7 @@ export default class LessonBuilder extends React.Component<any, any> {
                                             }}
                                         >
                                             {this.state.questions &&
+                                                this.state.selectedLesson &&
                                                 this.state.questions
                                                     .filter(
                                                         (question: any) =>
@@ -298,12 +313,13 @@ export default class LessonBuilder extends React.Component<any, any> {
                                             Add Lesson
                                         </Button>
                                         <Button
-                                            onClick={() =>
+                                            onClick={() => {
                                                 this.setState({
                                                     showAdd: false,
                                                     selectedLesson: null,
-                                                })
-                                            }
+                                                });
+                                                this.fetchLessons();
+                                            }}
                                             variant='outlined'
                                             style={{borderRadius: '2.5em'}}
                                         >
@@ -404,6 +420,12 @@ export default class LessonBuilder extends React.Component<any, any> {
             JSON.stringify(selectedLesson.questionList),
             addLessonText,
             res => {
+                this.setState({
+                    showAdd: false,
+                    selectedLesson: null,
+                    addLessonText: '',
+                });
+                this.fetchLessons();
                 console.log(res);
             },
             err => console.warn,
@@ -420,6 +442,7 @@ export default class LessonBuilder extends React.Component<any, any> {
             JSON.stringify(selectedLesson.questionList),
             this.state.editLessonText,
             res => {
+                this.fetchLessons();
                 console.log(res);
             },
             err => console.warn,
@@ -436,5 +459,33 @@ export default class LessonBuilder extends React.Component<any, any> {
             selectedLesson.lesson.questionList = questionList.concat(question);
             this.setState({selectedLesson});
         }
+    };
+
+    deleteLesson = (LESSON: number) => {
+        Http.deleteLesson(
+            LESSON,
+            res => {
+                console.log(res);
+                this.fetchLessons();
+            },
+            err => console.warn,
+        );
+    };
+
+    fetchLessons = () => {
+        const {selectedClassName, classes} = this.state;
+        const selectedClass = classes.find((c: Class) => c.name === selectedClassName);
+        Http.getLessonsToEdit(
+            selectedClass.classID,
+            (res: any) => {
+                console.log(res);
+                res.lessons.forEach((lesson: any, i: number) => {
+                    res.lessons[i].lesson.questionList = JSON.parse(lesson.lesson.questionList);
+                });
+                console.log(res.lessons);
+                this.setState({lessons: res.lessons, selectedLesson: null});
+            },
+            err => console.warn,
+        );
     };
 }
