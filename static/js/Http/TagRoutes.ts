@@ -39,7 +39,18 @@ export function deleteTag(tagID: number, success: cb<{}>, failure: cb) {
 export function getLessonsToEdit(class_id: number, success: cb<{}>, failure: cb) {
     _request('POST', '/getLessonsToEdit', success, failure, {class_id});
 }
-
+export function editLesson(lesson_id:number, class_id: number, tag_id: number, question_list: string, lesson_string: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/editLesson', success, failure, {lesson_id, class_id, tag_id, question_list, lesson_string});
+}
+export function addLesson(class_id: number, tag_id: number, question_list: string, lesson_string: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/addLesson', success, failure, {class_id, tag_id, question_list, lesson_string});
+}
+export function deleteLesson(lesson_id:number, success: cb<{}>, failure: cb) {
+    _request('POST', '/deleteLesson', success, failure, {lesson_id});
+}
+export function getQuestionsForLessons(tag_ids:Array<number>, success: cb<{}>, failure: cb) {
+    _request('POST', '/getQuestionsForLessons', success, failure, {tag_ids});
+}
 export interface TagMastery {
     mastery: {
         ID: number;

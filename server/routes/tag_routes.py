@@ -12,6 +12,18 @@ import json
 
 TagRoutes = Blueprint('TagRoutes', __name__)
 
+@TagRoutes.route('/getQuestionsForLessons', methods=['POST'])
+@teacher_only
+@validate(tag_ids=list)
+def get_questions_for_lessons(tag_ids: list):
+    questions = []
+    for tag_id in tag_ids:
+        tag_questions = TagQuestion.query.join(Question).join(Tag).all()
+        tag_questions = list(filter(lambda tag: tag.TAG_RELATION.TAG == tag_id, tag_questions))
+        tag_questions = list(map(lambda  question: {'QUESTION': question.QUESTION, 'name': question.QUESTION_RELATION.name, 'TAG': tag_id}, tag_questions))
+        questions.extend(tag_questions)
+    return jsonify(questions=questions)
+
 
 @TagRoutes.route('/getLessonsToEdit', methods=['POST'])
 @teacher_only
@@ -60,7 +72,7 @@ def add_lesson(class_id: int, tag_id: int, question_list: str, lesson_string: st
 
 @TagRoutes.route('/editLesson', methods=['POST'])
 @teacher_only
-@validate(lesson_id=int, tag_id=int, question_list=str, lesson_string=str)
+@validate(lesson_id=int, class_id=int, tag_id=int, question_list=str, lesson_string=str)
 def edit_lesson(lesson_id:int, class_id: int, tag_id: int, question_list: str, lesson_string: str):
     lesson = Lesson.query.filter(Lesson.LESSON == lesson_id).first()
     lesson.TAG = tag_id

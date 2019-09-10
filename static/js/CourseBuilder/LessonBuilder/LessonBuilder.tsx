@@ -1,8 +1,18 @@
 import React, {Component, Fragment} from 'react';
-import {TextField, Button, Select, MenuItem, Input, Card, CardContent} from '@material-ui/core';
+import {
+    TextField,
+    Button,
+    Select,
+    MenuItem,
+    Input,
+    Card,
+    CardContent,
+    CardActions,
+    Typography,
+} from '@material-ui/core';
 import {Class} from '../../Models';
 import * as Http from '../../Http';
-
+import * as utils from '../../HelperFunctions/Utilities';
 interface LessonBuilderProps {}
 interface LessonBuilderState {}
 export default class LessonBuilder extends React.Component<any, any> {
@@ -14,6 +24,13 @@ export default class LessonBuilder extends React.Component<any, any> {
             classes: [],
             selectedClass: {} as Class,
             loadingClasses: true,
+            selectedLesson: null,
+            lessons: null,
+            showAdd: false,
+            tags: null,
+            selectedTag: null,
+            questions: [],
+            addLessonText: '',
         };
     }
     componentDidMount() {
@@ -30,8 +47,10 @@ export default class LessonBuilder extends React.Component<any, any> {
                     margin: 25,
                 }}
             >
-                {this.state.loadingClasses && <div className='avo-loading-icon'></div>}
-                {!this.state.loadingClasses && (
+                {this.state.loadingClasses && !this.state.lessons && (
+                    <div className='avo-loading-icon'></div>
+                )}
+                {!this.state.loadingClasses && this.state.lessons && (
                     <Card
                         style={{
                             width: '100%',
@@ -40,11 +59,11 @@ export default class LessonBuilder extends React.Component<any, any> {
                             flex: 1,
                             display: 'flex',
                             flexDirection: 'column',
-                            overflow: 'hidden',
+                            overflow: 'auto',
                         }}
                     >
                         <CardContent>
-                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap'}}>
                                 <div style={{marginLeft: 'auto', padding: 15}}>
                                     <Select
                                         value={this.state.selectedClassName}
@@ -64,26 +83,236 @@ export default class LessonBuilder extends React.Component<any, any> {
                                     </Select>
                                 </div>
                             </div>
-                            <div style={{display: 'flex', flexDirection: 'column'}}>
-                                <TextField
-                                    id='filled-full-width'
-                                    label='Enter lesson content...'
-                                    style={{margin: 8}}
-                                    fullWidth
-                                    margin='normal'
-                                    variant='filled'
-                                    multiline={true}
-                                    InputLabelProps={{
-                                        shrink: true,
-                                    }}
-                                    inputProps={{
-                                        style: {
-                                            height: 500,
-                                        },
-                                    }}
-                                />
-                            </div>
+                            {(!this.state.selectedLesson && !this.state.showAdd && (
+                                <div style={{display: 'flex', flexDirection: 'column'}}>
+                                    {this.state.lessons.map((lesson: any) => (
+                                        <Card
+                                            onClick={() => this.setState({selectedLesson: lesson})}
+                                            style={{margin: 25, padding: 25, cursor: 'pointer'}}
+                                        >
+                                            <CardContent>
+                                                {utils.getMathJax(lesson.lesson.lessonString)}
+                                            </CardContent>
+                                            <CardActions>
+                                                {lesson.questions
+                                                    .filter((q: any) =>
+                                                        lesson.lesson.questionList.find(
+                                                            (q2: any) => q2 === q.QUESTION,
+                                                        ),
+                                                    )
+                                                    .map((question: any) => (
+                                                        <Button
+                                                            disabled
+                                                            variant='outlined'
+                                                            style={{borderRadius: '2.5em'}}
+                                                        >
+                                                            {question.name}
+                                                        </Button>
+                                                    ))}
+                                            </CardActions>
+                                        </Card>
+                                    ))}
+                                </div>
+                            )) ||
+                                (this.state.selectedLesson && !this.state.showAdd && (
+                                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                                        <TextField
+                                            id='filled-full-width'
+                                            label='Enter lesson content...'
+                                            fullWidth
+                                            margin='normal'
+                                            variant='filled'
+                                            multiline={true}
+                                            InputLabelProps={{
+                                                shrink: true,
+                                            }}
+                                            value={this.state.selectedLesson.lesson.lessonString}
+                                            onChange={(e: any) => {
+                                                const {selectedLesson} = this.state;
+                                                selectedLesson.lesson.lessonString = e.target.value;
+                                                this.setState(selectedLesson);
+                                            }}
+                                            rows={20}
+                                        />
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                flexWrap: 'wrap',
+                                            }}
+                                        >
+                                            {this.state.selectedLesson.questions.map(
+                                                (question: any) => (
+                                                    <Button
+                                                        onClick={() =>
+                                                            this.toggleQuestion(question.QUESTION)
+                                                        }
+                                                        variant={
+                                                            this.state.selectedLesson.lesson.questionList.find(
+                                                                (q: number) =>
+                                                                    question.QUESTION === q,
+                                                            )
+                                                                ? 'contained'
+                                                                : 'outlined'
+                                                        }
+                                                        style={{borderRadius: '2.5em'}}
+                                                    >
+                                                        {question.name}
+                                                    </Button>
+                                                ),
+                                            )}
+                                        </div>
+                                        <Button
+                                            onClick={this.saveLesson}
+                                            variant='outlined'
+                                            style={{borderRadius: '2.5em'}}
+                                        >
+                                            Save Lesson
+                                        </Button>
+                                        <Button
+                                            onClick={() => this.setState({selectedLesson: null})}
+                                            variant='outlined'
+                                            style={{borderRadius: '2.5em'}}
+                                        >
+                                            Go back
+                                        </Button>
+                                    </div>
+                                )) || (
+                                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                                        <TextField
+                                            id='filled-full-width'
+                                            label='Enter lesson content...'
+                                            fullWidth
+                                            margin='normal'
+                                            variant='filled'
+                                            multiline={true}
+                                            InputLabelProps={{
+                                                shrink: true,
+                                            }}
+                                            value={this.state.addLessonText}
+                                            onChange={(e: any) =>
+                                                this.setState({addLessonText: e.target.value})
+                                            }
+                                            rows={20}
+                                        />
+                                        <br />
+                                        <Typography>Concepts (select 1)</Typography>
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                flexWrap: 'wrap',
+                                            }}
+                                        >
+                                            {this.state.tags &&
+                                                this.state.tags.map((tag: any) => (
+                                                    <Button
+                                                        onClick={() => {
+                                                            console.log(tag);
+                                                            this.setState({selectedTag: tag});
+                                                        }}
+                                                        variant={
+                                                            this.state.selectedTag &&
+                                                            this.state.selectedTag.tagID ===
+                                                                tag.tagID
+                                                                ? 'contained'
+                                                                : 'outlined'
+                                                        }
+                                                        style={{borderRadius: '2.5em'}}
+                                                    >
+                                                        {tag.tagName}
+                                                    </Button>
+                                                ))}
+                                        </div>
+                                        <br />
+                                        <Typography>
+                                            Questions (select as many as you want)
+                                        </Typography>
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                flexWrap: 'wrap',
+                                            }}
+                                        >
+                                            {this.state.questions &&
+                                                this.state.questions
+                                                    .filter(
+                                                        (question: any) =>
+                                                            question.TAG ===
+                                                            this.state.selectedTag.tagID,
+                                                    )
+                                                    .map((question: any) => (
+                                                        <Button
+                                                            onClick={() =>
+                                                                this.toggleQuestion(
+                                                                    question.QUESTION,
+                                                                )
+                                                            }
+                                                            variant={
+                                                                this.state.selectedLesson.lesson.questionList.find(
+                                                                    (q: number) =>
+                                                                        question.QUESTION === q,
+                                                                )
+                                                                    ? 'contained'
+                                                                    : 'outlined'
+                                                            }
+                                                            style={{borderRadius: '2.5em'}}
+                                                        >
+                                                            {question.name}
+                                                        </Button>
+                                                    ))}
+                                        </div>
+                                        <br />
+
+                                        <Button
+                                            onClick={this.addLesson}
+                                            variant='outlined'
+                                            style={{borderRadius: '2.5em'}}
+                                        >
+                                            Add Lesson
+                                        </Button>
+                                        <Button
+                                            onClick={() =>
+                                                this.setState({
+                                                    selectedLesson: null,
+                                                    showAdd: false,
+                                                })
+                                            }
+                                            variant='outlined'
+                                            style={{borderRadius: '2.5em'}}
+                                        >
+                                            Go back
+                                        </Button>
+                                    </div>
+                                )}
                         </CardContent>
+                        <CardActions style={{clear: 'both'}}>
+                            {!this.state.showAdd && (
+                                <div style={{float: 'right'}}>
+                                    <Button
+                                        onClick={() => {
+                                            this.setState({showAdd: true});
+                                            const blankLesson = {
+                                                lesson: {
+                                                    CLASS: this.state.selectedClass.classID,
+                                                    LESSON: null,
+                                                    TAG: null,
+                                                    lessonString: '',
+                                                    questionList: [],
+                                                },
+                                                questions: [],
+                                            };
+                                            this.setState({selectedLesson: blankLesson});
+                                        }}
+                                        variant='outlined'
+                                        style={{borderRadius: '2.5em'}}
+                                    >
+                                        Add Lesson
+                                    </Button>
+                                </div>
+                            )}
+                        </CardActions>
                     </Card>
                 )}
             </div>
@@ -119,15 +348,94 @@ export default class LessonBuilder extends React.Component<any, any> {
         if (selectedClassName !== 'Select class...') {
             const selectedClass = classes.find((c: Class) => c.name === selectedClassName);
             if (selectedClass) {
-                this.setState({selectedClass});
-                console.log(selectedClass)
-                Http.getLessonsToEdit(
-                    selectedClass.classID, 
-                    res => {
-                        console.log(res)
-                    }, 
-                err => console.warn);
+                this.setState(
+                    {selectedClass, selectedLesson: null, lessons: null, showAdd: false},
+                    () => {
+                        console.log(selectedClass);
+                        Http.getLessonsToEdit(
+                            selectedClass.classID,
+                            (res: any) => {
+                                console.log(res);
+                                res.lessons.forEach((lesson: any, i: number) => {
+                                    res.lessons[i].lesson.questionList = JSON.parse(
+                                        lesson.lesson.questionList,
+                                    );
+                                });
+                                console.log(res.lessons);
+                                this.setState({lessons: res.lessons});
+                            },
+                            err => console.warn,
+                        );
+                        Http.getTags(
+                            selectedClass.classID,
+                            (res: any) => {
+                                console.log(res);
+                                res.tags = res.tags.filter(
+                                    (tag: any) => tag.tagName !== selectedClass.name,
+                                );
+                                if (res.tags.length > 0) {
+                                    this.setState({selectedTag: res.tags[0]});
+                                }
+                                this.setState({tags: res.tags});
+                                Http.getQuestionsForLessons(
+                                    res.tags.map((tag: any) => tag.tagID),
+                                    (res: any) => {
+                                        console.log(res);
+                                        this.setState({questions: res.questions});
+                                    },
+                                    err => console.warn,
+                                );
+                            },
+                            err => console.warn,
+                        );
+                    },
+                );
             }
+        }
+    };
+
+    addLesson = () => {
+        const {selectedTag, addLessonText} = this.state;
+        const selectedLesson = this.state.selectedLesson.lesson;
+        console.log(selectedLesson);
+        console.log(selectedTag);
+        Http.addLesson(
+            selectedLesson.CLASS,
+            selectedTag.tagID,
+            JSON.stringify(selectedLesson.questionList),
+            addLessonText,
+            res => {
+                console.log(res);
+            },
+            err => console.warn,
+        );
+    };
+
+    saveLesson = () => {
+        console.log(this.state.selectedLesson);
+        const selectedLesson = this.state.selectedLesson.lesson;
+        Http.editLesson(
+            selectedLesson.LESSON,
+            selectedLesson.CLASS,
+            selectedLesson.TAG,
+            JSON.stringify(selectedLesson.questionList),
+            selectedLesson.lessonString,
+            res => {
+                console.log(res);
+            },
+            err => console.warn,
+        );
+    };
+
+    toggleQuestion = (question: number) => {
+        const selectedLesson = this.state.selectedLesson;
+        const {questionList} = selectedLesson.lesson;
+        if (questionList.find((q: number) => q === question)) {
+            selectedLesson.lesson.questionList = questionList.filter((q: number) => q !== question);
+            this.setState({selectedLesson});
+        } else {
+            selectedLesson.lesson.questionList = questionList.concat(question);
+            this.setState({selectedLesson});
         }
     };
 }
