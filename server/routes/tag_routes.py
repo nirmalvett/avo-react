@@ -159,7 +159,8 @@ def get_lessons():
     classes = []
     classes.extend(teacher_classes)
     classes.extend(enrolled_classes)
-    classes = list(map(lambda c: c.CLASS, classes))
+    classes = list(dict.fromkeys(list(map(lambda c: c.CLASS, classes))))
+    
     lesson_list = Lesson.query.join(Class).all()
     lesson_list = list(filter(lambda lesson: lesson.CLASS in classes, lesson_list))
     tag_list = []
@@ -168,14 +169,12 @@ def get_lessons():
         for lesson in lesson_list:
             if lesson.TAG == tag.TAG:
                 tag_list.append(tag)
-    print(tag_list)
     all_mastery = TagUser.query.all()
     mastery_list = []
     for mastery in all_mastery:
         for tag in tag_list:
             if tag.TAG == mastery.TAG:
                 mastery_list.append(mastery)
-    print(mastery_list)
     lessons = []
     for lesson in lesson_list:
         for i in range(len(tag_list)):
@@ -184,7 +183,6 @@ def get_lessons():
                     if tag_list[i].TAG == mastery_list[j].TAG:
                         lessons.append({"ID": lesson.LESSON, "Tag": tag_list[i].tagName,
                                         "mastery": mastery_list[j].mastery, "string": lesson.lesson_string})
-    print(lessons)
     return jsonify(lessons=lessons)
 
 

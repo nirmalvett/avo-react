@@ -112,66 +112,73 @@ def create_class(name: str):
 @ClassRoutes.route('/home', methods=['POST'])
 @login_required
 def home():
-    # get list of due dates objects
+    messages = Message.query.join(Class).all()
+    teacher_classes = Class.query.filter(current_user.USER == Class.USER).all()
+    enrolled_classes = Transaction.query.join(Class).filter(current_user.USER == Transaction.USER).all()
 
-    due_dates = []  # Result of the due date SQL calls
+    classes = []
+    classes.extend(teacher_classes)
+    classes.extend(enrolled_classes)
+    classes = list(map(lambda c: c.CLASS, classes))
+    return_messages = []
+    return_due_dates = []
+  
+    for c in teacher_classes:
+        class_messages = list(filter(lambda message: message.CLASS == c.CLASS, messages))
+        class_messages = list(map(lambda message: {'title': message.title, 'body': message.body,
+                                        'date': timestamp(message.date_created)}, class_messages))
+        return_class = {
+                'id': c.CLASS,
+                'name': c.name
+            }
+        return_messages.append({
+            'class': return_class,
+            'messages': class_messages
+        })
 
-    due_dates += db.session.execute(text(student_due_dates),
-                                    params={'user': current_user.USER}).fetchall()
+        tests = Test.query.filter(c.CLASS == Test.CLASS).all()
+        tests = list(filter(lambda test: test.is_open == 1, tests))
+        due_dates = list(map(lambda due_date: {'name': due_date.name, 'dueDate': timestamp(due_date.deadline),
+                                        'id': due_date.TEST}, tests))
+        return_class = {
+                'id': c.CLASS,
+                'name': c.name
+            }
+        return_due_dates.append({
+            'class': return_class,
+            'dueDates': due_dates
+        })
 
-    if current_user.is_teacher:
-        # If the user is a teacher run a teacher due dates SQL call
-        due_dates += db.session.execute(text(teacher_due_dates),
-                                        params={'user': current_user.USER}).fetchall()
+        
+    for c in enrolled_classes:
+        exists = [message for message in return_messages if message['class']['id'] == c.CLASS]
+        if not exists:
+            class_messages = list(filter(lambda message: message.CLASS == c.CLASS, messages))
+            class_messages = list(map(lambda message: {'title': message.title, 'body': message.body,
+                                            'date': timestamp(message.date_created)}, class_messages))
+            return_class = {
+                    'id': c.CLASS,
+                    'name': c.CLASS_RELATION.name
+                }
+            return_messages.append({
+                'class': return_class,
+                'messages': class_messages
+            })
 
-    return_due_dates = []  # Return data for due dates
-    current_list_due_dates = []  # Due dates of current indexed class
-    if len(due_dates) > 0:
-        current_class_data = {"name": due_dates[0].name, "id": due_dates[0].CLASS}
-        current_class = due_dates[0].CLASS  # Current class of indexed due dates
+            tests = Test.query.filter(c.CLASS == Test.CLASS).all()
+            tests = list(filter(lambda test: test.is_open == 1, tests))
+            due_dates = list(map(lambda due_date: {'name': due_date.name, 'dueDate': timestamp(due_date.deadline),
+                                            'id': due_date.TEST}, tests))
+            return_class = {
+                    'id': c.CLASS,
+                    'name': c.CLASS_RELATION.name
+                }
+            return_due_dates.append({
+                'class': return_class,
+                'dueDates': due_dates
+            })
 
-        for due_date in due_dates:
-            # For each due date index to list
-            if current_class != due_date.CLASS:
-                # If the its a new class then move the messages in
-                return_due_dates.append({"class": current_class_data, "dueDates": current_list_due_dates})
-                current_class_data = {"name": due_date.name, "id": due_date.CLASS}
-                current_list_due_dates = []
-                current_class = due_date.CLASS
-
-            current_list_due_dates.append({'name': due_date.name, 'dueDate': timestamp(due_date.deadline),
-                                        'id': due_date.TEST})
-        return_due_dates.append({"class": current_class_data, "dueDates": current_list_due_dates})
-
-    messages = []  # Messages returned by the SQL query
-
-    messages += db.session.execute(text(student_messages),
-                                   params={'user': current_user.USER}).fetchall()
-
-    if current_user.is_teacher:
-        # If the current user is a teacher add the teacher result
-        messages += db.session.execute(text(teacher_messages),
-                                       params={'user': current_user.USER}).fetchall()
-    # Get list of messages
-    return_messages = []  # Messages to return to the client
-    current_list_messages = []  # Current messages from the class
-    if len(messages) > 0:
-        current_class_data = {"name": messages[0].name, "id": messages[0].CLASS}
-        current_class = messages[0].CLASS  # Current class info
-
-        for message in messages:
-            # For each message result add it to the JSON
-            if current_class != message.CLASS:
-                # If the its a new class then move the messages in
-                return_messages.append({"class": current_class_data, "messages": current_list_messages})
-                current_class_data = {"name": message.name, "id": message.CLASS}
-                current_list_messages = []
-                current_class = message.CLASS
-
-            current_list_messages.append({'title': message.title, 'body': message.body,
-                                        'date': timestamp(message.date_created)})
-        return_messages.append({"class": current_class_data, "messages": current_list_messages})
-
+    
     return jsonify(messages=return_messages, dueDates=return_due_dates)
 
 
