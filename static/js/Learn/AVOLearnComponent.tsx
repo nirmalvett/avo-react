@@ -12,7 +12,14 @@ export interface AvoLesson {
 }
 
 interface AVOLearnComponentProps {
-    theme: never;
+    theme: {
+        theme: 'light' | 'dark';
+        color: {
+            '100': string;
+            '200': string;
+            '500': string;
+        };
+    };
 }
 
 interface AVOLearnComponentState {
