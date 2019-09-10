@@ -119,66 +119,37 @@ def home():
     classes = []
     classes.extend(teacher_classes)
     classes.extend(enrolled_classes)
-    classes = list(map(lambda c: c.CLASS, classes))
+    # classes = list(map(lambda c: c.CLASS, classes))
     return_messages = []
     return_due_dates = []
   
-    for c in teacher_classes:
-        class_messages = list(filter(lambda message: message.CLASS == c.CLASS, messages))
-        class_messages = list(map(lambda message: {'title': message.title, 'body': message.body,
-                                        'date': timestamp(message.date_created)}, class_messages))
+    for c in classes:
         return_class = {
                 'id': c.CLASS,
-                'name': c.name
+                'name': c.name if isinstance(c, Class) else c.CLASS_RELATION.name,
             }
-        return_messages.append({
-            'class': return_class,
-            'messages': class_messages
-        })
-
-        tests = Test.query.filter(c.CLASS == Test.CLASS).all()
-        tests = list(filter(lambda test: test.is_open == 1, tests))
-        due_dates = list(map(lambda due_date: {'name': due_date.name, 'dueDate': timestamp(due_date.deadline),
-                                        'id': due_date.TEST}, tests))
-        return_class = {
-                'id': c.CLASS,
-                'name': c.name
-            }
-        return_due_dates.append({
-            'class': return_class,
-            'dueDates': due_dates
-        })
-
-        
-    for c in enrolled_classes:
         exists = [message for message in return_messages if message['class']['id'] == c.CLASS]
         if not exists:
             class_messages = list(filter(lambda message: message.CLASS == c.CLASS, messages))
             class_messages = list(map(lambda message: {'title': message.title, 'body': message.body,
                                             'date': timestamp(message.date_created)}, class_messages))
-            return_class = {
-                    'id': c.CLASS,
-                    'name': c.CLASS_RELATION.name
-                }
             return_messages.append({
                 'class': return_class,
-                'messages': class_messages
+                'messages': class_messages,
             })
 
+
+        exists = [due_date for due_date in return_due_dates if due_date['class']['id'] == c.CLASS]
+        if not exists:
             tests = Test.query.filter(c.CLASS == Test.CLASS).all()
             tests = list(filter(lambda test: test.is_open == 1, tests))
             due_dates = list(map(lambda due_date: {'name': due_date.name, 'dueDate': timestamp(due_date.deadline),
                                             'id': due_date.TEST}, tests))
-            return_class = {
-                    'id': c.CLASS,
-                    'name': c.CLASS_RELATION.name
-                }
             return_due_dates.append({
                 'class': return_class,
-                'dueDates': due_dates
+                'dueDates': due_dates,
             })
-
-    
+        
     return jsonify(messages=return_messages, dueDates=return_due_dates)
 
 
