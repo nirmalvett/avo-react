@@ -304,7 +304,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
 
     messageHideEdit(message: Notification, i: number) {
         return (
-            <div key={JSON.stringify(message) + i + 'hideEdit'}>
+            <div style={{cursor: 'pointer'}} key={JSON.stringify(message) + i + 'hideEdit'}>
                 <div
                     onClick={() => {
                         const messageIndex = this.state.messages.findIndex(

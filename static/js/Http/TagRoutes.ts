@@ -36,6 +36,10 @@ export function deleteTag(tagID: number, success: cb<{}>, failure: cb) {
     _request('POST', '/deleteTag', success, failure, {tagID});
 }
 
+export function getLessonsToEdit(class_id: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/getLessonsToEdit', success, failure, {class_id});
+}
+
 export interface TagMastery {
     mastery: {
         ID: number;

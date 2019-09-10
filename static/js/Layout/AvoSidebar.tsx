@@ -129,6 +129,7 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                         sets: [],
                     })}
                     {this.listItem(HelpOutline, {name: 'Documentation'})}
+                    {this.listItem(BuildOutlined, {name: 'Lesson Builder'})}
                     {this.listItem(BuildOutlined, {name: 'Concept Builder'})}
                     {this.listItem(AssignmentReturnedOutlined, {name: 'Export Tools'})}
                 </List>

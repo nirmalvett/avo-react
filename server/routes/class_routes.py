@@ -119,7 +119,6 @@ def home():
     classes = []
     classes.extend(teacher_classes)
     classes.extend(enrolled_classes)
-    # classes = list(map(lambda c: c.CLASS, classes))
     return_messages = []
     return_due_dates = []
   

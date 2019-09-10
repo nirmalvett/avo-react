@@ -4,17 +4,110 @@ from flask_login import current_user
 from server.MathCode.question import AvoQuestion
 from random import randint
 from server.decorators import login_required, teacher_only, validate
-from server.models import db, Question, Tag, TagUser, Lesson, TagQuestion, TagClass, Class, Transaction, \
-    TransactionProcessing, Test
+from server.models import db, Question, Tag, TagUser, Lesson, TagQuestion, TagClass, Class, Transaction
 from server.helpers import get_tree
 from datetime import datetime
 from math import log
+import json
 
 TagRoutes = Blueprint('TagRoutes', __name__)
 
 
-@TagRoutes.route('/getTags', methods=['POST'])
+@TagRoutes.route('/getLessonsToEdit', methods=['POST'])
+# @teacher_only
+@validate(class_id=int)
+def get_lessons_to_edit(class_id: int):
+    lessons = Lesson.query.join(Class).filter(Lesson.CLASS == class_id).all()
+    lessons = list(filter(lambda lesson: lesson.CLASS_RELATION.USER == current_user.USER, lessons))
+    tag_question_map = {}
+    tag_questions = TagQuestion.query.join(Question).join(Tag).all()
+
+    lessons_ret = []
+    for lesson in lessons:
+        questions = list(filter(lambda tag: tag.TAG == lesson.TAG, tag_questions))
+        questions = list(map(lambda  question: {'QUESTION': question.QUESTION, 'name': question.QUESTION_RELATION.name}, questions))
+        lessons_ret.append({
+            'lesson': {
+                'LESSON': lesson.LESSON,
+                'CLASS': lesson.CLASS,
+                'TAG': lesson.TAG,
+                'lessonString': lesson.lesson_string,
+                'questionList': lesson.question_list,
+            },
+            'questions': questions,
+        })
+    return jsonify(lessons=lessons_ret)
+
+
+@TagRoutes.route('/addLesson', methods=['POST'])
 @teacher_only
+@validate(class_id=int, tag_id=int, question_list=str, lesson_string=str)
+def add_lesson(class_id: int, tag_id: int, question_list: str, lesson_string: str):
+    lesson = Lesson(class_id, tag_id, lesson_string, question_list)
+    db.session.add(lesson)
+    db.session.flush()
+    db.session.commit()
+    question_list = json.loads(question_list)
+    question_list = list(map(lambda question: {'QUESTION': question}, question_list))
+    return jsonify({
+        'lesson': {
+            'LESSON': lesson.LESSON,
+            'CLASS': class_id,
+            'TAG': tag_id,
+            'lessonString': lesson_string,
+            'questionList': question_list,
+        }
+    })
+
+
+@TagRoutes.route('/editLesson', methods=['POST'])
+@teacher_only
+@validate(lesson_id=int, tag_id=int, question_list=str, lesson_string=str)
+def edit_lesson(lesson_id:int, class_id: int, tag_id: int, question_list: str, lesson_string: str):
+    lesson = Lesson.query.filter(Lesson.LESSON == lesson_id).first()
+    lesson.TAG = tag_id
+    lesson.question_list = question_list
+    lesson.lesson_string = lesson_string
+    db.session.add(lesson)
+    db.session.commit()
+    question_list = json.loads(question_list)
+    question_list = list(map(lambda question: {'QUESTION': question}, question_list))
+    return jsonify({
+        'lesson': {
+            'LESSON': lesson.LESSON,
+            'CLASS': class_id,
+            'TAG': tag_id,
+            'lessonString': lesson_string,
+            'questionList': question_list,
+        }
+    })
+
+
+@TagRoutes.route('/deleteLesson', methods=['POST'])
+@teacher_only
+@validate(lesson_id=int)
+def delete_lesson(lesson_id:int):
+    lesson = Lesson.query.filter(Lesson.LESSON == lesson_id).first()
+    class_id = lesson.CLASS
+    tag_id = lesson.TAG
+    lesson_string = lesson.lesson_string
+    question_list = lesson.question_list
+    db.session.delete(lesson)
+    db.session.commit()
+    question_list = json.loads(question_list)
+    question_list = list(map(lambda question: {'QUESTION': question}, question_list))
+    return jsonify({
+        'lesson': {
+            'LESSON': lesson.LESSON,
+            'CLASS': class_id,
+            'TAG': tag_id,
+            'lessonString': lesson_string,
+            'questionList': question_list,
+        }
+    })
+
+
+@TagRoutes.route('/getTags', methods=['POST'])
 @validate(class_id=int)
 def get_tags(class_id: int):
     """
@@ -160,7 +253,7 @@ def get_lessons():
     classes.extend(teacher_classes)
     classes.extend(enrolled_classes)
     classes = list(dict.fromkeys(list(map(lambda c: c.CLASS, classes))))
-    
+
     lesson_list = Lesson.query.join(Class).all()
     lesson_list = list(filter(lambda lesson: lesson.CLASS in classes, lesson_list))
     tag_list = []
