@@ -112,6 +112,26 @@ export default class LessonBuilder extends React.Component<any, any> {
                                             </CardActions>
                                         </Card>
                                     ))}
+                                    <Button
+                                        onClick={() => {
+                                            this.setState({showAdd: true});
+                                            const blankLesson = {
+                                                lesson: {
+                                                    CLASS: this.state.selectedClass.classID,
+                                                    LESSON: null,
+                                                    TAG: null,
+                                                    lessonString: '',
+                                                    questionList: [],
+                                                },
+                                                questions: [],
+                                            };
+                                            this.setState({selectedLesson: blankLesson});
+                                        }}
+                                        variant='outlined'
+                                        style={{borderRadius: '2.5em'}}
+                                    >
+                                        Add Lesson
+                                    </Button>
                                 </div>
                             )) ||
                                 (this.state.selectedLesson && !this.state.showAdd && (
@@ -287,32 +307,6 @@ export default class LessonBuilder extends React.Component<any, any> {
                                     </div>
                                 )}
                         </CardContent>
-                        <CardActions style={{clear: 'both'}}>
-                            {!this.state.showAdd && (
-                                <div style={{float: 'right'}}>
-                                    <Button
-                                        onClick={() => {
-                                            this.setState({showAdd: true});
-                                            const blankLesson = {
-                                                lesson: {
-                                                    CLASS: this.state.selectedClass.classID,
-                                                    LESSON: null,
-                                                    TAG: null,
-                                                    lessonString: '',
-                                                    questionList: [],
-                                                },
-                                                questions: [],
-                                            };
-                                            this.setState({selectedLesson: blankLesson});
-                                        }}
-                                        variant='outlined'
-                                        style={{borderRadius: '2.5em'}}
-                                    >
-                                        Add Lesson
-                                    </Button>
-                                </div>
-                            )}
-                        </CardActions>
                     </Card>
                 )}
             </div>
