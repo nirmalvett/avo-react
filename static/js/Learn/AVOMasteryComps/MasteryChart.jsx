@@ -85,15 +85,15 @@ export default function AVOMasteryChart(props) {
                 />
             </foreignObject>
         );
-        yAxisTooltip.push(<line id={`line@${maxStep * (index + 1)}-${dataPoint}`} style={{opacity: '0', transition: 'opacity 0.1s ease-in-out'}} strokeWidth='0.5' stroke='#fafafa' x1={maxStep * (index + 1)} x2={maxStep * (index + 1)} y1='0' y2='100'/>);
+        yAxisTooltip.push(<line id={`line@${maxStep * (index + 1)}-${dataPoint}`} style={{opacity: '0', transition: 'opacity 0.1s ease-in-out'}} strokeWidth='0.5' stroke={props.theme.theme === 'dark' ? 'rgb(48, 48, 48)' : '#fafafa'} x1={maxStep * (index + 1)} x2={maxStep * (index + 1)} y1='0' y2='100'/>);
         {/*xAxisLabels .push(<foreignObject x={`${maxStep * (index + 1) - (maxStep / 2)}`} y="110" width="40" height="20"><center className='avo-linechart-text'>{props.dataLabels[index]}</center></foreignObject>);*/}
-        circles     .push(<circle r='1.5' cx={maxStep * (index + 1)} cy={100 - dataPoint} style={{transition : 'cy 1s ease-in-out, cx 1s ease-in-out'}} fill='#399103'/>);
+        circles     .push(<circle r='1.5' cx={maxStep * (index + 1)} cy={100 - dataPoint} style={{transition : 'cy 1s ease-in-out, cx 1s ease-in-out'}} fill={props.theme.color[500]}/>);
     }
     const backLineArr = [];
     const yAxisLabels = [];
     for(let i = 0; i < 11; i++)
     {
-        backLineArr.push(<line x1="15" y1={`${i * 10}`} x2="225" y2={`${i * 10}`} strokeWidth='0.5' stroke='#fafafa'/>);
+        backLineArr.push(<line x1="15" y1={`${i * 10}`} x2="225" y2={`${i * 10}`} strokeWidth='0.5' stroke={props.theme.theme === 'dark' ? 'rgb(48, 48, 48)' : '#fafafa'}/>);
         yAxisLabels.push(<foreignObject y={`${(i * 10) - 3}`} x="0" width="30" height="20"><div className='avo-linechart-text'>{100 - (i * 10)}</div></foreignObject>);
     }
     return (
@@ -101,13 +101,19 @@ export default function AVOMasteryChart(props) {
             <svg width="100%" height={props.height} viewBox="0 -10 225 150">
                 {backLineArr}
                 {yAxisLabels}
-                <path className='avo-svg-line-chart ' d={svgPath(points, bezierCommand)} stroke="#399103" strokeWidth='1.25' strokeLinecap='round' fill="transparent"/>
+                <path className='avo-svg-line-chart ' d={svgPath(points, bezierCommand)} stroke={props.theme.color[500]} strokeWidth='1.25' strokeLinecap='round' fill="transparent"/>
                 {xAxisLabels}
                 {yAxisTooltip}
                 {params}
                 {circles}
             </svg>
-            <div id='avo-line-chart-tooltip'>
+            <div 
+                id='avo-line-chart-tooltip' 
+                style={{ 
+                    background : props.theme.theme === 'dark' ? 'rgb(48, 48, 48)' : '#fff', 
+                    border : `1px solid ${props.theme.color[500]}` 
+                }}
+            >
 
             </div>
         </div>

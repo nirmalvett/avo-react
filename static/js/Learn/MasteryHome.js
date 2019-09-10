@@ -71,37 +71,32 @@ export default class MasteryHome extends Component {
                                         </Grid>
                                     </Grid>
                                     <Grid item xs={12}>
-                                        <Grid container spacing={8}>
-                                            <Grid item xs={2}>
-                                                <FormControl variant="outlined" style={{ width : '100%' }}>
-                                                    <InputLabel htmlFor="classSelectionBase">
-                                                    </InputLabel>
-                                                    <Select
-                                                        className='avo-select'
-                                                        native
-                                                        onChange={(event) => {}}
-                                                        input={
-                                                            <OutlinedInput 
-                                                                id="classSelectionBase"
-                                                            />
-                                                        }
-                                                    >
-                                                        {
-                                                            this.state.classes.map((avo_class) => {
-                                                                return (
-                                                                    <option value={avo_class.classID} key={avo_class.classID}>{avo_class.name}</option>
-                                                                );
-                                                            })
-                                                        }
-                                                    </Select>
-                                                </FormControl>
-                                            </Grid>
-                                            <Grid item xs={10}>
-                                                <Typography style={{ marginTop : '0.5em' }} variant="h6" gutterBottom>
-                                                    {`${this.getRelevantTag().tagName}`}
-                                                </Typography>
-                                            </Grid>
-                                        </Grid>
+                                        <FormControl variant="outlined" style={{ width : '200px', float : 'right', marginTop : '-1em' }}>
+                                            <InputLabel htmlFor="classSelectionBase">
+                                            </InputLabel>
+                                            <Select
+                                                className='avo-select'
+                                                native
+                                                onChange={(event) => {}}
+                                                input={
+                                                    <OutlinedInput 
+                                                        id="classSelectionBase"
+                                                    />
+                                                }
+                                            >
+                                                {
+                                                    this.state.classes.map((avo_class) => {
+                                                        return (
+                                                            <option value={avo_class.classID} key={avo_class.classID}>{avo_class.name}</option>
+                                                        );
+                                                    })
+                                                }
+                                            </Select>
+                                        </FormControl>
+                          
+                                        <Typography style={{ marginTop : '0.5em' }} variant="h6" gutterBottom>
+                                            {`${this.getRelevantTag().tagName}`}
+                                        </Typography>
                                         <Grid container>
                                             <Grid item xs={8}>
                                                 <AVOMasteryChart theme={this.props.theme} dataPoints={this.getRelevantTag().chartingData} dataLabels={this.getRelevantTag().compAtTime} height='400px'/>
@@ -285,7 +280,6 @@ export default class MasteryHome extends Component {
                 combination = [];
             }
         });
-        console.log(combinedOutput);
         return combinedOutput;
     };
 
