@@ -201,8 +201,8 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
     renderCategoryCard() {
         return (
             <CategoryCard
-                category={0}
-                setCategory={x => () => alert(x)}
+                category={this.savedQuestion().category}
+                setCategory={this.setCategory}
                 tags={this.state.tags}
                 selectedTags={this.savedQuestion().tags}
                 addTag={this.addTag}
@@ -724,6 +724,20 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                 const {s, q} = this.props;
                 const sets = this.getNewSets();
                 sets[s].questions[q].tags = sets[s].questions[q].tags.filter(x => x !== tag);
+                this.props.updateProps(this.props.s, this.props.q, sets);
+            },
+            console.warn,
+        );
+    };
+
+    setCategory = (category: number) => () => {
+        Http.changeCategory(
+            this.savedQuestion().id,
+            category,
+            () => {
+                const {s, q} = this.props;
+                const sets = this.getNewSets();
+                sets[s].questions[q].category = category;
                 this.props.updateProps(this.props.s, this.props.q, sets);
             },
             console.warn,

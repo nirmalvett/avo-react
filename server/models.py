@@ -185,6 +185,7 @@ class Question(db.Model):
     string = db.Column(db.String(5000), nullable=False)
     answers = db.Column(db.Integer, nullable=False)
     total = db.Column(db.Integer, nullable=False)
+    category = db.Column(db.Integer, nullable=False)
 
     SET_RELATION = db.relationship("Set", back_populates="QUESTION_RELATION")
     TAG_QUESTION_RELATION = db.relationship("TagQuestion", back_populates="QUESTION_RELATION")
@@ -195,9 +196,10 @@ class Question(db.Model):
         self.string = string
         self.answers = answers
         self.total = total
+        self.category = 0
 
     def __repr__(self):
-        return f'<Question {self.QUESTION} {self.SET} {self.name} {self.string} {self.answers} {self.total}>'
+        return f'<Question {self.QUESTION} {self.SET} {self.name} {self.string} {self.answers} {self.total} {self.category}>'
 
 
 class Set(db.Model):

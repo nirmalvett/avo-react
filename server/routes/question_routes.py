@@ -36,6 +36,7 @@ def get_sets():
                 'string': q.string,
                 'total': q.total,
                 'answers': q.answers,
+                'category': q.category,
                 'tags': list(map(lambda x: x.TAG, filter(lambda y: y.QUESTION == q.QUESTION, tag_questions)))
             })
         set_list.append({
@@ -265,3 +266,15 @@ def sample_question_answers(string: str, seed: int, answers):
     except Exception as e:
         return jsonify(error="Question failed to be created", message=str(e))
     return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types, points=q.scores)
+
+
+@QuestionRoutes.route('/changeCategory', methods=['POST'])
+@teacher_only
+@validate(questionID=int, category=int)
+def change_category(question_id: int, category: int):
+    question = Question.query.get(question_id)
+    if not able_edit_set(question.SET):
+        return jsonify(error="User not able to edit SET")
+    question.category = category
+    db.session.commit()
+    return jsonify({})

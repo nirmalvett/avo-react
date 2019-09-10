@@ -111,3 +111,7 @@ export function sampleQuestionAnswers(
 ) {
     _request('POST', '/sampleQuestionAnswers', success, failure, {string, seed, answers});
 }
+
+export function changeCategory(questionID: number, category: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/changeCategory', success, failure, {questionID, category});
+}
