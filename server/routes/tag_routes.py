@@ -253,13 +253,13 @@ def get_mastery(class_id: int):
     :param class_id: class the user is mastering
     :return: array of mastery w/ timestamps of when they achieved it
     """
-    tests: List[Test] = Test.query.filter(Test.CLASS == class_id).all()
-    questions = set()
-    for test in tests:
-        questions.update(eval(test.question_list))
-    question_tags: List[TagQuestion] = TagQuestion.query.filter(TagQuestion.QUESTION.in_(questions)).all()
+    all_tags = Tag.query.all()
+    tag_class = TagClass.query.filter(TagClass.CLASS == class_id).first()
+    if tag_class is None:
+        return jsonify(error="Class has no tags")
+    list_of_tags = get_tree(tag_class.TAG, all_tags)
     user_tags: List[TagUser] = TagUser.query.filter(TagUser.USER == current_user.USER) \
-        .filter(TagUser.TAG.in_([tag.TAG for tag in question_tags])) \
+        .filter(TagUser.TAG.in_([tag.TAG for tag in list_of_tags])) \
         .order_by(TagUser.time_created.asc()) \
         .all()
     if len(user_tags) == 0:
