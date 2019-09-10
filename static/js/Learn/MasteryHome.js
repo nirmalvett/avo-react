@@ -24,6 +24,7 @@ export default class MasteryHome extends Component {
             classes       : [],
             lessons       : [],
             classesLoaded : false,
+            classIndex    : 0,
         };
         this.getSlideTranslation = this.getSlideTranslation.bind(this);
         this.goToPreviousSlide   = this.goToPreviousSlide  .bind(this);
@@ -72,7 +73,10 @@ export default class MasteryHome extends Component {
                                             <Select
                                                 className='avo-select'
                                                 native
-                                                onChange={(event) => {}}
+                                                onChange={(event) => {
+                                                    this.setState({ classIndex : event.target.value });
+                                                    setTimeout(this.loadInTagData.bind(this), 10);
+                                                }}
                                                 input={
                                                     <OutlinedInput 
                                                         id="classSelectionBase"
@@ -80,9 +84,9 @@ export default class MasteryHome extends Component {
                                                 }
                                             >
                                                 {
-                                                    this.state.classes.map((avo_class) => {
+                                                    this.state.classes.map((avo_class, index) => {
                                                         return (
-                                                            <option value={avo_class.classID} key={avo_class.classID}>{avo_class.name}</option>
+                                                            <option value={index} key={avo_class.classID}>{avo_class.name}</option>
                                                         );
                                                     })
                                                 }
@@ -317,6 +321,42 @@ export default class MasteryHome extends Component {
         );
     };
 
+    loadInTagData() {
+        Http.getTags(
+            this.state.classes[this.state.classIndex].classID,
+            res => {
+                Http.getTagTimeStamps(
+                    this.state.classes[this.state.classIndex].classID,
+                    r => {
+                        let tags = res.tags;
+                        let timestamps = r.masteryTimestamps;
+                        let classTag = tags[0];
+                        tags.shift();
+                        tags.map((tag) => {
+                            const relatedTimeStamp = timestamps[tag.tagID];
+                            tag.TAG = tag.tagID;
+                            if(tag.parent == classTag.tagID) tag.parent = null;
+                            tag.comprehension = !!relatedTimeStamp ? parseInt(relatedTimeStamp[relatedTimeStamp.length - 1].mastery * 100) : 0;
+                            tag.chartingData = !!relatedTimeStamp ? relatedTimeStamp.map(ts => parseInt(ts.mastery * 100)) : [];
+                            tag.compAtTime = !!relatedTimeStamp ? relatedTimeStamp.map(ts => getDateString(new Date(ts.timestamp)).split(' at')[0]) : [];
+                            return tag;
+                        });
+                        console.log(tags);
+                        this.setState({ tags : tags });
+                        setTimeout(() => {
+                            const availableTags = [this.filterTags(null)[0]];
+                            this.setState({ selectedTags : availableTags, activeTag : availableTags[0] });
+                        }, 10);
+                    },
+                    e => console.log(e)
+                );
+            },
+            err => {
+                console.log(err);
+            },
+        );
+    };
+
     getClasses() {
         const _this = this;
         Http.getClasses(
@@ -325,39 +365,7 @@ export default class MasteryHome extends Component {
                     classes: result.classes,
                     classesLoaded: true,
                 });
-                Http.getTags(
-                    result.classes[0].classID,
-                    res => {
-                        Http.getTagTimeStamps(
-                            result.classes[0].classID,
-                            r => {
-                                let tags = res.tags;
-                                let timestamps = r.masteryTimestamps;
-                                let classTag = tags[0];
-                                tags.shift();
-                                tags.map((tag) => {
-                                    const relatedTimeStamp = timestamps[tag.tagID];
-                                    tag.TAG = tag.tagID;
-                                    if(tag.parent == classTag.tagID) tag.parent = null;
-                                    tag.comprehension = !!relatedTimeStamp ? parseInt(relatedTimeStamp[relatedTimeStamp.length - 1].mastery * 100) : 0;
-                                    tag.chartingData = !!relatedTimeStamp ? relatedTimeStamp.map(ts => parseInt(ts.mastery * 100)) : [];
-                                    tag.compAtTime = !!relatedTimeStamp ? relatedTimeStamp.map(ts => getDateString(new Date(ts.timestamp)).split(' at')[0]) : [];
-                                    return tag;
-                                });
-                                console.log(tags);
-                                this.setState({ tags : tags });
-                                setTimeout(() => {
-                                    const availableTags = [this.filterTags(null)[0]];
-                                    this.setState({ selectedTags : availableTags, activeTag : availableTags[0] });
-                                }, 10);
-                            },
-                            e => console.log(e)
-                        );
-                    },
-                    err => {
-                        console.log(err);
-                    },
-                );
+                setTimeout(this.loadInTagData.bind(this), 10);
             },
             result => {
                 console.log(result);
