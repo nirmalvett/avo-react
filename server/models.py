@@ -21,6 +21,8 @@ class Class(db.Model):
     price = db.Column(db.Float, nullable=False)
     price_discount = db.Column(db.Float, nullable=False)
 
+    LESSON_RELATION = db.relationship("Lesson", back_populates="CLASS_RELATION")
+
     USER_RELATION = db.relationship("User", back_populates="CLASS_RELATION")
     TEST_RELATION = db.relationship("Test", back_populates="CLASS_RELATION")
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="CLASS_RELATION")
@@ -149,9 +151,9 @@ class User(UserMixin, db.Model):
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="USER_RELATION")
 
     TAG_USER_RELATION = db.relationship("TagUser", back_populates="USER_RELATION")
-    LESSON_RELATION = db.relationship("Lesson", back_populates="USER_RELATION")
+    # LESSON_RELATION = db.relationship("Lesson", back_populates="USER_RELATION")
     CLASS_WHITELIST_RELATION = db.relationship("ClassWhitelist", back_populates="USER_RELATION")
-    USER_LESSON_RELATION = db.relationship("UserLesson", back_populates="USER_RELATION")
+    # USER_LESSON_RELATION = db.relationship("UserLesson", back_populates="USER_RELATION")
 
     # noinspection PyPep8Naming
     def __init__(self, email, first_name, last_name, password, is_teacher, color, theme):
@@ -410,43 +412,37 @@ class Lesson(db.Model):
     __tablename__ = "LESSON"
 
     LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
     TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
     lesson_string = db.Column(db.Text, nullable=False)
     question_list = db.Column(db.String(500), nullable=False)
 
-    USER_RELATION = db.relationship("User", back_populates="LESSON_RELATION")
+    CLASS_RELATION = db.relationship("Class", back_populates="LESSON_RELATION")
     TAG_RELATION = db.relationship("Tag", back_populates="LESSON_RELATION")
-    USER_LESSON_RELATION = db.relationship("UserLesson", back_populates="LESSON_RELATION")
 
-    def __init__(self, user, tag, lesson_string, question_list):
-        self.USER = user
+    def __init__(self, CLASS, tag, lesson_string, question_list):
+        self.CLASS = CLASS
         self.TAG = tag
         self.lesson_string = lesson_string
         self.question_list = question_list
 
     def __repr__(self):
-        return f'LESSON {self.LESSON} {self.USER} {self.lesson_string}'
+        return f'LESSON {self.LESSON} {self.CLASS} {self.lesson_string}'
 
 
-class UserLesson(db.Model):
-    __tablename__ = "user_lesson"
+# class UserLesson(db.Model):
+#     __tablename__ = "user_lesson"
 
-    USER_LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
-    LESSON = db.Column(db.Integer, db.ForeignKey("LESSON.LESSON"), nullable=False)
+#     USER_LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+#     LESSON = db.Column(db.Integer, db.ForeignKey("LESSON.LESSON"), nullable=False)
 
-    USER_RELATION = db.relationship("User",  back_populates="USER_LESSON_RELATION")
-    LESSON_RELATION = db.relationship("Lesson", back_populates="USER_LESSON_RELATION")
+#     USER_RELATION = db.relationship("User",  back_populates="USER_LESSON_RELATION")
+#     LESSON_RELATION = db.relationship("Lesson", back_populates="USER_LESSON_RELATION")
 
-    def __init__(self, USER, LESSON):
-        self.USER = USER
-        self.LESSON = LESSON
-
-    def __repr__(self):
-        return f'user_lesson {self.USER_LESSON} {self.USER} {self.LESSON}'
-
-
+#     def __init__(self, USER, LESSON):
+#         self.USER = USER
+#         self.LESSON = LESSON
 class DataStore(db.Model):
     __tablename__ = "store"
     __bind_key__ = "data_store"
@@ -465,3 +461,5 @@ class DataStore(db.Model):
 
     def __repr__(self):
         return f'store {self.USER} {self.data} {self.type} {self.time_created}'
+#     def __repr__(self):
+#         return f'user_lesson {self.USER_LESSON} {self.USER} {self.LESSON}'
