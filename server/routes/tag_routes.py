@@ -14,14 +14,12 @@ TagRoutes = Blueprint('TagRoutes', __name__)
 
 
 @TagRoutes.route('/getLessonsToEdit', methods=['POST'])
-# @teacher_only
+@teacher_only
 @validate(class_id=int)
 def get_lessons_to_edit(class_id: int):
     lessons = Lesson.query.join(Class).filter(Lesson.CLASS == class_id).all()
     lessons = list(filter(lambda lesson: lesson.CLASS_RELATION.USER == current_user.USER, lessons))
-    tag_question_map = {}
     tag_questions = TagQuestion.query.join(Question).join(Tag).all()
-
     lessons_ret = []
     for lesson in lessons:
         questions = list(filter(lambda tag: tag.TAG == lesson.TAG, tag_questions))
