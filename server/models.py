@@ -45,6 +45,7 @@ class Class(db.Model):
     def __repr__(self):
         return f'<Class {self.CLASS} {self.USER} {self.name} {self.enroll_key}>'
 
+
 class LessonContent(db.Model):
     __tablename__ = "lesson_content"
 
@@ -59,6 +60,7 @@ class LessonContent(db.Model):
 
     def __repr__(self):
         return f'LESSON_CONTENT {self.ID} {self.TAG} {self.LESSON_CONTENT}'
+
 
 class ClassWhitelist(db.Model):
     __tablename__ = "class_whitelist"
@@ -77,6 +79,7 @@ class ClassWhitelist(db.Model):
     def __repr__(self):
         return f'class_whitelist {self.ID} {self.USER} {self.CLASS}'
 
+
 class ClassWhitelistBacklog(db.Model):
     __tablename__ = "backlog_whitelist"
 
@@ -92,6 +95,7 @@ class ClassWhitelistBacklog(db.Model):
 
     def __repr__(self):
         return f'backlog_whitelist {self.ID} {self.USER_ID} {self.CLASS}'
+
 
 class Takes(db.Model):
     __tablename__ = "takes"
@@ -362,6 +366,7 @@ class TagQuestion(db.Model):
     def __repr__(self):
         return f'TAG_QUESTION {self.TAG_QUESTION} {self.TAG} {self.QUESTION}'
 
+
 class TagClass(db.Model):
     __tablename__ = "tag_class"
 
@@ -378,6 +383,7 @@ class TagClass(db.Model):
 
     def __repr__(self):
         return f'TAG_CLASS {self.TAG_CLASS} {self.TAG} {self.CLASS}'
+
 
 class TagUser(db.Model):
     __tablename__ = "tag_user"
