@@ -31,6 +31,7 @@ export default class LessonBuilder extends React.Component<any, any> {
             selectedTag: null,
             questions: [],
             addLessonText: '',
+            editLessonText: '',
         };
     }
     componentDidMount() {
@@ -87,7 +88,13 @@ export default class LessonBuilder extends React.Component<any, any> {
                                 <div style={{display: 'flex', flexDirection: 'column'}}>
                                     {this.state.lessons.map((lesson: any) => (
                                         <Card
-                                            onClick={() => this.setState({selectedLesson: lesson})}
+                                            onClick={() =>{
+                                                console.log(lesson)
+                                                this.setState({
+                                                    selectedLesson: lesson,
+                                                    editLessonText: lesson.lesson.lessonString,
+                                                })}
+                                            }
                                             style={{margin: 25, padding: 25, cursor: 'pointer'}}
                                         >
                                             <CardContent>
@@ -146,12 +153,10 @@ export default class LessonBuilder extends React.Component<any, any> {
                                             InputLabelProps={{
                                                 shrink: true,
                                             }}
-                                            value={this.state.selectedLesson.lesson.lessonString}
-                                            onChange={(e: any) => {
-                                                const {selectedLesson} = this.state;
-                                                selectedLesson.lesson.lessonString = e.target.value;
-                                                this.setState(selectedLesson);
-                                            }}
+                                            value={this.state.editLessonText}
+                                            onChange={(e: any) =>
+                                                this.setState({editLessonText: e.target.value})
+                                            }
                                             rows={20}
                                         />
                                         <div
@@ -295,8 +300,8 @@ export default class LessonBuilder extends React.Component<any, any> {
                                         <Button
                                             onClick={() =>
                                                 this.setState({
-                                                    selectedLesson: null,
                                                     showAdd: false,
+                                                    selectedLesson: null,
                                                 })
                                             }
                                             variant='outlined'
@@ -413,7 +418,7 @@ export default class LessonBuilder extends React.Component<any, any> {
             selectedLesson.CLASS,
             selectedLesson.TAG,
             JSON.stringify(selectedLesson.questionList),
-            selectedLesson.lessonString,
+            this.state.editLessonText,
             res => {
                 console.log(res);
             },
