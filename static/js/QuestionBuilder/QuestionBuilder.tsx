@@ -45,7 +45,7 @@ const dividerStyle: CSSProperties = {marginTop: 15, marginBottom: 15};
 export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBuilderState> {
     constructor(props: QuestionBuilderProps) {
         super(props);
-        const questionString = this.savedString();
+        const questionString = this.savedQuestion().string;
         const compileString = compile(init(questionString));
         this.state = {
             mode: {name: null},
@@ -110,12 +110,12 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
         }
     }
 
-    savedString(): string {
-        return this.props.sets[this.props.s].questions[this.props.q].string;
+    savedQuestion() {
+        return this.props.sets[this.props.s].questions[this.props.q];
     }
 
     disableSave(): boolean {
-        return compile(this.state) === this.savedString();
+        return compile(this.state) === this.savedQuestion().string;
     }
 
     render() {
@@ -204,7 +204,9 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                 category={0}
                 setCategory={x => () => alert(x)}
                 tags={this.state.tags}
-                clickTag={console.log}
+                selectedTags={this.savedQuestion().tags}
+                addTag={this.addTag}
+                removeTag={this.removeTag}
             />
         );
     }
@@ -688,4 +690,43 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
             </Fragment>
         );
     }
+
+    // tagging methods
+
+    getNewSets() {
+        const {s, q} = this.props;
+        const sets = [...this.props.sets];
+        sets[s] = {...sets[s]};
+        sets[s].questions = [...sets[s].questions];
+        sets[s].questions[q] = {...sets[s].questions[q]};
+        return sets;
+    }
+
+    addTag = (tag: number) => {
+        Http.addTagQuestion(
+            this.savedQuestion().id,
+            tag,
+            () => {
+                const {s, q} = this.props;
+                const sets = this.getNewSets();
+                sets[s].questions[q].tags = [...sets[s].questions[q].tags, tag];
+                this.props.updateProps(this.props.s, this.props.q, sets);
+            },
+            console.warn,
+        );
+    };
+
+    removeTag = (tag: number) => {
+        Http.removeTagQuestion(
+            this.savedQuestion().id,
+            tag,
+            () => {
+                const {s, q} = this.props;
+                const sets = this.getNewSets();
+                sets[s].questions[q].tags = sets[s].questions[q].tags.filter(x => x !== tag);
+                this.props.updateProps(this.props.s, this.props.q, sets);
+            },
+            console.warn,
+        );
+    };
 }

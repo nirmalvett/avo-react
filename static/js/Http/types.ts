@@ -11,4 +11,5 @@ export interface AvoQuestion {
     string: string;
     total: number;
     answers: number;
+    tags: number[];
 }

@@ -16,7 +16,9 @@ interface CategoryCardProps {
     category: number;
     setCategory: (category: number) => () => void;
     tags: Http.GetTags['tags'];
-    clickTag: (id: number) => void;
+    selectedTags: number[];
+    addTag: (id: number) => void;
+    removeTag: (id: number) => void;
 }
 
 interface CategoryCardState {
@@ -34,7 +36,7 @@ export class CategoryCard extends Component<CategoryCardProps, CategoryCardState
     }
 
     render() {
-        const {category, tags} = this.props;
+        const {category, tags, selectedTags, setCategory, addTag, removeTag} = this.props;
         const tagsToShow = tags.filter(x => x.tagName.includes(this.state.text));
         return (
             <Fragment>
@@ -43,7 +45,7 @@ export class CategoryCard extends Component<CategoryCardProps, CategoryCardState
                     <FormControlLabel
                         key={name}
                         control={<Radio color='primary' checked={category === index} />}
-                        onChange={this.props.setCategory(index)}
+                        onChange={setCategory(index)}
                         label={name}
                     />
                 ))}
@@ -60,7 +62,12 @@ export class CategoryCard extends Component<CategoryCardProps, CategoryCardState
                         style={{margin: '4px'}}
                         label={tag.tagName}
                         key={'tag' + index}
-                        onClick={() => this.props.clickTag(tag.tagID)}
+                        onClick={
+                            selectedTags.includes(tag.tagID)
+                                ? () => removeTag(tag.tagID)
+                                : () => addTag(tag.tagID)
+                        }
+                        color={selectedTags.includes(tag.tagID) ? 'primary' : 'default'}
                     />
                 ))}
                 {tagsToShow.length > MAXIMUM && (

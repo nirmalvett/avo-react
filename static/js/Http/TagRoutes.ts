@@ -99,3 +99,11 @@ export function getLessonData(lessonID: number, success: cb<GetLessonData>, fail
 export function getTagTimeStamps(classID: number, success: cb, failure: cb) {
     _request('POST', '/getMastery', success, failure, {classID});
 }
+
+export function addTagQuestion(questionID: number, tagID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/addTagQuestion', success, failure, {questionID, tagID});
+}
+
+export function removeTagQuestion(questionID: number, tagID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/removeTagQuestion', success, failure, {questionID, tagID});
+}

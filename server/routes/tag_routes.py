@@ -391,3 +391,28 @@ def get_recommended(class_id: int):
             'childOrder': tag.childOrder,
         })
     return jsonify(tags=ret_tags)
+
+
+@TagRoutes.route("/addTagQuestion", methods=['POST'])
+@teacher_only
+@validate(tagID=int, questionID=int)
+def add_tag_question(tag_id: int, question_id: int):
+    tag_question = TagQuestion.query.filter((TagQuestion.QUESTION == question_id) & (TagQuestion.TAG == tag_id)).first()
+    if tag_question is not None:
+        return jsonify(error="Question is already tagged")
+    db.session.add(TagQuestion(tag_id, question_id))
+    db.session.commit()
+    return jsonify({})
+
+
+@TagRoutes.route("/removeTagQuestion", methods=['POST'])
+@teacher_only
+@validate(tagID=int, questionID=int)
+def remove_tag_question(tag_id: int, question_id: int):
+    tag_question = TagQuestion.query.filter((TagQuestion.QUESTION == question_id) & (TagQuestion.TAG == tag_id)).all()
+    if len(tag_question) == 0:
+        return jsonify(error="Question is already not tagged")
+    for t in tag_question:
+        db.session.delete(t)
+    db.session.commit()
+    return jsonify({})

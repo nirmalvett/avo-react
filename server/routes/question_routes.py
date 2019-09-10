@@ -5,7 +5,7 @@ from server.MathCode.question import AvoQuestion
 
 from server.decorators import login_required, teacher_only, admin_only, validate
 from server.auth import able_edit_set
-from server.models import db, Set, Question, UserViewsSet
+from server.models import db, Set, Question, UserViewsSet, TagQuestion, Tag
 
 QuestionRoutes = Blueprint('QuestionRoutes', __name__)
 
@@ -23,6 +23,7 @@ def get_sets():
     # Get list of available sets for current user
     list_of_sets = Set.query.filter((Set.SET == UserViewsSet.SET) & (UserViewsSet.USER == current_user.USER)).all()
     set_list = []  # List of sets to send back to the user
+    tag_questions = TagQuestion.query.join(Question).join(Tag).all()
     for s in list_of_sets:
         # For each set append the data
         questions = Question.query.filter(Question.SET == s.SET).all()  # Get all questions in set
@@ -34,7 +35,8 @@ def get_sets():
                 'name': q.name,
                 'string': q.string,
                 'total': q.total,
-                'answers': q.answers
+                'answers': q.answers,
+                'tags': list(map(lambda x: x.TAG, filter(lambda y: y.QUESTION == q.QUESTION, tag_questions)))
             })
         set_list.append({
             'id': s.SET,
