@@ -64,9 +64,9 @@ export default function AVOMasteryGauge(props) {
     return (
         <div className='avo-progression-gauge-container'>
             <svg width="200px" height="200px" viewBox="0 0 42 42" className="donut">
-                <circle className="donut-ring" cx="21" cy="21" r="16" fill="transparent" stroke="#fafafa" strokeWidth="0.25" strokeDasharray="0.5"></circle>
+                <circle className="donut-ring" cx="21" cy="21" r="16" fill="transparent" stroke="#fafafa" strokeWidth="0.25" strokeDasharray="0.5"/>
                 <circle
-                    class="avo-progression-gauge-svg"
+                    className="avo-progression-gauge-svg"
                     cx="21"
                     cy="21"
                     r="16"
@@ -92,7 +92,7 @@ export default function AVOMasteryGauge(props) {
                         @import url("https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i");
                     </style>
                 </defs>
-                <text x="15.5" y="25" style={{ fontSize : '3px' }} fill='lightslategrey' font-family="Roboto">Mastery</text>
+                <text x="15.5" y="25" style={{ fontSize : '3px' }} fill='lightslategrey' fontFamily="Roboto">Mastery</text>
             </svg>
         </div>
     );

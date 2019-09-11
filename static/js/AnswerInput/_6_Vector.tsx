@@ -6,7 +6,7 @@ import {Add, DeleteOutlined} from '@material-ui/icons';
 
 export class _6_Vector extends PureComponent<AnswerInputImplementationProps> {
     render() {
-        const cells = (this.props.value || ',').split(',').map(x => x.trim());
+        const cells = (this.props.value).split(',').map(x => x.trim());
         return (
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                 {getMathJax(this.props.prompt)}
@@ -43,7 +43,7 @@ export class _6_Vector extends PureComponent<AnswerInputImplementationProps> {
         const x = validateNumber(cell);
         return (
             <TextField
-                key={'cell' + cell + index}
+                key={'cell' + index}
                 style={{maxWidth: '12ch', margin: '0 4px'}}
                 value={cell}
                 onChange={e => this.onChange(e.target.value, index)}
