@@ -289,6 +289,79 @@ def get_lessons():
     return jsonify(lessons=lessons)
 
 
+@TagRoutes.route("/getLearnLessons", methods=["GET"])
+@login_required
+@validate()
+def get_learn_lessons():
+    """
+    Get list of lessons for client with the tags associated with them and the lesson string and ID
+    :return: Array of lessons with the ID tag associated with lesson and lesson string
+    """
+    """
+    return jsonify(lessons=[
+        {"ID": 1, "Tag": "Vectors", "mastery": 0.5, "string": "this is a test string"},
+        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
+        {
+            "ID": 15,
+            "Tag": "Addition of negative square roots to the power of the square root of 27.mp4",
+            "mastery": 0.76,
+            "string": "this is a test string"
+        }
+    ])
+    """
+    teacher_classes = Class.query.filter(current_user.USER == Class.USER).all()
+    enrolled_classes = Transaction.query.filter(current_user.USER == Transaction.USER).all()
+
+    classes = []
+    classes.extend(teacher_classes)
+    classes.extend(enrolled_classes)
+    classes = list(dict.fromkeys(list(map(lambda c: c.CLASS, classes))))
+
+    lesson_list = Lesson.query.join(Class).all()
+    lesson_list = list(filter(lambda lesson: lesson.CLASS in classes, lesson_list))
+    tag_list = []
+    all_tags = Tag.query.all()
+    for tag in all_tags:
+        for lesson in lesson_list:
+            if lesson.TAG == tag.TAG:
+                tag_list.append(tag)
+    tag_ids = list(map(lambda tag: tag.TAG,tag_list))
+    all_mastery = TagUser.query.all()
+    all_mastery = list(filter(lambda mastery: (mastery.TAG in tag_ids) and (mastery.USER == current_user.USER), all_mastery))
+    print(all_mastery)
+    mastery_list = []
+    for mastery in all_mastery:
+        for tag in tag_list:
+            if tag.TAG == mastery.TAG:
+                mastery_list.append(mastery)
+    mastery_tags = list(map(lambda mastery: mastery.TAG, mastery_list))
+    tag_mastery_map = {}
+    max_mastery =  max(mastery.time_created for mastery in mastery_list)
+    max_mastery = list(filter(lambda mastery: mastery.time_created == max_mastery, mastery_list))
+    if not max_mastery:
+        max_mastery = []
+    else:
+        max_mastery = max_mastery[0]
+    for i in range(len(mastery_list)):
+        mastery_list[i].mastery = max_mastery.mastery
+    # mastery_list = list(map(lambda mastery: mastery.TAG, mastery_list))
+    for tag, mastery in zip(tag_list, mastery_list):
+        tag_mastery_map[tag.TAG] = {
+            'tag': tag, 
+            'mastery': mastery
+        }
+    lessons = list(filter(lambda lesson: lesson.TAG in mastery_tags and lesson.TAG in tag_ids, lesson_list))
+    lessons = list(map(lambda lesson: {"ID": lesson.LESSON, "Tag": tag_mastery_map[lesson.TAG]['tag'].tagName,
+                                        "mastery": tag_mastery_map[lesson.TAG]['mastery'].mastery, "string": lesson.lesson_string}, lessons))
+
+    return jsonify(lessons=lessons)
+
+
 @TagRoutes.route("/getLessonQuestionResult", methods=['POST'])
 @login_required
 @validate(questionID=int, answers=list, seed=int)

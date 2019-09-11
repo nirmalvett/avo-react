@@ -67,7 +67,7 @@ export default class AVOLearnComponent extends Component<
         this.getLessons();
     }
     getLessons = () => {
-        Http.getLessons(
+        Http.getLearnLessons(
             res => {
                 console.log(res);
                 this.setState({lessons: res.lessons.map(x => ({...x, newMastery: x.mastery}))});
