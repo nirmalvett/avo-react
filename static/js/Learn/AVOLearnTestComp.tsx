@@ -311,15 +311,12 @@ export default class AVOLearnTestComp extends Component<
                             value={this.state.newAnswers[index]}
                             prompt={question.prompt}
                             onChange={value => {
-                                let newAnswerList = this.state.newAnswers;
+                                let newAnswerList = [...this.state.newAnswers];
                                 newAnswerList[index] = value;
                                 this.setState({newAnswers: newAnswerList});
-                                // if(question.types[0] == 2) {
-                                // 	this.getExplanation(newAnswerList, question, index);
-                                // };
                             }}
                             save={value => {
-                                let newAnswerList = this.state.newAnswers;
+                                let newAnswerList = [...this.state.newAnswers];
                                 newAnswerList[index] = value;
                                 this.setState({newAnswers: newAnswerList});
                                 console.log(newAnswerList);
