@@ -90,6 +90,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                         <AVOLearnTestComp
                             lesson={this.state.currentLesson}
                             updateMastery={this.props.updateMastery}
+                            theme={this.props.theme}
                         />
                     )}
                 </AVOLessonFSM>

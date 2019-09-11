@@ -15,6 +15,14 @@ type TestState = 'LESSON' | 'QUESTIONS' | 'TEST_END';
 interface AVOLearnTestCompProps {
     lesson: AvoLesson & AvoLessonData;
     updateMastery: (mastery: number, lessonID: number) => void;
+    theme: {
+        theme: 'light' | 'dark';
+        color: {
+            '100': string;
+            '200': string;
+            '500': string;
+        };
+    };
 }
 
 interface AVOLearnTestCompState {
@@ -79,6 +87,7 @@ export default class AVOLearnTestComp extends Component<
                                 <AVOMasteryGauge
                                     comprehension={Math.floor(this.props.lesson.mastery * 100)}
                                     colors={['#399103', '#039124', '#809103']}
+                                    theme={this.props.theme}
                                 />
                             </div>
                             <Button
@@ -213,6 +222,7 @@ export default class AVOLearnTestComp extends Component<
                                                 this.state.changedMastery * 100,
                                             )}
                                             colors={['#399103', '#039124', '#809103']}
+                                            theme={this.props.theme}
                                         />
                                         <Typography variant={'subtitle2'}>
                                             Mastery of {this.props.lesson.Tag} changed by{' '}
@@ -366,6 +376,7 @@ export default class AVOLearnTestComp extends Component<
                                                 this.state.changedMastery * 100,
                                             )}
                                             colors={['#399103', '#039124', '#809103']}
+                                            theme={this.props.theme}
                                         />
                                         <Typography variant={'subtitle2'}>
                                             Mastery of {this.props.lesson.Tag} changed by{' '}
