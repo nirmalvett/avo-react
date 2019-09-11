@@ -330,31 +330,25 @@ def get_learn_lessons():
         for lesson in lesson_list:
             if lesson.TAG == tag.TAG:
                 tag_list.append(tag)
-    tag_ids = list(map(lambda tag: tag.TAG,tag_list))
-    all_mastery = TagUser.query.all()
+    tag_ids = list(map(lambda tag: tag.TAG, tag_list))
+    all_mastery = TagUser.query.join(Tag).all()
     all_mastery = list(filter(lambda mastery: (mastery.TAG in tag_ids) and (mastery.USER == current_user.USER), all_mastery))
-    print(all_mastery)
-    mastery_list = []
-    for mastery in all_mastery:
-        for tag in tag_list:
-            if tag.TAG == mastery.TAG:
-                mastery_list.append(mastery)
-    mastery_tags = list(map(lambda mastery: mastery.TAG, mastery_list))
+
+    mastery_tags = list(map(lambda mastery: mastery.TAG, all_mastery))
     tag_mastery_map = {}
-    # max_mastery =  max(mastery.time_created for mastery in mastery_list)
-    # max_mastery = list(filter(lambda mastery: mastery.time_created == max_mastery and mastery.TAG in tag_ids, mastery_list))
-    # if not max_mastery:
-    #     max_mastery = []
-    # else:
-    #     max_mastery = max_mastery[0]
-    # for i in range(len(mastery_list)):
-    #     mastery_list[i].mastery = max_mastery.mastery
-    # mastery_list = list(map(lambda mastery: mastery.TAG, mastery_list))
-    for tag, mastery in zip(tag_list, mastery_list):
-        tag_mastery_map[tag.TAG] = {
-            'tag': tag, 
-            'mastery': mastery
+    for mastery in all_mastery:
+        tag_mastery_map[mastery.TAG] = {
+            'mastery': mastery,
+            'tag': mastery.TAG_RELATION
         }
+    for mastery in all_mastery:
+        if mastery.time_created > tag_mastery_map[mastery.TAG]['mastery'].time_created:
+            m = tag_mastery_map[mastery.TAG]['mastery']
+            m.mastery = mastery.mastery
+            tag_mastery_map[mastery.TAG] = {
+                'mastery': m,
+                'tag': mastery.TAG_RELATION
+            }
     lessons = list(filter(lambda lesson: lesson.TAG in mastery_tags and lesson.TAG in tag_ids, lesson_list))
     lessons = list(map(lambda lesson: {"ID": lesson.LESSON, "Tag": tag_mastery_map[lesson.TAG]['tag'].tagName,
                                         "mastery": tag_mastery_map[lesson.TAG]['mastery'].mastery, "string": lesson.lesson_string}, lessons))
