@@ -105,6 +105,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
                     display: 'flex',
                     justifyContent: 'flex-start',
                     flexDirection: 'column',
+                    overflow: 'auto',
                 }}
             >
                 <form
