@@ -341,14 +341,14 @@ def get_learn_lessons():
                 mastery_list.append(mastery)
     mastery_tags = list(map(lambda mastery: mastery.TAG, mastery_list))
     tag_mastery_map = {}
-    max_mastery =  max(mastery.time_created for mastery in mastery_list)
-    max_mastery = list(filter(lambda mastery: mastery.time_created == max_mastery, mastery_list))
-    if not max_mastery:
-        max_mastery = []
-    else:
-        max_mastery = max_mastery[0]
-    for i in range(len(mastery_list)):
-        mastery_list[i].mastery = max_mastery.mastery
+    # max_mastery =  max(mastery.time_created for mastery in mastery_list)
+    # max_mastery = list(filter(lambda mastery: mastery.time_created == max_mastery and mastery.TAG in tag_ids, mastery_list))
+    # if not max_mastery:
+    #     max_mastery = []
+    # else:
+    #     max_mastery = max_mastery[0]
+    # for i in range(len(mastery_list)):
+    #     mastery_list[i].mastery = max_mastery.mastery
     # mastery_list = list(map(lambda mastery: mastery.TAG, mastery_list))
     for tag, mastery in zip(tag_list, mastery_list):
         tag_mastery_map[tag.TAG] = {
