@@ -80,7 +80,7 @@ export default function AVOMasteryGauge(props) {
                 {triangles}
                 <foreignObject x={5} y={5} width={32} height={32}>
                     <center style={{ zIndex : 10, position: 'inherit' }}>
-                        <div className='avo-progression-gauge' style={{ background : props.theme.theme === 'dark' ? 'rgb(48, 48, 48)' : '#fff' }}>
+                        <div className='avo-progression-gauge' style={{ background : props.theme && props.theme.theme === 'dark' ? 'rgb(48, 48, 48)' : '#fff' }}>
                             <center className='avo-progression-gauge-text'>
                                 {props.comprehension}%
                             </center>
