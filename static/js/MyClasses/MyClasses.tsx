@@ -445,8 +445,6 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                         joinClassPopperIdx: 1,
                         enrollObj: result,
                     });
-                    // noinspection ES6ConvertVarToLetConst
-                    var _this = this;
                     setTimeout(() => {
                         // noinspection JSUnusedGlobalSymbols, JSUnresolvedVariable
                         paypal.Button.render(
@@ -478,11 +476,11 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                         })
                                         .then((data: any) => {
                                             console.log(data);
-                                            _this.setState({
+                                            this.setState({
                                                 enrollErrorMessage: '',
                                                 joinClassPopperOpen: false,
                                             });
-                                            _this.loadClasses(
+                                            this.loadClasses(
                                                 'Successfully enrolled in the class!',
                                             );
                                         })

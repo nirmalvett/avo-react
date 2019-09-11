@@ -2,11 +2,24 @@ import React, {Component, ReactElement} from 'react';
 import {Card, Grid, Icon, IconButton, Typography} from '@material-ui/core';
 import AVOLessonFSM from './AVOLessonFSM';
 import AVOMasteryGauge from './MasteryGauge';
-import AVOLearnTestComp, {AvoLesson} from './AVOLearnTestComp';
+import AVOLearnTestComp from './AVOLearnTestComp';
 import * as Http from '../Http';
+import {AvoLesson} from './AVOLearnComponent';
+
+export interface AvoLessonData {
+    data: {
+        questions: {
+            prompt: string;
+            prompts: string[];
+            types: string[];
+            ID: number;
+            seed: number;
+        }[];
+    }
+}
 
 interface AVOLessonSliderProps {
-    slides: (AvoLesson & {newMastery: number})[];
+    slides: AvoLesson[];
     theme: {
         color: {
             '100': string;
@@ -16,15 +29,15 @@ interface AVOLessonSliderProps {
         theme: 'light' | 'dark';
     };
     changeToNewMastery: () => void;
-    updateMastery: () => void;
+    updateMastery: (mastery: number, lessonID: number) => void;
 }
 
 interface AVOLessonSliderState {
     fsmRef: {current: AVOLessonFSM};
-    currentLesson: AvoLesson | undefined;
+    currentLesson: (AvoLesson & AvoLessonData) | undefined;
     currentIndex: number;
     changedCurrency: 0;
-    slides: (AvoLesson & {newMastery: number})[][];
+    slides: AvoLesson[][];
 }
 
 export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVOLessonSliderState> {
@@ -107,7 +120,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                             key={`avo-learn__card-key:${LIndex}`}
                         >
                             <IconButton
-                                onClick={e => this.openLessonFSM(lesson, `${LIndex}-${gIndex}`)}
+                                onClick={() => this.openLessonFSM(lesson, `${LIndex}-${gIndex}`)}
                                 color='primary'
                                 aria-label='fullscreen'
                                 style={{
@@ -171,8 +184,8 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
         this.setState({currentIndex: currentIndex + 1});
     };
 
-    processSlidesIntoGroups = (slides: (AvoLesson & {newMastery: number})[]) => {
-        const output: (AvoLesson & {newMastery: number})[][] = [];
+    processSlidesIntoGroups = (slides: AvoLesson[]) => {
+        const output: AvoLesson[][] = [];
         let slideCounter = 0;
         let groupCounter = -1;
         slides.forEach(slide => {
@@ -192,8 +205,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
             lesson.ID,
             res => {
                 console.log(res);
-                lesson.data = res;
-                this.setState({currentLesson: lesson});
+                this.setState({currentLesson: {...lesson, data: res}});
                 this.state.fsmRef.current.handleFSM(lesson, LIndex);
             },
             err => {

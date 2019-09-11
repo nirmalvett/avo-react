@@ -7,28 +7,14 @@ import * as Helpers from '../HelperFunctions/Utilities';
 import AVOLearnTestCongrat from './AVOLearnTestCongrat';
 import {getMathJax} from '../HelperFunctions/Utilities';
 import {uniqueKey} from '../HelperFunctions/Helpers';
+import {AvoLesson} from './AVOLearnComponent';
+import {AvoLessonData} from './AVOLessonSlider';
 
 type TestState = 'LESSON' | 'QUESTIONS' | 'TEST_END';
 
 interface AVOLearnTestCompProps {
-    lesson: AvoLesson;
+    lesson: AvoLesson & AvoLessonData;
     updateMastery: (mastery: number, lessonID: number) => void;
-}
-
-export interface AvoLesson {
-    data: {
-        questions: {
-            prompt: string;
-            prompts: string[];
-            types: string[];
-            ID: number;
-            seed: number;
-        }[];
-    };
-    mastery: number;
-    Tag: never;
-    string: string;
-    ID: number;
 }
 
 interface AVOLearnTestCompState {

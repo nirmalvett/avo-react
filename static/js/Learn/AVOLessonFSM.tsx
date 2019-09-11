@@ -3,7 +3,7 @@ import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Fade from '@material-ui/core/Fade';
 import {FullscreenExit} from '@material-ui/icons';
-import {AvoLesson} from './AVOLearnTestComp';
+import {AvoLesson} from './AVOLearnComponent';
 
 interface AVOLessonFSMProps {
     changeToNewMastery: () => void;
@@ -85,9 +85,9 @@ export default class AVOLessonFSM extends Component<AVOLessonFSMProps, AVOLesson
 
     handleFSM(lesson: AvoLesson, LIndex: string) {
         if (!this.state.activeClass) {
-            var $this = document.getElementById('avo-lesson__expanded-card') as HTMLElement;
-            var $cont = document.getElementById('avo-lesson__layout-div') as HTMLElement;
-            var $card = document.getElementById(`avo-lesson__card-${LIndex}`) as HTMLElement;
+            let $this = document.getElementById('avo-lesson__expanded-card') as HTMLElement;
+            let $cont = document.getElementById('avo-lesson__layout-div') as HTMLElement;
+            let $card = document.getElementById(`avo-lesson__card-${LIndex}`) as HTMLElement;
             this.cardPosition = $card.getBoundingClientRect();
             this.cardSize = {
                 width: $cont.clientWidth,
@@ -118,7 +118,7 @@ export default class AVOLessonFSM extends Component<AVOLessonFSMProps, AVOLesson
     }
 
     openFSM(cardID: string) {
-        var $this = document.getElementById(cardID) as HTMLElement;
+        let $this = document.getElementById(cardID) as HTMLElement;
 
         setTimeout(function() {
             $this.style.opacity = '1';
@@ -131,7 +131,7 @@ export default class AVOLessonFSM extends Component<AVOLessonFSMProps, AVOLesson
 
     closeFSM(cardID: string) {
         this.props.changeToNewMastery();
-        var $this = document.getElementById(cardID) as HTMLElement;
+        let $this = document.getElementById(cardID) as HTMLElement;
         const _this = this;
         setTimeout(function() {
             $this.style.position = 'absolute';
