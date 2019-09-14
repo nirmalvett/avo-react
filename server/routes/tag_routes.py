@@ -372,7 +372,6 @@ def get_lesson_question_result(question_id: int, answers: list, seed: int, lesso
         return jsonify(error="question not found")
     q = AvoQuestion(question.string, seed, answers)
     lesson = Lesson.query.filter(Lesson.LESSON == lesson_id).first()
-    tag = Tag.query.join(TagQuestion).filter(TagQuestion.QUESTION == question_id).first()
     current_mastery = TagUser.query.filter(
         (TagUser.TAG == lesson.TAG) & (TagUser.USER == current_user.USER)
     ).order_by(TagUser.time_created.desc()).first()
@@ -380,7 +379,7 @@ def get_lesson_question_result(question_id: int, answers: list, seed: int, lesso
         mastery_val = current_mastery.mastery
     else:
         mastery_val = 0
-    new_mastery = TagUser(current_user.USER, tag.TAG)
+    new_mastery = TagUser(current_user.USER, lesson.TAG)
     new_mastery.time_created = datetime.now()
     if q.score == question.total:
         new_mastery.mastery = mastery_val + max(log(100 - (mastery_val * 100), 4) / 10, 0.1)
