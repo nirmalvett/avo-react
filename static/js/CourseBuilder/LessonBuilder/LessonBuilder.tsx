@@ -156,22 +156,34 @@ export default class LessonBuilder extends React.Component<any, any> {
                                         >
                                             Delete
                                         </Button>
-                                        <TextField
-                                            id='filled-full-width'
-                                            label='Enter lesson content...'
-                                            fullWidth
-                                            margin='normal'
-                                            variant='filled'
-                                            multiline={true}
-                                            InputLabelProps={{
-                                                shrink: true,
-                                            }}
-                                            value={this.state.editLessonText}
-                                            onChange={(e: any) =>
-                                                this.setState({editLessonText: e.target.value})
-                                            }
-                                            rows={20}
-                                        />
+                                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                                            <div style={{flex: '1'}}>
+                                                <TextField
+                                                    id='filled-full-width'
+                                                    label='Enter lesson content...'
+                                                    fullWidth
+                                                    margin='normal'
+                                                    variant='filled'
+                                                    multiline={true}
+                                                    InputLabelProps={{
+                                                        shrink: true,
+                                                    }}
+                                                    value={this.state.editLessonText}
+                                                    onChange={(e: any) =>
+                                                        this.setState({editLessonText: e.target.value})
+                                                    }
+                                                    rows={20}
+                                                />
+                                            </div>
+                                            <div style={{flex: '1', marginTop: 16, marginBottom: 8}}>
+                                                    <Card style={{height: '100%'}}>
+                                                        <CardContent>
+                                                            <Typography>{utils.getMathJax(this.state.editLessonText)}</Typography>
+                                                        </CardContent>
+                                                    </Card>
+                                            </div>
+                                        
+                                        </div>
                                         <Typography>Questions:</Typography>
                                         <div
                                             style={{
@@ -221,22 +233,35 @@ export default class LessonBuilder extends React.Component<any, any> {
                                     </div>
                                 )) || (
                                     <div style={{display: 'flex', flexDirection: 'column'}}>
-                                        <TextField
-                                            id='filled-full-width'
-                                            label='Enter lesson content...'
-                                            fullWidth
-                                            margin='normal'
-                                            variant='filled'
-                                            multiline={true}
-                                            InputLabelProps={{
-                                                shrink: true,
-                                            }}
-                                            value={this.state.addLessonText}
-                                            onChange={(e: any) =>
-                                                this.setState({addLessonText: e.target.value})
-                                            }
-                                            rows={20}
-                                        />
+                                        
+                                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                                            <div style={{flex: '1'}}>
+                                                <TextField
+                                                    id='filled-full-width'
+                                                    label='Enter lesson content...'
+                                                    fullWidth
+                                                    margin='normal'
+                                                    variant='filled'
+                                                    multiline={true}
+                                                    InputLabelProps={{
+                                                        shrink: true,
+                                                    }}
+                                                    value={this.state.addLessonText}
+                                                    onChange={(e: any) =>
+                                                        this.setState({addLessonText: e.target.value})
+                                                    }
+                                                    rows={20}
+                                                />
+                                            </div>
+                                            <div style={{flex: '1', marginTop: 16, marginBottom: 8}}>
+                                                    <Card style={{height: '100%'}}>
+                                                        <CardContent>
+                                                            <Typography>{utils.getMathJax(this.state.addLessonText)}</Typography>
+                                                        </CardContent>
+                                                    </Card>
+                                            </div>
+                                        
+                                        </div>
                                         <br />
                                         <Typography>Concepts (select 1)</Typography>
                                         <div
