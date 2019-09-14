@@ -322,35 +322,42 @@ def get_learn_lessons():
     classes.extend(enrolled_classes)
     classes = list(dict.fromkeys(list(map(lambda c: c.CLASS, classes))))
 
-    lesson_list = Lesson.query.join(Class).all()
-    lesson_list = list(filter(lambda lesson: lesson.CLASS in classes, lesson_list))
-    tag_list = []
-    all_tags = Tag.query.all()
-    for tag in all_tags:
-        for lesson in lesson_list:
-            if lesson.TAG == tag.TAG:
-                tag_list.append(tag)
-    tag_ids = list(map(lambda tag: tag.TAG, tag_list))
-    all_mastery = TagUser.query.join(Tag).all()
-    all_mastery = list(filter(lambda mastery: (mastery.TAG in tag_ids) and (mastery.USER == current_user.USER), all_mastery))
+    lesson_list = Lesson.query.join(Class).filter(Lesson.CLASS.in_(classes)).all()
+    lesson_tags = list(map(lambda lesson: lesson.TAG, lesson_list))
+    tag_list = Tag.query.filter(Tag.TAG.in_(lesson_tags)).all()
 
-    mastery_tags = list(map(lambda mastery: mastery.TAG, all_mastery))
+    tag_ids = list(map(lambda tag: tag.TAG, tag_list))
+    all_mastery = TagUser.query.join(Tag).filter((TagUser.TAG.in_(tag_ids) & (TagUser.USER == current_user.USER))).all()
     tag_mastery_map = {}
     for mastery in all_mastery:
         tag_mastery_map[mastery.TAG] = {
-            'mastery': mastery,
-            'tag': mastery.TAG_RELATION
+            'tag': mastery.TAG_RELATION.tagName,
+            'mastery': mastery
         }
-    for mastery in all_mastery:
-        if mastery.time_created > tag_mastery_map[mastery.TAG]['mastery'].time_created:
-            m = tag_mastery_map[mastery.TAG]['mastery']
-            m.mastery = mastery.mastery
-            tag_mastery_map[mastery.TAG] = {
-                'mastery': m,
-                'tag': mastery.TAG_RELATION
+    lessons = list(filter(lambda lesson: lesson.TAG in tag_ids, lesson_list))
+    for lesson in lessons:
+        mastery = list(filter(lambda mastery: mastery.TAG == lesson.TAG, all_mastery))
+        if mastery:
+            mastery = mastery[0]
+            mastery = TagUser.query.filter(
+                (TagUser.TAG == lesson.TAG) & (TagUser.USER == current_user.USER)
+            ).order_by(TagUser.time_created.desc()).first()
+            tag_mastery_map[lesson.TAG] = {
+                'tag': mastery.TAG_RELATION.tagName,
+                'mastery': mastery
             }
-    lessons = list(filter(lambda lesson: lesson.TAG in mastery_tags and lesson.TAG in tag_ids, lesson_list))
-    lessons = list(map(lambda lesson: {"ID": lesson.LESSON, "Tag": tag_mastery_map[lesson.TAG]['tag'].tagName,
+        else:
+            new_mastery = TagUser(current_user.USER, lesson.TAG)
+            new_mastery.time_created = datetime.now()
+            db.session.add(new_mastery)
+            db.session.flush()
+            mastery = TagUser.query.join(Tag).filter(TagUser.TAGUSER == new_mastery.TAGUSER).first()
+            tag_mastery_map[lesson.TAG] = {
+                'tag': mastery.TAG_RELATION.tagName,
+                'mastery': mastery
+            }
+
+    lessons = list(map(lambda lesson: {"ID": lesson.LESSON, "Tag": tag_mastery_map[lesson.TAG]['tag'],
                                         "mastery": tag_mastery_map[lesson.TAG]['mastery'].mastery, "string": lesson.lesson_string}, lessons))
 
     return jsonify(lessons=lessons)
@@ -358,17 +365,18 @@ def get_learn_lessons():
 
 @TagRoutes.route("/getLessonQuestionResult", methods=['POST'])
 @login_required
-@validate(questionID=int, answers=list, seed=int)
-def get_lesson_question_result(question_id: int, answers: list, seed: int):
+@validate(questionID=int, answers=list, seed=int, lessonID=int)
+def get_lesson_question_result(question_id: int, answers: list, seed: int, lesson_id: int):
     question = Question.query.get(question_id)
     if question is None:
         return jsonify(error="question not found")
     q = AvoQuestion(question.string, seed, answers)
+    lesson = Lesson.query.filter(Lesson.LESSON == lesson_id).first()
     tag = Tag.query.join(TagQuestion).filter(TagQuestion.QUESTION == question_id).first()
     current_mastery = TagUser.query.filter(
-        (TagUser.TAG == tag.TAG) & (TagUser.USER == current_user.USER)
+        (TagUser.TAG == lesson.TAG) & (TagUser.USER == current_user.USER)
     ).order_by(TagUser.time_created.desc()).first()
-    if current_mastery is None:
+    if current_mastery is not None:
         mastery_val = current_mastery.mastery
     else:
         mastery_val = 0

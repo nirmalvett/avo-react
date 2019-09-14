@@ -85,13 +85,14 @@ export interface GetLessonQuestionResult {
 }
 
 export function getLessonQuestionResult(
+    lessonID: number,
     questionID: number,
     answers: string[],
     seed: number,
     success: cb<GetLessonQuestionResult>,
     failure: cb,
 ) {
-    _request('POST', '/getLessonQuestionResult', success, failure, {questionID, answers, seed});
+    _request('POST', '/getLessonQuestionResult', success, failure, {lessonID, questionID, answers, seed});
 }
 
 export interface GetLessonData {

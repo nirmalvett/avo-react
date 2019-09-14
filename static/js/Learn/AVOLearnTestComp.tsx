@@ -459,7 +459,9 @@ export default class AVOLearnTestComp extends Component<
     getExplanation(answers: string[], question: {ID: number; seed: number}, index: number) {
         console.log(answers);
         console.log(question);
+        console.log(this.props.lesson)
         Http.getLessonQuestionResult(
+            this.props.lesson.ID,
             question.ID,
             [answers[index]],
             question.seed,
