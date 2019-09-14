@@ -5,7 +5,7 @@ from server.MathCode.question import AvoQuestion
 from random import randint
 from server.decorators import login_required, teacher_only, validate
 from server.models import db, Question, Tag, TagUser, Lesson, TagQuestion, TagClass, Class, Transaction
-from server.helpers import get_tree
+from server.helpers import get_tree, get_next_2
 from datetime import datetime
 from math import log
 import json
@@ -241,13 +241,6 @@ def get_lessons():
     """
     """
     return jsonify(lessons=[
-        {"ID": 1, "Tag": "Vectors", "mastery": 0.5, "string": "this is a test string"},
-        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
         {
             "ID": 15,
             "Tag": "Addition of negative square roots to the power of the square root of 27.mp4",
@@ -299,13 +292,6 @@ def get_learn_lessons():
     """
     """
     return jsonify(lessons=[
-        {"ID": 1, "Tag": "Vectors", "mastery": 0.5, "string": "this is a test string"},
-        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
-        {"ID": 5, "Tag": "Matrix", "mastery" : 0.8, "string": "this is also a testing of text"},
         {
             "ID": 15,
             "Tag": "Addition of negative square roots to the power of the square root of 27.mp4",
@@ -356,7 +342,16 @@ def get_learn_lessons():
                 'tag': mastery.TAG_RELATION.tagName,
                 'mastery': mastery
             }
-
+    next_2 = []
+    all_tags = Tag.query.all()
+    for lesson in lessons:
+        print(next_2)
+        if len(next_2) < 2:
+            next_2 = get_next_2(lesson.TAG, all_tags)
+        else:
+            break
+    print(next_2)   
+    lessons = list(filter(lambda lesson: lesson.TAG in next_2, lessons))
     lessons = list(map(lambda lesson: {"ID": lesson.LESSON, "Tag": tag_mastery_map[lesson.TAG]['tag'],
                                         "mastery": tag_mastery_map[lesson.TAG]['mastery'].mastery, "string": lesson.lesson_string}, lessons))
 
