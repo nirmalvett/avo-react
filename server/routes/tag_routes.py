@@ -437,17 +437,15 @@ def get_mastery(class_id: int):
         .filter(TagUser.TAG.in_([tag.TAG for tag in list_of_tags])) \
         .order_by(TagUser.time_created.asc()) \
         .all()
-    if len(user_tags) == 0:
+    if not user_tags:
         return jsonify({'masteryTimestamps': []})
     timestamps = {user_tags[0].TAG: [{'timestamp': user_tags[0].time_created, 'mastery': 0}]}
+    timestamps = {}
     for tag in user_tags:
-        if tag.TAG not in timestamps:
-            timestamps[tag.TAG] = []
+        timestamps[tag.TAG] = []
+    for tag in user_tags:
         tag_timestamp = tag.time_created
-        if len(timestamps[tag.TAG]) > 0 and tag_timestamp.date() == timestamps[tag.TAG][-1]['timestamp'].date():
-            timestamps[tag.TAG][-1]['mastery'] = tag.mastery
-        else:
-            timestamps[tag.TAG].append({'timestamp': tag_timestamp, 'mastery': tag.mastery})
+        timestamps[tag.TAG].append({'timestamp': tag_timestamp, 'mastery': tag.mastery})
     for tag in timestamps.keys():
         for timestamp in timestamps[tag]:
             timestamp['timestamp'] = timestamp['timestamp'].timestamp()
