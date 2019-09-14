@@ -346,7 +346,7 @@ def get_learn_lessons():
     all_tags = Tag.query.all()
     for lesson in lessons:
         print(next_2)
-        if len(next_2) < 2:
+        if len(next_2) < 1:
             next_2 = get_next_2(lesson.TAG, all_tags)
         else:
             break
