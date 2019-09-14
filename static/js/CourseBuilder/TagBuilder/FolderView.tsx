@@ -18,6 +18,7 @@ interface Tag {
     childOrder: number;
     children: Tag[];
     title: string;
+    expanded?: boolean
 }
 
 interface FolderViewProps {
@@ -243,6 +244,7 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
                                 title: tag.title,
                                 children: [],
                                 childOrder: tag.childOrder,
+                                expanded: true
                             });
                             addedAlready.push(tag.tagID);
                             tagCount -= 1;
@@ -299,6 +301,7 @@ export default class FolderView extends Component<FolderViewProps, FolderViewSta
                     title: tag.title,
                     childOrder: tag.childOrder,
                     children: [],
+                    expanded: true
                 });
                 addedAlready.push(tag.tagID);
             }
