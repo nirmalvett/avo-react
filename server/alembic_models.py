@@ -47,21 +47,6 @@ class Class(Base):
     def __repr__(self):
         return f'<Class {self.CLASS} {self.USER} {self.name} {self.enroll_key}>'
 
-class LessonContent(Base):
-    __tablename__ = "lesson_content"
-
-    ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
-    LESSON_CONTENT = db.Column(db.Text, nullable=False)
-    TAG_RELATION = db.relationship("Tag", back_populates="LESSON_CONTENT_RELATION")
-
-    def __init__(self, TAG, LESSON_CONTENT):
-        self.TAG = TAG
-        self.LESSON_CONTENT = LESSON_CONTENT
-
-    def __repr__(self):
-        return f'LESSON_CONTENT {self.ID} {self.TAG} {self.LESSON_CONTENT}'
-
 class ClassWhitelist(Base):
     __tablename__ = "class_whitelist"
 
@@ -315,7 +300,6 @@ class Tag(Base):
     LESSON_RELATION = db.relationship("Lesson", back_populates="TAG_RELATION")
     TAG_QUESTION_RELATION = db.relationship("TagQuestion", back_populates="TAG_RELATION")
     TAG_CLASS_RELATION = db.relationship("TagClass", back_populates="TAG_RELATION")
-    LESSON_CONTENT_RELATION = db.relationship("LessonContent", back_populates="TAG_RELATION")
 
     def __init__(self, parent, tagName, childOrder):
         self.parent = parent
