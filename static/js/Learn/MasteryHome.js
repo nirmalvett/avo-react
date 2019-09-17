@@ -3,7 +3,7 @@ import {
     Grid, Paper, IconButton, Typography, Select, InputLabel, FormControl, Grow
 } from '@material-ui/core';
 import {
-    ChevronRight, ChevronLeft, BookmarkBorder, ArrowBack, ArrowForward
+    ChevronRight, ChevronLeft, BookmarkBorder, ArrowBack, ArrowForward, SentimentVeryDissatisfied, SchoolOutlined
 } from '@material-ui/icons';
 import * as Http from '../Http';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
@@ -98,7 +98,18 @@ export default class MasteryHome extends Component {
                                         </Typography>
                                         <Grid container>
                                             <Grid item xs={8}>
-                                                <AVOMasteryChart theme={this.props.theme} dataPoints={this.getRelevantTag().chartingData} dataLabels={this.getRelevantTag().compAtTime} height='400px'/>
+                                                {this.getRelevantTag().chartingData.length > 2 ? 
+                                                        <AVOMasteryChart theme={this.props.theme} dataPoints={this.getRelevantTag().chartingData} dataLabels={this.getRelevantTag().compAtTime} height='400px'/>
+                                                    : (
+                                                        <div style={{ marginTop : '20%' }}>
+                                                            <SentimentVeryDissatisfied style={{ display : 'block', marginLeft : 'auto', marginRight : 'auto' }}/>
+                                                            <br/>
+                                                            <Typography style={{ width : '100%', textAlign : 'center' }} variant="body1">
+                                                                Not enough charting data to display anything.
+                                                            </Typography>
+                                                        </div>
+                                                    )
+                                                }
                                             </Grid>
                                             <Grid item xs={4}>
                                                 <AVOMasteryGauge theme={this.props.theme} comprehension={this.getRelevantTag().comprehension}/>
@@ -163,7 +174,7 @@ export default class MasteryHome extends Component {
             <Grid container xs={4}>
                 <Grid item xs={2}>
                     <div style={{ marginTop : '1em' }}>
-                        <BookmarkBorder/>
+                        <SchoolOutlined />
                     </div>
                 </Grid>
                 <Grid item xs={10}>

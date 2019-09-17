@@ -43,7 +43,7 @@ export default function AVOMasteryGauge(props) {
                 x = [centerX, centerX];
                 y = [centerY, centerY];
             }
-            const tri_color = !!props.colors && !!props.colors[triangles.length] ? props.colors[triangles.length] : '#399103';
+            const tri_color = props.theme.color[500];
             items.push(
                 <path
                     className='avo-progression-gauge-triangle'
@@ -71,7 +71,7 @@ export default function AVOMasteryGauge(props) {
                     cy="21"
                     r="16"
                     fill="transparent"
-                    stroke="#399103"
+                    stroke={props.theme.color[500]}
                     strokeWidth="0.85"
                     strokeDasharray={`${props.comprehension} ${100 - (props.comprehension)}`}
                     strokeDashoffset="25"
@@ -81,7 +81,7 @@ export default function AVOMasteryGauge(props) {
                 <foreignObject x={5} y={5} width={32} height={32}>
                     <center style={{ zIndex : 10, position: 'inherit' }}>
                         <div className='avo-progression-gauge' style={{ background : props.theme && props.theme.theme === 'dark' ? 'rgb(48, 48, 48)' : '#fff' }}>
-                            <center className='avo-progression-gauge-text'>
+                            <center className='avo-progression-gauge-text' style={{ color : props.theme.color[500] }}>
                                 {props.comprehension}%
                             </center>
                         </div>

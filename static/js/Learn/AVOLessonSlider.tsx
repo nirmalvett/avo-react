@@ -1,5 +1,5 @@
 import React, {Component, ReactElement} from 'react';
-import {Card, Grid, Icon, IconButton, Typography} from '@material-ui/core';
+import {Card, Grid, Icon, IconButton, Typography, Fade} from '@material-ui/core';
 import AVOLessonFSM from './AVOLessonFSM';
 import AVOMasteryGauge from './MasteryGauge';
 import AVOLearnTestComp from './AVOLearnTestComp';
@@ -104,48 +104,50 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
             let slideGroup: ReactElement[] = [];
             group.forEach((lesson, LIndex) => {
                 slideGroup.push(
-                    <Grid item xs={4}>
-                        <Card
-                            className={`avo-card`}
-                            style={{
-                                padding: '10px',
-                                flex: 1,
-                                margin: 'none',
-                                width: 'auto',
-                                display: 'flex',
-                                height: '50vh',
-                                position: 'relative',
-                                flexDirection: 'column',
-                            }}
-                            id={`avo-lesson__card-${LIndex}-${gIndex}`}
-                            key={`avo-learn__card-key:${LIndex}`}
-                        >
-                            <IconButton
-                                onClick={() => this.openLessonFSM(lesson, `${LIndex}-${gIndex}`)}
-                                color='primary'
-                                aria-label='fullscreen'
+                    <Fade in={this.getSlideTranslation(gIndex) == 0}>
+                        <Grid item xs={4}>
+                            <Card
+                                className={`avo-card`}
                                 style={{
-                                    position: 'absolute',
-                                    right: '0.125em',
-                                    top: '0.125em',
-                                    zIndex: 10,
+                                    padding: '10px',
+                                    flex: 1,
+                                    margin: 'none',
+                                    width: 'auto',
+                                    display: 'flex',
+                                    height: '50vh',
+                                    position: 'relative',
+                                    flexDirection: 'column',
                                 }}
+                                id={`avo-lesson__card-${LIndex}-${gIndex}`}
+                                key={`avo-learn__card-key:${LIndex}`}
                             >
-                                <Icon>fullscreen</Icon>
-                            </IconButton>
-                            <AVOMasteryGauge
-                                theme={this.props.theme}
-                                comprehension={Math.floor(
-                                    (lesson.newMastery || lesson.mastery) * 100,
-                                )}
-                                colors={['#399103', '#039124', '#809103']}
-                            />
-                            <Typography variant={'h6'}>{lesson.Tag}</Typography>
-                            <Typography variant={'subtitle1'}>
-                                {lesson.string.substring(0, 20)}...
-                            </Typography>
-                        </Card>
-                    </Grid>,
+                                <IconButton
+                                    onClick={() => this.openLessonFSM(lesson, `${LIndex}-${gIndex}`)}
+                                    color='primary'
+                                    aria-label='fullscreen'
+                                    style={{
+                                        position: 'absolute',
+                                        right: '0.125em',
+                                        top: '0.125em',
+                                        zIndex: 10,
+                                    }}
+                                >
+                                    <Icon>fullscreen</Icon>
+                                </IconButton>
+                                <AVOMasteryGauge
+                                    theme={this.props.theme}
+                                    comprehension={Math.floor(
+                                        (lesson.newMastery || lesson.mastery) * 100,
+                                    )}
+                                    colors={['#399103', '#039124', '#809103']}
+                                />
+                                <Typography variant={'h6'}>{lesson.Tag}</Typography>
+                                <Typography variant={'subtitle1'}>
+                                    {lesson.string.substring(0, 20)}...
+                                </Typography>
+                            </Card>
+                        </Grid>
+                    </Fade>
                 );
             });
             output.push(
@@ -161,7 +163,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                     }}
                 >
                     {slideGroup}
-                </Grid>,
+                </Grid>
             );
         });
         return output;

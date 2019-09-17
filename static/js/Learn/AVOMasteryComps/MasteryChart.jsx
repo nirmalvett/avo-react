@@ -73,7 +73,7 @@ export default function AVOMasteryChart(props) {
                         const tooltipEL = document.getElementById('avo-line-chart-tooltip');
                         document.getElementById('avo-line-chart-container').addEventListener('mousemove', tooltipFollow, true);
                         tooltipEL.style.opacity = '1';
-                        tooltipEL.innerHTML = `<b>Mastery:</b> ${dataPoint}%<br/><b>Date:</b>${props.dataLabels[index]}`;
+                        tooltipEL.innerHTML = `<b>Mastery:</b> ${dataPoint}%<br/><b>Date:</b> ${props.dataLabels[index]}`;
                     }}
                     onMouseLeave={() => {
                         const tooltipEL = document.getElementById('avo-line-chart-tooltip');
