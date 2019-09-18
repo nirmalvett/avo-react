@@ -256,10 +256,16 @@ export default class AVOLearnTestComp extends Component<
         const currentIndex = this.state.questionIndex;
         const {newAnswers} = this.state;
         const {questions} = this.props.lesson.data;
-
+        console.log(questions)
+        console.log(newAnswers)
+        console.log(currentIndex)
+        const convertedIndex = Math.floor(currentIndex / 2)
         if (currentIndex > this.props.lesson.data.questions.length * 2 - 2){
               this.switchToTestEnd();
-        } else if (questions[currentIndex] && newAnswers[currentIndex]) { this.getExplanation(newAnswers, questions[currentIndex], currentIndex); }
+        } else if (questions[convertedIndex] && newAnswers[convertedIndex] && currentIndex % 2 === 0) {
+            console.log(convertedIndex)
+            this.getExplanation(newAnswers, questions[convertedIndex], convertedIndex); 
+        }
         this.setState({
             questionIndex: currentIndex + 1,
             questionState: !!this.state.questionState ? 0 : 1,
