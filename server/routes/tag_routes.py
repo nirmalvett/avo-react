@@ -5,7 +5,7 @@ from server.MathCode.question import AvoQuestion
 from random import randint
 from server.decorators import login_required, teacher_only, validate
 from server.models import db, Question, Tag, TagUser, Lesson, TagQuestion, TagClass, Class, Transaction
-from server.helpers import get_tree, get_next_2
+from server.helpers import get_tree, get_next_2, timestamp
 from datetime import datetime
 from math import log
 import json
@@ -442,8 +442,8 @@ def get_mastery(class_id: int):
         tag_timestamp = tag.time_created
         timestamps[tag.TAG].append({'timestamp': tag_timestamp, 'mastery': tag.mastery})
     for tag in timestamps.keys():
-        for timestamp in timestamps[tag]:
-            timestamp['timestamp'] = timestamp['timestamp'].timestamp()
+        for t in timestamps[tag]:
+            t['timestamp'] = timestamp(t['timestamp'])
     return jsonify({'masteryTimestamps': timestamps})
 
 
