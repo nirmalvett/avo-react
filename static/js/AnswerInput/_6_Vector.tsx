@@ -5,8 +5,16 @@ import {IconButton, TextField, Typography} from '@material-ui/core';
 import {Add, DeleteOutlined} from '@material-ui/icons';
 
 export class _6_Vector extends PureComponent<AnswerInputImplementationProps> {
+	getCells() {
+		const cells = this.props.value.split(',').map(x => x.trim());
+		if (cells.length < 2) {
+			cells.push('');
+		}
+		return cells;
+	}
+
     render() {
-        const cells = (this.props.value).split(',').map(x => x.trim());
+        const cells = this.getCells();
         return (
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                 {getMathJax(this.props.prompt)}
@@ -56,19 +64,19 @@ export class _6_Vector extends PureComponent<AnswerInputImplementationProps> {
     };
 
     onChange(value: string, index: number) {
-        const cells = this.props.value.split(',').map(x => x.trim());
+        const cells = this.getCells();
         cells[index] = value;
         this.props.onChange(cells.join(','));
     }
 
     addColumn = () => {
-        const cells = this.props.value.split(',').map(x => x.trim());
+        const cells = this.getCells();
         cells.push('');
         this.props.save(cells.join(','));
     };
 
     deleteColumn = () => {
-        const cells = this.props.value.split(',').map(x => x.trim());
+        const cells = this.getCells();
         cells.pop();
         this.props.save(cells.join(','));
     };
