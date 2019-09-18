@@ -71,7 +71,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
             >
                 <Card style={{width: '100%', overflow: 'auto', marginBottom: 20}}>
                     <CardContent>
-                        <div style={{minHeight: 500}}>
+                        <div style={{maxHeight: 500}}>
                             <FormControl style={{minWidth: 120, paddingBottom: 20}}>
                                 <Select
                                     value={this.state.selectedClassName}
