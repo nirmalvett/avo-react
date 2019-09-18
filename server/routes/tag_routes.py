@@ -377,7 +377,10 @@ def get_lesson_question_result(question_id: int, answers: list, seed: int, lesso
     new_mastery = TagUser(current_user.USER, lesson.TAG)
     new_mastery.time_created = datetime.now()
     if q.score == question.total:
-        new_mastery.mastery = mastery_val + max(log(100 - (mastery_val * 100), 4) / 10, 0.1)
+        if mastery_val == 1:
+            new_mastery.mastery = mastery_val
+        else:
+            new_mastery.mastery = mastery_val + max(log(100 - (mastery_val * 100), 4) / 10, 0.1)
     else:
         new_mastery.mastery = mastery_val - max((mastery_val * 0.3), 0.05)
     # clamp the value between 0 <= x <= 1
