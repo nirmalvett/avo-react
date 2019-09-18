@@ -105,7 +105,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                     this.setState({tags: [...this.state.tags, ...tags]}, () =>
                         this.loadTags(classIDs.slice(1)),
                     ),
-                console.warn,
+                () => this.loadTags(classIDs.slice(1)),
             );
         }
     }
