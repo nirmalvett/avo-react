@@ -254,7 +254,12 @@ export default class AVOLearnTestComp extends Component<
 
     goToNextSlide = () => {
         const currentIndex = this.state.questionIndex;
-        if (currentIndex > this.props.lesson.data.questions.length * 2 - 2) this.switchToTestEnd();
+        const {newAnswers} = this.state;
+        const {questions} = this.props.lesson.data;
+
+        if (currentIndex > this.props.lesson.data.questions.length * 2 - 2){
+              this.switchToTestEnd();
+        } else if (questions[currentIndex] && newAnswers[currentIndex]) { this.getExplanation(newAnswers, questions[currentIndex], currentIndex); }
         this.setState({
             questionIndex: currentIndex + 1,
             questionState: !!this.state.questionState ? 0 : 1,
@@ -320,7 +325,6 @@ export default class AVOLearnTestComp extends Component<
                                 newAnswerList[index] = value;
                                 this.setState({newAnswers: newAnswerList});
                                 console.log(newAnswerList);
-                                this.getExplanation(newAnswerList, question, index);
                             }}
                         />
                     </div>
