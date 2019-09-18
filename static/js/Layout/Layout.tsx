@@ -154,7 +154,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
         // this helper returns the logic for what is loaded in the right side of the menu
         const {isTeacher, color, theme} = this.props;
         const {section} = this.state;
-        if (section.name === 'Add Students To Class') {
+        if (section.name === 'Add Students') {
             return <Whitelist color={this.color()} />;
         } else if (section.name === 'Build Question') {
             return (

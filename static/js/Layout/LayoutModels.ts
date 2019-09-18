@@ -2,7 +2,7 @@ import {GetTest} from '../Http';
 import {AvoSet} from '../Http/types';
 
 interface AddStudentsToClass {
-    name: 'Add Students To Class';
+    name: 'Add Students';
 }
 
 interface BuildQuestion {
