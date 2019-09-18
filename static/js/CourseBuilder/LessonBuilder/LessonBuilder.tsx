@@ -97,7 +97,7 @@ export default class LessonBuilder extends React.Component<any, any> {
                                             }}
                                             style={{margin: 25, padding: 25, cursor: 'pointer'}}
                                         >
-                                            <Typography>{ (this.state.tags.find((tag: any) => tag.tagID === lesson.lesson.TAG) || {tagName: "None"}).tagName }</Typography>
+                                            <Typography>{ ((this.state.tags || []).find((tag: any) => tag.tagID === lesson.lesson.TAG) || {tagName: "None"}).tagName }</Typography>
                                             <CardContent>
                                                 {utils.getMathJax(lesson.lesson.lessonString)}
                                             </CardContent>
