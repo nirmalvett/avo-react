@@ -231,7 +231,7 @@ class MasteryHistory(db.Model):
     __tablename__ = 'mastery_history'
 
     MASTERY_HISTORY = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    MASTERY = db.Column(db.Integer, db.ForeignKey("MASTERY.MASTERY"), nullable=False)
+    MASTERY = db.Column(db.Integer, db.ForeignKey("mastery.MASTERY"), nullable=False)
     mastery_level = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
 
