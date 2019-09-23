@@ -193,6 +193,7 @@ class Mastery(db.Model):
     aptitude_survey = db.Column(db.Integer, nullable=False)
 
     CONCEPT_RELATION = db.relationship("Concept", back_populates="MASTERY_RELATION")
+    MASTERY_HISTORY_RELATION = db.relationship("MasteryHistory", back_populates="MASTERY_RELATION")
     USER_RELATION = db.relationship("User", back_populates="MASTERY_RELATION")
 
     def __init__(self, concept_id, user_id, mastery_level, mastery_survey, aptitude_survey):
@@ -204,6 +205,25 @@ class Mastery(db.Model):
 
     def __repr__(self):
         return f'<Mastery {self.MASTERY} {self.CONCEPT} {self.USER} {self.mastery_level} {self.mastery_survey} {self.aptitude_survey}>'
+
+
+class MasteryHistory(db.Model):
+    __tablename__ = 'mastery_history'
+
+    MASTERY_HISTORY = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    MASTERY = db.Column(db.Integer, db.ForeignKey("MASTERY.MASTERY"), nullable=False)
+    mastery_level = db.Column(db.Float, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
+
+    MASTERY_RELATION = db.relationship("Mastery", back_populates="MASTERY_HISTORY_RELATION")
+
+    def __init__(self, MASTERY, mastery_level, timestamp):
+        self.MASTERY = MASTERY
+        self.mastery_level = mastery_level
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return f'<MasteryHistory {self.MASTERY} {self.mastery_level} {self.timestamp}>'
 
 
 class Message(db.Model):
