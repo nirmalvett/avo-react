@@ -82,6 +82,42 @@ class ClassWhitelist(db.Model):
         return f'class_whitelist {self.ID} {self.USER} {self.CLASS}'
 
 
+class Course(db.Model):
+    __tablename__ = "COURSE"
+
+    COURSE = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(45), nullable=False)
+
+    SECTION_RELATION = db.relationship("Section", back_populates="COURSE_RELATION")
+    DISCOUNT_RELATION = db.relationship("Discount", back_populates="COURSE_RELATION")
+    USER_COURSE_RELATION = db.relationship("UserCourse", back_populates="COURSE_RELATION")
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return f'<Course {self.COURSE} {self.name}>'
+
+
+class Discount(db.Model):
+    __tablename__ = "DISCOUNT"
+
+    DISCOUNT = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    COURSE = db.Column(db.Integer, db.ForeignKey("COURSE.COURSE"), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    single_use = db.Column(db.Boolean, default=False, nullable=False)
+
+    COURSE_RELATION = db.relationship("Course", back_populates="DISCOUNT_RELATION")
+
+    def __init__(self, course_id, price, single_use):
+        self.COURSE = course_id
+        self.price = price
+        self.single_use = single_use
+
+    def __repr__(self):
+        return f'<Discount {self.DISCOUNT} {self.COURSE} {self.price} {self.single_use}>'
+
+
 class Lesson(db.Model):
     __tablename__ = "LESSON"
 
@@ -149,6 +185,28 @@ class Question(db.Model):
 
     def __repr__(self):
         return f'<Question {self.QUESTION} {self.SET} {self.name} {self.string} {self.answers} {self.total} {self.category}>'
+
+
+class Section(db.Model):
+    __tablename__ = "SECTION"
+
+    SECTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'), nullable=True)
+    name = db.Column(db.String(45), nullable=False)
+    enroll_key = db.Column(db.String(10), nullable=True)
+    price = db.Column(db.Float, nullable=False, default=0)
+
+    COURSE_RELATION = db.relationship("Course", back_populates="SECTION_RELATION")
+    USER_SECTION_RELATION = db.relationship("UserSection", back_populates="SECTION_RELATION")
+
+    def __init__(self, course_id, name, enroll_key, price):
+        self.COURSE = course_id
+        self.name = name
+        self.enroll_key = enroll_key
+        self.price = price
+
+    def __repr__(self):
+        return f'<Section {self.SECTION} {self.COURSE} {self.name} {self.enroll_key} {self.price}>'
 
 
 class Set(db.Model):
@@ -367,6 +425,8 @@ class User(UserMixin, db.Model):
     TAKES_RELATION = db.relationship("Takes", back_populates="USER_RELATION")
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="USER_RELATION")
+    USER_COURSE_RELATION = db.relationship("UserCourse", back_populates="USER_RELATION")
+    USER_SECTION_RELATION = db.relationship("UserSection", back_populates="USER_RELATION")
 
     TAG_USER_RELATION = db.relationship("TagUser", back_populates="USER_RELATION")
     # LESSON_RELATION = db.relationship("Lesson", back_populates="USER_RELATION")
@@ -392,6 +452,50 @@ class User(UserMixin, db.Model):
 
     def get_id(self):
         return self.USER
+
+
+class UserCourse(db.Model):
+    __tablename__ = "user_course"
+
+    USER_COURSE = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    COURSE = db.Column(db.Integer, db.ForeignKey("COURSE.COURSE"), nullable=False)
+    can_edit = db.Column(db.Boolean, default=False, nullable=False)
+
+    USER_RELATION = db.relationship("User", back_populates="USER_COURSE_RELATION")
+    COURSE_RELATION = db.relationship("Course", back_populates="USER_COURSE_RELATION")
+
+    def __init__(self, user_id, course_id, can_edit):
+        self.USER = user_id
+        self.COURSE = course_id
+        self.can_edit = can_edit
+
+    def __repr__(self):
+        return f'<UserCourse {self.USER_COURSE} {self.USER} {self.COURSE} {self.can_edit}>'
+
+
+class UserSection(db.Model):
+    __tablename__ = "user_section"
+
+    USER_SECTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    SECTION = db.Column(db.Integer, db.ForeignKey("SECTION.SECTION"), nullable=False)
+    user_type = db.Column(db.String(10), nullable=False)
+    transaction_id = db.Column(db.String(45), nullable=True)
+    expiry = db.Column(db.DateTime, nullable=True)
+
+    USER_RELATION = db.relationship("User", back_populates="USER_SECTION_RELATION")
+    SECTION_RELATION = db.relationship("Section", back_populates="USER_SECTION_RELATION")
+
+    def __init__(self, user_id, section_id, user_type, transaction_id, expiry):
+        self.USER = user_id
+        self.SECTION = section_id
+        self.user_type = user_type
+        self.transaction_id = transaction_id
+        self.expiry = expiry
+
+    def __repr__(self):
+        return f'<UserSection {self.USER_SECTION} {self.USER} {self.SECTION} {self.user_type} {self.transaction_id} {self.expiry}>'
 
 
 class UserViewsSet(db.Model):
