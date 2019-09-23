@@ -93,6 +93,9 @@ class Concept(db.Model):
     COURSE_RELATION = db.relationship("Course", back_populates="CONCEPT_RELATION")
     CONCEPT_QUESTION_RELATION = db.relationship("ConceptQuestion", back_populates="CONCEPT_RELATION")
     MASTERY_RELATION = db.relationship("Mastery", back_populates="CONCEPT_RELATION")
+    CONCEPT_PARENT_RELATION = db.relationship("ConceptRelation", back_populates="CONCEPT_PARENT_RELATION", foreign_keys="ConceptRelation.PARENT")
+    CONCEPT_CHILD_RELATION = db.relationship("ConceptRelation", back_populates="CONCEPT_CHILD_RELATION", foreign_keys="ConceptRelation.CHILD")
+
 
     def __init__(self, course_id, name, lesson_content):
         self.COURSE = course_id
@@ -121,6 +124,23 @@ class ConceptQuestion(db.Model):
 
     def __repr__(self):
         return f'<Concept {self.CONCEPT} {self.COURSE} {self.name} {self.lesson_content}>'
+
+
+class ConceptRelation(db.Model):
+    __tablename__ = 'concept_relation'
+
+    CONCEPT_RELATION = db.Column(db.Integer, primary_key=True)
+    PARENT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
+    CHILD = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
+    weight = db.Column(db.Integer, nullable=False)
+
+    CONCEPT_PARENT_RELATION = db.relationship("Concept", back_populates="CONCEPT_PARENT_RELATION", foreign_keys=[PARENT])
+    CONCEPT_CHILD_RELATION = db.relationship("Concept", back_populates="CONCEPT_CHILD_RELATION", foreign_keys=[CHILD])
+
+    def __init__(self, PARENT, CHILD, weight):
+        self.PARENT = PARENT
+        self.CHILD = CHILD
+        self.weight = weight
 
 
 class Course(db.Model):
