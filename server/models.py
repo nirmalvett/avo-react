@@ -43,7 +43,6 @@ class Class(db.Model):  # All references to this table should be removed eventua
     TEST_RELATION = db.relationship("Test", back_populates="CLASS_RELATION")
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="CLASS_RELATION")
     TRANSACTION_PROCESSING_RELATION = db.relationship("TransactionProcessing", back_populates="CLASS_RELATION")
-    MESSAGE_RELATION = db.relationship("Message", back_populates="CLASS_RELATION")
     CLASS_WHITELIST_RELATION = db.relationship("ClassWhitelist", back_populates="CLASS_RELATION")
     BACKLOG_WHITELIST_RELATION = db.relationship("ClassWhitelistBacklog", back_populates="CLASS_RELATION")
     TAG_CLASS_RELATION = db.relationship("TagClass", back_populates="CLASS_RELATION")
@@ -467,8 +466,9 @@ class Test(db.Model):
     seed_list = db.Column(db.String(5000), nullable=False)
     total = db.Column(db.Integer, nullable=False)
 
-    TAKES_RELATION = db.relationship("Takes", back_populates="TEST_RELATION")
     CLASS_RELATION = db.relationship("Class", back_populates="TEST_RELATION")
+
+    TAKES_RELATION = db.relationship("Takes", back_populates="TEST_RELATION")
 
     def __init__(self, CLASS, name, is_open, open_time, deadline, timer, attempts, question_list, seed_list, total):
         self.CLASS = CLASS
