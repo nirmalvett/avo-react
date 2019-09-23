@@ -91,11 +91,11 @@ class Concept(db.Model):
     lesson_content = db.Column(db.String(2000), nullable=False)
 
     COURSE_RELATION = db.relationship("Course", back_populates="CONCEPT_RELATION")
+
     CONCEPT_QUESTION_RELATION = db.relationship("ConceptQuestion", back_populates="CONCEPT_RELATION")
     MASTERY_RELATION = db.relationship("Mastery", back_populates="CONCEPT_RELATION")
     CONCEPT_PARENT_RELATION = db.relationship("ConceptRelation", back_populates="CONCEPT_PARENT_RELATION", foreign_keys="ConceptRelation.PARENT")
     CONCEPT_CHILD_RELATION = db.relationship("ConceptRelation", back_populates="CONCEPT_CHILD_RELATION", foreign_keys="ConceptRelation.CHILD")
-
 
     def __init__(self, course_id, name, lesson_content):
         self.COURSE = course_id
@@ -123,7 +123,7 @@ class ConceptQuestion(db.Model):
         self.lesson_content = lesson_content
 
     def __repr__(self):
-        return f'<Concept {self.CONCEPT} {self.COURSE} {self.name} {self.lesson_content}>'
+        return f'<ConceptQuestion {self.CONCEPT_QUESTION} {self.CONCEPT} {self.QUESTION} {self.weight}>'
 
 
 class ConceptRelation(db.Model):
@@ -137,10 +137,13 @@ class ConceptRelation(db.Model):
     CONCEPT_PARENT_RELATION = db.relationship("Concept", back_populates="CONCEPT_PARENT_RELATION", foreign_keys=[PARENT])
     CONCEPT_CHILD_RELATION = db.relationship("Concept", back_populates="CONCEPT_CHILD_RELATION", foreign_keys=[CHILD])
 
-    def __init__(self, PARENT, CHILD, weight):
-        self.PARENT = PARENT
-        self.CHILD = CHILD
+    def __init__(self, parent_id, child_id, weight):
+        self.PARENT = parent_id
+        self.CHILD = child_id
         self.weight = weight
+
+    def __repr__(self):
+        return f'<ConceptRelation {self.CONCEPT_RELATION} {self.PARENT} {self.CHILD} {self.weight}>'
 
 
 class Course(db.Model):
@@ -213,8 +216,9 @@ class Mastery(db.Model):
     aptitude_survey = db.Column(db.Integer, nullable=False)
 
     CONCEPT_RELATION = db.relationship("Concept", back_populates="MASTERY_RELATION")
-    MASTERY_HISTORY_RELATION = db.relationship("MasteryHistory", back_populates="MASTERY_RELATION")
     USER_RELATION = db.relationship("User", back_populates="MASTERY_RELATION")
+
+    MASTERY_HISTORY_RELATION = db.relationship("MasteryHistory", back_populates="MASTERY_RELATION")
 
     def __init__(self, concept_id, user_id, mastery_level, mastery_survey, aptitude_survey):
         self.CONCEPT = concept_id
@@ -250,21 +254,24 @@ class Message(db.Model):
     __tablename__ = 'MESSAGE'
 
     MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+    SECTION = db.Column(db.Integer, db.ForeignKey("SECTION.SECTION"), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
     title = db.Column(db.String(200), nullable=False)
     body = db.Column(db.String(1000), nullable=False)
-    date_created = db.Column(db.DATETIME, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
 
-    CLASS_RELATION = db.relationship("Class", back_populates="MESSAGE_RELATION")
+    SECTION_RELATION = db.relationship("Section", back_populates="MESSAGE_RELATION")
+    USER_RELATION = db.relationship("User", back_populates="MESSAGE_RELATION")
 
-    def __init__(self, CLASS, title, body, date_created):
-        self.CLASS = CLASS
+    def __init__(self, section_id, user_id, title, body, timestamp):
+        self.SECTION = section_id
+        self.USER = user_id
         self.title = title
         self.body = body
-        self.date_created = date_created
+        self.timestamp = timestamp
 
     def __repr__(self):
-        return f'{self.MESSAGE} {self.CLASS} {self.title} {self.body} {self.date_created}'
+        return f'{self.MESSAGE} {self.SECTION} {self.USER} {self.title} {self.body} {self.timestamp}'
 
 
 class Question(db.Model):
@@ -278,8 +285,9 @@ class Question(db.Model):
     total = db.Column(db.Integer, nullable=False)
     category = db.Column(db.Integer, nullable=False)
 
-    CONCEPT_QUESTION_RELATION = db.relationship("ConceptQuestion", back_populates="QUESTION_RELATION")
     SET_RELATION = db.relationship("Set", back_populates="QUESTION_RELATION")
+
+    CONCEPT_QUESTION_RELATION = db.relationship("ConceptQuestion", back_populates="QUESTION_RELATION")
     TAG_QUESTION_RELATION = db.relationship("TagQuestion", back_populates="QUESTION_RELATION")
 
     def __init__(self, set_id, name, string, answers, total):
@@ -304,6 +312,8 @@ class Section(db.Model):
     price = db.Column(db.Float, nullable=False, default=0)
 
     COURSE_RELATION = db.relationship("Course", back_populates="SECTION_RELATION")
+
+    MESSAGE_RELATION = db.relationship("Message", back_populates="SECTION_RELATION")
     USER_SECTION_RELATION = db.relationship("UserSection", back_populates="SECTION_RELATION")
 
     def __init__(self, course_id, name, enroll_key, price):
@@ -530,6 +540,7 @@ class User(UserMixin, db.Model):
 
     CLASS_RELATION = db.relationship("Class", back_populates="USER_RELATION")
     MASTERY_RELATION = db.relationship("Mastery", back_populates="USER_RELATION")
+    MESSAGE_RELATION = db.relationship("Message", back_populates="USER_RELATION")
     TAKES_RELATION = db.relationship("Takes", back_populates="USER_RELATION")
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="USER_RELATION")
