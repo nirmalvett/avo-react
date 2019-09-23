@@ -10,7 +10,7 @@ import json
 db = SQLAlchemy()
 
 
-class ClassWhitelistBacklog(db.Model):
+class ClassWhitelistBacklog(db.Model):  # All references to this table should be removed eventually
     __tablename__ = "backlog_whitelist"
 
     ID = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -27,7 +27,7 @@ class ClassWhitelistBacklog(db.Model):
         return f'backlog_whitelist {self.ID} {self.USER_ID} {self.CLASS}'
 
 
-class Class(db.Model):
+class Class(db.Model):  # All references to this table should be removed eventually
     __tablename__ = "CLASS"
 
     CLASS = db.Column(db.Integer, primary_key=True)
@@ -64,7 +64,7 @@ class Class(db.Model):
         return f'<Class {self.CLASS} {self.USER} {self.name} {self.enroll_key}>'
 
 
-class ClassWhitelist(db.Model):
+class ClassWhitelist(db.Model):  # All references to this table should be removed eventually
     __tablename__ = "class_whitelist"
 
     ID = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -118,7 +118,7 @@ class Discount(db.Model):
         return f'<Discount {self.DISCOUNT} {self.COURSE} {self.price} {self.single_use}>'
 
 
-class Lesson(db.Model):
+class Lesson(db.Model):  # All references to this table should be removed eventually
     __tablename__ = "LESSON"
 
     LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -209,7 +209,7 @@ class Section(db.Model):
         return f'<Section {self.SECTION} {self.COURSE} {self.name} {self.enroll_key} {self.price}>'
 
 
-class Set(db.Model):
+class Set(db.Model):  # All references to this table should be removed eventually
     __tablename__ = "SET"
 
     SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -225,7 +225,7 @@ class Set(db.Model):
         return f'<Set {self.SET} {self.name}>'
 
 
-class Tag(db.Model):
+class Tag(db.Model):  # All references to this table should be removed eventually
     __tablename__ = 'TAG'
 
     TAG = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -247,7 +247,7 @@ class Tag(db.Model):
         return f'TAG {self.TAG} {self.parent} {self.tagName} {self.childOrder}'
 
 
-class TagClass(db.Model):
+class TagClass(db.Model):  # All references to this table should be removed eventually
     __tablename__ = "tag_class"
 
     TAG_CLASS = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -265,7 +265,7 @@ class TagClass(db.Model):
         return f'TAG_CLASS {self.TAG_CLASS} {self.TAG} {self.CLASS}'
 
 
-class TagQuestion(db.Model):
+class TagQuestion(db.Model):  # All references to this table should be removed eventually
     __tablename__ = "tag_question"
 
     TAG_QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -283,7 +283,7 @@ class TagQuestion(db.Model):
         return f'TAG_QUESTION {self.TAG_QUESTION} {self.TAG} {self.QUESTION}'
 
 
-class TagUser(db.Model):
+class TagUser(db.Model):  # All references to this table should be removed eventually
     __tablename__ = "tag_user"
 
     TAGUSER = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -370,7 +370,7 @@ class Test(db.Model):
                f'{self.deadline} {self.timer} {self.attempts} {self.question_list} {self.seed_list} {self.total}>'
 
 
-class Transaction(db.Model):
+class Transaction(db.Model):  # All references to this table should be removed eventually
     __tablename__ = 'transaction'
 
     TRANSACTION = db.Column(db.String(30), primary_key=True)
@@ -498,7 +498,7 @@ class UserSection(db.Model):
         return f'<UserSection {self.USER_SECTION} {self.USER} {self.SECTION} {self.user_type} {self.transaction_id} {self.expiry}>'
 
 
-class UserViewsSet(db.Model):
+class UserViewsSet(db.Model):  # All references to this table should be removed eventually
     __tablename__ = "user_views_set"
 
     USER_VIEWS_SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
