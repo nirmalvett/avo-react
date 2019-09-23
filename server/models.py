@@ -255,17 +255,17 @@ class Message(db.Model):
     MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
     SECTION = db.Column(db.Integer, db.ForeignKey("SECTION.SECTION"), nullable=False)
     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
-    title = db.Column(db.String(200), nullable=False)
+    header = db.Column(db.String(200), nullable=False)
     body = db.Column(db.String(1000), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
 
     SECTION_RELATION = db.relationship("Section", back_populates="MESSAGE_RELATION")
     USER_RELATION = db.relationship("User", back_populates="MESSAGE_RELATION")
 
-    def __init__(self, section_id, user_id, title, body, timestamp):
+    def __init__(self, section_id, user_id, header, body, timestamp):
         self.SECTION = section_id
         self.USER = user_id
-        self.title = title
+        self.header = header
         self.body = body
         self.timestamp = timestamp
 
