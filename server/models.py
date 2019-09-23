@@ -7,8 +7,24 @@ from datetime import datetime
 
 import json
 
-# Initialize Database
 db = SQLAlchemy()
+
+
+class ClassWhitelistBacklog(db.Model):
+    __tablename__ = "backlog_whitelist"
+
+    ID = db.Column(db.Integer, primary_key=True, nullable=False)
+    USER_ID = db.Column(db.String(100), nullable=False)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+
+    CLASS_RELATION = db.relationship("Class", back_populates="BACKLOG_WHITELIST_RELATION")
+
+    def __init__(self, user_id, class_id):
+        self.USER_ID = user_id
+        self.CLASS = class_id
+
+    def __repr__(self):
+        return f'backlog_whitelist {self.ID} {self.USER_ID} {self.CLASS}'
 
 
 class Class(db.Model):
@@ -66,21 +82,168 @@ class ClassWhitelist(db.Model):
         return f'class_whitelist {self.ID} {self.USER} {self.CLASS}'
 
 
-class ClassWhitelistBacklog(db.Model):
-    __tablename__ = "backlog_whitelist"
+class Lesson(db.Model):
+    __tablename__ = "LESSON"
 
-    ID = db.Column(db.Integer, primary_key=True, nullable=False)
-    USER_ID = db.Column(db.String(100), nullable=False)
+    LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
     CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
+    lesson_string = db.Column(db.Text, nullable=False)
+    question_list = db.Column(db.String(500), nullable=False)
 
-    CLASS_RELATION = db.relationship("Class", back_populates="BACKLOG_WHITELIST_RELATION")
+    CLASS_RELATION = db.relationship("Class", back_populates="LESSON_RELATION")
+    TAG_RELATION = db.relationship("Tag", back_populates="LESSON_RELATION")
 
-    def __init__(self, user_id, class_id):
-        self.USER_ID = user_id
-        self.CLASS = class_id
+    def __init__(self, CLASS, tag, lesson_string, question_list):
+        self.CLASS = CLASS
+        self.TAG = tag
+        self.lesson_string = lesson_string
+        self.question_list = question_list
 
     def __repr__(self):
-        return f'backlog_whitelist {self.ID} {self.USER_ID} {self.CLASS}'
+        return f'LESSON {self.LESSON} {self.CLASS} {self.lesson_string}'
+
+
+class Message(db.Model):
+    __tablename__ = 'MESSAGE'
+
+    MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    body = db.Column(db.String(1000), nullable=False)
+    date_created = db.Column(db.DATETIME, nullable=False)
+
+    CLASS_RELATION = db.relationship("Class", back_populates="MESSAGE_RELATION")
+
+    def __init__(self, CLASS, title, body, date_created):
+        self.CLASS = CLASS
+        self.title = title
+        self.body = body
+        self.date_created = date_created
+
+    def __repr__(self):
+        return f'{self.MESSAGE} {self.CLASS} {self.title} {self.body} {self.date_created}'
+
+
+class Question(db.Model):
+    __tablename__ = "QUESTION"
+
+    QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    SET = db.Column(db.Integer, db.ForeignKey("SET.SET"), nullable=False)
+    name = db.Column(db.String(60), nullable=False)
+    string = db.Column(db.String(5000), nullable=False)
+    answers = db.Column(db.Integer, nullable=False)
+    total = db.Column(db.Integer, nullable=False)
+    category = db.Column(db.Integer, nullable=False)
+
+    SET_RELATION = db.relationship("Set", back_populates="QUESTION_RELATION")
+    TAG_QUESTION_RELATION = db.relationship("TagQuestion", back_populates="QUESTION_RELATION")
+
+    def __init__(self, set_id, name, string, answers, total):
+        self.SET = set_id
+        self.name = name
+        self.string = string
+        self.answers = answers
+        self.total = total
+        self.category = 0
+
+    def __repr__(self):
+        return f'<Question {self.QUESTION} {self.SET} {self.name} {self.string} {self.answers} {self.total} {self.category}>'
+
+
+class Set(db.Model):
+    __tablename__ = "SET"
+
+    SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(45), nullable=False)
+
+    QUESTION_RELATION = db.relationship("Question", back_populates="SET_RELATION")
+    USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="SET_RELATION")
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return f'<Set {self.SET} {self.name}>'
+
+
+class Tag(db.Model):
+    __tablename__ = 'TAG'
+
+    TAG = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    parent = db.Column(db.Integer, nullable=True)
+    tagName = db.Column(db.String(30), nullable=False)
+    childOrder = db.Column(db.Integer, nullable=False)
+
+    TAG_USER_RELATION = db.relationship("TagUser", back_populates="TAG_RELATION")
+    LESSON_RELATION = db.relationship("Lesson", back_populates="TAG_RELATION")
+    TAG_QUESTION_RELATION = db.relationship("TagQuestion", back_populates="TAG_RELATION")
+    TAG_CLASS_RELATION = db.relationship("TagClass", back_populates="TAG_RELATION")
+
+    def __init__(self, parent, tagName, childOrder):
+        self.parent = parent
+        self.tagName = tagName
+        self.childOrder = childOrder
+
+    def __repr__(self):
+        return f'TAG {self.TAG} {self.parent} {self.tagName} {self.childOrder}'
+
+
+class TagClass(db.Model):
+    __tablename__ = "tag_class"
+
+    TAG_CLASS = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+
+    TAG_RELATION = db.relationship("Tag", back_populates="TAG_CLASS_RELATION")
+    CLASS_RELATION = db.relationship("Class", back_populates="TAG_CLASS_RELATION")
+
+    def __init__(self, TAG, CLASS):
+        self.TAG = TAG
+        self.CLASS = CLASS
+
+    def __repr__(self):
+        return f'TAG_CLASS {self.TAG_CLASS} {self.TAG} {self.CLASS}'
+
+
+class TagQuestion(db.Model):
+    __tablename__ = "tag_question"
+
+    TAG_QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
+    QUESTION = db.Column(db.Integer, db.ForeignKey("QUESTION.QUESTION"), nullable=False)
+
+    TAG_RELATION = db.relationship("Tag", back_populates="TAG_QUESTION_RELATION")
+    QUESTION_RELATION = db.relationship("Question", back_populates="TAG_QUESTION_RELATION")
+
+    def __init__(self, TAG, QUESTION):
+        self.TAG = TAG
+        self.QUESTION = QUESTION
+
+    def __repr__(self):
+        return f'TAG_QUESTION {self.TAG_QUESTION} {self.TAG} {self.QUESTION}'
+
+
+class TagUser(db.Model):
+    __tablename__ = "tag_user"
+
+    TAGUSER = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
+    mastery = db.Column(db.Float, nullable=False)
+    time_created = db.Column(db.DATETIME, nullable=False)
+
+    USER_RELATION = db.relationship("User", back_populates="TAG_USER_RELATION")
+    TAG_RELATION = db.relationship("Tag", back_populates="TAG_USER_RELATION")
+
+    def __init__(self, user, tag, mastery=0.0):
+        self.USER = user
+        self.TAG = tag
+        self.mastery = mastery
+
+    def __repr__(self):
+        return f'TAG_USER {self.TAGUSER} {self.USER} {self.TAG} {self.mastery} {self.time_created}'
 
 
 class Takes(db.Model):
@@ -112,6 +275,77 @@ class Takes(db.Model):
     def __repr__(self):
         return f'<Takes {self.TAKES} {self.TEST} {self.USER} {self.time_started} {self.time_submitted} ' \
                f'{self.grade} {self.marks} {self.answers} {self.seeds}>'
+
+
+class Test(db.Model):
+    __tablename__ = "TEST"
+
+    TEST = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CLASS = db.Column(db.Integer, db.ForeignKey('CLASS.CLASS'), nullable=True)
+    name = db.Column(db.String(45), nullable=False)
+    is_open = db.Column(db.Boolean, nullable=False, default=False)
+    open_time = db.Column(db.DateTime, nullable=True)
+    deadline = db.Column(db.DateTime, nullable=False)
+    timer = db.Column(db.Integer, nullable=False, default=15)
+    attempts = db.Column(db.Integer, nullable=False, default=1)
+    question_list = db.Column(db.String(5000), nullable=False)
+    seed_list = db.Column(db.String(5000), nullable=False)
+    total = db.Column(db.Integer, nullable=False)
+
+    TAKES_RELATION = db.relationship("Takes", back_populates="TEST_RELATION")
+    CLASS_RELATION = db.relationship("Class", back_populates="TEST_RELATION")
+
+    def __init__(self, CLASS, name, is_open, open_time, deadline, timer, attempts, question_list, seed_list, total):
+        self.CLASS = CLASS
+        self.name = name
+        self.is_open = is_open
+        self.open_time = open_time
+        self.deadline = deadline
+        self.timer = timer
+        self.attempts = attempts
+        self.question_list = question_list
+        self.seed_list = seed_list
+        self.total = total
+
+    def __repr__(self):
+        return f'<Test {self.TEST} {self.CLASS} {self.name} {self.is_open} ' \
+               f'{self.deadline} {self.timer} {self.attempts} {self.question_list} {self.seed_list} {self.total}>'
+
+
+class Transaction(db.Model):
+    __tablename__ = 'transaction'
+
+    TRANSACTION = db.Column(db.String(30), primary_key=True)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+    expiration = db.Column(db.DATETIME, nullable=False)
+
+    USER_RELATION = db.relationship("User", back_populates="TRANSACTION_RELATION")
+    CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_RELATION")
+
+    def __init__(self, transaction, user, class_id, expiration):
+        self.TRANSACTION = transaction
+        self.USER = user
+        self.CLASS = class_id
+        self.expiration = expiration
+
+    def __repr__(self):
+        return f'Transaction {self.TRANSACTION} {self.USER} {self.CLASS} {self.expiration}'
+
+
+class TransactionProcessing(db.Model):
+    __tablename__ = 'transaction_processing'
+
+    TRANSACTIONPROCESSING = db.Column(db.String(30), primary_key=True)
+    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+
+    CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_PROCESSING_RELATION")
+
+    def __init__(self, transaction_processing, class_id, user):
+        self.TRANSACTIONPROCESSING = transaction_processing
+        self.CLASS = class_id
+        self.USER = user
 
 
 class User(UserMixin, db.Model):
@@ -160,83 +394,6 @@ class User(UserMixin, db.Model):
         return self.USER
 
 
-class Question(db.Model):
-    __tablename__ = "QUESTION"
-
-    QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    SET = db.Column(db.Integer, db.ForeignKey("SET.SET"), nullable=False)
-    name = db.Column(db.String(60), nullable=False)
-    string = db.Column(db.String(5000), nullable=False)
-    answers = db.Column(db.Integer, nullable=False)
-    total = db.Column(db.Integer, nullable=False)
-    category = db.Column(db.Integer, nullable=False)
-
-    SET_RELATION = db.relationship("Set", back_populates="QUESTION_RELATION")
-    TAG_QUESTION_RELATION = db.relationship("TagQuestion", back_populates="QUESTION_RELATION")
-
-    def __init__(self, set_id, name, string, answers, total):
-        self.SET = set_id
-        self.name = name
-        self.string = string
-        self.answers = answers
-        self.total = total
-        self.category = 0
-
-    def __repr__(self):
-        return f'<Question {self.QUESTION} {self.SET} {self.name} {self.string} {self.answers} {self.total} {self.category}>'
-
-
-class Set(db.Model):
-    __tablename__ = "SET"
-
-    SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(45), nullable=False)
-
-    QUESTION_RELATION = db.relationship("Question", back_populates="SET_RELATION")
-    USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="SET_RELATION")
-
-    def __init__(self, name):
-        self.name = name
-
-    def __repr__(self):
-        return f'<Set {self.SET} {self.name}>'
-
-
-class Test(db.Model):
-    __tablename__ = "TEST"
-
-    TEST = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    CLASS = db.Column(db.Integer, db.ForeignKey('CLASS.CLASS'), nullable=True)
-    name = db.Column(db.String(45), nullable=False)
-    is_open = db.Column(db.Boolean, nullable=False, default=False)
-    open_time = db.Column(db.DateTime, nullable=True)
-    deadline = db.Column(db.DateTime, nullable=False)
-    timer = db.Column(db.Integer, nullable=False, default=15)
-    attempts = db.Column(db.Integer, nullable=False, default=1)
-    question_list = db.Column(db.String(5000), nullable=False)
-    seed_list = db.Column(db.String(5000), nullable=False)
-    total = db.Column(db.Integer, nullable=False)
-
-    TAKES_RELATION = db.relationship("Takes", back_populates="TEST_RELATION")
-    CLASS_RELATION = db.relationship("Class", back_populates="TEST_RELATION")
-
-    def __init__(self, CLASS, name, is_open, open_time, deadline, timer, attempts, question_list, seed_list, total):
-        self.CLASS = CLASS
-        self.name = name
-        self.is_open = is_open
-        self.open_time = open_time
-        self.deadline = deadline
-        self.timer = timer
-        self.attempts = attempts
-        self.question_list = question_list
-        self.seed_list = seed_list
-        self.total = total
-
-    def __repr__(self):
-        return f'<Test {self.TEST} {self.CLASS} {self.name} {self.is_open} ' \
-               f'{self.deadline} {self.timer} {self.attempts} {self.question_list} {self.seed_list} {self.total}>'
-
-
 class UserViewsSet(db.Model):
     __tablename__ = "user_views_set"
 
@@ -257,177 +414,6 @@ class UserViewsSet(db.Model):
         return f'UserViewsSet {self.USER_VIEWS_SET} {self.USER} {self.SET} {self.can_edit}'
 
 
-class Transaction(db.Model):
-    __tablename__ = 'transaction'
-
-    TRANSACTION = db.Column(db.String(30), primary_key=True)
-    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
-    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
-    expiration = db.Column(db.DATETIME, nullable=False)
-
-    USER_RELATION = db.relationship("User", back_populates="TRANSACTION_RELATION")
-    CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_RELATION")
-
-    def __init__(self, transaction, user, class_id, expiration):
-        self.TRANSACTION = transaction
-        self.USER = user
-        self.CLASS = class_id
-        self.expiration = expiration
-
-    def __repr__(self):
-        return f'Transaction {self.TRANSACTION} {self.USER} {self.CLASS} {self.expiration}'
-
-
-class TransactionProcessing(db.Model):
-    __tablename__ = 'transaction_processing'
-
-    TRANSACTIONPROCESSING = db.Column(db.String(30), primary_key=True)
-    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
-    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
-
-    CLASS_RELATION = db.relationship("Class", back_populates="TRANSACTION_PROCESSING_RELATION")
-
-    def __init__(self, transaction_processing, class_id, user):
-        self.TRANSACTIONPROCESSING = transaction_processing
-        self.CLASS = class_id
-        self.USER = user
-
-
-class Tag(db.Model):
-    __tablename__ = 'TAG'
-
-    TAG = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    parent = db.Column(db.Integer, nullable=True)
-    tagName = db.Column(db.String(30), nullable=False)
-    childOrder = db.Column(db.Integer, nullable=False)
-
-    TAG_USER_RELATION = db.relationship("TagUser", back_populates="TAG_RELATION")
-    LESSON_RELATION = db.relationship("Lesson", back_populates="TAG_RELATION")
-    TAG_QUESTION_RELATION = db.relationship("TagQuestion", back_populates="TAG_RELATION")
-    TAG_CLASS_RELATION = db.relationship("TagClass", back_populates="TAG_RELATION")
-
-    def __init__(self, parent, tagName, childOrder):
-        self.parent = parent
-        self.tagName = tagName
-        self.childOrder = childOrder
-
-    def __repr__(self):
-        return f'TAG {self.TAG} {self.parent} {self.tagName} {self.childOrder}'
-
-
-class Message(db.Model):
-    __tablename__ = 'MESSAGE'
-
-    MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
-    title = db.Column(db.String(200), nullable=False)
-    body = db.Column(db.String(1000), nullable=False)
-    date_created = db.Column(db.DATETIME, nullable=False)
-
-    CLASS_RELATION = db.relationship("Class", back_populates="MESSAGE_RELATION")
-
-    def __init__(self, CLASS, title, body, date_created):
-        self.CLASS = CLASS
-        self.title = title
-        self.body = body
-        self.date_created = date_created
-
-    def __repr__(self):
-        return f'{self.MESSAGE} {self.CLASS} {self.title} {self.body} {self.date_created}'
-
-
-class TagQuestion(db.Model):
-    __tablename__ = "tag_question"
-
-    TAG_QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
-    QUESTION = db.Column(db.Integer, db.ForeignKey("QUESTION.QUESTION"), nullable=False)
-
-    TAG_RELATION = db.relationship("Tag", back_populates="TAG_QUESTION_RELATION")
-    QUESTION_RELATION = db.relationship("Question", back_populates="TAG_QUESTION_RELATION")
-
-    def __init__(self, TAG, QUESTION):
-        self.TAG = TAG
-        self.QUESTION = QUESTION
-
-    def __repr__(self):
-        return f'TAG_QUESTION {self.TAG_QUESTION} {self.TAG} {self.QUESTION}'
-
-
-class TagClass(db.Model):
-    __tablename__ = "tag_class"
-
-    TAG_CLASS = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
-    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
-
-    TAG_RELATION = db.relationship("Tag", back_populates="TAG_CLASS_RELATION")
-    CLASS_RELATION = db.relationship("Class", back_populates="TAG_CLASS_RELATION")
-
-    def __init__(self, TAG, CLASS):
-        self.TAG = TAG
-        self.CLASS = CLASS
-
-    def __repr__(self):
-        return f'TAG_CLASS {self.TAG_CLASS} {self.TAG} {self.CLASS}'
-
-
-class TagUser(db.Model):
-    __tablename__ = "tag_user"
-
-    TAGUSER = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
-    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
-    mastery = db.Column(db.Float, nullable=False)
-    time_created = db.Column(db.DATETIME, nullable=False)
-
-    USER_RELATION = db.relationship("User", back_populates="TAG_USER_RELATION")
-    TAG_RELATION = db.relationship("Tag", back_populates="TAG_USER_RELATION")
-
-    def __init__(self, user, tag, mastery=0.0):
-        self.USER = user
-        self.TAG = tag
-        self.mastery = mastery
-
-    def __repr__(self):
-        return f'TAG_USER {self.TAGUSER} {self.USER} {self.TAG} {self.mastery} {self.time_created}'
-
-
-class Lesson(db.Model):
-    __tablename__ = "LESSON"
-
-    LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    CLASS = db.Column(db.Integer, db.ForeignKey("CLASS.CLASS"), nullable=False)
-    TAG = db.Column(db.Integer, db.ForeignKey("TAG.TAG"), nullable=False)
-    lesson_string = db.Column(db.Text, nullable=False)
-    question_list = db.Column(db.String(500), nullable=False)
-
-    CLASS_RELATION = db.relationship("Class", back_populates="LESSON_RELATION")
-    TAG_RELATION = db.relationship("Tag", back_populates="LESSON_RELATION")
-
-    def __init__(self, CLASS, tag, lesson_string, question_list):
-        self.CLASS = CLASS
-        self.TAG = tag
-        self.lesson_string = lesson_string
-        self.question_list = question_list
-
-    def __repr__(self):
-        return f'LESSON {self.LESSON} {self.CLASS} {self.lesson_string}'
-
-
-# class UserLesson(db.Model):
-#     __tablename__ = "user_lesson"
-
-#     USER_LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
-#     LESSON = db.Column(db.Integer, db.ForeignKey("LESSON.LESSON"), nullable=False)
-
-#     USER_RELATION = db.relationship("User",  back_populates="USER_LESSON_RELATION")
-#     LESSON_RELATION = db.relationship("Lesson", back_populates="USER_LESSON_RELATION")
-
-#     def __init__(self, USER, LESSON):
-#         self.USER = USER
-#         self.LESSON = LESSON
 class DataStore(db.Model):
     __tablename__ = "store"
     __bind_key__ = "data_store"
@@ -446,5 +432,3 @@ class DataStore(db.Model):
 
     def __repr__(self):
         return f'store {self.USER} {self.data} {self.type} {self.time_created}'
-#     def __repr__(self):
-#         return f'user_lesson {self.USER_LESSON} {self.USER} {self.LESSON}'

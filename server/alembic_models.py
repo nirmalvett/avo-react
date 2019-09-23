@@ -405,21 +405,3 @@ class Lesson(Base):
 
     def __repr__(self):
         return f'LESSON {self.LESSON} {self.CLASS} {self.lesson_string}'
-
-
-# class UserLesson(Base):
-#     __tablename__ = "user_lesson"
-
-#     USER_LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
-#     LESSON = db.Column(db.Integer, db.ForeignKey("LESSON.LESSON"), nullable=False)
-
-#     USER_RELATION = db.relationship("User",  back_populates="USER_LESSON_RELATION")
-#     LESSON_RELATION = db.relationship("Lesson", back_populates="USER_LESSON_RELATION")
-
-#     def __init__(self, USER, LESSON):
-#         self.USER = USER
-#         self.LESSON = LESSON
-
-#     def __repr__(self):
-#         return f'user_lesson {self.USER_LESSON} {self.USER} {self.LESSON}'
