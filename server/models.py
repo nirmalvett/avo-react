@@ -82,12 +82,54 @@ class ClassWhitelist(db.Model):  # All references to this table should be remove
         return f'class_whitelist {self.ID} {self.USER} {self.CLASS}'
 
 
+class Concept(db.Model):
+    __tablename__ = "CONCEPT"
+
+    CONCEPT = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    COURSE = db.Column(db.Integer, db.ForeignKey("COURSE.COURSE"), nullable=False)
+    name = db.Column(db.String(45), nullable=False)
+    lesson_content = db.Column(db.String(2000), nullable=False)
+
+    COURSE_RELATION = db.relationship("Course", back_populates="CONCEPT_RELATION")
+    CONCEPT_QUESTION_RELATION = db.relationship("ConceptQuestion", back_populates="CONCEPT_RELATION")
+    MASTERY_RELATION = db.relationship("Mastery", back_populates="CONCEPT_RELATION")
+
+    def __init__(self, course_id, name, lesson_content):
+        self.COURSE = course_id
+        self.name = name
+        self.lesson_content = lesson_content
+
+    def __repr__(self):
+        return f'<Concept {self.CONCEPT} {self.COURSE} {self.name} {self.lesson_content}>'
+
+
+class ConceptQuestion(db.Model):
+    __tablename__ = "concept_question"
+
+    CONCEPT_QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CONCEPT = db.Column(db.Integer, db.ForeignKey("CONCEPT.CONCEPT"), nullable=False)
+    QUESTION = db.Column(db.Integer, db.ForeignKey("QUESTION.QUESTION"), nullable=False)
+    weight = db.Column(db.Integer, nullable=False)
+
+    CONCEPT_RELATION = db.relationship("Concept", back_populates="CONCEPT_QUESTION_RELATION")
+    QUESTION_RELATION = db.relationship("Question", back_populates="CONCEPT_QUESTION_RELATION")
+
+    def __init__(self, course_id, name, lesson_content):
+        self.COURSE = course_id
+        self.name = name
+        self.lesson_content = lesson_content
+
+    def __repr__(self):
+        return f'<Concept {self.CONCEPT} {self.COURSE} {self.name} {self.lesson_content}>'
+
+
 class Course(db.Model):
     __tablename__ = "COURSE"
 
     COURSE = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(45), nullable=False)
 
+    CONCEPT_RELATION = db.relationship("Concept", back_populates="COURSE_RELATION")
     SECTION_RELATION = db.relationship("Section", back_populates="COURSE_RELATION")
     DISCOUNT_RELATION = db.relationship("Discount", back_populates="COURSE_RELATION")
     USER_COURSE_RELATION = db.relationship("UserCourse", back_populates="COURSE_RELATION")
@@ -140,6 +182,30 @@ class Lesson(db.Model):  # All references to this table should be removed eventu
         return f'LESSON {self.LESSON} {self.CLASS} {self.lesson_string}'
 
 
+class Mastery(db.Model):
+    __tablename__ = "mastery"
+
+    MASTERY = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CONCEPT = db.Column(db.Integer, db.ForeignKey("CONCEPT.CONCEPT"), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey("USER.USER"), nullable=False)
+    mastery_level = db.Column(db.Float, nullable=False)
+    mastery_survey = db.Column(db.Integer, nullable=False)
+    aptitude_survey = db.Column(db.Integer, nullable=False)
+
+    CONCEPT_RELATION = db.relationship("Concept", back_populates="MASTERY_RELATION")
+    USER_RELATION = db.relationship("User", back_populates="MASTERY_RELATION")
+
+    def __init__(self, concept_id, user_id, mastery_level, mastery_survey, aptitude_survey):
+        self.CONCEPT = concept_id
+        self.USER = user_id
+        self.mastery_level = mastery_level
+        self.mastery_survey = mastery_survey
+        self.aptitude_survey = aptitude_survey
+
+    def __repr__(self):
+        return f'<Mastery {self.MASTERY} {self.CONCEPT} {self.USER} {self.mastery_level} {self.mastery_survey} {self.aptitude_survey}>'
+
+
 class Message(db.Model):
     __tablename__ = 'MESSAGE'
 
@@ -172,6 +238,7 @@ class Question(db.Model):
     total = db.Column(db.Integer, nullable=False)
     category = db.Column(db.Integer, nullable=False)
 
+    CONCEPT_QUESTION_RELATION = db.relationship("ConceptQuestion", back_populates="QUESTION_RELATION")
     SET_RELATION = db.relationship("Set", back_populates="QUESTION_RELATION")
     TAG_QUESTION_RELATION = db.relationship("TagQuestion", back_populates="QUESTION_RELATION")
 
@@ -422,6 +489,7 @@ class User(UserMixin, db.Model):
     theme = db.Column(db.Boolean, nullable=False, default=False)
 
     CLASS_RELATION = db.relationship("Class", back_populates="USER_RELATION")
+    MASTERY_RELATION = db.relationship("Mastery", back_populates="USER_RELATION")
     TAKES_RELATION = db.relationship("Takes", back_populates="USER_RELATION")
     USER_VIEWS_SET_RELATION = db.relationship("UserViewsSet", back_populates="USER_RELATION")
     TRANSACTION_RELATION = db.relationship("Transaction", back_populates="USER_RELATION")
