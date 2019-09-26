@@ -506,9 +506,18 @@ def remove_tag_question(tag_id: int, question_id: int):
 @teacher_only
 @validate(courseID=int, name=str, lesson=str)
 def add_concept(courseID: int, name: str, lesson: str):
+    """
+    Add a Concept to the database
+    :param courseID: The ID of the course to add the concept to
+    :param name: Name of the concept
+    :param lesson: the lesson string of the concept
+    :return: verification it was added into the database
+    """
     if not able_edit_course(courseID):
+        # If the user is not able to edit the course return error JSON
         return jsonify(error="User does not have the ability to edit the course")
-    new_concept = Concept(courseID, name, lesson)
+    new_concept = Concept(courseID, name, lesson)  # THe concept to be added to the database and course
+    # Add concept to database and return
     db.session.add(new_concept)
     db.session.commit()
     return jsonify({})
