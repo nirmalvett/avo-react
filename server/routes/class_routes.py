@@ -8,7 +8,7 @@ from server.auth import teaches_class, enrolled_in_class
 from server.decorators import login_required, teacher_only, student_only, admin_only, validate
 from server.helpers import timestamp
 from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message, ClassWhitelist, \
-    ClassWhitelistBacklog, Tag, TagClass
+    ClassWhitelistBacklog, Tag, TagClass, Section
 import paypalrestsdk as paypal
 import config
 

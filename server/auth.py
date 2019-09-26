@@ -5,7 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 import config
-from server.models import User, Class, Transaction, UserViewsSet
+from server.models import User, Class, Transaction, UserViewsSet, UserCourse
 
 login_manager = LoginManager()
 login_manager.login_view = "FileRoutes.serve_web_app"
@@ -98,6 +98,20 @@ def able_edit_set(set_id):
     except NoResultFound:
         return False
     return user_views_set.can_edit
+
+
+def able_edit_course(course_id):
+    """
+    Checks if the current user is able to edit a course
+    :param course_id: the ID of the course
+    :return: True if the user can edit False if they dont have the ability to edit
+    """
+    try:
+        user_section = UserCourse.query.filter((UserCourse.USER == current_user.USER) &
+                                               (UserCourse.COURSE == course_id)).first()
+    except NoResultFound:
+        return False
+    return user_section.can_edit
 
 
 def send_email(recipient: str, subject: str, message: str):

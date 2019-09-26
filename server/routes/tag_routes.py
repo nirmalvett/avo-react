@@ -499,3 +499,11 @@ def remove_tag_question(tag_id: int, question_id: int):
         db.session.delete(t)
     db.session.commit()
     return jsonify({})
+
+
+@TagRoutes.route("/addConcept", methods=['POST'])
+@teacher_only
+@validate(courseID=int, name=str, lesson=str)
+def add_concept(courseID: int, name: str, lesson: str):
+    if
+
