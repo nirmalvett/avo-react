@@ -524,6 +524,26 @@ def add_concept(courseID: int, name: str, lesson: str):
     return jsonify({})
 
 
+@TagRoutes.route("/addConceptRelation", methods=['POST'])
+@teacher_only
+@validate(parentID=int, childID=int, weight=int)
+def add_concept_relation(parent_id: int, child_id: int, weight: int):
+    user_course: UserCourse = UserCourse.query.filter(
+        (UserCourse.COURSE == Concept.COURSE) & (Concept.CONCEPT == parent_id) & (UserCourse.USER == current_user.USER)
+    ).first()
+    if not user_course.can_edit:
+        return jsonify(error="No permission to edit course")
+    concept_relation = ConceptRelation.query.filter(
+        (ConceptRelation.PARENT == parent_id) &
+        (ConceptRelation.CHILD == child_id)
+    ).first()
+    if concept_relation is not None:
+        return jsonify(error="Concept relation already exists")
+    db.session.add(ConceptRelation(parent_id, child_id, weight))
+    db.session.commit()
+    return jsonify({})
+
+
 @TagRoutes.route("/editConceptRelation", methods=['POST'])
 @teacher_only
 @validate(relationID=int, weight=int)

@@ -128,7 +128,7 @@ class ConceptQuestion(db.Model):
 class ConceptRelation(db.Model):
     __tablename__ = 'concept_relation'
 
-    CONCEPT_RELATION = db.Column(db.Integer, primary_key=True)
+    CONCEPT_RELATION = db.Column(db.Integer, primary_key=True, autoincrement=True)
     PARENT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
     CHILD = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
     weight = db.Column(db.Integer, nullable=False)
