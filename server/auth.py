@@ -109,7 +109,9 @@ def able_edit_course(course_id):
     try:
         user_section = UserCourse.query.filter((UserCourse.USER == current_user.USER) &
                                                (UserCourse.COURSE == course_id)).first()
+        # Query for if the user is in the course
     except NoResultFound:
+        # If no results found in the database the user doesnt have any control of the course return False
         return False
     return user_section.can_edit
 
