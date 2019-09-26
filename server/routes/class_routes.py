@@ -7,7 +7,8 @@ from datetime import datetime, timedelta
 from server.auth import teaches_class, enrolled_in_class
 from server.decorators import login_required, teacher_only, student_only, admin_only, validate
 from server.helpers import timestamp
-from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message, ClassWhitelist, ClassWhitelistBacklog, Tag, TagClass
+from server.models import db, Class, Test, Takes, User, Transaction, TransactionProcessing, Message, ClassWhitelist, \
+    ClassWhitelistBacklog, Tag, TagClass
 import paypalrestsdk as paypal
 import config
 
@@ -40,6 +41,7 @@ with open('server/SQL/student_due_dates.sql', 'r') as sql:
     student_due_dates = sql.read()
 with open('server/SQL/teacher_due_dates.sql', 'r') as sql:
     teacher_due_dates = sql.read()
+
 
 # Routes for managing classes
 
@@ -82,7 +84,8 @@ def add_to_whitelist(class_id: int, uwo_users: list):
 @teacher_only
 @validate(class_id=int)
 def get_whitelist(class_id):
-    whitelist = ClassWhitelist.query.join(User, User.USER == ClassWhitelist.USER).filter((ClassWhitelist.CLASS == class_id)).all()
+    whitelist = ClassWhitelist.query.join(User, User.USER == ClassWhitelist.USER).filter(
+        (ClassWhitelist.CLASS == class_id)).all()
     backlog = ClassWhitelistBacklog.query.filter((ClassWhitelist.CLASS == class_id)).all()
     backlogEmails = list(map(lambda x: x.USER_ID + "@uwo.ca", backlog))
     emails = list(map(lambda x: x.USER_RELATION.email, whitelist))
@@ -121,34 +124,33 @@ def home():
     classes.extend(enrolled_classes)
     return_messages = []
     return_due_dates = []
-  
+
     for c in classes:
         return_class = {
-                'id': c.CLASS,
-                'name': c.name if isinstance(c, Class) else c.CLASS_RELATION.name,
-            }
+            'id': c.CLASS,
+            'name': c.name if isinstance(c, Class) else c.CLASS_RELATION.name,
+        }
         exists = [message for message in return_messages if message['class']['id'] == c.CLASS]
         if not exists:
             class_messages = list(filter(lambda message: message.CLASS == c.CLASS, messages))
             class_messages = list(map(lambda message: {'title': message.title, 'body': message.body,
-                                            'date': timestamp(message.date_created)}, class_messages))
+                                                       'date': timestamp(message.date_created)}, class_messages))
             return_messages.append({
                 'class': return_class,
                 'messages': class_messages,
             })
-
 
         exists = [due_date for due_date in return_due_dates if due_date['class']['id'] == c.CLASS]
         if not exists:
             tests = Test.query.filter(c.CLASS == Test.CLASS).all()
             tests = list(filter(lambda test: test.is_open == 1, tests))
             due_dates = list(map(lambda due_date: {'name': due_date.name, 'dueDate': timestamp(due_date.deadline),
-                                            'id': due_date.TEST}, tests))
+                                                   'id': due_date.TEST}, tests))
             return_due_dates.append({
                 'class': return_class,
                 'dueDates': due_dates,
             })
-        
+
     return jsonify(messages=return_messages, dueDates=return_due_dates)
 
 
@@ -357,7 +359,8 @@ def enroll(key: str):
                 found = True
                 break
         if not found:
-            backlog_whitelist = ClassWhitelistBacklog.query.join(Class, ClassWhitelistBacklog.CLASS == Class.CLASS).all()
+            backlog_whitelist = ClassWhitelistBacklog.query.join(Class,
+                                                                 ClassWhitelistBacklog.CLASS == Class.CLASS).all()
             for student in backlog_whitelist:
                 user_str_id = current_user.email.split('@')[0]
                 user2_str_id = student.USER_ID
@@ -365,8 +368,8 @@ def enroll(key: str):
                 if user_str_id == user2_str_id:
                     found = True
                     break
-                    
-        if not found:            
+
+        if not found:
             return jsonify(error="You are not on the class's whitelist")
 
     if current_user.is_teacher:
@@ -590,7 +593,7 @@ def add_message(class_id: int, title: str, body: str):
     """
     if not teaches_class(class_id):
         return jsonify(error="User does not teach class")
-    db.session.add(Message(class_id, title, body, datetime.now()))
+    db.session.add(Message(class_id, current_user.USER, title, body, datetime.now()))
     db.session.commit()
     return jsonify({})
 

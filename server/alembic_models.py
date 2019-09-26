@@ -47,6 +47,7 @@ class Class(Base):
     def __repr__(self):
         return f'<Class {self.CLASS} {self.USER} {self.name} {self.enroll_key}>'
 
+
 class ClassWhitelist(Base):
     __tablename__ = "class_whitelist"
 
@@ -64,6 +65,7 @@ class ClassWhitelist(Base):
     def __repr__(self):
         return f'class_whitelist {self.ID} {self.USER} {self.CLASS}'
 
+
 class ClassWhitelistBacklog(Base):
     __tablename__ = "backlog_whitelist"
 
@@ -79,6 +81,7 @@ class ClassWhitelistBacklog(Base):
 
     def __repr__(self):
         return f'backlog_whitelist {self.ID} {self.USER_ID} {self.CLASS}'
+
 
 class Takes(Base):
     __tablename__ = "takes"
@@ -348,6 +351,7 @@ class TagQuestion(Base):
     def __repr__(self):
         return f'TAG_QUESTION {self.TAG_QUESTION} {self.TAG} {self.QUESTION}'
 
+
 class TagClass(Base):
     __tablename__ = "tag_class"
 
@@ -364,6 +368,7 @@ class TagClass(Base):
 
     def __repr__(self):
         return f'TAG_CLASS {self.TAG_CLASS} {self.TAG} {self.CLASS}'
+
 
 class TagUser(Base):
     __tablename__ = "tag_user"

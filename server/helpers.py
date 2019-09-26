@@ -1,6 +1,7 @@
 from datetime import datetime
 from server.models import TagUser, Tag
 
+
 def timestamp(x):
     if x is None:
         return None
@@ -34,6 +35,7 @@ def get_tree(parent_TAG, tags):
                 if len(child_tree) > 0:
                     ret_tags.extend(child_tree)
     return ret_tags
+
 
 def get_next_2(parent_TAG, tags, ret_tags=[]):
     parent_tags = list(filter(lambda tag: tag.TAG == parent_TAG, tags))

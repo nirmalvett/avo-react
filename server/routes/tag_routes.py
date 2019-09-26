@@ -12,6 +12,7 @@ import json
 
 TagRoutes = Blueprint('TagRoutes', __name__)
 
+
 @TagRoutes.route('/getQuestionsForLessons', methods=['POST'])
 @teacher_only
 @validate(tag_ids=list)
@@ -20,7 +21,7 @@ def get_questions_for_lessons(tag_ids: list):
     for tag_id in tag_ids:
         tag_questions = TagQuestion.query.join(Question).join(Tag).all()
         tag_questions = list(filter(lambda tag: tag.TAG_RELATION.TAG == tag_id, tag_questions))
-        tag_questions = list(map(lambda  question: {'QUESTION': question.QUESTION, 'name': question.QUESTION_RELATION.name, 'TAG': tag_id}, tag_questions))
+        tag_questions = list(map(lambda question: {'QUESTION': question.QUESTION, 'name': question.QUESTION_RELATION.name, 'TAG': tag_id}, tag_questions))
         questions.extend(tag_questions)
     return jsonify(questions=questions)
 
@@ -35,7 +36,8 @@ def get_lessons_to_edit(class_id: int):
     lessons_ret = []
     for lesson in lessons:
         questions = list(filter(lambda tag: tag.TAG == lesson.TAG, tag_questions))
-        questions = list(map(lambda  question: {'QUESTION': question.QUESTION, 'name': question.QUESTION_RELATION.name}, questions))
+        questions = list(map(lambda  question: {'QUESTION': question.QUESTION,
+                                                'name': question.QUESTION_RELATION.name}, questions))
         lessons_ret.append({
             'lesson': {
                 'LESSON': lesson.LESSON,
@@ -96,7 +98,7 @@ def edit_lesson(lesson_id:int, class_id: int, tag_id: int, question_list: str, l
 @TagRoutes.route('/deleteLesson', methods=['POST'])
 @teacher_only
 @validate(lesson_id=int)
-def delete_lesson(lesson_id:int):
+def delete_lesson(lesson_id: int):
     lesson = Lesson.query.filter(Lesson.LESSON == lesson_id).first()
     class_id = lesson.CLASS
     tag_id = lesson.TAG
@@ -397,7 +399,6 @@ def get_lesson_data(lesson_id: int):
     """
     Given a Lesson ID return Lesson string and questions
     :return: Lesson string and question Ids a strings
-    return jsonify(String="This is the lesson string yaw yeet boys", questions=[{"ID": 5, "prompt":"If \\(\\vec u=\\left(-2, 2\\right)\\) and \\(\\vec v=\\left(4, 5\\right)\\), find \\(2\\vec u-3\\vec v\\).","prompts":[""],"types":["6"],"seed":1},
     """
     lesson = Lesson.query.get(lesson_id)
     if lesson is None:
