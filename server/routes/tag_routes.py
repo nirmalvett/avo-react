@@ -4,8 +4,9 @@ from flask_login import current_user
 from server.MathCode.question import AvoQuestion
 from random import randint
 from server.decorators import login_required, teacher_only, validate
-from server.models import db, Question, Tag, TagUser, Lesson, TagQuestion, TagClass, Class, Transaction
+from server.models import db, Question, Tag, TagUser, Lesson, TagQuestion, TagClass, Class, Transaction, Concept
 from server.helpers import get_tree, get_next_2, timestamp
+from server.auth import able_edit_course
 from datetime import datetime
 from math import log
 import json
@@ -505,5 +506,10 @@ def remove_tag_question(tag_id: int, question_id: int):
 @teacher_only
 @validate(courseID=int, name=str, lesson=str)
 def add_concept(courseID: int, name: str, lesson: str):
-    if
+    if not able_edit_course(courseID):
+        return jsonify(error="User does not have the ability to edit the course")
+    new_concept = Concept(courseID, name, lesson)
+    db.session.add(new_concept)
+    db.session.commit()
+    return jsonify({})
 
