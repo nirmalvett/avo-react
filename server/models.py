@@ -116,10 +116,10 @@ class ConceptQuestion(db.Model):
     CONCEPT_RELATION = db.relationship("Concept", back_populates="CONCEPT_QUESTION_RELATION")
     QUESTION_RELATION = db.relationship("Question", back_populates="CONCEPT_QUESTION_RELATION")
 
-    def __init__(self, course_id, name, lesson_content):
-        self.COURSE = course_id
-        self.name = name
-        self.lesson_content = lesson_content
+    def __init__(self, concept, question, weight):
+        self.CONCEPT = concept
+        self.QUESTION = question
+        self.weight = weight
 
     def __repr__(self):
         return f'<ConceptQuestion {self.CONCEPT_QUESTION} {self.CONCEPT} {self.QUESTION} {self.weight}>'

@@ -5,7 +5,7 @@ from server.MathCode.question import AvoQuestion
 from random import randint
 from server.decorators import login_required, teacher_only, validate
 from server.models import db, Question, Tag, TagUser, Lesson, TagQuestion, TagClass, Class, Transaction, Concept, \
-    UserCourse, ConceptRelation
+    UserCourse, ConceptRelation, ConceptQuestion
 from server.helpers import get_tree, get_next_2, timestamp
 from server.auth import able_edit_course
 from datetime import datetime
@@ -539,5 +539,27 @@ def edit_concept_relation(relation_id: int, weight: int):
     if not user_course.can_edit:
         return jsonify(error="No permission to edit course")
     relation.weight = weight
+    db.session.commit()
+    return jsonify({})
+
+
+@TagRoutes.route("/addConceptQuestion", methods=['POST'])
+@teacher_only
+@validate(conceptID=int, questionID=int, weight=int)
+def add_concept_question(concept_id: int, question_id: int, weight: int):
+    user_course: UserCourse = UserCourse.query.filter(
+        (UserCourse.COURSE == Concept.COURSE) &
+        (Concept.CONCEPT == concept_id) &
+        (UserCourse.USER == current_user.USER)
+    ).first()
+    if not user_course.can_edit:
+        return jsonify(error="No permission to edit course")
+    concept: ConceptQuestion = ConceptQuestion.query.filter(
+        (ConceptQuestion.CONCEPT == concept_id) &
+        (ConceptQuestion.QUESTION == question_id)
+    ).first()
+    if concept is not None:
+        return jsonify(error="Concept Question already exists")
+    db.session.add(ConceptQuestion(concept_id, question_id, weight))
     db.session.commit()
     return jsonify({})
