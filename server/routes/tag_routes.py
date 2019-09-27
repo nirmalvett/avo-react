@@ -543,6 +543,25 @@ def edit_concept_relation(relation_id: int, weight: int):
     return jsonify({})
 
 
+@TagRoutes.route("/deleteConceptRelation", methods=['POST'])
+@teacher_only
+@validate(relationID=int)
+def delete_concept_relation(relation_id: int):
+    relation: ConceptRelation = ConceptRelation.query.filter(ConceptRelation.CONCEPT_RELATION == relation_id).first()
+    if relation is None:
+        return jsonify(error="Relation not found")
+    user_course: UserCourse = UserCourse.query.filter(
+        (UserCourse.COURSE == Concept.COURSE) &
+        (Concept.CONCEPT == relation.PARENT) &
+        (UserCourse.USER == current_user.USER)
+    ).first()
+    if not user_course.can_edit:
+        return jsonify(error="No permission to edit course")
+    db.session.delete(relation)
+    db.session.commit()
+    return jsonify({})
+
+
 @TagRoutes.route("/addConceptQuestion", methods=['POST'])
 @teacher_only
 @validate(conceptID=int, questionID=int, weight=int)
