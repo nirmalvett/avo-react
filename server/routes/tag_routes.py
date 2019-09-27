@@ -4,7 +4,8 @@ from flask_login import current_user
 from server.MathCode.question import AvoQuestion
 from random import randint
 from server.decorators import login_required, teacher_only, validate
-from server.models import db, Question, Tag, TagUser, Lesson, TagQuestion, TagClass, Class, Transaction, Concept
+from server.models import db, Question, Tag, TagUser, Lesson, TagQuestion, TagClass, Class, Transaction, Concept, \
+    UserCourse, ConceptRelation
 from server.helpers import get_tree, get_next_2, timestamp
 from server.auth import able_edit_course
 from datetime import datetime
@@ -522,3 +523,20 @@ def add_concept(courseID: int, name: str, lesson: str):
     db.session.commit()
     return jsonify({})
 
+
+@TagRoutes.route("/editConceptRelation", methods=['POST'])
+@teacher_only
+@validate(relationID=int, weight=int)
+def edit_concept_relation(relation_id: int, weight: int):
+    relation: ConceptRelation = ConceptRelation.query.filter(ConceptRelation.CONCEPT_RELATION == relation_id).first()
+    if relation is None:
+        return jsonify(error="Relation not found")
+    user_course: UserCourse = UserCourse.query.filter(
+        (UserCourse.COURSE == Concept.COURSE) &
+        (Concept.CONCEPT == relation.PARENT) &
+        (UserCourse.USER == current_user.USER)
+    ).first()
+    if not user_course.can_edit:
+        return jsonify(error="No permission to edit course")
+    relation.weight = weight
+    db.session.add(relation)
