@@ -5,7 +5,7 @@ from server.MathCode.question import AvoQuestion
 from random import randint
 from server.decorators import login_required, teacher_only, validate
 from server.models import db, Question, Tag, TagUser, Lesson, TagQuestion, TagClass, Class, Transaction, Concept, \
-    UserCourse, ConceptRelation, ConceptQuestion
+    UserCourse, ConceptRelation, ConceptQuestion, Course
 from server.helpers import get_tree, get_next_2, timestamp
 from server.auth import able_edit_course
 from datetime import datetime
@@ -602,6 +602,31 @@ def add_concept_question(concept_id: int, question_id: int, weight: int):
     db.session.add(ConceptQuestion(concept_id, question_id, weight))
     db.session.commit()
     return jsonify({})
+
+
+@TagRoutes.route('/editConceptQuestion', methods=['POST'])
+@teacher_only
+@validate(conceptQuestionID=int, weight=int)
+def edit_concept_question(concept_question_id=int, weight=int):
+    course = ConceptQuestion.query.join(Concept).join(Course).filter(
+        ConceptQuestion.CONCEPT_QUESTION == concept_question_id).first()
+    if course is None:
+        return jsonify(error="Could not find concept question")
+
+    user_course = UserCourse.query.filter((UserCourse.COURSE == course.CONCEPT_RELATION.COURSE_RELATION.COURSE) &
+                                          (UserCourse.USER == current_user.USER)).first()
+
+    if user_course is None:
+        return jsonify(error="Could not find user course")
+
+    if user_course.can_edit == 0:
+        return jsonify(error="User can't edit course")
+
+    course.weight = weight
+    db.session.add(course)
+    db.session.commit()
+
+    return jsonify({"message": "success"})
 
 
 @TagRoutes.route("/deleteConceptQuestion", methods=['POST'])
