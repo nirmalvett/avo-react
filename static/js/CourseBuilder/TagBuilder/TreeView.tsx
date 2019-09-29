@@ -110,17 +110,17 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
             // (window as any).cy.fit(this, 250);
             _this.selectNode(this.id());
         });
-    },
+
     };
 
-    selectNode(nodeID: string) {
+    selectNode(nodeID: String) {
         const tagID = nodeID.split('-')[1];
         const nodesToSelect = [parseInt(tagID)];
         if(!!this.getNodeParent(tagID))
             nodesToSelect.push(this.getNodeParent(tagID).tagID);
         nodesToSelect.push(...this.getChildNodes(tagID).map(n => n.tagID));
         console.log(nodesToSelect);
-        (window as any).cy.fit((window as any).cy.$(...nodesToSelect.map(n: number => `#node-${n}-end`)), 250);
+        (window as any).cy.fit((window as any).cy.$(...nodesToSelect.map(number => `#node-${number}-end`)), 250);
 
         (window as any).cy.nodes().forEach((node : any) => {
             let nodeColour = this.props.theme.theme === 'light' ? 'grey' : 'white';
@@ -132,11 +132,11 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
     };
 
     getNodeParent(id: string) {
-        return this.state.nodes[this.state.nodes.map(n: TagNode => `${n.parent}`).indexOf(id)];
+        return this.state.nodes[this.state.nodes.map( TagNode => `${TagNode.parent}`).indexOf(id)];
     };
 
     getChildNodes(id: string) {
-        return this.state.nodes.filter(node: TagNode => node.parent == id);
+        return this.state.nodes.filter(TagNode => TagNode.parent == id);
     };
 };
 
