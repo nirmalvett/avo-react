@@ -4,12 +4,35 @@ import Button from '@material-ui/core/Button';
 import TreeView from './TreeView';
 import FolderView from './FolderView';
 import Select from '@material-ui/core/Select';
+import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import * as Http from '../../Http';
 import {Class} from '../../Models';
+import {
+    FormControl,
+    IconButton,
+    Input,
+    InputAdornment,
+    InputLabel,
+} from '@material-ui/core';
 
-import Input from '@material-ui/core/Input';
-interface TagViewProps {}
+interface TagViewProps {
+    theme: {
+        color: {
+            '100': string;
+            '200': string;
+            '500': string;
+        };
+        theme: 'light' | 'dark';
+    };
+}
+
+interface Tag {
+    childOrder: number; 
+    parent: any; 
+    tagID: number; 
+    tagName: string;
+}
 
 interface TagViewState {
     currentView: string;
@@ -18,18 +41,25 @@ interface TagViewState {
     classes: Class[];
     selectedClass: Class;
     loadingClasses: boolean;
+    editingTagName: boolean;
+    selectedTagIndex: 0;
+    tagNodes: Tag[];
+    nodesLoaded: boolean;
 }
 
 export default class TagView extends Component<TagViewProps, TagViewState> {
     constructor(props: TagViewProps) {
         super(props);
         this.state = {
-            currentView: 'folderView',
+            currentView: 'tagTreeView',
             selectedClassName: 'Select class...',
             classNames: [],
             classes: [],
             selectedClass: {} as Class,
             loadingClasses: true,
+            selectedTagIndex: 0,
+            tagNodes: [],
+            nodesLoaded: false
         };
     }
     componentDidMount() {
@@ -59,39 +89,33 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             overflow: 'hidden',
                         }}
                     >
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <Button onClick={() => this.setState({currentView: 'folderView'})}>
-                                Tag Folder View
-                            </Button>
-                            <Button onClick={() => this.setState({currentView: 'tagTreeView'})}>
-                                Tag Tree View
-                            </Button>
-                            <div style={{marginLeft: 'auto', padding: 15}}>
-                                <Select
-                                    value={this.state.selectedClassName}
-                                    input={<Input name='data' id='select-class' />}
-                                    onChange={e =>
-                                        this.setState(
-                                            {selectedClassName: e.target.value as string},
-                                            () => this.changeClass(),
-                                        )
-                                    }
-                                >
-                                    {this.state.classNames.map((c: any, i: number) => (
-                                        <MenuItem key={i} value={c}>
-                                            {c}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </div>
-                        </div>
-
-                        {this.state.currentView === 'folderView' && (
-                            <FolderView classID={this.state.selectedClass.classID} />
-                        )}
-                        {this.state.currentView === 'tagTreeView' && (
-                            <TreeView classID={this.state.selectedClass.classID} />
-                        )}
+                        <Grid container spacing={8} style={{ height: '-webkit-fill-available' }}>
+                            <Grid item md={8}>
+                                {this.state.nodesLoaded && <TreeView theme={this.props.theme} nodes={this.state.tagNodes}/> }
+                            </Grid>
+                            <Grid item md={4}>
+                                <div style={{display: 'flex', flexDirection: 'row'}}>
+                                    <div>
+                                        <Select
+                                            value={this.state.selectedClassName}
+                                            input={<Input name='data' id='select-class' />}
+                                            onChange={e =>
+                                                this.setState(
+                                                    {selectedClassName: e.target.value as string},
+                                                    () => this.changeClass(),
+                                                )
+                                            }
+                                        >
+                                            {this.state.classNames.map((c: any, i: number) => (
+                                                <MenuItem key={i} value={c}>
+                                                    {c}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </div>
+                                </div>
+                            </Grid>
+                        </Grid>
                     </Card>
                 )}
             </div>
@@ -122,12 +146,27 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         );
     }
 
+    getTagNodes = () => {
+        Http.getTags(
+            this.state.selectedClass.classID,
+            res => {
+                const data = res.tags;
+                this.setState({
+                    tagNodes : data,
+                    nodesLoaded : true
+                });
+            },
+            console.warn,
+        ); 
+    };
+
     changeClass = () => {
         const {selectedClassName, classes} = this.state;
         if (selectedClassName !== 'Select class...') {
             const selectedClass = classes.find((c: Class) => c.name === selectedClassName);
             if (selectedClass) {
                 this.setState({selectedClass});
+                this.getTagNodes();
             }
         }
     };

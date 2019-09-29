@@ -168,7 +168,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name === 'Concept Builder') {
-            return <TagView />;
+            return <TagView theme={{theme: this.props.theme, color: this.color()}}/>;
         } else if (section.name === 'Create Test') {
             return (
                 <CreateTest
