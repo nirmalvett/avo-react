@@ -521,7 +521,8 @@ def add_concept(course_id: int, name: str, lesson: str):
     # Add concept to database and return
     db.session.add(new_concept)
     db.session.commit()
-    return jsonify({})
+    return jsonify(ID=new_concept.CONCEPT, course=new_concept.COURSE,
+                   name=new_concept.name, lesson=new_concept.lesson_content)
 
 
 @TagRoutes.route("/addConceptRelation", methods=['POST'])
