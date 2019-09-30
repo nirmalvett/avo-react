@@ -525,6 +525,31 @@ def add_concept(course_id: int, name: str, lesson: str):
                    name=new_concept.name, lesson=new_concept.lesson_content)
 
 
+@TagRoutes.route("/editConcept", methods=['POST'])
+@teacher_only
+@validate(conceptID=int, name=str, lesson=str)
+def edit_concept(concept_id: int, name: str, lesson: str):
+    """
+    Edit an already existing Concept
+    :param concept_id: The Concept to update
+    :param name: The new Name of the concept
+    :param lesson: The new Lesson string of the concept
+    :return: Confirmation that the concept was updated
+    """
+    concept = Concept.query.get(concept_id)  # Check database for concept
+    if concept is None:
+        # If the concept does not exist return error JSON
+        return jsonify(error="Concept Not Found")
+    if not able_edit_course(concept.COURSE):
+        # If user does not have access to edit course return error JSON
+        return jsonify(error="User Not Able To Edit Course")
+    # Update Concept Data and commit to database and return
+    concept.name = name
+    concept.lesson_content = lesson
+    db.session.commit()
+    return jsonify({})
+
+
 @TagRoutes.route("/addConceptRelation", methods=['POST'])
 @teacher_only
 @validate(parentID=int, childID=int, weight=int)
