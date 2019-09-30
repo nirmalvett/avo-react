@@ -5,7 +5,7 @@ from server.MathCode.question import AvoQuestion
 from random import randint
 from server.decorators import login_required, teacher_only, validate
 from server.models import db, Question, Tag, TagUser, Lesson, TagQuestion, TagClass, Class, Transaction, Concept, \
-    UserCourse, ConceptRelation, ConceptQuestion, Course
+    UserCourse, ConceptRelation, ConceptQuestion, Course, Mastery, MasteryHistory
 from server.helpers import get_tree, get_next_2, timestamp
 from server.auth import able_edit_course
 from datetime import datetime
@@ -512,7 +512,7 @@ def add_concept(course_id: int, name: str, lesson: str):
     :param course_id: The ID of the course to add the concept to
     :param name: Name of the concept
     :param lesson: the lesson string of the concept
-    :return: verification it was added into the database
+    :return: Confirmation the concept was added into the database
     """
     if not able_edit_course(course_id):
         # If the user is not able to edit the course return error JSON
@@ -546,6 +546,47 @@ def edit_concept(concept_id: int, name: str, lesson: str):
     # Update Concept Data and commit to database and return
     concept.name = name
     concept.lesson_content = lesson
+    db.session.commit()
+    return jsonify({})
+
+
+@TagRoutes.route("/deleteConcept", methods=['POST'])
+@teacher_only
+@validate(conceptID=int)
+def delete_concept(concept_id: int):
+    """
+    Delete a Concept
+    :return: Confirmation the concept was deleted from the database
+    """
+    concept = Concept.query.get(concept_id)  # Check if Concept exists
+    if concept is None:
+        # If concept does not exist in the database return error JSON
+        return jsonify(error="Concept not found")
+    if not able_edit_course(concept.COURSE):
+        # If the user is not able to edit course return error JSON
+        return jsonify(error="User not able to edit course")
+    concept_question = ConceptQuestion.query\
+        .filter(ConceptQuestion.CONCEPT == concept_id).all()  # All questions related to concept
+    if len(concept_question) > 0:
+        # If there are questions with the concept remove the relation between them
+        db.session.delete(concept_question)
+    concept_relation = ConceptRelation.query.filter((ConceptRelation.PARENT == concept_id) |
+                                                    (ConceptRelation.CHILD == concept_id)).all()
+    # Get all relations between other concepts and current concept
+    if len(concept_relation) > 0:
+        # If there are relations with other concepts delete them from database
+        db.session.delete(concept_relation)
+    mastery = Mastery.query.filter(Mastery.CONCEPT == concept_id).all()  # Mastery with current concept
+    mastery_history = MasteryHistory.query\
+        .filter(MasteryHistory.MASTERY.in_(mastery.MASTERY)).all()  # Mastery backups with current concept
+    if len(mastery_history) > 0:
+        # If there are mastery histories delete from database
+        db.session.delete(mastery_history)
+    if len(mastery) > 0:
+        # if there are current mastery scores remove from database
+        db.session.delete(mastery)
+    # Remove current concept from database and return
+    db.session.delete(concept)
     db.session.commit()
     return jsonify({})
 
