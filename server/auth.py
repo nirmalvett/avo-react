@@ -101,19 +101,17 @@ def able_edit_set(set_id):
 
 
 def able_edit_course(course_id):
-    """
-    Checks if the current user is able to edit a course
-    :param course_id: the ID of the course
-    :return: True if the user can edit False if they dont have the ability to edit
-    """
-    try:
-        user_section = UserCourse.query.filter((UserCourse.USER == current_user.USER) &
-                                               (UserCourse.COURSE == course_id)).first()
-        # Query for if the user is in the course
-    except NoResultFound:
-        # If no results found in the database the user doesnt have any control of the course return False
-        return False
-    return user_section.can_edit
+    user_section = UserCourse.query.filter(
+        (UserCourse.USER == current_user.USER) & (UserCourse.COURSE == course_id)
+    ).first()
+    return user_section is not None and user_section.can_edit
+
+
+def able_view_course(course_id):
+    user_section = UserCourse.query.filter(
+        (UserCourse.USER == current_user.USER) & (UserCourse.COURSE == course_id)
+    ).first()
+    return user_section is not None
 
 
 def send_email(recipient: str, subject: str, message: str):

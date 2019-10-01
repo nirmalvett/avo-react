@@ -7,7 +7,7 @@ from server.decorators import login_required, teacher_only, validate
 from server.models import db, Question, Tag, TagUser, Lesson, TagQuestion, TagClass, Class, Transaction, Concept, \
     UserCourse, ConceptRelation, ConceptQuestion, Course, Mastery, MasteryHistory
 from server.helpers import get_tree, get_next_2, timestamp
-from server.auth import able_edit_course
+from server.auth import able_edit_course, able_view_course
 from datetime import datetime
 from math import log
 import json
@@ -647,6 +647,32 @@ def delete_concept_relation(relation_id: int):
     db.session.delete(relation)
     db.session.commit()
     return jsonify({})
+
+
+@TagRoutes.route("/getConceptGraph", methods=['POST'])
+@teacher_only
+@validate(courseID=int)
+def get_concept_graph(course_id: int):
+    """
+    Create and return a graph of the concepts of a course
+    :param course_id:
+    :return: Graph representation of concepts
+    """
+    if not able_view_course(course_id):
+        # Checks if the user is in the course
+        return jsonify(error="User Not In Course")
+    concept_list = Concept.query.filter(Concept.COURSE == course_id).all()
+    edge_list = ConceptRelation.query.filter((ConceptRelation.PARENT.in_(o.CONCEPT for o in concept_list)) |
+                                             (ConceptRelation.CHILD.in_(o.CONCEPT for o in concept_list))).all()
+    concepts = []  # List of concepts to return
+    edges = []  # List of edges to return
+
+    # For each concept add it to the return list
+    concepts = [{"conceptID": concept.CONCEPT, "name": concept.name, "lesson": concept.lesson_content}
+                for concept in concept_list]
+    # For each edge add it to the return list
+    edges = [{"parent": edge.PARENT, "child": edge.CHILD, "weight": edge.weight} for edge in edge_list]
+    return jsonify(concepts=concepts, edges=edges)
 
 
 @TagRoutes.route("/addConceptQuestion", methods=['POST'])
