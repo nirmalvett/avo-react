@@ -1,5 +1,5 @@
 import React, {Component, ReactElement} from 'react';
-import {Card, Grid, Icon, IconButton, Typography, Fade} from '@material-ui/core';
+import {Card, Grid, Icon, IconButton, Typography, Fade, Slider} from '@material-ui/core';
 import AVOLessonFSM from './AVOLessonFSM';
 import AVOMasteryGauge from './MasteryGauge';
 import AVOLearnTestComp from './AVOLearnTestComp';
@@ -15,7 +15,7 @@ export interface AvoLessonData {
             ID: number;
             seed: number;
         }[];
-    }
+    };
 }
 
 interface AVOLessonSliderProps {
@@ -67,7 +67,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                         </IconButton>
                     </div>
                 </Grid>
-                <Grid xs={10} style={{position: 'relative'}}>
+                <Grid container xs={10} style={{position: 'relative'}}>
                     {this.getSlideRenderable()}
                 </Grid>
                 <Grid xs={1} style={{zIndex: 10}}>
@@ -114,7 +114,6 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                                     margin: 'none',
                                     width: 'auto',
                                     display: 'flex',
-                                    height: '50vh',
                                     position: 'relative',
                                     flexDirection: 'column',
                                 }}
@@ -122,7 +121,9 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                                 key={`avo-learn__card-key:${LIndex}`}
                             >
                                 <IconButton
-                                    onClick={() => this.openLessonFSM(lesson, `${LIndex}-${gIndex}`)}
+                                    onClick={() =>
+                                        this.openLessonFSM(lesson, `${LIndex}-${gIndex}`)
+                                    }
                                     color='primary'
                                     aria-label='fullscreen'
                                     style={{
@@ -147,11 +148,12 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                                 </Typography>
                             </Card>
                         </Grid>
-                    </Fade>
+                    </Fade>,
                 );
             });
             output.push(
                 <Grid
+                    item
                     container
                     xs={12}
                     spacing={6}
@@ -161,9 +163,15 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                         willChange: 'transform',
                         transform: `translateX(${this.getSlideTranslation(gIndex)}vw)`,
                     }}
+                    direction='column'
                 >
-                    {slideGroup}
-                </Grid>
+                    <Grid container item xs={12} style={{height: 'calc(calc(100vh - 64px) / 2)', padding: '5px'}}>
+                        {slideGroup.slice(0, 3)}
+                    </Grid>
+                    <Grid container item xs={12} style={{height: 'calc(calc(100vh - 64px) / 2)', padding: '5px'}}>
+                        {slideGroup.slice(3, 6)}
+                    </Grid>
+                </Grid>,
             );
         });
         return output;
@@ -197,7 +205,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                 groupCounter++;
             }
             output[groupCounter].push(slide);
-            if (slideCounter === 2) slideCounter = 0;
+            if (slideCounter === 5) slideCounter = 0;
             else slideCounter++;
         });
         return output;

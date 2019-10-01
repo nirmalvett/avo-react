@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import * as Http from '../Http';
 import Grid from '@material-ui/core/Grid';
 import AVOLessonSlider from './AVOLessonSlider';
+import { Slider } from '@material-ui/core';
 
 export interface AvoLesson {
     mastery: number;
