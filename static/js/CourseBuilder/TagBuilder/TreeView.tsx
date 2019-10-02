@@ -4,12 +4,17 @@ import cytoscape, {ElementsDefinition} from 'cytoscape';
 import dagre from 'cytoscape-dagre';
 import * as Http from '../../Http';
 
-interface TagNode {
-    childOrder: number; 
-    parent: any; 
-    tagID: number; 
-    tagName: string;
-}
+interface Concept {
+    conceptID: number;
+    name: string;
+    lesson: string;
+};
+
+interface Edge {
+    child: number;
+    parent: number;
+    weight: number;
+};
 
 interface TreeViewProps {
     theme: {
@@ -20,12 +25,13 @@ interface TreeViewProps {
         };
         theme: 'light' | 'dark';
     };
-    nodes: TagNode[];
+    concepts: Concept[];
+    edges: Edge[];
+    setTagIndex: (index: number) => void;
 }
 
 interface TreeViewState {
-    selectedNodeID: number;
-    nodes: TagNode[];
+    selectedConceptID: number;
 }
 
 export default class TreeView extends Component<TreeViewProps, TreeViewState>
@@ -33,8 +39,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
     constructor(props: TreeViewProps) {
         super(props);
         this.state = {
-            selectedNodeID : -1,
-            nodes: this.props.nodes
+            selectedConceptID : -1,
         }
     };
 
@@ -55,26 +60,35 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
 
     componentDidMount() {
         const _this = this;
-        const data = _this.props.nodes;
+
         const nodes: ElementsDefinition['nodes'] = [];
         const edges: ElementsDefinition['edges'] = [];
 
-        this.setState({ nodes : data });
-        data.forEach(el => {
+        this.props.concepts.forEach(Concept => {
             nodes.push({
                 data: {
-                    id: 'node-' + el.tagID + '-end', // the + '-end' is for later on filtering
+                    id: 'node-' + Concept.conceptID + '-end', // the + '-end' is for later on filtering
                 },
                 style: {
-                    content: el.tagName.length > 28 ? el.tagName.substring(0, 25) + '...' : el.tagName,
+                    content: (
+                        Concept.name.length > 28 ? 
+                            Concept.name.substring(0, 25) + '...' : 
+                            Concept.name
+                    ),
+                }
+            });
+        })
+
+        this.props.edges.forEach(Edge => {
+            edges.push({
+                data: {
+                    source: 'node-'    + Edge.parent + '-end',
+                    target: 'node-'    + Edge.child  + '-end', 
+                    id    : 'between-' + Edge.parent + '-' + Edge.child
                 },
             });
-            if (el.parent !== null) {
-                edges.push({
-                    data: {target: 'node-' + el.tagID + '-end', source: 'node-' + el.parent + '-end'},
-                });
-            }
         });
+
         cytoscape.use(dagre);
         (window as any).cy = cytoscape({
             container: document.getElementById('cy'),
@@ -114,65 +128,46 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
     };
 
     selectNode(nodeID: String) {
-        const tagID = nodeID.split('-')[1];
-        const nodesToSelect = [parseInt(tagID)];
-        if(!!this.getNodeParent(tagID))
-            nodesToSelect.push(this.getNodeParent(tagID).tagID);
-        nodesToSelect.push(...this.getChildNodes(tagID).map(n => n.tagID));
-        console.log(nodesToSelect);
+        const tagID = parseInt(nodeID.split('-')[1]);
+
+        const nodesToSelect = [ tagID ];
+
+        if(!!this.getParentNodes(tagID).length)
+            nodesToSelect.push(...this.getParentNodes(tagID).map(Concept => Concept.conceptID));
+        nodesToSelect.push(...this.getChildNodes(tagID).map(Concept => Concept.conceptID));
+
         (window as any).cy.fit((window as any).cy.$(...nodesToSelect.map(number => `#node-${number}-end`)), 250);
 
         (window as any).cy.nodes().forEach((node : any) => {
             let nodeColour = this.props.theme.theme === 'light' ? 'grey' : 'white';
-            const nodeID = node.id().split('-')[1];
+            const nodeID = parseInt(node.id().split('-')[1]);
             if(nodeID === tagID) nodeColour = this.props.theme.color[500]; 
             node.style('background-color', nodeColour);            
         });
-        this.setState({ selectedNodeID : parseInt(tagID) });
+        this.setState({ selectedConceptID : parseInt(tagID) });
+        this.props.setTagIndex(this.props.concepts.map(Concept => Concept.conceptID).indexOf(parseInt(tagID)));
     };
 
-    getNodeParent(id: string) {
-        return this.state.nodes[this.state.nodes.map( TagNode => `${TagNode.parent}`).indexOf(id)];
+    getParentNodes(id: number) {
+        const parentNodes = [];
+        const conceptMapByID = {};
+        this.props.concepts.forEach(Concept => conceptMapByID[Concept.conceptID] = Concept );
+        this.props.edges.forEach(Edge => {
+            if(Edge.child === id)
+                parentNodes.push(conceptMapByID[Edge.parent]);
+        });
+        return parentNodes;
     };
 
-    getChildNodes(id: string) {
-        return this.state.nodes.filter(TagNode => TagNode.parent == id);
+    getChildNodes(id: number) {
+        const childNodes = [];
+        const conceptMapByID = {};
+        this.props.concepts.forEach(Concept => conceptMapByID[Concept.conceptID] = Concept );
+        this.props.edges.forEach(Edge => {
+            if(Edge.parent === id)
+                childNodes.push(conceptMapByID[Edge.child]);
+        });
+        return childNodes;
     };
 };
 
-// const data: ElementsDefinition = {
-//     nodes: [
-//         {data: {id: 'n0'}},
-//         {data: {id: 'n1'}},
-//         {data: {id: 'n2'}},
-//         {data: {id: 'n3'}},
-//         {data: {id: 'n4'}},
-//         {data: {id: 'n5'}},
-//         {data: {id: 'n6'}},
-//         {data: {id: 'n7'}},
-//         {data: {id: 'n8'}},
-//         {data: {id: 'n9'}},
-//         {data: {id: 'n10'}},
-//         {data: {id: 'n11'}},
-//         {data: {id: 'n12'}},
-//         {data: {id: 'n13'}},
-//         {data: {id: 'n14'}},
-//         {data: {id: 'n15'}},
-//         {data: {id: 'n16'}},
-//     ],
-//     edges: [
-//         {data: {source: 'n0', target: 'n1'}},
-//         {data: {source: 'n1', target: 'n2'}},
-//         {data: {source: 'n1', target: 'n3'}},
-//         {data: {source: 'n4', target: 'n5'}},
-//         {data: {source: 'n4', target: 'n6'}},
-//         {data: {source: 'n6', target: 'n7'}},
-//         {data: {source: 'n6', target: 'n8'}},
-//         {data: {source: 'n8', target: 'n9'}},
-//         {data: {source: 'n8', target: 'n10'}},
-//         {data: {source: 'n11', target: 'n12'}},
-//         {data: {source: 'n12', target: 'n13'}},
-//         {data: {source: 'n13', target: 'n14'}},
-//         {data: {source: 'n13', target: 'n15'}},
-//     ],
-// };
