@@ -506,18 +506,18 @@ def remove_tag_question(tag_id: int, question_id: int):
 @TagRoutes.route("/addConcept", methods=['POST'])
 @teacher_only
 @validate(courseID=int, name=str, lesson=str)
-def add_concept(courseID: int, name: str, lesson: str):
+def add_concept(course_id: int, name: str, lesson: str):
     """
     Add a Concept to the database
-    :param courseID: The ID of the course to add the concept to
+    :param course_id: The ID of the course to add the concept to
     :param name: Name of the concept
     :param lesson: the lesson string of the concept
     :return: verification it was added into the database
     """
-    if not able_edit_course(courseID):
+    if not able_edit_course(course_id):
         # If the user is not able to edit the course return error JSON
         return jsonify(error="User does not have the ability to edit the course")
-    new_concept = Concept(courseID, name, lesson)  # THe concept to be added to the database and course
+    new_concept = Concept(course_id, name, lesson)  # THe concept to be added to the database and course
     # Add concept to database and return
     db.session.add(new_concept)
     db.session.commit()
@@ -600,5 +600,27 @@ def add_concept_question(concept_id: int, question_id: int, weight: int):
     if concept is not None:
         return jsonify(error="Concept Question already exists")
     db.session.add(ConceptQuestion(concept_id, question_id, weight))
+    db.session.commit()
+    return jsonify({})
+
+
+@TagRoutes.route("/deleteConceptQuestion", methods=['POST'])
+@teacher_only
+@validate(conceptQuestionID=int)
+def delete_concept_question(concept_question_id: int):
+    """
+    Delete a concept question relation from the database
+    :param concept_question_id: The relation to remove
+    :return: Confirmation that the record has been removed
+    """
+    concept_question = ConceptQuestion.query.get(concept_question_id)  # Get the concept question relation
+    if concept_question is None:
+        # If there is no relation in the database return error JSON
+        return jsonify(error="Concept Not Found")
+    if not able_edit_course(concept_question.CONCEPT):
+        # If the user is not able to edit the course return error JSON
+        return jsonify(error="User does not have the ability to edit the course")
+    # Remove from database and return
+    db.session.delete(concept_question)
     db.session.commit()
     return jsonify({})
