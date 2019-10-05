@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import * as Http from '../Http';
 import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
 import AVOLessonSlider from './AVOLessonSlider';
 import { Slider } from '@material-ui/core';
 
@@ -25,6 +26,8 @@ interface AVOLearnComponentProps {
 
 interface AVOLearnComponentState {
     lessons: AvoLesson[];
+    allLessons: AvoLesson[];
+    filterInput: string;
 }
 
 export default class AVOLearnComponent extends Component<
@@ -35,11 +38,12 @@ export default class AVOLearnComponent extends Component<
         super(props);
         this.state = {
             lessons: [],
+            filterInput: '',
+            allLessons: [],
         };
     }
 
     render() {
-        if (this.state.lessons.length === 0) return <div />;
         return (
             <Grid
                 container
@@ -54,12 +58,29 @@ export default class AVOLearnComponent extends Component<
                 }}
                 id='avo-learn__layout-div'
             >
-                <AVOLessonSlider
+                {(this.state.lessons.length !== 0) && <AVOLessonSlider
                     theme={this.props.theme}
                     changeToNewMastery={() => this.changeToNewMastery()}
                     slides={this.state.lessons}
                     updateMastery={this.updateMastery}
-                />
+                />}
+                <div
+                    style={{
+                        borderRadius: '2.5em',
+                        border: 'solid 1px black',
+                        zIndex: 1000,
+                        maxHeight: 75,
+                        marginTop: 100,
+                        padding: 15,
+                    }}
+                >
+                    <TextField
+                        id='filter-input'
+                        label='Filter lessons...'
+                        value={this.state.filterInput}
+                        onChange={this.filterLessons}
+                    />
+                </div>
             </Grid>
         );
     }
@@ -67,11 +88,25 @@ export default class AVOLearnComponent extends Component<
     componentDidMount() {
         this.getLessons();
     }
+    filterLessons = (e: any) => {
+        const {allLessons} = this.state;
+        const filterInput = e.target.value;
+        if (filterInput === '') {
+            this.setState({filterInput, lessons: allLessons});
+        } else {
+            const words = filterInput.split(' ');
+            const lessons = allLessons.filter(lesson => words.indexOf(lesson.Tag) !== -1);
+            this.setState({filterInput, lessons});
+        }
+    };
     getLessons = () => {
         Http.getLearnLessons(
             res => {
                 console.log(res);
-                this.setState({lessons: res.lessons.map(x => ({...x, newMastery: x.mastery}))});
+                this.setState({
+                    lessons: res.lessons.map(x => ({...x, newMastery: x.mastery})),
+                    allLessons: res.lessons.map(x => ({...x, newMastery: x.mastery})),
+                });
             },
             () => {},
         );
