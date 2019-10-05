@@ -9,7 +9,6 @@ import MyClasses from '../MyClasses/MyClasses';
 import CreateTest from '../ManageClasses/CreateTest/CreateTest';
 import Preferences from '../Preferences/Preferences';
 import ManageClasses from '../ManageClasses/ManageClasses';
-import QuestionManager from '../CourseBuilder/QuestionBuilder/QuestionManager';
 import {QuestionBuilder} from '../QuestionBuilder/QuestionBuilder';
 import QuestionBuilderDocs from '../CourseBuilder/QuestionBuilder/QuestionBuilderDocs';
 import ExportTools from '../ExportTools/ExportTools';
@@ -27,6 +26,7 @@ import Whitelist from '../Whitelist/Whitelist';
 import {Section} from './LayoutModels';
 import {AvoSet} from '../Http/types';
 import LessonBuilder from '../CourseBuilder/LessonBuilder/LessonBuilder'
+import {QuestionBuilderHome} from "../QuestionBuilder/QuestionBuilderHome";
 const drawerWidth = 240;
 
 const styles = (theme: Theme) =>
@@ -221,12 +221,13 @@ class Layout extends Component<LayoutProps, LayoutState> {
             );
         } else if (section.name === 'My Questions') {
             return (
-                <QuestionManager
+                <QuestionBuilderHome
                     showSnackBar={this.showSnackBar}
                     initBuilder={this.buildQuestion}
                     s={section.s}
                     q={section.q}
                     sets={section.sets}
+                    theme={this.props.theme}
                 />
             );
         } else if (section.name === 'Notify Class') {
