@@ -2,11 +2,18 @@ import React, { Component } from 'react';
 import {Button, Card, Grid, Grow, Typography} from '@material-ui/core';
 import Logo from '../SharedComponents/Logo';
 import MultipleChoiceBuilder from './MultipleChoiceBuilder';
-import QuestionManager from '../CourseBuilder/QuestionBuilder/QuestionManager';
+import QuestionManager, {QuestionManagerProps} from '../CourseBuilder/QuestionBuilder/QuestionManager';
 
-export default class QuestionBuilderHome extends Component {
+interface QuestionBuilderHomeState {
+	mode: 'home' | 'math' | 'multiple-choice';
+	isActive: boolean;
+}
 
-	constructor(props) {
+type QuestionBuilderHomeProps = QuestionManagerProps & {theme: 'light' | 'dark'};
+
+export class QuestionBuilderHome extends Component<QuestionBuilderHomeProps, QuestionBuilderHomeState> {
+
+	constructor(props: QuestionBuilderHomeProps) {
 		super(props);
 		this.state = {
 			mode     : 'home',
@@ -20,26 +27,19 @@ export default class QuestionBuilderHome extends Component {
 				return this.renderHomeScreen();
 			case 'math' : 
 				return ( 
-					<QuestionManager
-						showSnackBar={this.props.showSnackBar}
-			            theme={this.props.theme}
-			            initManager={this.props.initManager}
-			            initWith={this.props.initWith}
-					/> 
+					<QuestionManager {...this.props}/>
 				);
 			case 'multiple-choice': 
 				return ( 
 					<MultipleChoiceBuilder
+						sets={this.props.sets}
+						returnHome={() => this.setState({mode: 'home', isActive: true})}
 						showSnackBar={this.props.showSnackBar}
-			            theme={this.props.theme}
-			            initManager={this.props.initManager}
-						initWith={this.props.initWith}
-						return={() => this.setState({mode: 'home', isActive: true})}
 					/>
 				);
 			default:
 				return this.renderHomeScreen();
-		};
+		}
 	};
 
 	renderHomeScreen() {
@@ -122,4 +122,4 @@ export default class QuestionBuilderHome extends Component {
 			this.setState({ mode : 'multiple-choice' });
 		}, 500);
 	};
-};
+}

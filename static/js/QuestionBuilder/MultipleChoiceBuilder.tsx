@@ -39,7 +39,13 @@ import {
     Typography,
 } from '@material-ui/core';
 import {AvoSet} from '../Http/types';
-import {QuestionBuilderProps} from './QuestionBuilder.models';
+import {ShowSnackBar} from "../Layout/Layout";
+
+export interface MultipleChoiceBuilderProps {
+    showSnackBar: ShowSnackBar;
+    sets: AvoSet[];
+    returnHome: () => void;
+}
 
 interface MultipleChoiceBuilderState {
     loaded: boolean;
@@ -69,10 +75,10 @@ interface MultipleChoiceBuilderState {
 }
 
 export default class MultipleChoiceBuilder extends Component<
-    QuestionBuilderProps,
+    MultipleChoiceBuilderProps,
     MultipleChoiceBuilderState
 > {
-    constructor(props: QuestionBuilderProps) {
+    constructor(props: MultipleChoiceBuilderProps) {
         super(props);
         this.state = {
             loaded: false, // Checks if the page has had all required data loaded
@@ -119,13 +125,7 @@ export default class MultipleChoiceBuilder extends Component<
                                     aria-label='go back'
                                     size='small'
                                     style={{marginLeft: '16px'}}
-                                    onClick={() =>
-                                        this.props.initManager(
-                                            this.props.s,
-                                            this.props.q,
-                                            this.props.sets,
-                                        )
-                                    }
+                                    onClick={this.props.returnHome}
                                 >
                                     <ArrowBack />
                                 </IconButton>

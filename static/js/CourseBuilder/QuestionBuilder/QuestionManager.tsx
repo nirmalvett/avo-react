@@ -29,7 +29,7 @@ import {AnswerInput} from '../../AnswerInput';
 import {ShowSnackBar} from '../../Layout/Layout';
 import {AvoSet} from '../../Http/types';
 
-interface QuestionManagerProps {
+export interface QuestionManagerProps {
     s: number | null;
     q: number | null;
     sets: AvoSet[];
