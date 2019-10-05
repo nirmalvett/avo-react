@@ -14,6 +14,10 @@ const config = {
     resolve: {
         extensions: ['.tsx', '.ts', ".js", ".jsx", ".css"]
     },
+    watchOptions: {
+        poll: true,
+        ignored: /node_modules/
+    },
     module: {
         rules: [
             {

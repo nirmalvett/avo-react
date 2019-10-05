@@ -1,18 +1,8 @@
 import React, { Component } from 'react';
-import Http from '../HelperFunctions/Http';
-import Card from '@material-ui/core/Card';
-import Button from '@material-ui/core/Button';
-import Select from '@material-ui/core/Select';
-import Divider from '@material-ui/core/Divider';
-import MenuItem from '@material-ui/core/MenuItem';
-import TextField from '@material-ui/core/es/TextField/TextField';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
+import {Button, Card, Grid, Grow, Typography} from '@material-ui/core';
 import Logo from '../SharedComponents/Logo';
-import Grid from '@material-ui/core/Grid';
 import MultipleChoiceBuilder from './MultipleChoiceBuilder';
 import QuestionManager from '../CourseBuilder/QuestionBuilder/QuestionManager';
-import Grow from '@material-ui/core/Grow';
 
 export default class QuestionBuilderHome extends Component {
 
@@ -43,10 +33,11 @@ export default class QuestionBuilderHome extends Component {
 						showSnackBar={this.props.showSnackBar}
 			            theme={this.props.theme}
 			            initManager={this.props.initManager}
-			            initWith={this.props.initWith}
-					/> 
+						initWith={this.props.initWith}
+						return={() => this.setState({mode: 'home', isActive: true})}
+					/>
 				);
-			default: 
+			default:
 				return this.renderHomeScreen();
 		};
 	};
@@ -58,7 +49,7 @@ export default class QuestionBuilderHome extends Component {
 				</Grid>
 				<Grid item xs={6}>
 				 	<Grow in={this.state.isActive}>
-						<Card 
+						<Card
 							className="avo-card"
 							style={{
 								height : 'auto',
@@ -71,36 +62,36 @@ export default class QuestionBuilderHome extends Component {
 		                        style={{width: '80%', marginLeft: '10%', marginTop: '5%'}}
 		                    />
 		                    <Typography variant="h4" gutterBottom>
-						 		Question Builder   	
+						 		Question Builder
 						    </Typography>
 						    <Typography variant="subtitle1" gutterBottom>
-						 		What type of question would you like to create today?   	
+						 		What type of question would you like to create today?
 						    </Typography>
 						    <br/>
-							<Button 
+							<Button
 								onClick={this.switchToMathQB.bind(this)}
-								variant="outlined" 
-								color="primary" 
-								className='' 
+								variant="outlined"
+								color="primary"
+								className=''
 								style={{ width : '90%', borderRadius : '2.5em', margin : '5%', marginBottom : '0px' }}
 							>
 					        	Math
 					      	</Button>
 					      	<br/>
-					      	<Button 
+					      	<Button
 					      		onClick={this.switchToMCB.bind(this)}
-					      		variant="outlined" 
-					      		color="primary" 
-					      		className='' 
+					      		variant="outlined"
+					      		color="primary"
+					      		className=''
 					      		style={{ width : '90%', borderRadius : '2.5em', margin : '5%', marginBottom : '0px' }}
 					      	>
 					        	Multiple choice
 					      	</Button>
 					      	<br/>
-					      	<Button 
-					      		variant="outlined" 
-					      		color="primary" 
-					      		className='' 
+					      	<Button
+					      		variant="outlined"
+					      		color="primary"
+					      		className=''
 					      		style={{ width : '90%', borderRadius : '2.5em', margin : '5%' }}
 					      	>
 					        	True or False
@@ -111,7 +102,7 @@ export default class QuestionBuilderHome extends Component {
 				<Grid item xs={3}>
 				</Grid>
 			</Grid>
-		); 
+		);
 	};
 
 	componentDidMount() {
@@ -129,7 +120,6 @@ export default class QuestionBuilderHome extends Component {
 		this.setState({ isActive : false });
 		setTimeout(() => {
 			this.setState({ mode : 'multiple-choice' });
-		}, 500);	
+		}, 500);
 	};
-
 };
