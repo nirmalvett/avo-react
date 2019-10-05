@@ -1,10 +1,78 @@
 import React, {Component} from 'react';
 import * as Http from '../Http';
-import {Add as AddIcon, ArrowBack, Check as CheckIcon, Close as CloseIcon, Delete as DeleteIcon, Edit as EditIcon, Folder, InsertDriveFile as QuestionIcon, Lock, Save as SaveIcon} from '@material-ui/icons';
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Fab, FormControl, FormControlLabel, FormLabel, Grid, Grow, IconButton, ListItem, ListItemText, ListItemIcon, Paper, Popover, Radio, RadioGroup, Slide, TextField, Typography} from '@material-ui/core';
+import {
+    Add as AddIcon,
+    ArrowBack,
+    Check as CheckIcon,
+    Close as CloseIcon,
+    Delete as DeleteIcon,
+    Edit as EditIcon,
+    Folder,
+    InsertDriveFile as QuestionIcon,
+    Lock,
+    Save as SaveIcon,
+} from '@material-ui/icons';
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Divider,
+    Fab,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    Grid,
+    Grow,
+    IconButton,
+    ListItem,
+    ListItemText,
+    ListItemIcon,
+    Paper,
+    Popover,
+    Radio,
+    RadioGroup,
+    Slide,
+    TextField,
+    Typography,
+} from '@material-ui/core';
+import {AvoSet} from '../Http/types';
+import {QuestionBuilderProps} from './QuestionBuilder.models';
 
-export default class MultipleChoiceBuilder extends Component {
-    constructor(props) {
+interface MultipleChoiceBuilderState {
+    loaded: boolean;
+    questionID: number;
+    questionName: string;
+    questionNmeE: boolean;
+    questionText: string;
+    questionTxtE: boolean;
+    questionOpts: string[];
+    questionEdit: boolean[];
+    questionAnsr: number;
+    questionExpl: string;
+    questionExpE: boolean;
+    sets: AvoSet[];
+    setsActive: boolean;
+    setQActive: boolean;
+    selectedS: null | number;
+    selectedQ: null | number;
+    selectedSName: string;
+    popopen: boolean;
+    anchorEl: null;
+    diagOpen: boolean;
+    editMode: boolean;
+    changed: boolean;
+    nextQuestion: null | {id: number; name: string; string: string};
+    hovered: number;
+}
+
+export default class MultipleChoiceBuilder extends Component<
+    QuestionBuilderProps,
+    MultipleChoiceBuilderState
+> {
+    constructor(props: QuestionBuilderProps) {
         super(props);
         this.state = {
             loaded: false, // Checks if the page has had all required data loaded
@@ -18,10 +86,11 @@ export default class MultipleChoiceBuilder extends Component {
             questionAnsr: 0, // Stores the index of the correct options for the test
             questionExpl: '', // Stores the question Explanation String
             questionExpE: true, // Keeps track of if we're editing the explanation string
-            sets: this.props.initWith[2] || [],
+            sets: this.props.sets,
             setsActive: false,
             setQActive: false,
-            selectedS: null, // Selected Set
+            selectedS: null,
+            selectedQ: null,
             selectedSName: '',
             popopen: false,
             anchorEl: null,
@@ -50,7 +119,13 @@ export default class MultipleChoiceBuilder extends Component {
                                     aria-label='go back'
                                     size='small'
                                     style={{marginLeft: '16px'}}
-                                    onClick={() => this.props.return()}
+                                    onClick={() =>
+                                        this.props.initManager(
+                                            this.props.s,
+                                            this.props.q,
+                                            this.props.sets,
+                                        )
+                                    }
                                 >
                                     <ArrowBack />
                                 </IconButton>
@@ -106,7 +181,7 @@ export default class MultipleChoiceBuilder extends Component {
                                 maxHeight: '100%',
                             }}
                         >
-                            {!!this.state.questionNmeE ? (
+                            {this.state.questionNmeE ? (
                                 <span>
                                     <TextField
                                         id='outlined-name'
@@ -149,7 +224,7 @@ export default class MultipleChoiceBuilder extends Component {
                             )}
                             <br />
                             <br />
-                            {!!this.state.questionTxtE ? (
+                            {this.state.questionTxtE ? (
                                 <span>
                                     <TextField
                                         id='outlined-name'
@@ -208,7 +283,7 @@ export default class MultipleChoiceBuilder extends Component {
                                                 control={<Radio />}
                                                 label={
                                                     <span>
-                                                        {!!this.state.questionEdit[index] ? (
+                                                        {this.state.questionEdit[index] ? (
                                                             <span>
                                                                 <TextField
                                                                     label={`Edit Choice #${index +
@@ -329,7 +404,7 @@ export default class MultipleChoiceBuilder extends Component {
                             </Fab>
                             <br />
                             <br />
-                            {!!this.state.questionExpE ? (
+                            {this.state.questionExpE ? (
                                 <span>
                                     <TextField
                                         id='outlined-name'
@@ -432,7 +507,9 @@ export default class MultipleChoiceBuilder extends Component {
                         <Button
                             onClick={() => {
                                 this.setState({diagOpen: false});
-                                this.loadQuestion(this.state.nextQuestion);
+                                if (this.state.nextQuestion) {
+                                    this.loadQuestion(this.state.nextQuestion);
+                                }
                             }}
                             color='primary'
                             variant='contained'
@@ -478,7 +555,7 @@ export default class MultipleChoiceBuilder extends Component {
                         />
                     </ListItemIcon>
                     <ListItemText secondary={question.name} />
-                    {this.state.hovered === question.id && <EditIcon edge='end' />}
+                    {this.state.hovered === question.id && <EditIcon />}
                 </ListItem>
             ));
     };
@@ -524,7 +601,7 @@ export default class MultipleChoiceBuilder extends Component {
         this.getSets();
     };
 
-    selectSet = (set, index) => {
+    selectSet = (set: {name: string}, index: number) => {
         this.setState({selectedS: index, selectedSName: set.name, setsActive: false});
         setTimeout(() => {
             this.setState({setQActive: true});
@@ -552,7 +629,7 @@ export default class MultipleChoiceBuilder extends Component {
         );
     };
 
-    handleSaveMouseEnter = event => {
+    handleSaveMouseEnter = (event: any) => {
         if (!this.isValid()) {
             this.setState({popopen: true, anchorEl: event.currentTarget});
         }
@@ -577,54 +654,58 @@ export default class MultipleChoiceBuilder extends Component {
             Http.renameQuestion(
                 this.state.questionID,
                 this.state.questionName,
-                Http.editQuestion(
-                    this.state.questionID,
-                    this.buildQuestionString(),
-                    1,
-                    1,
-                    () => this.postSuccess(),
-                    () => this.props.showSnackBar('error', 'Error editing question'),
-                ),
-                () => this.props.showSnackBar('error', 'Error editing question'),
+                () =>
+                    Http.editQuestion(
+                        this.state.questionID,
+                        this.buildQuestionString(),
+                        1,
+                        1,
+                        () => this.postSuccess(),
+                        () => this.props.showSnackBar('error', 'Error editing question', 2000),
+                    ),
+                () => this.props.showSnackBar('error', 'Error editing question', 2000),
             );
         } else {
             Http.newQuestion(
-                this.state.selectedS + 1, // Must be +1 for server side
+                (this.state.selectedS as number) + 1, // Must be +1 for server side
                 this.state.questionName,
                 this.buildQuestionString(),
                 1,
                 1,
                 () => this.postSuccess(),
-                () => this.props.showSnackBar('error', 'Error creating question'),
+                () => this.props.showSnackBar('error', 'Error creating question', 2000),
             );
         }
     };
 
     postSuccess = () => {
-        if (this.state.editMode) this.props.showSnackBar('success', 'Question edited successfully');
-        else this.props.showSnackBar('success', 'Question created successfully');
+        if (this.state.editMode)
+            this.props.showSnackBar('success', 'Question edited successfully', 2000);
+        else this.props.showSnackBar('success', 'Question created successfully', 2000);
         this.reset();
     };
 
-    switchQuestion = question => {
-        this.state.nextQuestion = question;
-        if (this.state.changed) {
-            this.setState({diagOpen: true});
-        } else {
-            this.loadQuestion(question);
-        }
+    switchQuestion = (question: {id: number; name: string; string: string}) => {
+        this.setState({nextQuestion: question}, () => {
+            if (this.state.changed) {
+                this.setState({diagOpen: true});
+            } else {
+                this.loadQuestion(question);
+            }
+        });
     };
 
-    loadQuestion = question => {
+    loadQuestion = (question: {id: number; name: string; string: string}) => {
         if (isMath(question.string)) {
             this.props.showSnackBar(
                 'error',
                 'Please use the Math question builder to edit questions with math code',
+                2000,
             );
         } else if (!isMultipleChoice(question.string)) {
-            this.props.showSnackBar('error', 'This question is not multiple choice');
+            this.props.showSnackBar('error', 'This question is not multiple choice', 2000);
         } else {
-            const qEdit = [];
+            const qEdit: boolean[] = [];
             const answers = getAnswers(question.string);
             answers.forEach(() => {
                 qEdit.push(false);
@@ -681,27 +762,27 @@ export default class MultipleChoiceBuilder extends Component {
 }
 
 // Used to determine if the question string contains math
-function isMath(string) {
-    string = string.split('；');
+function isMath(string: string) {
+    const stringParts = string.split('；');
     // Check that there is no math code in the question string
-    return Boolean(string[0] || string[1] || string[2]);
+    return Boolean(stringParts[0] || stringParts[1] || stringParts[2]);
 }
 
-function isMultipleChoice(string) {
-    string = string.split('；');
-    let mcRegex = /@\d+ \d+ HA/;
-    return Boolean(string[6].match(mcRegex));
+function isMultipleChoice(string: string) {
+    const stringParts = string.split('；');
+    const mcRegex = /@\d+ \d+ HA/;
+    return Boolean(stringParts[6].match(mcRegex));
 }
 
 // Returns the prompt from the question string
-function getPrompt(string) {
-    string = string.split('；');
-    let split = string[3].split('，');
+function getPrompt(string: string) {
+    const stringParts = string.split('；');
+    const split = stringParts[3].split('，');
     return split[0];
 }
 
 // Returns an array of answers from the question string
-function getAnswers(string) {
+function getAnswers(string: string) {
     let list = string.split('；');
     let split = list[3].split('，');
     // Get rid of the preceding '—'
@@ -710,15 +791,15 @@ function getAnswers(string) {
 }
 
 // Get's the index of the correct answer from the question string
-function getAnswerIndex(string) {
+function getAnswerIndex(string: string) {
     let list = string.split('；');
     let split = list[6].split(' ');
     // The correct answer index, corrected for this frontend
-    return split[1] - 1;
+    return Number(split[1]) - 1;
 }
 
 // Get's the explanation string from the question string
-function getExplanation(string) {
+function getExplanation(string: string) {
     let list = string.split('；');
     return list[7];
 }
