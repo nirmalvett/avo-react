@@ -539,4 +539,5 @@ def edit_concept_relation(relation_id: int, weight: int):
     if not user_course.can_edit:
         return jsonify(error="No permission to edit course")
     relation.weight = weight
-    db.session.add(relation)
+    db.session.commit()
+    return jsonify({})
