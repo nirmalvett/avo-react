@@ -17,6 +17,7 @@ import Collapse from '@material-ui/core/Collapse';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import AVOPopover from '../../SharedComponents/AVOPopover';
 import {
     Edit, Info, Add, Fullscreen
 } from '@material-ui/icons';
@@ -77,7 +78,7 @@ const nodeData = {
     concepts: [
         {
             conceptID: 1,
-            name: "Concept1 Parent",
+            name: "Concept1 Parent also this is a really long string wooot",
             lesson: "Lesson String"
         },
         {
@@ -142,7 +143,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             selectedClass: {} as Class,
             loadingClasses: true,
 
-            selectedConcept: {} as Tag,
+            selectedConcept: {} as Concept,
             editingTagName: false,
 
             showParentNodes: false,
@@ -154,6 +155,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             
             nodesLoaded: false
         };
+        this.chartRef = React.createRef();
     }
     componentDidMount() {
         this.getClasses();
@@ -185,11 +187,11 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     >
                         <Grid container spacing={8} style={{ height: '-webkit-fill-available' }}>
                             <Grid item md={8}>
-                                {this.state.nodesLoaded && <TreeView theme={this.props.theme} concepts={this.state.concepts} edges={this.state.edges} setTagIndex={this.setTagIndex.bind(this)}/> }
+                                {this.state.nodesLoaded && <TreeView ref={this.chartRef} theme={this.props.theme} concepts={this.state.concepts} edges={this.state.edges} setTagIndex={this.setTagIndex.bind(this)}/> }
                             </Grid>
                             <Grid item md={4}>
                                 <div style={{display: 'flex', flexDirection: 'row'}}>
-                                    <div>
+                                    <div style={{ width: '-webkit-fill-available' }}>
                                         <Select
                                             value={this.state.selectedClassName}
                                             input={<Input name='data' id='select-class' />}
@@ -206,6 +208,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 </MenuItem>
                                             ))}
                                         </Select>
+                                        <br/>
                                         <FormControl>
                                             <Input
                                                 id='edit-concept'
@@ -228,12 +231,17 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                             aria-labelledby="nested-list-subheader"
                                             subheader={
                                                 <ListSubheader component="div" id="nested-list-subheader">
-                                                    Related Concepts & Weights <Info/>
+                                                    Related Concepts & Weights 
+                                                    <span>
+                                                        <AVOPopover content={'This is some popover content'}>
+                                                            <Info style={{ transform : 'scale(0.75) translateY(10px)' }}/>
+                                                        </AVOPopover>
+                                                    </span>
                                                 </ListSubheader>
                                             }
                                         >
                                             <ListItem button onClick={() => this.setState({ showParentNodes : !showParentNodes })}>
-                                                <ListItemText primary="Prerequisite Concepts" />
+                                                <ListItemText primary={<b>Prerequisite Concepts</b>} />
                                                 {showParentNodes ? <ExpandLess /> : <ExpandMore />}
                                                 <ListItemSecondaryAction>
                                                     <IconButton edge="end" aria-label="Add">
@@ -253,7 +261,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                 <IconButton edge="end" aria-label="Edit">
                                                                     <Edit />
                                                                 </IconButton>
-                                                                <IconButton edge="end" aria-label="Edit">
+                                                                <IconButton edge="end" aria-label="Go To" onClick={() => this.gotoSelectedNode(parent)}>
                                                                     <Fullscreen />
                                                                 </IconButton>
                                                             </ListItemSecondaryAction>
@@ -262,7 +270,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 </List>
                                             </Collapse>
                                             <ListItem button onClick={() => this.setState({ showChildNodes : !showChildNodes })}>
-                                                <ListItemText primary="Subsequent Concepts" />
+                                                <ListItemText primary={<b>Subsequent Concepts</b>} />
                                                 {showChildNodes ? <ExpandLess /> : <ExpandMore />}
                                                  <ListItemSecondaryAction>
                                                     <IconButton edge="end" aria-label="Add">
@@ -282,7 +290,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                 <IconButton edge="end" aria-label="Edit">
                                                                     <Edit />
                                                                 </IconButton>
-                                                                <IconButton edge="end" aria-label="Edit">
+                                                                <IconButton edge="end" aria-label="Go To" onClick={() => this.gotoSelectedNode(child)}>
                                                                     <Fullscreen />
                                                                 </IconButton>
                                                             </ListItemSecondaryAction>
@@ -362,8 +370,9 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         });
     };
 
-    getSelectedNode() {
-
+    gotoSelectedNode(node: any) {
+        console.log(node);
+        this.chartRef.current.selectNode(`node-${node.conceptID}-end`);
     };
 
     getTagNodes = () => {
