@@ -18,8 +18,9 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import AVOPopover from '../../SharedComponents/AVOPopover';
+import Modal from '@material-ui/core/Modal';
 import {
-    Edit, Info, Add, Fullscreen
+    Edit, Info, Add, Fullscreen, Save, Close
 } from '@material-ui/icons';
 import {
     FormControl,
@@ -27,6 +28,7 @@ import {
     Input,
     InputAdornment,
     InputLabel,
+    Paper,
     Typography
 } from '@material-ui/core';
 
@@ -34,6 +36,13 @@ interface Concept {
     conceptID: number;
     name: string;
     lesson: string;
+};
+
+interface WeightedConcept {
+    conceptID: number;
+    name: string;
+    lesson: string;
+    weight: number;
 };
 
 interface Edge {
@@ -70,6 +79,9 @@ interface TagViewState {
     selectedConcept: Concept;
     concepts: Concept[];
     edges: Edge[];    
+
+    showModal: boolean;
+    modalNode: WeightedConcept;
 
     nodesLoaded: boolean;
 }
@@ -152,6 +164,9 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
 
             concepts: [],
             edges: [],
+
+            showModal: false,
+            modalNode: {} as WeightedConcept,
             
             nodesLoaded: false
         };
@@ -190,8 +205,11 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                 {this.state.nodesLoaded && <TreeView ref={this.chartRef} theme={this.props.theme} concepts={this.state.concepts} edges={this.state.edges} setTagIndex={this.setTagIndex.bind(this)}/> }
                             </Grid>
                             <Grid item md={4}>
-                                <div style={{display: 'flex', flexDirection: 'row'}}>
-                                    <div style={{ width: '-webkit-fill-available' }}>
+                                <div style={{display: 'flex', flexDirection: 'row', position: 'relative' }}>
+                                    <IconButton style={{ position : 'absolute', top : '9px', right : '9px' }}>
+                                        <Save/>
+                                    </IconButton>
+                                    <div style={{ width: '-webkit-fill-available', marginTop : '9px' }}>
                                         <Select
                                             value={this.state.selectedClassName}
                                             input={<Input name='data' id='select-class' />}
@@ -208,6 +226,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 </MenuItem>
                                             ))}
                                         </Select>
+                                        <br/>
                                         <br/>
                                         <FormControl>
                                             <Input
@@ -232,11 +251,11 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                             subheader={
                                                 <ListSubheader component="div" id="nested-list-subheader">
                                                     Related Concepts & Weights 
-                                                    <span>
+                                                    {/* <span>
                                                         <AVOPopover content={'This is some popover content'}>
                                                             <Info style={{ transform : 'scale(0.75) translateY(10px)' }}/>
                                                         </AVOPopover>
-                                                    </span>
+                                                    </span> */}
                                                 </ListSubheader>
                                             }
                                         >
@@ -251,17 +270,17 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                             </ListItem>
                                             <Collapse in={showParentNodes} timeout="auto" unmountOnExit>
                                                 <List component="div" disablePadding>
-                                                    {!!this.state.selectedConcept && this.getParentNodes(this.state.selectedConcept.conceptID).map(parent => (
+                                                    {!!this.state.selectedConcept && this.getParentNodes(this.state.selectedConcept.conceptID).map(WeightedConcept => (
                                                         <ListItem button>
-                                                            <ListItemText primary={parent.name} />
+                                                            <ListItemText primary={WeightedConcept.name} />
                                                             <ListItemSecondaryAction>
                                                                 <Typography component={'span'} variant="body2" gutterBottom>
-                                                                    W:{parent.weight}
+                                                                    W:{WeightedConcept.weight}
                                                                 </Typography>
                                                                 <IconButton edge="end" aria-label="Edit">
                                                                     <Edit />
                                                                 </IconButton>
-                                                                <IconButton edge="end" aria-label="Go To" onClick={() => this.gotoSelectedNode(parent)}>
+                                                                <IconButton edge="end" aria-label="Go To" onClick={() => this.gotoSelectedNode(WeightedConcept)}>
                                                                     <Fullscreen />
                                                                 </IconButton>
                                                             </ListItemSecondaryAction>
@@ -280,17 +299,17 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                             </ListItem>
                                             <Collapse in={showChildNodes} timeout="auto" unmountOnExit>
                                                 <List component="div" disablePadding>
-                                                    {!!this.state.selectedConcept && this.getChildNodes(this.state.selectedConcept.conceptID).map(child => (
+                                                    {!!this.state.selectedConcept && this.getChildNodes(this.state.selectedConcept.conceptID).map(WeightedConcept => (
                                                         <ListItem button>
-                                                            <ListItemText primary={child.name} />
+                                                            <ListItemText primary={WeightedConcept.name} />
                                                             <ListItemSecondaryAction>
                                                                 <Typography component={'span'} variant="body2" gutterBottom>
-                                                                    W:{child.weight}
+                                                                    W:{WeightedConcept.weight}
                                                                 </Typography>
-                                                                <IconButton edge="end" aria-label="Edit">
+                                                                <IconButton edge="end" aria-label="Edit" onClick={() => this.openWeightModal(WeightedConcept)}>
                                                                     <Edit />
                                                                 </IconButton>
-                                                                <IconButton edge="end" aria-label="Go To" onClick={() => this.gotoSelectedNode(child)}>
+                                                                <IconButton edge="end" aria-label="Go To" onClick={() => this.gotoSelectedNode(WeightedConcept)}>
                                                                     <Fullscreen />
                                                                 </IconButton>
                                                             </ListItemSecondaryAction>
@@ -305,6 +324,33 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                         </Grid>
                     </Card>
                 )}
+                <Modal
+                    open={this.state.showModal}
+                    aria-labelledby="modal-title"
+                    aria-describedby="modal-description"
+                    style={{ width : '40%', top : '50px', left: '30%', right : '30%', position : 'absolute' }}
+                >
+                    <Paper className="avo-card">
+                        <IconButton style={{ position : 'absolute', right : '9px', top : '9px' }} onClick={() => this.setState({ showModal : false })}>
+                            <Close/>
+                        </IconButton>
+                        <Typography variant={'h5'} id="modal-title">
+                            Weight of relationship between: {this.state.selectedConcept.name} and {this.state.modalNode.name}
+                        </Typography>
+                        <br/>
+                        <Typography variant={'body1'} id="modal-description">
+                            Current Weight is: {this.state.modalNode.weight}
+                            <br/>
+                            <Button>1 - Whatever Lionel said 1 meant</Button>                               
+                            <br/>
+                            <Button>2 - Whatever Lionel said 2 meant</Button>                               
+                            <br/>
+                            <Button>3 - Whatever Lionel said 3 meant</Button>                               
+                            <br/>
+                            <Button>4 - Whatever Lionel said 4 meant</Button>                               
+                        </Typography>
+                    </Paper>
+                </Modal>
             </div>
         );
     }
@@ -331,11 +377,18 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                 console.log(err);
             },
         );
-    }
+    };
+
+    openWeightModal(node: WeightedConcept) {
+        this.setState({
+            showModal : true,
+            modalNode : node
+        });
+    };
 
     getParentNodes(id: number) {
-        const parentNodes = [];
-        const conceptMapByID = {};
+        const parentNodes:WeightedConcept[] = [];
+        const conceptMapByID:any = {};
         this.state.concepts.forEach(Concept => conceptMapByID[Concept.conceptID] = Concept );
         this.state.edges.forEach(Edge => {
             if(Edge.child === id) {
@@ -348,8 +401,8 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
     };
 
     getChildNodes(id: number) {
-        const childNodes = [];
-        const conceptMapByID = {};
+        const childNodes:WeightedConcept[] = [];
+        const conceptMapByID:any = {};
         this.state.concepts.forEach(Concept => conceptMapByID[Concept.conceptID] = Concept );
         this.state.edges.forEach(Edge => {
             if(Edge.parent == id) {
