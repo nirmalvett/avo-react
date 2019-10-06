@@ -716,3 +716,17 @@ def delete_concept_question(concept_question_id: int):
     db.session.delete(concept_question)
     db.session.commit()
     return jsonify({})
+
+
+@TagRoutes.route("/getConcepts", methods=['POST'])
+@teacher_only
+@validate(courseID=int)
+def geet_concepts(course_id: int):
+    user_course = UserCourse.query.filter(
+        (UserCourse.COURSE == course_id) &
+        (UserCourse.USER == current_user.USER)
+    ).first()
+    if user_course is None:
+        return jsonify(error="User is not in the course")
+    concepts = Concept.query.filter(Concept.COURSE == course_id).all()
+    return jsonify({"concepts": [{"conceptID": concept.CONCEPT, "name": concept.name} for concept in concepts]})
