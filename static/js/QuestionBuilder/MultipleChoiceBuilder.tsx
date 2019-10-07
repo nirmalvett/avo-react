@@ -582,7 +582,7 @@ export default class MultipleChoiceBuilder extends Component<
                 <ListItem
                     key={question.id + '-' + index}
                     button
-                    onClick={() => this.switchQuestion(question)}
+                    onClick={() => this.setState({nextQuestion: question})}
                     onMouseEnter={() => this.setState({hovered: question.id})}
                     onMouseLeave={() => this.setState({hovered: -1})}
                 >
@@ -603,7 +603,9 @@ export default class MultipleChoiceBuilder extends Component<
                         <IconButton
                             size='small'
                             edge='end'
-                            onClick={() => this.setState({deleteDiagOpen: true})}
+                            onClick={() =>
+                                this.setState({deleteDiagOpen: true})
+                            }
                         >
                             <DeleteIcon />
                         </IconButton>
@@ -744,13 +746,11 @@ export default class MultipleChoiceBuilder extends Component<
     };
 
     switchQuestion = (question: AvoQuestion) => {
-        this.setState({nextQuestion: question}, () => {
-            if (this.state.changed) {
-                this.setState({switchDiagOpen: true});
-            } else {
-                this.loadQuestion(question);
-            }
-        });
+        if (this.state.changed) {
+            this.setState({switchDiagOpen: true});
+        } else {
+            this.loadQuestion(question);
+        }
     };
 
     loadQuestion = (question: AvoQuestion) => {
