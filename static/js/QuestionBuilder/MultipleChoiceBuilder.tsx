@@ -580,6 +580,7 @@ export default class MultipleChoiceBuilder extends Component<
         if (this.state.selectedS !== null)
             return this.state.sets[this.state.selectedS].questions.map((question, index) => (
                 <ListItem
+                    disabled={!isMultipleChoice(question.string)}
                     key={question.id + '-' + index}
                     button
                     onClick={() => this.setState({nextQuestion: question})}
@@ -603,9 +604,7 @@ export default class MultipleChoiceBuilder extends Component<
                         <IconButton
                             size='small'
                             edge='end'
-                            onClick={() =>
-                                this.setState({deleteDiagOpen: true})
-                            }
+                            onClick={() => this.setState({deleteDiagOpen: true})}
                         >
                             <DeleteIcon />
                         </IconButton>
@@ -834,9 +833,9 @@ function isMath(string: string) {
 }
 
 function isMultipleChoice(string: string) {
-    const stringParts = string.split('；');
-    const mcRegex = /@\d+ \d+ HA/;
-    return Boolean(stringParts[6].match(mcRegex));
+    let mcRegex = /；；；[^；]*；1；[^；]*；@0 \d+ HA；[^；]*；/;
+    if (string.match(mcRegex)) return true;
+    return false;
 }
 
 // Returns the prompt from the question string
