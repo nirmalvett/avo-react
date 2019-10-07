@@ -38,7 +38,7 @@ import {
     TextField,
     Typography,
 } from '@material-ui/core';
-import {AvoSet} from '../Http/types';
+import {AvoSet, AvoQuestion} from '../Http/types';
 import {ShowSnackBar} from '../Layout/Layout';
 
 export interface MultipleChoiceBuilderProps {
@@ -71,7 +71,7 @@ interface MultipleChoiceBuilderState {
     deleteDiagOpen: boolean;
     editMode: boolean;
     changed: boolean;
-    nextQuestion: null | {id: number; name: string; string: string};
+    nextQuestion: null | AvoQuestion;
     hovered: number;
 }
 
@@ -544,7 +544,8 @@ export default class MultipleChoiceBuilder extends Component<
                         <Button
                             onClick={() => {
                                 this.setState({deleteDiagOpen: false});
-                                this.deleteQuestion(this.state.nextQuestion);
+                                if (this.state.nextQuestion != null)
+                                    this.deleteQuestion(this.state.nextQuestion);
                             }}
                             color='primary'
                             variant='contained'
@@ -736,13 +737,13 @@ export default class MultipleChoiceBuilder extends Component<
         this.reset();
     };
 
-    deleteSuccess = question => {
-        this.props.showSnackBar('success', 'Question deleted');
+    deleteSuccess = (question: AvoQuestion) => {
+        this.props.showSnackBar('success', 'Question deleted', 2000);
         if (question.id === this.state.questionID) this.reset();
         else this.refreshSets();
     };
 
-    switchQuestion = (question: {id: number; name: string; string: string}) => {
+    switchQuestion = (question: AvoQuestion) => {
         this.setState({nextQuestion: question}, () => {
             if (this.state.changed) {
                 this.setState({switchDiagOpen: true});
@@ -752,7 +753,7 @@ export default class MultipleChoiceBuilder extends Component<
         });
     };
 
-    loadQuestion = (question: {id: number; name: string; string: string}) => {
+    loadQuestion = (question: AvoQuestion) => {
         if (isMath(question.string)) {
             this.props.showSnackBar(
                 'error',
@@ -784,11 +785,11 @@ export default class MultipleChoiceBuilder extends Component<
         }
     };
 
-    deleteQuestion = question => {
+    deleteQuestion = (question: AvoQuestion) => {
         Http.deleteQuestion(
             question.id,
             () => this.deleteSuccess(question),
-            () => this.props.showSnackBar('error', 'An error occured'),
+            () => this.props.showSnackBar('error', 'An error occured', 2000),
         );
     };
 
