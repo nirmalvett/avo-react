@@ -39,7 +39,7 @@ import {
     Typography,
 } from '@material-ui/core';
 import {AvoSet} from '../Http/types';
-import {ShowSnackBar} from "../Layout/Layout";
+import {ShowSnackBar} from '../Layout/Layout';
 
 export interface MultipleChoiceBuilderProps {
     showSnackBar: ShowSnackBar;
@@ -67,7 +67,8 @@ interface MultipleChoiceBuilderState {
     selectedSName: string;
     popopen: boolean;
     anchorEl: null;
-    diagOpen: boolean;
+    switchDiagOpen: boolean;
+    deleteDiagOpen: boolean;
     editMode: boolean;
     changed: boolean;
     nextQuestion: null | {id: number; name: string; string: string};
@@ -100,7 +101,8 @@ export default class MultipleChoiceBuilder extends Component<
             selectedSName: '',
             popopen: false,
             anchorEl: null,
-            diagOpen: false,
+            switchDiagOpen: false,
+            deleteDiagOpen: false,
             editMode: false,
             changed: false,
             nextQuestion: null, // Used to store a selected question that hasn't been loaded
@@ -485,8 +487,8 @@ export default class MultipleChoiceBuilder extends Component<
                     </div>
                 </Grid>
                 <Dialog
-                    open={this.state.diagOpen}
-                    onClose={() => this.setState({diagOpen: false})}
+                    open={this.state.switchDiagOpen}
+                    onClose={() => this.setState({switchDiagOpen: false})}
                     aria-labelledby='switch-question-title'
                     aria-describedby='switch-question-description'
                 >
@@ -498,7 +500,7 @@ export default class MultipleChoiceBuilder extends Component<
                     </DialogContent>
                     <DialogActions>
                         <Button
-                            onClick={() => this.setState({diagOpen: false})}
+                            onClick={() => this.setState({switchDiagOpen: false})}
                             color='primary'
                             variant='outlined'
                         >
@@ -506,10 +508,43 @@ export default class MultipleChoiceBuilder extends Component<
                         </Button>
                         <Button
                             onClick={() => {
-                                this.setState({diagOpen: false});
+                                this.setState({switchDiagOpen: false});
                                 if (this.state.nextQuestion) {
                                     this.loadQuestion(this.state.nextQuestion);
                                 }
+                            }}
+                            color='primary'
+                            variant='contained'
+                            autoFocus
+                        >
+                            OK
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog
+                    open={this.state.deleteDiagOpen}
+                    onClose={() => this.setState({deleteDiagOpen: false})}
+                    aria-labelledby='delete-question-title'
+                    aria-describedby='delete-question-description'
+                >
+                    <DialogTitle id='delete-question-title'>Delete question?</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id='delete-question-description'>
+                            Are you sure you want to delete the question?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            onClick={() => this.setState({deleteDiagOpen: false})}
+                            color='primary'
+                            variant='outlined'
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                this.setState({deleteDiagOpen: false});
+                                this.deleteQuestion(this.state.nextQuestion);
                             }}
                             color='primary'
                             variant='contained'
@@ -540,6 +575,7 @@ export default class MultipleChoiceBuilder extends Component<
     };
 
     renderQuestionList = () => {
+        const {selectedS, sets, questionID, hovered} = this.state;
         if (this.state.selectedS !== null)
             return this.state.sets[this.state.selectedS].questions.map((question, index) => (
                 <ListItem
@@ -550,12 +586,27 @@ export default class MultipleChoiceBuilder extends Component<
                     onMouseLeave={() => this.setState({hovered: -1})}
                 >
                     <ListItemIcon>
-                        <QuestionIcon
-                            color={this.state.questionID === index ? 'primary' : 'action'}
-                        />
+                        <QuestionIcon color={questionID === question.id ? 'primary' : 'action'} />
                     </ListItemIcon>
                     <ListItemText secondary={question.name} />
-                    {this.state.hovered === question.id && <EditIcon />}
+                    {hovered === question.id && (
+                        <IconButton
+                            size='small'
+                            edge='end'
+                            onClick={() => this.switchQuestion(question)}
+                        >
+                            <EditIcon />
+                        </IconButton>
+                    )}
+                    {hovered === question.id && (
+                        <IconButton
+                            size='small'
+                            edge='end'
+                            onClick={() => this.setState({deleteDiagOpen: true})}
+                        >
+                            <DeleteIcon />
+                        </IconButton>
+                    )}
                 </ListItem>
             ));
     };
@@ -685,10 +736,16 @@ export default class MultipleChoiceBuilder extends Component<
         this.reset();
     };
 
+    deleteSuccess = question => {
+        this.props.showSnackBar('success', 'Question deleted');
+        if (question.id === this.state.questionID) this.reset();
+        else this.refreshSets();
+    };
+
     switchQuestion = (question: {id: number; name: string; string: string}) => {
         this.setState({nextQuestion: question}, () => {
             if (this.state.changed) {
-                this.setState({diagOpen: true});
+                this.setState({switchDiagOpen: true});
             } else {
                 this.loadQuestion(question);
             }
@@ -727,6 +784,14 @@ export default class MultipleChoiceBuilder extends Component<
         }
     };
 
+    deleteQuestion = question => {
+        Http.deleteQuestion(
+            question.id,
+            () => this.deleteSuccess(question),
+            () => this.props.showSnackBar('error', 'An error occured'),
+        );
+    };
+
     reset = () => {
         // Reload the default state
         this.setState({
@@ -751,7 +816,6 @@ export default class MultipleChoiceBuilder extends Component<
         return (
             this.state.loaded &&
             !!this.state.questionName &&
-            !!this.state.questionText &&
             this.state.setQActive &&
             !this.state.questionNmeE &&
             !this.state.questionTxtE &&
