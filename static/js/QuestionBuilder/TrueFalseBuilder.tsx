@@ -1,62 +1,49 @@
 import React, {Component} from 'react';
 import * as Http from '../Http';
-import {
-    Add as AddIcon,
-    ArrowBack,
-    Check as CheckIcon,
-    Close as CloseIcon,
-    Delete as DeleteIcon,
-    Edit as EditIcon,
-    Folder,
-    InsertDriveFile as QuestionIcon,
-    Lock,
-    Save as SaveIcon,
-} from '@material-ui/icons';
-import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    Divider,
-    Fab,
-    FormControl,
-    FormControlLabel,
-    FormLabel,
-    Grid,
-    Grow,
-    IconButton,
-    ListItem,
-    ListItemText,
-    ListItemIcon,
-    Paper,
-    Popover,
-    Radio,
-    RadioGroup,
-    Slide,
-    TextField,
-    Typography,
-} from '@material-ui/core';
-import {AvoSet, AvoQuestion} from '../Http/types';
-import {ShowSnackBar} from '../Layout/Layout';
+import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
+import IconButton from '@material-ui/core/IconButton';
+import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
+import Slide from '@material-ui/core/Slide';
+import Paper from '@material-ui/core/Paper';
+import Grow from '@material-ui/core/Grow';
+import TextField from '@material-ui/core/TextField';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
+import EditIcon from '@material-ui/icons/Edit';
+import SaveIcon from '@material-ui/icons/Save';
+import Folder from '@material-ui/icons/Folder';
+import Lock from '@material-ui/icons/Lock';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Fab from '@material-ui/core/Fab';
+import {InsertDriveFile as QuestionIcon, ArrowBack} from '@material-ui/icons/';
+import {ListItem, ListItemText, ListItemIcon, Popover} from '@material-ui/core';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import {AvoQuestion, AvoSet} from 'Http/types';
+import {ShowSnackBar} from 'Layout/Layout';
 
-export interface MultipleChoiceBuilderProps {
+export interface TrueFalseBuilderProps {
     showSnackBar: ShowSnackBar;
     sets: AvoSet[];
     returnHome: () => void;
 }
 
-interface MultipleChoiceBuilderState {
+interface TrueFalseBuilderState {
     loaded: boolean;
     questionID: number;
     questionName: string;
     questionNmeE: boolean;
     questionText: string;
     questionTxtE: boolean;
-    questionOpts: string[];
-    questionEdit: boolean[];
-    questionAnsr: number;
+    questionAnsr: 'true' | 'false';
     questionExpl: string;
     questionExpE: boolean;
     sets: AvoSet[];
@@ -74,11 +61,11 @@ interface MultipleChoiceBuilderState {
     hovered: number;
 }
 
-export default class MultipleChoiceBuilder extends Component<
-    MultipleChoiceBuilderProps,
-    MultipleChoiceBuilderState
+export default class TrueFalseBuilder extends Component<
+    TrueFalseBuilderProps,
+    TrueFalseBuilderState
 > {
-    constructor(props: MultipleChoiceBuilderProps) {
+    constructor(props: TrueFalseBuilderProps) {
         super(props);
         this.state = {
             loaded: false, // Checks if the page has had all required data loaded
@@ -87,15 +74,13 @@ export default class MultipleChoiceBuilder extends Component<
             questionNmeE: true, // Keeps track of whether or not we're editing the question name
             questionText: '', // Stores the questions Prompt string
             questionTxtE: true, // Keeps track of if we're editing the prompt
-            questionOpts: ['Option 1', 'Option 2', 'Option 3'], // Stores the questions MC options
-            questionEdit: [false, false, false], // Stores Which one the above mentioned choices we're editing
-            questionAnsr: 0, // Stores the index of the correct options for the test
+            questionAnsr: 'true', // Stores whether the answer is true or false
             questionExpl: '', // Stores the question Explanation String
             questionExpE: true, // Keeps track of if we're editing the explanation string
             sets: this.props.sets,
             setsActive: false,
             setQActive: false,
-            selectedS: null,
+            selectedS: null, // Selected Set
             selectedSName: '',
             popopen: false,
             anchorEl: null,
@@ -125,7 +110,7 @@ export default class MultipleChoiceBuilder extends Component<
                                     aria-label='go back'
                                     size='small'
                                     style={{marginLeft: '16px'}}
-                                    onClick={this.props.returnHome}
+                                    onClick={() => this.props.returnHome()}
                                 >
                                     <ArrowBack />
                                 </IconButton>
@@ -181,7 +166,7 @@ export default class MultipleChoiceBuilder extends Component<
                                 maxHeight: '100%',
                             }}
                         >
-                            {this.state.questionNmeE ? (
+                            {!!this.state.questionNmeE ? (
                                 <span>
                                     <TextField
                                         id='outlined-name'
@@ -224,7 +209,7 @@ export default class MultipleChoiceBuilder extends Component<
                             )}
                             <br />
                             <br />
-                            {this.state.questionTxtE ? (
+                            {!!this.state.questionTxtE ? (
                                 <span>
                                     <TextField
                                         id='outlined-name'
@@ -274,143 +259,36 @@ export default class MultipleChoiceBuilder extends Component<
                             <br />
                             <FormControl component='fieldset'>
                                 <FormLabel component='legend'>Answer Choices</FormLabel>
-                                <RadioGroup aria-label='multiple choice input' name='choices'>
-                                    {this.state.questionOpts.map((string, index) => {
-                                        return (
-                                            <FormControlLabel
-                                                value={string}
-                                                disabled
-                                                control={<Radio />}
-                                                label={
-                                                    <span>
-                                                        {this.state.questionEdit[index] ? (
-                                                            <span>
-                                                                <TextField
-                                                                    label={`Edit Choice #${index +
-                                                                        1}`}
-                                                                    onChange={e => {
-                                                                        let newArr = this.state
-                                                                            .questionOpts;
-                                                                        newArr[index] =
-                                                                            e.target.value;
-                                                                        this.setState({
-                                                                            changed: true,
-                                                                            questionOpts: newArr,
-                                                                        });
-                                                                    }}
-                                                                    margin='normal'
-                                                                    variant='outlined'
-                                                                    value={string}
-                                                                />
-                                                                <IconButton
-                                                                    aria-label='edit'
-                                                                    size='small'
-                                                                    onClick={() => {
-                                                                        let newArr = this.state
-                                                                            .questionEdit;
-                                                                        newArr[index] = !newArr[
-                                                                            index
-                                                                        ];
-                                                                        this.setState({
-                                                                            questionEdit: newArr,
-                                                                        });
-                                                                    }}
-                                                                >
-                                                                    <SaveIcon fontSize='inherit' />
-                                                                </IconButton>
-                                                            </span>
-                                                        ) : (
-                                                            <span>
-                                                                {string}
-                                                                <IconButton
-                                                                    aria-label='edit'
-                                                                    size='small'
-                                                                    onClick={() => {
-                                                                        let newArr = this.state
-                                                                            .questionEdit;
-                                                                        newArr[index] = !newArr[
-                                                                            index
-                                                                        ];
-                                                                        this.setState({
-                                                                            questionEdit: newArr,
-                                                                        });
-                                                                    }}
-                                                                >
-                                                                    <EditIcon fontSize='inherit' />
-                                                                </IconButton>
-                                                                <IconButton
-                                                                    aria-label='delete'
-                                                                    size='small'
-                                                                    onClick={() => {
-                                                                        let newArrQE = this.state
-                                                                            .questionEdit;
-                                                                        let newArrQO = this.state
-                                                                            .questionOpts;
-                                                                        newArrQE.splice(index, 1);
-                                                                        newArrQO.splice(index, 1);
-                                                                        this.setState({
-                                                                            questionEdit: newArrQE,
-                                                                            questionOpts: newArrQO,
-                                                                        });
-                                                                    }}
-                                                                >
-                                                                    <DeleteIcon fontSize='inherit' />
-                                                                </IconButton>
-                                                                <IconButton
-                                                                    aria-label='set as correct Answer'
-                                                                    size='small'
-                                                                    onClick={() => {
-                                                                        this.setState({
-                                                                            questionAnsr: index,
-                                                                        });
-                                                                    }}
-                                                                >
-                                                                    {this.state.questionAnsr ===
-                                                                    index ? (
-                                                                        <CheckIcon fontSize='inherit' />
-                                                                    ) : (
-                                                                        <CloseIcon fontSize='inherit' />
-                                                                    )}
-                                                                </IconButton>
-                                                            </span>
-                                                        )}
-                                                    </span>
-                                                }
-                                            />
-                                        );
-                                    })}
+                                <RadioGroup
+                                    aria-label='true false input'
+                                    name='choices'
+                                    value={this.state.questionAnsr}
+                                    onChange={event =>
+                                        this.handleAnswerChange(
+                                            (event.target as HTMLInputElement).value as 'true' | 'false',
+                                        )
+                                    }
+                                >
+                                    <FormControlLabel
+                                        value='true'
+                                        control={<Radio color='primary' />}
+                                        label='True'
+                                        labelPlacement='end'
+                                    />
+                                    <FormControlLabel
+                                        value='false'
+                                        control={<Radio color='primary' />}
+                                        label='False'
+                                        labelPlacement='end'
+                                    />
                                 </RadioGroup>
                             </FormControl>
                             <br />
-                            <Fab
-                                variant='extended'
-                                size='small'
-                                color='primary'
-                                aria-label='add'
-                                onClick={() => {
-                                    let newArrQE = this.state.questionEdit;
-                                    let newArrQO = this.state.questionOpts;
-                                    newArrQE.push(true);
-                                    newArrQO.push('New Choice');
-                                    this.setState({
-                                        changed: true,
-                                        questionEdit: newArrQE,
-                                        questionOpts: newArrQO,
-                                    });
-                                }}
-                            >
-                                <AddIcon />
-                                Add Choice
-                            </Fab>
-                            <br />
-                            <br />
-                            {this.state.questionExpE ? (
+                            {!!this.state.questionExpE ? (
                                 <span>
                                     <TextField
                                         id='outlined-name'
-                                        label={`Explanation as to why the answer is ${
-                                            this.state.questionOpts[this.state.questionAnsr]
-                                        }`}
+                                        label={`Explanation as to why the answer is ${this.state.questionAnsr}`}
                                         multiline
                                         rows='2'
                                         margin='normal'
@@ -456,7 +334,9 @@ export default class MultipleChoiceBuilder extends Component<
                     </Grow>
                     <div
                         style={{position: 'absolute', bottom: '1em', right: '1em'}}
-                        onMouseEnter={(event: React.MouseEvent<HTMLDivElement, MouseEvent>) => this.handleSaveMouseEnter(event)}
+                        onMouseEnter={(event: React.MouseEvent<HTMLDivElement, MouseEvent>) =>
+                            this.handleSaveMouseEnter(event)
+                        }
                     >
                         <Fab
                             color='primary'
@@ -507,9 +387,8 @@ export default class MultipleChoiceBuilder extends Component<
                         <Button
                             onClick={() => {
                                 this.setState({switchDiagOpen: false});
-                                if (this.state.nextQuestion) {
+                                if (this.state.nextQuestion !== null)
                                     this.loadQuestion(this.state.nextQuestion);
-                                }
                             }}
                             color='primary'
                             variant='contained'
@@ -542,7 +421,7 @@ export default class MultipleChoiceBuilder extends Component<
                         <Button
                             onClick={() => {
                                 this.setState({deleteDiagOpen: false});
-                                if (this.state.nextQuestion != null)
+                                if (this.state.nextQuestion !== null)
                                     this.deleteQuestion(this.state.nextQuestion);
                             }}
                             color='primary'
@@ -578,12 +457,12 @@ export default class MultipleChoiceBuilder extends Component<
         if (selectedS !== null)
             return sets[selectedS as number].questions.map((question: AvoQuestion, index: number) => (
                 <ListItem
-                    disabled={!isMultipleChoice(question.string)}
+                    disabled={!isTrueFalse(question.string)}
                     key={question.id + '-' + index}
                     button
-                    onClick={() => this.setState({nextQuestion: question})}
                     onMouseEnter={() => this.setState({hovered: question.id})}
                     onMouseLeave={() => this.setState({hovered: -1})}
+                    onClick={() => this.setState({nextQuestion: question})}
                 >
                     <ListItemIcon>
                         <QuestionIcon color={questionID === question.id ? 'primary' : 'action'} />
@@ -625,12 +504,6 @@ export default class MultipleChoiceBuilder extends Component<
                     <Typography>Save the question prompt</Typography>
                 </li>,
             );
-        if (this.state.questionEdit.includes(true))
-            list.push(
-                <li>
-                    <Typography>Save all question answers</Typography>
-                </li>,
-            );
         if (this.state.questionExpE)
             list.push(
                 <li>
@@ -647,12 +520,12 @@ export default class MultipleChoiceBuilder extends Component<
         return list;
     };
 
-    componentDidMount = () => {
+    componentDidMount = () => {  
         this.setState({loaded: true});
         this.getSets();
     };
 
-    selectSet = (set: {name: string}, index: number) => {
+    selectSet = (set: AvoSet, index: number) => {
         this.setState({selectedS: index, selectedSName: set.name, setsActive: false});
         setTimeout(() => {
             this.setState({setQActive: true});
@@ -668,7 +541,7 @@ export default class MultipleChoiceBuilder extends Component<
 
     getSets = () => {
         Http.getSets(
-            result => this.setState({sets: result.sets, setsActive: true}),
+            result => {this.setState({sets: result.sets, setsActive: true}); console.log(result)},
             () => alert('Something went wrong when retrieving your question list'),
         );
     };
@@ -680,7 +553,11 @@ export default class MultipleChoiceBuilder extends Component<
         );
     };
 
-    handleSaveMouseEnter = (event: any) => {
+    handleAnswerChange = (answer: 'true' | 'false') => {
+        this.setState({questionAnsr: answer, changed: true});
+    };
+
+    handleSaveMouseEnter = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         if (!this.isValid()) {
             this.setState({popopen: true, anchorEl: event.currentTarget});
         }
@@ -690,13 +567,11 @@ export default class MultipleChoiceBuilder extends Component<
         return (
             '；；；' +
             this.state.questionText +
-            '，—' +
-            this.state.questionOpts.join('—') +
-            '；1；1；@0 ' +
-            (this.state.questionAnsr + 1) +
-            ' HA；' +
+            '，；0；1；@0 *' +
+            (this.state.questionAnsr === 'true' ? 'T' : 'F') +
+            ' HB；' +
             this.state.questionExpl +
-            '；，，'
+            '；'
         );
     };
 
@@ -751,34 +626,29 @@ export default class MultipleChoiceBuilder extends Component<
     };
 
     loadQuestion = (question: AvoQuestion) => {
-        if (isMath(question.string)) {
+        if (!isTrueFalse(question.string)) {
             this.props.showSnackBar(
                 'error',
-                'Please use the Math question builder to edit questions with math code',
+                'This question is not true/false or contains math',
                 2000,
             );
-        } else if (!isMultipleChoice(question.string)) {
-            this.props.showSnackBar('error', 'This question is not multiple choice', 2000);
         } else {
-            const qEdit: boolean[] = [];
-            const answers = getAnswers(question.string);
-            answers.forEach(() => {
-                qEdit.push(false);
-            });
-            this.setState({
-                questionID: question.id,
-                questionName: question.name,
-                questionNmeE: false,
-                questionText: getPrompt(question.string),
-                questionTxtE: false,
-                questionOpts: answers,
-                questionEdit: qEdit,
-                questionAnsr: getAnswerIndex(question.string),
-                questionExpl: getExplanation(question.string),
-                questionExpE: false,
-                editMode: true,
-                changed: false,
-            });
+            const tfRegex: RegExp = /；；；([^；，]*)，；0；[^；]*；@0 \*([TF]) HB；([^；]*)；/;
+            const match: RegExpMatchArray | null = question.string.match(tfRegex);
+            if (match !== null) {
+                this.setState({
+                    questionID: question.id,
+                    questionName: question.name,
+                    questionNmeE: false,
+                    questionText: match[1],
+                    questionTxtE: false,
+                    questionAnsr: match[2] === 'T' ? 'true' : 'false',
+                    questionExpl: match[3],
+                    questionExpE: false,
+                    editMode: true,
+                    changed: false,
+                });
+            }
         }
     };
 
@@ -798,9 +668,7 @@ export default class MultipleChoiceBuilder extends Component<
             questionNmeE: true,
             questionText: '',
             questionTxtE: true,
-            questionOpts: ['Option 1', 'Option 2', 'Option 3'],
-            questionEdit: [false, false, false],
-            questionAnsr: 0,
+            questionAnsr: 'true',
             questionExpl: '',
             questionExpE: true,
             editMode: false,
@@ -817,51 +685,13 @@ export default class MultipleChoiceBuilder extends Component<
             this.state.setQActive &&
             !this.state.questionNmeE &&
             !this.state.questionTxtE &&
-            !this.state.questionEdit.includes(true) &&
             !this.state.questionExpE
         );
     };
 }
 
-// Used to determine if the question string contains math
-function isMath(string: string) {
-    const stringParts = string.split('；');
-    // Check that there is no math code in the question string
-    return Boolean(stringParts[0] || stringParts[1] || stringParts[2]);
-}
-
-function isMultipleChoice(string: string) {
-    let mcRegex = /；；；[^；]*；1；[^；]*；@0 \d+ HA；[^；]*；/;
-    if (string.match(mcRegex)) return true;
+function isTrueFalse(string: string) {
+    const tfRegex = /；；；[^；，]*，；0；[^；]*；@0 \*[TF] HB；[^；]*；/;
+    if (string.match(tfRegex)) return true;
     return false;
-}
-
-// Returns the prompt from the question string
-function getPrompt(string: string) {
-    const stringParts = string.split('；');
-    const split = stringParts[3].split('，');
-    return split[0];
-}
-
-// Returns an array of answers from the question string
-function getAnswers(string: string) {
-    let list = string.split('；');
-    let split = list[3].split('，');
-    // Get rid of the preceding '—'
-    let answers = split[1].substring(1);
-    return answers.split('—');
-}
-
-// Get's the index of the correct answer from the question string
-function getAnswerIndex(string: string) {
-    let list = string.split('；');
-    let split = list[6].split(' ');
-    // The correct answer index, corrected for this frontend
-    return Number(split[1]) - 1;
-}
-
-// Get's the explanation string from the question string
-function getExplanation(string: string) {
-    let list = string.split('；');
-    return list[7];
 }
