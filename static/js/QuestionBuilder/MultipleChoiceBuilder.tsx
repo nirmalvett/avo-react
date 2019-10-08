@@ -11,6 +11,7 @@ import {
     InsertDriveFile as QuestionIcon,
     Lock,
     Save as SaveIcon,
+    CreateNewFolder,
 } from '@material-ui/icons';
 import {
     Button,
@@ -120,37 +121,48 @@ export default class MultipleChoiceBuilder extends Component<
                                 overflowY: 'auto',
                             }}
                         >
-                            {this.state.setsActive && (
-                                <IconButton
-                                    aria-label='go back'
-                                    size='small'
-                                    style={{marginLeft: '16px'}}
-                                    onClick={this.props.returnHome}
-                                >
-                                    <ArrowBack />
-                                </IconButton>
-                            )}
-                            {this.state.setQActive && (
-                                <IconButton
-                                    aria-label='go back'
-                                    size='small'
-                                    style={{marginLeft: '16px'}}
-                                    onClick={() => this.goBackToSets()}
-                                >
-                                    <ArrowBack onClick={() => this.setState({questionID: -1})} />
-                                </IconButton>
-                            )}
-                            <Typography
-                                variant='subtitle1'
-                                gutterBottom
-                                style={{
-                                    marginLeft: '16px',
-                                    padding: '3px',
-                                    display: 'inline-block',
-                                }}
-                            >
-                                {this.state.setQActive ? this.state.selectedSName : 'Question Sets'}
-                            </Typography>
+                            <ListItem>
+                                {this.state.setsActive && (
+                                    <ListItemIcon>
+                                        <IconButton
+                                            aria-label='go back'
+                                            size='small'
+                                            onClick={this.props.returnHome}
+                                        >
+                                            <ArrowBack />
+                                        </IconButton>
+                                    </ListItemIcon>
+                                )}
+                                {this.state.setQActive && (
+                                    <ListItemIcon>
+                                        <IconButton
+                                            aria-label='go back'
+                                            size='small'
+                                            onClick={() => this.goBackToSets()}
+                                        >
+                                            <ArrowBack
+                                                onClick={() => this.setState({questionID: -1})}
+                                            />
+                                        </IconButton>
+                                    </ListItemIcon>
+                                )}
+                                <ListItemText
+                                    primary={
+                                        this.state.setQActive
+                                            ? this.state.selectedSName
+                                            : 'Question Sets'
+                                    }
+                                />
+                                {this.state.setsActive && (
+                                    <IconButton
+                                        size='small'
+                                        edge='end'
+                                        onClick={() => this.newSet()}
+                                    >
+                                        <CreateNewFolder />
+                                    </IconButton>
+                                )}
+                            </ListItem>
                             <Divider />
                             <Slide
                                 in={this.state.setsActive}
@@ -456,7 +468,9 @@ export default class MultipleChoiceBuilder extends Component<
                     </Grow>
                     <div
                         style={{position: 'absolute', bottom: '1em', right: '1em'}}
-                        onMouseEnter={(event: React.MouseEvent<HTMLDivElement, MouseEvent>) => this.handleSaveMouseEnter(event)}
+                        onMouseEnter={(event: React.MouseEvent<HTMLDivElement, MouseEvent>) =>
+                            this.handleSaveMouseEnter(event)
+                        }
                     >
                         <Fab
                             color='primary'
@@ -560,7 +574,14 @@ export default class MultipleChoiceBuilder extends Component<
     renderSetList = () => {
         let {selectedS} = this.state;
         return this.state.sets.map((set, index) => (
-            <ListItem key={set.id + '-' + index} button onClick={() => this.selectSet(set, index)}>
+            <ListItem
+                key={set.id + '-' + index}
+                button
+                onClick={() => this.selectSet(set, index)}
+                onMouseEnter={() => this.setState({hovered: index})}
+                onMouseLeave={() => this.setState({hovered: -1})}
+                disabled={!set.can_edit}
+            >
                 <ListItemIcon>
                     {set.can_edit ? (
                         <Folder color={selectedS === index ? 'primary' : 'action'} />
@@ -569,6 +590,17 @@ export default class MultipleChoiceBuilder extends Component<
                     )}
                 </ListItemIcon>
                 <ListItemText primary={set.name} />
+                {index === this.state.hovered && (
+                    <IconButton
+                        size='small'
+                        edge='end'
+                        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) =>
+                            this.deleteSet(index, event)
+                        }
+                    >
+                        <DeleteIcon />
+                    </IconButton>
+                )}
             </ListItem>
         ));
     };
@@ -576,39 +608,43 @@ export default class MultipleChoiceBuilder extends Component<
     renderQuestionList = () => {
         const {selectedS, sets, questionID, hovered} = this.state;
         if (selectedS !== null)
-            return sets[selectedS as number].questions.map((question: AvoQuestion, index: number) => (
-                <ListItem
-                    disabled={!isMultipleChoice(question.string)}
-                    key={question.id + '-' + index}
-                    button
-                    onClick={() => this.setState({nextQuestion: question})}
-                    onMouseEnter={() => this.setState({hovered: question.id})}
-                    onMouseLeave={() => this.setState({hovered: -1})}
-                >
-                    <ListItemIcon>
-                        <QuestionIcon color={questionID === question.id ? 'primary' : 'action'} />
-                    </ListItemIcon>
-                    <ListItemText secondary={question.name} />
-                    {hovered === question.id && (
-                        <IconButton
-                            size='small'
-                            edge='end'
-                            onClick={() => this.switchQuestion(question)}
-                        >
-                            <EditIcon />
-                        </IconButton>
-                    )}
-                    {hovered === question.id && (
-                        <IconButton
-                            size='small'
-                            edge='end'
-                            onClick={() => this.setState({deleteDiagOpen: true})}
-                        >
-                            <DeleteIcon />
-                        </IconButton>
-                    )}
-                </ListItem>
-            ));
+            return sets[selectedS as number].questions.map(
+                (question: AvoQuestion, index: number) => (
+                    <ListItem
+                        disabled={!isMultipleChoice(question.string)}
+                        key={question.id + '-' + index}
+                        button
+                        onClick={() => this.setState({nextQuestion: question})}
+                        onMouseEnter={() => this.setState({hovered: question.id})}
+                        onMouseLeave={() => this.setState({hovered: -1})}
+                    >
+                        <ListItemIcon>
+                            <QuestionIcon
+                                color={questionID === question.id ? 'primary' : 'action'}
+                            />
+                        </ListItemIcon>
+                        <ListItemText secondary={question.name} />
+                        {hovered === question.id && (
+                            <IconButton
+                                size='small'
+                                edge='end'
+                                onClick={() => this.switchQuestion(question)}
+                            >
+                                <EditIcon />
+                            </IconButton>
+                        )}
+                        {hovered === question.id && (
+                            <IconButton
+                                size='small'
+                                edge='end'
+                                onClick={() => this.setState({deleteDiagOpen: true})}
+                            >
+                                <DeleteIcon />
+                            </IconButton>
+                        )}
+                    </ListItem>
+                ),
+            );
     };
 
     getSaveRequirementList = () => {
@@ -680,6 +716,27 @@ export default class MultipleChoiceBuilder extends Component<
         );
     };
 
+    newSet = () => {
+        let name: string | null = prompt('Set name:', '');
+        if (name !== '' && name !== null)
+            Http.newSet(name, () => this.refreshSets(), result => alert(result));
+    };
+
+    deleteSet = (index: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        event.stopPropagation();
+        let set = this.state.sets[index];
+        let confirmation: boolean = confirm('Are you sure you want to delete this set?');
+        if (confirmation)
+            Http.deleteSet(
+                set.id,
+                async () => {
+                    await this.setState({selectedS: null, questionID: -1});
+                    this.getSets();
+                },
+                result => alert(result),
+            );
+    };
+
     handleSaveMouseEnter = (event: any) => {
         if (!this.isValid()) {
             this.setState({popopen: true, anchorEl: event.currentTarget});
@@ -718,7 +775,7 @@ export default class MultipleChoiceBuilder extends Component<
             );
         } else {
             Http.newQuestion(
-                (this.state.selectedS as number) + 1, // Must be +1 for server side
+                this.state.sets[this.state.selectedS as number].id,
                 this.state.questionName,
                 this.buildQuestionString(),
                 1,
