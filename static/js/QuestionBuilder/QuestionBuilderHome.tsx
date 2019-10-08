@@ -6,13 +6,22 @@ import QuestionManager, {
     QuestionManagerProps,
 } from '../CourseBuilder/QuestionBuilder/QuestionManager';
 import TrueFalseBuilder from './TrueFalseBuilder';
+import { AvoSet } from 'Http/types';
+import { ShowSnackBar } from 'Layout/Layout';
 
 interface QuestionBuilderHomeState {
     mode: 'home' | 'math' | 'multiple-choice' | 'true-false';
     isActive: boolean;
 }
 
-type QuestionBuilderHomeProps = QuestionManagerProps & {theme: 'light' | 'dark'};
+type QuestionBuilderHomeProps = {
+    s: number | null;
+    q: number | null;
+    sets: AvoSet[];
+    initBuilder: (s: number, q: number, sets: AvoSet[]) => void;
+    showSnackBar: ShowSnackBar;
+    theme: 'light' | 'dark';
+};
 
 export class QuestionBuilderHome extends Component<
     QuestionBuilderHomeProps,
@@ -31,7 +40,16 @@ export class QuestionBuilderHome extends Component<
             case 'home':
                 return this.renderHomeScreen();
             case 'math':
-                return <QuestionManager {...this.props} />;
+                return (
+                    <QuestionManager
+                        returnHome={() => this.setState({mode: 'home', isActive: true})}
+                        showSnackBar={this.props.showSnackBar}
+                        initBuilder={this.props.initBuilder}
+                        s={this.props.s}
+                        q={this.props.q}
+                        sets={this.props.sets}
+                    />
+                );
             case 'multiple-choice':
                 return (
                     <MultipleChoiceBuilder
