@@ -286,13 +286,16 @@ export default class MultipleChoiceBuilder extends Component<
                             <br />
                             <FormControl component='fieldset'>
                                 <FormLabel component='legend'>Answer Choices</FormLabel>
-                                <RadioGroup aria-label='multiple choice input' name='choices'>
+                                <RadioGroup
+                                    aria-label='multiple choice input'
+                                    name='choices'
+                                    value={this.state.questionOpts[this.state.questionAnsr]}
+                                >
                                     {this.state.questionOpts.map((string, index) => {
                                         return (
                                             <FormControlLabel
                                                 value={string}
-                                                disabled
-                                                control={<Radio />}
+                                                control={<Radio color='primary' onClick={() => this.setState({questionAnsr: index})}/>}
                                                 label={
                                                     <span>
                                                         {this.state.questionEdit[index] ? (
@@ -367,22 +370,6 @@ export default class MultipleChoiceBuilder extends Component<
                                                                     }}
                                                                 >
                                                                     <DeleteIcon fontSize='inherit' />
-                                                                </IconButton>
-                                                                <IconButton
-                                                                    aria-label='set as correct Answer'
-                                                                    size='small'
-                                                                    onClick={() => {
-                                                                        this.setState({
-                                                                            questionAnsr: index,
-                                                                        });
-                                                                    }}
-                                                                >
-                                                                    {this.state.questionAnsr ===
-                                                                    index ? (
-                                                                        <CheckIcon fontSize='inherit' />
-                                                                    ) : (
-                                                                        <CloseIcon fontSize='inherit' />
-                                                                    )}
                                                                 </IconButton>
                                                             </span>
                                                         )}
