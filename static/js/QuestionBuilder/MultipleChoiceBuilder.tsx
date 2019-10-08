@@ -219,7 +219,7 @@ export default class MultipleChoiceBuilder extends Component<
                             ) : (
                                 <span>
                                     <span style={{float: 'left'}}>
-                                        <Typography variant='subtitle1' gutterBottom>
+                                        <Typography variant='h5' style={{fontWeight: 'bold'}} gutterBottom>
                                             {this.state.questionName}
                                         </Typography>
                                     </span>
