@@ -20,7 +20,7 @@ import Folder from '@material-ui/icons/Folder';
 import Lock from '@material-ui/icons/Lock';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Fab from '@material-ui/core/Fab';
-import {InsertDriveFile as QuestionIcon, ArrowBack} from '@material-ui/icons/';
+import {InsertDriveFile as QuestionIcon, ArrowBack, CreateNewFolder} from '@material-ui/icons/';
 import {ListItem, ListItemText, ListItemIcon, Popover} from '@material-ui/core';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -105,37 +105,48 @@ export default class TrueFalseBuilder extends Component<
                                 overflowY: 'auto',
                             }}
                         >
-                            {this.state.setsActive && (
-                                <IconButton
-                                    aria-label='go back'
-                                    size='small'
-                                    style={{marginLeft: '16px'}}
-                                    onClick={() => this.props.returnHome()}
-                                >
-                                    <ArrowBack />
-                                </IconButton>
-                            )}
-                            {this.state.setQActive && (
-                                <IconButton
-                                    aria-label='go back'
-                                    size='small'
-                                    style={{marginLeft: '16px'}}
-                                    onClick={() => this.goBackToSets()}
-                                >
-                                    <ArrowBack onClick={() => this.setState({questionID: -1})} />
-                                </IconButton>
-                            )}
-                            <Typography
-                                variant='subtitle1'
-                                gutterBottom
-                                style={{
-                                    marginLeft: '16px',
-                                    padding: '3px',
-                                    display: 'inline-block',
-                                }}
-                            >
-                                {this.state.setQActive ? this.state.selectedSName : 'Question Sets'}
-                            </Typography>
+                            <ListItem>
+                                {this.state.setsActive && (
+                                    <ListItemIcon>
+                                        <IconButton
+                                            aria-label='go back'
+                                            size='small'
+                                            onClick={this.props.returnHome}
+                                        >
+                                            <ArrowBack />
+                                        </IconButton>
+                                    </ListItemIcon>
+                                )}
+                                {this.state.setQActive && (
+                                    <ListItemIcon>
+                                        <IconButton
+                                            aria-label='go back'
+                                            size='small'
+                                            onClick={() => this.goBackToSets()}
+                                        >
+                                            <ArrowBack
+                                                onClick={() => this.setState({questionID: -1})}
+                                            />
+                                        </IconButton>
+                                    </ListItemIcon>
+                                )}
+                                <ListItemText
+                                    primary={
+                                        this.state.setQActive
+                                            ? this.state.selectedSName
+                                            : 'Question Sets'
+                                    }
+                                />
+                                {this.state.setsActive && (
+                                    <IconButton
+                                        size='small'
+                                        edge='end'
+                                        onClick={() => this.newSet()}
+                                    >
+                                        <CreateNewFolder />
+                                    </IconButton>
+                                )}
+                            </ListItem>
                             <Divider />
                             <Slide
                                 in={this.state.setsActive}
@@ -264,9 +275,8 @@ export default class TrueFalseBuilder extends Component<
                                     name='choices'
                                     value={this.state.questionAnsr}
                                     onChange={event =>
-                                        this.handleAnswerChange(
-                                            (event.target as HTMLInputElement).value as 'true' | 'false',
-                                        )
+                                        this.handleAnswerChange((event.target as HTMLInputElement)
+                                            .value as 'true' | 'false')
                                     }
                                 >
                                     <FormControlLabel
@@ -439,7 +449,14 @@ export default class TrueFalseBuilder extends Component<
     renderSetList = () => {
         let {selectedS} = this.state;
         return this.state.sets.map((set, index) => (
-            <ListItem key={set.id + '-' + index} button onClick={() => this.selectSet(set, index)}>
+            <ListItem
+                key={set.id + '-' + index}
+                button
+                onClick={() => this.selectSet(set, index)}
+                onMouseEnter={() => this.setState({hovered: index})}
+                onMouseLeave={() => this.setState({hovered: -1})}
+                disabled={!set.can_edit}
+            >
                 <ListItemIcon>
                     {set.can_edit ? (
                         <Folder color={selectedS === index ? 'primary' : 'action'} />
@@ -448,6 +465,17 @@ export default class TrueFalseBuilder extends Component<
                     )}
                 </ListItemIcon>
                 <ListItemText primary={set.name} />
+                {index === this.state.hovered && (
+                    <IconButton
+                        size='small'
+                        edge='end'
+                        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) =>
+                            this.deleteSet(index, event)
+                        }
+                    >
+                        <DeleteIcon />
+                    </IconButton>
+                )}
             </ListItem>
         ));
     };
@@ -455,39 +483,43 @@ export default class TrueFalseBuilder extends Component<
     renderQuestionList = () => {
         const {selectedS, sets, questionID, hovered} = this.state;
         if (selectedS !== null)
-            return sets[selectedS as number].questions.map((question: AvoQuestion, index: number) => (
-                <ListItem
-                    disabled={!isTrueFalse(question.string)}
-                    key={question.id + '-' + index}
-                    button
-                    onMouseEnter={() => this.setState({hovered: question.id})}
-                    onMouseLeave={() => this.setState({hovered: -1})}
-                    onClick={() => this.setState({nextQuestion: question})}
-                >
-                    <ListItemIcon>
-                        <QuestionIcon color={questionID === question.id ? 'primary' : 'action'} />
-                    </ListItemIcon>
-                    <ListItemText secondary={question.name} />
-                    {hovered === question.id && (
-                        <IconButton
-                            size='small'
-                            edge='end'
-                            onClick={() => this.switchQuestion(question)}
-                        >
-                            <EditIcon />
-                        </IconButton>
-                    )}
-                    {hovered === question.id && (
-                        <IconButton
-                            size='small'
-                            edge='end'
-                            onClick={() => this.setState({deleteDiagOpen: true})}
-                        >
-                            <DeleteIcon />
-                        </IconButton>
-                    )}
-                </ListItem>
-            ));
+            return sets[selectedS as number].questions.map(
+                (question: AvoQuestion, index: number) => (
+                    <ListItem
+                        disabled={!isTrueFalse(question.string)}
+                        key={question.id + '-' + index}
+                        button
+                        onMouseEnter={() => this.setState({hovered: question.id})}
+                        onMouseLeave={() => this.setState({hovered: -1})}
+                        onClick={() => this.setState({nextQuestion: question})}
+                    >
+                        <ListItemIcon>
+                            <QuestionIcon
+                                color={questionID === question.id ? 'primary' : 'action'}
+                            />
+                        </ListItemIcon>
+                        <ListItemText secondary={question.name} />
+                        {hovered === question.id && (
+                            <IconButton
+                                size='small'
+                                edge='end'
+                                onClick={() => this.switchQuestion(question)}
+                            >
+                                <EditIcon />
+                            </IconButton>
+                        )}
+                        {hovered === question.id && (
+                            <IconButton
+                                size='small'
+                                edge='end'
+                                onClick={() => this.setState({deleteDiagOpen: true})}
+                            >
+                                <DeleteIcon />
+                            </IconButton>
+                        )}
+                    </ListItem>
+                ),
+            );
     };
 
     getSaveRequirementList = () => {
@@ -520,7 +552,7 @@ export default class TrueFalseBuilder extends Component<
         return list;
     };
 
-    componentDidMount = () => {  
+    componentDidMount = () => {
         this.setState({loaded: true});
         this.getSets();
     };
@@ -541,7 +573,10 @@ export default class TrueFalseBuilder extends Component<
 
     getSets = () => {
         Http.getSets(
-            result => {this.setState({sets: result.sets, setsActive: true}); console.log(result)},
+            result => {
+                this.setState({sets: result.sets, setsActive: true});
+                console.log(result);
+            },
             () => alert('Something went wrong when retrieving your question list'),
         );
     };
@@ -551,6 +586,27 @@ export default class TrueFalseBuilder extends Component<
             result => this.setState({sets: result.sets}),
             () => alert('Something went wrong when retrieving your question list'),
         );
+    };
+
+    newSet = () => {
+        let name: string | null = prompt('Set name:', '');
+        if (name !== '' && name !== null)
+            Http.newSet(name, () => this.refreshSets(), result => alert(result));
+    };
+
+    deleteSet = (index: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        event.stopPropagation();
+        let set = this.state.sets[index];
+        let confirmation: boolean = confirm('Are you sure you want to delete this set?');
+        if (confirmation)
+            Http.deleteSet(
+                set.id,
+                async () => {
+                    await this.setState({selectedS: null, questionID: -1});
+                    this.getSets();
+                },
+                result => alert(result),
+            );
     };
 
     handleAnswerChange = (answer: 'true' | 'false') => {
@@ -593,7 +649,7 @@ export default class TrueFalseBuilder extends Component<
             );
         } else {
             Http.newQuestion(
-                (this.state.selectedS as number) + 1, // Must be +1 for server side
+                this.state.sets[this.state.selectedS as number].id,
                 this.state.questionName,
                 this.buildQuestionString(),
                 1,
