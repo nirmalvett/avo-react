@@ -831,7 +831,7 @@ function isMath(string: string) {
 }
 
 function isMultipleChoice(string: string) {
-    let mcRegex = /；；；[^；]*；1；[^；]*；@0 \d+ HA；[^；]*；/;
+    const mcRegex: RegExp = /；；；[^；]*；1；[^；]*；@0 \d+ HA；[^；]*；/;
     if (string.match(mcRegex)) return true;
     return false;
 }
