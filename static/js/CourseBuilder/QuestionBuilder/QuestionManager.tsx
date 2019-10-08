@@ -21,6 +21,7 @@ import {
     DeleteSweep as DeleteSet,
     InsertDriveFile as QuestionIcon,
     CreateNewFolder,
+    ArrowBack,
 } from '@material-ui/icons';
 import * as Http from '../../Http';
 import {uniqueKey} from '../../HelperFunctions/Helpers';
@@ -35,6 +36,7 @@ export interface QuestionManagerProps {
     sets: AvoSet[];
     initBuilder: (s: number, q: number, sets: AvoSet[]) => void;
     showSnackBar: ShowSnackBar;
+    returnHome: () => void;
 }
 
 export interface QuestionManagerState {
@@ -100,6 +102,12 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                         }}
                     >
                         <div style={{display: 'flex', justifyContent: 'space-evenly'}}>
+                            <IconButton
+                                aria-label='go back'
+                                onClick={() => this.props.returnHome()}
+                            >
+                                <ArrowBack />
+                            </IconButton>
                             <IconButton onClick={() => this.newSet()}>
                                 <CreateNewFolder />
                             </IconButton>
