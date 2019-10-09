@@ -7,7 +7,6 @@ import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import * as Http from '../../Http';
 import {getMathJax} from '../../HelperFunctions/Utilities';
-import {uniqueKey} from '../../HelperFunctions/Helpers';
 import {Class} from '../../Models';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import List from '@material-ui/core/List';
@@ -39,20 +38,20 @@ interface Concept {
     conceptID: number;
     name: string;
     lesson: string;
-};
+}
 
 interface WeightedConcept {
     conceptID: number;
     name: string;
     lesson: string;
     weight: number;
-};
+}
 
 interface Edge {
     child: number;
     parent: number;
     weight: number;
-};
+}
 
 interface TagViewProps {
     theme: {
@@ -151,6 +150,7 @@ const nodeData = {
 };
 
 export default class TagView extends Component<TagViewProps, TagViewState> {
+    chartRef: {current: TreeView};
     constructor(props: TagViewProps) {
         super(props);
         this.state = {
@@ -180,8 +180,9 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             
             nodesLoaded: false
         };
-        this.chartRef = React.createRef();
+        this.chartRef = React.createRef() as {current: TreeView};
     }
+
     componentDidMount() {
         this.getClasses();
     }
@@ -205,7 +206,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     margin: 25,
                 }}
             >
-                {this.state.loadingClasses && <div className='avo-loading-icon'></div>}
+                {this.state.loadingClasses && <div className='avo-loading-icon'/>}
                 {this.state.isEditingLesson && (
                     <Fade in={this.state.isEditingLesson}>
                         <Card

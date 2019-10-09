@@ -8,13 +8,13 @@ interface Concept {
     conceptID: number;
     name: string;
     lesson: string;
-};
+}
 
 interface Edge {
     child: number;
     parent: number;
     weight: number;
-};
+}
 
 interface TreeViewProps {
     theme: {
@@ -77,7 +77,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
                     ),
                 }
             });
-        })
+        });
 
         this.props.edges.forEach(Edge => {
             edges.push({
@@ -122,9 +122,9 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
         });
         (window as any).cy.on('click', 'node', function() {
             // (window as any).cy.fit(this, 250);
+            // @ts-ignore
             _this.selectNode(this.id());
         });
-
     };
 
     selectNode(nodeID: String) {
@@ -144,13 +144,13 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
             if(nodeID === tagID) nodeColour = this.props.theme.color[500]; 
             node.style('background-color', nodeColour);            
         });
-        this.setState({ selectedConceptID : parseInt(tagID) });
-        this.props.setTagIndex(this.props.concepts.map(Concept => Concept.conceptID).indexOf(parseInt(tagID)));
+        this.setState({ selectedConceptID : tagID });
+        this.props.setTagIndex(this.props.concepts.map(Concept => Concept.conceptID).indexOf(tagID));
     };
 
     getParentNodes(id: number) {
-        const parentNodes = [];
-        const conceptMapByID = {};
+        const parentNodes: Concept[] = [];
+        const conceptMapByID: {[key: number]: Concept} = {};
         this.props.concepts.forEach(Concept => conceptMapByID[Concept.conceptID] = Concept );
         this.props.edges.forEach(Edge => {
             if(Edge.child === id)
@@ -160,8 +160,8 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
     };
 
     getChildNodes(id: number) {
-        const childNodes = [];
-        const conceptMapByID = {};
+        const childNodes: Concept[] = [];
+        const conceptMapByID: {[key: number]: Concept} = {};
         this.props.concepts.forEach(Concept => conceptMapByID[Concept.conceptID] = Concept );
         this.props.edges.forEach(Edge => {
             if(Edge.parent === id)
@@ -170,4 +170,3 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
         return childNodes;
     };
 };
-
