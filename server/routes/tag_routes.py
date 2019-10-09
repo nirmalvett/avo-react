@@ -242,7 +242,7 @@ def delete_concept_question(concept_question_id: int):
 @TagRoutes.route("/getConcepts", methods=['POST'])
 @teacher_only
 @validate(courseID=int)
-def geet_concepts(course_id: int):
+def get_concepts(course_id: int):
     user_course = UserCourse.query.filter(
         (UserCourse.COURSE == course_id) &
         (UserCourse.USER == current_user.USER)
