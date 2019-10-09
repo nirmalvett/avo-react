@@ -1,11 +1,11 @@
 from flask import Blueprint, jsonify
 from flask_login import current_user
-from sqlalchemy.orm.exc import NoResultFound
 from server.MathCode.question import AvoQuestion
 
 from server.decorators import login_required, teacher_only, admin_only, validate
 from server.auth import able_edit_set
-from server.models import db, Set, Question, UserViewsSet, TagQuestion, Tag
+from server.helpers import question_has_errors
+from server.models import db, Question, QuestionSet, UserCourse, Concept, ConceptQuestion
 
 QuestionRoutes = Blueprint('QuestionRoutes', __name__)
 
@@ -21,12 +21,18 @@ def get_sets():
     :return: The list of sets
     """
     # Get list of available sets for current user
-    list_of_sets = Set.query.filter((Set.SET == UserViewsSet.SET) & (UserViewsSet.USER == current_user.USER)).all()
+    list_of_sets = QuestionSet.query.filter(
+        (QuestionSet.COURSE == UserCourse.COURSE) & (UserCourse.USER == current_user.USER)
+    ).all()
     set_list = []  # List of sets to send back to the user
-    tag_questions = TagQuestion.query.join(Question).join(Tag).all()
+    tag_questions = ConceptQuestion.query.filter(
+        (ConceptQuestion.CONCEPT == Concept.CONCEPT) &
+        (Concept.COURSE == UserCourse.COURSE) &
+        (UserCourse.USER == current_user.USER)
+    ).all()
     for s in list_of_sets:
         # For each set append the data
-        questions = Question.query.filter(Question.SET == s.SET).all()  # Get all questions in set
+        questions = Question.query.filter(Question.QUESTION_SET == s.QUESTION_SET).all()  # Get all questions in set
         question_list = []  # Question data to return to client
         for q in questions:
             # For each question append the data
@@ -37,12 +43,12 @@ def get_sets():
                 'total': q.total,
                 'answers': q.answers,
                 'category': q.category,
-                'tags': list(map(lambda x: x.TAG, filter(lambda y: y.QUESTION == q.QUESTION, tag_questions)))
+                'tags': list(map(lambda x: x.CONCEPT, filter(lambda y: y.QUESTION == q.QUESTION, tag_questions)))
             })
         set_list.append({
-            'id': s.SET,
+            'id': s.QUESTION_SET,
             'name': s.name,
-            'can_edit': able_edit_set(s.SET),
+            'can_edit': able_edit_set(s.QUESTION_SET),
             'questions': question_list
         })
     return jsonify(sets=set_list)
@@ -82,13 +88,10 @@ def create_set(name: str):
     Creates a new set
     :return: validation that the set has been added
     """
-    new_set = Set(name)  # New set to be created
+    new_set = QuestionSet(1, name)  # todo
     db.session.add(new_set)
     db.session.commit()
-    user_views_set = UserViewsSet(current_user.USER, new_set.SET, True)  # New user_views_set to be created
-    db.session.add(user_views_set)
-    db.session.commit()
-    return jsonify(setID=new_set.SET)
+    return jsonify(setID=new_set.QUESTION_SET)
 
 
 @QuestionRoutes.route('/renameSet', methods=['POST'])
@@ -102,9 +105,8 @@ def rename_set(set_id: int, name: str):
     if not able_edit_set(set_id):
         # if the user isn't able to edit this set return an error JSON
         return jsonify(error="User not able to modify this data")
-    new_set = Set.query.get(set_id)  # Set to be updated
+    new_set = QuestionSet.query.get(set_id)  # Set to be updated
     new_set.name = name
-    # Add change to database
     db.session.commit()
     return jsonify({})
 
@@ -117,14 +119,8 @@ def delete_set(set_id: int):
     Deletes a set
     :return: validation that the set has been Deleted
     """
-    try:
-        user_views_set = UserViewsSet.query.filter(
-            (UserViewsSet.SET == set_id) & (UserViewsSet.USER == current_user.USER)
-        ).first()  # user_views_set to delete
-    except NoResultFound:
-        return jsonify({})
-    # Add change to database
-    db.session.delete(user_views_set)
+    _set = QuestionSet.query.get(set_id)
+    _set.COURSE = None
     db.session.commit()
     return jsonify({})
 
@@ -143,9 +139,7 @@ def new_question(set_id: int, name: str, string: str, answers: int, total: int):
     if not able_edit_set(set_id):
         # If the user is not allowed to edit the set return error json
         return jsonify(error="User not able to edit Set")
-    try:
-        AvoQuestion(string, 0, [])
-    except Exception:
+    if question_has_errors(string):
         return jsonify(error="Question Failed to build")
     # Add Question to database
     question = Question(set_id, name, string, answers, total)
@@ -181,10 +175,7 @@ def edit_question(question_id: int, string: str, answers: int, total: int):
     question = Question.query.get(question_id)
     if not able_edit_set(question.SET):
         return jsonify(error="User not able to edit SET")
-    try:
-        # Try to run the question to see if it works
-        AvoQuestion(string, 0, [])
-    except Exception:
+    if question_has_errors(string):
         return jsonify(error="Question could not be created")
     # Update data for database
     question.string = string

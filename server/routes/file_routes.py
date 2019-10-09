@@ -14,12 +14,24 @@ def serve_web_app():
 
 
 @FileRoutes.route('/css/app.css')
-def serve_css():
+def serve_css_1():
+    return send_file('../static/css/app.css')
+
+
+# noinspection PyUnusedLocal
+@FileRoutes.route('/<path:path>/css/app.css')
+def serve_css_2(path):
     return send_file('../static/css/app.css')
 
 
 @FileRoutes.route('/img/<filename>')
-def serve_img(filename):
+def serve_img_1(filename):
+    return send_file(f'../static/img/{filename}')
+
+
+# noinspection PyUnusedLocal
+@FileRoutes.route('/<path:path>/img/<filename>')
+def serve_img_2(path, filename):
     return send_file(f'../static/img/{filename}')
 
 

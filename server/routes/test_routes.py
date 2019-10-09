@@ -7,9 +7,9 @@ from datetime import datetime, timedelta
 import statistics
 
 from server.decorators import login_required, teacher_only, validate
-from server.auth import teaches_class, enrolled_in_class, access_to_class
+from server.auth import SectionRelations
 from server.helpers import timestamp, from_timestamp
-from server.models import db, Class, Test, Takes, Question, User, Transaction, DataStore
+from server.models import db, Test, Takes, Question, User, DataStore, Section, UserSectionType, UserSection
 
 TestRoutes = Blueprint('TestRoutes', __name__)
 
@@ -35,7 +35,7 @@ def save_test(
         return jsonify(error="timer can not be negative time")
     elif attempts < -1:
         return jsonify(error="the number of attempts can not be negative")
-    elif not teaches_class(class_id):
+    elif UserSectionType.TEACHER not in SectionRelations(class_id).active:
         return jsonify(error="User doesn't teach this class")
     elif len(question_list) == 0:
         return jsonify(error="Can't submit a test with zero questions")
@@ -77,7 +77,7 @@ def change_test(test_id: int, timer: int, name: str, open_time: str, deadline: s
     if open_time is not None and open_time >= deadline:
         return jsonify(error="open time is past the deadline")
     test = Test.query.get(test_id)
-    if not teaches_class(test.CLASS):
+    if UserSectionType.TEACHER not in SectionRelations(test.SECTION).active:
         return jsonify(error="User does not teach class")
 
     # Updates Test data
@@ -103,8 +103,8 @@ def delete_test(test_id: int):
     if test is None:
         # If test isn't found return error JSON else set class to none and return
         return jsonify(error='No Test Found')
-    if teaches_class(test.CLASS):
-        test.CLASS = None
+    if UserSectionType.TEACHER in SectionRelations(test.SECTION).active:
+        test.SECTION = None
         db.session.commit()
         return jsonify({})
     else:
@@ -123,7 +123,7 @@ def open_test(test_id: int):
     if test is None:
         # If test cant be found return error json if not set to open and return
         return jsonify(error='No Test Found')
-    if teaches_class(test.CLASS):
+    if UserSectionType.TEACHER in SectionRelations(test.SECTION).active:
         # If the user teaches the class the test is in open it
         if test.deadline < datetime.now():
             return jsonify(error="Deadline has already passed test can't be opened")
@@ -146,7 +146,7 @@ def close_test(test_id: int):
     if test is None:
         # If test doesn't exist then return error JSON if not close test and return
         return jsonify(error='No test found')
-    if teaches_class(test.CLASS):
+    if UserSectionType.TEACHER in SectionRelations(test.SECTION).active:
         # If the user teaches the class the test is in close it
         test.is_open = False
         db.session.commit()
@@ -170,7 +170,7 @@ def get_test(test_id: int):
     if test is None:
         # If no test found return error json
         return jsonify(error='Test not found')
-    if teaches_class(test.CLASS) or access_to_class(test.CLASS):
+    if SectionRelations(test.SECTION).active:
         if test.is_open is False:
             # If test is not open then return error JSON
             return jsonify(error='This set of questions has not been opened by your instructor yet')
@@ -228,9 +228,9 @@ def get_test(test_id: int):
             answers=eval(takes.answers),
             questions=questions
         )
+    elif not SectionRelations(test.SECTION).active:
+        return jsonify(error="User doesn't have access to that section")
     else:
-        if access_to_class(test.CLASS):
-            return jsonify(error="User doesn't have access to that Class")
         return jsonify(error="Free Trial Expired")
 
 
@@ -370,7 +370,7 @@ def post_test(takes_id: int):
     # Get data from takes and get test from takes
     marks, answers, seeds, = eval(takes.marks), eval(takes.answers), eval(takes.seeds)
     test = Test.query.get(takes.TEST)
-    if enrolled_in_class(test.CLASS) or teaches_class(test.CLASS):
+    if SectionRelations(test.SECTION).active:
         if datetime.now() <= takes.time_submitted:
             return jsonify(error="Test not submitted yet")
         questions = eval(test.question_list)
@@ -397,25 +397,28 @@ def test_stats(test_id: int):
     """
     test = Test.query.get(test_id)  # Test to generate questions from
     # If the user doesnt teach the class then return error JSON
-    if not teaches_class(test.CLASS) and not enrolled_in_class(test.CLASS):
+    if not SectionRelations(test.SECTION).active:
         return jsonify(error="User doesn't teach this class or the user is not enrolled in the class")
     # All students in the class
-    students = User.query.filter((User.USER == Transaction.USER) & (test.CLASS == Transaction.CLASS)).all()
-    current_class = Class.query.get(test.CLASS)
+    students = User.query.filter(
+        (User.USER == UserSection.USER) &
+        (test.SECTION == UserSection.SECTION) &
+        (UserSection.user_type != UserSectionType.TEACHER)
+    ).all()
+    current_section = Section.query.get(test.SECTION)
     test_marks_total = []  # List of test marks
     question_marks = []  # 2D array with first being student second being question mark
 
     for s in range(len(students)):
         # For each student get best takes and add to test_marks array
-        if students[s].USER != current_class.USER:
-            takes = Takes.query.order_by(Takes.grade).filter(
-                (Takes.TEST == test.TEST) & (Takes.USER == students[s].USER)).all()  # Get current students takes
-            if len(takes) != 0:
-                # If the student has taken the test get best takes and add to the array of marks
-                takes = takes[len(takes) - 1]  # Get best takes instance
-                test_marks_total.append(takes.grade)
-                question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
-                del takes
+        takes = Takes.query.order_by(Takes.grade).filter(
+            (Takes.TEST == test.TEST) & (Takes.USER == students[s].USER)).all()  # Get current students takes
+        if len(takes) != 0:
+            # If the student has taken the test get best takes and add to the array of marks
+            takes = takes[len(takes) - 1]  # Get best takes instance
+            test_marks_total.append(takes.grade)
+            question_marks.append(eval(takes.marks))  # append the mark array to the student mark array
+            del takes
     del students
     question_total_marks = []  # Each students mark per question
 
@@ -508,7 +511,7 @@ def change_mark(takes_id: int, mark_array: list):
     # Check if the test of the take is in the class that the account is teaching
     test = Test.query.get(takes.TEST)  # Test that takes is apart of
     question_array = eval(test.question_list)  # List of questions in the test
-    if not teaches_class(test.CLASS):
+    if UserSectionType.TEACHER not in SectionRelations(test.SECTION).active:
         # If User does not teach class return error JSON
         return jsonify(error="User does not teach this class")
     del test

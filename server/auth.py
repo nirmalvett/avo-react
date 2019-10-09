@@ -1,11 +1,14 @@
+from typing import List
+
+from flask import url_for
 from flask_login import LoginManager, current_user
-from sqlalchemy.orm.exc import NoResultFound
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 import config
-from server.models import User, Class, Transaction, UserViewsSet, UserCourse
+from server.models import User, UserCourse, UserSection, QuestionSet, Concept
+from itsdangerous import URLSafeTimedSerializer, BadSignature
 
 login_manager = LoginManager()
 login_manager.login_view = "FileRoutes.serve_web_app"
@@ -21,90 +24,25 @@ def load_user(user_id):
     return User.query.get(user_id)
 
 
-def teaches_class(class_id):
-    """
-    Helper function to test if teacher teaches class
-    :param class_id: The class ID to test
-    :return: True if the user is teaching the class False if not
-    """
-    current_class = Class.query.get(class_id)  # Gets the class from the class ID
-    if current_class is None:
-        return False
-    if current_user.USER == current_class.USER:
-        # If the current user teaches the class then return true if not return False
-        return True
-    transaction = Transaction.query.filter((Transaction.CLASS == class_id) &
-                                           (Transaction.USER == current_user.USER)).all()
-    for i in range(len(transaction)):
-        if transaction[i].TRANSACTION.startswith('TEACHER-'):
-            return True
-    return False
-
-
-def enrolled_in_class(class_id):
-    """
-    Checks if the current user is enrolled in a given class
-    :param class_id: The class ID to check against
-    :return: True if the user is enrolled False if not
-    """
-    try:
-        # Get all classes user is enrolled in
-        current_class = Class.query.filter((Class.CLASS == Transaction.CLASS) &
-                                           (current_user.USER == Transaction.USER)).all()
-        if len(current_class) == 0:
-            return False
-        for i in range(len(current_class)):
-            if current_class[i].CLASS == class_id:
-                return True
-        return False
-    except NoResultFound:
-        return False
-
-
-def access_to_class(class_id):
-    """
-    Checks if the user is either the teacher of the class or if the user is enrolled and not expired
-    :param class_id: The ID of the class to check
-    :return: True if the user has access False if they do not
-    """
-    if enrolled_in_class(class_id):
-        # If the user is enrolled in the class at all see if they have a valid transaction
-        transaction_list = Transaction.query.filter((Transaction.USER == current_user.USER) &
-                                                    (Transaction.CLASS == class_id)).all()  # all transaction of user
-        if current_user.is_teacher:
-            # If the current user is a teacher and enrolled then return True as teacher dont pay
-            return True
-        time = datetime.now()  # Current time
-        for i in transaction_list:
-            # For each transaction check if they are not expired
-            if i.expiration is None:
-                # If the transaction has no expiration return True
-                return True
-            if i.expiration > time:
-                # If the transaction has not expired return True
-                return True
-    return False
-
-
 def able_edit_set(set_id):
     """
     Checks if current_user can edit selected set
     :param set_id: Set to check if user can edit
     :return: True if user can edit false if not
     """
-    try:
-        user_views_set = UserViewsSet.query.filter((set_id == UserViewsSet.SET)
-                                                   & (current_user.USER == UserViewsSet.USER)).first()
-    except NoResultFound:
-        return False
-    return user_views_set.can_edit
+    user_course: UserCourse = UserCourse.query.filter(
+        (set_id == QuestionSet.QUESTION_SET) &
+        (QuestionSet.COURSE == UserCourse.COURSE) &
+        (UserCourse.USER == current_user.USER)
+    ).first()
+    return user_course is not None and user_course.can_edit
 
 
 def able_edit_course(course_id):
-    user_section = UserCourse.query.filter(
-        (UserCourse.USER == current_user.USER) & (UserCourse.COURSE == course_id)
+    user_course = UserCourse.query.filter(
+        (course_id == UserCourse.COURSE) & (UserCourse.USER == current_user.USER)
     ).first()
-    return user_section is not None and user_section.can_edit
+    return user_course is not None and user_course.can_edit
 
 
 def able_view_course(course_id):
@@ -114,6 +52,47 @@ def able_view_course(course_id):
     return user_section is not None
 
 
+def able_edit_concept(concept_id):
+    user_course = UserCourse.query.filter(
+        (concept_id == Concept.CONCEPT) &
+        (Concept.COURSE == UserCourse.COURSE) &
+        (UserCourse.USER == current_user.USER) &
+        UserCourse.can_edit
+    ).first()
+    return user_course is not None and user_course.can_edit
+
+
+class SectionRelations:
+    def __init__(self, section_id: int, user_id: int = None):
+        user_id = user_id or current_user.USER  # fill in with current user id if missing
+        relations: List[UserSection] = UserSection.query.filter(
+            (UserSection.USER == user_id) & (UserSection.SECTION == section_id)
+        ).all()
+        now = datetime.now()
+        active = filter(lambda x: x.expiry is None or x.expiry > now, relations)
+        expired = filter(lambda x: x.expiry is not None and x.expiry < now, relations)
+        self.active = set(map(lambda x: x.user_type, active))
+        self.expired = set(map(lambda x: x.user_type, expired))
+        self.all = set(map(lambda x: x.user_type, relations))
+
+
+def get_url(email: str, route: str):
+    serializer = URLSafeTimedSerializer(config.SECRET_KEY)
+    token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
+    return url_for(route, token=token, _external=True)
+
+
+def validate_token(token, max_age_seconds: int = None):
+    serializer = URLSafeTimedSerializer(config.SECRET_KEY)
+    try:
+        if max_age_seconds is None:
+            return serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT)
+        else:
+            return serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT, max_age=max_age_seconds)
+    except BadSignature:
+        return None
+
+
 def send_email(recipient: str, subject: str, message: str):
     """
     Sends email to a client
@@ -121,7 +100,10 @@ def send_email(recipient: str, subject: str, message: str):
     :param subject: The subject of the email
     :param message: HTML of the email
     """
-    sender = config.EMAIL  # Sets the sender of no-reply
+    try:
+        sender, password = config.EMAIL, config.EMAIL_PASSWORD
+    except AttributeError:
+        return print(f'Sending email to {recipient}\nSubject: {subject}\n{message}\n')
     msg = MIMEMultipart()
     msg['From'], msg['To'], msg['Subject'] = sender, recipient, subject  # Sets To From Subject values
     msg.attach(MIMEText(message, 'html'))
@@ -131,5 +113,5 @@ def send_email(recipient: str, subject: str, message: str):
     server.ehlo()
     server.starttls()
     server.ehlo()
-    server.login(sender, config.EMAIL_PASSWORD)
+    server.login(sender, password)
     server.sendmail(sender, recipient, msg.as_string())

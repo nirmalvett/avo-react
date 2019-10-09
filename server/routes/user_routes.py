@@ -1,15 +1,13 @@
-from flask import Blueprint, jsonify, request, render_template, url_for, redirect
+from flask import Blueprint, jsonify, request, render_template, redirect
 from flask_login import logout_user, login_user, current_user
-from itsdangerous import URLSafeTimedSerializer, BadSignature
 from sqlalchemy.orm.exc import NoResultFound
 
-from server.PasswordHash import check_password, generate_salt, hash_password
+from server.PasswordHash import check_password
 import re
 
-import config
 from server.decorators import login_required, admin_only, validate
-from server.auth import send_email
-from server.models import db, User, Class, Transaction, Takes
+from server.auth import send_email, get_url, validate_token
+from server.models import db, User
 
 UserRoutes = Blueprint('UserRoutes', __name__)
 
@@ -37,19 +35,20 @@ def register(first_name: str, last_name: str, email: str, password: str):
         return jsonify(error='User already exists')
 
     # Create new user instance form data entered and commit to database
-    user = User(email, first_name, last_name, password, False, 9, 0)
+    user = User(email, first_name, last_name, password)
     db.session.add(user)
     db.session.commit()
-    # Generates the confirmation email and sends it to the user's email
-    serializer = URLSafeTimedSerializer(config.SECRET_KEY)
-    token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
-    confirm_url = url_for('UserRoutes.confirm', token=token, _external=True)
-    send_email(email, 'Confirm your AvocadoCore Account',
-               f'<html><body>Hi {user.first_name},<br/><br/>'
-               f'Thanks for signing up! Please click <a href="{confirm_url}">here</a> to '
-               f'activate your account. If you have any questions or suggestions for how we can improve, please send '
-               f'us an email at contact@avocadocore.com.'
-               f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>')
+
+    url = get_url(email, 'UserRoutes.confirm')
+    send_email(
+        email,
+        'Confirm your AvocadoCore Account',
+        f'<html><body>Hi {user.first_name},<br/><br/>'
+        f'Thanks for signing up! Please click <a href="{url}">here</a> to activate your account. If you have any '
+        f'questions or suggestions for how we can improve, please send us an email at contact@avocadocore.com.'
+        f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
+    )
+
     return jsonify({})
 
 
@@ -60,11 +59,8 @@ def confirm(token):
     :param token: The token give from the email URL
     :return: The user to the home page
     """
-    serializer = URLSafeTimedSerializer(config.SECRET_KEY)
-    try:
-        # check if the token is valid if not return error
-        email = serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT)
-    except BadSignature:
+    email = validate_token(token, 3600)
+    if email is None:
         return "Invalid confirmation link"
     user = User.query.filter(User.email == email).first()  # get user from the email
     if user is None:
@@ -147,23 +143,21 @@ def logout():
 @UserRoutes.route('/requestPasswordReset', methods=['POST'])
 @validate(email=str)
 def request_password_reset(email: str):
-    try:
-        user = User.query.filter(User.email == email).first()
-    except NoResultFound:
-        return jsonify(error="The email you requested is not associated with an AVO account. "
-                             "Perhaps it was a typo? Please try again.")
+    user = User.query.filter(User.email == email).first()
     if user is None:
         return jsonify(error="The email you requested is not associated with an AVO account. "
                              "Perhaps it was a typo? Please try again.")
-    serializer = URLSafeTimedSerializer(config.SECRET_KEY)
-    token = serializer.dumps(email, salt=config.SECURITY_PASSWORD_SALT)
-    confirm_url = url_for('UserRoutes.password_reset', token=token, _external=True)
-    send_email(user.email, "Password Reset Request",
-               f'<html><body>Hi,<br/><br/>'
-               f'Please click <a href="{confirm_url}">here</a> to change your password. If you did not request a '
-               f'password reset, you do not need to do anything. This link will expire in one hour.'
-               f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
-               )
+
+    url = get_url(email, 'UserRoutes.password_reset')
+    send_email(
+        email,
+        "Password Reset Request",
+        f'<html><body>Hi,<br/><br/>'
+        f'Please click <a href="{url}">here</a> to change your password. If you did not request a password reset, '
+        f'you do not need to do anything. This link will expire in one hour.'
+        f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
+    )
+
     return jsonify({})
 
 
@@ -176,11 +170,8 @@ def password_reset(token, password: str):
     :param password: new password
     :return: redirect to login
     """
-    serializer = URLSafeTimedSerializer(config.SECRET_KEY)
-    try:
-        # check if the token is valid if not return error
-        email = serializer.loads(token, salt=config.SECURITY_PASSWORD_SALT, max_age=3600)
-    except BadSignature:
+    email = validate_token(token, 3600)
+    if email is None:
         return "Invalid Confirmation Link. Please try requesting password change again."
     user = User.query.filter(User.email == email).first()  # get user from the email
     if user is None:
@@ -194,14 +185,36 @@ def password_reset(token, password: str):
         if len(password) < 8:
             # If the password is les then 8 return error JSON
             return jsonify(error='Password too short! Please ensure the password is at least 8 characters.')
-        salt = generate_salt()
-        hashed_password = hash_password(password, salt)
-        user.password = hashed_password
-        user.salt = salt
+        user.change_password(password)
         db.session.commit()
         return jsonify({})
     else:
         return jsonify(error='An unexpected error occurred. Reference #1j29')
+
+
+@UserRoutes.route('/setup/<token>')
+def setup(token):
+    email = validate_token(token)
+    if email is None:
+        return jsonify(error="Invalid Setup Link.")
+    user = User.query.filter(User.email == email).first()  # get user from the email
+    if user is None:
+        # If there is no user found return an error
+        return jsonify(error="There is no account associated with the email.")
+    return render_template('index.html')
+
+
+@UserRoutes.route('/completeSetup', methods=['POST'])
+@validate(token=str, password=str)
+def complete_setup(token: str, password: str):
+    email = validate_token(token)
+    if email is None:
+        return jsonify(error="Invalid Setup Link.")
+    user = User.query.filter(User.email == email).first()
+    if user is None:
+        return jsonify(error="There is no account associated with the email.")
+    user.change_password(password)
+    return jsonify({})
 
 
 # User settings
@@ -261,26 +274,9 @@ def admin_login(user_id):
 @admin_only
 @validate(userID=int)
 def remove_account(user_id: int):
-    try:
-        user = User.query.filter(User.USER == user_id).first()
-    except NoResultFound:
-        return jsonify(error="No user found")
+    user = User.query.filter(User.USER == user_id).first()
     if user is None:
         return jsonify(error="No user found")
-    class_list = Class.query.filter((Class.CLASS == Transaction.CLASS) &
-                                    (user.USER == Transaction.USER)).all()
-    takes = Takes.query.filter(Takes.USER == user.USER).all()
-    if user.is_teacher:
-        teaches_list = Class.query.filter(Class.USER == user.USER).all()
-        for i in teaches_list:
-            i.USER = None
-        db.session.commit()
-    for i in takes:
-        db.session.delete(i)
-    db.session.commit()
-    for i in class_list:
-        user.TRANSACTION_RELATION.remove(i)
-    db.session.commit()
     db.session.delete(user)
     db.session.commit()
-    return jsonify("All User Data Removed")
+    return jsonify(message="All User Data Removed")

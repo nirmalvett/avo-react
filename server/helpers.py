@@ -1,5 +1,6 @@
 from datetime import datetime
-from server.models import TagUser, Tag
+
+from server.MathCode.question import AvoQuestion
 
 
 def timestamp(x):
@@ -23,39 +24,9 @@ def from_timestamp(x):
         raise ValueError(f'invalid value passed to from_timestamp: {x}')
 
 
-def get_tree(parent_TAG, tags):
-    ret_tags = []
-    parent_tags = list(filter(lambda tag: tag.TAG == parent_TAG, tags))
-    ret_tags.extend(parent_tags)
-    for tag in parent_tags:
-        children = list(filter(lambda t: t.parent == tag.TAG, tags))
-        if len(children) > 0:
-            for child in children:
-                child_tree = get_tree(child.TAG, tags)
-                if len(child_tree) > 0:
-                    ret_tags.extend(child_tree)
-    return ret_tags
-
-
-def get_next_2(parent_TAG, tags, ret_tags=[]):
-    parent_tags = list(filter(lambda tag: tag.TAG == parent_TAG, tags))
-    for tag in parent_tags:
-        if len(ret_tags) > 1:
-            return ret_tags
-        mastery = TagUser.query.filter(tag.TAG == TagUser.TAG).order_by(TagUser.time_created.desc()).first()
-        if mastery.mastery < 1:
-            ret_tags.append(tag.TAG)
-        if len(ret_tags) > 1:
-            return ret_tags
-        children = list(filter(lambda t: t.parent == tag.TAG, tags))
-        if len(children) > 0:
-            for child in children:
-                mastery = TagUser.query.filter(child.TAG == TagUser.TAG).order_by(TagUser.time_created.desc()).first()
-                if mastery.mastery < 1:
-                    ret_tags.append(child.TAG)
-                if len(ret_tags) > 1:
-                        return ret_tags
-                get_next_2(child.TAG, tags, ret_tags)
-                if len(ret_tags) > 1:
-                        return ret_tags
-    return ret_tags
+def question_has_errors(string):
+    try:
+        AvoQuestion(string, 0, [])
+        return False
+    except:
+        return True
