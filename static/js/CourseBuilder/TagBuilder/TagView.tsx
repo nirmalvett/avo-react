@@ -420,10 +420,10 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
     }
    
     getClasses() {
-        Http.getClasses(
+        Http.getSections(
             res => {
                 console.log(res);
-                const classes = res.classes;
+                const classes = res.sections;
                 if (classes.length > 0) {
                     this.setState(
                         {
@@ -494,8 +494,8 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
     };
 
     getTagNodes = () => {
-        Http.getTags(
-            this.state.selectedClass.classID,
+        Http.getConcepts(
+            this.state.selectedClass.sectionID, // todo
             res => {
                 // const data = res.tags;
                 this.setState({

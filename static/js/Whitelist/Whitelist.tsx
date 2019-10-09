@@ -25,7 +25,7 @@ interface WhitelistProps {
 }
 
 interface WhitelistState {
-    classes: {
+    sections: {
         classID: number;
         name: string;
         whitelist: {
@@ -45,7 +45,7 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
     constructor(props: WhitelistProps) {
         super(props);
         this.state = {
-            classes: [],
+            sections: [],
             selectedClass: -1,
             highlighted: false,
             files: [],
@@ -53,12 +53,12 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
     }
 
     componentDidMount() {
-        Http.getClasses(
+        Http.getSections(
             response => {
                 this.setState(
                     {
-                        classes: response.classes.map(x => ({
-                            classID: x.classID,
+                        sections: response.sections.map(x => ({
+                            classID: x.sectionID,
                             name: x.name,
                             whitelist: [],
                         })),
@@ -71,8 +71,8 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
     }
 
     loadWhiteLists = () => {
-        this.state.classes.forEach((cls, index) => {
-            Http.getClassWhitelist(
+        this.state.sections.forEach((cls, index) => {
+            Http.getSectionWhitelist(
                 cls.classID,
                 whitelist => this.onReceiveWhitelist(whitelist, index),
                 console.warn,
@@ -80,11 +80,11 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
         });
     };
 
-    onReceiveWhitelist = (res: Http.GetClassWhitelist, index: number) => {
+    onReceiveWhitelist = (res: Http.GetSectionWhitelist, index: number) => {
         const whitelist = res.whitelist.sort().map(x => ({name: x, added: true}));
-        const classes = [...this.state.classes];
-        classes[index] = {...classes[index], whitelist};
-        this.setState({classes});
+        const sections = [...this.state.sections];
+        sections[index] = {...sections[index], whitelist};
+        this.setState({sections});
     };
 
     render() {
@@ -147,7 +147,7 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
                     }}
                 >
                     <MenuItem value={-1}>--Please select a course--</MenuItem>
-                    {this.state.classes.map((x, y) => (
+                    {this.state.sections.map((x, y) => (
                         <MenuItem value={y}>{x.name}</MenuItem>
                     ))}
                 </Select>
@@ -185,7 +185,7 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
         if (this.state.selectedClass === -1) {
             return undefined;
         }
-        const whitelist = this.state.classes[this.state.selectedClass].whitelist;
+        const whitelist = this.state.sections[this.state.selectedClass].whitelist;
         return (
             <List>
                 {whitelist.map((student, index) => (
@@ -211,21 +211,21 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
         const deletedFile = files.splice(index, 1)[0];
         const students = deletedFile.students;
         this.setState({files});
-        Http.addStudentsToWhitelist(
-            this.state.classes[selectedClass].classID,
+        Http.addToWhitelist(
+            this.state.sections[selectedClass].classID,
             students,
-            ({results}) => {
-                const classes = [...this.state.classes];
-                const cls = (classes[selectedClass] = {...classes[selectedClass]});
+            () => {
+                const sections = [...this.state.sections];
+                const cls = (sections[selectedClass] = {...sections[selectedClass]});
                 cls.whitelist = [...cls.whitelist];
                 for (let i = 0; i < students.length; i++) {
                     const name = students[i] + '@uwo.ca';
                     if (!cls.whitelist.some(c => c.name === name)) {
-                        cls.whitelist.push({name, added: results[i]});
+                        cls.whitelist.push({name, added: true});
                     }
                 }
                 cls.whitelist.sort(sortFunc(x => x.name));
-                this.setState({classes});
+                this.setState({sections});
             },
             () => {
                 this.setState({files: [...this.state.files, deletedFile]});

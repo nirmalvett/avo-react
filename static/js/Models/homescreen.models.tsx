@@ -1,9 +1,9 @@
 export interface Notification {
-    title: string;
+    header: string;
     body: string;
     CLASS?: number;
     messageID: number;
-    dateCreated: number;
+    timestamp: number;
     selected?: boolean;
     showEdit?: boolean;
 }

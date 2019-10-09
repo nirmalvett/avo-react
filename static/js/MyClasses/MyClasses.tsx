@@ -70,12 +70,12 @@ interface MyClassesProps {
     isTeacher: boolean;
     classToJumpTo: number | null;
     setToJumpTo: number | null;
-    startTest: (test: Http.GetClasses_Test) => void;
+    startTest: (test: Http.GetSections_Test) => void;
     postTest: (id: number) => void;
 }
 
 interface MyClassesState {
-    classes: (Http.GetClasses_Class & {open: boolean})[];
+    classes: (Http.GetSections_Section & {open: boolean})[];
     classesLoaded: boolean;
     chartWidth: number;
     c: null | number;
@@ -108,7 +108,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
             joinClassPopperIdx: 0,
             enrollObj: {
                 message: undefined,
-                classID: 0,
+                sectionID: 0,
                 price: 0,
                 discount: 0,
                 tax: 0,
@@ -134,7 +134,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
     tryToJump() {
         if (this.props.classToJumpTo != null) {
             const classToJumpTo = this.state.classes.findIndex(
-                c => c.classID === this.props.classToJumpTo,
+                c => c.sectionID === this.props.classToJumpTo,
             );
             if (classToJumpTo !== -1) {
                 this.selectClass(classToJumpTo);
@@ -151,10 +151,10 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
     }
     loadClasses(alertMessage?: string) {
         /* Loads the classes into the state */
-        Http.getClasses(
+        Http.getSections(
             result => {
                 this.setState({
-                    classes: result.classes.map(x => ({...x, open: x.tests.length > 0})),
+                    classes: result.sections.map(x => ({...x, open: x.tests.length > 0})),
                     classesLoaded: true,
                 });
                 this.tryToJump();
@@ -239,7 +239,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                         </Fragment>
                     ) : (
                         this.state.classes.map((cls, cIndex) => (
-                            <Fragment key={'MyClasses' + cls.classID + '-' + cIndex}>
+                            <Fragment key={'MyClasses' + cls.sectionID + '-' + cIndex}>
                                 <ListItem
                                     button
                                     onClick={() => {
@@ -266,7 +266,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                             <ListItem
                                                 key={
                                                     'MyClasses' +
-                                                    cls.classID +
+                                                    cls.sectionID +
                                                     '-' +
                                                     cIndex +
                                                     '-' +
@@ -396,7 +396,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                         onClick={() => {
                                             if (!this.state.enrollObj.message)
                                                 Http.freeTrial(
-                                                    this.state.enrollObj.classID,
+                                                    this.state.enrollObj.sectionID,
                                                     () => {
                                                         this.setState({joinClassPopperOpen: false});
                                                         this.loadClasses(
@@ -458,7 +458,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                             method: 'post',
                                             url: 'pay',
                                             json: {
-                                                classID: result.classID,
+                                                classID: result.sectionID,
                                             },
                                         })
                                         .then((data: {tid: string}) => data.tid);
@@ -705,7 +705,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
             );
     }
 
-    static detailsCard_infoAboutTest(selectedTest: Http.GetClasses_Test) {
+    static detailsCard_infoAboutTest(selectedTest: Http.GetSections_Test) {
         return (
             <div style={{textAlign: 'center'}}>
                 <Typography component={'span'} variant='body1' color='textPrimary'>
@@ -730,8 +730,8 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
     detailsCard_tabs(
         bestMark: number,
         analyticsDataObj: any,
-        selectedClass: Http.GetClasses_Class,
-        selectedTest: Http.GetClasses_Test,
+        selectedClass: Http.GetSections_Section,
+        selectedTest: Http.GetSections_Test,
     ) {
         // this is the information that is displayed under each tab
         const {activeTab} = this.state;
@@ -918,8 +918,8 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
     detailsCard_myAttempts(
         bestMark: number,
         analyticsDataObj: any,
-        selectedClass: Http.GetClasses_Class,
-        selectedTest: Http.GetClasses_Test,
+        selectedClass: Http.GetSections_Section,
+        selectedTest: Http.GetSections_Test,
     ) {
         return (
             <Fragment>
@@ -1166,11 +1166,11 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         ];
     }
 
-    selectedClass(): Http.GetClasses_Class {
+    selectedClass(): Http.GetSections_Section {
         return this.state.classes[this.state.c as number];
     }
 
-    selectedTest(): Http.GetClasses_Test {
+    selectedTest(): Http.GetSections_Test {
         return this.selectedClass().tests[this.state.t as number];
     }
 

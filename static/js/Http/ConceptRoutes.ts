@@ -24,7 +24,7 @@ export function setConceptQuestion(conceptID: number, questionID: number, weight
     _request('POST', '/setConceptQuestion', success, failure, {conceptID, questionID, weight});
 }
 
-interface GetConcepts {
+export interface GetConcepts {
     concepts: {
         conceptID: number;
         name: string;

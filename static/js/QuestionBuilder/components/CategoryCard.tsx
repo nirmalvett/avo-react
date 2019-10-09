@@ -15,7 +15,7 @@ const CATEGORIES: readonly string[] = [
 interface CategoryCardProps {
     category: number;
     setCategory: (category: number) => () => void;
-    tags: Http.GetTags['tags'];
+    concepts: Http.GetConcepts['concepts'];
     selectedTags: number[];
     addTag: (id: number) => void;
     removeTag: (id: number) => void;
@@ -36,8 +36,8 @@ export class CategoryCard extends Component<CategoryCardProps, CategoryCardState
     }
 
     render() {
-        const {category, tags, selectedTags, setCategory, addTag, removeTag} = this.props;
-        const tagsToShow = tags.filter(x => x.tagName.includes(this.state.text));
+        const {category, concepts, selectedTags, setCategory, addTag, removeTag} = this.props;
+        const tagsToShow = concepts.filter(x => x.name.includes(this.state.text));
         return (
             <Fragment>
                 <Typography variant='h6'>Categorization and Tagging</Typography>
@@ -60,14 +60,14 @@ export class CategoryCard extends Component<CategoryCardProps, CategoryCardState
                 {tagsToShow.slice(0, MAXIMUM).map((tag, index) => (
                     <Chip
                         style={{margin: '4px'}}
-                        label={tag.tagName}
+                        label={tag.name}
                         key={'tag' + index}
                         onClick={
-                            selectedTags.includes(tag.tagID)
-                                ? () => removeTag(tag.tagID)
-                                : () => addTag(tag.tagID)
+                            selectedTags.includes(tag.conceptID)
+                                ? () => removeTag(tag.conceptID)
+                                : () => addTag(tag.conceptID)
                         }
-                        color={selectedTags.includes(tag.tagID) ? 'primary' : 'default'}
+                        color={selectedTags.includes(tag.conceptID) ? 'primary' : 'default'}
                     />
                 ))}
                 {tagsToShow.length > MAXIMUM && (

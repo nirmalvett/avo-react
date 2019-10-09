@@ -1,6 +1,6 @@
 export interface Class {
-    classID: number;
-    enrollKey: string;
+    sectionID: number;
+    enrollKey: string | null;
     name: string;
     tests: Test[];
 }

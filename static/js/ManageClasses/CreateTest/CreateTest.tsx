@@ -265,14 +265,14 @@ export default class CreateTest extends Component<CreateTestProps, CreateTestSta
 
     setCloseTime = (closeTime: Date) => this.setState({closeTime});
 
-    addQuestion(question: {id: number; name: string}) {
+    addQuestion(question: {questionID: number; name: string}) {
         const seed = Math.floor(Math.random() * 65536);
         Http.getQuestion(
-            question.id,
+            question.questionID,
             seed,
             result => {
                 const newQuestion = {
-                    id: question.id,
+                    id: question.questionID,
                     name: question.name,
                     seed,
                     locked: false,

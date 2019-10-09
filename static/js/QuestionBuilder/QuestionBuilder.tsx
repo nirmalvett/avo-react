@@ -57,7 +57,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                 suggestedFunctions: [],
                 errors: [],
             },
-            tags: [],
+            concepts: [],
             ...init(questionString),
         };
 
@@ -92,17 +92,17 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
     }
 
     componentDidMount() {
-        Http.getClasses(({classes}) => this.loadTags(classes.map(x => x.classID)), console.warn);
+        Http.getSections(({sections}) => this.loadTags(sections.map(x => x.sectionID)), console.warn);
     }
 
     loadTags(classIDs: number[]) {
         if (classIDs.length === 0) {
             return;
         } else {
-            Http.getTags(
+            Http.getConcepts(
                 classIDs[0],
-                ({tags}) =>
-                    this.setState({tags: [...this.state.tags, ...tags]}, () =>
+                ({concepts}) =>
+                    this.setState({concepts: [...this.state.concepts, ...concepts]}, () =>
                         this.loadTags(classIDs.slice(1)),
                     ),
                 () => this.loadTags(classIDs.slice(1)),
@@ -203,8 +203,8 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
             <CategoryCard
                 category={this.savedQuestion().category}
                 setCategory={this.setCategory}
-                tags={this.state.tags}
-                selectedTags={this.savedQuestion().tags}
+                concepts={this.state.concepts}
+                selectedTags={this.savedQuestion().concepts}
                 addTag={this.addTag}
                 removeTag={this.removeTag}
             />
@@ -293,7 +293,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
     returnToManager = () => this.props.initManager(this.props.s, this.props.q, this.props.sets);
 
     editorSave = () => {
-        const id = this.props.sets[this.props.s].questions[this.props.q].id;
+        const id = this.props.sets[this.props.s].questions[this.props.q].questionID;
         const answers = this.state.editorPrompts.length;
         const total = this.state.editorCriteria
             .map(x => Number(x.points))
@@ -704,12 +704,12 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
 
     addTag = (tag: number) => {
         Http.addTagQuestion(
-            this.savedQuestion().id,
+            this.savedQuestion().questionID,
             tag,
             () => {
                 const {s, q} = this.props;
                 const sets = this.getNewSets();
-                sets[s].questions[q].tags = [...sets[s].questions[q].tags, tag];
+                sets[s].questions[q].concepts = [...sets[s].questions[q].concepts, tag];
                 this.props.updateProps(this.props.s, this.props.q, sets);
             },
             console.warn,
@@ -718,12 +718,12 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
 
     removeTag = (tag: number) => {
         Http.removeTagQuestion(
-            this.savedQuestion().id,
+            this.savedQuestion().questionID,
             tag,
             () => {
                 const {s, q} = this.props;
                 const sets = this.getNewSets();
-                sets[s].questions[q].tags = sets[s].questions[q].tags.filter(x => x !== tag);
+                sets[s].questions[q].concepts = sets[s].questions[q].concepts.filter(x => x !== tag);
                 this.props.updateProps(this.props.s, this.props.q, sets);
             },
             console.warn,
@@ -732,7 +732,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
 
     setCategory = (category: number) => () => {
         Http.changeCategory(
-            this.savedQuestion().id,
+            this.savedQuestion().questionID,
             category,
             () => {
                 const {s, q} = this.props;

@@ -86,7 +86,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
 
     render() {
         let {selectedS, selectedQ} = this.state;
-        let canEdit = selectedS !== null && this.state.sets[selectedS].can_edit;
+        let canEdit = selectedS !== null && this.state.sets[selectedS].canEdit;
         return (
             <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
                 <div style={{flex: 3, display: 'flex'}}>
@@ -213,7 +213,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                                 </ListItem>
                             </Fragment>
                         ) : null}
-                        {selectedS !== null && !this.state.sets[selectedS].can_edit ? (
+                        {selectedS !== null && !this.state.sets[selectedS].canEdit ? (
                             <Fragment>
                                 <Divider />
                                 <ListItem key='paste'>
@@ -249,9 +249,9 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     renderSetList() {
         let {selectedS} = this.state;
         return this.state.sets.map((set, index) => (
-            <ListItem key={set.id + '-' + index} button onClick={() => this.selectSet(index)}>
+            <ListItem key={set.setID + '-' + index} button onClick={() => this.selectSet(index)}>
                 <ListItemIcon>
-                    {set.can_edit ? (
+                    {set.canEdit ? (
                         <Folder color={selectedS === index ? 'primary' : 'action'} />
                     ) : (
                         <Lock color={selectedS === index ? 'primary' : 'action'} />
@@ -266,7 +266,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
         if (this.state.selectedS !== null)
             return this.state.sets[this.state.selectedS].questions.map((question, index) => (
                 <ListItem
-                    key={question.id + '-' + index}
+                    key={question.questionID + '-' + index}
                     button
                     onClick={() => this.selectQuestion(index)}
                 >
@@ -319,14 +319,15 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     newSet() {
         let name = prompt('Set name:', '');
         if (name !== '' && name !== null)
-            Http.newSet(name, () => this.getSets(), result => alert(result));
+            // todo: choose course to add
+            Http.newSet(1, name, () => this.getSets(), result => alert(result));
     }
 
     renameSet() {
         let set = this.state.sets[this.state.selectedS as number];
         let name = prompt('Set name:', set.name);
         if (name !== '' && name !== null)
-            Http.renameSet(set.id, name, () => this.getSets(), result => alert(result));
+            Http.renameSet(set.setID, name, () => this.getSets(), result => alert(result));
     }
 
     deleteSet() {
@@ -334,7 +335,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
         let confirmation = confirm('Are you sure you want to delete this set?');
         if (confirmation)
             Http.deleteSet(
-                set.id,
+                set.setID,
                 async () => {
                     await this.setState({selectedS: null, selectedQ: null});
                     this.getSets();
@@ -345,7 +346,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
 
     newQuestion() {
         Http.newQuestion(
-            this.state.sets[this.state.selectedS as number].id,
+            this.state.sets[this.state.selectedS as number].setID,
             'New question',
             '-3 3 1 3 1 AC，2 3 0 ' +
                 'AB，-2 2 1 3 1 AC；$1，$2，$3；$1 _A，$2 _A，$3 _A；Compute the vector sum \\({0}+{1}{2}\\).，；6；1；@0 $1 ' +
@@ -364,7 +365,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
         let question = set.questions[this.state.selectedQ as number];
         let name = prompt('Question name:', question.name);
         if (name !== '' && name !== null)
-            Http.renameQuestion(question.id, name, () => this.getSets(), result => alert(result));
+            Http.renameQuestion(question.questionID, name, () => this.getSets(), result => alert(result));
     }
 
     editQuestion() {
@@ -377,7 +378,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
         let question = set.questions[this.state.selectedQ as number];
         let confirmation = confirm('Are you sure you want to delete this question?');
         if (confirmation)
-            Http.deleteQuestion(question.id, () => this.getSets(), result => alert(result));
+            Http.deleteQuestion(question.questionID, () => this.getSets(), result => alert(result));
     }
 
     copyQuestion() {
@@ -388,7 +389,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
         const copied = this.state.copiedQ as [number, number];
         const question = this.state.sets[copied[0]].questions[copied[1]];
         Http.newQuestion(
-            this.state.sets[this.state.selectedS as number].id,
+            this.state.sets[this.state.selectedS as number].setID,
             question.name,
             question.string,
             question.answers,

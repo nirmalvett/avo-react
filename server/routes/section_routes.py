@@ -102,6 +102,7 @@ def home():
             'timestamp': timestamp(x.timestamp),
         }, filter(lambda x: x.SECTION == section.SECTION, messages)))
         return_tests = list(map(lambda x: {
+            'testID': x.TEST,
             'name': x.name,
             'deadline': timestamp(x.deadline),
         }, filter(lambda x: x.SECTION == section.SECTION, tests)))
@@ -318,7 +319,8 @@ def enroll(key: str):
 
     return jsonify(
         sectionID=section.SECTION,
-        price=price,
+        price=section.price,
+        discount=price,
         tax=round(price * 0.13, 2),
         totalPrice=round(price * 1.13, 2),
         freeTrial=UserSectionType.TRIAL not in relations

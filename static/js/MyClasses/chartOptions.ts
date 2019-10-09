@@ -10,7 +10,7 @@ interface ThemeObj {
     };
 }
 
-export function generateChartOptions(selectedClass: Http.GetClasses_Class, theme: ThemeObj) {
+export function generateChartOptions(selectedClass: Http.GetSections_Section, theme: ThemeObj) {
     let xCategories = [];
     for (let i = 0; i < selectedClass.tests.length; i++) {
         xCategories.push(selectedClass.tests[i].name);
@@ -91,7 +91,7 @@ export function generateChartOptions(selectedClass: Http.GetClasses_Class, theme
 }
 
 export function getTestCardGraphOptions(
-    selectedTest: Http.GetClasses_Test,
+    selectedTest: Http.GetSections_Test,
     testStats: Http.TestStats,
     theme: ThemeObj,
     testStatsDataSelectIdx: number,

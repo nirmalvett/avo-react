@@ -71,7 +71,7 @@ interface ManageClassesProps {
 }
 
 interface ManageClassesState {
-    classes: (Http.GetClasses_Class & {open: boolean})[];
+    classes: (Http.GetSections_Section & {open: boolean})[];
     classesLoaded: boolean;
     c: null | number;
     t: null | number;
@@ -79,7 +79,7 @@ interface ManageClassesState {
     anchorEl: null;
     createClassErrorMessage: string;
     chartWidth: number;
-    results: undefined | Http.GetClassTestResults['results'];
+    results: undefined | Http.GetSectionTestResults['results'];
     deleteTestPopperOpen: boolean;
     activeTab: number;
     testStats: null | Http.TestStats;
@@ -139,10 +139,10 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
 
     loadClasses(snackBarString?: string) {
         // this gets the class results
-        Http.getClasses(
+        Http.getSections(
             result =>
                 this.setState({
-                    classes: result.classes.map(x => ({...x, open: false})),
+                    classes: result.sections.map(x => ({...x, open: false})),
                     classesLoaded: true,
                 }),
             console.warn,
@@ -225,7 +225,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             );
         }
         return this.state.classes.map((cls, cIndex) => (
-            <Fragment key={'ManageClasses' + cls.classID + '-' + cIndex}>
+            <Fragment key={'ManageClasses' + cls.sectionID + '-' + cIndex}>
                 <ListItem button onClick={() => this.selectClass(cIndex)}>
                     <ListItemIcon>
                         <PeopleOutlined color='action' />
@@ -242,7 +242,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         {// For each test create a menu option
                         cls.tests.map((test, tIndex) => (
                             <ListItem
-                                key={`ManageClasses${cls.classID}-${cIndex}-${test.testID}-${tIndex}`}
+                                key={`ManageClasses${cls.sectionID}-${cIndex}-${test.testID}-${tIndex}`}
                                 button
                                 onClick={() => {
                                     this.loadEditTestPopper(test);
@@ -282,7 +282,8 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         'avo-manageclasses__creation-textfield',
                     ) as HTMLInputElement).value;
                     if (name !== null && name !== '') {
-                        Http.createClass(
+                        Http.createSection(
+                            1, // todo: choose course
                             name,
                             () => {
                                 this.loadClasses('Class Successfully Created!');
@@ -364,7 +365,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         );
     }
 
-    detailsCard_selectedClass(selectedClass: Http.GetClasses_Class, uniqueKey1: string) {
+    detailsCard_selectedClass(selectedClass: Http.GetSections_Section, uniqueKey1: string) {
         return (
             <Fragment>
                 <CardHeader
@@ -375,7 +376,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         <Fragment key={`Action-:${uniqueKey1} ${selectedClass.name}`}>
                             <Tooltip title='Create a new Test'>
                                 <IconButton
-                                    onClick={() => this.props.createTest(selectedClass.classID)}
+                                    onClick={() => this.props.createTest(selectedClass.sectionID)}
                                 >
                                     <NoteAddOutlined />
                                 </IconButton>
@@ -383,7 +384,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                             <Tooltip title='Download CSV'>
                                 <IconButton
                                     onClick={() =>
-                                        (window.location.href = `/CSV/ClassMarks/${selectedClass.classID}`)
+                                        (window.location.href = `/CSV/ClassMarks/${selectedClass.sectionID}`)
                                     }
                                 >
                                     <GetAppOutlined />
@@ -436,7 +437,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
 
     detailsCard_selectedTest(
         analyticsDataObj: any,
-        selectedTest: Http.GetClasses_Test,
+        selectedTest: Http.GetSections_Test,
         uniqueKey1: string,
     ) {
         return (
@@ -492,7 +493,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         );
     }
 
-    deleteTestPopper(selectedTest: Http.GetClasses_Test) {
+    deleteTestPopper(selectedTest: Http.GetSections_Test) {
         return (
             <Popper
                 placement='left-start'
@@ -545,7 +546,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         );
     }
 
-    loadEditTestPopper(selectedTest: Http.GetClasses_Test) {
+    loadEditTestPopper(selectedTest: Http.GetSections_Test) {
         this.setState({
             editTest_name: selectedTest.name,
             editTest_timer: selectedTest.timer.toString(),
@@ -557,7 +558,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         });
     }
 
-    editTestPopper(selectedTest: Http.GetClasses_Test) {
+    editTestPopper(selectedTest: Http.GetSections_Test) {
         return (
             <Popper
                 placement='left-start'
@@ -688,7 +689,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         });
     };
 
-    detailsCard_selectedTest_cardHeader(selectedTest: Http.GetClasses_Test) {
+    detailsCard_selectedTest_cardHeader(selectedTest: Http.GetSections_Test) {
         return (
             <Fragment>
                 {/* Edit Test Button */}
@@ -837,8 +838,8 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             );
     }
 
-    detailsCard_selectedTest_attempts(analyticsDataObj: any, selectedTest: Http.GetClasses_Test) {
-        const results = this.state.results as Http.GetClassTestResults['results'];
+    detailsCard_selectedTest_attempts(analyticsDataObj: any, selectedTest: Http.GetSections_Test) {
+        const results = this.state.results as Http.GetSectionTestResults['results'];
         if (this.state.activeTab === CONST_TAB_MY_ATTEMPTS)
             return (
                 <Fragment>
@@ -1043,7 +1044,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     }
 
     genStudentNameSearchLabels() {
-        const results = this.state.results as Http.GetClassTestResults['results'];
+        const results = this.state.results as Http.GetSectionTestResults['results'];
         let outArray = [];
         for (let i = 0; i < results.length; i++)
             outArray.push({
@@ -1447,7 +1448,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         Http.testStats(
             testID,
             result => {
-                Http.getClassTestResults(
+                Http.getSectionTestResults(
                     this.state.classes[cIndex].tests[tIndex].testID,
                     _result => {
                         let resultsIndexArray = [];

@@ -284,7 +284,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
 
     postTest = (takesID: number) => this.navigate({name: 'Post Test', takesID});
 
-    takeTest = (test: Http.GetClasses_Test) => {
+    takeTest = (test: Http.GetSections_Test) => {
         Http.getTest(
             test.testID,
             test => {

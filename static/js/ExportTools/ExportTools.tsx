@@ -23,7 +23,7 @@ interface ExportToolsProps {
 interface ExportToolsState {
     style: CSSProperties;
     // Dictionary of all class names for the user with keys as IDs
-    availableClasses: {[key: string]: Http.GetClasses_Class};
+    availableClasses: {[key: string]: Http.GetSections_Section};
     currentClassId: string;
     // Dictionary that holds objects that represent classes
     classData: {[key: string]: JsonObject};
@@ -376,12 +376,12 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
     // when a file is dragged over
     componentDidMount = () => {
         // Get the available classes for the teacher so they can select which classes they will be uploading a CSV for
-        Http.getClasses(
+        Http.getSections(
             response => {
                 // Create a dictionary of class objects with the id as the key
-                let classes: {[key: string]: Http.GetClasses_Class} = {};
-                response.classes.forEach(classObject => {
-                    classes[classObject.classID.toString()] = classObject;
+                let classes: {[key: string]: Http.GetSections_Section} = {};
+                response.sections.forEach(classObject => {
+                    classes[classObject.sectionID.toString()] = classObject;
                 });
                 this.setState({availableClasses: classes});
             },

@@ -42,13 +42,13 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
     };
 
     componentDidMount() {
-        Http.getClasses(
+        Http.getSections(
             response => {
                 // console.log(response)
                 this.setState({
-                    classes: response.classes,
-                    selectedClassName: response.classes[0].name,
-                    classNames: response.classes.map(c => c.name),
+                    classes: response.sections,
+                    selectedClassName: response.sections[0].name,
+                    classNames: response.sections.map(c => c.name),
                 });
                 this.getMessages();
             },
@@ -162,7 +162,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
             c => c.name === this.state.selectedClassName,
         ) as Class;
         Http.addMessage(
-            _class.classID,
+            _class.sectionID,
             this.state.addMessageInput,
             this.state.messageBodyInput,
             () => {
@@ -198,7 +198,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                 const msg = this.state.messages.findIndex(m => m.messageID === message.messageID);
                 const messages = this.state.messages;
                 messages[msg].showEdit = false;
-                messages[msg].title = this.state.editTitle;
+                messages[msg].header = this.state.editTitle;
                 messages[msg].body = this.state.editBody;
                 this.setState({messages, showEdit: false, selectedMessage: null});
                 // console.log(res);
@@ -214,7 +214,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
             c => c.name === this.state.selectedClassName,
         ) as Class;
         Http.getMessages(
-            selectedClass.classID,
+            selectedClass.sectionID,
             res => {
                 this.setState({
                     messages: res.messages.map(m => ({...m, selected: false, showEdit: false})),
@@ -327,7 +327,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                         messages.forEach(m => (m.showEdit = false));
                         messages[messageIndex].showEdit = true;
                         this.setState({
-                            editTitle: message.title,
+                            editTitle: message.header,
                             editBody: message.body,
                             selectedMessage: message,
                             messages,

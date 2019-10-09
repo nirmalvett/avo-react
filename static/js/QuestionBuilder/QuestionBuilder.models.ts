@@ -71,7 +71,7 @@ export interface QuestionBuilderState {
     editorCriteria: EditorCriteria[];
     editorSeed: number;
     hints: HintsObj;
-    tags: Http.GetTags['tags'];
+    concepts: Http.GetConcepts['concepts'];
 }
 
 export interface HintsObj {

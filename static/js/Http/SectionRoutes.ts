@@ -4,7 +4,7 @@ export function addToWhitelist(sectionID: number, uwoUsers: string[], success: c
     _request('POST', '/addToWhitelist', success, failure, {sectionID, uwoUsers});
 }
 
-interface GetSectionWhitelist {
+export interface GetSectionWhitelist {
     whitelist: string[];
 }
 
@@ -28,10 +28,11 @@ export interface Home {
             timestamp: number,
         }[];
         tests: {
+            testID: number;
             name: string;
             deadline: number;
         }[];
-    }
+    }[];
 }
 
 export function home(success: cb<Home>, failure: cb) {
@@ -108,6 +109,7 @@ export type Enroll =
           message: undefined;
           sectionID: number;
           price: number;
+          discount: number;
           tax: number;
           totalPrice: number;
           freeTrial: boolean;

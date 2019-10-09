@@ -1,22 +1,11 @@
-import React, {Component, ReactElement} from 'react';
+import React, {Component} from 'react';
 import {Typography, Tabs, Tab, Grid, Card} from '@material-ui/core';
 import * as Http from '../Http';
-import InfiniteCalendar from 'react-infinite-calendar';
 import 'react-infinite-calendar/styles.css';
 import moment from 'moment';
 import {CalendarTheme} from '../Models';
 import {DatePicker} from '@material-ui/pickers';
 import {MaterialUiPickersDate} from '@material-ui/pickers/typings/date';
-
-// Or import the input component
-let today = new Date();
-function TabContainer(props: {children?: any}): ReactElement {
-    return (
-        <Typography component='div' style={{padding: 8 * 3}}>
-            {props.children}
-        </Typography>
-    );
-}
 
 interface HomePageProps {
     color: {'200': string; '500': string};
@@ -27,8 +16,7 @@ interface HomePageProps {
 
 interface HomePageState {
     selectedDate: Date;
-    notifications: Http.Home['messages'];
-    dueDates: Http.Home['dueDates'];
+    sections: Http.Home['sections'];
     value: number;
     calendarTheme: CalendarTheme;
 }
@@ -36,8 +24,7 @@ interface HomePageState {
 export default class HomePage extends Component<HomePageProps, HomePageState> {
     state: HomePageState = {
         selectedDate: new Date(),
-        notifications: [],
-        dueDates: [],
+        sections: [],
         value: 0,
         calendarTheme: {
             accentColor: this.props.color['500'],
@@ -60,10 +47,7 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
     componentDidMount() {
         Http.home(
             response => {
-                this.setState({
-                    dueDates: response.dueDates,
-                    notifications: response.messages,
-                });
+                this.setState(response);
             },
             error => {
                 console.log(error);
@@ -134,24 +118,24 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
     }
 
     notifications() {
-        return this.state.notifications.map(notification => (
+        return this.state.sections.map(section => (
             <Grid item xs={12}>
                 <div
                     className='avo-clickable-item'
-                    onClick={() => this.props.jumpToClass(notification.class.id)}
+                    onClick={() => this.props.jumpToClass(section.sectionID)}
                 >
                     <Typography variant='h6' color='textPrimary'>
-                        {notification.class.name + ':'}
+                        {section.name + ':'}
                     </Typography>
                 </div>
-                {notification.messages.map((notificationMsg, i) => (
+                {section.messages.map((notificationMsg, i) => (
                     <div
                         className='avo-clickable-item'
                         key={JSON.stringify(notificationMsg) + i}
-                        onClick={() => this.props.jumpToClass(notification.class.id)}
+                        onClick={() => this.props.jumpToClass(section.sectionID)}
                     >
                         <Typography variant='subtitle1' color='textPrimary'>
-                            {notificationMsg.title}
+                            {notificationMsg.header}
                         </Typography>
                         <Typography variant='subtitle2' color='textPrimary'>
                             {notificationMsg.body}
@@ -163,11 +147,11 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
     }
 
     dueDates = () => {
-        return this.state.dueDates.map((dd, i) => {
-            let datesToShow: {id: number; name: string; dueDate: number}[] = [];
-            if (dd.dueDates) {
-                datesToShow = dd.dueDates.filter(dueDate => {
-                    const d1 = moment(new Date(dueDate.dueDate)).startOf('day');
+        return this.state.sections.map((dd, i) => {
+            let datesToShow: {testID: number; name: string; deadline: number}[] = [];
+            if (dd.tests) {
+                datesToShow = dd.tests.filter(dueDate => {
+                    const d1 = moment(new Date(dueDate.deadline)).startOf('day');
                     const selectedDate = moment(this.state.selectedDate).startOf('day');
                     return moment(d1)
                         .startOf('day')
@@ -178,10 +162,10 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
                 <div key={i}>
                     <div
                         className='avo-clickable-item'
-                        onClick={() => this.props.jumpToClass(dd.class.id)}
+                        onClick={() => this.props.jumpToClass(dd.sectionID)}
                     >
                         <Typography variant='h6' color='textPrimary'>
-                            {dd.class.name + ':'}
+                            {dd.name + ':'}
                         </Typography>
                     </div>
                     {datesToShow.length > 0 ? (
@@ -189,7 +173,7 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
                             <div
                                 className='avo-clickable-item'
                                 key={JSON.stringify(dueDate) + i}
-                                onClick={() => this.props.jumpToSet(dd.class.id, dueDate.id)}
+                                onClick={() => this.props.jumpToSet(dd.sectionID, dueDate.testID)}
                             >
                                 <Typography variant='subtitle2' color='textPrimary'>
                                     {dueDate.name +

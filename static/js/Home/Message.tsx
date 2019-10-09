@@ -3,7 +3,7 @@ import React from 'react';
 
 interface MessageProps {
     message: {
-        title: string;
+        header: string;
         body: string;
         selected?: boolean;
     };
@@ -13,7 +13,7 @@ export default function Message(props: MessageProps) {
     return (
         <div style={props.message.selected ? {textDecoration: 'line-through', color: 'red'} : {}}>
             <Typography component={'span'} variant='h4' color='textPrimary'>
-                {props.message.title}
+                {props.message.header}
             </Typography>
             <br />
             <Typography component={'span'} variant='body1' color='textPrimary'>

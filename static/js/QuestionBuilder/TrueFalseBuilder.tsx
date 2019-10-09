@@ -177,7 +177,7 @@ export default class TrueFalseBuilder extends Component<
                                 maxHeight: '100%',
                             }}
                         >
-                            {!!this.state.questionNmeE ? (
+                            {this.state.questionNmeE ? (
                                 <span>
                                     <TextField
                                         id='outlined-name'
@@ -220,7 +220,7 @@ export default class TrueFalseBuilder extends Component<
                             )}
                             <br />
                             <br />
-                            {!!this.state.questionTxtE ? (
+                            {this.state.questionTxtE ? (
                                 <span>
                                     <TextField
                                         id='outlined-name'
@@ -294,7 +294,7 @@ export default class TrueFalseBuilder extends Component<
                                 </RadioGroup>
                             </FormControl>
                             <br />
-                            {!!this.state.questionExpE ? (
+                            {this.state.questionExpE ? (
                                 <span>
                                     <TextField
                                         id='outlined-name'
@@ -450,15 +450,15 @@ export default class TrueFalseBuilder extends Component<
         let {selectedS} = this.state;
         return this.state.sets.map((set, index) => (
             <ListItem
-                key={set.id + '-' + index}
+                key={set.setID + '-' + index}
                 button
                 onClick={() => this.selectSet(set, index)}
                 onMouseEnter={() => this.setState({hovered: index})}
                 onMouseLeave={() => this.setState({hovered: -1})}
-                disabled={!set.can_edit}
+                disabled={!set.canEdit}
             >
                 <ListItemIcon>
-                    {set.can_edit ? (
+                    {set.canEdit ? (
                         <Folder color={selectedS === index ? 'primary' : 'action'} />
                     ) : (
                         <Lock color={selectedS === index ? 'primary' : 'action'} />
@@ -487,19 +487,19 @@ export default class TrueFalseBuilder extends Component<
                 (question: AvoQuestion, index: number) => (
                     <ListItem
                         disabled={!isTrueFalse(question.string)}
-                        key={question.id + '-' + index}
+                        key={question.questionID + '-' + index}
                         button
-                        onMouseEnter={() => this.setState({hovered: question.id})}
+                        onMouseEnter={() => this.setState({hovered: question.questionID})}
                         onMouseLeave={() => this.setState({hovered: -1})}
                         onClick={() => this.setState({nextQuestion: question})}
                     >
                         <ListItemIcon>
                             <QuestionIcon
-                                color={questionID === question.id ? 'primary' : 'action'}
+                                color={questionID === question.questionID ? 'primary' : 'action'}
                             />
                         </ListItemIcon>
                         <ListItemText secondary={question.name} />
-                        {hovered === question.id && (
+                        {hovered === question.questionID && (
                             <IconButton
                                 size='small'
                                 edge='end'
@@ -508,7 +508,7 @@ export default class TrueFalseBuilder extends Component<
                                 <EditIcon />
                             </IconButton>
                         )}
-                        {hovered === question.id && (
+                        {hovered === question.questionID && (
                             <IconButton
                                 size='small'
                                 edge='end'
@@ -591,7 +591,8 @@ export default class TrueFalseBuilder extends Component<
     newSet = () => {
         let name: string | null = prompt('Set name:', '');
         if (name !== '' && name !== null)
-            Http.newSet(name, () => this.refreshSets(), result => alert(result));
+            // todo: fix courses
+            Http.newSet(1, name, () => this.refreshSets(), result => alert(result));
     };
 
     deleteSet = (index: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -600,7 +601,7 @@ export default class TrueFalseBuilder extends Component<
         let confirmation: boolean = confirm('Are you sure you want to delete this set?');
         if (confirmation)
             Http.deleteSet(
-                set.id,
+                set.setID,
                 async () => {
                     await this.setState({selectedS: null, questionID: -1});
                     this.getSets();
@@ -649,7 +650,7 @@ export default class TrueFalseBuilder extends Component<
             );
         } else {
             Http.newQuestion(
-                this.state.sets[this.state.selectedS as number].id,
+                this.state.sets[this.state.selectedS as number].setID,
                 this.state.questionName,
                 this.buildQuestionString(),
                 1,
@@ -669,7 +670,7 @@ export default class TrueFalseBuilder extends Component<
 
     deleteSuccess = (question: AvoQuestion) => {
         this.props.showSnackBar('success', 'Question deleted', 2000);
-        if (question.id === this.state.questionID) this.reset();
+        if (question.questionID === this.state.questionID) this.reset();
         else this.refreshSets();
     };
 
@@ -693,7 +694,7 @@ export default class TrueFalseBuilder extends Component<
             const match: RegExpMatchArray | null = question.string.match(tfRegex);
             if (match !== null) {
                 this.setState({
-                    questionID: question.id,
+                    questionID: question.questionID,
                     questionName: question.name,
                     questionNmeE: false,
                     questionText: match[1],
@@ -710,7 +711,7 @@ export default class TrueFalseBuilder extends Component<
 
     deleteQuestion = (question: AvoQuestion) => {
         Http.deleteQuestion(
-            question.id,
+            question.questionID,
             () => this.deleteSuccess(question),
             () => this.props.showSnackBar('error', 'An error occured', 2000),
         );
@@ -748,6 +749,5 @@ export default class TrueFalseBuilder extends Component<
 
 function isTrueFalse(string: string) {
     const tfRegex = /；；；[^；，]*，；0；[^；]*；@0 \*[TF] HB；[^；]*；/;
-    if (string.match(tfRegex)) return true;
-    return false;
+    return !!string.match(tfRegex);
 }
