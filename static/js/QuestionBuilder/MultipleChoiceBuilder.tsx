@@ -287,12 +287,12 @@ export default class MultipleChoiceBuilder extends Component<
                                 <RadioGroup
                                     aria-label='multiple choice input'
                                     name='choices'
-                                    value={this.state.questionOpts[this.state.questionAnsr]}
+                                    value={'' + this.state.questionAnsr}
                                 >
                                     {this.state.questionOpts.map((string, index) => {
                                         return (
                                             <FormControlLabel
-                                                value={string}
+                                                value={'' + index}
                                                 control={<Radio color='primary' onClick={() => this.setState({questionAnsr: index})}/>}
                                                 label={
                                                     <span>
