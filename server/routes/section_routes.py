@@ -8,8 +8,7 @@ from server.auth import get_url, send_email, SectionRelations
 from server.decorators import login_required, teacher_only, student_only, validate
 from server.helpers import timestamp
 from server.models import db, Message, Payment, Section, Takes, Test, User, UserSection, UserSectionType
-import paypalrestsdk as paypal
-import config
+from server import paypal
 
 SectionRoutes = Blueprint('SectionRoutes', __name__)
 
@@ -358,15 +357,9 @@ def pay(section_id: int):
         (section_id == Payment.SECTION) & (current_user.USER == Payment.USER)
     ).first()
     if existing_tid is not None:  # If the user has already tried the payment find payment and return
-        try:  # Try to find payment from PayPal
-            payment = paypal.Payment.find(existing_tid.PAYMENT)
-            if payment.state == 'created':  # if payment is found return Transaction ID
-                return jsonify({'tid': existing_tid.PAYMENT})
-            else:  # Else remove payment from database
-                db.session.delete(existing_tid)
-                db.session.commit()
-        except paypal.ResourceNotFound:
-            # If error is found remove from database
+        if paypal.check_if_created(existing_tid.PAYMENT):
+            return jsonify({'tid': existing_tid.PAYMENT})
+        else:
             db.session.delete(existing_tid)
             db.session.commit()
 
@@ -378,42 +371,9 @@ def pay(section_id: int):
     if SectionRelations(section_id).active:
         return jsonify(error="User Still has active payment")
 
-    # Create Payment with PayPal
-    payment = paypal.Payment(
-        {
-            'intent': 'sale',
-            'payer': {
-                'payment_method': 'paypal'
-            },
-            'redirect_urls': {
-                # todo have to enable auto return in the paypal account
-                'return_url': f'http://' + config.HOSTNAME + '/',
-                # todo when cancelled remove tid from mapping table
-                'cancel_url': f'http://' + config.HOSTNAME + '/'
-            },
-            'transactions': [
-                {
-                    'amount': {
-                        'total': "{:4.2f}".format(round(section.price * 1.13, 2)),
-                        'currency': 'CAD'
-                    },
-                    'description': "32 Week Subscription to " + str(section.name) + " Through AVO",
-                    'item_list': {
-                        'items': [
-                            {
-                                'name': 'Avo ' + section.name,
-                                'price': "{:4.2f}".format(round(section.price * 1.13, 2)),
-                                'currency': 'CAD',
-                                'quantity': 1
-                            }
-                        ]
-                    }
-                }
-            ]
-        }
-    )
+    payment, successful = paypal.create_payment(section.name, section.price)
 
-    if payment.create():
+    if successful:
         db.session.add(Payment(payment.id, current_user.USER, section_id))
         db.session.commit()
         return jsonify(tid=payment.id)
@@ -431,9 +391,9 @@ def confirm_payment(tid: str, payer_id: str):
     """
     if UserSection.query.filter(UserSection.transaction_id == tid).all():
         return jsonify("User Already Enrolled")
-    payment = paypal.Payment.find(tid)
-    if not payment.execute({'payer_id': payer_id}):
-        return jsonify(error=payment.error)  # If payment can't be processed return error JSON
+    error = paypal.execute_payment(tid, payer_id)
+    if error is not None:
+        return jsonify(error=error)  # If payment can't be processed return error
     payment = Payment.query.get(tid)
     if payment is None:
         return jsonify(error="No Transaction id Found")
