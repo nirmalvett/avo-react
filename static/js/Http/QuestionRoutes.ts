@@ -15,8 +15,8 @@ export interface NewSet {
     setID: number;
 }
 
-export function newSet(name: string, success: cb<NewSet>, failure: cb) {
-    _request('POST', '/newSet', success, failure, {name});
+export function newSet(courseID: number, name: string, success: cb<NewSet>, failure: cb) {
+    _request('POST', '/newSet', success, failure, {courseID, name});
 }
 
 export function renameSet(setID: number, name: string, success: cb<{}>, failure: cb) {
@@ -74,8 +74,8 @@ export interface GetQuestion {
     types: string[];
 }
 
-export function getQuestion(question: number, seed: number, success: cb<GetQuestion>, failure: cb) {
-    _request('POST', '/getQuestion', success, failure, {question, seed});
+export function getQuestion(questionID: number, seed: number, success: cb<GetQuestion>, failure: cb) {
+    _request('POST', '/getQuestion', success, failure, {questionID, seed});
 }
 
 export interface SampleQuestion {

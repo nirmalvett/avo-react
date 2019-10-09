@@ -5,7 +5,7 @@ export interface SaveTest {
 }
 
 export function saveTest(
-    classID: number,
+    sectionID: number,
     name: string,
     openTime: number,
     deadline: number,
@@ -17,7 +17,7 @@ export function saveTest(
     failure: cb,
 ) {
     _request('POST', '/saveTest', success, failure, {
-        classID,
+        sectionID,
         name,
         deadline,
         timer,

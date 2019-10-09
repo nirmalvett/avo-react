@@ -20,11 +20,11 @@ TestRoutes = Blueprint('TestRoutes', __name__)
 @TestRoutes.route('/saveTest', methods=['POST'])
 @teacher_only
 @validate(
-    classID=int, name=str, openTime=[int], deadline=int,
+    sectionID=int, name=str, openTime=[int], deadline=int,
     timer=int, attempts=int, questionList=list, seedList=list
 )
 def save_test(
-        class_id: int, name: str, open_time, deadline: int,
+        section_id: int, name: str, open_time, deadline: int,
         timer: int, attempts: int, question_list: list, seed_list: list
 ):
     """
@@ -35,7 +35,7 @@ def save_test(
         return jsonify(error="timer can not be negative time")
     elif attempts < -1:
         return jsonify(error="the number of attempts can not be negative")
-    elif UserSectionType.TEACHER not in SectionRelations(class_id).active:
+    elif UserSectionType.TEACHER not in SectionRelations(section_id).active:
         return jsonify(error="User doesn't teach this class")
     elif len(question_list) == 0:
         return jsonify(error="Can't submit a test with zero questions")
@@ -54,7 +54,7 @@ def save_test(
         if current_question is None:
             return jsonify(error="Question Not Found")
         total += current_question.total
-    test = Test(class_id, name, False, open_time, deadline, timer, attempts, str(question_list), str(seed_list), total)
+    test = Test(section_id, name, False, open_time, deadline, timer, attempts, str(question_list), str(seed_list), total)
     db.session.add(test)
     db.session.commit()
     return jsonify(testID=test.TEST)

@@ -40,6 +40,10 @@ export function passwordReset(token: string, password: string, success: cb<{}>, 
     _request('POST', `/passwordReset/${token}`, success, failure, {password});
 }
 
+export function completeSetup(token: string, password: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/completeSetup', success, failure, {token, password});
+}
+
 export function changeColor(color: number, success: cb<{}>, failure: cb) {
     _request('POST', '/changeColor', success, failure, {color});
 }

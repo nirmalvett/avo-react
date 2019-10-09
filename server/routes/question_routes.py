@@ -3,7 +3,7 @@ from flask_login import current_user
 from server.MathCode.question import AvoQuestion
 
 from server.decorators import login_required, teacher_only, admin_only, validate
-from server.auth import able_edit_set
+from server.auth import able_edit_set, able_edit_course
 from server.helpers import question_has_errors
 from server.models import db, Question, QuestionSet, UserCourse, Concept, ConceptQuestion
 
@@ -37,18 +37,18 @@ def get_sets():
         for q in questions:
             # For each question append the data
             question_list.append({
-                'id': q.QUESTION,
+                'questionID': q.QUESTION,
                 'name': q.name,
                 'string': q.string,
                 'total': q.total,
                 'answers': q.answers,
                 'category': q.category,
-                'tags': list(map(lambda x: x.CONCEPT, filter(lambda y: y.QUESTION == q.QUESTION, tag_questions)))
+                'concepts': list(map(lambda x: x.CONCEPT, filter(lambda y: y.QUESTION == q.QUESTION, tag_questions)))
             })
         set_list.append({
-            'id': s.QUESTION_SET,
+            'setID': s.QUESTION_SET,
             'name': s.name,
-            'can_edit': able_edit_set(s.QUESTION_SET),
+            'canEdit': able_edit_set(s.QUESTION_SET),
             'questions': question_list
         })
     return jsonify(sets=set_list)
@@ -82,13 +82,15 @@ def get_all_questions():
 
 @QuestionRoutes.route('/newSet', methods=['POST'])
 @teacher_only
-@validate(name=str)
-def create_set(name: str):
+@validate(courseID=int, name=str)
+def create_set(course_id: int, name: str):
     """
     Creates a new set
     :return: validation that the set has been added
     """
-    new_set = QuestionSet(1, name)  # todo
+    if not able_edit_course(course_id):
+        return jsonify(error="user not allowed to edit course")
+    new_set = QuestionSet(course_id, name)
     db.session.add(new_set)
     db.session.commit()
     return jsonify(setID=new_set.QUESTION_SET)
@@ -103,10 +105,8 @@ def rename_set(set_id: int, name: str):
     :return: validation that the set has been updated
     """
     if not able_edit_set(set_id):
-        # if the user isn't able to edit this set return an error JSON
         return jsonify(error="User not able to modify this data")
-    new_set = QuestionSet.query.get(set_id)  # Set to be updated
-    new_set.name = name
+    QuestionSet.query.get(set_id).name = name
     db.session.commit()
     return jsonify({})
 
@@ -119,8 +119,9 @@ def delete_set(set_id: int):
     Deletes a set
     :return: validation that the set has been Deleted
     """
-    _set = QuestionSet.query.get(set_id)
-    _set.COURSE = None
+    if not able_edit_set(set_id):
+        return jsonify(error="User not able to modify this data")
+    QuestionSet.query.get(set_id).COURSE = None
     db.session.commit()
     return jsonify({})
 
@@ -137,11 +138,9 @@ def new_question(set_id: int, name: str, string: str, answers: int, total: int):
     :return: ID of new question
     """
     if not able_edit_set(set_id):
-        # If the user is not allowed to edit the set return error json
         return jsonify(error="User not able to edit Set")
     if question_has_errors(string):
         return jsonify(error="Question Failed to build")
-    # Add Question to database
     question = Question(set_id, name, string, answers, total)
     db.session.add(question)
     db.session.commit()
@@ -177,7 +176,6 @@ def edit_question(question_id: int, string: str, answers: int, total: int):
         return jsonify(error="User not able to edit SET")
     if question_has_errors(string):
         return jsonify(error="Question could not be created")
-    # Update data for database
     question.string = string
     question.answers = answers
     question.total = total
@@ -206,17 +204,16 @@ def delete_question(question_id: int):
 
 @QuestionRoutes.route('/getQuestion', methods=['POST'])
 @login_required
-@validate(question=int, seed=int)
-def get_question(question: int, seed: int):
+@validate(questionID=int, seed=int)
+def get_question(question_id: int, seed: int):
     """
     Get question data for client
     :return: Question data
     """
-    current_question = Question.query.get(question)  # Get question from database
-    if current_question is None:
-        # If the question isn't found return error json if not return to client
+    question = Question.query.get(question_id)  # Get question from database
+    if question is None:
         return jsonify(error='No question found')
-    q = AvoQuestion(current_question.string, seed)
+    q = AvoQuestion(question.string, seed)
     return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
 
 

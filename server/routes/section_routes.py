@@ -28,6 +28,7 @@ def add_to_whitelist(section_id: int, uwo_users: list):
     Adds a list of users to a section's whitelist for enrolment
     :return: Confirmation that the users were added to the whitelist
     """
+    # todo: security
     for uwo_user in uwo_users:
         user_email = uwo_user + '@uwo.ca'
         user = User.query.filter((User.email == user_email)).first()
@@ -65,13 +66,13 @@ def get_section_whitelist(section_id):
 
 @SectionRoutes.route('/createSection', methods=['POST'])
 @teacher_only
-@validate(name=str)
-def create_section(name: str):
+@validate(courseID=int, name=str)
+def create_section(course_id: int, name: str):
     """
     Creates a section with the current user as the teacher
     :return: Confirmation that the section was created
     """
-    s = Section(1, name, True, 0)  # todo
+    s = Section(course_id, name, True, 0)
     db.session.add(s)
     db.session.flush()
     db.session.add(UserSection(current_user.USER, s.SECTION, UserSectionType.TEACHER, None, None))
@@ -83,37 +84,35 @@ def create_section(name: str):
 @login_required
 def home():
     sections: List[Section] = Section.query.filter(
-        (current_user.USER == UserSection.USER) & (Section.SECTION == UserSection.SECTION)
+        (current_user.USER == UserSection.USER) & (UserSection.SECTION == Section.SECTION)
     ).all()
-    return_messages = []
-    return_due_dates = []
+    messages: List[Message] = Message.query.filter(
+        (current_user.USER == UserSection.USER) & (UserSection.SECTION == Message.SECTION)
+    ).all()
+    tests: List[Test] = Test.query.filter(
+        (current_user.USER == UserSection.USER) & (UserSection.SECTION == Test.SECTION)
+    ).all()
 
-    for s in sections:
-        return_section = {'id': s.SECTION, 'name': s.name}
-
-        messages = Message.query.filter(s.SECTION == Message.SECTION).all()
-        messages = list(map(lambda message: {
-            'title': message.title,
-            'body': message.body,
-            'date': timestamp(message.date_created)
-        }, messages))
-        return_messages.append({
-            'class': return_section,
-            'messages': messages,
+    return_sections = []
+    for section in sections:
+        return_messages = list(map(lambda x: {
+            'user': x.USER_RELATION.email,
+            'header': x.header,
+            'body': x.body,
+            'timestamp': timestamp(x.timestamp),
+        }, filter(lambda x: x.SECTION == section.SECTION, messages)))
+        return_tests = list(map(lambda x: {
+            'name': x.name,
+            'deadline': timestamp(x.deadline),
+        }, filter(lambda x: x.SECTION == section.SECTION, tests)))
+        return_sections.append({
+            'sectionID': section.SECTION,
+            'name': section.name,
+            'messages': return_messages,
+            'tests': return_tests
         })
 
-        tests = Test.query.filter((s.SECTION == Test.SECTION) & (Test.is_open == 1)).all()
-        tests = list(map(lambda due_date: {
-            'name': due_date.name,
-            'dueDate': timestamp(due_date.deadline),
-            'id': due_date.TEST
-        }, tests))
-        return_due_dates.append({
-            'class': return_section,
-            'dueDates': tests,
-        })
-
-    return jsonify(messages=return_messages, dueDates=return_due_dates)
+    return jsonify(sections=return_sections)
 
 
 @SectionRoutes.route('/getSections')
@@ -212,7 +211,7 @@ def get_sections():
         sections[s]['tests'] = list(sections[s]['tests'].values())
 
     sections = list(sections.values())
-    return jsonify(classes=sections)
+    return jsonify(sections=sections)
 
 
 @SectionRoutes.route('/getSectionTestResults', methods=['POST'])
@@ -429,7 +428,6 @@ def get_messages(section_id: int):
     messages: List[Message] = Message.query.filter(Message.SECTION == section_id).all()
     result = list(map(lambda m: {
         'messageID': m.MESSAGE,
-        'sectionID': m.SECTION,
         'header': m.header,
         'body': m.body,
         'timestamp': timestamp(m.timestamp)
@@ -439,7 +437,7 @@ def get_messages(section_id: int):
 
 @SectionRoutes.route('/addMessage', methods=['POST'])
 @teacher_only
-@validate(sectionID=int, title=str, body=str)
+@validate(sectionID=int, header=str, body=str)
 def add_message(section_id: int, header: str, body: str):
     """
     Add message to the section
@@ -454,8 +452,8 @@ def add_message(section_id: int, header: str, body: str):
 
 @SectionRoutes.route("/editMessage", methods=['POST'])
 @teacher_only
-@validate(messageID=int, title=str, body=str)
-def edit_message(message_id: int, title: str, body: str):
+@validate(messageID=int, header=str, body=str)
+def edit_message(message_id: int, header: str, body: str):
     """
     Edit an already existing message
     :return: Confirmation that the message has been changed
@@ -465,7 +463,7 @@ def edit_message(message_id: int, title: str, body: str):
         return jsonify(error="No Message was found")
     if UserSectionType.TEACHER not in SectionRelations(message.SECTION).active:
         return jsonify(error="User does not teach section")
-    message.title = title
+    message.header = header
     message.body = body
     message.timestamp = datetime.now()
     db.session.commit()
@@ -477,7 +475,7 @@ def edit_message(message_id: int, title: str, body: str):
 @validate(messageID=int)
 def delete_message(message_id: int):
     current_message = Message.query.get(message_id)
-    if message_id is None:
+    if current_message is None:
         return jsonify(error="Message not found")
     if UserSectionType.TEACHER not in SectionRelations(current_message.SECTION).active:
         return jsonify(error="User does not teach section")

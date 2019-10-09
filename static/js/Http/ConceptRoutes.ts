@@ -51,3 +51,17 @@ interface GetConceptGraph {
 export function getConceptGraph(courseID: number, success: cb<GetConceptGraph>, failure: cb) {
     _request('POST', '/getConceptGraph', success, failure, {courseID});
 }
+
+export interface GetNextLessons {
+    concepts: {
+        conceptID: number
+        name: string
+        lesson: string
+        strength: number
+        prereqs: {name: string, conceptID: number}[]
+    }[];
+}
+
+export function getNextLessons(courseID: number, success: cb<GetNextLessons>, failure: cb) {
+    _request('POST', '/getNextLessons', success, failure, {courseID});
+}

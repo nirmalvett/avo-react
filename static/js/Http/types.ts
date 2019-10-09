@@ -1,16 +1,16 @@
 export interface AvoSet {
-    id: number;
+    setID: number;
     name: string;
-    can_edit: boolean;
+    canEdit: boolean;
     questions: AvoQuestion[];
 }
 
 export interface AvoQuestion {
-    id: number;
+    questionID: number;
     name: string;
     string: string;
     total: number;
     answers: number;
     category: number;
-    tags: number[];
+    concepts: number[];
 }
