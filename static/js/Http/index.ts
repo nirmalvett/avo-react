@@ -3,3 +3,4 @@ export * from './QuestionRoutes';
 export * from './TagRoutes';
 export * from './TestRoutes';
 export * from './UserRoutes';
+export * from './ConceptRoutes';

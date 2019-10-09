@@ -2,32 +2,35 @@ import React, {Component} from 'react';
 import Card from '@material-ui/core/Card';
 import Button from '@material-ui/core/Button';
 import TreeView from './TreeView';
-import FolderView from './FolderView';
 import Select from '@material-ui/core/Select';
 import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import * as Http from '../../Http';
+import {getMathJax} from '../../HelperFunctions/Utilities';
+import {uniqueKey} from '../../HelperFunctions/Helpers';
 import {Class} from '../../Models';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ExpandMore from '@material-ui/icons/ExpandMore';
-import AVOPopover from '../../SharedComponents/AVOPopover';
+import debounce from '../../SharedComponents/AVODebouncer';
 import Modal from '@material-ui/core/Modal';
+import AVOPopupMenu from '../../SharedComponents/AVOPopupMenu';
 import {
-    Edit, Info, Add, Fullscreen, Save, Close
+    Edit, Add, Fullscreen, Save, Close 
 } from '@material-ui/icons';
 import {
     FormControl,
     IconButton,
     Input,
     InputAdornment,
-    InputLabel,
+    TextField,
+    Fab,
+    Fade,
     Paper,
     Typography
 } from '@material-ui/core';
@@ -72,6 +75,9 @@ interface TagViewState {
 
     editingTagName: boolean;
     tagName: string;
+
+    lessonText: string;
+    isEditingLesson: boolean;
 
     showParentNodes: boolean;
     showChildNodes: boolean;
@@ -162,8 +168,12 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             showChildNodes: false,
             tagName: '',
 
+            lessonText: '',
+            isEditingLesson: false,
+
             concepts: [],
             edges: [],
+
 
             showModal: false,
             modalNode: {} as WeightedConcept,
@@ -178,6 +188,14 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
 
     render() {
         const { showChildNodes, showParentNodes } = this.state;
+        const lessonChangeDebouncer = debounce({
+            callback : (e : any) => {
+                console.log('I was called woot', e.target.value);
+                this.setState({ lessonText : e.target.value });
+            },
+            wait : 1000,
+            immediate : false
+        });
         return (
             <div
                 style={{
@@ -188,7 +206,47 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                 }}
             >
                 {this.state.loadingClasses && <div className='avo-loading-icon'></div>}
-                {!this.state.loadingClasses && (
+                {this.state.isEditingLesson && (
+                    <Fade in={this.state.isEditingLesson}>
+                        <Card
+                            style={{
+                                width: '100%',
+                                margin: 0,
+                                padding: 0,
+                                flex: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <IconButton onClick={() => this.setState({ isEditingLesson : false }) } aria-label="add" style={{ position : 'absolute', bottom : '24px', right : '24px' }}>
+                                <Save/>
+                            </IconButton>
+                            <Grid container spacing={8} style={{ height : '60vh', position : 'relative' }}>
+                                <Grid item md={6}>
+                                    <TextField
+                                        label="Lesson Content"
+                                        margin="dense"
+                                        variant="outlined"
+                                        multiline
+                                        defaultValue={this.state.lessonText}
+                                        onChange={(e: any) => { e.persist(); console.log(e); lessonChangeDebouncer(e); }}
+                                        style={{ height : '-webkit-fill-available', width : '-webkit-fill-available' }}
+                                        rowsMax="12"
+                                    />
+                                </Grid>
+                                <Grid item md={6}>
+                                        {getMathJax(
+                                            this.state.lessonText,
+                                            'body2',
+                                            `Lesson_latex_viwe`,
+                                        )}
+                                </Grid>
+                            </Grid>
+                        </Card>
+                    </Fade>
+                )}
+                {(!this.state.loadingClasses && !this.state.isEditingLesson) && (
                     <Card
                         style={{
                             width: '100%',
@@ -205,10 +263,13 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                 {this.state.nodesLoaded && <TreeView ref={this.chartRef} theme={this.props.theme} concepts={this.state.concepts} edges={this.state.edges} setTagIndex={this.setTagIndex.bind(this)}/> }
                             </Grid>
                             <Grid item md={4}>
-                                <div style={{display: 'flex', flexDirection: 'row', position: 'relative' }}>
-                                    <IconButton style={{ position : 'absolute', top : '9px', right : '9px' }}>
+                                <div style={{display: 'flex', flexDirection: 'row', position: 'relative', height: '-webkit-fill-available' }}>
+                                    <Fab color="primary" aria-label="add" style={{ position : 'absolute', bottom : '9px', right : '9px' }}>
                                         <Save/>
-                                    </IconButton>
+                                    </Fab>
+                                    <div style={{ position : 'absolute', top : '9px', right : '9px' }}>
+                                        <AVOPopupMenu options={[ { label : 'Edit Lesson', onClick : () => { this.setState({ isEditingLesson : true }); } } ]}/>
+                                    </div>
                                     <div style={{ width: '-webkit-fill-available', marginTop : '9px' }}>
                                         <Select
                                             value={this.state.selectedClassName}
@@ -335,7 +396,9 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             <Close/>
                         </IconButton>
                         <Typography variant={'h5'} id="modal-title">
-                            Weight of relationship between: {this.state.selectedConcept.name} and {this.state.modalNode.name}
+                            Weight of relationship between: 
+                            <br/>
+                            {this.state.selectedConcept.name} and {this.state.modalNode.name}
                         </Typography>
                         <br/>
                         <Typography variant={'body1'} id="modal-description">
@@ -419,7 +482,8 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         const selectedConcept = this.state.concepts[index];
         this.setState({ 
             selectedConcept : selectedConcept,
-            tagName         : selectedConcept.name
+            tagName         : selectedConcept.name,
+            lessonText      : selectedConcept.lesson
         });
     };
 
