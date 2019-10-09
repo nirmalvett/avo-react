@@ -1,5 +1,7 @@
 from server.routes.concept_routes import ConceptRoutes
+from server.routes.course_routes import CourseRoutes
 from server.routes.file_routes import FileRoutes
+from server.routes.mastery_routes import MasteryRoutes
 from server.routes.question_routes import QuestionRoutes
 from server.routes.section_routes import SectionRoutes
 from server.routes.server_routes import ServerRoutes

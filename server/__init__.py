@@ -2,7 +2,8 @@ from flask import Flask
 from flask_compress import Compress
 from server.auth import login_manager
 from server.models import db
-from server.routes import FileRoutes, QuestionRoutes, SectionRoutes, ServerRoutes, TestRoutes, UserRoutes, ConceptRoutes
+from server.routes import ConceptRoutes, CourseRoutes, FileRoutes, MasteryRoutes, QuestionRoutes, SectionRoutes,\
+    ServerRoutes, TestRoutes, UserRoutes
 import paypalrestsdk
 import config
 # from flask_cors import CORS
@@ -23,7 +24,9 @@ db.init_app(app)
 
 # Attach the database blueprints
 app.register_blueprint(ConceptRoutes)
+app.register_blueprint(CourseRoutes)
 app.register_blueprint(FileRoutes)
+app.register_blueprint(MasteryRoutes)
 app.register_blueprint(QuestionRoutes)
 app.register_blueprint(SectionRoutes)
 app.register_blueprint(ServerRoutes)
