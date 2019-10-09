@@ -5,10 +5,10 @@ from server.auth import able_edit_course, able_view_course, able_edit_concept
 from server.decorators import teacher_only, validate
 from server.models import db, Concept, ConceptQuestion, ConceptRelation, Course, Mastery, MasteryHistory, UserCourse
 
-TagRoutes = Blueprint('TagRoutes', __name__)
+ConceptRoutes = Blueprint('ConceptRoutes', __name__)
 
 
-@TagRoutes.route("/addConcept", methods=['POST'])
+@ConceptRoutes.route("/addConcept", methods=['POST'])
 @teacher_only
 @validate(courseID=int, name=str, lesson=str)
 def add_concept(course_id: int, name: str, lesson: str):
@@ -30,7 +30,7 @@ def add_concept(course_id: int, name: str, lesson: str):
                    name=new_concept.name, lesson=new_concept.lesson_content)
 
 
-@TagRoutes.route("/editConcept", methods=['POST'])
+@ConceptRoutes.route("/editConcept", methods=['POST'])
 @teacher_only
 @validate(conceptID=int, name=str, lesson=str)
 def edit_concept(concept_id: int, name: str, lesson: str):
@@ -55,7 +55,7 @@ def edit_concept(concept_id: int, name: str, lesson: str):
     return jsonify({})
 
 
-@TagRoutes.route("/deleteConcept", methods=['POST'])
+@ConceptRoutes.route("/deleteConcept", methods=['POST'])
 @teacher_only
 @validate(conceptID=int)
 def delete_concept(concept_id: int):
@@ -96,7 +96,7 @@ def delete_concept(concept_id: int):
     return jsonify({})
 
 
-@TagRoutes.route("/addConceptRelation", methods=['POST'])
+@ConceptRoutes.route("/addConceptRelation", methods=['POST'])
 @teacher_only
 @validate(parentID=int, childID=int, weight=int)
 def add_concept_relation(parent_id: int, child_id: int, weight: int):
@@ -116,7 +116,7 @@ def add_concept_relation(parent_id: int, child_id: int, weight: int):
     return jsonify({})
 
 
-@TagRoutes.route("/editConceptRelation", methods=['POST'])
+@ConceptRoutes.route("/editConceptRelation", methods=['POST'])
 @teacher_only
 @validate(relationID=int, weight=int)
 def edit_concept_relation(relation_id: int, weight: int):
@@ -130,7 +130,7 @@ def edit_concept_relation(relation_id: int, weight: int):
     return jsonify({})
 
 
-@TagRoutes.route("/deleteConceptRelation", methods=['POST'])
+@ConceptRoutes.route("/deleteConceptRelation", methods=['POST'])
 @teacher_only
 @validate(relationID=int)
 def delete_concept_relation(relation_id: int):
@@ -144,7 +144,7 @@ def delete_concept_relation(relation_id: int):
     return jsonify({})
 
 
-@TagRoutes.route("/getConceptGraph", methods=['POST'])
+@ConceptRoutes.route("/getConceptGraph", methods=['POST'])
 @teacher_only
 @validate(courseID=int)
 def get_concept_graph(course_id: int):
@@ -170,7 +170,7 @@ def get_concept_graph(course_id: int):
     return jsonify(concepts=concepts, edges=edges)
 
 
-@TagRoutes.route("/addConceptQuestion", methods=['POST'])
+@ConceptRoutes.route("/addConceptQuestion", methods=['POST'])
 @teacher_only
 @validate(conceptID=int, questionID=int, weight=int)
 def add_concept_question(concept_id: int, question_id: int, weight: int):
@@ -192,7 +192,7 @@ def add_concept_question(concept_id: int, question_id: int, weight: int):
     return jsonify({})
 
 
-@TagRoutes.route('/editConceptQuestion', methods=['POST'])
+@ConceptRoutes.route('/editConceptQuestion', methods=['POST'])
 @teacher_only
 @validate(conceptQuestionID=int, weight=int)
 def edit_concept_question(concept_question_id=int, weight=int):
@@ -217,7 +217,7 @@ def edit_concept_question(concept_question_id=int, weight=int):
     return jsonify({"message": "success"})
 
 
-@TagRoutes.route("/deleteConceptQuestion", methods=['POST'])
+@ConceptRoutes.route("/deleteConceptQuestion", methods=['POST'])
 @teacher_only
 @validate(conceptQuestionID=int)
 def delete_concept_question(concept_question_id: int):
@@ -239,7 +239,7 @@ def delete_concept_question(concept_question_id: int):
     return jsonify({})
 
 
-@TagRoutes.route("/getConcepts", methods=['POST'])
+@ConceptRoutes.route("/getConcepts", methods=['POST'])
 @teacher_only
 @validate(courseID=int)
 def get_concepts(course_id: int):
