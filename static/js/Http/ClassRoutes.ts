@@ -22,7 +22,7 @@ export function addStudentsToWhitelist(
 }
 
 export function createClass(name: string, success: cb<{}>, failure: cb) {
-    _request('POST', '/createClass', success, failure, {name});
+    _request('POST', '/createSection', success, failure, {name});
 }
 
 export interface Home {
@@ -92,7 +92,7 @@ export interface GetClasses_TestSubmitted {
 }
 
 export function getClasses(success: cb<GetClasses>, failure: cb) {
-    _request('GET', '/getClasses', success, failure);
+    _request('GET', '/getSections', success, failure);
 }
 
 export interface GetClassTestResults {
@@ -109,11 +109,11 @@ export interface GetClassTestResults {
 }
 
 export function getClassTestResults(testID: number, success: cb<GetClassTestResults>, failure: cb) {
-    _request('POST', '/getClassTestResults', success, failure, {testID});
+    _request('POST', '/getSectionTestResults', success, failure, {testID});
 }
 
 export function CSVDownload(classId: number, success: cb<{}>, failure: cb) {
-    _request('GET', `/CSV/ClassMarks/${classId}`, success, failure);
+    _request('GET', `/CSV/SectionMarks/${classId}`, success, failure);
 }
 
 export type Enroll =
@@ -185,5 +185,5 @@ export interface GetClassData {
 }
 
 export function getClassData(classID: number, success: cb<GetClassData>, failure: cb) {
-    _request('POST', '/getClassData', success, failure, {classID});
+    _request('POST', '/getSectionData', success, failure, {classID});
 }
