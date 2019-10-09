@@ -3,7 +3,7 @@ from flask_login import current_user
 
 from server.auth import able_edit_course, able_view_course, able_edit_concept
 from server.decorators import teacher_only, validate
-from server.models import db, Concept, ConceptQuestion, ConceptRelation, Course, Mastery, MasteryHistory, UserCourse
+from server.models import db, Concept, ConceptQuestion, ConceptRelation, Mastery, MasteryHistory, UserCourse
 
 ConceptRoutes = Blueprint('ConceptRoutes', __name__)
 
@@ -20,14 +20,11 @@ def add_concept(course_id: int, name: str, lesson: str):
     :return: Confirmation the concept was added into the database
     """
     if not able_edit_course(course_id):
-        # If the user is not able to edit the course return error JSON
         return jsonify(error="User does not have the ability to edit the course")
-    new_concept = Concept(course_id, name, lesson)  # THe concept to be added to the database and course
-    # Add concept to database and return
+    new_concept = Concept(course_id, name, lesson)
     db.session.add(new_concept)
     db.session.commit()
-    return jsonify(ID=new_concept.CONCEPT, course=new_concept.COURSE,
-                   name=new_concept.name, lesson=new_concept.lesson_content)
+    return jsonify(conceptID=new_concept.CONCEPT)
 
 
 @ConceptRoutes.route("/editConcept", methods=['POST'])
@@ -96,52 +93,70 @@ def delete_concept(concept_id: int):
     return jsonify({})
 
 
-@ConceptRoutes.route("/addConceptRelation", methods=['POST'])
+@ConceptRoutes.route("/setConceptRelation", methods=['POST'])
 @teacher_only
 @validate(parentID=int, childID=int, weight=int)
-def add_concept_relation(parent_id: int, child_id: int, weight: int):
-    user_course: UserCourse = UserCourse.query.filter(
-        (UserCourse.COURSE == Concept.COURSE) & (Concept.CONCEPT == parent_id) & (UserCourse.USER == current_user.USER)
-    ).first()
-    if not user_course.can_edit:
+def set_concept_relation(parent_id: int, child_id: int, weight: int):
+    if not able_edit_concept(parent_id):
         return jsonify(error="No permission to edit course")
-    concept_relation = ConceptRelation.query.filter(
+    concept_relation: ConceptRelation = ConceptRelation.query.filter(
         (ConceptRelation.PARENT == parent_id) &
         (ConceptRelation.CHILD == child_id)
     ).first()
-    if concept_relation is not None:
-        return jsonify(error="Concept relation already exists")
-    db.session.add(ConceptRelation(parent_id, child_id, weight))
-    db.session.commit()
-    return jsonify({})
+    if weight != 0:  # if the relation should exist
+        if concept_relation is None:  # if it doesn't currently exist
+            db.session.add(ConceptRelation(parent_id, child_id, weight))
+            db.session.commit()
+            return jsonify(message='created relation')
+        elif weight != concept_relation.weight:  # if it exists, and needs to be changed
+            concept_relation.weight = weight
+            db.session.commit()
+            return jsonify(message='updated relation')
+    elif concept_relation is not None:  # if it shouldn't exist, but it currently does
+        db.session.delete(concept_relation)
+        db.session.commit()
+        return jsonify(message='removed relation')
+    return jsonify(message='no changes made')
 
 
-@ConceptRoutes.route("/editConceptRelation", methods=['POST'])
+@ConceptRoutes.route("/setConceptQuestion", methods=['POST'])
 @teacher_only
-@validate(relationID=int, weight=int)
-def edit_concept_relation(relation_id: int, weight: int):
-    relation: ConceptRelation = ConceptRelation.query.filter(ConceptRelation.CONCEPT_RELATION == relation_id).first()
-    if relation is None:
-        return jsonify(error="Relation not found")
-    if not able_edit_concept(relation.CONCEPT_CHILD_RELATION):
+@validate(conceptID=int, questionID=int, weight=int)
+def add_concept_question(concept_id: int, question_id: int, weight: int):
+    if not able_edit_concept(concept_id):
         return jsonify(error="No permission to edit course")
-    relation.weight = weight
-    db.session.commit()
-    return jsonify({})
+    concept_question: ConceptQuestion = ConceptQuestion.query.filter(
+        (ConceptQuestion.CONCEPT == concept_id) &
+        (ConceptQuestion.QUESTION == question_id)
+    ).first()
+    if weight != 0:  # if the relation should exist
+        if concept_question is None:  # if it doesn't currently exist
+            db.session.add(ConceptQuestion(concept_id, question_id, weight))
+            db.session.commit()
+            return jsonify(message='created relation')
+        elif weight != concept_question.weight:  # if it exists, and needs to be changed
+            concept_question.weight = weight
+            db.session.commit()
+            return jsonify(message='updated relation')
+    elif concept_question is not None:  # if it shouldn't exist, but it currently does
+        db.session.delete(concept_question)
+        db.session.commit()
+        return jsonify(message='removed relation')
+    return jsonify(message='no changes made')
 
 
-@ConceptRoutes.route("/deleteConceptRelation", methods=['POST'])
+@ConceptRoutes.route("/getConcepts", methods=['POST'])
 @teacher_only
-@validate(relationID=int)
-def delete_concept_relation(relation_id: int):
-    relation: ConceptRelation = ConceptRelation.query.filter(ConceptRelation.CONCEPT_RELATION == relation_id).first()
-    if relation is None:
-        return jsonify(error="Relation not found")
-    if not able_edit_concept(relation.CONCEPT_CHILD_RELATION):
-        return jsonify(error="No permission to edit course")
-    db.session.delete(relation)
-    db.session.commit()
-    return jsonify({})
+@validate(courseID=int)
+def get_concepts(course_id: int):
+    user_course = UserCourse.query.filter(
+        (UserCourse.COURSE == course_id) &
+        (UserCourse.USER == current_user.USER)
+    ).first()
+    if user_course is None:
+        return jsonify(error="User is not in the course")
+    concepts = Concept.query.filter(Concept.COURSE == course_id).all()
+    return jsonify({"concepts": [{"conceptID": concept.CONCEPT, "name": concept.name} for concept in concepts]})
 
 
 @ConceptRoutes.route("/getConceptGraph", methods=['POST'])
@@ -168,86 +183,3 @@ def get_concept_graph(course_id: int):
     # For each edge add it to the return list
     edges = [{"parent": edge.PARENT, "child": edge.CHILD, "weight": edge.weight} for edge in edge_list]
     return jsonify(concepts=concepts, edges=edges)
-
-
-@ConceptRoutes.route("/addConceptQuestion", methods=['POST'])
-@teacher_only
-@validate(conceptID=int, questionID=int, weight=int)
-def add_concept_question(concept_id: int, question_id: int, weight: int):
-    user_course: UserCourse = UserCourse.query.filter(
-        (UserCourse.COURSE == Concept.COURSE) &
-        (Concept.CONCEPT == concept_id) &
-        (UserCourse.USER == current_user.USER)
-    ).first()
-    if not user_course.can_edit:
-        return jsonify(error="No permission to edit course")
-    concept: ConceptQuestion = ConceptQuestion.query.filter(
-        (ConceptQuestion.CONCEPT == concept_id) &
-        (ConceptQuestion.QUESTION == question_id)
-    ).first()
-    if concept is not None:
-        return jsonify(error="Concept Question already exists")
-    db.session.add(ConceptQuestion(concept_id, question_id, weight))
-    db.session.commit()
-    return jsonify({})
-
-
-@ConceptRoutes.route('/editConceptQuestion', methods=['POST'])
-@teacher_only
-@validate(conceptQuestionID=int, weight=int)
-def edit_concept_question(concept_question_id=int, weight=int):
-    course = ConceptQuestion.query.join(Concept).join(Course).filter(
-        ConceptQuestion.CONCEPT_QUESTION == concept_question_id).first()
-    if course is None:
-        return jsonify(error="Could not find concept question")
-
-    user_course = UserCourse.query.filter((UserCourse.COURSE == course.CONCEPT_RELATION.COURSE_RELATION.COURSE) &
-                                          (UserCourse.USER == current_user.USER)).first()
-
-    if user_course is None:
-        return jsonify(error="Could not find user course")
-
-    if user_course.can_edit == 0:
-        return jsonify(error="User can't edit course")
-
-    course.weight = weight
-    db.session.add(course)
-    db.session.commit()
-
-    return jsonify({"message": "success"})
-
-
-@ConceptRoutes.route("/deleteConceptQuestion", methods=['POST'])
-@teacher_only
-@validate(conceptQuestionID=int)
-def delete_concept_question(concept_question_id: int):
-    """
-    Delete a concept question relation from the database
-    :param concept_question_id: The relation to remove
-    :return: Confirmation that the record has been removed
-    """
-    concept_question = ConceptQuestion.query.get(concept_question_id)  # Get the concept question relation
-    if concept_question is None:
-        # If there is no relation in the database return error JSON
-        return jsonify(error="Concept Not Found")
-    if not able_edit_course(concept_question.CONCEPT):
-        # If the user is not able to edit the course return error JSON
-        return jsonify(error="User does not have the ability to edit the course")
-    # Remove from database and return
-    db.session.delete(concept_question)
-    db.session.commit()
-    return jsonify({})
-
-
-@ConceptRoutes.route("/getConcepts", methods=['POST'])
-@teacher_only
-@validate(courseID=int)
-def get_concepts(course_id: int):
-    user_course = UserCourse.query.filter(
-        (UserCourse.COURSE == course_id) &
-        (UserCourse.USER == current_user.USER)
-    ).first()
-    if user_course is None:
-        return jsonify(error="User is not in the course")
-    concepts = Concept.query.filter(Concept.COURSE == course_id).all()
-    return jsonify({"concepts": [{"conceptID": concept.CONCEPT, "name": concept.name} for concept in concepts]})

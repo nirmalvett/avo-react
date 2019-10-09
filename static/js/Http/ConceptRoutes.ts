@@ -1,38 +1,53 @@
 import {_request, cb} from './baseRequest';
 
-interface Concept {
+interface AddConcept {
     conceptID: number;
-    name: string;
-    lesson: string;
-};
+}
 
-interface Edge {
-    child: number;
-    parent: number;
-    weight: number;
-};
+export function addConcept(courseID: number, name: string, lesson: string, success: cb<AddConcept>, failure: cb) {
+    _request('POST', '/addConcept', success, failure, {courseID, name, lesson});
+}
+
+export function editConcept(conceptID: number, name: string, lesson: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/editConcept', success, failure, {conceptID, name, lesson});
+}
+
+export function deleteConcept(conceptID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/deleteConcept', success, failure, {conceptID});
+}
+
+export function setConceptRelation(parentID: number, childID: number, weight: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/setConceptRelation', success, failure, {parentID, childID, weight});
+}
+
+export function setConceptQuestion(conceptID: number, questionID: number, weight: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/setConceptQuestion', success, failure, {conceptID, questionID, weight});
+}
+
+interface GetConcepts {
+    concepts: {
+        conceptID: number;
+        name: string;
+    }[];
+}
+
+export function getConcepts(courseID: number, success: cb<GetConcepts>, failure: cb) {
+    _request('POST', '/getConcepts', success, failure, {courseID});
+}
 
 interface GetConceptGraph {
-    concepts: Concept[];
-    edges: Edge[];
-};
+    concepts: {
+        conceptID: number;
+        name: string;
+        lesson: string;
+    }[];
+    edges: {
+        parent: number;
+        child: number;
+        weight: number;
+    }[];
+}
 
-export function getConceptGraph(class_id: number, success: cb<GetConceptGraph>, failure: cb) {
-    _request('POST', '/getConceptGraph', success, failure, {class_id});
-};
-
-export function getConcepts(class_id: number, success: cb, failure: cb) {
-    _request('POST', '/getConcepts', success, failure, {class_id});
-};
-
-export function addConceptRelation(relation: Edge, success: cb, failure: cb) {
-    _request('POST', '/addConceptRelation', success, failure, {...relation});
-};
-
-export function editConceptRelation(relationID: number, weight: number, success: cb, failure: cb) {
-    _request('POST', '/editConceptRelation', success, failure, {relationID : relationID , weight : weight});
-};
-
-export function deleteConceptRelation(relationID: Edge, success: cb, failure: cb) {
-    _request('POST', '/addConceptRelation', success, failure, {relationID});
-};
+export function getConceptGraph(courseID: number, success: cb<GetConceptGraph>, failure: cb) {
+    _request('POST', '/getConceptGraph', success, failure, {courseID});
+}
