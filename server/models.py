@@ -1,11 +1,11 @@
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from random import SystemRandom
-from string import ascii_letters, digits
 from server.PasswordHash import generate_salt, hash_password
 from datetime import datetime
 
 import json
+
+from server.helpers import random_key
 
 db = SQLAlchemy()
 
@@ -86,7 +86,6 @@ class Course(db.Model):
     name = db.Column(db.String(45), nullable=False)
 
     CONCEPT_RELATION = db.relationship('Concept', back_populates='COURSE_RELATION')
-    DISCOUNT_RELATION = db.relationship('Discount', back_populates='COURSE_RELATION')
     QUESTION_SET_RELATION = db.relationship('QuestionSet', back_populates='COURSE_RELATION')
     SECTION_RELATION = db.relationship('Section', back_populates='COURSE_RELATION')
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='COURSE_RELATION')
@@ -101,20 +100,30 @@ class Course(db.Model):
 class Discount(db.Model):
     __tablename__ = 'DISCOUNT'
 
-    DISCOUNT = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'), nullable=False)
+    DISCOUNT = db.Column(db.String(10), primary_key=True)
+    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'), nullable=False)
     price = db.Column(db.Float, nullable=False)
     single_use = db.Column(db.Boolean, nullable=False, default=False)
 
-    COURSE_RELATION = db.relationship('Course', back_populates='DISCOUNT_RELATION')
+    SECTION_RELATION = db.relationship('Section', back_populates='DISCOUNT_RELATION')
 
-    def __init__(self, course_id, price, single_use=False):
-        self.COURSE = course_id
+    def __init__(self, section_id, price, single_use=False):
+        self.DISCOUNT = Discount._generate_key()
+        self.SECTION = section_id
         self.price = price
         self.single_use = single_use
 
+    @staticmethod
+    def _generate_key():
+        key = random_key(10)
+        taken = Discount.query.get(key) is not None
+        while taken:
+            key = random_key(10)
+            taken = Discount.query.get(key) is not None
+        return key
+
     def __repr__(self):
-        return f'<Discount {self.DISCOUNT} {self.COURSE} {self.price} {self.single_use}>'
+        return f'<Discount {self.DISCOUNT} {self.SECTION} {self.price} {self.single_use}>'
 
 
 class Mastery(db.Model):
@@ -268,6 +277,7 @@ class Section(db.Model):
     price = db.Column(db.Float, nullable=False, default=0)
 
     COURSE_RELATION = db.relationship('Course', back_populates='SECTION_RELATION')
+    DISCOUNT_RELATION = db.relationship('Discount', back_populates='SECTION_RELATION')
     MESSAGE_RELATION = db.relationship('Message', back_populates='SECTION_RELATION')
     PAYMENT_RELATION = db.relationship('Payment', back_populates='SECTION_RELATION')
     TEST_RELATION = db.relationship('Test', back_populates='SECTION_RELATION')
@@ -276,15 +286,17 @@ class Section(db.Model):
     def __init__(self, course_id: int, name: str, enroll_key: bool, price: float = 0):
         self.COURSE = course_id
         self.name = name
-        if enroll_key:
-            self.enroll_key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
-            taken = bool(Section.query.filter(Section.enroll_key == self.enroll_key).all())
-            while taken:
-                self.enroll_key = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(10))
-                taken = bool(Section.query.filter(Section.enroll_key == self.enroll_key).all())
-        else:
-            self.enroll_key = None
+        self.enroll_key = Section._generate_key() if enroll_key else None
         self.price = price
+
+    @staticmethod
+    def _generate_key():
+        key = random_key(10)
+        taken = bool(Section.query.filter(Section.enroll_key == key).all())
+        while taken:
+            key = random_key(10)
+            taken = bool(Section.query.filter(Section.enroll_key == key).all())
+        return key
 
     def __repr__(self):
         return f'<Section {self.SECTION} {self.COURSE} {self.name} {self.enroll_key} {self.price}>'

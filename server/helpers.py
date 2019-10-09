@@ -1,4 +1,6 @@
 from datetime import datetime
+from random import SystemRandom
+from string import ascii_letters, digits
 
 from server.MathCode.question import AvoQuestion
 
@@ -30,3 +32,7 @@ def question_has_errors(string):
         return False
     except:
         return True
+
+
+def random_key(length):
+    return ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(length))
