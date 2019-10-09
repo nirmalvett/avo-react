@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from server.auth import get_url, send_email, SectionRelations
 from server.decorators import login_required, teacher_only, student_only, validate
 from server.helpers import timestamp
-from server.models import db, Message, Payment, Section, Takes, Test, User, UserSection, UserSectionType
+from server.models import db, Message, Payment, Section, Takes, Test, User, UserSection, UserSectionType, Discount
 from server import paypal
 
 SectionRoutes = Blueprint('SectionRoutes', __name__)
@@ -294,33 +294,34 @@ def enroll(key: str):
     Enroll the current user in a section
     :return: Confirmation
     """
-    section = Section.query.filter(Section.enroll_key == key).first()
-    if section is None:
-        return jsonify(error='Invalid enroll key')
+    discount = Discount.query.get(key)
+    if discount is None:
+        section = Section.query.filter(Section.enroll_key == key).first()
+        if section is None:
+            return jsonify(error='Invalid enroll key')
+        price = section.price
+    else:
+        section = Section.query.get(discount.SECTION)
+        price = discount.price
 
-    relations = UserSection.query.filter(
-        (UserSection.USER == current_user.USER) & (UserSection.SECTION == section.SECTION)
-    ).all()
-    now = datetime.now()
-    active_relations = list(filter(lambda x: x.expiry is None or x.expiry > now, relations))
-    relations = set(map(lambda x: x.user_type, relations))
+    relations = SectionRelations(section.SECTION)
 
-    if active_relations:
+    if relations.active:
         return jsonify(error='You already have access to this section')
 
-    if not relations and section.enroll_key is None:
+    if not relations.all and section.enroll_key is None:
         return jsonify(error="You are not on the section's whitelist")
 
-    if current_user.is_teacher or section.price == 0:
+    if current_user.is_teacher or price == 0:
         db.session.add(UserSection(current_user.USER, section.SECTION, UserSectionType.ENROLLED))
         db.session.commit()
         return jsonify(message='enrolled')
 
     return jsonify(
         sectionID=section.SECTION,
-        price=section.price,
-        tax=round(section.price * 0.13, 2),
-        totalPrice=round(section.price * 1.13, 2),
+        price=price,
+        tax=round(price * 0.13, 2),
+        totalPrice=round(price * 1.13, 2),
         freeTrial=UserSectionType.TRIAL not in relations
     )
 
