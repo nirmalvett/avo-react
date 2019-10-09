@@ -1,5 +1,14 @@
 import React, {Component, ReactElement} from 'react';
-import {Card, Grid, Icon, IconButton, Typography, Fade, Slider} from '@material-ui/core';
+import {
+    Card,
+    Grid,
+    Icon,
+    IconButton,
+    Typography,
+    Fade,
+    Slider,
+    withStyles,
+} from '@material-ui/core';
 import AVOLessonFSM from './AVOLessonFSM';
 import AVOMasteryGauge from './MasteryGauge';
 import AVOLearnTestComp from './AVOLearnTestComp';
@@ -94,6 +103,24 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                         />
                     )}
                 </AVOLessonFSM>
+                <AVOPageSlider
+                    color='primary'
+                    valueLabelDisplay='auto'
+                    aria-label='avo page slider'
+                    min={0}
+                    max={this.state.slides.length - 1}
+                    onChange={(_, value: number | number[]) =>
+                        this.setState({currentIndex: value as number})
+                    }
+                    value={this.state.currentIndex}
+                    valueLabelFormat={() =>
+                        formatLabel(
+                            this.state.currentIndex,
+                            3,
+                            this.state.slides[this.state.currentIndex].length,
+                        )
+                    }
+                />
             </Grid>
         );
     }
@@ -195,6 +222,10 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
         this.setState({currentIndex: currentIndex + 1});
     };
 
+    sliderChange = (value: number) => {
+        this.setState({currentIndex: value});
+    };
+
     processSlidesIntoGroups = (slides: AvoLesson[]) => {
         const output: AvoLesson[][] = [];
         let slideCounter = 0;
@@ -225,3 +256,52 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
         );
     };
 }
+
+// Takes in the current slide index and its length to determine the range for the slider to present
+function formatLabel(index: number, length: number, range: number): string {
+    if (range === 1) return `${index * length + 1}`;
+    return `${index * length + 1} - ${index * length + range}`;
+}
+
+function getLabelElement(index: number): React.ElementType {
+    // index + 1 + <slide group size>
+    // if (index + 4 < 10)
+    //     return <span />;
+    // return <span style={{fontSize: '0.8em'}}/>
+    return 'span';
+}
+
+const AVOPageSlider = withStyles({
+    root: {
+        height: 8,
+        width: '90%',
+        margin: 'auto',
+    },
+    thumb: {
+        height: 24,
+        width: 24,
+        backgroundColor: '#fff',
+        border: '2px solid currentColor',
+        marginTop: -8,
+        marginLeft: -12,
+        '&:focus,&:hover,&$active': {
+            boxShadow: 'inherit',
+        },
+    },
+    active: {},
+    valueLabel: {
+        left: 'calc(-50% + 0px)',
+        '& > span': {
+            height: 40,
+            width: 40,
+          },
+    },
+    track: {
+        height: 8,
+        borderRadius: 4,
+    },
+    rail: {
+        height: 8,
+        borderRadius: 4,
+    },
+})(Slider);
