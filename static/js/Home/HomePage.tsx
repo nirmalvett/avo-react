@@ -178,7 +178,9 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
                                 <Typography variant='subtitle2' color='textPrimary'>
                                     {dueDate.name +
                                         ' - ' +
-                                        moment(this.state.selectedDate).toDate().toDateString()}
+                                        moment(this.state.selectedDate)
+                                            .toDate()
+                                            .toDateString()}
                                 </Typography>
                             </div>
                         ))

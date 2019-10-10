@@ -117,10 +117,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
                         flexShrink: 0,
                     }}
                 >
-                    <FormControl
-                        style={{width: '600px'}}
-                        className='export-form-control'
-                    >
+                    <FormControl style={{width: '600px'}} className='export-form-control'>
                         <InputLabel htmlFor='export-form-control'>Course</InputLabel>
                         <Select
                             value={this.state.currentClassId}
@@ -134,10 +131,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
                             {this.getMenuItems()}
                         </Select>
                     </FormControl>
-                    <FormControl
-                        style={{width: '600px'}}
-                        className='fileType-control'
-                    >
+                    <FormControl style={{width: '600px'}} className='fileType-control'>
                         <InputLabel htmlFor='fileType-control'>File Type</InputLabel>
                         <Select
                             value={this.state.fileType}

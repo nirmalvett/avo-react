@@ -365,7 +365,12 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
         let question = set.questions[this.state.selectedQ as number];
         let name = prompt('Question name:', question.name);
         if (name !== '' && name !== null)
-            Http.renameQuestion(question.questionID, name, () => this.getSets(), result => alert(result));
+            Http.renameQuestion(
+                question.questionID,
+                name,
+                () => this.getSets(),
+                result => alert(result),
+            );
     }
 
     editQuestion() {

@@ -92,7 +92,10 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
     }
 
     componentDidMount() {
-        Http.getSections(({sections}) => this.loadTags(sections.map(x => x.sectionID)), console.warn);
+        Http.getSections(
+            ({sections}) => this.loadTags(sections.map(x => x.sectionID)),
+            console.warn,
+        );
     }
 
     loadTags(classIDs: number[]) {
@@ -725,7 +728,9 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
             () => {
                 const {s, q} = this.props;
                 const sets = this.getNewSets();
-                sets[s].questions[q].concepts = sets[s].questions[q].concepts.filter(x => x !== tag);
+                sets[s].questions[q].concepts = sets[s].questions[q].concepts.filter(
+                    x => x !== tag,
+                );
                 this.props.updateProps(this.props.s, this.props.q, sets);
             },
             console.warn,

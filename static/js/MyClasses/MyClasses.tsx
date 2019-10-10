@@ -480,9 +480,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                                 enrollErrorMessage: '',
                                                 joinClassPopperOpen: false,
                                             });
-                                            this.loadClasses(
-                                                'Successfully enrolled in the class!',
-                                            );
+                                            this.loadClasses('Successfully enrolled in the class!');
                                         })
                                         .catch(function() {
                                             alert('error');

@@ -4,8 +4,8 @@ import Logo from '../SharedComponents/Logo';
 import MultipleChoiceBuilder from './MultipleChoiceBuilder';
 import QuestionManager from '../CourseBuilder/QuestionBuilder/QuestionManager';
 import TrueFalseBuilder from './TrueFalseBuilder';
-import { AvoSet } from 'Http/types';
-import { ShowSnackBar } from 'Layout/Layout';
+import {AvoSet} from 'Http/types';
+import {ShowSnackBar} from 'Layout/Layout';
 
 interface QuestionBuilderHomeState {
     mode: 'home' | 'math' | 'multiple-choice' | 'true-false';
@@ -72,7 +72,7 @@ export class QuestionBuilderHome extends Component<
     renderHomeScreen() {
         return (
             <Grid container xs={12}>
-                <Grid item xs={3}/>
+                <Grid item xs={3} />
                 <Grid item xs={6}>
                     <Grow in={this.state.isActive}>
                         <Card
@@ -136,7 +136,7 @@ export class QuestionBuilderHome extends Component<
                         </Card>
                     </Grow>
                 </Grid>
-                <Grid item xs={3}/>
+                <Grid item xs={3} />
             </Grid>
         );
     }

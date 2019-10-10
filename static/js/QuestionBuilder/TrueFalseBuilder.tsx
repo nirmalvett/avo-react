@@ -203,7 +203,11 @@ export default class TrueFalseBuilder extends Component<
                             ) : (
                                 <span>
                                     <span style={{float: 'left'}}>
-                                    <Typography variant='h5' style={{fontWeight: 'bold'}} gutterBottom>
+                                        <Typography
+                                            variant='h5'
+                                            style={{fontWeight: 'bold'}}
+                                            gutterBottom
+                                        >
                                             {this.state.questionName}
                                         </Typography>
                                     </span>

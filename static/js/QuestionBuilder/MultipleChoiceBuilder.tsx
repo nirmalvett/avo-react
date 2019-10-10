@@ -217,7 +217,11 @@ export default class MultipleChoiceBuilder extends Component<
                             ) : (
                                 <span>
                                     <span style={{float: 'left'}}>
-                                        <Typography variant='h5' style={{fontWeight: 'bold'}} gutterBottom>
+                                        <Typography
+                                            variant='h5'
+                                            style={{fontWeight: 'bold'}}
+                                            gutterBottom
+                                        >
                                             {this.state.questionName}
                                         </Typography>
                                     </span>
@@ -293,7 +297,14 @@ export default class MultipleChoiceBuilder extends Component<
                                         return (
                                             <FormControlLabel
                                                 value={'' + index}
-                                                control={<Radio color='primary' onClick={() => this.setState({questionAnsr: index})}/>}
+                                                control={
+                                                    <Radio
+                                                        color='primary'
+                                                        onClick={() =>
+                                                            this.setState({questionAnsr: index})
+                                                        }
+                                                    />
+                                                }
                                                 label={
                                                     <span>
                                                         {this.state.questionEdit[index] ? (

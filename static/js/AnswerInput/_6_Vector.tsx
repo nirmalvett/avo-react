@@ -5,13 +5,13 @@ import {IconButton, TextField, Typography} from '@material-ui/core';
 import {Add, DeleteOutlined} from '@material-ui/icons';
 
 export class _6_Vector extends PureComponent<AnswerInputImplementationProps> {
-	getCells() {
-		const cells = this.props.value.split(',').map(x => x.trim());
-		if (cells.length < 2) {
-			cells.push('');
-		}
-		return cells;
-	}
+    getCells() {
+        const cells = this.props.value.split(',').map(x => x.trim());
+        if (cells.length < 2) {
+            cells.push('');
+        }
+        return cells;
+    }
 
     render() {
         const cells = this.getCells();

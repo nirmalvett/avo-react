@@ -25,7 +25,7 @@ import {
     MessageOutlined,
     AssignmentTurnedInOutlined,
     LibraryBooksOutlined,
-    ExtensionOutlined
+    ExtensionOutlined,
 } from '@material-ui/icons';
 import {Section} from './LayoutModels';
 const drawerWidth = 240;

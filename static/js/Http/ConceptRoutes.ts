@@ -4,11 +4,23 @@ interface AddConcept {
     conceptID: number;
 }
 
-export function addConcept(courseID: number, name: string, lesson: string, success: cb<AddConcept>, failure: cb) {
+export function addConcept(
+    courseID: number,
+    name: string,
+    lesson: string,
+    success: cb<AddConcept>,
+    failure: cb,
+) {
     _request('POST', '/addConcept', success, failure, {courseID, name, lesson});
 }
 
-export function editConcept(conceptID: number, name: string, lesson: string, success: cb<{}>, failure: cb) {
+export function editConcept(
+    conceptID: number,
+    name: string,
+    lesson: string,
+    success: cb<{}>,
+    failure: cb,
+) {
     _request('POST', '/editConcept', success, failure, {conceptID, name, lesson});
 }
 
@@ -16,11 +28,23 @@ export function deleteConcept(conceptID: number, success: cb<{}>, failure: cb) {
     _request('POST', '/deleteConcept', success, failure, {conceptID});
 }
 
-export function setConceptRelation(parentID: number, childID: number, weight: number, success: cb<{}>, failure: cb) {
+export function setConceptRelation(
+    parentID: number,
+    childID: number,
+    weight: number,
+    success: cb<{}>,
+    failure: cb,
+) {
     _request('POST', '/setConceptRelation', success, failure, {parentID, childID, weight});
 }
 
-export function setConceptQuestion(conceptID: number, questionID: number, weight: number, success: cb<{}>, failure: cb) {
+export function setConceptQuestion(
+    conceptID: number,
+    questionID: number,
+    weight: number,
+    success: cb<{}>,
+    failure: cb,
+) {
     _request('POST', '/setConceptQuestion', success, failure, {conceptID, questionID, weight});
 }
 
@@ -54,11 +78,11 @@ export function getConceptGraph(courseID: number, success: cb<GetConceptGraph>, 
 
 export interface GetNextLessons {
     concepts: {
-        conceptID: number
-        name: string
-        lesson: string
-        strength: number
-        prereqs: {name: string, conceptID: number}[]
+        conceptID: number;
+        name: string;
+        lesson: string;
+        strength: number;
+        prereqs: {name: string; conceptID: number}[];
     }[];
 }
 

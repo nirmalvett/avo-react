@@ -25,8 +25,8 @@ import AvoSnackBar from './AvoSnackBar';
 import Whitelist from '../Whitelist/Whitelist';
 import {Section} from './LayoutModels';
 import {AvoSet} from '../Http/types';
-import LessonBuilder from '../CourseBuilder/LessonBuilder/LessonBuilder'
-import {QuestionBuilderHome} from "../QuestionBuilder/QuestionBuilderHome";
+import LessonBuilder from '../CourseBuilder/LessonBuilder/LessonBuilder';
+import {QuestionBuilderHome} from '../QuestionBuilder/QuestionBuilderHome';
 const drawerWidth = 240;
 
 const styles = (theme: Theme) =>
@@ -168,7 +168,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name === 'Concept Builder') {
-            return <TagView theme={{theme: this.props.theme, color: this.color()}}/>;
+            return <TagView theme={{theme: this.props.theme, color: this.color()}} />;
         } else if (section.name === 'Create Test') {
             return (
                 <CreateTest
@@ -178,7 +178,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name === 'Documentation') {
-            return <QuestionBuilderDocs/>;
+            return <QuestionBuilderDocs />;
         } else if (section.name === 'Export Tools') {
             return <ExportTools color={this.color()} />;
         } else if (section.name === 'Home') {
@@ -192,7 +192,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
             );
             // return <HomePageOld showSnackBar={this.showSnackBar} />;
         } else if (section.name === 'Learn') {
-            return <AVOLearnComponent theme={{theme: this.props.theme, color: this.color()}}/>;
+            return <AVOLearnComponent theme={{theme: this.props.theme, color: this.color()}} />;
         } else if (section.name === 'Manage Classes') {
             return (
                 <ManageClasses
@@ -206,7 +206,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
         } else if (section.name === 'Mark Editor') {
             return <MarkEditor showSnackBar={this.showSnackBar} takes={section.takesID} />;
         } else if (section.name === 'Mastery') {
-            return <MasteryHome theme={{theme: this.props.theme, color: this.color()}}/>;
+            return <MasteryHome theme={{theme: this.props.theme, color: this.color()}} />;
         } else if (section.name === 'My Classes') {
             return (
                 <MyClasses
@@ -253,9 +253,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name == 'Lesson Builder') {
-            return (
-                <LessonBuilder />
-            )
+            return <LessonBuilder />;
         }
     }
 

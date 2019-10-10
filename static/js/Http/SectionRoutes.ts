@@ -1,6 +1,11 @@
 import {_request, cb} from './baseRequest';
 
-export function addToWhitelist(sectionID: number, uwoUsers: string[], success: cb<{}>, failure: cb) {
+export function addToWhitelist(
+    sectionID: number,
+    uwoUsers: string[],
+    success: cb<{}>,
+    failure: cb,
+) {
     _request('POST', '/addToWhitelist', success, failure, {sectionID, uwoUsers});
 }
 
@@ -8,7 +13,11 @@ export interface GetSectionWhitelist {
     whitelist: string[];
 }
 
-export function getSectionWhitelist(sectionID: number, success: cb<GetSectionWhitelist>, failure: cb) {
+export function getSectionWhitelist(
+    sectionID: number,
+    success: cb<GetSectionWhitelist>,
+    failure: cb,
+) {
     _request('POST', '/getSectionWhitelist', success, failure, {sectionID});
 }
 
@@ -21,11 +30,11 @@ export interface Home {
         sectionID: number;
         name: string;
         messages: {
-            sectionID: number,
-            user: string,
-            header: string,
-            body: string,
-            timestamp: number,
+            sectionID: number;
+            user: string;
+            header: string;
+            body: string;
+            timestamp: number;
         }[];
         tests: {
             testID: number;
@@ -93,7 +102,11 @@ export interface GetSectionTestResults {
     }[];
 }
 
-export function getSectionTestResults(testID: number, success: cb<GetSectionTestResults>, failure: cb) {
+export function getSectionTestResults(
+    testID: number,
+    success: cb<GetSectionTestResults>,
+    failure: cb,
+) {
     _request('POST', '/getSectionTestResults', success, failure, {testID});
 }
 

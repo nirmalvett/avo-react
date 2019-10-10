@@ -74,7 +74,12 @@ export interface GetQuestion {
     types: string[];
 }
 
-export function getQuestion(questionID: number, seed: number, success: cb<GetQuestion>, failure: cb) {
+export function getQuestion(
+    questionID: number,
+    seed: number,
+    success: cb<GetQuestion>,
+    failure: cb,
+) {
     _request('POST', '/getQuestion', success, failure, {questionID, seed});
 }
 
