@@ -1,5 +1,29 @@
 import React, {Component, ReactElement} from 'react';
-
+const styles = {
+    modalBackdrop: {
+        position: 'fixed' as 'fixed',
+        top: 0,
+        bottom: 0,
+        right: 0,
+        left: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        zIndex: 900000,
+    },
+    modalBody: {
+        position: 'fixed' as 'fixed',
+        top: '3em',
+        bottom: '3em',
+        right: '20%',
+        left: '20%',
+        padding: '2em 3em',
+        backgroundColor: 'white',
+        overflow: 'auto',
+        zIndex: 900002,
+    },
+    modalClose: {
+        cursor: 'pointer',
+    },
+};
 export default class AVOLearnPostTestModel extends React.Component<
     {modalDisplay: 'block' | 'none'; hideModal: () => void},
     any
@@ -7,36 +31,10 @@ export default class AVOLearnPostTestModel extends React.Component<
     constructor(props: any) {
         super(props);
         this.state = {
-            styles: {
-                modalBackdrop: {
-                    position: 'fixed' as 'fixed',
-                    top: 0,
-                    bottom: 0,
-                    right: 0,
-                    left: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    zIndex: 900000,
-                },
-                modalBody: {
-                    position: 'fixed' as 'fixed',
-                    top: '3em',
-                    bottom: '3em',
-                    right: '20%',
-                    left: '20%',
-                    padding: '2em 3em',
-                    backgroundColor: 'white',
-                    overflow: 'auto',
-                    zIndex: 900002,
-                },
-                modalClose: {
-                    cursor: 'pointer',
-                },
-            },
             currentState: 'prereqs',
         };
     }
     render() {
-        const {styles} = this.state;
         return (
             <div>
                 <div
@@ -49,7 +47,10 @@ export default class AVOLearnPostTestModel extends React.Component<
                     <div style={styles.modalBackdrop}></div>
                     <div style={styles.modalBody}>
                         <button
-                            onClick={event => this.props.hideModal()}
+                            onClick={event => {
+                                this.props.hideModal();
+                                this.setState({currentState: 'prereqs'});
+                            }}
                             style={styles.modalClose}
                             id='close'
                         >
@@ -58,9 +59,12 @@ export default class AVOLearnPostTestModel extends React.Component<
                         {(this.state.currentState === 'prereqs' && (
                             <div>
                                 <h2>prereq survey</h2>
-                                <button onClick={() => {
-                                    this.setState({currentState: 'aptitude/mastery'})
-                                }} style={styles.modalClose}>
+                                <button
+                                    onClick={() => {
+                                        this.setState({currentState: 'aptitude/mastery'});
+                                    }}
+                                    style={styles.modalClose}
+                                >
                                     skip
                                 </button>
                             </div>
