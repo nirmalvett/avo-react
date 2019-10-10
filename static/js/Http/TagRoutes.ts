@@ -73,11 +73,21 @@ export interface GetLessons {
     }[];
 }
 
+export interface GetNextLessons {
+    concepts: {
+        conceptID: number
+        name: string
+        lesson: string
+        strength: number
+        prereqs: {name: string, conceptID: number}[]
+    }[];
+}
+
 export function getLessons(success: cb<GetLessons>, failure: cb) {
     _request('GET', '/getLessons', success, failure);
 }
 
-export function getNextLessons(courseID: number, success: cb<GetLessons>, failure: cb) {
+export function getNextLessons(courseID: number, success: cb<GetNextLessons>, failure: cb) {
     _request('POST', '/getNextLessons', success, failure, {courseID});
 }
 export interface GetLessonQuestionResult {

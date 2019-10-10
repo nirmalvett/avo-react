@@ -17,6 +17,7 @@ export interface AvoLesson {
     Tag: string;
     string: string;
     ID: number;
+    prereqs: {name: string; conceptID: number}[];
 }
 
 interface AVOLearnComponentProps {
@@ -234,8 +235,18 @@ export default class AVOLearnComponent extends Component<
                 const {otherView} = this.state;
                 console.log(otherView);
                 console.log(res);
+                const concepts = res.concepts;
+                const lessons = concepts.map(concept => {
+                    return {
+                        ID: concept.conceptID,
+                        Tag: concept.name,
+                        mastery: concept.strength,
+                        string: concept.lesson,
+                        prereqs: concept.prereqs,
+                    };
+                });
                 this.setState({
-                    lessons: res.lessons
+                    lessons: lessons
                         .map(x => ({...x, newMastery: x.mastery}))
                         .filter(lesson => {
                             if (otherView === 'Completed') {
@@ -244,7 +255,7 @@ export default class AVOLearnComponent extends Component<
                                 return lesson.mastery >= 0.85;
                             }
                         }),
-                    allLessons: res.lessons.map(x => ({...x, newMastery: x.mastery})),
+                    allLessons: lessons.map(x => ({...x, newMastery: x.mastery})),
                 });
             },
             () => {},
