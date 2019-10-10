@@ -703,9 +703,10 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
     }
 
     addTag = (tag: number) => {
-        Http.addTagQuestion(
-            this.savedQuestion().questionID,
+        Http.setConceptQuestion(
             tag,
+            this.savedQuestion().questionID,
+            4, // todo: this should be the highest allowable value
             () => {
                 const {s, q} = this.props;
                 const sets = this.getNewSets();
@@ -717,9 +718,10 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
     };
 
     removeTag = (tag: number) => {
-        Http.removeTagQuestion(
-            this.savedQuestion().questionID,
+        Http.setConceptQuestion(
             tag,
+            this.savedQuestion().questionID,
+            0,
             () => {
                 const {s, q} = this.props;
                 const sets = this.getNewSets();
