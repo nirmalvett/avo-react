@@ -1,9 +1,12 @@
+from typing import List
+
 from flask import Blueprint, jsonify
 from flask_login import current_user
 
 from server.auth import able_edit_course, able_view_course, able_edit_concept
-from server.decorators import teacher_only, validate
-from server.models import db, Concept, ConceptQuestion, ConceptRelation, Mastery, MasteryHistory, UserCourse
+from server.decorators import teacher_only, validate, login_required
+from server.models import db, Concept, ConceptQuestion, ConceptRelation, Mastery, MasteryHistory, UserCourse, Section, \
+    UserSection, User, Course
 
 ConceptRoutes = Blueprint('ConceptRoutes', __name__)
 
@@ -183,3 +186,54 @@ def get_concept_graph(course_id: int):
     # For each edge add it to the return list
     edges = [{"parent": edge.PARENT, "child": edge.CHILD, "weight": edge.weight} for edge in edge_list]
     return jsonify(concepts=concepts, edges=edges)
+
+
+@ConceptRoutes.route('/getNextLessons', methods=['POST'])
+@login_required
+@validate(courseID=int)
+def get_next_lessons(course_id: int):
+    has_access = bool(Course.query.filter(
+        (course_id == Section.COURSE) & (Section.SECTION == UserSection.SECTION) & (UserSection.USER == User.USER)
+    ).all())
+    if not has_access and not able_view_course(course_id):
+        return jsonify(error='403')
+
+    concepts: List[Concept] = Concept.query.filter(Concept.COURSE == course_id).all()
+    concept_dict = {}
+    for c in concepts:
+        concept_dict[c.CONCEPT] = {
+            'conceptID': c.CONCEPT,
+            'name': c.name,
+            'lesson': c.lesson,
+            'strength': 0,
+            'prereqs': []
+        }
+
+    concept_relations: List[ConceptRelation] = ConceptRelation.query.filter(
+        (ConceptRelation.CHILD == Concept.CONCEPT) & (Concept.COURSE == course_id)
+    ).all()
+    for r in concept_relations:
+        parent = concept_dict[r.PARENT]
+        concept_dict[r.CHILD]['prereqs'].append({
+            'conceptID': parent['conceptID'],
+            'name': parent['name']
+        })
+
+    mastery: List[Mastery] = Mastery.query.filter(
+        (current_user.USER == Mastery.USER) & (Mastery.CONCEPT == Concept.CONCEPT) & (Concept.COURSE == course_id)
+    ).all()
+    mastery_dict = {}  # mapping of concept IDs to Mastery objects
+    for m in mastery:
+        mastery_dict[m.CONCEPT] = m
+
+    lessons = []
+    for concept_id, concept_obj in concept_dict.items():
+        # todo: this criteria isn't good enough
+        if concept_id in mastery_dict and mastery_dict[concept_id] > 0.75:
+            continue
+        mastery_values = list(map(lambda x: mastery_dict[x['conceptID']], concept_obj['prereqs']))
+        if all(map(lambda x: x > 0.25, mastery_values)):
+            lessons.append(concept_obj)
+            concept_obj['strength'] = round(sum(mastery_values) / len(mastery_values), 2)
+
+    return jsonify(lessons=lessons)
