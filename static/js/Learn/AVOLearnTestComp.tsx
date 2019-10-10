@@ -96,7 +96,7 @@ export default class AVOLearnTestComp extends Component<
                                 onClick={() => this.setState({currentState: 'QUESTIONS'})}
                                 style={{float: 'right'}}
                             >
-                                Go to test
+                                Practice Concept
                             </Button>
                         </Grid>
                     </Grid>
