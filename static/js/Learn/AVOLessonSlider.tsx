@@ -250,17 +250,28 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
 
     openLessonFSM = (lesson: AvoLesson, LIndex: string) => {
         this.setState({isEndTest: false})
-        Http.getLessonData(
+        Http.getNextQuestion(
             lesson.ID,
             res => {
                 console.log(res);
-                this.setState({currentLesson: {...lesson, data: res}});
+                this.setState({currentLesson: {...lesson, data: {questions: res}}});
                 this.state.fsmRef.current.handleFSM(lesson, LIndex);
             },
             err => {
                 console.log(err);
             },
-        );
+        )
+        // Http.getLessonData(
+        //     lesson.ID,
+        //     res => {
+        //         console.log(res);
+        //         this.setState({currentLesson: {...lesson, data: res}});
+        //         this.state.fsmRef.current.handleFSM(lesson, LIndex);
+        //     },
+        //     err => {
+        //         console.log(err);
+        //     },
+        // );
     };
     setEndTest = () => {
         this.setState({isEndTest: true})

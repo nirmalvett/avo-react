@@ -85,7 +85,18 @@ export interface GetNextLessons {
         prereqs: {name: string; conceptID: number}[];
     }[];
 }
+export interface GetNextQuestion {
+    ID: number;
+    prompt: string;
+    prompts: string[];
+    seed: number;
+    types: string[];
+} 
+
 
 export function getNextLessons(courseID: number, success: cb<GetNextLessons>, failure: cb) {
     _request('POST', '/getNextLessons', success, failure, {courseID});
+}
+export function getNextQuestion(conceptID: number, success: cb<GetNextQuestion[]>, failure: cb) {
+    _request('POST', '/getNextQuestion', success, failure, {conceptID});
 }

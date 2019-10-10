@@ -492,23 +492,23 @@ export default class AVOLearnTestComp extends Component<
         console.log(answers);
         console.log(question);
         console.log(this.props.lesson);
-        Http.getLessonQuestionResult(
-            this.props.lesson.ID,
-            question.ID,
-            [answers[index]],
-            question.seed,
-            res => {
-                console.log(res);
-                const temp = this.state.explanations;
-                temp[index] = res.explanation[0];
-                this.setState({explanations: temp, changedMastery: res.mastery}, () =>
-                    this.props.updateMastery(res.mastery, this.props.lesson.ID),
-                );
-            },
-            err => {
-                console.log(err);
-            },
-        );
+        // Http.getLessonQuestionResult(
+        //     this.props.lesson.ID,
+        //     question.ID,
+        //     [answers[index]],
+        //     question.seed,
+        //     res => {
+        //         console.log(res);
+        //         const temp = this.state.explanations;
+        //         temp[index] = res.explanation[0];
+        //         this.setState({explanations: temp, changedMastery: res.mastery}, () =>
+        //             this.props.updateMastery(res.mastery, this.props.lesson.ID),
+        //         );
+        //     },
+        //     err => {
+        //         console.log(err);
+        //     },
+        // );
     }
 
     switchToTestEnd() {
