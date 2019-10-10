@@ -32,6 +32,7 @@ export default class AVOLearnPostTestModel extends React.Component<
                     cursor: 'pointer',
                 },
             },
+            currentState: 'prereqs',
         };
     }
     render() {
@@ -54,7 +55,16 @@ export default class AVOLearnPostTestModel extends React.Component<
                         >
                             Close
                         </button>
-                        <h2>Super sick modal</h2>
+                        {(this.state.currentState === 'prereqs' && (
+                            <div>
+                                <h2>prereq survey</h2>
+                                <button onClick={() => {
+                                    this.setState({currentState: 'aptitude/mastery'})
+                                }} style={styles.modalClose}>
+                                    skip
+                                </button>
+                            </div>
+                        )) || <h2>aptitude mastery</h2>}
                     </div>
                 </div>
             </div>
