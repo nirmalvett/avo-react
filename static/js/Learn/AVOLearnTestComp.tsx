@@ -256,15 +256,19 @@ export default class AVOLearnTestComp extends Component<
         const currentIndex = this.state.questionIndex;
         const {newAnswers} = this.state;
         const {questions} = this.props.lesson.data;
-        console.log(questions)
-        console.log(newAnswers)
-        console.log(currentIndex)
-        const convertedIndex = Math.floor(currentIndex / 2)
-        if (currentIndex > this.props.lesson.data.questions.length * 2 - 2){
-              this.switchToTestEnd();
-        } else if (questions[convertedIndex] && newAnswers[convertedIndex] && currentIndex % 2 === 0) {
-            console.log(convertedIndex)
-            this.getExplanation(newAnswers, questions[convertedIndex], convertedIndex); 
+        console.log(questions);
+        console.log(newAnswers);
+        console.log(currentIndex);
+        const convertedIndex = Math.floor(currentIndex / 2);
+        if (currentIndex > this.props.lesson.data.questions.length * 2 - 2) {
+            this.switchToTestEnd();
+        } else if (
+            questions[convertedIndex] &&
+            newAnswers[convertedIndex] &&
+            currentIndex % 2 === 0
+        ) {
+            console.log(convertedIndex);
+            this.getExplanation(newAnswers, questions[convertedIndex], convertedIndex);
         }
         this.setState({
             questionIndex: currentIndex + 1,
@@ -396,6 +400,23 @@ export default class AVOLearnTestComp extends Component<
                                         </Typography>
                                     </div>
                                 </Grid>
+                                <Grid container xs={12}>
+                                    <Button
+                                        variant='outlined'
+                                        color='primary'
+                                        onClick={() => {}}
+                                        style={{marginLeft: 'auto', marginRight: 15}}
+                                    >
+                                        Practice Concept
+                                    </Button>
+                                    <Button
+                                        variant='outlined'
+                                        color='primary'
+                                        onClick={()=>this.switchToTestEnd()}
+                                    >
+                                        Finish concept for now
+                                    </Button>
+                                </Grid>
                             </Grid>
                         </div>
                     )) ||
@@ -469,7 +490,7 @@ export default class AVOLearnTestComp extends Component<
     getExplanation(answers: string[], question: {ID: number; seed: number}, index: number) {
         console.log(answers);
         console.log(question);
-        console.log(this.props.lesson)
+        console.log(this.props.lesson);
         Http.getLessonQuestionResult(
             this.props.lesson.ID,
             question.ID,
