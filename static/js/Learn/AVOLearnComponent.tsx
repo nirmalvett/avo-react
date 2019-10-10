@@ -175,10 +175,10 @@ export default class AVOLearnComponent extends Component<
     }
 
     getClasses() {
-        Http.getClasses(
+        Http.getSections(
             res => {
                 console.log(res);
-                const classes = res.classes;
+                const classes = res.sections;
                 if (classes.length > 0) {
                     this.setState(
                         {
