@@ -86,6 +86,8 @@ interface TagViewState {
     edges: Edge[];    
 
     showModal: boolean;
+    showAddNodeModal: boolean;
+    showAddRelatedNodeModal: boolean;
     modalNode: WeightedConcept;
 
     nodesLoaded: boolean;
@@ -151,6 +153,9 @@ const nodeData = {
 
 export default class TagView extends Component<TagViewProps, TagViewState> {
     chartRef: {current: TreeView};
+    newConceptNameRef: React.RefObject<{}>;
+    newConceptLessonRef: React.RefObject<{}>;
+    newRelationWeightRef: React.RefObject<{}>;
     constructor(props: TagViewProps) {
         super(props);
         this.state = {
@@ -174,13 +179,17 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             concepts: [],
             edges: [],
 
-
             showModal: false,
+            showAddNodeModal: false,
+            showAddRelatedNodeModal: false,
             modalNode: {} as WeightedConcept,
             
             nodesLoaded: false
         };
         this.chartRef = React.createRef() as {current: TreeView};
+        this.newConceptNameRef = React.createRef();
+        this.newConceptLessonRef = React.createRef();
+        this.newRelationWeightRef = React.createRef();
     }
 
     componentDidMount() {
@@ -269,7 +278,10 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         <Save/>
                                     </Fab>
                                     <div style={{ position : 'absolute', top : '9px', right : '9px' }}>
-                                        <AVOPopupMenu options={[ { label : 'Edit Lesson', onClick : () => { this.setState({ isEditingLesson : true }); } } ]}/>
+                                        <AVOPopupMenu options={[ 
+                                            { label : 'Edit Lesson', onClick : () => { this.setState({ isEditingLesson : true }); } }, 
+                                            { label : 'Add Node', onClick : () => { this.setState({ showAddNodeModal : true }); } } 
+                                        ]}/>
                                     </div>
                                     <div style={{ width: '-webkit-fill-available', marginTop : '9px' }}>
                                         <Select
@@ -325,7 +337,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 <ListItemText primary={<b>Prerequisite Concepts</b>} />
                                                 {showParentNodes ? <ExpandLess /> : <ExpandMore />}
                                                 <ListItemSecondaryAction>
-                                                    <IconButton edge="end" aria-label="Add">
+                                                    <IconButton edge="end" aria-label="Add" onClick={() => this.setState({ showAddRelatedNodeModal : true })}>
                                                       <Add />
                                                     </IconButton>
                                                 </ListItemSecondaryAction>
@@ -339,7 +351,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                 <Typography component={'span'} variant="body2" gutterBottom>
                                                                     W:{WeightedConcept.weight}
                                                                 </Typography>
-                                                                <IconButton edge="end" aria-label="Edit">
+                                                                <IconButton edge="end" aria-label="Edit" onClick={() => this.openWeightModal(WeightedConcept)}>
                                                                     <Edit />
                                                                 </IconButton>
                                                                 <IconButton edge="end" aria-label="Go To" onClick={() => this.gotoSelectedNode(WeightedConcept)}>
@@ -354,7 +366,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 <ListItemText primary={<b>Subsequent Concepts</b>} />
                                                 {showChildNodes ? <ExpandLess /> : <ExpandMore />}
                                                  <ListItemSecondaryAction>
-                                                    <IconButton edge="end" aria-label="Add">
+                                                    <IconButton edge="end" aria-label="Add" onClick={() => this.setState({ showAddRelatedNodeModal : true })}>
                                                       <Add />
                                                     </IconButton>
                                                 </ListItemSecondaryAction>
@@ -415,6 +427,86 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                         </Typography>
                     </Paper>
                 </Modal>
+                <Modal
+                    open={this.state.showAddNodeModal}
+                    aria-labelledby="modal-title"
+                    aria-describedby="modal-description"
+                    style={{ width : '40%', top : '50px', left: '30%', right : '30%', position : 'absolute' }}
+                >
+                    <Paper className="avo-card">
+                        <IconButton style={{ position : 'absolute', right : '9px', top : '9px' }} onClick={() => this.setState({ showAddNodeModal : false })}>
+                            <Close/>
+                        </IconButton>
+                        <Typography variant={'h5'} id="modal-title">
+                            Add New Concept
+                        </Typography>
+                        <br/>
+                        <Typography variant={'body1'} id="modal-description">
+                            <FormControl>
+                                <Input
+                                    id='set-new__node-name'
+                                    ref={this.newConceptNameRef}
+                                    defaultValue='New Concept Name'
+                                />
+                                <br/>
+                                <br/>
+                                <Input 
+                                    id='set-new__node-lesson'
+                                    ref={this.newConceptLessonRef}
+                                    defaultValue='New Concept Lesson'
+                                />
+                            </FormControl>
+                            <br/>
+                            <br/>
+                            <Button>Add Concept</Button>                               
+                        </Typography>
+                    </Paper>
+                </Modal>
+                <Modal
+                    open={this.state.showAddRelatedNodeModal}
+                    aria-labelledby="modal-title"
+                    aria-describedby="modal-description"
+                    style={{ width : '40%', top : '50px', left: '30%', right : '30%', position : 'absolute' }}
+                >
+                    <Paper className="avo-card">
+                        <IconButton style={{ position : 'absolute', right : '9px', top : '9px' }} onClick={() => this.setState({ showAddRelatedNodeModal : false })}>
+                            <Close/>
+                        </IconButton>
+                        <Typography variant={'h5'} id="modal-title">
+                            Add Related Concept To {this.state.selectedConcept.name}
+                        </Typography>
+                        <br/>
+                        <Typography variant={'body1'} id="modal-description">
+                            <FormControl>
+                                <Input
+                                    id='set-new__node-name'
+                                    ref={this.newConceptNameRef}
+                                    defaultValue='New Concept Name'
+                                />
+                                <br/>
+                                <br/>
+                                <Input 
+                                    id='set-new__node-lesson'
+                                    ref={this.newConceptLessonRef}
+                                    defaultValue='New Concept Lesson'
+                                />
+                                <br/>
+                                <br/>
+                                <Input 
+                                    id='set-new__relation-weight'
+                                    type='number'
+                                    min={'1'}
+                                    max={'4'}
+                                    ref={this.newRelationWeightRef}
+                                    defaultValue='1'
+                                />
+                            </FormControl>
+                            <br/>
+                            <br/>
+                            <Button onClick={this.createConceptWithRelation.bind(this)}>Add Related Concept</Button>                               
+                        </Typography>
+                    </Paper>
+                </Modal>
             </div>
         );
     }
@@ -448,6 +540,46 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             showModal : true,
             modalNode : node
         });
+    };
+
+    createNewConcept() {
+        const name:string = this.newConceptNameRef.current.value;
+        const lesson:string = this.newConceptLessonRef.current.value;
+        console.log(name, lesson);
+    };
+
+    createConceptWithRelation() {
+        const _this: TagView = this;
+        const name:string = this.newConceptNameRef.current.value;
+        const lesson:string = this.newConceptLessonRef.current.value;
+        const weight:number = this.newRelationWeightRef.current.value;
+        Http.addConcept(
+            2,
+            name,
+            lesson,
+            res => {
+                console.log(res);
+                const newconcept: any = res;
+                const newedge: Edge = {
+                    weight : weight,
+                    parent : _this.state.selectedConcept.conceptID,
+                    child  : newconcept.conceptID,
+                };
+                Http.addConceptRelation(
+                    newedge,
+                    res => {
+                        console.log(res);
+                        
+                    },
+                    err => {
+                        console.log(err);
+                    },
+                );
+            },
+            err => {
+                console.log(err);
+            },
+        );
     };
 
     getParentNodes(id: number) {
@@ -494,19 +626,19 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
     };
 
     getTagNodes = () => {
-        Http.getConcepts(
-            this.state.selectedClass.sectionID, // todo
+        Http.getConceptGraph(
+            2,//this.state.selectedClass.classID, // todo
             res => {
-                // const data = res.tags;
+                console.log(res)
                 this.setState({
                     // tagNodes : data,
-                    concepts: nodeData.concepts,
-                    edges: nodeData.edges,
+                    concepts: res.concepts,
+                    edges: res.edges,
                     nodesLoaded : true
                 });
             },
             console.warn,
-        ); 
+        );
     };
 
     changeClass = () => {
