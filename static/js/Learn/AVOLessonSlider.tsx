@@ -39,6 +39,7 @@ interface AVOLessonSliderProps {
     };
     changeToNewMastery: () => void;
     updateMastery: (mastery: number, lessonID: number) => void;
+    showPostLessonModal: () => void;
 }
 
 interface AVOLessonSliderState {
@@ -47,6 +48,7 @@ interface AVOLessonSliderState {
     currentIndex: number;
     changedCurrency: 0;
     slides: AvoLesson[][];
+    isEndTest: boolean;
 }
 
 export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVOLessonSliderState> {
@@ -58,6 +60,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
             currentIndex: 0,
             changedCurrency: 0,
             slides: this.processSlidesIntoGroups(this.props.slides),
+            isEndTest: false,
         };
     }
 
@@ -93,6 +96,8 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                 </Grid>
                 <AVOLessonFSM
                     changeToNewMastery={this.props.changeToNewMastery}
+                    showPostLessonModal={this.props.showPostLessonModal}
+                    isEndTest={this.state.isEndTest}
                     ref={this.state.fsmRef}
                 >
                     {!!this.state.currentLesson && (
@@ -100,6 +105,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                             lesson={this.state.currentLesson}
                             updateMastery={this.props.updateMastery}
                             theme={this.props.theme}
+                            setEndTest={this.setEndTest}
                         />
                     )}
                 </AVOLessonFSM>
@@ -243,6 +249,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
     };
 
     openLessonFSM = (lesson: AvoLesson, LIndex: string) => {
+        this.setState({isEndTest: false})
         Http.getLessonData(
             lesson.ID,
             res => {
@@ -255,6 +262,9 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
             },
         );
     };
+    setEndTest = () => {
+        this.setState({isEndTest: true})
+    }
 }
 
 // Takes in the current slide index and its length to determine the range for the slider to present

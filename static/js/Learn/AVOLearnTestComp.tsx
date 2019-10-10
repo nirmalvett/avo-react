@@ -23,6 +23,7 @@ interface AVOLearnTestCompProps {
             '500': string;
         };
     };
+    setEndTest: () => void;
 }
 
 interface AVOLearnTestCompState {
@@ -412,7 +413,7 @@ export default class AVOLearnTestComp extends Component<
                                     <Button
                                         variant='outlined'
                                         color='primary'
-                                        onClick={()=>this.switchToTestEnd()}
+                                        onClick={() => this.switchToTestEnd()}
                                     >
                                         Finish concept for now
                                     </Button>
@@ -514,6 +515,7 @@ export default class AVOLearnTestComp extends Component<
         this.setState({currentState: 'TEST_END'});
         setTimeout(() => {
             this.setState({testEndState: 1});
+            this.props.setEndTest();
         }, 3000);
     }
 }

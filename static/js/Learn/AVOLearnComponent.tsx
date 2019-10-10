@@ -7,9 +7,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 import AVOLessonSlider from './AVOLessonSlider';
-import { Slider } from '@material-ui/core';
 
 import {Class} from '../Models';
+import AVOLearnPostTestModel from './AVOLearnPostTestModel';
 
 export interface AvoLesson {
     mastery: number;
@@ -17,7 +17,7 @@ export interface AvoLesson {
     Tag: string;
     string: string;
     ID: number;
-    prereqs: {name: string; conceptID: number}[];
+    // prereqs: {name: string; conceptID: number}[];
 }
 
 interface AVOLearnComponentProps {
@@ -40,6 +40,7 @@ interface AVOLearnComponentState {
     selectedClass: Class;
     selectedClassName: string;
     otherView: 'Completed' | 'To Do';
+    postLessonModalDisplay: 'none' | 'block';
 }
 
 export default class AVOLearnComponent extends Component<
@@ -57,6 +58,7 @@ export default class AVOLearnComponent extends Component<
             selectedClass: {} as Class,
             selectedClassName: '',
             otherView: 'Completed',
+            postLessonModalDisplay: 'none',
         };
     }
 
@@ -77,6 +79,10 @@ export default class AVOLearnComponent extends Component<
                 }}
                 id='avo-learn__layout-div'
             >
+                <AVOLearnPostTestModel
+                    hideModal={this.hidePostLessonModal}
+                    modalDisplay={this.state.postLessonModalDisplay}
+                />
                 <Grid item xs={3}>
                     <Button
                         variant='outlined'
@@ -109,6 +115,7 @@ export default class AVOLearnComponent extends Component<
                         changeToNewMastery={() => this.changeToNewMastery()}
                         slides={this.state.lessons}
                         updateMastery={this.updateMastery}
+                        showPostLessonModal={this.showPostLessonModal}
                     />
                 )}
                 <Grid container xs={12} style={{marginTop: 150}}>
@@ -129,7 +136,7 @@ export default class AVOLearnComponent extends Component<
                             />
                         </div>
                     </Grid>
-                    <Grid item xs={6}></Grid>
+                    <Grid item xs={6}/>
                     <Grid item xs={3}>
                         <div
                             style={{
@@ -230,23 +237,23 @@ export default class AVOLearnComponent extends Component<
     };
     getLessons = () => {
         Http.getNextLessons(
-            this.state.selectedClass.classID,
+            1, // this.state.selectedClass.classID, // todo
             res => {
                 const {otherView} = this.state;
                 console.log(otherView);
                 console.log(res);
-                const concepts = res.concepts;
-                const lessons = concepts.map(concept => {
-                    return {
-                        ID: concept.conceptID,
-                        Tag: concept.name,
-                        mastery: concept.strength,
-                        string: concept.lesson,
-                        prereqs: concept.prereqs,
-                    };
-                });
+                // const concepts = res.concepts;
+                // const lessons = concepts.map(concept => {
+                //     return {
+                //         ID: concept.conceptID,
+                //         Tag: concept.name,
+                //         mastery: concept.strength,
+                //         string: concept.lesson,
+                //         prereqs: concept.prereqs,
+                //     };
+                // });
                 this.setState({
-                    lessons: lessons
+                    lessons: res.lessons
                         .map(x => ({...x, newMastery: x.mastery}))
                         .filter(lesson => {
                             if (otherView === 'Completed') {
@@ -255,7 +262,7 @@ export default class AVOLearnComponent extends Component<
                                 return lesson.mastery >= 0.85;
                             }
                         }),
-                    allLessons: lessons.map(x => ({...x, newMastery: x.mastery})),
+                    allLessons: res.lessons.map(x => ({...x, newMastery: x.mastery})),
                 });
             },
             () => {},
@@ -284,5 +291,20 @@ export default class AVOLearnComponent extends Component<
             return lesson;
         });
         this.setState({lessons});
+    };
+
+    showPostLessonModal = () => {
+        this.setState({postLessonModalDisplay: 'block'});
+    };
+    hidePostLessonModal = () => {
+        this.setState({postLessonModalDisplay: 'none'});
+
+        // const modal = document.getElementById('avo_learn_post_lesson_modal');
+        // if (modal) {
+        //     event.preventDefault();
+        //     modal.style.display = 'none';
+        // } else {
+        //     console.log('oh no');
+        // }
     };
 }

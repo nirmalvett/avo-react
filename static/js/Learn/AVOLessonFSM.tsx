@@ -7,6 +7,8 @@ import {AvoLesson} from './AVOLearnComponent';
 
 interface AVOLessonFSMProps {
     changeToNewMastery: () => void;
+    showPostLessonModal: () => void;
+    isEndTest: boolean;
 }
 
 interface AVOLessonFSMState {
@@ -130,6 +132,7 @@ export default class AVOLessonFSM extends Component<AVOLessonFSMProps, AVOLesson
     }
 
     closeFSM(cardID: string) {
+        if (this.props.isEndTest) this.props.showPostLessonModal();
         this.props.changeToNewMastery();
         let $this = document.getElementById(cardID) as HTMLElement;
         const _this = this;
