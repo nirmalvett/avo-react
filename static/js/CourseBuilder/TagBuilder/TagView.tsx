@@ -420,13 +420,27 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                         <Typography variant={'body1'} id="modal-description">
                             Current Weight is: {this.state.modalNode.weight}
                             <br/>
-                            <Button>1 - Whatever Lionel said 1 meant</Button>                               
-                            <br/>
-                            <Button>2 - Whatever Lionel said 2 meant</Button>                               
-                            <br/>
-                            <Button>3 - Whatever Lionel said 3 meant</Button>                               
-                            <br/>
-                            <Button>4 - Whatever Lionel said 4 meant</Button>                               
+                            <Select
+                                value={this.state.selectedClassName}
+                                input={<Input name='data' id='select-class' />}
+                                onChange={e =>{
+                                    const newWeight:number = parseInt(e.target.value);
+                                    
+                                }}
+                            >
+                                <MenuItem key={'relation-weight-1'} value={'1'}>
+                                    1
+                                </MenuItem>
+                                <MenuItem key={'relation-weight-2'} value={'2'}>
+                                    2
+                                </MenuItem>
+                                <MenuItem key={'relation-weight-3'} value={'3'}>
+                                    3
+                                </MenuItem>
+                                <MenuItem key={'relation-weight-4'} value={'4'}>
+                                    4
+                                </MenuItem>
+                            </Select>                      
                         </Typography>
                     </Paper>
                 </Modal>
@@ -461,7 +475,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             </FormControl>
                             <br/>
                             <br/>
-                            <Button>Add Concept</Button>                               
+                            <Button onClick={this.createNewConcept.bind(this)}>Add Concept</Button>                               
                         </Typography>
                     </Paper>
                 </Modal>
@@ -498,8 +512,6 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                 <Input 
                                     id='set-new__relation-weight'
                                     type='number'
-                                    min={'1'}
-                                    max={'4'}
                                     ref={this.newRelationWeightRef}
                                     defaultValue='1'
                                 />
@@ -546,9 +558,32 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
     };
 
     createNewConcept() {
-        const name:string = this.newConceptNameRef.current.value;
-        const lesson:string = this.newConceptLessonRef.current.value;
+        const _this: TagView = this;
+        const name:string    = (document as any).getElementById('set-new__node-name').value;
+        const lesson:string  = (document as any).getElementById('set-new__node-lesson').value;
         console.log(name, lesson);
+        Http.addConcept(
+            2,
+            name,
+            lesson,
+            res => {
+                const newconcept: any = res;
+                const concepts: Concept[] = [..._this.state.concepts];
+                const edges: Edge[] = [..._this.state.edges];
+                concepts.push({ conceptID : newconcept.ID, name : newconcept.name, lesson : newconcept.lesson } as Concept);
+                _this.setState({
+                    showAddNodeModal : false,
+                    concepts : concepts,
+                    edges : edges,
+                }, 
+                () => {
+                    _this.chartRef.current.init();
+                });
+            },
+            err => {
+                console.log(err);
+            },
+        );
     };
 
     createConceptWithRelation() {
