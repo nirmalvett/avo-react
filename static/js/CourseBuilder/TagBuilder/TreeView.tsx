@@ -58,7 +58,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
         );
     };
 
-    componentDidMount() {
+    init() {
         const _this = this;
 
         const nodes: ElementsDefinition['nodes'] = [];
@@ -125,6 +125,41 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
             // @ts-ignore
             _this.selectNode(this.id());
         });
+    };
+
+    componentDidMount() {
+        this.init();
+    };
+
+    addRepopulateData(_concepts: Concept[], _edges: Edge[]) {
+        const nodes: ElementsDefinition['nodes'] = [];
+        const edges: ElementsDefinition['edges'] = [];
+
+        _concepts.forEach(Concept => {
+            nodes.push({
+                data: {
+                    id: 'node-' + Concept.conceptID + '-end', // the + '-end' is for later on filtering
+                },
+                style: {
+                    content: (
+                        Concept.name.length > 28 ? 
+                            Concept.name.substring(0, 25) + '...' : 
+                            Concept.name
+                    ),
+                }
+            });
+        });
+
+        _edges.forEach(Edge => {
+            edges.push({
+                data: {
+                    source: 'node-'    + Edge.parent + '-end',
+                    target: 'node-'    + Edge.child  + '-end', 
+                    id    : 'between-' + Edge.parent + '-' + Edge.child
+                },
+            });
+        });
+        (window as any).cy.json({ elements: {nodes, edges} });
     };
 
     selectNode(nodeID: String) {

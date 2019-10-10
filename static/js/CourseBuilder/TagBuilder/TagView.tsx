@@ -87,7 +87,9 @@ interface TagViewState {
 
     showModal: boolean;
     showAddNodeModal: boolean;
+
     showAddRelatedNodeModal: boolean;
+
     modalNode: WeightedConcept;
 
     nodesLoaded: boolean;
@@ -182,6 +184,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             showModal: false,
             showAddNodeModal: false,
             showAddRelatedNodeModal: false,
+
             modalNode: {} as WeightedConcept,
             
             nodesLoaded: false
@@ -550,9 +553,9 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
 
     createConceptWithRelation() {
         const _this: TagView = this;
-        const name:string = this.newConceptNameRef.current.value;
-        const lesson:string = this.newConceptLessonRef.current.value;
-        const weight:number = this.newRelationWeightRef.current.value;
+        const name:string   = (document as any).getElementById('set-new__node-name').value;
+        const lesson:string = (document as any).getElementById('set-new__node-lesson').value;
+        const weight:number = (document as any).getElementById('set-new__relation-weight').value;
         Http.addConcept(
             2,
             name,
@@ -561,15 +564,26 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                 console.log(res);
                 const newconcept: any = res;
                 const newedge: Edge = {
-                    weight : weight,
+                    weight : parseInt(weight),
                     parent : _this.state.selectedConcept.conceptID,
-                    child  : newconcept.conceptID,
+                    child  : newconcept.ID,
                 };
                 Http.addConceptRelation(
                     newedge,
                     res => {
                         console.log(res);
-                        
+                        const concepts: Concept[] = [..._this.state.concepts];
+                        const edges: Edge[] = [..._this.state.edges];
+                        concepts.push({ conceptID : newconcept.ID, name : newconcept.name, lesson : newconcept.lesson } as Concept);
+                        edges.push(newedge);
+                        _this.setState({
+                            showAddRelatedNodeModal : false,
+                            concepts : concepts,
+                            edges : edges,
+                        }, 
+                        () => {
+                            _this.chartRef.current.init();
+                        });       
                     },
                     err => {
                         console.log(err);
