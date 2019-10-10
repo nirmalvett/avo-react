@@ -2,8 +2,8 @@ from flask import Flask
 from flask_compress import Compress
 from server.auth import login_manager
 from server.models import db
-from server.routes import ConceptRoutes, CourseRoutes, FileRoutes, MasteryRoutes, QuestionRoutes, SectionRoutes,\
-    ServerRoutes, TestRoutes, UserRoutes
+from server.routes import ConceptRoutes, CourseRoutes, FileRoutes, MasteryRoutes, MessageRoutes, QuestionRoutes,\
+    QuestionSetRoutes, SectionRoutes, ServerRoutes, TakesRoutes, TestRoutes, UserRoutes, UserSectionRoutes
 import paypalrestsdk
 import config
 # from flask_cors import CORS
@@ -27,11 +27,15 @@ app.register_blueprint(ConceptRoutes)
 app.register_blueprint(CourseRoutes)
 app.register_blueprint(FileRoutes)
 app.register_blueprint(MasteryRoutes)
+app.register_blueprint(MessageRoutes)
 app.register_blueprint(QuestionRoutes)
+app.register_blueprint(QuestionSetRoutes)
 app.register_blueprint(SectionRoutes)
 app.register_blueprint(ServerRoutes)
+app.register_blueprint(TakesRoutes)
 app.register_blueprint(TestRoutes)
 app.register_blueprint(UserRoutes)
+app.register_blueprint(UserSectionRoutes)
 
 # Add gzip support
 Compress(app)

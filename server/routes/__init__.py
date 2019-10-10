@@ -2,8 +2,12 @@ from server.routes.concept_routes import ConceptRoutes
 from server.routes.course_routes import CourseRoutes
 from server.routes.file_routes import FileRoutes
 from server.routes.mastery_routes import MasteryRoutes
+from server.routes.message_routes import MessageRoutes
 from server.routes.question_routes import QuestionRoutes
+from server.routes.question_set_routes import QuestionSetRoutes
 from server.routes.section_routes import SectionRoutes
 from server.routes.server_routes import ServerRoutes
+from server.routes.takes_routes import TakesRoutes
 from server.routes.test_routes import TestRoutes
 from server.routes.user_routes import UserRoutes
+from server.routes.user_section_routes import UserSectionRoutes

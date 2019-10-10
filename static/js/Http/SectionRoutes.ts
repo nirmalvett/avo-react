@@ -1,26 +1,5 @@
 import {_request, cb} from './baseRequest';
 
-export function addToWhitelist(
-    sectionID: number,
-    uwoUsers: string[],
-    success: cb<{}>,
-    failure: cb,
-) {
-    _request('POST', '/addToWhitelist', success, failure, {sectionID, uwoUsers});
-}
-
-export interface GetSectionWhitelist {
-    whitelist: string[];
-}
-
-export function getSectionWhitelist(
-    sectionID: number,
-    success: cb<GetSectionWhitelist>,
-    failure: cb,
-) {
-    _request('POST', '/getSectionWhitelist', success, failure, {sectionID});
-}
-
 export function createSection(courseID: number, name: string, success: cb<{}>, failure: cb) {
     _request('POST', '/createSection', success, failure, {courseID, name});
 }
@@ -112,65 +91,6 @@ export function getSectionTestResults(
 
 export function CSVDownload(sectionID: number, success: cb<{}>, failure: cb) {
     _request('GET', `/CSV/SectionMarks/${sectionID}`, success, failure);
-}
-
-export type Enroll =
-    | {
-          message: 'enrolled';
-      }
-    | {
-          message: undefined;
-          sectionID: number;
-          price: number;
-          discount: number;
-          tax: number;
-          totalPrice: number;
-          freeTrial: boolean;
-      };
-
-export function enroll(key: string, success: cb<Enroll>, failure: cb) {
-    _request('POST', '/enroll', success, failure, {key});
-}
-
-export function freeTrial(sectionID: number, success: cb<{}>, failure: cb) {
-    _request('POST', '/freeTrial', success, failure, {sectionID});
-}
-
-export interface GetMessages {
-    messages: {
-        messageID: number;
-        header: string;
-        body: string;
-        timestamp: number;
-    }[];
-}
-
-export function getMessages(sectionID: number, success: cb<GetMessages>, failure: cb) {
-    _request('POST', '/getMessages', success, failure, {sectionID});
-}
-
-export function addMessage(
-    sectionID: number,
-    header: string,
-    body: string,
-    success: cb<{}>,
-    failure: cb,
-) {
-    _request('POST', '/addMessage', success, failure, {sectionID, header, body});
-}
-
-export function editMessage(
-    messageID: number,
-    header: string,
-    body: string,
-    success: cb<{}>,
-    failure: cb,
-) {
-    _request('POST', '/editMessage', success, failure, {messageID, header, body});
-}
-
-export function deleteMessage(messageID: number, success: cb<{}>, failure: cb) {
-    _request('POST', '/deleteMessage', success, failure, {messageID});
 }
 
 export interface GetSectionData {
