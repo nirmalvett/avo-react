@@ -90,7 +90,7 @@ export default class AVOLearnComponent extends Component<
                                         return lesson.mastery <= 0.85;
                                     }
                                 });
-                                console.log(otherView)
+                                console.log(otherView);
                                 console.log(lessons);
                                 this.setState({
                                     lessons,
@@ -228,7 +228,8 @@ export default class AVOLearnComponent extends Component<
         }
     };
     getLessons = () => {
-        Http.getLearnLessons(
+        Http.getNextLessons(
+            this.state.selectedClass.classID,
             res => {
                 const {otherView} = this.state;
                 console.log(otherView);

@@ -76,8 +76,9 @@ export interface GetLessons {
 export function getLessons(success: cb<GetLessons>, failure: cb) {
     _request('GET', '/getLessons', success, failure);
 }
-export function getLearnLessons(success: cb<GetLessons>, failure: cb) {
-    _request('GET', '/getLearnLessons', success, failure);
+
+export function getNextLessons(courseID: number, success: cb<GetLessons>, failure: cb) {
+    _request('POST', '/getNextLessons', success, failure, {courseID});
 }
 export interface GetLessonQuestionResult {
     explanation: string[];
