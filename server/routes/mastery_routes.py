@@ -23,6 +23,6 @@ def post_question_survey(concept_id: int, mastery: int, aptitude: int):
 @MasteryRoutes.route("/wrongAnswerSurvey", methods=['POST'])
 @login_required
 @validate(questionID=int, concepts=list)
-def post_question_survey(question_id: int, concepts: list):
+def wrong_answer_survey(question_id: int, concepts: list):
     # todo
     return jsonify({})
