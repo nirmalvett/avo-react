@@ -237,3 +237,10 @@ def get_next_lessons(course_id: int):
             concept_obj['strength'] = round(sum(mastery_values) / len(mastery_values), 2)
 
     return jsonify(lessons=lessons)
+
+
+@ConceptRoutes.route('/getNextQuestion', methods=['POST'])
+@login_required
+@validate(conceptID=int)
+def get_next_question(concept_id):
+    return jsonify(ID=1, prompt='prompt', prompts=['answer 1', 'answer 2'], seed=123, types=['2', '2'])
