@@ -9,7 +9,7 @@ import {getMathJax} from '../HelperFunctions/Utilities';
 import {uniqueKey} from '../HelperFunctions/Helpers';
 import {AvoLesson} from './AVOLearnComponent';
 import {AvoLessonData} from './AVOLessonSlider';
-
+import AVOLearnIncorrectAnswerModal from './AVOLearnIncorrectAnswerModal';
 type TestState = 'LESSON' | 'QUESTIONS' | 'TEST_END';
 
 interface AVOLearnTestCompProps {
@@ -24,6 +24,7 @@ interface AVOLearnTestCompProps {
         };
     };
     setEndTest: () => void;
+    getNewQuestion: () => void;
 }
 
 interface AVOLearnTestCompState {
@@ -36,6 +37,7 @@ interface AVOLearnTestCompState {
     testEndState: 0 | 1;
     explanations: string[];
     changedMastery: number;
+    postLessonModalDisplay: 'none' | 'block';
 }
 
 export default class AVOLearnTestComp extends Component<
@@ -54,6 +56,7 @@ export default class AVOLearnTestComp extends Component<
             testEndState: 0,
             explanations: this.props.lesson.data.questions.map(() => ''),
             changedMastery: this.props.lesson.mastery,
+            postLessonModalDisplay: 'none',
         };
         console.log(this);
     }
@@ -62,6 +65,11 @@ export default class AVOLearnTestComp extends Component<
         console.log(this.props.lesson.mastery);
         return (
             <div style={{width: '100%', position: 'relative'}}>
+                <AVOLearnIncorrectAnswerModal
+                    hideModal={() => this.setState({postLessonModalDisplay: 'none'})}
+                    modalDisplay={this.state.postLessonModalDisplay}
+                    lesson={this.props.lesson}
+                ></AVOLearnIncorrectAnswerModal>
                 {this.state.currentState === 'LESSON' && (
                     <Grid container spacing={8}>
                         <Grid item xs={8}>
@@ -243,7 +251,9 @@ export default class AVOLearnTestComp extends Component<
             </div>
         );
     }
-
+    showModal = () => {
+        this.setState({postLessonModalDisplay: 'block'});
+    };
     goToPreviousSlide = () => {
         const currentIndex = this.state.questionIndex;
         if (currentIndex == 0) return;
@@ -270,11 +280,11 @@ export default class AVOLearnTestComp extends Component<
         ) {
             console.log(convertedIndex);
             this.getExplanation(newAnswers, questions[convertedIndex], convertedIndex);
+            this.setState({
+                questionIndex: currentIndex + 1,
+                questionState: !!this.state.questionState ? 0 : 1,
+            });
         }
-        this.setState({
-            questionIndex: currentIndex + 1,
-            questionState: !!this.state.questionState ? 0 : 1,
-        });
     };
 
     goToPreviousExplanationSlide = () => {
@@ -405,7 +415,15 @@ export default class AVOLearnTestComp extends Component<
                                     <Button
                                         variant='outlined'
                                         color='primary'
-                                        onClick={() => {}}
+                                        onClick={() => {
+                                            this.setState({
+                                                questionIndex: 0,
+                                                newAnswers: this.props.lesson.data.questions.map(
+                                                    () => '',
+                                                ),
+                                            });
+                                            this.props.getNewQuestion();
+                                        }}
                                         style={{marginLeft: 'auto', marginRight: 15}}
                                     >
                                         Practice Concept
@@ -423,10 +441,10 @@ export default class AVOLearnTestComp extends Component<
                     )) ||
                         (!this.state.newAnswers[index] && (
                             <div>
-                                <Typography variant={'h6'}>
+                                {/* <Typography variant={'h6'}>
                                     Previous Question is missing an answer, therefore no explanation
                                     is available.
-                                </Typography>
+                                </Typography> */}
                             </div>
                         ))}
                 </div>,
@@ -492,23 +510,24 @@ export default class AVOLearnTestComp extends Component<
         console.log(answers);
         console.log(question);
         console.log(this.props.lesson);
-        // Http.getLessonQuestionResult(
-        //     this.props.lesson.ID,
-        //     question.ID,
-        //     [answers[index]],
-        //     question.seed,
-        //     res => {
-        //         console.log(res);
-        //         const temp = this.state.explanations;
-        //         temp[index] = res.explanation[0];
-        //         this.setState({explanations: temp, changedMastery: res.mastery}, () =>
-        //             this.props.updateMastery(res.mastery, this.props.lesson.ID),
-        //         );
-        //     },
-        //     err => {
-        //         console.log(err);
-        //     },
-        // );
+        const {changedMastery} = this.state;
+        Http.submitQuestion(
+            question.ID,
+            question.seed,
+            [answers[index]],
+            (res: any) => {
+                console.log(res);
+                if (res.points[0] / res.totals[0] < 0.5) this.showModal();
+                const temp = this.state.explanations;
+                temp[index] = res.explanation;
+                this.setState({explanations: temp, changedMastery}, () =>
+                    this.props.updateMastery(res.mastery, this.props.lesson.ID),
+                );
+            },
+            err => {
+                console.log(err);
+            },
+        );
     }
 
     switchToTestEnd() {

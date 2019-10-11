@@ -98,6 +98,6 @@ export interface GetNextQuestion {
     types: string[];
 } 
 
-export function getNextQuestion(conceptID: number, success: cb<GetNextQuestion[]>, failure: cb) {
+export function getNextQuestion(conceptID: number, success: cb<GetNextQuestion>, failure: cb) {
     _request('POST', '/getNextQuestion', success, failure, {conceptID});
 }

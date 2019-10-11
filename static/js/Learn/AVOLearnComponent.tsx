@@ -9,7 +9,7 @@ import TextField from '@material-ui/core/TextField';
 import AVOLessonSlider from './AVOLessonSlider';
 
 import {Class} from '../Models';
-import AVOLearnPostTestModel from './AVOLearnPostTestModel';
+import AVOLearnPostTestModel from './AVOLearnPostTestModal';
 
 export interface AvoLesson {
     mastery: number;
@@ -17,7 +17,7 @@ export interface AvoLesson {
     Tag: string;
     string: string;
     ID: number;
-    // prereqs: {name: string; conceptID: number}[];
+    prereqs: {name: string; conceptID: number}[];
 }
 
 interface AVOLearnComponentProps {
@@ -41,6 +41,7 @@ interface AVOLearnComponentState {
     selectedClassName: string;
     otherView: 'Completed' | 'To Do';
     postLessonModalDisplay: 'none' | 'block';
+    currentLesson: AvoLesson;
 }
 
 export default class AVOLearnComponent extends Component<
@@ -59,6 +60,7 @@ export default class AVOLearnComponent extends Component<
             selectedClassName: '',
             otherView: 'Completed',
             postLessonModalDisplay: 'none',
+            currentLesson: {} as AvoLesson,
         };
     }
 
@@ -82,6 +84,7 @@ export default class AVOLearnComponent extends Component<
                 <AVOLearnPostTestModel
                     hideModal={this.hidePostLessonModal}
                     modalDisplay={this.state.postLessonModalDisplay}
+                    lesson={this.state.currentLesson}
                 />
                 <Grid item xs={3}>
                     <Button
@@ -109,15 +112,18 @@ export default class AVOLearnComponent extends Component<
                         View {this.state.otherView}
                     </Button>
                 </Grid>
-                {this.state.lessons.length !== 0 && (
-                    <AVOLessonSlider
-                        theme={this.props.theme}
-                        changeToNewMastery={() => this.changeToNewMastery()}
-                        slides={this.state.lessons}
-                        updateMastery={this.updateMastery}
-                        showPostLessonModal={this.showPostLessonModal}
-                    />
-                )}
+                <Grid container xs={12}>
+                    {this.state.lessons.length !== 0 && (
+                        <AVOLessonSlider
+                            theme={this.props.theme}
+                            changeToNewMastery={() => this.changeToNewMastery()}
+                            slides={this.state.lessons}
+                            updateMastery={this.updateMastery}
+                            showPostLessonModal={this.showPostLessonModal}
+                            updateParentCurrentLesson={this.setCurrentLesson}
+                        />
+                    )}
+                </Grid>
                 <Grid container xs={12} style={{marginTop: 150}}>
                     <Grid item xs={3}>
                         <div
@@ -136,7 +142,7 @@ export default class AVOLearnComponent extends Component<
                             />
                         </div>
                     </Grid>
-                    <Grid item xs={6}/>
+                    <Grid item xs={6} />
                     <Grid item xs={3}>
                         <div
                             style={{
@@ -171,8 +177,7 @@ export default class AVOLearnComponent extends Component<
     }
 
     componentDidMount() {
-        // this.getClasses();
-        this.getLessons()
+        this.getClasses();
     }
 
     getClasses() {
@@ -197,7 +202,9 @@ export default class AVOLearnComponent extends Component<
             },
         );
     }
-
+    setCurrentLesson = (currentLesson: AvoLesson) => {
+        this.setState({currentLesson})
+    }
     changeClass = () => {
         const {selectedClassName, classes} = this.state;
         if (selectedClassName !== 'Select class...') {
@@ -237,8 +244,10 @@ export default class AVOLearnComponent extends Component<
         }
     };
     getLessons = () => {
+        const {otherView} = this.state;
+        console.log(otherView);
         Http.getNextLessons(
-            1, // this.state.selectedClass.classID, // todo
+            this.state.selectedClass.sectionID, // todo
             res => {
                 const {otherView} = this.state;
                 console.log(otherView);
@@ -253,6 +262,15 @@ export default class AVOLearnComponent extends Component<
                         prereqs: concept.prereqs,
                     };
                 });
+                // const lessons = [
+                //     {
+                //         ID: 1,
+                //         Tag: 'test',
+                //         mastery: 0.3,
+                //         string: 'whoohoo a lesson wao',
+                //         prereqs: [{name: 'prereq oh boy', conceptID: 2}],
+                //     },
+                // ];
                 this.setState({
                     lessons: lessons
                         .map(x => ({...x, newMastery: x.mastery}))

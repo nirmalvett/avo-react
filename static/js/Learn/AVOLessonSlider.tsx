@@ -40,6 +40,7 @@ interface AVOLessonSliderProps {
     changeToNewMastery: () => void;
     updateMastery: (mastery: number, lessonID: number) => void;
     showPostLessonModal: () => void;
+    updateParentCurrentLesson: (lesson: AvoLesson) => void;
 }
 
 interface AVOLessonSliderState {
@@ -65,6 +66,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
     }
 
     render() {
+        const {currentLesson} = this.state;
         return (
             <Grid container id='avo-lesson__layout-div'>
                 <Grid xs={1} style={{zIndex: 10}}>
@@ -106,6 +108,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                             updateMastery={this.props.updateMastery}
                             theme={this.props.theme}
                             setEndTest={this.setEndTest}
+                            getNewQuestion={this.getNewQuestion}
                         />
                     )}
                 </AVOLessonFSM>
@@ -130,7 +133,6 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
             </Grid>
         );
     }
-
     getSlideRenderable = () => {
         const output: ReactElement[] = [];
         this.state.slides.forEach((group, gIndex) => {
@@ -198,10 +200,20 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                     }}
                     direction='column'
                 >
-                    <Grid container item xs={12} style={{height: 'calc(calc(100vh - 64px) / 2)', padding: '5px'}}>
+                    <Grid
+                        container
+                        item
+                        xs={12}
+                        style={{height: 'calc(calc(100vh - 64px) / 2)', padding: '5px'}}
+                    >
                         {slideGroup.slice(0, 3)}
                     </Grid>
-                    <Grid container item xs={12} style={{height: 'calc(calc(100vh - 64px) / 2)', padding: '5px'}}>
+                    <Grid
+                        container
+                        item
+                        xs={12}
+                        style={{height: 'calc(calc(100vh - 64px) / 2)', padding: '5px'}}
+                    >
                         {slideGroup.slice(3, 6)}
                     </Grid>
                 </Grid>,
@@ -247,35 +259,40 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
         });
         return output;
     };
-
+    getNewQuestion = () => {
+        this.setState({isEndTest: false});
+        const lesson = this.state.currentLesson;
+        if (lesson) {
+            Http.getNextQuestion(
+                lesson.ID,
+                res => {
+                    console.log(res);
+                    this.setState({currentLesson: {...lesson, data: {questions: [res]}}});
+                },
+                err => {
+                    console.log(err);
+                },
+            );
+        }
+    };
     openLessonFSM = (lesson: AvoLesson, LIndex: string) => {
-        this.setState({isEndTest: false})
+        this.setState({isEndTest: false});
         Http.getNextQuestion(
             lesson.ID,
             res => {
                 console.log(res);
-                this.setState({currentLesson: {...lesson, data: {questions: res}}});
+                this.setState({currentLesson: {...lesson, data: {questions: [res]}}});
+                this.props.updateParentCurrentLesson(lesson);
                 this.state.fsmRef.current.handleFSM(lesson, LIndex);
             },
             err => {
                 console.log(err);
             },
-        )
-        // Http.getLessonData(
-        //     lesson.ID,
-        //     res => {
-        //         console.log(res);
-        //         this.setState({currentLesson: {...lesson, data: res}});
-        //         this.state.fsmRef.current.handleFSM(lesson, LIndex);
-        //     },
-        //     err => {
-        //         console.log(err);
-        //     },
-        // );
+        );
     };
     setEndTest = () => {
-        this.setState({isEndTest: true})
-    }
+        this.setState({isEndTest: true});
+    };
 }
 
 // Takes in the current slide index and its length to determine the range for the slider to present
@@ -315,7 +332,7 @@ const AVOPageSlider = withStyles({
         '& > span': {
             height: 40,
             width: 40,
-          },
+        },
     },
     track: {
         height: 8,
