@@ -1,8 +1,11 @@
+from typing import List
+
 from flask import Blueprint, jsonify
 from flask_login import current_user
 
+from server.MathCode.question import AvoQuestion
 from server.decorators import login_required, validate
-from server.models import Mastery, db
+from server.models import Mastery, db, Question
 
 MasteryRoutes = Blueprint('MasteryRoutes', __name__)
 
@@ -26,3 +29,16 @@ def post_question_survey(concept_id: int, mastery: int, aptitude: int):
 def wrong_answer_survey(question_id: int, concepts: list):
     # todo
     return jsonify({})
+
+
+@MasteryRoutes.route('/submitQuestion', methods=['POST'])
+@login_required
+@validate(questionID=int, seed=int, answers=list)
+def submit_question(question_id: int, seed: int, answers: List[str]):
+    question = Question.query.get(question_id)
+    try:
+        q = AvoQuestion(question.string, seed, answers)
+    except Exception as e:
+        return jsonify(error="Question failed to be created", message=str(e))
+    # todo: do something to update mastery
+    return jsonify(explanation=q.explanation, points=q.scores, totals=q.totals)
