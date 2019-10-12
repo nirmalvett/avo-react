@@ -24,7 +24,6 @@ import {
     SchoolOutlined,
     MessageOutlined,
     AssignmentTurnedInOutlined,
-    LibraryBooksOutlined,
     ExtensionOutlined,
 } from '@material-ui/icons';
 import {Section} from './LayoutModels';
@@ -129,7 +128,6 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                         sets: [],
                     })}
                     {this.listItem(HelpOutline, {name: 'Documentation'})}
-                    {this.listItem(LibraryBooksOutlined, {name: 'Lesson Builder'})}
                     {this.listItem(ExtensionOutlined, {name: 'Concept Builder'})}
                     {this.listItem(AssignmentReturnedOutlined, {name: 'Export Tools'})}
                 </List>

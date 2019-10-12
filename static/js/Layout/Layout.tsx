@@ -25,7 +25,6 @@ import AvoSnackBar from './AvoSnackBar';
 import Whitelist from '../Whitelist/Whitelist';
 import {Section} from './LayoutModels';
 import {AvoSet} from '../Http/types';
-import LessonBuilder from '../CourseBuilder/LessonBuilder/LessonBuilder';
 import {QuestionBuilderHome} from '../QuestionBuilder/QuestionBuilderHome';
 const drawerWidth = 240;
 
@@ -252,8 +251,6 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     submitTest={this.postTest}
                 />
             );
-        } else if (section.name == 'Lesson Builder') {
-            return <LessonBuilder />;
         }
     }
 

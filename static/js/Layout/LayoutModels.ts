@@ -88,9 +88,7 @@ interface TakeTest {
     name: 'Take Test';
     test: GetTest;
 }
-interface LessonBuilder {
-    name: 'Lesson Builder';
-}
+
 export type Section =
     | AddStudentsToClass
     | BuildQuestion
@@ -110,5 +108,4 @@ export type Section =
     | NotifyClass
     | PostTest
     | Preferences
-    | TakeTest
-    | LessonBuilder;
+    | TakeTest;
