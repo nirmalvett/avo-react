@@ -53,8 +53,8 @@ export interface GetSections_Test {
         timeSubmitted: number;
     };
     sectionAverage: number;
-    classMedian: number;
-    classSize: number;
+    sectionMedian: number;
+    sectionSize: number;
     standardDeviation: number;
 }
 

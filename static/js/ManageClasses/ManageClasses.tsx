@@ -1475,7 +1475,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         let classDev = [];
         for (let i = 0; i < selectedClass.tests.length; i++) {
             const testObj = selectedClass.tests[i];
-            classMed.push(testObj.classMedian.toFixed(2));
+            classMed.push(testObj.sectionMedian.toFixed(2));
             classAvg.push(testObj.sectionAverage.toFixed(2));
             classDev.push(testObj.standardDeviation.toFixed(2));
         }
@@ -1522,7 +1522,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     formatter: (val: string) => {
                         for (let i = 0; i < selectedClass.tests.length; i++)
                             if (selectedClass.tests[i].name === val)
-                                return val + ` (size: ${selectedClass.tests[i].classSize})`;
+                                return val + ` (size: ${selectedClass.tests[i].sectionSize})`;
                     },
                 },
                 categories: xCategories,
