@@ -1476,7 +1476,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         for (let i = 0; i < selectedClass.tests.length; i++) {
             const testObj = selectedClass.tests[i];
             classMed.push(testObj.classMedian.toFixed(2));
-            classAvg.push(testObj.classAverage.toFixed(2));
+            classAvg.push(testObj.sectionAverage.toFixed(2));
             classDev.push(testObj.standardDeviation.toFixed(2));
         }
         return [

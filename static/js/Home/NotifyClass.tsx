@@ -11,11 +11,11 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Message from './Message';
-import {Class} from '../Models';
+import {GetSections_Section} from "../Http";
 import {Notification} from '../Models';
 
 export interface NotifyClassState {
-    classes: Class[];
+    classes: GetSections_Section[];
     selectedClassName: string;
     addMessageInput: string;
     messageBodyInput: string;
@@ -160,7 +160,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
     addMessage() {
         const _class = this.state.classes.find(
             c => c.name === this.state.selectedClassName,
-        ) as Class;
+        ) as GetSections_Section;
         Http.addMessage(
             _class.sectionID,
             this.state.addMessageInput,
@@ -212,7 +212,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
     getMessages() {
         const selectedClass = this.state.classes.find(
             c => c.name === this.state.selectedClassName,
-        ) as Class;
+        ) as GetSections_Section;
         Http.getMessages(
             selectedClass.sectionID,
             res => {

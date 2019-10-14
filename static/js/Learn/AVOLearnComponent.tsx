@@ -8,8 +8,8 @@ import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 import AVOLessonSlider from './AVOLessonSlider';
 
-import {Class} from '../Models';
 import AVOLearnPostTestModel from './AVOLearnPostTestModal';
+import {GetSections_Section} from "../Http";
 
 export interface AvoLesson {
     mastery: number;
@@ -36,8 +36,8 @@ interface AVOLearnComponentState {
     allLessons: AvoLesson[];
     filterInput: string;
     classNames: string[];
-    classes: Class[];
-    selectedClass: Class;
+    classes: GetSections_Section[];
+    selectedClass: GetSections_Section;
     selectedClassName: string;
     otherView: 'Completed' | 'To Do';
     postLessonModalDisplay: 'none' | 'block';
@@ -56,7 +56,7 @@ export default class AVOLearnComponent extends Component<
             allLessons: [],
             classNames: [],
             classes: [],
-            selectedClass: {} as Class,
+            selectedClass: {} as GetSections_Section,
             selectedClassName: '',
             otherView: 'Completed',
             postLessonModalDisplay: 'none',
@@ -208,7 +208,7 @@ export default class AVOLearnComponent extends Component<
     changeClass = () => {
         const {selectedClassName, classes} = this.state;
         if (selectedClassName !== 'Select class...') {
-            const selectedClass = classes.find((c: Class) => c.name === selectedClassName);
+            const selectedClass = classes.find((c: GetSections_Section) => c.name === selectedClassName);
             if (selectedClass) {
                 this.setState({selectedClass}, () => this.getLessons());
             }

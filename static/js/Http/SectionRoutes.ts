@@ -52,7 +52,7 @@ export interface GetSections_Test {
         timeStarted: number;
         timeSubmitted: number;
     };
-    classAverage: number;
+    sectionAverage: number;
     classMedian: number;
     classSize: number;
     standardDeviation: number;

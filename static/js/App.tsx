@@ -7,9 +7,17 @@ import PasswordResetPage from './SignIn/PasswordReset';
 import {isChrome, isSafari} from './HelperFunctions/Helpers';
 import NotChromeWarningPage from './SignIn/NotChromeWarningPage';
 import {MuiPickersUtilsProvider} from '@material-ui/pickers';
-import {User} from './Models';
 import {createMuiTheme, MuiThemeProvider} from '@material-ui/core';
 import {colorList} from './SharedComponents/AVOCustomColors';
+
+export interface User {
+    firstName: string;
+    lastName: string;
+    isTeacher: boolean;
+    isAdmin: boolean;
+    color: number;
+    theme: 'dark' | 'light';
+}
 
 interface AppProps {}
 

@@ -7,7 +7,6 @@ import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import * as Http from '../../Http';
 import {getMathJax} from '../../HelperFunctions/Utilities';
-import {Class} from '../../Models';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -33,6 +32,7 @@ import {
     Paper,
     Typography
 } from '@material-ui/core';
+import {GetSections_Section} from "../../Http";
 
 interface Concept {
     conceptID: number;
@@ -68,8 +68,8 @@ interface TagViewState {
     currentView: string;
     selectedClassName: string;
     classNames: string[];
-    classes: Class[];
-    selectedClass: Class;
+    classes: GetSections_Section[];
+    selectedClass: GetSections_Section;
     loadingClasses: boolean;
 
     editingTagName: boolean;
@@ -158,7 +158,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             selectedClassName: 'Select class...',
             classNames: [],
             classes: [],
-            selectedClass: {} as Class,
+            selectedClass: {} as GetSections_Section,
             loadingClasses: true,
 
             selectedConcept: {} as Concept,
@@ -512,7 +512,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
     changeClass = () => {
         const {selectedClassName, classes} = this.state;
         if (selectedClassName !== 'Select class...') {
-            const selectedClass = classes.find((c: Class) => c.name === selectedClassName);
+            const selectedClass = classes.find((c: GetSections_Section) => c.name === selectedClassName);
             if (selectedClass) {
                 this.setState({selectedClass});
                 this.getTagNodes();

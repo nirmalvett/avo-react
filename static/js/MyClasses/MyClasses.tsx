@@ -1131,7 +1131,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         let standardDev = [];
         for (let i = 0; i < selectedClass.tests.length; i++) {
             const testObj = selectedClass.tests[i];
-            classAvg.push(testObj.classAverage.toFixed(2));
+            classAvg.push(testObj.sectionAverage.toFixed(2));
             standardDev.push(testObj.standardDeviation.toFixed(2));
             let myAvg = -1;
             for (let j = 0; j < testObj.submitted.length; j++) {
