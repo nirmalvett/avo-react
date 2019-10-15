@@ -8,6 +8,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import * as Http from '../../Http';
 import {getMathJax} from '../../HelperFunctions/Utilities';
 import ListSubheader from '@material-ui/core/ListSubheader';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -18,6 +20,7 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import debounce from '../../SharedComponents/AVODebouncer';
 import Modal from '@material-ui/core/Modal';
 import AVOPopupMenu from '../../SharedComponents/AVOPopupMenu';
+import SwipeableViews from 'react-swipeable-views';
 import {
     Edit, Add, Fullscreen, Save, Close 
 } from '@material-ui/icons';
@@ -27,7 +30,6 @@ import {
     Input,
     InputAdornment,
     TextField,
-    Fab,
     Fade,
     Paper,
     Typography
@@ -90,7 +92,7 @@ interface TagViewState {
     showAddRelatedNodeModal: boolean;
     isAddingParent: boolean;
     modalNode: WeightedConcept;
-
+    activeTab: number;
     nodesLoaded: boolean;
 }
 
@@ -152,6 +154,37 @@ const nodeData = {
     ]
 };
 
+interface TabPanelProps {
+    children?: React.ReactNode;
+    dir?: string;
+    index: any;
+    value: any;
+  }
+  
+function TabPanel(props: TabPanelProps) {
+    const { children, value, index, ...other } = props;
+  
+    return (
+      <Typography
+        component="div"
+        role="tabpanel"
+        hidden={value !== index}
+        id={`full-width-tabpanel-${index}`}
+        aria-labelledby={`full-width-tab-${index}`}
+        {...other}
+      >
+        <p>{children}</p>
+      </Typography>
+    );
+}
+  
+function a11yProps(index: any) {
+    return {
+      id: `full-width-tab-${index}`,
+      'aria-controls': `full-width-tabpanel-${index}`,
+    };
+}
+
 export default class TagView extends Component<TagViewProps, TagViewState> {
     chartRef: {current: TreeView};
     newConceptNameRef: React.RefObject<{}>;
@@ -185,7 +218,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             isAddingParent: false,
             showAddRelatedNodeModal: false,
             modalNode: {} as WeightedConcept,
-            
+            activeTab: 0,
             nodesLoaded: false
         };
         this.chartRef = React.createRef() as {current: TreeView};
@@ -483,37 +516,59 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                         <IconButton style={{ position : 'absolute', right : '9px', top : '9px' }} onClick={() => this.setState({ showAddRelatedNodeModal : false })}>
                             <Close/>
                         </IconButton>
-                        <Typography variant={'h5'} id="modal-title">
-                            Add Related Concept To {this.state.selectedConcept.name}
-                        </Typography>
-                        <br/>
-                        <Typography variant={'body1'} id="modal-description">
-                            <FormControl>
-                                <Input
-                                    id='set-new__node-name'
-                                    ref={this.newConceptNameRef}
-                                    defaultValue='New Concept Name'
-                                />
+                        <Tabs
+                            value={this.state.activeTab}
+                            onChange={(e: any, val: number) => this.setState({ activeTab : val })}
+                            indicatorColor="primary"
+                            textColor="primary"
+                            variant="fullWidth"
+                            aria-label="full width tabs example"
+                            >
+                            <Tab label="Item One" {...a11yProps(0)} />
+                            <Tab label="Item Two" {...a11yProps(1)} />
+                        </Tabs>
+                        <SwipeableViews
+                            axis={'x'}
+                            index={this.state.activeTab}
+                            onChangeIndex={(e: any) => console.log(e)}
+                        >
+                            <TabPanel value={this.state.activeTab} index={0} dir={'ltr'}>
+                                <Typography variant={'h5'} id="modal-title">
+                                    Add Related Concept To {this.state.selectedConcept.name}
+                                </Typography>
                                 <br/>
-                                <br/>
-                                <Input 
-                                    id='set-new__node-lesson'
-                                    ref={this.newConceptLessonRef}
-                                    defaultValue='New Concept Lesson'
-                                />
-                                <br/>
-                                <br/>
-                                <Input 
-                                    id='set-new__relation-weight'
-                                    type='number'
-                                    ref={this.newRelationWeightRef}
-                                    defaultValue='1'
-                                />
-                            </FormControl>
-                            <br/>
-                            <br/>
-                            <Button onClick={this.createConceptWithRelation.bind(this)}>Add Related Concept</Button>                               
-                        </Typography>
+                                <Typography variant={'body1'} id="modal-description">
+                                    <FormControl>
+                                        <Input
+                                            id='set-new__node-name'
+                                            ref={this.newConceptNameRef}
+                                            defaultValue='New Concept Name'
+                                        />
+                                        <br/>
+                                        <br/>
+                                        <Input 
+                                            id='set-new__node-lesson'
+                                            ref={this.newConceptLessonRef}
+                                            defaultValue='New Concept Lesson'
+                                        />
+                                        <br/>
+                                        <br/>
+                                        <Input 
+                                            id='set-new__relation-weight'
+                                            type='number'
+                                            ref={this.newRelationWeightRef}
+                                            defaultValue='1'
+                                        />
+                                    </FormControl>
+                                    <br/>
+                                    <br/>
+                                    <Button onClick={this.createConceptWithRelation.bind(this)}>Add Related Concept</Button>                               
+                                </Typography>
+                            </TabPanel>
+                            <TabPanel value={this.state.activeTab} index={1} dir={'ltr'}>
+                                Item Two
+                            </TabPanel>
+                        </SwipeableViews>
                     </Paper>
                 </Modal>}
             </div>
