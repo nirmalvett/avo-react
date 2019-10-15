@@ -19,12 +19,7 @@ import {
     ClassOutlined,
     SettingsOutlined,
     ExitToAppOutlined,
-    AssignmentReturnedOutlined,
     SvgIconComponent,
-    SchoolOutlined,
-    MessageOutlined,
-    AssignmentTurnedInOutlined,
-    ExtensionOutlined,
 } from '@material-ui/icons';
 import {Section} from './LayoutModels';
 const drawerWidth = 240;
@@ -107,8 +102,6 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
             <List subheader={isTeacher ? <ListSubheader>Student Tools</ListSubheader> : undefined}>
                 {this.listItem(HomeOutlined, {name: 'Home'})}
                 {this.listItem(ClassOutlined, {name: 'My Classes', _class: null, _quiz: null})}
-                {this.listItem(SchoolOutlined, {name: 'Learn'})}
-                {this.listItem(SchoolOutlined, {name: 'Mastery'})}
             </List>
         );
     }
@@ -119,8 +112,6 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                 <Divider />
                 <List subheader={<ListSubheader>Teacher Tools</ListSubheader>}>
                     {this.listItem(ClassOutlined, {name: 'Manage Classes'})}
-                    {this.listItem(AssignmentTurnedInOutlined, {name: 'Add Students'})}
-                    {this.listItem(MessageOutlined, {name: 'Notify Class'})}
                     {this.listItem(BuildOutlined, {
                         name: 'My Questions',
                         s: null,
@@ -128,8 +119,6 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                         sets: [],
                     })}
                     {this.listItem(HelpOutline, {name: 'Documentation'})}
-                    {this.listItem(ExtensionOutlined, {name: 'Concept Builder'})}
-                    {this.listItem(AssignmentReturnedOutlined, {name: 'Export Tools'})}
                 </List>
             </Fragment>
         );
