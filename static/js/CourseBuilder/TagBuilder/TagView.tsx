@@ -88,6 +88,7 @@ interface TagViewState {
     showModal: boolean;
     showAddNodeModal: boolean;
     showAddRelatedNodeModal: boolean;
+    isAddingParent: boolean;
     modalNode: WeightedConcept;
 
     nodesLoaded: boolean;
@@ -181,6 +182,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
 
             showModal: false,
             showAddNodeModal: false,
+            isAddingParent: false,
             showAddRelatedNodeModal: false,
             modalNode: {} as WeightedConcept,
             
@@ -274,13 +276,19 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             </Grid>
                             <Grid item md={4}>
                                 <div style={{display: 'flex', flexDirection: 'row', position: 'relative', height: '-webkit-fill-available' }}>
-                                    <Fab color="primary" aria-label="add" style={{ position : 'absolute', bottom : '9px', right : '9px' }}>
+                                    <IconButton 
+                                        onClick={this.saveConcept.bind(this)} 
+                                        color="primary" 
+                                        aria-label="save" 
+                                        style={{ position : 'absolute', bottom : '9px', right : '9px' }}
+                                    >
                                         <Save/>
-                                    </Fab>
+                                    </IconButton>
                                     <div style={{ position : 'absolute', top : '9px', right : '9px' }}>
                                         <AVOPopupMenu options={[ 
                                             { label : 'Edit Lesson', onClick : () => { this.setState({ isEditingLesson : true }); } }, 
-                                            { label : 'Add Node', onClick : () => { this.setState({ showAddNodeModal : true }); } } 
+                                            { label : 'Add Concept', onClick : () => { this.setState({ showAddNodeModal : true }); } }, 
+                                            { label : 'Delete Concept', onClick : this.deleteConcept.bind(this) }, 
                                         ]}/>
                                     </div>
                                     <div style={{ width: '-webkit-fill-available', marginTop : '9px' }}>
@@ -320,24 +328,13 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         <br/>
                                         <List
                                             component="nav"
-                                            style={{ maxHeight : '60vh' }}
-                                            aria-labelledby="nested-list-subheader"
-                                            subheader={
-                                                <ListSubheader component="div" id="nested-list-subheader">
-                                                    Related Concepts & Weights 
-                                                    {/* <span>
-                                                        <AVOPopover content={'This is some popover content'}>
-                                                            <Info style={{ transform : 'scale(0.75) translateY(10px)' }}/>
-                                                        </AVOPopover>
-                                                    </span> */}
-                                                </ListSubheader>
-                                            }
+                                            style={{ maxHeight : '60vh', overflowY : 'auto' }}
                                         >
                                             <ListItem button onClick={() => this.setState({ showParentNodes : !showParentNodes })}>
                                                 <ListItemText primary={<b>Prerequisite Concepts</b>} />
                                                 {showParentNodes ? <ExpandLess /> : <ExpandMore />}
                                                 <ListItemSecondaryAction>
-                                                    <IconButton edge="end" aria-label="Add" onClick={() => this.setState({ showAddRelatedNodeModal : true })}>
+                                                    <IconButton edge="end" aria-label="Add" onClick={() => this.setState({ showAddRelatedNodeModal : true, isAddingParent : true })}>
                                                       <Add />
                                                     </IconButton>
                                                 </ListItemSecondaryAction>
@@ -366,7 +363,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 <ListItemText primary={<b>Subsequent Concepts</b>} />
                                                 {showChildNodes ? <ExpandLess /> : <ExpandMore />}
                                                  <ListItemSecondaryAction>
-                                                    <IconButton edge="end" aria-label="Add" onClick={() => this.setState({ showAddRelatedNodeModal : true })}>
+                                                    <IconButton edge="end" aria-label="Add" onClick={() => this.setState({ showAddRelatedNodeModal : true, isAddingParent : false })}>
                                                       <Add />
                                                     </IconButton>
                                                 </ListItemSecondaryAction>
@@ -398,7 +395,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                         </Grid>
                     </Card>
                 )}
-                <Modal
+                {this.state.showModal && <Modal
                     open={this.state.showModal}
                     aria-labelledby="modal-title"
                     aria-describedby="modal-description"
@@ -421,8 +418,8 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                 value={this.state.selectedClassName}
                                 input={<Input name='data' id='select-class' />}
                                 onChange={e =>{
-                                    const newWeight:number = parseInt(e.target.value);
-                                    
+                                    const newWeight:number = parseInt(e.target.value as string);
+
                                 }}
                             >
                                 <MenuItem key={'relation-weight-1'} value={'1'}>
@@ -440,8 +437,8 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             </Select>                      
                         </Typography>
                     </Paper>
-                </Modal>
-                <Modal
+                </Modal>}
+                {this.state.showAddNodeModal && <Modal
                     open={this.state.showAddNodeModal}
                     aria-labelledby="modal-title"
                     aria-describedby="modal-description"
@@ -475,8 +472,8 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             <Button onClick={this.createNewConcept.bind(this)}>Add Concept</Button>                               
                         </Typography>
                     </Paper>
-                </Modal>
-                <Modal
+                </Modal>}
+                {this.state.showAddRelatedNodeModal && <Modal
                     open={this.state.showAddRelatedNodeModal}
                     aria-labelledby="modal-title"
                     aria-describedby="modal-description"
@@ -518,87 +515,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             <Button onClick={this.createConceptWithRelation.bind(this)}>Add Related Concept</Button>                               
                         </Typography>
                     </Paper>
-                </Modal>
-                <Modal
-                    open={this.state.showAddNodeModal}
-                    aria-labelledby="modal-title"
-                    aria-describedby="modal-description"
-                    style={{ width : '40%', top : '50px', left: '30%', right : '30%', position : 'absolute' }}
-                >
-                    <Paper className="avo-card">
-                        <IconButton style={{ position : 'absolute', right : '9px', top : '9px' }} onClick={() => this.setState({ showAddNodeModal : false })}>
-                            <Close/>
-                        </IconButton>
-                        <Typography variant={'h5'} id="modal-title">
-                            Add New Concept
-                        </Typography>
-                        <br/>
-                        <Typography variant={'body1'} id="modal-description">
-                            <FormControl>
-                                <Input
-                                    id='set-new__node-name'
-                                    ref={this.newConceptNameRef}
-                                    defaultValue='New Concept Name'
-                                />
-                                <br/>
-                                <br/>
-                                <Input 
-                                    id='set-new__node-lesson'
-                                    ref={this.newConceptLessonRef}
-                                    defaultValue='New Concept Lesson'
-                                />
-                            </FormControl>
-                            <br/>
-                            <br/>
-                            <Button onClick={this.createNewConcept.bind(this)}>Add Concept</Button>                               
-                        </Typography>
-                    </Paper>
-                </Modal>
-                <Modal
-                    open={this.state.showAddRelatedNodeModal}
-                    aria-labelledby="modal-title"
-                    aria-describedby="modal-description"
-                    style={{ width : '40%', top : '50px', left: '30%', right : '30%', position : 'absolute' }}
-                >
-                    <Paper className="avo-card">
-                        <IconButton style={{ position : 'absolute', right : '9px', top : '9px' }} onClick={() => this.setState({ showAddRelatedNodeModal : false })}>
-                            <Close/>
-                        </IconButton>
-                        <Typography variant={'h5'} id="modal-title">
-                            Add Related Concept To {this.state.selectedConcept.name}
-                        </Typography>
-                        <br/>
-                        <Typography variant={'body1'} id="modal-description">
-                            <FormControl>
-                                <Input
-                                    id='set-new__node-name'
-                                    ref={this.newConceptNameRef}
-                                    defaultValue='New Concept Name'
-                                />
-                                <br/>
-                                <br/>
-                                <Input 
-                                    id='set-new__node-lesson'
-                                    ref={this.newConceptLessonRef}
-                                    defaultValue='New Concept Lesson'
-                                />
-                                <br/>
-                                <br/>
-                                <Input 
-                                    id='set-new__relation-weight'
-                                    type='number'
-                                    min={'1'}
-                                    max={'4'}
-                                    ref={this.newRelationWeightRef}
-                                    defaultValue='1'
-                                />
-                            </FormControl>
-                            <br/>
-                            <br/>
-                            <Button onClick={this.createConceptWithRelation.bind(this)}>Add Related Concept</Button>                               
-                        </Typography>
-                    </Paper>
-                </Modal>
+                </Modal>}
             </div>
         );
     }
@@ -634,20 +551,49 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         });
     };
 
+    saveConcept() {
+        const conceptID:number = this.state.selectedConcept.conceptID;
+        const conceptName:string = this.state.tagName;
+        const conceptLesson:string = this.state.lessonText;
+        Http.editConcept(
+            conceptID,
+            conceptName,
+            conceptLesson,
+            res => {
+                console.log(res);
+            },
+            res => {
+                console.warn(res);
+            }
+        );
+    };
+
+    deleteConcept() {
+        const conceptID:number = this.state.selectedConcept.conceptID;
+        Http.deleteConcept(
+            conceptID,
+            res => {
+                this.getTagNodes();
+            },
+            res => {
+
+            }
+        );
+    };
+
     createNewConcept() {
         const _this: TagView = this;
         const name:string    = (document as any).getElementById('set-new__node-name').value;
         const lesson:string  = (document as any).getElementById('set-new__node-lesson').value;
-        console.log(name, lesson);
         Http.addConcept(
             2,
             name,
             lesson,
             res => {
-                const newconcept: any = res;
+                const newconcept: Concept = { conceptID : res.conceptID, name : name, lesson : lesson };
                 const concepts: Concept[] = [..._this.state.concepts];
                 const edges: Edge[] = [..._this.state.edges];
-                concepts.push({ conceptID : newconcept.ID, name : name, lesson : lesson } as Concept);
+                concepts.push(newconcept);
                 _this.setState({
                     showAddNodeModal : false,
                     concepts : concepts,
@@ -655,6 +601,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                 }, 
                 () => {
                     _this.chartRef.current.init();
+                    setTimeout(() => _this.gotoSelectedNode(newconcept), 150);
                 });
             },
             err => {
@@ -665,6 +612,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
 
     createConceptWithRelation() {
         const _this: TagView = this;
+        const isAddingParent: boolean = this.state.isAddingParent;
         const name:string   = (document as any).getElementById('set-new__node-name').value;
         const lesson:string = (document as any).getElementById('set-new__node-lesson').value;
         const weight:string = (document as any).getElementById('set-new__relation-weight').value;
@@ -674,11 +622,15 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             lesson,
             res => {
                 console.log(res);
-                const newconcept: any = res;
+                const newconcept: Concept = {
+                    conceptID : res.conceptID,
+                    name : name,
+                    lesson : lesson
+                };
                 const newedge: Edge = {
                     weight : parseInt(weight),
-                    parent : _this.state.selectedConcept.conceptID,
-                    child  : newconcept.conceptID,
+                    parent : isAddingParent ? newconcept.conceptID : _this.state.selectedConcept.conceptID,
+                    child  : isAddingParent ? _this.state.selectedConcept.conceptID : newconcept.conceptID,
                 };
                 Http.setConceptRelation(
                     newedge.parent,
@@ -688,7 +640,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                         console.log(res);
                         const concepts: Concept[] = [..._this.state.concepts];
                         const edges: Edge[] = [..._this.state.edges];
-                        concepts.push({ conceptID : newconcept.ID, name : newconcept.name, lesson : newconcept.lesson } as Concept);
+                        concepts.push(newconcept);
                         edges.push(newedge);
                         _this.setState({
                             showAddRelatedNodeModal : false,
@@ -697,6 +649,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                         }, 
                         () => {
                             _this.chartRef.current.init();
+                            setTimeout(() => _this.gotoSelectedNode(newconcept), 150);
                         });       
                     },
                     err => {
@@ -749,7 +702,6 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
     };
 
     gotoSelectedNode(node: any) {
-        console.log(node);
         this.chartRef.current.selectNode(`node-${node.conceptID}-end`);
     };
 
@@ -762,6 +714,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     // tagNodes : data,
                     concepts: res.concepts,
                     edges: res.edges,
+                    selectedConcept: {} as Concept,
                     nodesLoaded : true
                 });
             },
