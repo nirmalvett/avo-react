@@ -90,7 +90,10 @@ def get_sections():
         (current_user.USER == UserSection.USER) & (UserSection.SECTION == Test.SECTION)
     ).all()
     users_takes: List[Takes] = Takes.query.filter(
-        (current_user.USER == UserSection.USER) & (UserSection.SECTION == Test.SECTION) & (Test.TEST == Takes.TEST)
+        (current_user.USER == UserSection.USER) &
+        (UserSection.SECTION == Test.SECTION) &
+        (Test.TEST == Takes.TEST) &
+        (current_user.USER == Takes.USER)
     ).all()
     users_test_stats = db.session.execute(text(test_stats_sql), params={'user': current_user.USER}).fetchall()
     users_medians = db.session.execute(text(test_medians_sql), params={'user': current_user.USER}).fetchall()
