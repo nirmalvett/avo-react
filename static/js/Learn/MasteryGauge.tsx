@@ -106,7 +106,7 @@ export default function AVOMasteryGauge(props: AVOMasteryGaugeProps) {
                 />
                 {triangles}
                 <foreignObject x={5} y={5} width={32} height={32}>
-                    <center style={{zIndex: 10, position: 'inherit'}}>
+                    <div style={{zIndex: 10, position: 'inherit', textAlign: 'center'}}>
                         <div
                             className='avo-progression-gauge'
                             style={{
@@ -116,14 +116,14 @@ export default function AVOMasteryGauge(props: AVOMasteryGaugeProps) {
                                         : '#fff',
                             }}
                         >
-                            <center
+                            <div
                                 className='avo-progression-gauge-text'
-                                style={{color: props.theme.color[500]}}
+                                style={{color: props.theme.color[500], textAlign: 'center'}}
                             >
                                 {props.comprehension}%
-                            </center>
+                            </div>
                         </div>
-                    </center>
+                    </div>
                 </foreignObject>
                 <defs>
                     <style>

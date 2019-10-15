@@ -175,7 +175,6 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                                     comprehension={Math.floor(
                                         (lesson.newMastery || lesson.mastery) * 100,
                                     )}
-                                    colors={['#399103', '#039124', '#809103']}
                                 />
                                 <Typography variant={'h6'}>{lesson.Tag}</Typography>
                                 <Typography variant={'subtitle1'}>

@@ -69,7 +69,7 @@ export default class AVOLearnTestComp extends Component<
                     hideModal={() => this.setState({postLessonModalDisplay: 'none'})}
                     modalDisplay={this.state.postLessonModalDisplay}
                     lesson={this.props.lesson}
-                ></AVOLearnIncorrectAnswerModal>
+                />
                 {this.state.currentState === 'LESSON' && (
                     <Grid container spacing={8}>
                         <Grid item xs={8}>
@@ -95,7 +95,6 @@ export default class AVOLearnTestComp extends Component<
                             >
                                 <AVOMasteryGauge
                                     comprehension={Math.floor(this.props.lesson.mastery * 100)}
-                                    colors={['#399103', '#039124', '#809103']}
                                     theme={this.props.theme}
                                 />
                             </div>
@@ -230,7 +229,6 @@ export default class AVOLearnTestComp extends Component<
                                             comprehension={Math.floor(
                                                 this.state.changedMastery * 100,
                                             )}
-                                            colors={['#399103', '#039124', '#809103']}
                                             theme={this.props.theme}
                                         />
                                         <Typography variant={'subtitle2'}>
@@ -397,7 +395,6 @@ export default class AVOLearnTestComp extends Component<
                                             comprehension={Math.floor(
                                                 this.state.changedMastery * 100,
                                             )}
-                                            colors={['#399103', '#039124', '#809103']}
                                             theme={this.props.theme}
                                         />
                                         <Typography variant={'subtitle2'}>
