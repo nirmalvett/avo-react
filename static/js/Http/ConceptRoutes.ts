@@ -59,7 +59,7 @@ export function getConcepts(courseID: number, success: cb<GetConcepts>, failure:
     _request('POST', '/getConcepts', success, failure, {courseID});
 }
 
-interface GetConceptGraph {
+export interface GetConceptGraph {
     concepts: {
         conceptID: number;
         name: string;
