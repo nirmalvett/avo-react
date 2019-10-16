@@ -71,21 +71,26 @@ export default class AVOBarChart extends Component<AVOBarChartProps> {
                     <div
                         style={{height: '75%', width: '100%'}}
                         onMouseOver={() => {
-                            (document.getElementById(`line@${maxStep * i}`) as HTMLElement).style.opacity = '1';
+                            (document.getElementById(
+                                `line@${maxStep * i}`,
+                            ) as HTMLElement).style.opacity = '1';
                             const tooltipEL = document.getElementById('avo-bar-chart-tooltip');
                             if (tooltipEL === null) return;
                             tooltipEL.style.left =
-                                (document.getElementById(`line@${maxStep * i}`) as HTMLElement)
-                                    .getBoundingClientRect().left -
-                                (document.getElementById('avo-bar-chart-container') as HTMLElement)
-                                    .getBoundingClientRect().left +
+                                (document.getElementById(
+                                    `line@${maxStep * i}`,
+                                ) as HTMLElement).getBoundingClientRect().left -
+                                (document.getElementById(
+                                    'avo-bar-chart-container',
+                                ) as HTMLElement).getBoundingClientRect().left +
                                 'px';
                         }}
                         onMouseMove={() => {
                             const tooltipEL = document.getElementById('avo-bar-chart-tooltip');
                             if (tooltipEL === null) return;
-                            (document.getElementById('avo-bar-chart-container') as HTMLElement)
-                                .addEventListener('mousemove', tooltipFollow, true);
+                            (document.getElementById(
+                                'avo-bar-chart-container',
+                            ) as HTMLElement).addEventListener('mousemove', tooltipFollow, true);
                             tooltipEL.style.opacity = '1';
                             tooltipEL.innerHTML = ``;
                             props.labels.forEach((obj, index) => {
@@ -95,9 +100,12 @@ export default class AVOBarChart extends Component<AVOBarChartProps> {
                         onMouseLeave={() => {
                             const tooltipEL = document.getElementById('avo-bar-chart-tooltip');
                             if (tooltipEL === null) return;
-                            (document.getElementById(`line@${maxStep * i}`) as HTMLElement).style.opacity = '0';
-                            (document.getElementById('avo-bar-chart-container') as HTMLElement)
-                                .removeEventListener('mousemove', tooltipFollow, true);
+                            (document.getElementById(
+                                `line@${maxStep * i}`,
+                            ) as HTMLElement).style.opacity = '0';
+                            (document.getElementById(
+                                'avo-bar-chart-container',
+                            ) as HTMLElement).removeEventListener('mousemove', tooltipFollow, true);
                             tooltipEL.style.opacity = '0';
                             tooltipEL.innerHTML = ``;
                         }}
@@ -152,7 +160,7 @@ export default class AVOBarChart extends Component<AVOBarChartProps> {
                     {yAxisTooltip}
                     {params}
                 </svg>
-                <div id='avo-bar-chart-tooltip'/>
+                <div id='avo-bar-chart-tooltip' />
             </div>
         );
     }

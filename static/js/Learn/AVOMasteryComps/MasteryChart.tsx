@@ -7,9 +7,9 @@ interface AVOMasteryChartProps {
     theme: {
         color: {
             '500': string;
-        }
+        };
         theme: 'light' | 'dark';
-    }
+    };
 }
 
 export default function AVOMasteryChart(props: AVOMasteryChartProps) {
@@ -24,7 +24,12 @@ export default function AVOMasteryChart(props: AVOMasteryChartProps) {
             angle: Math.atan2(lengthY, lengthX),
         };
     };
-    const controlPoint = (current: [number, number], previous: [number, number], next: [number, number], reverse: boolean) => {
+    const controlPoint = (
+        current: [number, number],
+        previous: [number, number],
+        next: [number, number],
+        reverse: boolean,
+    ) => {
         const p = previous || current;
         const n = next || current;
         const o = line(p, n);
@@ -45,7 +50,10 @@ export default function AVOMasteryChart(props: AVOMasteryChartProps) {
             point[1]
         }`;
     };
-    const svgPath = (points: [number, number][], command: (point: [number, number], i: number, a: [number, number][]) => void) => {
+    const svgPath = (
+        points: [number, number][],
+        command: (point: [number, number], i: number, a: [number, number][]) => void,
+    ) => {
         // build the d attributes by looping over the points
         const d = points.reduce(
             (acc, point, i, a) =>
@@ -81,33 +89,39 @@ export default function AVOMasteryChart(props: AVOMasteryChartProps) {
                 <div
                     style={{height: '75%', width: '100%'}}
                     onMouseOver={() => {
-                        (document.getElementById(`line@${maxStep * (index + 1)}-${dataPoint}`) as HTMLElement)
-                            .style.opacity = '1';
+                        (document.getElementById(
+                            `line@${maxStep * (index + 1)}-${dataPoint}`,
+                        ) as HTMLElement).style.opacity = '1';
                         const tooltipEL = document.getElementById('avo-line-chart-tooltip');
                         if (tooltipEL === null) return;
                         tooltipEL.style.left =
-                            (document.getElementById(`line@${maxStep * (index + 1)}-${dataPoint}`) as HTMLElement)
-                                .getBoundingClientRect().left -
-                            (document.getElementById('avo-line-chart-container') as HTMLElement)
-                                .getBoundingClientRect().left +
+                            (document.getElementById(
+                                `line@${maxStep * (index + 1)}-${dataPoint}`,
+                            ) as HTMLElement).getBoundingClientRect().left -
+                            (document.getElementById(
+                                'avo-line-chart-container',
+                            ) as HTMLElement).getBoundingClientRect().left +
                             (index < props.dataPoints.length - 1 ? 0 : -125) +
                             'px';
                     }}
                     onMouseMove={() => {
                         const tooltipEL = document.getElementById('avo-line-chart-tooltip');
                         if (tooltipEL === null) return;
-                        (document.getElementById('avo-line-chart-container') as HTMLElement)
-                            .addEventListener('mousemove', tooltipFollow, true);
+                        (document.getElementById(
+                            'avo-line-chart-container',
+                        ) as HTMLElement).addEventListener('mousemove', tooltipFollow, true);
                         tooltipEL.style.opacity = '1';
                         tooltipEL.innerHTML = `<b>Mastery:</b> ${dataPoint}%<br/><b>Date:</b> ${props.dataLabels[index]}`;
                     }}
                     onMouseLeave={() => {
                         const tooltipEL = document.getElementById('avo-line-chart-tooltip');
                         if (tooltipEL === null) return;
-                        (document.getElementById(`line@${maxStep * (index + 1)}-${dataPoint}`) as HTMLElement)
-                            .style.opacity = '0';
-                        (document.getElementById('avo-line-chart-container') as HTMLElement)
-                            .removeEventListener('mousemove', tooltipFollow, true);
+                        (document.getElementById(
+                            `line@${maxStep * (index + 1)}-${dataPoint}`,
+                        ) as HTMLElement).style.opacity = '0';
+                        (document.getElementById(
+                            'avo-line-chart-container',
+                        ) as HTMLElement).removeEventListener('mousemove', tooltipFollow, true);
                         tooltipEL.style.opacity = '0';
                         tooltipEL.innerHTML = ``;
                     }}

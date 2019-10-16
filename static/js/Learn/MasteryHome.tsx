@@ -20,15 +20,15 @@ import * as Http from '../Http';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import AVOMasteryGauge from './MasteryGauge';
 import AVOMasteryChart from './AVOMasteryComps/MasteryChart';
-import {GetSections_Section} from "../Http";
+import {GetSections_Section} from '../Http';
 
 interface MasteryHomeProps {
     theme: {
         color: {
-            '500': string
-        }
+            '500': string;
+        };
         theme: 'light' | 'dark';
-    }
+    };
 }
 
 interface Concept {
@@ -60,7 +60,7 @@ export default class MasteryHome extends Component<MasteryHomeProps, MasteryHome
             concepts: [],
             edges: [],
             selectedConcepts: [],
-            activeConcept: null as unknown as Concept,
+            activeConcept: (null as unknown) as Concept,
             currentIndex: 0,
             sections: [],
             loaded: false,
@@ -130,15 +130,22 @@ export default class MasteryHome extends Component<MasteryHomeProps, MasteryHome
                                                 marginTop: '-1em',
                                             }}
                                         >
-                                            <InputLabel htmlFor='classSelectionBase'/>
+                                            <InputLabel htmlFor='classSelectionBase' />
                                             <Select
                                                 className='avo-select'
                                                 native
                                                 onChange={event => {
-                                                    this.setState({sectionIndex: event.target.value as number});
+                                                    this.setState({
+                                                        sectionIndex: event.target.value as number,
+                                                    });
                                                     setTimeout(this.loadInConceptData, 10);
                                                 }}
-                                                input={<OutlinedInput id='classSelectionBase' labelWidth={20} />}
+                                                input={
+                                                    <OutlinedInput
+                                                        id='classSelectionBase'
+                                                        labelWidth={20}
+                                                    />
+                                                }
                                             >
                                                 {this.state.sections.map((avo_class, index) => {
                                                     return (
@@ -162,11 +169,16 @@ export default class MasteryHome extends Component<MasteryHomeProps, MasteryHome
                                         </Typography>
                                         <Grid container>
                                             <Grid item xs={8}>
-                                                {this.state.activeConcept.chartingData.length > 2 ? (
+                                                {this.state.activeConcept.chartingData.length >
+                                                2 ? (
                                                     <AVOMasteryChart
                                                         theme={this.props.theme}
-                                                        dataPoints={this.state.activeConcept.chartingData}
-                                                        dataLabels={this.state.activeConcept.compAtTime}
+                                                        dataPoints={
+                                                            this.state.activeConcept.chartingData
+                                                        }
+                                                        dataLabels={
+                                                            this.state.activeConcept.compAtTime
+                                                        }
                                                         height='400px'
                                                     />
                                                 ) : (
@@ -195,7 +207,9 @@ export default class MasteryHome extends Component<MasteryHomeProps, MasteryHome
                                             <Grid item xs={4}>
                                                 <AVOMasteryGauge
                                                     theme={this.props.theme}
-                                                    comprehension={this.state.activeConcept.comprehension}
+                                                    comprehension={
+                                                        this.state.activeConcept.comprehension
+                                                    }
                                                 />
                                             </Grid>
                                         </Grid>
@@ -223,7 +237,7 @@ export default class MasteryHome extends Component<MasteryHomeProps, MasteryHome
                 </Grid>
                 <Grid item xs={10}>
                     <FormControl variant='outlined' style={{width: '91%'}}>
-                        <InputLabel htmlFor='contextSelectionBase'/>
+                        <InputLabel htmlFor='contextSelectionBase' />
                         <Select
                             className='avo-select'
                             native
@@ -233,7 +247,8 @@ export default class MasteryHome extends Component<MasteryHomeProps, MasteryHome
                             onChange={event => {
                                 let selectedTagsCopy = [
                                     _this.state.concepts[
-                                        _this.state.concepts.filter(x => x.parents.length === 0)
+                                        _this.state.concepts
+                                            .filter(x => x.parents.length === 0)
                                             .map(x => x.conceptID)
                                             .indexOf(parseInt(event.target.value as string))
                                     ],
@@ -245,13 +260,15 @@ export default class MasteryHome extends Component<MasteryHomeProps, MasteryHome
                             }}
                             input={<OutlinedInput id='contextSelectionBase' labelWidth={20} />}
                         >
-                            {this.state.concepts.filter(x => x.parents.length === 0).map(tag => {
-                                return (
-                                    <option value={tag.conceptID} key={tag.conceptID}>
-                                        {tag.name}
-                                    </option>
-                                );
-                            })}
+                            {this.state.concepts
+                                .filter(x => x.parents.length === 0)
+                                .map(tag => {
+                                    return (
+                                        <option value={tag.conceptID} key={tag.conceptID}>
+                                            {tag.name}
+                                        </option>
+                                    );
+                                })}
                         </Select>
                     </FormControl>
                 </Grid>
@@ -271,7 +288,7 @@ export default class MasteryHome extends Component<MasteryHomeProps, MasteryHome
                     <Grid item xs={10}>
                         <Grow in={true}>
                             <FormControl variant='outlined' style={{width: '92%'}}>
-                                <InputLabel htmlFor={`contextSelectionBase-${i}`}/>
+                                <InputLabel htmlFor={`contextSelectionBase-${i}`} />
                                 <Select
                                     native
                                     className='avo-select'
@@ -288,7 +305,11 @@ export default class MasteryHome extends Component<MasteryHomeProps, MasteryHome
                                         selectedTagsCopy = selectedTagsCopy.splice(0, i + 1);
                                         let childTag = _this
                                             .filterTags(selectedTagsCopy[i].conceptID)
-                                            .filter(x => x.conceptID == parseInt(event.target.value as string));
+                                            .filter(
+                                                x =>
+                                                    x.conceptID ==
+                                                    parseInt(event.target.value as string),
+                                            );
                                         selectedTagsCopy.push(childTag[0]);
                                         if ((i + 2) % 3 == 0)
                                             setTimeout(() => _this.goToNextSlide(), 300);
@@ -297,14 +318,25 @@ export default class MasteryHome extends Component<MasteryHomeProps, MasteryHome
                                             activeConcept: childTag[0],
                                         });
                                     }}
-                                    input={<OutlinedInput id={`contextSelectionBase-${i}`} labelWidth={20} />}
+                                    input={
+                                        <OutlinedInput
+                                            id={`contextSelectionBase-${i}`}
+                                            labelWidth={20}
+                                        />
+                                    }
                                 >
                                     <option value={0} selected disabled>
                                         None
                                     </option>
-                                    {this.filterTags(this.state.selectedConcepts[i].conceptID).map(concept => {
-                                        return <option value={concept.conceptID}>{concept.name}</option>;
-                                    })}
+                                    {this.filterTags(this.state.selectedConcepts[i].conceptID).map(
+                                        concept => {
+                                            return (
+                                                <option value={concept.conceptID}>
+                                                    {concept.name}
+                                                </option>
+                                            );
+                                        },
+                                    )}
                                 </Select>
                             </FormControl>
                         </Grow>
@@ -370,7 +402,9 @@ export default class MasteryHome extends Component<MasteryHomeProps, MasteryHome
     };
 
     filterTags(pTagCriteria: number) {
-        return this.state.concepts.filter(tag => tag.parents.some(x => x.conceptID == pTagCriteria));
+        return this.state.concepts.filter(tag =>
+            tag.parents.some(x => x.conceptID == pTagCriteria),
+        );
     }
 
     getLessons() {
@@ -388,7 +422,8 @@ export default class MasteryHome extends Component<MasteryHomeProps, MasteryHome
         Http.getConceptGraph(
             selectedSectionID,
             ({concepts, edges}) => {
-                Http.getConcepts( // todo: change this to the get mastery history route when it exists
+                Http.getConcepts(
+                    // todo: change this to the get mastery history route when it exists
                     selectedSectionID,
                     () => {
                         // let timestamps = r.masteryTimestamps;
@@ -410,17 +445,24 @@ export default class MasteryHome extends Component<MasteryHomeProps, MasteryHome
                                 ...concept,
                                 parents: edges
                                     .filter(x => x.child === concept.conceptID)
-                                    .map(x => concepts.find(y => y.conceptID === x.parent) as Concept),
+                                    .map(
+                                        x =>
+                                            concepts.find(y => y.conceptID === x.parent) as Concept,
+                                    ),
                                 children: edges
                                     .filter(x => x.parent === concept.conceptID)
-                                    .map(x => concepts.find(y => y.conceptID === x.child) as Concept),
+                                    .map(
+                                        x => concepts.find(y => y.conceptID === x.child) as Concept,
+                                    ),
                                 chartingData: [],
                                 compAtTime: [],
                                 comprehension: Math.random(),
                             };
                         });
                         this.setState({concepts: mappedConcepts}, () => {
-                            const activeConcept = this.state.concepts.filter(x => x.parents.length === 0)[0];
+                            const activeConcept = this.state.concepts.filter(
+                                x => x.parents.length === 0,
+                            )[0];
                             this.setState({selectedConcepts: [activeConcept], activeConcept});
                         });
                     },

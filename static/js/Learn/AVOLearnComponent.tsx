@@ -9,7 +9,7 @@ import TextField from '@material-ui/core/TextField';
 import AVOLessonSlider from './AVOLessonSlider';
 
 import AVOLearnPostTestModel from './AVOLearnPostTestModal';
-import {GetSections_Section} from "../Http";
+import {GetSections_Section} from '../Http';
 
 export interface AvoLesson {
     mastery: number;
@@ -203,12 +203,14 @@ export default class AVOLearnComponent extends Component<
         );
     }
     setCurrentLesson = (currentLesson: AvoLesson) => {
-        this.setState({currentLesson})
-    }
+        this.setState({currentLesson});
+    };
     changeClass = () => {
         const {selectedClassName, classes} = this.state;
         if (selectedClassName !== 'Select class...') {
-            const selectedClass = classes.find((c: GetSections_Section) => c.name === selectedClassName);
+            const selectedClass = classes.find(
+                (c: GetSections_Section) => c.name === selectedClassName,
+            );
             if (selectedClass) {
                 this.setState({selectedClass}, () => this.getLessons());
             }

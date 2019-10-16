@@ -5,9 +5,9 @@ interface AVOMasteryGaugeProps {
     theme: {
         color: {
             '500': string;
-        }
+        };
         theme: 'light' | 'dark';
-    }
+    };
 }
 
 export default function AVOMasteryGauge(props: AVOMasteryGaugeProps) {

@@ -11,7 +11,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Message from './Message';
-import {GetSections_Section} from "../Http";
+import {GetSections_Section} from '../Http';
 import {Notification} from '../Models';
 
 export interface NotifyClassState {
