@@ -3,10 +3,13 @@ from typing import List
 from flask import Blueprint, jsonify
 from flask_login import current_user
 
+from server.MathCode.question import AvoQuestion
 from server.auth import able_edit_course, able_view_course, able_edit_concept
 from server.decorators import teacher_only, validate, login_required
 from server.models import db, Concept, ConceptQuestion, ConceptRelation, Mastery, MasteryHistory, UserCourse, Section, \
-    UserSection, User, Course
+    UserSection, User, Course, Question
+
+from random import choice, randint
 
 ConceptRoutes = Blueprint('ConceptRoutes', __name__)
 
@@ -204,7 +207,7 @@ def get_next_lessons(course_id: int):
         concept_dict[c.CONCEPT] = {
             'conceptID': c.CONCEPT,
             'name': c.name,
-            'lesson': c.lesson,
+            'lesson': c.lesson_content,
             'strength': 0,
             'prereqs': []
         }
@@ -231,10 +234,12 @@ def get_next_lessons(course_id: int):
         # todo: this criteria isn't good enough
         if concept_id in mastery_dict and mastery_dict[concept_id] > 0.75:
             continue
-        mastery_values = list(map(lambda x: mastery_dict[x['conceptID']], concept_obj['prereqs']))
+        mastery_values = list(map(
+            lambda x: mastery_dict[x['conceptID']] if x['conceptID'] in mastery_dict else 0, concept_obj['prereqs']
+        ))
         if all(map(lambda x: x > 0.25, mastery_values)):
             lessons.append(concept_obj)
-            concept_obj['strength'] = round(sum(mastery_values) / len(mastery_values), 2)
+            concept_obj['strength'] = round(sum(mastery_values) / (len(mastery_values) or 1), 2)
 
     return jsonify(lessons=lessons)
 
@@ -243,4 +248,10 @@ def get_next_lessons(course_id: int):
 @login_required
 @validate(conceptID=int)
 def get_next_question(concept_id):
-    return jsonify(ID=1, prompt='prompt', prompts=['answer 1', 'answer 2'], seed=123, types=['2', '2'])
+    questions: List[Question] = Question.query.filter(
+        (Question.QUESTION == ConceptQuestion.QUESTION) & (ConceptQuestion.CONCEPT == concept_id)
+    ).all()
+    question: Question = choice(questions)
+    seed = randint(0, 65535)
+    q = AvoQuestion(question.string, seed)
+    return jsonify(ID=question.QUESTION, prompt=q.prompt, prompts=q.prompts, seed=seed, types=q.types)
