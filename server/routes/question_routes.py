@@ -24,7 +24,7 @@ def get_all_questions():
         question_array.append(
             {
                 'QUESTION': q.QUESTION,
-                'SET': q.SET,
+                'SET': q.QUESTION_SET,
                 'name': q.name,
                 'string': q.string,
                 'answers': q.answers,
@@ -64,7 +64,7 @@ def rename_question(question_id: int, name: str):
     :return: Confirmation that Question has been updated
     """
     question = Question.query.get(question_id)
-    if not able_edit_set(question.SET):
+    if not able_edit_set(question.QUESTION_SET):
         return jsonify(error="User not able to edit SET")
     question.name = name
     db.session.commit()
@@ -80,7 +80,7 @@ def edit_question(question_id: int, string: str, answers: int, total: int):
     :return: Confirmation that question has been updated
     """
     question = Question.query.get(question_id)
-    if not able_edit_set(question.SET):
+    if not able_edit_set(question.QUESTION_SET):
         return jsonify(error="User not able to edit SET")
     if question_has_errors(string):
         return jsonify(error="Question could not be created")
@@ -100,9 +100,9 @@ def delete_question(question_id: int):
     :return: Confirmation that question has been removed
     """
     question = Question.query.get(question_id)
-    if not able_edit_set(question.SET):
+    if not able_edit_set(question.QUESTION_SET):
         return jsonify(error="User not able to edit SET")
-    question.SET = None
+    question.QUESTION_SET = None
     db.session.commit()
     return jsonify({})
 
@@ -169,7 +169,7 @@ def sample_question_answers(string: str, seed: int, answers):
 @validate(questionID=int, category=int)
 def change_category(question_id: int, category: int):
     question = Question.query.get(question_id)
-    if not able_edit_set(question.SET):
+    if not able_edit_set(question.QUESTION_SET):
         return jsonify(error="User not able to edit SET")
     question.category = category
     db.session.commit()
