@@ -26,8 +26,7 @@ def get_test(test_id: int):
         # If no test found return error json
         return jsonify(error='Test not found')
     if SectionRelations(test.SECTION).active:
-        if test.is_open is False:
-            # If test is not open then return error JSON
+        if test.open_time is not None and test.open_time > datetime.now():
             return jsonify(error='This set of questions has not been opened by your instructor yet')
         if test.deadline < datetime.now():
             # If deadline has passed return error JSON

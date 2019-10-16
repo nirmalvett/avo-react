@@ -341,7 +341,6 @@ class Test(db.Model):
     TEST = db.Column(db.Integer, primary_key=True, autoincrement=True)
     SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'))
     name = db.Column(db.String(45), nullable=False)
-    is_open = db.Column(db.Boolean, nullable=False, default=False)
     open_time = db.Column(db.DateTime)
     deadline = db.Column(db.DateTime, nullable=False)
     timer = db.Column(db.Integer, nullable=False, default=15)
@@ -356,7 +355,6 @@ class Test(db.Model):
     def __init__(self, section, name, is_open, open_time, deadline, timer, attempts, question_list, seed_list, total):
         self.SECTION = section
         self.name = name
-        self.is_open = is_open
         self.open_time = open_time
         self.deadline = deadline
         self.timer = timer
@@ -367,7 +365,7 @@ class Test(db.Model):
 
     def __repr__(self):
         return (
-            f'<Test {self.TEST} {self.SECTION} {self.name} {self.is_open} {self.open_time} {self.deadline} {self.timer}'
+            f'<Test {self.TEST} {self.SECTION} {self.name} {self.open_time} {self.deadline} {self.timer}'
             f' {self.attempts} {self.question_list} {self.seed_list} {self.total}>'
         )
 

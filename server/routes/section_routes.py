@@ -108,24 +108,10 @@ def get_sections():
         }
 
     for t in users_tests:
-        if t.open_time is not None:
-            # If the test has an open time check if it should auto open
-            if t.open_time is not None and not t.is_open and t.open_time <= now < t.deadline:
-                # If the test is withing the open time and deadline open the test and disable the open time
-                test_update = Test.query.get(t.TEST)
-                test_update.open_time = None
-                test_update.is_open = True
-                db.session.commit()
-        if t.is_open and t.deadline < now:
-            # If the test does not have an open time check the deadline param
-            test_update = Test.query.get(t.TEST)
-            test_update.is_open = False
-            db.session.commit()
-
         sections[t.SECTION]['tests'][t.TEST] = {
             'testID': t.TEST,
             'name': t.name,
-            'open': bool(((t.open_time is not None and t.open_time >= now) or t.is_open) and t.deadline > now),
+            'open': bool((t.open_time is None or t.open_time < now) and now < t.deadline),
             'openTime': timestamp(t.open_time),
             'deadline': timestamp(t.deadline),
             'timer': t.timer,
@@ -148,7 +134,7 @@ def get_sections():
                     'timeSubmitted': timestamp(t.time_submitted),
                     'grade': t.grade
                 })
-                if test['attempts'] >= len(test['submitted']):
+                if test['attempts'] <= len(test['submitted']):
                     test['open'] = False
             else:
                 test['current'] = {

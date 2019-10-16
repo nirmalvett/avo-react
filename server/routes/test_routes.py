@@ -124,7 +124,7 @@ def open_test(test_id: int):
         # If the user teaches the class the test is in open it
         if test.deadline < datetime.now():
             return jsonify(error="Deadline has already passed test can't be opened")
-        test.is_open = True
+        test.open_time = datetime.now()
         db.session.commit()
         return jsonify({})
     else:
@@ -145,7 +145,7 @@ def close_test(test_id: int):
         return jsonify(error='No test found')
     if UserSectionType.TEACHER in SectionRelations(test.SECTION).active:
         # If the user teaches the class the test is in close it
-        test.is_open = False
+        test.deadline = datetime.now()
         db.session.commit()
         return jsonify({})
     else:
