@@ -220,7 +220,7 @@ class Question(db.Model):
     __tablename__ = 'QUESTION'
 
     QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    QUESTION_SET = db.Column(db.Integer, db.ForeignKey('QUESTION_SET.QUESTION_SET'), nullable=False)
+    QUESTION_SET = db.Column(db.Integer, db.ForeignKey('QUESTION_SET.QUESTION_SET'))
     name = db.Column(db.String(60), nullable=False)
     string = db.Column(db.String(5000), nullable=False)
     answers = db.Column(db.Integer, nullable=False)
