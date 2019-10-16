@@ -81,18 +81,15 @@ def delete_concept(concept_id: int):
     concept_relation = ConceptRelation.query.filter((ConceptRelation.PARENT == concept_id) |
                                                     (ConceptRelation.CHILD == concept_id)).all()
     # Get all relations between other concepts and current concept
-    if len(concept_relation) > 0:
-        # If there are relations with other concepts delete them from database
-        db.session.delete(concept_relation)
+    for c in concept_relation:
+        db.session.delete(c)
     mastery = Mastery.query.filter(Mastery.CONCEPT == concept_id).all()  # Mastery with current concept
     mastery_history = MasteryHistory.query\
         .filter(MasteryHistory.MASTERY.in_(list(map(lambda x: x.MASTERY, mastery)))).all()  # Mastery backups with current concept
-    if len(mastery_history) > 0:
-        # If there are mastery histories delete from database
-        db.session.delete(mastery_history)
-    if len(mastery) > 0:
-        # if there are current mastery scores remove from database
-        db.session.delete(mastery)
+    for m in mastery_history:
+        db.session.delete(m)
+    for m in mastery:
+        db.session.delete(m)
     # Remove current concept from database and return
     db.session.delete(concept)
     db.session.commit()
