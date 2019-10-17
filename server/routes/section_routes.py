@@ -143,13 +143,13 @@ def get_sections():
     for s in users_test_stats:
         if s.SECTION in sections_dict and s.TEST in sections_dict[s.SECTION]['tests']:
             test = sections_dict[s.SECTION]['tests'][s.TEST]
-            test['sectionAverage'] = float(s.average)
+            test['sectionAverage'] = round(s.average, 2)
             test['sectionSize'] = int(s.student_count)
-            test['standardDeviation'] = float(s.stdev)
+            test['standardDeviation'] = round(s.stdev, 2)
 
     for m in users_medians:
         if m.SECTION in sections_dict and m.TEST in sections_dict[m.SECTION]['tests']:
-            sections_dict[m.SECTION]['tests'][m.TEST]['sectionMedian'] = float(m.median)
+            sections_dict[m.SECTION]['tests'][m.TEST]['sectionMedian'] = round(m.median, 2)
 
     for s in sections_dict:
         sections_dict[s]['tests'] = list(sections_dict[s]['tests'].values())
