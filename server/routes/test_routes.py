@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify
 
 from server.auth import SectionRelations
 from server.decorators import login_required, teacher_only, validate
-from server.helpers import from_timestamp
+from server.helpers import from_timestamp, timestamp
 from server.models import db, Test, Takes, Question, User, Section, UserSectionType, UserSection
 
 TestRoutes = Blueprint('TestRoutes', __name__)
@@ -126,7 +126,7 @@ def open_test(test_id: int):
             return jsonify(error="Deadline has already passed test can't be opened")
         test.open_time = datetime.now()
         db.session.commit()
-        return jsonify({})
+        return jsonify(openTime=timestamp(test.open_time))
     else:
         return jsonify(error="User doesn't teach this class")
 
@@ -147,7 +147,7 @@ def close_test(test_id: int):
         # If the user teaches the class the test is in close it
         test.deadline = datetime.now()
         db.session.commit()
-        return jsonify({})
+        return jsonify(deadline=timestamp(test.deadline))
     else:
         return jsonify(error="User doesn't teach this class")
 

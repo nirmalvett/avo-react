@@ -52,11 +52,11 @@ export function deleteTest(testID: number, success: cb<{}>, failure: cb) {
     _request('POST', '/deleteTest', success, failure, {testID});
 }
 
-export function openTest(testID: number, success: cb<{}>, failure: cb) {
+export function openTest(testID: number, success: cb<{openTime: number}>, failure: cb) {
     _request('POST', '/openTest', success, failure, {testID});
 }
 
-export function closeTest(testID: number, success: cb<{}>, failure: cb) {
+export function closeTest(testID: number, success: cb<{deadline: number}>, failure: cb) {
     _request('POST', '/closeTest', success, failure, {testID});
 }
 

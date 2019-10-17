@@ -31,7 +31,7 @@ import {
     PeopleOutlined,
 } from '@material-ui/icons';
 import * as Http from '../Http';
-import {copy, getDateString} from '../HelperFunctions/Utilities';
+import {copy, getDateString, isOpen} from '../HelperFunctions/Utilities';
 import {convertListFloatToAnalytics} from '../HelperFunctions/Helpers';
 import {ShowSnackBar} from '../Layout/Layout';
 import {
@@ -75,6 +75,7 @@ interface MyClassesProps {
 }
 
 interface MyClassesState {
+    now: number;
     classes: (Http.GetSections_Section & {open: boolean})[];
     classesLoaded: boolean;
     chartWidth: number;
@@ -94,6 +95,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
     constructor(props: MyClassesProps) {
         super(props);
         this.state = {
+            now: Number(new Date()),
             classes: [],
             classesLoaded: false,
             chartWidth: 200,
@@ -281,7 +283,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                             >
                                                 <ListItemIcon>
                                                     <AssessmentOutlined
-                                                        color={test.open ? 'primary' : 'disabled'}
+                                                        color={isOpen(test, this.state.now) ? 'primary' : 'disabled'}
                                                         style={{marginLeft: '10px'}}
                                                     />
                                                 </ListItemIcon>
@@ -593,7 +595,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                 testStats.topMarkPerStudent,
                 testStats.totalMark as number,
             );
-            let disableStartTest = !selectedTest.open;
+            let disableStartTest = !isOpen(selectedTest, this.state.now);
             return (
                 <Fragment>
                     <div

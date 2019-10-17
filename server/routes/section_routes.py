@@ -83,13 +83,13 @@ def get_sections():
     now = datetime.now()
 
     # Get data for courses that the user is enrolled in
-    users_sections = Section.query.filter(
+    sections: List[Section] = Section.query.filter(
         (UserSection.USER == current_user.USER) & (UserSection.SECTION == Section.SECTION)
     ).all()
-    users_tests: List[Test] = Test.query.filter(
+    tests: List[Test] = Test.query.filter(
         (current_user.USER == UserSection.USER) & (UserSection.SECTION == Test.SECTION)
     ).all()
-    users_takes: List[Takes] = Takes.query.filter(
+    takes: List[Takes] = Takes.query.filter(
         (current_user.USER == UserSection.USER) &
         (UserSection.SECTION == Test.SECTION) &
         (Test.TEST == Takes.TEST) &
@@ -98,20 +98,20 @@ def get_sections():
     users_test_stats = db.session.execute(text(test_stats_sql), params={'user': current_user.USER}).fetchall()
     users_medians = db.session.execute(text(test_medians_sql), params={'user': current_user.USER}).fetchall()
 
-    sections = {}
-    for s in users_sections:
-        sections[s.SECTION] = {
+    sections_dict = {}
+    for s in sections:
+        sections_dict[s.SECTION] = {
             'sectionID': s.SECTION,
+            'courseID': s.COURSE,
             'enrollKey': s.enroll_key,
             'name': s.name,
             'tests': {}
         }
 
-    for t in users_tests:
-        sections[t.SECTION]['tests'][t.TEST] = {
+    for t in tests:
+        sections_dict[t.SECTION]['tests'][t.TEST] = {
             'testID': t.TEST,
             'name': t.name,
-            'open': bool((t.open_time is None or t.open_time < now) and now < t.deadline),
             'openTime': timestamp(t.open_time),
             'deadline': timestamp(t.deadline),
             'timer': t.timer,
@@ -125,17 +125,15 @@ def get_sections():
             'standardDeviation': 0,
         }
 
-    for t in users_takes:
-        if t.TEST_RELATION.SECTION in sections and t.TEST in sections[t.TEST_RELATION.SECTION]['tests']:
-            test = sections[t.TEST_RELATION.SECTION]['tests'][t.TEST]
+    for t in takes:
+        if t.TEST_RELATION.SECTION in sections_dict and t.TEST in sections_dict[t.TEST_RELATION.SECTION]['tests']:
+            test = sections_dict[t.TEST_RELATION.SECTION]['tests'][t.TEST]
             if t.time_submitted < now:
                 test['submitted'].append({
                     'takesID': t.TAKES,
                     'timeSubmitted': timestamp(t.time_submitted),
                     'grade': t.grade
                 })
-                if test['attempts'] <= len(test['submitted']):
-                    test['open'] = False
             else:
                 test['current'] = {
                     'timeStarted': timestamp(t.time_started),
@@ -143,21 +141,21 @@ def get_sections():
                 }
 
     for s in users_test_stats:
-        if s.SECTION in sections and s.TEST in sections[s.SECTION]['tests']:
-            test = sections[s.SECTION]['tests'][s.TEST]
+        if s.SECTION in sections_dict and s.TEST in sections_dict[s.SECTION]['tests']:
+            test = sections_dict[s.SECTION]['tests'][s.TEST]
             test['sectionAverage'] = float(s.average)
             test['sectionSize'] = int(s.student_count)
             test['standardDeviation'] = float(s.stdev)
 
     for m in users_medians:
-        if m.SECTION in sections and m.TEST in sections[m.SECTION]['tests']:
-            sections[m.SECTION]['tests'][m.TEST]['sectionMedian'] = float(m.median)
+        if m.SECTION in sections_dict and m.TEST in sections_dict[m.SECTION]['tests']:
+            sections_dict[m.SECTION]['tests'][m.TEST]['sectionMedian'] = float(m.median)
 
-    for s in sections:
-        sections[s]['tests'] = list(sections[s]['tests'].values())
+    for s in sections_dict:
+        sections_dict[s]['tests'] = list(sections_dict[s]['tests'].values())
 
-    sections = list(sections.values())
-    return jsonify(sections=sections)
+    sections_dict = list(sections_dict.values())
+    return jsonify(sections=sections_dict)
 
 
 @SectionRoutes.route('/getSectionTestResults', methods=['POST'])

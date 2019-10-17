@@ -33,6 +33,7 @@ export interface GetSections {
 
 export interface GetSections_Section {
     sectionID: number;
+    courseID: number;
     enrollKey: string | null;
     name: string;
     tests: GetSections_Test[];
@@ -41,7 +42,6 @@ export interface GetSections_Section {
 export interface GetSections_Test {
     testID: number;
     name: string;
-    open: boolean;
     openTime: number;
     deadline: number;
     timer: number;

@@ -42,7 +42,7 @@ import {
     Stop,
 } from '@material-ui/icons';
 import * as Http from '../Http';
-import {copy, getDateString} from '../HelperFunctions/Utilities';
+import {copy, getDateString, isOpen} from '../HelperFunctions/Utilities';
 import AVOModal from '../SharedComponents/MaterialModal';
 // @ts-ignore
 import Chart from 'react-apexcharts';
@@ -71,6 +71,7 @@ interface ManageClassesProps {
 }
 
 interface ManageClassesState {
+    now: number;
     classes: (Http.GetSections_Section & {open: boolean})[];
     classesLoaded: boolean;
     c: null | number;
@@ -102,6 +103,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     constructor(props: ManageClassesProps) {
         super(props);
         this.state = {
+            now: Number(new Date()),
             classes: [],
             classesLoaded: false,
             c: null, // Selected class
@@ -255,7 +257,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                             >
                                 <ListItemIcon>
                                     <AssessmentOutlined
-                                        color={test.open ? 'primary' : 'disabled'}
+                                        color={isOpen(test, this.state.now) ? 'primary' : 'disabled'}
                                         style={{marginLeft: '10px'}}
                                     />
                                 </ListItemIcon>
@@ -702,7 +704,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     </IconButton>
                 </Tooltip>
                 {/* Start/Stop Test Button*/}
-                {selectedTest.open ? (
+                {isOpen(selectedTest, this.state.now) ? (
                     <Tooltip title='Close the test'>
                         <IconButton onClick={() => this.closeTest()}>
                             <Stop />
@@ -1004,8 +1006,8 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         let newClasses = copy(this.state.classes);
         Http.openTest(
             selectedTest.testID,
-            () => {
-                newClasses[this.state.c as number].tests[this.state.t as number].open = true;
+            ({openTime}) => {
+                newClasses[this.state.c as number].tests[this.state.t as number].openTime = openTime;
                 this.setState({
                     classes: newClasses,
                     studentNameSearchLabels: this.genStudentNameSearchLabels(),
@@ -1020,8 +1022,8 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         let newClasses = copy(this.state.classes);
         Http.closeTest(
             selectedTest.testID,
-            () => {
-                newClasses[this.state.c as number].tests[this.state.t as number].open = false;
+            ({deadline}) => {
+                newClasses[this.state.c as number].tests[this.state.t as number].deadline = deadline;
                 this.setState({classes: newClasses});
             },
             () => {},

@@ -3,6 +3,7 @@ import React from 'react';
 import {Node, Context} from 'react-mathjax2';
 import Typography from '@material-ui/core/Typography/Typography';
 import {ThemeStyle} from '@material-ui/core/styles/createTypography';
+import {GetSections_Test} from "../Http";
 
 export function getMathJax(text: string, variant: ThemeStyle = 'body2', key?: string) {
     key = text + key;
@@ -303,4 +304,10 @@ export function format(str: string, ...args: any[]) {
         else result += args[Number(m[1])];
     }
     return result + str;
+}
+
+export function isOpen(test: GetSections_Test, now: number) {
+    return (test.openTime === null || test.openTime < now)
+        && now < test.deadline
+        && test.submitted.length < test.attempts;
 }
