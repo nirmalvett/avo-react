@@ -4,10 +4,11 @@ import Button from '@material-ui/core/Button';
 import TreeView from './TreeView';
 import Select from '@material-ui/core/Select';
 import Grid from '@material-ui/core/Grid';
-import MenuItem from '@material-ui/core/MenuItem';
+import MenuItem, { MenuItemProps } from '@material-ui/core/MenuItem';
 import * as Http from '../../Http';
 import {getMathJax} from '../../HelperFunctions/Utilities';
 import ListSubheader from '@material-ui/core/ListSubheader';
+import Downshift from 'downshift';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import List from '@material-ui/core/List';
@@ -21,6 +22,7 @@ import debounce from '../../SharedComponents/AVODebouncer';
 import Modal from '@material-ui/core/Modal';
 import AVOPopupMenu from '../../SharedComponents/AVOPopupMenu';
 import SwipeableViews from 'react-swipeable-views';
+import { TextFieldProps } from '@material-ui/core/TextField';
 import {
     Edit, Add, Fullscreen, Save, Close 
 } from '@material-ui/icons';
@@ -93,66 +95,12 @@ interface TagViewState {
     isAddingParent: boolean;
     modalNode: WeightedConcept;
     activeTab: number;
+    conceptSearchString: string;
+    selectedSearchItem: Concept;
+    isSearching: boolean;
     nodesLoaded: boolean;
+    relationWeight: number; 
 }
-
-const nodeData = {
-    concepts: [
-        {
-            conceptID: 1,
-            name: "Concept1 Parent also this is a really long string wooot",
-            lesson: "Lesson String"
-        },
-        {
-            conceptID: 2,
-            name: "Concept2",
-            lesson: "Lesson String"
-        },
-        {
-            conceptID: 3,
-            name: "Concept3",
-            lesson: "Lesson String"
-        },
-        {
-            conceptID: 6,
-            name: "Concept3.1",
-            lesson: "Lesson String"
-        },
-        {
-            conceptID: 4,
-            name: "Concept4",
-            lesson: "Lesson String"
-        },
-        {
-            conceptID: 5,
-            name: "Concept5",
-            lesson: "Lesson String"
-        },
-    ],
-    edges: [
-        {
-            parent: 1, 
-            child: 2,
-            weight: 0.94
-        },
-        {
-            parent: 1, 
-            child: 3,
-            weight: 0.29
-        },
-        {
-            parent: 3, 
-            child: 4,
-            weight: 0.59
-        },
-        {
-            parent: 6, 
-            child: 4,
-            weight: 0.59
-        },
-    
-    ]
-};
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -184,6 +132,80 @@ function a11yProps(index: any) {
       'aria-controls': `full-width-tabpanel-${index}`,
     };
 }
+
+let popperNode: HTMLDivElement | null | undefined;
+
+interface Suggestion {
+    conceptID: number;
+    name: string;
+    lesson: string;
+}
+
+type RenderInputProps = TextFieldProps & {
+    ref?: React.Ref<HTMLDivElement>;
+    onChangeFunc: any;
+  };
+  
+  function renderInput(inputProps: RenderInputProps) {
+    const { InputProps, ref, onChangeFunc, ...other } = inputProps;
+    return (
+      <TextField
+        InputProps={{
+            ...InputProps,
+        }}
+        onChange={onChangeFunc}
+        {...other}
+      />
+    );
+  }
+  
+  interface RenderSuggestionProps {
+    highlightedIndex: number | null;
+    index: number;
+    itemProps: MenuItemProps<'div', { button?: never }>;
+    selectedItem: Concept;
+    suggestion: Suggestion;
+    onClick: any;
+  }
+  
+  function renderSuggestion(suggestionProps: RenderSuggestionProps) {
+    const { suggestion, index, itemProps, highlightedIndex, selectedItem, onClick } = suggestionProps;
+    const isHighlighted = highlightedIndex === index;
+    const isSelected = true;
+  
+    return (
+      <MenuItem
+        {...itemProps}
+        key={suggestion.conceptID}
+        selected={isHighlighted}
+        component="div"
+        onClick={onClick}
+        style={{
+          fontWeight: isSelected ? 500 : 400,
+        }}
+      >
+        {suggestion.name}
+      </MenuItem>
+    );
+  }
+  
+  function getSuggestions(value: string, suggestions: Concept[], { showEmpty = false } = {}) {
+    const inputValue = value.toLowerCase();
+    const inputLength = inputValue.length;
+    let count = 0;
+    return inputLength === 0 && !showEmpty
+      ? []
+      : suggestions.filter(Concept => {
+          const keep =
+            count < 5 && Concept.name.slice(0, inputLength).toLowerCase() === inputValue;
+  
+          if (keep) {
+            count += 1;
+          }
+  
+          return keep;
+        });
+  }
 
 export default class TagView extends Component<TagViewProps, TagViewState> {
     chartRef: {current: TreeView};
@@ -219,7 +241,11 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             showAddRelatedNodeModal: false,
             modalNode: {} as WeightedConcept,
             activeTab: 0,
-            nodesLoaded: false
+            conceptSearchString: '',
+            nodesLoaded: false,
+            selectedSearchItem: {} as Concept,
+            isSearching: false,
+            relationWeight: 1,
         };
         this.chartRef = React.createRef() as {current: TreeView};
         this.newConceptNameRef = React.createRef();
@@ -448,11 +474,11 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             Current Weight is: {this.state.modalNode.weight}
                             <br/>
                             <Select
-                                value={this.state.selectedClassName}
+                                value={this.state.relationWeight}
                                 input={<Input name='data' id='select-class' />}
                                 onChange={e =>{
                                     const newWeight:number = parseInt(e.target.value as string);
-
+                                    this.setState({ relationWeight : newWeight });
                                 }}
                             >
                                 <MenuItem key={'relation-weight-1'} value={'1'}>
@@ -521,11 +547,10 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             onChange={(e: any, val: number) => this.setState({ activeTab : val })}
                             indicatorColor="primary"
                             textColor="primary"
-                            variant="fullWidth"
                             aria-label="full width tabs example"
                             >
-                            <Tab label="Item One" {...a11yProps(0)} />
-                            <Tab label="Item Two" {...a11yProps(1)} />
+                            <Tab label="Add Concept with Relation" {...a11yProps(0)} />
+                            <Tab label="Add Relation" {...a11yProps(1)} />
                         </Tabs>
                         <SwipeableViews
                             axis={'x'}
@@ -566,7 +591,85 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                 </Typography>
                             </TabPanel>
                             <TabPanel value={this.state.activeTab} index={1} dir={'ltr'}>
-                                Item Two
+                            <Downshift 
+                                id="downshift-simple"
+                                onSelect={(e) => { this.setState({ conceptSearchString : e }); }}
+                            >
+                                {({
+                                    getInputProps,
+                                    getItemProps,
+                                    getLabelProps,
+                                    getMenuProps,
+                                    highlightedIndex,
+                                    inputValue,
+                                    isOpen,
+                                    selectedItem,
+                                    }) => {
+                                    const { onBlur, onFocus, ...inputProps } = getInputProps({
+                                        placeholder: 'Search for a Concept',
+                                    });
+
+                                    return (
+                                        <div>
+                                        <TextField
+                                            InputProps={{
+                                                placeholder: 'Search for a Concept'
+                                            }}
+                                            value={this.state.conceptSearchString}
+                                            fullWidth={true}
+                                            onChange={(e: any) => { this.setState({ conceptSearchString : e.target.value, isSearching: true }) }}
+                                        />
+                                        <div {...getMenuProps()}>
+                                            {this.state.isSearching ? (
+                                            <Paper square>
+                                                {getSuggestions(this.state.conceptSearchString, this.state.concepts).map((suggestion: Concept, index: number) =>
+                                                renderSuggestion({
+                                                    suggestion,
+                                                    index,
+                                                    itemProps: getItemProps({ item: suggestion.name }),
+                                                    highlightedIndex,
+                                                    selectedItem,
+                                                    onClick: () => { this.setState({ selectedSearchItem : suggestion, isSearching : false }); }
+                                                }),
+                                                )}
+                                            </Paper>
+                                            ) : null}
+                                        </div>
+                                        </div>
+                                    );
+                                }}
+                            </Downshift>
+                            {(!this.state.isSearching && !!this.state.selectedSearchItem.conceptID) && (
+                                <Typography variant={'body1'} id="modal-description">
+                                    Add Relation from {this.state.isAddingParent ? this.state.selectedSearchItem.name : this.state.selectedConcept.name} to {this.state.isAddingParent ? this.state.selectedConcept.name : this.state.selectedSearchItem.name}
+                                    <br/>  
+                                    <br/>  
+                                    <Select
+                                        value={this.state.relationWeight}
+                                        input={<Input name='data' id='select-class' />}
+                                        onChange={e =>{
+                                            const newWeight:number = parseInt(e.target.value as string);
+                                            this.setState({ relationWeight : newWeight });
+                                        }}
+                                    >
+                                        <MenuItem key={'relation-weight-1'} value={'1'}>
+                                            1
+                                        </MenuItem>
+                                        <MenuItem key={'relation-weight-2'} value={'2'}>
+                                            2
+                                        </MenuItem>
+                                        <MenuItem key={'relation-weight-3'} value={'3'}>
+                                            3
+                                        </MenuItem>
+                                        <MenuItem key={'relation-weight-4'} value={'4'}>
+                                            4
+                                        </MenuItem>
+                                    </Select> 
+                                    <br/>
+                                    <br/>
+                                    <Button onClick={this.setRelation.bind(this)}>Add Relation</Button>                               
+                                </Typography>
+                            )}
                             </TabPanel>
                         </SwipeableViews>
                     </Paper>
@@ -574,12 +677,46 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             </div>
         );
     }
-   
-    getClasses() {
-        Http.getSections(
+
+    setRelation() {
+        const newedge: Edge = {
+            weight : this.state.relationWeight,
+            parent : this.state.isAddingParent ? this.state.selectedSearchItem.conceptID : this.state.selectedConcept.conceptID,
+            child  : this.state.isAddingParent ? this.state.selectedConcept.conceptID : this.state.selectedSearchItem.conceptID,
+        };
+        Http.setConceptRelation(
+            newedge.parent,
+            newedge.child,
+            newedge.weight,
             res => {
                 console.log(res);
-                const classes = res.sections;
+                const concepts: Concept[] = [...this.state.concepts];
+                const edges: Edge[] = [...this.state.edges];
+                edges.push(newedge);
+                this.setState({
+                    showAddRelatedNodeModal : false,
+                    concepts : concepts,
+                    edges : edges,
+                    relationWeight : 0,
+                    isSearching : false,
+                    selectedSearchItem: {} as Concept,
+                    conceptSearchString: ''
+                }, 
+                () => {
+                    this.chartRef.current.init();
+                });       
+            },
+            err => {
+                console.log(err);
+            },
+        );
+    };
+   
+    getClasses() {
+        Http.getCourses(
+            res => {
+                console.log(res);
+                const classes = res.courses;
                 // if (classes.length > 0) {
                     this.setState(
                         {

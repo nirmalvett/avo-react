@@ -22,7 +22,7 @@ def create_course(name: str):
     return jsonify({})
 
 
-@CourseRoutes.route('/getCourses')
+@CourseRoutes.route('/getCourses', methods=['POST'])
 @login_required
 def get_courses():
     courses: List[Course] = Course.query.filter(
