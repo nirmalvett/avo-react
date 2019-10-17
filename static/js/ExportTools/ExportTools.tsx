@@ -15,6 +15,8 @@ import {saveAs} from 'file-saver';
 import {copy} from '../HelperFunctions/Utilities';
 
 interface ExportToolsProps {
+    sections: Http.GetSections_Section[];
+    updateSections: (sections: Http.GetSections_Section[], cb?: () => void) => void;
     color: {
         '500': string;
     };
@@ -23,8 +25,7 @@ interface ExportToolsProps {
 interface ExportToolsState {
     style: CSSProperties;
     // Dictionary of all class names for the user with keys as IDs
-    availableClasses: {[key: string]: Http.GetSections_Section};
-    currentClassId: string;
+    currentClassId: number;
     // Dictionary that holds objects that represent classes
     classData: {[key: string]: JsonObject};
     // Holds the files ready for export
@@ -76,9 +77,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
 
         this.state = {
             style: this.styles.dropArea,
-            // Dictionary of all class names for the user with keys as IDs
-            availableClasses: {},
-            currentClassId: '-1',
+            currentClassId: -1,
             // Dictionary that holds objects that represent classes
             classData: {},
             // Holds the files ready for export
@@ -177,7 +176,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
     }
 
     // Uses XHR to return the marks from our system (in CSV format) and returns a JSON object with that data
-    fetchClassData = (classId: string) => {
+    fetchClassData = (classId: number) => {
         let url = '/CSV/ClassMarks/' + classId;
         console.log(url);
         const http = new XMLHttpRequest();
@@ -200,7 +199,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
     };
 
     handleCourseChange = (event: ChangeEvent<{name?: string; value: unknown}>) => {
-        this.setState({currentClassId: event.target.value as string});
+        this.setState({currentClassId: event.target.value as number});
     };
 
     handleFileTypeChange = (event: ChangeEvent<{name?: string; value: unknown}>) => {
@@ -208,7 +207,6 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
     };
 
     getMenuItems = () => {
-        const {availableClasses} = this.state;
         // Create the default value
         let items = [
             <MenuItem key={-1} value={-1}>
@@ -217,10 +215,10 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
         ];
         // Dynamically add the other courses as options from the list of class objects
         items = items.concat(
-            Object.keys(availableClasses).map(classId => {
+            this.props.sections.map(section => {
                 return (
-                    <MenuItem key={classId} value={classId}>
-                        {availableClasses[classId].name}
+                    <MenuItem key={section.sectionID} value={section.sectionID}>
+                        {section.name}
                     </MenuItem>
                 );
             }),
@@ -371,14 +369,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
     componentDidMount = () => {
         // Get the available classes for the teacher so they can select which classes they will be uploading a CSV for
         Http.getSections(
-            response => {
-                // Create a dictionary of class objects with the id as the key
-                let classes: {[key: string]: Http.GetSections_Section} = {};
-                response.sections.forEach(classObject => {
-                    classes[classObject.sectionID.toString()] = classObject;
-                });
-                this.setState({availableClasses: classes});
-            },
+            response => this.props.updateSections(response.sections),
             () => console.warn('Failed to get available classes'),
         );
     };
@@ -399,7 +390,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
     handleDrop = (e: DragEvent<HTMLDivElement>) => {
         this.unHighlight(e);
         const {currentClassId, classData} = this.state;
-        if (currentClassId !== '-1' && !this.state.loadingClass) {
+        if (currentClassId !== -1 && !this.state.loadingClass) {
             let files = e.dataTransfer.files;
             [...files].forEach(file => this.processFile(file, currentClassId));
             // Fetch the class data from the server if it is not cached locally
@@ -410,12 +401,15 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
     };
 
     // Add the filename to this list and read its contents in to a JSON object
-    processFile = (file: Blob & {name: string}, classId: string) => {
+    processFile = (file: Blob & {name: string}, classId: number) => {
         let reader = new FileReader();
         reader.onload = e => {
             this.fileToJSON(((e.target as unknown) as {result: string}).result, classId);
             let objectsCopy = copy(this.state.jsonObjects);
-            const filename = this.state.availableClasses[classId]['name'] + ': ' + file.name;
+            const section = this.props.sections.find(
+                c => c.sectionID == classId,
+            ) as Http.GetSections_Section;
+            const filename = section.name + ': ' + file.name;
             let copy1 = copy(this.state.jsonObjects[classId]);
             copy1.name = filename;
             objectsCopy[classId] = copy1;
@@ -425,7 +419,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
     };
 
     // Turns the file into a JSON object and adds that object into the list
-    fileToJSON(contents: string, classId: string) {
+    fileToJSON(contents: string, classId: number) {
         let json = csvToJSON(contents);
         // this.setState({ jsonObjects: [...this.state.jsonObjects, json] });
         let jsonObjects = copy(this.state.jsonObjects);
