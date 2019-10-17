@@ -36,7 +36,7 @@ def get_test(test_id: int):
         ).first()  # Get the most current takes
         if takes is None:
             # If student has not taken the test create a takes instance
-            takes = create_takes(test_id, current_user.get_id())
+            takes = create_takes(test_id, current_user.USER)
             if takes is None:
                 # If takes still fails return error JSON
                 return jsonify(error="Couldn't start test")
@@ -59,7 +59,7 @@ def get_test(test_id: int):
         current_tests_before = Takes.query.filter(
             ((current_user.USER == Takes.USER) & (test.TEST == Takes.TEST))
         ).count()
-        store = DataStore(current_user.get_id(), {
+        store = DataStore(current_user.USER, {
             'takes': takes.TAKES,
             'time_started': takes.time_started.timestamp(),
             'time_submitted': takes.time_submitted.timestamp(),
@@ -128,7 +128,7 @@ def save_answer(takes_id: int, question: int, answer: list):
     current_tests_before = Takes.query.filter(
         ((current_user.USER == Takes.USER) & (test.TEST == Takes.TEST))
     ).count()
-    store = DataStore(current_user.get_id(), {
+    store = DataStore(current_user.USER, {
         'takes': takes_id,
         'time_started': takes.time_started.timestamp(),
         'time_submitted': takes.time_submitted.timestamp(),
@@ -186,7 +186,7 @@ def submit_test(takes_id: int):
     current_tests_before = Takes.query.filter(
         ((current_user.USER == Takes.USER) & (test.TEST == Takes.TEST))
     ).count()
-    store = DataStore(current_user.get_id(), {
+    store = DataStore(current_user.USER, {
         'takes': takes.TAKES,
         'time_started': takes.time_started.timestamp(),
         'time_submitted': takes.time_submitted.timestamp(),
