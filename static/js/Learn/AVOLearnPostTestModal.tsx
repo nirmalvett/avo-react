@@ -161,7 +161,7 @@ export default class AVOLearnPostTestModel extends React.Component<
         const {selectedAptitude, selectedMastery} = this.state;
         if (selectedAptitude !== -1 && selectedMastery !== -1) {
             Http.postQuestionSurvey(
-                this.props.lesson.ID,
+                this.props.lesson.conceptID,
                 selectedMastery,
                 selectedAptitude,
                 res => {

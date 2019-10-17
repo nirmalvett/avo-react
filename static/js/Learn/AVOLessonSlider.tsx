@@ -176,9 +176,9 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                                         (lesson.newMastery || lesson.mastery) * 100,
                                     )}
                                 />
-                                <Typography variant={'h6'}>{lesson.Tag}</Typography>
+                                <Typography variant={'h6'}>{lesson.name}</Typography>
                                 <Typography variant={'subtitle1'}>
-                                    {lesson.string.substring(0, 20)}...
+                                    {lesson.lesson.substring(0, 20)}...
                                 </Typography>
                             </Card>
                         </Grid>
@@ -263,7 +263,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
         const lesson = this.state.currentLesson;
         if (lesson) {
             Http.getNextQuestion(
-                lesson.ID,
+                lesson.conceptID,
                 res => {
                     console.log(res);
                     this.setState({currentLesson: {...lesson, data: {questions: [res]}}});
@@ -277,7 +277,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
     openLessonFSM = (lesson: AvoLesson, LIndex: string) => {
         this.setState({isEndTest: false});
         Http.getNextQuestion(
-            lesson.ID,
+            lesson.conceptID,
             res => {
                 console.log(res);
                 this.setState({currentLesson: {...lesson, data: {questions: [res]}}});

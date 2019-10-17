@@ -77,11 +77,12 @@ export function getConceptGraph(courseID: number, success: cb<GetConceptGraph>, 
 }
 
 export interface GetNextLessons {
-    concepts: {
+    lessons: {
         conceptID: number;
         name: string;
         lesson: string;
-        strength: number;
+        preparation: number;
+        mastery: number;
         prereqs: {name: string; conceptID: number}[];
     }[];
 }

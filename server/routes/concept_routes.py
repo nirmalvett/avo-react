@@ -205,7 +205,8 @@ def get_next_lessons(course_id: int):
             'conceptID': c.CONCEPT,
             'name': c.name,
             'lesson': c.lesson_content,
-            'strength': 0,
+            'preparation': 1,
+            'mastery': 0,
             'prereqs': []
         }
 
@@ -225,18 +226,17 @@ def get_next_lessons(course_id: int):
     mastery_dict = {}  # mapping of concept IDs to Mastery objects
     for m in mastery:
         mastery_dict[m.CONCEPT] = m
+        concept_dict[m.CONCEPT]['mastery'] = m.mastery_level
 
     lessons = []
     for concept_id, concept_obj in concept_dict.items():
         # todo: this criteria isn't good enough
-        if concept_id in mastery_dict and mastery_dict[concept_id] > 0.75:
-            continue
         mastery_values = list(map(
             lambda x: mastery_dict[x['conceptID']] if x['conceptID'] in mastery_dict else 0, concept_obj['prereqs']
         ))
-        if all(map(lambda x: x > 0.25, mastery_values)):
-            lessons.append(concept_obj)
-            concept_obj['strength'] = round(sum(mastery_values) / (len(mastery_values) or 1), 2)
+        if len(mastery_values) > 0:
+            concept_obj['preparation'] = round(sum(mastery_values) / (len(mastery_values) or 1), 2)
+        lessons.append(concept_obj)
 
     return jsonify(lessons=lessons)
 

@@ -9,18 +9,20 @@ import TextField from '@material-ui/core/TextField';
 import AVOLessonSlider from './AVOLessonSlider';
 
 import AVOLearnPostTestModel from './AVOLearnPostTestModal';
-import {GetSections_Section} from '../Http';
+import {Course} from "../Http/types";
 
 export interface AvoLesson {
+    conceptID: number;
     mastery: number;
     newMastery: number;
-    Tag: string;
-    string: string;
-    ID: number;
+    name: string;
+    lesson: string;
     prereqs: {name: string; conceptID: number}[];
 }
 
 interface AVOLearnComponentProps {
+    courses: Course[];
+    updateCourses: (courses: Course[], cb?: () => void) => void;
     theme: {
         theme: 'light' | 'dark';
         color: {
@@ -33,15 +35,11 @@ interface AVOLearnComponentProps {
 
 interface AVOLearnComponentState {
     lessons: AvoLesson[];
-    allLessons: AvoLesson[];
     filterInput: string;
-    classNames: string[];
-    classes: GetSections_Section[];
-    selectedClass: GetSections_Section;
-    selectedClassName: string;
+    selectedCourse: number;
     otherView: 'Completed' | 'To Do';
     postLessonModalDisplay: 'none' | 'block';
-    currentLesson: AvoLesson;
+    currentLesson: number;
 }
 
 export default class AVOLearnComponent extends Component<
@@ -53,14 +51,10 @@ export default class AVOLearnComponent extends Component<
         this.state = {
             lessons: [],
             filterInput: '',
-            allLessons: [],
-            classNames: [],
-            classes: [],
-            selectedClass: {} as GetSections_Section,
-            selectedClassName: '',
+            selectedCourse: -1,
             otherView: 'Completed',
             postLessonModalDisplay: 'none',
-            currentLesson: {} as AvoLesson,
+            currentLesson: -1,
         };
     }
 
@@ -84,29 +78,14 @@ export default class AVOLearnComponent extends Component<
                 <AVOLearnPostTestModel
                     hideModal={this.hidePostLessonModal}
                     modalDisplay={this.state.postLessonModalDisplay}
-                    lesson={this.state.currentLesson}
+                    lesson={this.state.lessons.find(x => x.conceptID === this.state.currentLesson) as AvoLesson}
                 />
                 <Grid item xs={3}>
                     <Button
                         variant='outlined'
                         style={{borderRadius: '2.5em'}}
                         onClick={() =>
-                            this.setState({lessons: []}, () => {
-                                const {allLessons, otherView} = this.state;
-                                const lessons = allLessons.filter(lesson => {
-                                    if (otherView === 'Completed') {
-                                        return lesson.mastery > 0.85;
-                                    } else {
-                                        return lesson.mastery <= 0.85;
-                                    }
-                                });
-                                console.log(otherView);
-                                console.log(lessons);
-                                this.setState({
-                                    lessons,
-                                    otherView: otherView === 'To Do' ? 'Completed' : 'To Do',
-                                });
-                            })
+                            this.setState({otherView: this.state.otherView === 'To Do' ? 'Completed' : 'To Do'})
                         }
                     >
                         View {this.state.otherView}
@@ -117,7 +96,7 @@ export default class AVOLearnComponent extends Component<
                         <AVOLessonSlider
                             theme={this.props.theme}
                             changeToNewMastery={() => this.changeToNewMastery()}
-                            slides={this.state.lessons}
+                            slides={this.state.lessons /*todo*/}
                             updateMastery={this.updateMastery}
                             showPostLessonModal={this.showPostLessonModal}
                             updateParentCurrentLesson={this.setCurrentLesson}
@@ -154,18 +133,18 @@ export default class AVOLearnComponent extends Component<
                         >
                             <Select
                                 style={{width: '100%'}}
-                                value={this.state.selectedClassName}
+                                value={this.state.selectedCourse}
                                 input={<Input name='data' id='select-class' />}
                                 onChange={e =>
                                     this.setState(
-                                        {selectedClassName: e.target.value as string},
-                                        () => this.changeClass(),
+                                        {selectedCourse: e.target.value as number},
+                                        this.changeClass,
                                     )
                                 }
                             >
-                                {this.state.classNames.map((c: any, i: number) => (
-                                    <MenuItem key={i} value={c}>
-                                        {c}
+                                {this.props.courses.map((c, i) => (
+                                    <MenuItem key={i} value={c.courseID}>
+                                        {c.name}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -181,20 +160,12 @@ export default class AVOLearnComponent extends Component<
     }
 
     getClasses() {
-        Http.getSections(
+        Http.getCourses(
             res => {
                 console.log(res);
-                const classes = res.sections;
-                if (classes.length > 0) {
-                    this.setState(
-                        {
-                            classNames: classes.map(c => c.name),
-                            classes,
-                            selectedClass: classes[0],
-                            selectedClassName: classes[0].name,
-                        },
-                        () => this.changeClass(),
-                    );
+                const courses = res.courses;
+                if (courses.length > 0) {
+                    this.setState({selectedCourse: courses[0].courseID}, this.changeClass);
                 }
             },
             err => {
@@ -202,104 +173,44 @@ export default class AVOLearnComponent extends Component<
             },
         );
     }
+
     setCurrentLesson = (currentLesson: AvoLesson) => {
-        this.setState({currentLesson});
+        this.setState({currentLesson: currentLesson.conceptID});
     };
+
     changeClass = () => {
-        const {selectedClassName, classes} = this.state;
-        if (selectedClassName !== 'Select class...') {
-            const selectedClass = classes.find(
-                (c: GetSections_Section) => c.name === selectedClassName,
-            );
-            if (selectedClass) {
-                this.setState({selectedClass}, () => this.getLessons());
+        if (this.state.selectedCourse !== -1) {
+            const selectedCourse = this.props.courses.find(c => c.courseID === this.state.selectedCourse);
+            if (selectedCourse) {
+                this.getLessons(selectedCourse.courseID);
             }
         }
     };
 
-    filterLessons = (e: any) => {
-        const {allLessons} = this.state;
-        const filterInput = e.target.value;
-        if (filterInput === '') {
-            this.setState({
-                filterInput,
-                lessons: allLessons.filter(lesson => {
-                    if (this.state.otherView === 'Completed') {
-                        return lesson.mastery < 0.85;
-                    } else {
-                        return lesson.mastery >= 0.85;
-                    }
-                }),
-            });
-        } else {
-            const words = filterInput.split(' ');
-            const lessons = allLessons
-                .filter(lesson => words.indexOf(lesson.Tag) !== -1)
-                .filter(lesson => {
-                    if (this.state.otherView === 'Completed') {
-                        return lesson.mastery < 0.85;
-                    } else {
-                        return lesson.mastery >= 0.85;
-                    }
-                });
-            this.setState({filterInput, lessons});
-        }
-    };
-    getLessons = () => {
-        const {otherView} = this.state;
-        console.log(otherView);
+    filterLessons = (e: any) => this.setState({filterInput: e.target.value});
+
+    getLessons = (courseID: number) => {
         Http.getNextLessons(
-            this.state.selectedClass.sectionID, // todo
+            this.state.selectedCourse,
             res => {
-                const {otherView} = this.state;
-                console.log(otherView);
-                console.log(res);
-                const concepts = res.concepts;
-                const lessons = concepts.map(concept => {
-                    return {
-                        ID: concept.conceptID,
-                        Tag: concept.name,
-                        mastery: concept.strength,
-                        string: concept.lesson,
-                        prereqs: concept.prereqs,
-                    };
-                });
-                // const lessons = [
-                //     {
-                //         ID: 1,
-                //         Tag: 'test',
-                //         mastery: 0.3,
-                //         string: 'whoohoo a lesson wao',
-                //         prereqs: [{name: 'prereq oh boy', conceptID: 2}],
-                //     },
-                // ];
-                this.setState({
-                    lessons: lessons
-                        .map(x => ({...x, newMastery: x.mastery}))
-                        .filter(lesson => {
-                            if (otherView === 'Completed') {
-                                return lesson.mastery < 0.85;
-                            } else {
-                                return lesson.mastery >= 0.85;
-                            }
-                        }),
-                    allLessons: lessons.map(x => ({...x, newMastery: x.mastery})),
-                });
+                const lessons = res.lessons.map(concept => ({
+                    ...concept,
+                    newMastery: concept.mastery,
+                }));
+                this.setState({selectedCourse: courseID, lessons});
             },
-            () => {},
+            console.warn,
         );
     };
 
     updateMastery = (mastery: number, id: number) => {
         console.log('Updating', id, mastery);
         if (mastery && id) {
-            const lessons = this.state.lessons;
-            const index = lessons.findIndex(lesson => lesson.ID === id);
+            const lessons = [...this.state.lessons];
+            const index = lessons.findIndex(lesson => lesson.conceptID === id);
             if (index !== -1) {
-                lessons[index].newMastery = mastery;
-                this.setState({
-                    lessons,
-                });
+                lessons[index] = {...lessons[index], newMastery: mastery};
+                this.setState({lessons});
             }
         }
     };
@@ -307,9 +218,10 @@ export default class AVOLearnComponent extends Component<
     changeToNewMastery = () => {
         const lessons = this.state.lessons.map(lesson => {
             if (lesson.newMastery) {
-                lesson.mastery = lesson.newMastery;
+                return {...lesson, mastery: lesson.newMastery};
+            } else {
+                return lesson;
             }
-            return lesson;
         });
         this.setState({lessons});
     };

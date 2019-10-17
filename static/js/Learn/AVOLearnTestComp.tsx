@@ -73,9 +73,9 @@ export default class AVOLearnTestComp extends Component<
                 {this.state.currentState === 'LESSON' && (
                     <Grid container spacing={8}>
                         <Grid item xs={8}>
-                            <Typography variant={'h6'}>{this.props.lesson.Tag}</Typography>
+                            <Typography variant={'h6'}>{this.props.lesson.name}</Typography>
                             <Typography variant={'subtitle1'}>
-                                {getMathJax(this.props.lesson.string, 'body2', uniqueKey())}
+                                {getMathJax(this.props.lesson.lesson, 'body2', uniqueKey())}
                             </Typography>
                         </Grid>
                         <Grid item xs={4}>
@@ -179,7 +179,7 @@ export default class AVOLearnTestComp extends Component<
                         <Grow in={this.state.testEndState === 1} timeout={{enter: 1500}}>
                             <Grid container spacing={8} style={{position: 'absolute'}}>
                                 <Grid item xs={8}>
-                                    <Typography variant={'h6'}>{this.props.lesson.Tag}</Typography>
+                                    <Typography variant={'h6'}>{this.props.lesson.name}</Typography>
                                     <Grid container spacing={8}>
                                         <Grid item xs={2}>
                                             <div style={{textAlign: 'center'}}>
@@ -232,7 +232,7 @@ export default class AVOLearnTestComp extends Component<
                                             theme={this.props.theme}
                                         />
                                         <Typography variant={'subtitle2'}>
-                                            Mastery of {this.props.lesson.Tag} changed by{' '}
+                                            Mastery of {this.props.lesson.name} changed by{' '}
                                             {(
                                                 (this.state.changedMastery -
                                                     this.props.lesson.mastery) *
@@ -398,7 +398,7 @@ export default class AVOLearnTestComp extends Component<
                                             theme={this.props.theme}
                                         />
                                         <Typography variant={'subtitle2'}>
-                                            Mastery of {this.props.lesson.Tag} changed by{' '}
+                                            Mastery of {this.props.lesson.name} changed by{' '}
                                             {(
                                                 (this.state.changedMastery -
                                                     this.props.lesson.mastery) *
@@ -518,7 +518,7 @@ export default class AVOLearnTestComp extends Component<
                 const temp = this.state.explanations;
                 temp[index] = res.explanation;
                 this.setState({explanations: temp, changedMastery}, () =>
-                    this.props.updateMastery(res.mastery, this.props.lesson.ID),
+                    this.props.updateMastery(res.mastery, this.props.lesson.conceptID),
                 );
             },
             err => {
