@@ -21,7 +21,7 @@ def load_user(user_id):
     :param user_id: the id of the user being logged in
     :return: a user object for Flask Login
     """
-    return User.query.get(user_id)
+    return User.query.filter((User.email == str(user_id))).first()
 
 
 def able_edit_set(set_id):

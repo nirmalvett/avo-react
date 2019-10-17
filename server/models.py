@@ -1,4 +1,5 @@
 from flask_login import UserMixin
+from flask_login._compat import unicode
 from flask_sqlalchemy import SQLAlchemy
 from server.PasswordHash import generate_salt, hash_password
 from datetime import datetime
@@ -414,7 +415,7 @@ class User(UserMixin, db.Model):
         )
 
     def get_id(self):
-        return self.USER
+        return unicode(self.email)
 
 
 class UserCourse(db.Model):
