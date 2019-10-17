@@ -1,10 +1,11 @@
+from datetime import datetime
 from typing import List
 
 from flask import Blueprint, jsonify
 from flask_login import current_user
 
 from server.decorators import teacher_only, login_required, validate
-from server.models import Course, db, UserCourse
+from server.models import Course, db, UserCourse, Section, UserSection
 
 CourseRoutes = Blueprint('CourseRoutes', __name__)
 
@@ -25,7 +26,13 @@ def create_course(name: str):
 @login_required
 def get_courses():
     courses: List[Course] = Course.query.filter(
-        (Course.COURSE == UserCourse.COURSE) & (UserCourse.USER == current_user.USER)
+        ((Course.COURSE == UserCourse.COURSE) & (UserCourse.USER == current_user.USER)) |
+        (
+                (Course.COURSE == Section.COURSE) &
+                (Section.SECTION == UserSection.SECTION) &
+                (UserSection.USER == current_user.USER) &
+                (UserSection.expiry > datetime.now())
+        )
     ).all()
     return_courses = list(map(lambda c: {'courseID': c.COURSE, 'name': c.name}, courses))
     return jsonify(courses=return_courses)
