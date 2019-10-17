@@ -813,6 +813,24 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             conceptLesson,
             res => {
                 console.log(res);
+                const concepts: Concept[] = [...this.state.concepts];
+                const edges: Edge[] = [...this.state.edges];
+
+                const newConcepts: Concept[] = concepts.map(Concept => {
+                    if(conceptID == Concept.conceptID) {
+                        Concept.name = conceptName;
+                        Concept.lesson = conceptLesson;
+                    }
+                    return Concept;
+                });
+                this.setState({
+                    concepts : newConcepts,
+                    edges : edges,
+                }, 
+                () => {
+                    this.chartRef.current.init();
+                    setTimeout(() => this.gotoSelectedNode(this.state.selectedConcept), 150);
+                });  
             },
             res => {
                 console.warn(res);
