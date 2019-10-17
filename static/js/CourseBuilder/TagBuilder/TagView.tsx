@@ -358,96 +358,101 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 this.setState(
                                                     {selectedClassName: e.target.value as string},
                                                     () => this.changeClass(),
-                                                )
-                                            }
-                                        >
+                                                    )
+                                                }
+                                                >
                                             {this.state.classNames.map((c: any, i: number) => (
                                                 <MenuItem key={i} value={c}>
                                                     {c}
                                                 </MenuItem>
                                             ))}
                                         </Select>
-                                        <br/>
-                                        <br/>
-                                        <FormControl>
-                                            <Input
-                                                id='edit-concept'
-                                                value={this.state.tagName}
-                                                disabled={!this.state.editingTagName}
-                                                onChange={e => this.setState({tagName: e.target.value})}
-                                                endAdornment={
-                                                    <InputAdornment position='end'>
-                                                        <IconButton style={{top: -8}} onClick={() => this.setState({ editingTagName : !this.state.editingTagName })}>
-                                                            <Edit />
+                                        {!!this.state.selectedConcept.name ? (
+                                            <>
+                                            <br/>
+                                            <br/>
+                                            <FormControl>
+                                                <Input
+                                                    id='edit-concept'
+                                                    value={this.state.tagName}
+                                                    disabled={!this.state.editingTagName}
+                                                    onChange={e => this.setState({tagName: e.target.value})}
+                                                    endAdornment={
+                                                        <InputAdornment position='end'>
+                                                            <IconButton style={{top: -8}} onClick={() => this.setState({ editingTagName : !this.state.editingTagName })}>
+                                                                <Edit />
+                                                            </IconButton>
+                                                        </InputAdornment>
+                                                    }
+                                                />
+                                            </FormControl>
+                                            <br/>
+                                            <List
+                                                component="nav"
+                                                style={{ maxHeight : '60vh', overflowY : 'auto' }}
+                                            >
+                                                <ListItem button onClick={() => this.setState({ showParentNodes : !showParentNodes })}>
+                                                    <ListItemText primary={<b>Prerequisite Concepts</b>} />
+                                                    {showParentNodes ? <ExpandLess /> : <ExpandMore />}
+                                                    <ListItemSecondaryAction>
+                                                        <IconButton edge="end" aria-label="Add" onClick={() => this.setState({ showAddRelatedNodeModal : true, isAddingParent : true })}>
+                                                        <Add />
                                                         </IconButton>
-                                                    </InputAdornment>
-                                                }
-                                            />
-                                        </FormControl>
-                                        <br/>
-                                        <List
-                                            component="nav"
-                                            style={{ maxHeight : '60vh', overflowY : 'auto' }}
-                                        >
-                                            <ListItem button onClick={() => this.setState({ showParentNodes : !showParentNodes })}>
-                                                <ListItemText primary={<b>Prerequisite Concepts</b>} />
-                                                {showParentNodes ? <ExpandLess /> : <ExpandMore />}
-                                                <ListItemSecondaryAction>
-                                                    <IconButton edge="end" aria-label="Add" onClick={() => this.setState({ showAddRelatedNodeModal : true, isAddingParent : true })}>
-                                                      <Add />
-                                                    </IconButton>
-                                                </ListItemSecondaryAction>
-                                            </ListItem>
-                                            <Collapse in={showParentNodes} timeout="auto" unmountOnExit>
-                                                <List component="div" disablePadding>
-                                                    {!!this.state.selectedConcept && this.getParentNodes(this.state.selectedConcept.conceptID).map(WeightedConcept => (
-                                                        <ListItem button>
-                                                            <ListItemText primary={WeightedConcept.name} />
-                                                            <ListItemSecondaryAction>
-                                                                <Typography component={'span'} variant="body2" gutterBottom>
-                                                                    W:{WeightedConcept.weight}
-                                                                </Typography>
-                                                                <IconButton edge="end" aria-label="Edit" onClick={() => this.openWeightModal(WeightedConcept)}>
-                                                                    <Edit />
-                                                                </IconButton>
-                                                                <IconButton edge="end" aria-label="Go To" onClick={() => this.gotoSelectedNode(WeightedConcept)}>
-                                                                    <Fullscreen />
-                                                                </IconButton>
-                                                            </ListItemSecondaryAction>
-                                                        </ListItem>
-                                                    ))}
-                                                </List>
-                                            </Collapse>
-                                            <ListItem button onClick={() => this.setState({ showChildNodes : !showChildNodes })}>
-                                                <ListItemText primary={<b>Subsequent Concepts</b>} />
-                                                {showChildNodes ? <ExpandLess /> : <ExpandMore />}
-                                                 <ListItemSecondaryAction>
-                                                    <IconButton edge="end" aria-label="Add" onClick={() => this.setState({ showAddRelatedNodeModal : true, isAddingParent : false })}>
-                                                      <Add />
-                                                    </IconButton>
-                                                </ListItemSecondaryAction>
-                                            </ListItem>
-                                            <Collapse in={showChildNodes} timeout="auto" unmountOnExit>
-                                                <List component="div" disablePadding>
-                                                    {!!this.state.selectedConcept && this.getChildNodes(this.state.selectedConcept.conceptID).map(WeightedConcept => (
-                                                        <ListItem button>
-                                                            <ListItemText primary={WeightedConcept.name} />
-                                                            <ListItemSecondaryAction>
-                                                                <Typography component={'span'} variant="body2" gutterBottom>
-                                                                    W:{WeightedConcept.weight}
-                                                                </Typography>
-                                                                <IconButton edge="end" aria-label="Edit" onClick={() => this.openWeightModal(WeightedConcept)}>
-                                                                    <Edit />
-                                                                </IconButton>
-                                                                <IconButton edge="end" aria-label="Go To" onClick={() => this.gotoSelectedNode(WeightedConcept)}>
-                                                                    <Fullscreen />
-                                                                </IconButton>
-                                                            </ListItemSecondaryAction>
-                                                        </ListItem>
-                                                    ))}
-                                                </List>
-                                            </Collapse>
-                                        </List>
+                                                    </ListItemSecondaryAction>
+                                                </ListItem>
+                                                <Collapse in={showParentNodes} timeout="auto" unmountOnExit>
+                                                    <List component="div" disablePadding>
+                                                        {!!this.state.selectedConcept && this.getParentNodes(this.state.selectedConcept.conceptID).map(WeightedConcept => (
+                                                            <ListItem button>
+                                                                <ListItemText primary={WeightedConcept.name} />
+                                                                <ListItemSecondaryAction>
+                                                                    <IconButton edge="end" aria-label="Edit" onClick={() => this.openWeightModal(WeightedConcept, true)}>
+                                                                        <Edit />
+                                                                    </IconButton>
+                                                                    <IconButton edge="end" aria-label="Go To" onClick={() => this.gotoSelectedNode(WeightedConcept)}>
+                                                                        <Fullscreen />
+                                                                    </IconButton>
+                                                                </ListItemSecondaryAction>
+                                                            </ListItem>
+                                                        ))}
+                                                    </List>
+                                                </Collapse>
+                                                <ListItem button onClick={() => this.setState({ showChildNodes : !showChildNodes })}>
+                                                    <ListItemText primary={<b>Subsequent Concepts</b>} />
+                                                    {showChildNodes ? <ExpandLess /> : <ExpandMore />}
+                                                    <ListItemSecondaryAction>
+                                                        <IconButton edge="end" aria-label="Add" onClick={() => this.setState({ showAddRelatedNodeModal : true, isAddingParent : false })}>
+                                                        <Add />
+                                                        </IconButton>
+                                                    </ListItemSecondaryAction>
+                                                </ListItem>
+                                                <Collapse in={showChildNodes} timeout="auto" unmountOnExit>
+                                                    <List component="div" disablePadding>
+                                                        {!!this.state.selectedConcept && this.getChildNodes(this.state.selectedConcept.conceptID).map(WeightedConcept => (
+                                                            <ListItem button>
+                                                                <ListItemText primary={WeightedConcept.name} />
+                                                                <ListItemSecondaryAction>
+                                                                    <IconButton edge="end" aria-label="Edit" onClick={() => this.openWeightModal(WeightedConcept, false)}>
+                                                                        <Edit />
+                                                                    </IconButton>
+                                                                    <IconButton edge="end" aria-label="Go To" onClick={() => this.gotoSelectedNode(WeightedConcept)}>
+                                                                        <Fullscreen />
+                                                                    </IconButton>
+                                                                </ListItemSecondaryAction>
+                                                            </ListItem>
+                                                        ))}
+                                                    </List>
+                                                </Collapse>
+                                            </List>
+                                            </>
+                                        ) : (
+                                            <Typography variant={'body1'} id="modal-description">
+                                                <br/>
+                                                <br/>
+                                                <br/>
+                                                Please Select or Create a Concept
+                                            </Typography>
+                                        )}
                                     </div>
                                 </div>
                             </Grid>
@@ -474,7 +479,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             Current Weight is: {this.state.modalNode.weight}
                             <br/>
                             <Select
-                                value={this.state.relationWeight}
+                                value={`${this.state.relationWeight}`}
                                 input={<Input name='data' id='select-class' />}
                                 onChange={e =>{
                                     const newWeight:number = parseInt(e.target.value as string);
@@ -493,7 +498,10 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                 <MenuItem key={'relation-weight-4'} value={'4'}>
                                     4
                                 </MenuItem>
-                            </Select>                      
+                            </Select>   
+                            <br/>
+                            <br/>
+                            <Button onClick={this.editRelationWeight.bind(this)}>Add Relation</Button>                               
                         </Typography>
                     </Paper>
                 </Modal>}
@@ -539,7 +547,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     style={{ width : '40%', top : '50px', left: '30%', right : '30%', position : 'absolute' }}
                 >
                     <Paper className="avo-card">
-                        <IconButton style={{ position : 'absolute', right : '9px', top : '9px' }} onClick={() => this.setState({ showAddRelatedNodeModal : false })}>
+                        <IconButton style={{ position : 'absolute', right : '9px', top : '9px', zIndex : '100' }} onClick={() => this.setState({ showAddRelatedNodeModal : false })}>
                             <Close/>
                         </IconButton>
                         <Tabs
@@ -578,12 +586,27 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         />
                                         <br/>
                                         <br/>
-                                        <Input 
-                                            id='set-new__relation-weight'
-                                            type='number'
-                                            ref={this.newRelationWeightRef}
-                                            defaultValue='1'
-                                        />
+                                        <Select
+                                            value={this.state.relationWeight}
+                                            input={<Input name='data' id='select-class' />}
+                                            onChange={e =>{
+                                                const newWeight:number = parseInt(e.target.value as string);
+                                                this.setState({ relationWeight : newWeight });
+                                            }}
+                                        >
+                                            <MenuItem key={'relation-weight-1'} value={'1'}>
+                                                1
+                                            </MenuItem>
+                                            <MenuItem key={'relation-weight-2'} value={'2'}>
+                                                2
+                                            </MenuItem>
+                                            <MenuItem key={'relation-weight-3'} value={'3'}>
+                                                3
+                                            </MenuItem>
+                                            <MenuItem key={'relation-weight-4'} value={'4'}>
+                                                4
+                                            </MenuItem>
+                                        </Select> 
                                     </FormControl>
                                     <br/>
                                     <br/>
@@ -697,13 +720,49 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     showAddRelatedNodeModal : false,
                     concepts : concepts,
                     edges : edges,
-                    relationWeight : 0,
+                    relationWeight : 1,
                     isSearching : false,
                     selectedSearchItem: {} as Concept,
                     conceptSearchString: ''
                 }, 
                 () => {
                     this.chartRef.current.init();
+                    setTimeout(() => this.gotoSelectedNode(this.state.selectedConcept), 150);
+                });       
+            },
+            err => {
+                console.log(err);
+            },
+        );
+    };
+
+    editRelationWeight() {
+        const newedge: Edge = {
+            weight : this.state.relationWeight,
+            parent : this.state.isAddingParent ? this.state.modalNode.conceptID : this.state.selectedConcept.conceptID,
+            child  : this.state.isAddingParent ? this.state.selectedConcept.conceptID : this.state.modalNode.conceptID,
+        };
+        Http.setConceptRelation(
+            newedge.parent,
+            newedge.child,
+            newedge.weight,
+            res => {
+                console.log(res);
+                const concepts: Concept[] = [...this.state.concepts];
+                const edges: Edge[] = [...this.state.edges].map(Edge => {
+                    if(Edge.parent == newedge.parent && Edge.child == newedge.child) Edge.weight = newedge.weight;
+                    return Edge;
+                });
+                this.setState({
+                    showModal : false,
+                    concepts : concepts,
+                    edges : edges,
+                    relationWeight : 1,
+                    modalNode: {} as WeightedConcept,
+                }, 
+                () => {
+                    this.chartRef.current.init();
+                    setTimeout(() => this.gotoSelectedNode(this.state.selectedConcept), 150);
                 });       
             },
             err => {
@@ -736,10 +795,11 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         );
     };
 
-    openWeightModal(node: WeightedConcept) {
+    openWeightModal(node: WeightedConcept, isAddingParent: boolean) {
         this.setState({
             showModal : true,
-            modalNode : node
+            modalNode : node,
+            isAddingParent : isAddingParent
         });
     };
 
@@ -766,6 +826,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             conceptID,
             res => {
                 this.getTagNodes();
+                setTimeout(() => { this.chartRef.current.init() }, 500);
             },
             res => {
 
@@ -807,7 +868,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         const isAddingParent: boolean = this.state.isAddingParent;
         const name:string   = (document as any).getElementById('set-new__node-name').value;
         const lesson:string = (document as any).getElementById('set-new__node-lesson').value;
-        const weight:string = (document as any).getElementById('set-new__relation-weight').value;
+        const weight:string = this.state.relationWeight;
         Http.addConcept(
             2,
             name,
@@ -899,7 +960,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
 
     getTagNodes = () => {
         Http.getConceptGraph(
-            2,//this.state.selectedClass.classID,
+            this.state.selectedClass.courseID,//this.state.selectedClass.classID,
             res => {
                 console.log(res)
                 this.setState({
@@ -919,8 +980,10 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         if (selectedClassName !== 'Select class...') {
             const selectedClass = classes.find((c: GetSections_Section) => c.name === selectedClassName);
             if (selectedClass) {
-                this.setState({selectedClass});
-                this.getTagNodes();
+                this.setState({selectedClass}, () => {
+                    this.getTagNodes();
+                    setTimeout(() => { this.chartRef.current.init() }, 500);
+                });
             }
         }
     };
