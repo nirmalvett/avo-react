@@ -28,6 +28,7 @@
     "@types/react-infinite-calendar": "^2.3.2",
     "@types/react-redux": "^7.0.9",
     "@types/react-sortable-tree": "^0.3.8",
+    "@types/react-swipeable-views": "^0.13.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "prettier": "1.18.2",
     "ts-loader": "^6.0.1",

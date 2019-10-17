@@ -24,7 +24,7 @@ import AvoAppBar from './AvoAppBar';
 import AvoSnackBar from './AvoSnackBar';
 import Whitelist from '../Whitelist/Whitelist';
 import {Section} from './LayoutModels';
-import {AvoSet} from '../Http/types';
+import {Course, QuestionSet} from '../Http/types';
 import {QuestionBuilderHome} from '../QuestionBuilder/QuestionBuilderHome';
 const drawerWidth = 240;
 
@@ -76,6 +76,8 @@ interface LayoutState {
         message: string;
         variant: SnackbarVariant;
     };
+    courses: Course[];
+    questionSets: QuestionSet[];
 }
 
 export type ShowSnackBar = (
@@ -96,8 +98,16 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 message: 'AVO AI Assistant Online',
                 variant: 'success',
             },
+            courses: [],
+            questionSets: [],
         };
     }
+
+    updateCourses = (cb: () => void = () => undefined) =>
+        Http.getCourses(x => this.setState(x, cb), console.warn);
+
+    updateQuestionSets = (cb: () => void = () => undefined) =>
+        Http.getSets(x => this.setState({questionSets: x.sets}, cb), console.warn);
 
     color = () => colorList[this.props.color];
 
@@ -260,7 +270,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
         this.setState({section});
     }
 
-    buildQuestion = (s: number, q: number, sets: AvoSet[]) =>
+    buildQuestion = (s: number, q: number, sets: QuestionSet[]) =>
         this.navigate({name: 'Build Question', s, q, sets});
 
     createTest = (classID: number) => this.navigate({name: 'Create Test', classID});
@@ -274,7 +284,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
 
     jumpToClass = (_class: number) => this.navigate({name: 'My Classes', _class, _quiz: null});
 
-    myQuestions = (s: number, q: number, sets: AvoSet[]) =>
+    myQuestions = (s: number, q: number, sets: QuestionSet[]) =>
         this.navigate({name: 'My Questions', s, q, sets});
 
     postTest = (takesID: number) => this.navigate({name: 'Post Test', takesID});

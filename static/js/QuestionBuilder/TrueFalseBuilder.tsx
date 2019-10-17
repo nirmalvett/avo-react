@@ -27,12 +27,12 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import {AvoQuestion, AvoSet} from 'Http/types';
+import {Question, QuestionSet} from 'Http/types';
 import {ShowSnackBar} from 'Layout/Layout';
 
 export interface TrueFalseBuilderProps {
     showSnackBar: ShowSnackBar;
-    sets: AvoSet[];
+    sets: QuestionSet[];
     returnHome: () => void;
 }
 
@@ -46,7 +46,7 @@ interface TrueFalseBuilderState {
     questionAnsr: 'true' | 'false';
     questionExpl: string;
     questionExpE: boolean;
-    sets: AvoSet[];
+    sets: QuestionSet[];
     setsActive: boolean;
     setQActive: boolean;
     selectedS: null | number;
@@ -57,7 +57,7 @@ interface TrueFalseBuilderState {
     deleteDiagOpen: boolean;
     editMode: boolean;
     changed: boolean;
-    nextQuestion: null | AvoQuestion;
+    nextQuestion: null | Question;
     hovered: number;
 }
 
@@ -488,7 +488,7 @@ export default class TrueFalseBuilder extends Component<
         const {selectedS, sets, questionID, hovered} = this.state;
         if (selectedS !== null)
             return sets[selectedS as number].questions.map(
-                (question: AvoQuestion, index: number) => (
+                (question: Question, index: number) => (
                     <ListItem
                         disabled={!isTrueFalse(question.string)}
                         key={question.questionID + '-' + index}
@@ -561,7 +561,7 @@ export default class TrueFalseBuilder extends Component<
         this.getSets();
     };
 
-    selectSet = (set: AvoSet, index: number) => {
+    selectSet = (set: QuestionSet, index: number) => {
         this.setState({selectedS: index, selectedSName: set.name, setsActive: false});
         setTimeout(() => {
             this.setState({setQActive: true});
@@ -672,13 +672,13 @@ export default class TrueFalseBuilder extends Component<
         this.reset();
     };
 
-    deleteSuccess = (question: AvoQuestion) => {
+    deleteSuccess = (question: Question) => {
         this.props.showSnackBar('success', 'Question deleted', 2000);
         if (question.questionID === this.state.questionID) this.reset();
         else this.refreshSets();
     };
 
-    switchQuestion = (question: AvoQuestion) => {
+    switchQuestion = (question: Question) => {
         if (this.state.changed) {
             this.setState({switchDiagOpen: true});
         } else {
@@ -686,7 +686,7 @@ export default class TrueFalseBuilder extends Component<
         }
     };
 
-    loadQuestion = (question: AvoQuestion) => {
+    loadQuestion = (question: Question) => {
         if (!isTrueFalse(question.string)) {
             this.props.showSnackBar(
                 'error',
@@ -713,7 +713,7 @@ export default class TrueFalseBuilder extends Component<
         }
     };
 
-    deleteQuestion = (question: AvoQuestion) => {
+    deleteQuestion = (question: Question) => {
         Http.deleteQuestion(
             question.questionID,
             () => this.deleteSuccess(question),

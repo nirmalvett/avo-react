@@ -28,13 +28,13 @@ import {uniqueKey} from '../../HelperFunctions/Helpers';
 import {getMathJax} from '../../HelperFunctions/Utilities';
 import {AnswerInput} from '../../AnswerInput';
 import {ShowSnackBar} from '../../Layout/Layout';
-import {AvoSet} from '../../Http/types';
+import {QuestionSet} from '../../Http/types';
 
 export interface QuestionManagerProps {
     s: number | null;
     q: number | null;
-    sets: AvoSet[];
-    initBuilder: (s: number, q: number, sets: AvoSet[]) => void;
+    sets: QuestionSet[];
+    initBuilder: (s: number, q: number, sets: QuestionSet[]) => void;
     showSnackBar: ShowSnackBar;
     returnHome: () => void;
 }
@@ -43,7 +43,7 @@ export interface QuestionManagerState {
     selectedS: number | null;
     selectedQ: number | null;
     copiedQ: null | [number, number];
-    sets: AvoSet[];
+    sets: QuestionSet[];
     preview: {
         prompt: string;
         prompts: string[];

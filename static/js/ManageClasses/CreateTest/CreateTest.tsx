@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core';
 import {Delete, Done, Lock, LockOpen, Refresh} from '@material-ui/icons';
 import * as Http from '../../Http';
-import {AvoSet} from '../../Http/types';
+import {QuestionSet} from '../../Http/types';
 import {ShowSnackBar} from '../../Layout/Layout';
 import {HashLoader} from 'react-spinners';
 import {getMathJax} from '../../HelperFunctions/Utilities';
@@ -28,7 +28,7 @@ interface CreateTestProps {
 }
 
 interface CreateTestState {
-    sets: (AvoSet & {open: boolean})[];
+    sets: (QuestionSet & {open: boolean})[];
     testQuestions: TestQuestion[];
     isLoading: boolean;
     name: string;

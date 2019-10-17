@@ -1,14 +1,12 @@
 import {_request, cb} from './baseRequest';
+import {Course} from "./types";
 
 export function createCourse(name: string, success: cb<{}>, failure: cb) {
     _request('POST', '/createCourse', success, failure, {name});
 }
 
 interface GetCourses {
-    courses: {
-        courseID: number;
-        name: string;
-    }[];
+    courses: Course[];
 }
 
 export function getCourses(success: cb<GetCourses>, failure: cb) {

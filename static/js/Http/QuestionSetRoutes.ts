@@ -1,8 +1,8 @@
 import {_request, cb} from './baseRequest';
-import {AvoSet} from './types';
+import {QuestionSet} from './types';
 
 export interface GetSets {
-    sets: AvoSet[];
+    sets: QuestionSet[];
 }
 
 export function getSets(success: cb<GetSets>, failure: cb) {

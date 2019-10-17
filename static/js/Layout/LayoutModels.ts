@@ -1,5 +1,5 @@
 import {GetTest} from '../Http';
-import {AvoSet} from '../Http/types';
+import {QuestionSet} from '../Http/types';
 
 interface AddStudentsToClass {
     name: 'Add Students';
@@ -9,7 +9,7 @@ interface BuildQuestion {
     name: 'Build Question';
     s: number;
     q: number;
-    sets: AvoSet[];
+    sets: QuestionSet[];
 }
 
 interface ConceptBuilder {
@@ -68,7 +68,7 @@ interface MyQuestions {
     name: 'My Questions';
     s: number | null;
     q: number | null;
-    sets: AvoSet[];
+    sets: QuestionSet[];
 }
 
 interface NotifyClass {

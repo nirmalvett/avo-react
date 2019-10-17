@@ -1,11 +1,9 @@
-export interface AvoSet {
-    setID: number;
+export interface Course {
+    courseID: number;
     name: string;
-    canEdit: boolean;
-    questions: AvoQuestion[];
 }
 
-export interface AvoQuestion {
+export interface Question {
     questionID: number;
     name: string;
     string: string;
@@ -13,4 +11,11 @@ export interface AvoQuestion {
     answers: number;
     category: number;
     concepts: number[];
+}
+
+export interface QuestionSet {
+    setID: number;
+    name: string;
+    canEdit: boolean;
+    questions: Question[];
 }

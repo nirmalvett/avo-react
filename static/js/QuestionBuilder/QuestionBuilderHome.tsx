@@ -4,7 +4,7 @@ import Logo from '../SharedComponents/Logo';
 import MultipleChoiceBuilder from './MultipleChoiceBuilder';
 import QuestionManager from '../CourseBuilder/QuestionBuilder/QuestionManager';
 import TrueFalseBuilder from './TrueFalseBuilder';
-import {AvoSet} from 'Http/types';
+import {QuestionSet} from 'Http/types';
 import {ShowSnackBar} from 'Layout/Layout';
 
 interface QuestionBuilderHomeState {
@@ -15,8 +15,8 @@ interface QuestionBuilderHomeState {
 type QuestionBuilderHomeProps = {
     s: number | null;
     q: number | null;
-    sets: AvoSet[];
-    initBuilder: (s: number, q: number, sets: AvoSet[]) => void;
+    sets: QuestionSet[];
+    initBuilder: (s: number, q: number, sets: QuestionSet[]) => void;
     showSnackBar: ShowSnackBar;
     theme: 'light' | 'dark';
 };

@@ -1,15 +1,15 @@
-import {AvoSet} from '../Http/types';
+import {QuestionSet} from '../Http/types';
 import {ReactElement} from 'react';
 import {ShowSnackBar} from '../Layout/Layout';
 import * as Http from '../Http';
 
 export interface QuestionBuilderProps {
-    initManager: (s: number, q: number, sets: AvoSet[]) => void;
-    updateProps: (s: number, q: number, sets: AvoSet[]) => void;
+    initManager: (s: number, q: number, sets: QuestionSet[]) => void;
+    updateProps: (s: number, q: number, sets: QuestionSet[]) => void;
     showSnackBar: ShowSnackBar;
     s: number;
     q: number;
-    sets: AvoSet[];
+    sets: QuestionSet[];
 }
 
 export interface CompileSuccess {

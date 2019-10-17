@@ -1,32 +1,16 @@
 import React, {Component} from 'react';
-import Card from '@material-ui/core/Card';
-import Button from '@material-ui/core/Button';
 import TreeView from './TreeView';
-import Select from '@material-ui/core/Select';
-import Grid from '@material-ui/core/Grid';
-import MenuItem, { MenuItemProps } from '@material-ui/core/MenuItem';
-import * as Http from '../../Http';
 import {getMathJax} from '../../HelperFunctions/Utilities';
-import ListSubheader from '@material-ui/core/ListSubheader';
 import Downshift from 'downshift';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import Collapse from '@material-ui/core/Collapse';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import ExpandMore from '@material-ui/icons/ExpandMore';
 import debounce from '../../SharedComponents/AVODebouncer';
-import Modal from '@material-ui/core/Modal';
 import AVOPopupMenu from '../../SharedComponents/AVOPopupMenu';
 import SwipeableViews from 'react-swipeable-views';
-import { TextFieldProps } from '@material-ui/core/TextField';
 import {
-    Edit, Add, Fullscreen, Save, Close 
+    Edit, ExpandMore, ExpandLess, Add, Fullscreen, Save, Close
 } from '@material-ui/icons';
 import {
+    Button, Card, Collapse, Grid, List, ListItem, ListItemText,
+    ListItemSecondaryAction, MenuItem, Modal, Select, Tab, Tabs,
     FormControl,
     IconButton,
     Input,
@@ -36,7 +20,10 @@ import {
     Paper,
     Typography
 } from '@material-ui/core';
-import {GetSections_Section} from "../../Http";
+import {MenuItemProps} from '@material-ui/core/MenuItem';
+import {TextFieldProps} from '@material-ui/core/TextField';
+import * as Http from '../../Http';
+import {Course} from '../../Http/types';
 
 interface Concept {
     conceptID: number;
@@ -72,8 +59,8 @@ interface TagViewState {
     currentView: string;
     selectedClassName: string;
     classNames: string[];
-    classes: GetSections_Section[];
-    selectedClass: GetSections_Section;
+    classes: Course[];
+    selectedClass: Course;
     loadingClasses: boolean;
 
     editingTagName: boolean;
@@ -219,7 +206,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             selectedClassName: 'Select class...',
             classNames: [],
             classes: [],
-            selectedClass: {} as GetSections_Section,
+            selectedClass: {} as Course,
             loadingClasses: true,
 
             selectedConcept: {} as Concept,
@@ -547,7 +534,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     style={{ width : '40%', top : '50px', left: '30%', right : '30%', position : 'absolute' }}
                 >
                     <Paper className="avo-card">
-                        <IconButton style={{ position : 'absolute', right : '9px', top : '9px', zIndex : '100' }} onClick={() => this.setState({ showAddRelatedNodeModal : false })}>
+                        <IconButton style={{ position : 'absolute' as 'absolute', right : '9px', top : '9px', zIndex : 100 }} onClick={() => this.setState({ showAddRelatedNodeModal : false })}>
                             <Close/>
                         </IconButton>
                         <Tabs
@@ -886,7 +873,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         const isAddingParent: boolean = this.state.isAddingParent;
         const name:string   = (document as any).getElementById('set-new__node-name').value;
         const lesson:string = (document as any).getElementById('set-new__node-lesson').value;
-        const weight:string = this.state.relationWeight;
+        const weight = this.state.relationWeight;
         Http.addConcept(
             2,
             name,
@@ -899,7 +886,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     lesson : lesson
                 };
                 const newedge: Edge = {
-                    weight : parseInt(weight),
+                    weight : weight,
                     parent : isAddingParent ? newconcept.conceptID : _this.state.selectedConcept.conceptID,
                     child  : isAddingParent ? _this.state.selectedConcept.conceptID : newconcept.conceptID,
                 };
@@ -996,7 +983,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
     changeClass = () => {
         const {selectedClassName, classes} = this.state;
         if (selectedClassName !== 'Select class...') {
-            const selectedClass = classes.find((c: GetSections_Section) => c.name === selectedClassName);
+            const selectedClass = classes.find(c => c.name === selectedClassName);
             if (selectedClass) {
                 this.setState({selectedClass}, () => {
                     this.getTagNodes();
