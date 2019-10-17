@@ -257,7 +257,9 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                             >
                                 <ListItemIcon>
                                     <AssessmentOutlined
-                                        color={isOpen(test, this.state.now) ? 'primary' : 'disabled'}
+                                        color={
+                                            isOpen(test, this.state.now) ? 'primary' : 'disabled'
+                                        }
                                         style={{marginLeft: '10px'}}
                                     />
                                 </ListItemIcon>
@@ -1007,7 +1009,9 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         Http.openTest(
             selectedTest.testID,
             ({openTime}) => {
-                newClasses[this.state.c as number].tests[this.state.t as number].openTime = openTime;
+                newClasses[this.state.c as number].tests[
+                    this.state.t as number
+                ].openTime = openTime;
                 this.setState({
                     classes: newClasses,
                     studentNameSearchLabels: this.genStudentNameSearchLabels(),
@@ -1023,7 +1027,9 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         Http.closeTest(
             selectedTest.testID,
             ({deadline}) => {
-                newClasses[this.state.c as number].tests[this.state.t as number].deadline = deadline;
+                newClasses[this.state.c as number].tests[
+                    this.state.t as number
+                ].deadline = deadline;
                 this.setState({classes: newClasses});
             },
             () => {},

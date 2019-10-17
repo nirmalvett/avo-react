@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import cytoscape, {ElementsDefinition} from 'cytoscape';
 // @ts-ignore
 import dagre from 'cytoscape-dagre';
@@ -34,29 +34,28 @@ interface TreeViewState {
     selectedConceptID: number;
 }
 
-export default class TreeView extends Component<TreeViewProps, TreeViewState>
-{
+export default class TreeView extends Component<TreeViewProps, TreeViewState> {
     constructor(props: TreeViewProps) {
         super(props);
         this.state = {
-            selectedConceptID : -1,
-        }
-    };
+            selectedConceptID: -1,
+        };
+    }
 
     render() {
         return (
-            <div 
-                id='cy' 
+            <div
+                id='cy'
                 style={{
-                    flex: 1, 
+                    flex: 1,
                     height: '83.65vh',
                     borderRadius: '0px 28px 28px 0px',
                     background: 'rgba(0,0,0,0.075)',
-                    overflow: 'hidden'
-                }} 
+                    overflow: 'hidden',
+                }}
             />
         );
-    };
+    }
 
     init() {
         const _this = this;
@@ -70,21 +69,20 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
                     id: 'node-' + Concept.conceptID + '-end', // the + '-end' is for later on filtering
                 },
                 style: {
-                    content: (
-                        Concept.name.length > 28 ? 
-                            Concept.name.substring(0, 25) + '...' : 
-                            Concept.name
-                    ),
-                }
+                    content:
+                        Concept.name.length > 28
+                            ? Concept.name.substring(0, 25) + '...'
+                            : Concept.name,
+                },
             });
         });
 
         this.props.edges.forEach(Edge => {
             edges.push({
                 data: {
-                    source: 'node-'    + Edge.parent + '-end',
-                    target: 'node-'    + Edge.child  + '-end', 
-                    id    : 'between-' + Edge.parent + '-' + Edge.child
+                    source: 'node-' + Edge.parent + '-end',
+                    target: 'node-' + Edge.child + '-end',
+                    id: 'between-' + Edge.parent + '-' + Edge.child,
                 },
             });
         });
@@ -102,9 +100,9 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
                 {
                     selector: 'node',
                     style: {
-                        'background-color' : _this.props.theme.theme === 'light' ? 'grey' : 'white',
-                        'width'            : 50,
-                        'height'           : 50
+                        'background-color': _this.props.theme.theme === 'light' ? 'grey' : 'white',
+                        width: 50,
+                        height: 50,
                     },
                 },
                 {
@@ -116,7 +114,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
                         'target-arrow-color': _this.props.theme.color[100],
                         'curve-style': 'bezier',
                     },
-                }
+                },
             ],
             elements: {nodes, edges},
         });
@@ -125,11 +123,11 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
             // @ts-ignore
             _this.selectNode(this.id());
         });
-    };
+    }
 
     componentDidMount() {
         this.init();
-    };
+    }
 
     addRepopulateData(_concepts: Concept[], _edges: Edge[]) {
         const nodes: ElementsDefinition['nodes'] = [];
@@ -141,67 +139,69 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState>
                     id: 'node-' + Concept.conceptID + '-end', // the + '-end' is for later on filtering
                 },
                 style: {
-                    content: (
-                        Concept.name.length > 28 ? 
-                            Concept.name.substring(0, 25) + '...' : 
-                            Concept.name
-                    ),
-                }
+                    content:
+                        Concept.name.length > 28
+                            ? Concept.name.substring(0, 25) + '...'
+                            : Concept.name,
+                },
             });
         });
 
         _edges.forEach(Edge => {
             edges.push({
                 data: {
-                    source: 'node-'    + Edge.parent + '-end',
-                    target: 'node-'    + Edge.child  + '-end', 
-                    id    : 'between-' + Edge.parent + '-' + Edge.child
+                    source: 'node-' + Edge.parent + '-end',
+                    target: 'node-' + Edge.child + '-end',
+                    id: 'between-' + Edge.parent + '-' + Edge.child,
                 },
             });
         });
-        (window as any).cy.json({ elements: {nodes, edges} });
-    };
+        (window as any).cy.json({elements: {nodes, edges}});
+    }
 
     selectNode(nodeID: String) {
         const tagID = parseInt(nodeID.split('-')[1]);
 
-        const nodesToSelect = [ tagID ];
+        const nodesToSelect = [tagID];
 
-        if(!!this.getParentNodes(tagID).length)
+        if (!!this.getParentNodes(tagID).length)
             nodesToSelect.push(...this.getParentNodes(tagID).map(Concept => Concept.conceptID));
         nodesToSelect.push(...this.getChildNodes(tagID).map(Concept => Concept.conceptID));
 
-        (window as any).cy.fit((window as any).cy.$(...nodesToSelect.map(number => `#node-${number}-end`)), 250);
+        (window as any).cy.fit(
+            (window as any).cy.$(...nodesToSelect.map(number => `#node-${number}-end`)),
+            250,
+        );
 
-        (window as any).cy.nodes().forEach((node : any) => {
+        (window as any).cy.nodes().forEach((node: any) => {
             let nodeColour = this.props.theme.theme === 'light' ? 'grey' : 'white';
             const nodeID = parseInt(node.id().split('-')[1]);
-            if(nodeID === tagID) nodeColour = this.props.theme.color[500]; 
-            node.style('background-color', nodeColour);            
+            if (nodeID === tagID) nodeColour = this.props.theme.color[500];
+            node.style('background-color', nodeColour);
         });
-        this.setState({ selectedConceptID : tagID });
-        this.props.setTagIndex(this.props.concepts.map(Concept => Concept.conceptID).indexOf(tagID));
-    };
+        this.setState({selectedConceptID: tagID});
+        this.props.setTagIndex(
+            this.props.concepts.map(Concept => Concept.conceptID).indexOf(tagID),
+        );
+    }
 
     getParentNodes(id: number) {
         const parentNodes: Concept[] = [];
         const conceptMapByID: {[key: number]: Concept} = {};
-        this.props.concepts.forEach(Concept => conceptMapByID[Concept.conceptID] = Concept );
+        this.props.concepts.forEach(Concept => (conceptMapByID[Concept.conceptID] = Concept));
         this.props.edges.forEach(Edge => {
-            if(Edge.child === id)
-                parentNodes.push(conceptMapByID[Edge.parent]);
+            if (Edge.child === id) parentNodes.push(conceptMapByID[Edge.parent]);
         });
         return parentNodes;
-    };
+    }
 
     getChildNodes(id: number) {
         const childNodes: Concept[] = [];
         const conceptMapByID: {[key: number]: Concept} = {};
-        this.props.concepts.forEach(Concept => conceptMapByID[Concept.conceptID] = Concept );
+        this.props.concepts.forEach(Concept => (conceptMapByID[Concept.conceptID] = Concept));
         this.props.edges.forEach(Edge => {
-            if(Edge.parent === id)
-                childNodes.push(conceptMapByID[Edge.child]);
+            if (Edge.parent === id) childNodes.push(conceptMapByID[Edge.child]);
         });
         return childNodes;
-    };
-};
+    }
+}

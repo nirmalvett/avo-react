@@ -487,43 +487,41 @@ export default class TrueFalseBuilder extends Component<
     renderQuestionList = () => {
         const {selectedS, sets, questionID, hovered} = this.state;
         if (selectedS !== null)
-            return sets[selectedS as number].questions.map(
-                (question: Question, index: number) => (
-                    <ListItem
-                        disabled={!isTrueFalse(question.string)}
-                        key={question.questionID + '-' + index}
-                        button
-                        onMouseEnter={() => this.setState({hovered: question.questionID})}
-                        onMouseLeave={() => this.setState({hovered: -1})}
-                        onClick={() => this.setState({nextQuestion: question})}
-                    >
-                        <ListItemIcon>
-                            <QuestionIcon
-                                color={questionID === question.questionID ? 'primary' : 'action'}
-                            />
-                        </ListItemIcon>
-                        <ListItemText secondary={question.name} />
-                        {hovered === question.questionID && (
-                            <IconButton
-                                size='small'
-                                edge='end'
-                                onClick={() => this.switchQuestion(question)}
-                            >
-                                <EditIcon />
-                            </IconButton>
-                        )}
-                        {hovered === question.questionID && (
-                            <IconButton
-                                size='small'
-                                edge='end'
-                                onClick={() => this.setState({deleteDiagOpen: true})}
-                            >
-                                <DeleteIcon />
-                            </IconButton>
-                        )}
-                    </ListItem>
-                ),
-            );
+            return sets[selectedS as number].questions.map((question: Question, index: number) => (
+                <ListItem
+                    disabled={!isTrueFalse(question.string)}
+                    key={question.questionID + '-' + index}
+                    button
+                    onMouseEnter={() => this.setState({hovered: question.questionID})}
+                    onMouseLeave={() => this.setState({hovered: -1})}
+                    onClick={() => this.setState({nextQuestion: question})}
+                >
+                    <ListItemIcon>
+                        <QuestionIcon
+                            color={questionID === question.questionID ? 'primary' : 'action'}
+                        />
+                    </ListItemIcon>
+                    <ListItemText secondary={question.name} />
+                    {hovered === question.questionID && (
+                        <IconButton
+                            size='small'
+                            edge='end'
+                            onClick={() => this.switchQuestion(question)}
+                        >
+                            <EditIcon />
+                        </IconButton>
+                    )}
+                    {hovered === question.questionID && (
+                        <IconButton
+                            size='small'
+                            edge='end'
+                            onClick={() => this.setState({deleteDiagOpen: true})}
+                        >
+                            <DeleteIcon />
+                        </IconButton>
+                    )}
+                </ListItem>
+            ));
     };
 
     getSaveRequirementList = () => {

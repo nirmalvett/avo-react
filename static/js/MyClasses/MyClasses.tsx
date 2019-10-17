@@ -283,7 +283,11 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                             >
                                                 <ListItemIcon>
                                                     <AssessmentOutlined
-                                                        color={isOpen(test, this.state.now) ? 'primary' : 'disabled'}
+                                                        color={
+                                                            isOpen(test, this.state.now)
+                                                                ? 'primary'
+                                                                : 'disabled'
+                                                        }
                                                         style={{marginLeft: '10px'}}
                                                     />
                                                 </ListItemIcon>
