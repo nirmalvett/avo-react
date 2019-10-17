@@ -9,7 +9,7 @@ import TextField from '@material-ui/core/TextField';
 import AVOLessonSlider from './AVOLessonSlider';
 
 import AVOLearnPostTestModel from './AVOLearnPostTestModal';
-import {Course} from "../Http/types";
+import {Course} from '../Http/types';
 
 export interface AvoLesson {
     conceptID: number;
@@ -78,14 +78,20 @@ export default class AVOLearnComponent extends Component<
                 <AVOLearnPostTestModel
                     hideModal={this.hidePostLessonModal}
                     modalDisplay={this.state.postLessonModalDisplay}
-                    lesson={this.state.lessons.find(x => x.conceptID === this.state.currentLesson) as AvoLesson}
+                    lesson={
+                        this.state.lessons.find(
+                            x => x.conceptID === this.state.currentLesson,
+                        ) as AvoLesson
+                    }
                 />
                 <Grid item xs={3}>
                     <Button
                         variant='outlined'
                         style={{borderRadius: '2.5em'}}
                         onClick={() =>
-                            this.setState({otherView: this.state.otherView === 'To Do' ? 'Completed' : 'To Do'})
+                            this.setState({
+                                otherView: this.state.otherView === 'To Do' ? 'Completed' : 'To Do',
+                            })
                         }
                     >
                         View {this.state.otherView}
@@ -180,7 +186,9 @@ export default class AVOLearnComponent extends Component<
 
     changeClass = () => {
         if (this.state.selectedCourse !== -1) {
-            const selectedCourse = this.props.courses.find(c => c.courseID === this.state.selectedCourse);
+            const selectedCourse = this.props.courses.find(
+                c => c.courseID === this.state.selectedCourse,
+            );
             if (selectedCourse) {
                 this.getLessons(selectedCourse.courseID);
             }
