@@ -26,6 +26,7 @@ import Whitelist from '../Whitelist/Whitelist';
 import {Section} from './LayoutModels';
 import {Course, QuestionSet} from '../Http/types';
 import {QuestionBuilderHome} from '../QuestionBuilder/QuestionBuilderHome';
+import {GetSections_Section} from '../Http';
 const drawerWidth = 240;
 
 const styles = (theme: Theme) =>
@@ -77,6 +78,7 @@ interface LayoutState {
         variant: SnackbarVariant;
     };
     courses: Course[];
+    sections: Http.GetSections_Section[];
     questionSets: QuestionSet[];
 }
 
@@ -99,15 +101,25 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 variant: 'success',
             },
             courses: [],
+            sections: [],
             questionSets: [],
         };
     }
 
-    updateCourses = (cb: () => void = () => undefined) =>
-        Http.getCourses(x => this.setState(x, cb), console.warn);
+    componentDidMount() {
+        Http.getCourses(x => this.setState(x), console.warn);
+        Http.getSections(x => this.setState(x), console.warn);
+        Http.getSets(x => this.setState({questionSets: x.sets}), console.warn);
+    }
 
-    updateQuestionSets = (cb: () => void = () => undefined) =>
-        Http.getSets(x => this.setState({questionSets: x.sets}, cb), console.warn);
+    updateCourses = (courses: Course[], cb: () => void = () => undefined) =>
+        this.setState({courses}, cb);
+
+    updateSections = (sections: GetSections_Section[], cb: () => void = () => undefined) =>
+        this.setState({sections}, cb);
+
+    updateQuestionSets = (questionSets: QuestionSet[], cb: () => void = () => undefined) =>
+        this.setState({questionSets}, cb);
 
     color = () => colorList[this.props.color];
 
@@ -205,6 +217,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
         } else if (section.name === 'Manage Classes') {
             return (
                 <ManageClasses
+                    sections={this.state.sections}
+                    updateSections={this.updateSections}
                     showSnackBar={this.showSnackBar}
                     createTest={this.createTest}
                     theme={{theme: this.props.theme, color: this.color()}}
@@ -219,6 +233,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
         } else if (section.name === 'My Classes') {
             return (
                 <MyClasses
+                    sections={this.state.sections}
+                    updateSections={this.updateSections}
                     classToJumpTo={section._class}
                     setToJumpTo={section._quiz}
                     showSnackBar={this.showSnackBar}

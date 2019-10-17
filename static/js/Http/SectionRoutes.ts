@@ -37,6 +37,7 @@ export interface GetSections_Section {
     enrollKey: string | null;
     name: string;
     tests: GetSections_Test[];
+    role: 'teacher' | 'enrolled' | 'trial' | undefined;
 }
 
 export interface GetSections_Test {

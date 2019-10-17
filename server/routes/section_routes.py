@@ -95,6 +95,7 @@ def get_sections():
         (Test.TEST == Takes.TEST) &
         (current_user.USER == Takes.USER)
     ).all()
+    user_sections: List[UserSection] = UserSection.query.filter(UserSection.USER == current_user.USER).all()
     users_test_stats = db.session.execute(text(test_stats_sql), params={'user': current_user.USER}).fetchall()
     users_medians = db.session.execute(text(test_medians_sql), params={'user': current_user.USER}).fetchall()
 
@@ -107,6 +108,10 @@ def get_sections():
             'name': s.name,
             'tests': {}
         }
+
+    for s in user_sections:
+        if s.expiry is None or s.expiry > now:
+            sections_dict[s.SECTION]['role'] = s.user_type
 
     for t in tests:
         sections_dict[t.SECTION]['tests'][t.TEST] = {

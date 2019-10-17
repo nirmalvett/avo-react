@@ -31,7 +31,7 @@ import {
     PeopleOutlined,
 } from '@material-ui/icons';
 import * as Http from '../Http';
-import {copy, getDateString, isOpen} from '../HelperFunctions/Utilities';
+import {getDateString, isOpen} from '../HelperFunctions/Utilities';
 import {convertListFloatToAnalytics} from '../HelperFunctions/Helpers';
 import {ShowSnackBar} from '../Layout/Layout';
 import {
@@ -58,6 +58,8 @@ const CONST_OVERALL_ANALYTICS_DEFAULT = 3;
 let PAYPAL_MODE = JSON.parse(paypal_mode.slice(18, -2)).paypal_mode;
 
 interface MyClassesProps {
+    sections: Http.GetSections_Section[];
+    updateSections: (sections: Http.GetSections_Section[], cb?: () => void) => void;
     showSnackBar: ShowSnackBar;
     theme: {
         theme: 'light' | 'dark';
@@ -76,8 +78,7 @@ interface MyClassesProps {
 
 interface MyClassesState {
     now: number;
-    classes: (Http.GetSections_Section & {open: boolean})[];
-    classesLoaded: boolean;
+    open: {[sectionID: number]: boolean};
     chartWidth: number;
     c: null | number;
     t: null | number;
@@ -96,8 +97,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         super(props);
         this.state = {
             now: Number(new Date()),
-            classes: [],
-            classesLoaded: false,
+            open: {},
             chartWidth: 200,
             c: null, // Selected class
             t: null, // Selected test
@@ -135,7 +135,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
 
     tryToJump() {
         if (this.props.classToJumpTo != null) {
-            const classToJumpTo = this.state.classes.findIndex(
+            const classToJumpTo = this.props.sections.findIndex(
                 c => c.sectionID === this.props.classToJumpTo,
             );
             if (classToJumpTo !== -1) {
@@ -155,10 +155,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
         /* Loads the classes into the state */
         Http.getSections(
             result => {
-                this.setState({
-                    classes: result.sections.map(x => ({...x, open: x.tests.length > 0})),
-                    classesLoaded: true,
-                });
+                this.props.updateSections(result.sections);
                 this.tryToJump();
             },
             result => {
@@ -221,94 +218,80 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                     </ListItem>
                     <Divider />
                     <ListSubheader style={{position: 'relative'}}>Classes</ListSubheader>
-                    {!this.state.classesLoaded ? (
-                        <Fragment>
-                            <div
-                                className='avo-loading-icon'
-                                style={{color: `${this.props.theme.color['500']}`}}
-                            />
-                            <br />
-                            <div style={{textAlign: 'center'}}>
-                                <Typography
-                                    component={'span'}
-                                    variant='body1'
-                                    color='textPrimary'
-                                    classes={{root: 'avo-padding__16px'}}
-                                >
-                                    Loading your class data...
-                                </Typography>
-                            </div>
+                    {this.props.sections.map((cls, cIndex) => (
+                        <Fragment key={'MyClasses' + cls.sectionID + '-' + cIndex}>
+                            <ListItem
+                                button
+                                onClick={() => {
+                                    this.selectClass(cIndex);
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <PeopleOutlined color='action' />
+                                </ListItemIcon>
+                                <ListItemText primary={cls.name} />
+                                {this.state.open[cls.sectionID] ? (
+                                    <ExpandLess
+                                        color={cls.tests.length === 0 ? 'disabled' : 'action'}
+                                    />
+                                ) : (
+                                    <ExpandMore
+                                        color={cls.tests.length === 0 ? 'disabled' : 'action'}
+                                    />
+                                )}
+                            </ListItem>
+                            <Collapse
+                                in={this.state.open[cls.sectionID]}
+                                timeout='auto'
+                                unmountOnExit
+                            >
+                                <List>
+                                    {cls.tests.map((test, tIndex) => (
+                                        <ListItem
+                                            key={
+                                                'MyClasses' +
+                                                cls.sectionID +
+                                                '-' +
+                                                cIndex +
+                                                '-' +
+                                                test.testID +
+                                                '-' +
+                                                tIndex
+                                            }
+                                            button
+                                            onClick={() => {
+                                                this.getTestStats(test.testID, cIndex, tIndex);
+                                            }}
+                                        >
+                                            <ListItemIcon>
+                                                <AssessmentOutlined
+                                                    color={
+                                                        isOpen(test, this.state.now)
+                                                            ? 'primary'
+                                                            : 'disabled'
+                                                    }
+                                                    style={{marginLeft: '10px'}}
+                                                />
+                                            </ListItemIcon>
+                                            <ListItemText primary={test.name} />
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </Collapse>
                         </Fragment>
-                    ) : (
-                        this.state.classes.map((cls, cIndex) => (
-                            <Fragment key={'MyClasses' + cls.sectionID + '-' + cIndex}>
-                                <ListItem
-                                    button
-                                    onClick={() => {
-                                        this.selectClass(cIndex);
-                                    }}
-                                >
-                                    <ListItemIcon>
-                                        <PeopleOutlined color='action' />
-                                    </ListItemIcon>
-                                    <ListItemText primary={cls.name} />
-                                    {cls.open ? (
-                                        <ExpandLess
-                                            color={cls.tests.length === 0 ? 'disabled' : 'action'}
-                                        />
-                                    ) : (
-                                        <ExpandMore
-                                            color={cls.tests.length === 0 ? 'disabled' : 'action'}
-                                        />
-                                    )}
-                                </ListItem>
-                                <Collapse in={cls.open} timeout='auto' unmountOnExit>
-                                    <List>
-                                        {cls.tests.map((test, tIndex) => (
-                                            <ListItem
-                                                key={
-                                                    'MyClasses' +
-                                                    cls.sectionID +
-                                                    '-' +
-                                                    cIndex +
-                                                    '-' +
-                                                    test.testID +
-                                                    '-' +
-                                                    tIndex
-                                                }
-                                                button
-                                                onClick={() => {
-                                                    this.getTestStats(test.testID, cIndex, tIndex);
-                                                }}
-                                            >
-                                                <ListItemIcon>
-                                                    <AssessmentOutlined
-                                                        color={
-                                                            isOpen(test, this.state.now)
-                                                                ? 'primary'
-                                                                : 'disabled'
-                                                        }
-                                                        style={{marginLeft: '10px'}}
-                                                    />
-                                                </ListItemIcon>
-                                                <ListItemText primary={test.name} />
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                </Collapse>
-                            </Fragment>
-                        ))
-                    )}
+                    ))}
                 </List>
             </Paper>
         );
     }
 
     selectClass(index: number) {
-        let newClassList = copy(this.state.classes);
-        if (newClassList[index].tests.length > 0)
-            newClassList[index].open = !newClassList[index].open;
-        this.setState({classes: newClassList, c: index, t: null});
+        const open = {...this.state.open};
+        if (this.props.sections[index].tests.length > 0)
+            open[this.props.sections[index].sectionID] = !open[
+                this.props.sections[index].sectionID
+            ];
+        this.setState({open, c: index, t: null});
     }
 
     enrollInClassPopper() {
@@ -1171,7 +1154,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
     }
 
     selectedClass(): Http.GetSections_Section {
-        return this.state.classes[this.state.c as number];
+        return this.props.sections[this.state.c as number];
     }
 
     selectedTest(): Http.GetSections_Test {

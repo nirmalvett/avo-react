@@ -56,6 +56,8 @@ const CONST_TAB_PER_QUESTION = 1;
 const CONST_TAB_MY_ATTEMPTS = 2;
 
 interface ManageClassesProps {
+    sections: Http.GetSections_Section[];
+    updateSections: (sections: Http.GetSections_Section[], cb?: () => void) => void;
     showSnackBar: ShowSnackBar;
     theme: {
         color: {
@@ -72,8 +74,7 @@ interface ManageClassesProps {
 
 interface ManageClassesState {
     now: number;
-    classes: (Http.GetSections_Section & {open: boolean})[];
-    classesLoaded: boolean;
+    open: {[sectionID: number]: boolean};
     c: null | number;
     t: null | number;
     studentNameSearchLabels: {label: string}[];
@@ -104,8 +105,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         super(props);
         this.state = {
             now: Number(new Date()),
-            classes: [],
-            classesLoaded: false,
+            open: {},
             c: null, // Selected class
             t: null, // Selected test
             studentNameSearchLabels: [],
@@ -140,15 +140,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     }
 
     loadClasses(snackBarString?: string) {
-        // this gets the class results
-        Http.getSections(
-            result =>
-                this.setState({
-                    classes: result.sections.map(x => ({...x, open: false})),
-                    classesLoaded: true,
-                }),
-            console.warn,
-        );
+        Http.getSections(result => this.props.updateSections(result.sections), console.warn);
         if (snackBarString !== undefined) {
             this.props.showSnackBar('success', snackBarString, 2000);
         }
@@ -205,71 +197,54 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     }
 
     sideBar_loadClasses() {
-        if (!this.state.classesLoaded) {
-            return (
-                <Fragment>
-                    <div
-                        className='avo-loading-icon'
-                        style={{color: this.props.theme.color['500']}}
-                    />
-                    <br />
-                    <div style={{textAlign: 'center'}}>
-                        <Typography
-                            component={'span'}
-                            variant='body1'
-                            color='textPrimary'
-                            classes={{root: 'avo-padding__16px'}}
-                        >
-                            Loading your class data...
-                        </Typography>
-                    </div>
+        return this.props.sections
+            .filter(x => x.role === 'teacher')
+            .map((cls, cIndex) => (
+                <Fragment key={'ManageClasses' + cls.sectionID + '-' + cIndex}>
+                    <ListItem button onClick={() => this.selectClass(cIndex)}>
+                        <ListItemIcon>
+                            <PeopleOutlined color='action' />
+                        </ListItemIcon>
+                        <ListItemText primary={cls.name} />
+                        {this.state.open[cls.sectionID] ? (
+                            <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'} />
+                        ) : (
+                            <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'} />
+                        )}
+                    </ListItem>
+                    <Collapse in={this.state.open[cls.sectionID]} timeout='auto' unmountOnExit>
+                        <List>
+                            {// For each test create a menu option
+                            cls.tests.map((test, tIndex) => (
+                                <ListItem
+                                    key={`ManageClasses${cls.sectionID}-${cIndex}-${test.testID}-${tIndex}`}
+                                    button
+                                    onClick={() => {
+                                        this.loadEditTestPopper(test);
+                                        this.setState({
+                                            editTestPopperOpen: false,
+                                            deleteTestPopperOpen: false,
+                                        }); // close the editTest Popper
+                                        this.getTestStats(test.testID, cIndex, tIndex);
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <AssessmentOutlined
+                                            color={
+                                                isOpen(test, this.state.now)
+                                                    ? 'primary'
+                                                    : 'disabled'
+                                            }
+                                            style={{marginLeft: '10px'}}
+                                        />
+                                    </ListItemIcon>
+                                    <ListItemText primary={test.name} />
+                                </ListItem>
+                            ))}
+                        </List>
+                    </Collapse>
                 </Fragment>
-            );
-        }
-        return this.state.classes.map((cls, cIndex) => (
-            <Fragment key={'ManageClasses' + cls.sectionID + '-' + cIndex}>
-                <ListItem button onClick={() => this.selectClass(cIndex)}>
-                    <ListItemIcon>
-                        <PeopleOutlined color='action' />
-                    </ListItemIcon>
-                    <ListItemText primary={cls.name} />
-                    {cls.open ? (
-                        <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'} />
-                    ) : (
-                        <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'} />
-                    )}
-                </ListItem>
-                <Collapse in={cls.open} timeout='auto' unmountOnExit>
-                    <List>
-                        {// For each test create a menu option
-                        cls.tests.map((test, tIndex) => (
-                            <ListItem
-                                key={`ManageClasses${cls.sectionID}-${cIndex}-${test.testID}-${tIndex}`}
-                                button
-                                onClick={() => {
-                                    this.loadEditTestPopper(test);
-                                    this.setState({
-                                        editTestPopperOpen: false,
-                                        deleteTestPopperOpen: false,
-                                    }); // close the editTest Popper
-                                    this.getTestStats(test.testID, cIndex, tIndex);
-                                }}
-                            >
-                                <ListItemIcon>
-                                    <AssessmentOutlined
-                                        color={
-                                            isOpen(test, this.state.now) ? 'primary' : 'disabled'
-                                        }
-                                        style={{marginLeft: '10px'}}
-                                    />
-                                </ListItemIcon>
-                                <ListItemText primary={test.name} />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Collapse>
-            </Fragment>
-        ));
+            ));
     }
 
     createClassModal() {
@@ -333,7 +308,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
 
     detailsCard() {
         // This is the rendering logic for what goes inside the card on the right
-        let selectedClass = this.state.classes[this.state.c as number];
+        let selectedClass = this.props.sections[this.state.c as number];
         const uniqueKey1 = '1'; // This is no longer used instead we use proper keys
         if (this.state.t !== null) {
             // If a test is selected
@@ -964,10 +939,12 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     // }
 
     selectClass(index: number) {
-        let newClassList = copy(this.state.classes);
-        if (newClassList[index].tests.length > 0)
-            newClassList[index].open = !newClassList[index].open;
-        this.setState({classes: newClassList, c: index, t: null});
+        const open = {...this.state.open};
+        if (this.props.sections[index].tests.length > 0)
+            open[this.props.sections[index].sectionID] = !open[
+                this.props.sections[index].sectionID
+            ];
+        this.setState({open, c: index, t: null});
     }
 
     // selectTest(cIndex: number, tIndex: number) {
@@ -1004,48 +981,53 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     // }
 
     openTest() {
-        let selectedTest = this.state.classes[this.state.c as number].tests[this.state.t as number];
-        let newClasses = copy(this.state.classes);
+        let selectedTest = this.props.sections[this.state.c as number].tests[
+            this.state.t as number
+        ];
+        let newClasses = copy(this.props.sections);
         Http.openTest(
             selectedTest.testID,
             ({openTime}) => {
                 newClasses[this.state.c as number].tests[
                     this.state.t as number
                 ].openTime = openTime;
-                this.setState({
-                    classes: newClasses,
-                    studentNameSearchLabels: this.genStudentNameSearchLabels(),
-                });
+                this.props.updateSections(newClasses);
             },
             () => {},
         );
     }
 
     closeTest() {
-        let selectedTest = this.state.classes[this.state.c as number].tests[this.state.t as number];
-        let newClasses = copy(this.state.classes);
+        let selectedTest = this.props.sections[this.state.c as number].tests[
+            this.state.t as number
+        ];
+        let newClasses = copy(this.props.sections);
         Http.closeTest(
             selectedTest.testID,
             ({deadline}) => {
                 newClasses[this.state.c as number].tests[
                     this.state.t as number
                 ].deadline = deadline;
-                this.setState({classes: newClasses});
+                this.props.updateSections(newClasses);
             },
             () => {},
         );
     }
 
     deleteTest() {
-        let selectedTest = this.state.classes[this.state.c as number].tests[this.state.t as number];
-        let newClasses = copy(this.state.classes);
+        let selectedTest = this.props.sections[this.state.c as number].tests[
+            this.state.t as number
+        ];
+        let newClasses = copy(this.props.sections);
         Http.deleteTest(
             selectedTest.testID,
             () => {
                 newClasses[this.state.c as number].tests.splice(this.state.t as number, 1);
-                if (newClasses[this.state.c as number].tests.length === 0)
-                    newClasses[this.state.c as number].open = false;
-                this.setState({classes: newClasses, t: null});
+                const open = {...this.state.open};
+                if (newClasses[this.state.c as number].tests.length === 0) {
+                    open[newClasses[this.state.c as number].sectionID] = false;
+                }
+                this.setState({t: null}, () => this.props.updateSections(newClasses));
             },
             () => {},
         );
@@ -1191,7 +1173,9 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
 
     getTestCardGraphOptions() {
         const ts = this.state.testStats as Http.TestStats;
-        let selectedTest = this.state.classes[this.state.c as number].tests[this.state.t as number];
+        let selectedTest = this.props.sections[this.state.c as number].tests[
+            this.state.t as number
+        ];
         return {
             chart: {
                 fontFamily: 'Roboto',
@@ -1312,7 +1296,9 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
 
     getTestCardGraphSeries() {
         const ts = this.state.testStats as Http.TestStats;
-        let selectedTest = this.state.classes[this.state.c as number].tests[this.state.t as number];
+        let selectedTest = this.props.sections[this.state.c as number].tests[
+            this.state.t as number
+        ];
         if (this.state.testStatsDataSelectIdx === 0) {
             let testAverage = 0;
             selectedTest.submitted.forEach(obj => (testAverage += obj.grade));
@@ -1457,7 +1443,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             testID,
             result => {
                 Http.getSectionTestResults(
-                    this.state.classes[cIndex].tests[tIndex].testID,
+                    this.props.sections[cIndex].tests[tIndex].testID,
                     _result => {
                         let resultsIndexArray = [];
                         for (let i = 0; i < _result.results.length; i++) resultsIndexArray.push(0);
@@ -1477,7 +1463,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     }
 
     processClassChartData() {
-        let selectedClass = this.state.classes[this.state.c as number];
+        let selectedClass = this.props.sections[this.state.c as number];
         let classAvg = [];
         let classMed = [];
         let classDev = [];
@@ -1507,7 +1493,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     }
 
     generateChartOptions() {
-        let selectedClass = this.state.classes[this.state.c as number];
+        let selectedClass = this.props.sections[this.state.c as number];
         let xCategories = [];
         for (let i = 0; i < selectedClass.tests.length; i++) {
             xCategories.push(selectedClass.tests[i].name);

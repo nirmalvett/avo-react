@@ -487,7 +487,6 @@ class DataStore(db.Model):
 
 class UserSectionType:
     ENROLLED = 'enrolled'
-    TA = 'TA'
     TEACHER = 'teacher'
     TRIAL = 'trial'
     WHITELIST = 'whitelist'
