@@ -4,8 +4,7 @@ import {getMathJax} from '../../HelperFunctions/Utilities';
 import Downshift from 'downshift';
 import debounce from '../../SharedComponents/AVODebouncer';
 import AVOPopupMenu from '../../SharedComponents/AVOPopupMenu';
-import SwipeableViews from 'react-swipeable-views';
-import {Edit, ExpandMore, ExpandLess, Add, Fullscreen, Save, Close} from '@material-ui/icons';
+import {Edit, ExpandMore, ExpandLess, Add, Fullscreen, Save, Close, RedoOutlined} from '@material-ui/icons';
 import {
     Button,
     Card,
@@ -33,6 +32,8 @@ import {MenuItemProps} from '@material-ui/core/MenuItem';
 import {TextFieldProps} from '@material-ui/core/TextField';
 import * as Http from '../../Http';
 import {Course} from '../../Http/types';
+// @ts-ignore
+import SwipeableViews from 'react-swipeable-views';
 
 interface Concept {
     conceptID: number;
@@ -255,6 +256,28 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
 
     render() {
         const {showChildNodes, showParentNodes} = this.state;
+        const menuOptions:any = [
+            {
+                label: 'Add Concept',
+                onClick: () => {
+                    this.setState({showAddNodeModal: true});
+                },
+            }
+        ];
+        if(!!this.state.selectedConcept.name) {
+            menuOptions.push(
+                {
+                    label: 'Edit Lesson',
+                    onClick: () => {
+                        this.setState({isEditingLesson: true});
+                    },
+                },
+                {
+                    label: 'Delete Concept',
+                    onClick: this.deleteConcept.bind(this),
+                },
+            );
+        }
         const lessonChangeDebouncer = debounce({
             callback: (e: any) => {
                 console.log('I was called woot', e.target.value);
@@ -289,42 +312,50 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             <IconButton
                                 onClick={() => this.setState({isEditingLesson: false})}
                                 aria-label='add'
-                                style={{position: 'absolute', bottom: '24px', right: '24px'}}
+                                style={{position: 'absolute', bottom: '28px', right: '28px', zIndex: 100}}
                             >
                                 <Save />
                             </IconButton>
-                            <Grid
-                                container
-                                spacing={8}
-                                style={{height: '60vh', position: 'relative'}}
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    position: 'relative',
+                                    height: '-webkit-fill-available',
+                                }}
                             >
-                                <Grid item md={6}>
-                                    <TextField
-                                        label='Lesson Content'
-                                        margin='dense'
-                                        variant='outlined'
-                                        multiline
-                                        defaultValue={this.state.lessonText}
-                                        onChange={(e: any) => {
-                                            e.persist();
-                                            console.log(e);
-                                            lessonChangeDebouncer(e);
-                                        }}
-                                        style={{
-                                            height: '-webkit-fill-available',
-                                            width: '-webkit-fill-available',
-                                        }}
-                                        rowsMax='12'
-                                    />
+                                <Grid
+                                    container
+                                    md={12}
+                                    style={{height: '60vh', position: 'relative'}}
+                                >
+                                    <Grid item md={6} style={{ padding : '9px' }}>
+                                        <TextField
+                                            label='Lesson Content'
+                                            variant='outlined'
+                                            multiline
+                                            defaultValue={this.state.lessonText}
+                                            onChange={(e: any) => {
+                                                e.persist();
+                                                lessonChangeDebouncer(e);
+                                            }}
+                                            style={{
+                                                height: '-webkit-fill-available',
+                                                width: '-webkit-fill-available',
+                                            }}
+                                            margin="dense"
+                                            rowsMax="12"
+                                        />
+                                    </Grid>
+                                    <Grid item md={6} style={{ padding : '9px' }}>
+                                        {getMathJax(
+                                            this.state.lessonText,
+                                            'body2',
+                                            `Lesson_latex_viwe`,
+                                        )}
+                                    </Grid>
                                 </Grid>
-                                <Grid item md={6}>
-                                    {getMathJax(
-                                        this.state.lessonText,
-                                        'body2',
-                                        `Lesson_latex_viwe`,
-                                    )}
-                                </Grid>
-                            </Grid>
+                            </div>
                         </Card>
                     </Fade>
                 )}
@@ -371,24 +402,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                     </IconButton>
                                     <div style={{position: 'absolute', top: '9px', right: '9px'}}>
                                         <AVOPopupMenu
-                                            options={[
-                                                {
-                                                    label: 'Edit Lesson',
-                                                    onClick: () => {
-                                                        this.setState({isEditingLesson: true});
-                                                    },
-                                                },
-                                                {
-                                                    label: 'Add Concept',
-                                                    onClick: () => {
-                                                        this.setState({showAddNodeModal: true});
-                                                    },
-                                                },
-                                                {
-                                                    label: 'Delete Concept',
-                                                    onClick: this.deleteConcept.bind(this),
-                                                },
-                                            ]}
+                                            options={menuOptions}
                                         />
                                     </div>
                                     <div
@@ -487,7 +501,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                     this.state.selectedConcept
                                                                         .conceptID,
                                                                 ).map(WeightedConcept => (
-                                                                    <ListItem button>
+                                                                    <ListItem button classes={{ container : "show-children__on-hover"}}>
                                                                         <ListItemText
                                                                             primary={
                                                                                 WeightedConcept.name
@@ -496,6 +510,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                         <ListItemSecondaryAction>
                                                                             <IconButton
                                                                                 edge='end'
+                                                                                classes={{ root : "hidden_child" }}
                                                                                 aria-label='Edit'
                                                                                 onClick={() =>
                                                                                     this.openWeightModal(
@@ -508,6 +523,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                             </IconButton>
                                                                             <IconButton
                                                                                 edge='end'
+                                                                                classes={{ root : "hidden_child" }}                                                                                
                                                                                 aria-label='Go To'
                                                                                 onClick={() =>
                                                                                     this.gotoSelectedNode(
@@ -515,7 +531,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                                     )
                                                                                 }
                                                                             >
-                                                                                <Fullscreen />
+                                                                                <RedoOutlined />
                                                                             </IconButton>
                                                                         </ListItemSecondaryAction>
                                                                     </ListItem>
@@ -564,7 +580,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                     this.state.selectedConcept
                                                                         .conceptID,
                                                                 ).map(WeightedConcept => (
-                                                                    <ListItem button>
+                                                                    <ListItem button classes={{ container : "show-children__on-hover"}}>
                                                                         <ListItemText
                                                                             primary={
                                                                                 WeightedConcept.name
@@ -573,6 +589,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                         <ListItemSecondaryAction>
                                                                             <IconButton
                                                                                 edge='end'
+                                                                                classes={{ root : "hidden_child" }}
                                                                                 aria-label='Edit'
                                                                                 onClick={() =>
                                                                                     this.openWeightModal(
@@ -585,6 +602,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                             </IconButton>
                                                                             <IconButton
                                                                                 edge='end'
+                                                                                classes={{ root : "hidden_child" }}
                                                                                 aria-label='Go To'
                                                                                 onClick={() =>
                                                                                     this.gotoSelectedNode(
@@ -592,7 +610,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                                     )
                                                                                 }
                                                                             >
-                                                                                <Fullscreen />
+                                                                                <RedoOutlined />
                                                                             </IconButton>
                                                                         </ListItemSecondaryAction>
                                                                     </ListItem>
@@ -653,17 +671,20 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         this.setState({relationWeight: newWeight});
                                     }}
                                 >
+                                    <MenuItem key={'relation-weight-1'} value={'0'}>
+                                        0 - None ( delete relation ).
+                                    </MenuItem>
                                     <MenuItem key={'relation-weight-1'} value={'1'}>
-                                        1
+                                        1 - Somewhat helpful.
                                     </MenuItem>
                                     <MenuItem key={'relation-weight-2'} value={'2'}>
-                                        2
+                                        2 - Recommended.
                                     </MenuItem>
                                     <MenuItem key={'relation-weight-3'} value={'3'}>
-                                        3
+                                        3 - Strongly recommended.
                                     </MenuItem>
                                     <MenuItem key={'relation-weight-4'} value={'4'}>
-                                        4
+                                        4 - Absolutely required.
                                     </MenuItem>
                                 </Select>
                                 <br />
@@ -794,16 +815,16 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 }}
                                             >
                                                 <MenuItem key={'relation-weight-1'} value={'1'}>
-                                                    1
+                                                    1 - Somewhat helpful.
                                                 </MenuItem>
                                                 <MenuItem key={'relation-weight-2'} value={'2'}>
-                                                    2
+                                                    2 - Recommended.
                                                 </MenuItem>
                                                 <MenuItem key={'relation-weight-3'} value={'3'}>
-                                                    3
+                                                    3 - Strongly recommended.
                                                 </MenuItem>
                                                 <MenuItem key={'relation-weight-4'} value={'4'}>
-                                                    4
+                                                    4 - Absolutely required.
                                                 </MenuItem>
                                             </Select>
                                         </FormControl>
@@ -910,16 +931,16 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                     }}
                                                 >
                                                     <MenuItem key={'relation-weight-1'} value={'1'}>
-                                                        1
+                                                        1 - Somewhat helpful.
                                                     </MenuItem>
                                                     <MenuItem key={'relation-weight-2'} value={'2'}>
-                                                        2
+                                                        2 - Recommended.
                                                     </MenuItem>
                                                     <MenuItem key={'relation-weight-3'} value={'3'}>
-                                                        3
+                                                        3 - Strongly recommended.
                                                     </MenuItem>
                                                     <MenuItem key={'relation-weight-4'} value={'4'}>
-                                                        4
+                                                        4 - Absolutely required.
                                                     </MenuItem>
                                                 </Select>
                                                 <br />
@@ -1000,7 +1021,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     if (Edge.parent == newedge.parent && Edge.child == newedge.child)
                         Edge.weight = newedge.weight;
                     return Edge;
-                });
+                }).filter(Edge => Edge.weight != 0);
                 this.setState(
                     {
                         showModal: false,
@@ -1109,7 +1130,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         const name: string = (document as any).getElementById('set-new__node-name').value;
         const lesson: string = (document as any).getElementById('set-new__node-lesson').value;
         Http.addConcept(
-            2,
+            this.state.selectedClass.courseID,
             name,
             lesson,
             res => {

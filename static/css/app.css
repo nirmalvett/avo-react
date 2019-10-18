@@ -551,3 +551,12 @@ shrink-on-hover {
   padding-bottom: 8px !important;
   padding-top: 8px !important;
 }
+
+.show-children__on-hover .hidden_child {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.show-children__on-hover:hover .hidden_child {
+  opacity: 1;
+}
