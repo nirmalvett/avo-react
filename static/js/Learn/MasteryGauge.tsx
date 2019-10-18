@@ -8,9 +8,14 @@ interface AVOMasteryGaugeProps {
         };
         theme: 'light' | 'dark';
     };
+    width?: string;
+    height?: string;
+    margin?: 0 | string;
 }
 
 export default function AVOMasteryGauge(props: AVOMasteryGaugeProps) {
+    const width = props.width || '200px';
+    const height = props.height || '200px';
     const triangles = [];
     if (!!props.comprehension) {
         const rotate = (cx: number, cy: number, x: number, y: number, angle: number) => {
@@ -81,7 +86,13 @@ export default function AVOMasteryGauge(props: AVOMasteryGaugeProps) {
     }
     return (
         <div className='avo-progression-gauge-container'>
-            <svg width='200px' height='200px' viewBox='0 0 42 42' className='donut'>
+            <svg
+                width={width}
+                height={height}
+                viewBox='0 0 42 42'
+                style={{margin: props.margin}}
+                className='donut'
+            >
                 <circle
                     className='donut-ring'
                     cx='21'

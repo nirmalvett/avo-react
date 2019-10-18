@@ -416,11 +416,6 @@ shrink-on-hover {
   height: 56px;
 }
 
-.avo-progression-gauge-container {
-  position: relative;
-  height: 18em;
-}
-
 .avo-progression-gauge-container .donut{
   position: absolute;
 }

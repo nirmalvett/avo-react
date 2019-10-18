@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import * as Http from '../Http';
 import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
@@ -52,28 +51,36 @@ export default class AVOLearnComponent extends Component<
             lessons: [],
             filterInput: '',
             selectedCourse: -1,
-            otherView: 'Completed',
+            otherView: 'To Do',
             postLessonModalDisplay: 'none',
             currentLesson: -1,
         };
     }
 
+    getLessonsToShow() {
+        let lessons = this.state.lessons;
+        if (this.state.filterInput !== '') {
+            const words = this.state.filterInput.split(' ');
+            lessons = lessons.filter(lesson => words.every(word => lesson.name.includes(word)));
+        }
+        const isCompleted = this.state.otherView === 'Completed';
+        return lessons.filter(lesson => isCompleted === lesson.mastery >= 0.85);
+    }
+
     render() {
+        const lessons = this.getLessonsToShow();
         return (
-            <Grid
-                container
-                xs={12}
+            <div
                 style={{
                     flex: 1,
                     display: 'flex',
+                    flexDirection: 'column',
                     paddingBottom: 0,
                     padding: '1em',
                     position: 'relative',
-                    width: '98% !important',
                     overflowY: 'auto',
                     overflowX: 'hidden',
                 }}
-                id='avo-learn__layout-div'
             >
                 <AVOLearnPostTestModel
                     hideModal={this.hidePostLessonModal}
@@ -84,80 +91,63 @@ export default class AVOLearnComponent extends Component<
                         ) as AvoLesson
                     }
                 />
-                <Grid item xs={3}>
-                    <Button
-                        variant='outlined'
-                        style={{borderRadius: '2.5em'}}
-                        onClick={() =>
-                            this.setState({
-                                otherView: this.state.otherView === 'To Do' ? 'Completed' : 'To Do',
-                            })
+                <div
+                    style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}
+                >
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <Button
+                            variant='outlined'
+                            style={{
+                                borderRadius: '2.5em',
+                                marginLeft: '6ch',
+                                marginRight: '2ch' /*todo*/,
+                            }}
+                            onClick={() =>
+                                this.setState({
+                                    otherView:
+                                        this.state.otherView === 'To Do' ? 'Completed' : 'To Do',
+                                })
+                            }
+                        >
+                            View {this.state.otherView}
+                        </Button>
+                        <TextField
+                            id='filter-input'
+                            label='Filter lessons...'
+                            value={this.state.filterInput}
+                            onChange={this.filterLessons}
+                        />
+                    </div>
+                    <Select
+                        value={this.state.selectedCourse}
+                        input={<Input name='data' id='select-class' />}
+                        style={{marginRight: '6ch' /*todo*/}}
+                        onChange={e =>
+                            this.setState(
+                                {selectedCourse: e.target.value as number},
+                                this.changeClass,
+                            )
                         }
                     >
-                        View {this.state.otherView}
-                    </Button>
-                </Grid>
-                <Grid container xs={12}>
-                    {this.state.lessons.length !== 0 && (
-                        <AVOLessonSlider
-                            theme={this.props.theme}
-                            changeToNewMastery={() => this.changeToNewMastery()}
-                            slides={this.state.lessons /*todo*/}
-                            updateMastery={this.updateMastery}
-                            showPostLessonModal={this.showPostLessonModal}
-                            updateParentCurrentLesson={this.setCurrentLesson}
-                        />
-                    )}
-                </Grid>
-                <Grid container xs={12} style={{marginTop: 150}}>
-                    <Grid item xs={3}>
-                        <div
-                            style={{
-                                borderRadius: '2.5em',
-                                border: 'solid 1px black',
-                                padding: 15,
-                            }}
-                        >
-                            <TextField
-                                id='filter-input'
-                                style={{width: '100%'}}
-                                label='Filter lessons...'
-                                value={this.state.filterInput}
-                                onChange={this.filterLessons}
-                            />
-                        </div>
-                    </Grid>
-                    <Grid item xs={6} />
-                    <Grid item xs={3}>
-                        <div
-                            style={{
-                                marginLeft: 'auto',
-                                borderRadius: '2.5em',
-                                border: 'solid 1px black',
-                                padding: 15,
-                            }}
-                        >
-                            <Select
-                                style={{width: '100%'}}
-                                value={this.state.selectedCourse}
-                                input={<Input name='data' id='select-class' />}
-                                onChange={e =>
-                                    this.setState(
-                                        {selectedCourse: e.target.value as number},
-                                        this.changeClass,
-                                    )
-                                }
-                            >
-                                {this.props.courses.map((c, i) => (
-                                    <MenuItem key={i} value={c.courseID}>
-                                        {c.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </div>
-                    </Grid>
-                </Grid>
-            </Grid>
+                        {this.props.courses.map((c, i) => (
+                            <MenuItem key={i} value={c.courseID}>
+                                {c.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </div>
+                {lessons.length !== 0 && (
+                    <AVOLessonSlider
+                        key={this.state.filterInput}
+                        theme={this.props.theme}
+                        changeToNewMastery={() => this.changeToNewMastery()}
+                        slides={lessons}
+                        updateMastery={this.updateMastery}
+                        showPostLessonModal={this.showPostLessonModal}
+                        updateParentCurrentLesson={this.setCurrentLesson}
+                    />
+                )}
+            </div>
         );
     }
 

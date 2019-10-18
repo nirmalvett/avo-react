@@ -1,14 +1,6 @@
-import React, {Component, ReactElement} from 'react';
-import {
-    Card,
-    Grid,
-    Icon,
-    IconButton,
-    Typography,
-    Fade,
-    Slider,
-    withStyles,
-} from '@material-ui/core';
+import React, {Component} from 'react';
+import {Card, IconButton, Typography, Slider, withStyles} from '@material-ui/core';
+import {ChevronLeft, ChevronRight, Fullscreen} from '@material-ui/icons';
 import AVOLessonFSM from './AVOLessonFSM';
 import AVOMasteryGauge from './MasteryGauge';
 import AVOLearnTestComp from './AVOLearnTestComp';
@@ -47,8 +39,6 @@ interface AVOLessonSliderState {
     fsmRef: {current: AVOLessonFSM};
     currentLesson: (AvoLesson & AvoLessonData) | undefined;
     currentIndex: number;
-    changedCurrency: 0;
-    slides: AvoLesson[][];
     isEndTest: boolean;
 }
 
@@ -59,43 +49,53 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
             fsmRef: React.createRef() as {current: AVOLessonFSM},
             currentLesson: undefined,
             currentIndex: 0,
-            changedCurrency: 0,
-            slides: this.processSlidesIntoGroups(this.props.slides),
             isEndTest: false,
         };
     }
 
     render() {
-        const {currentLesson} = this.state;
         return (
-            <Grid container id='avo-lesson__layout-div'>
-                <Grid xs={1} style={{zIndex: 10}}>
-                    <div style={{textAlign: 'center'}}>
+            <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
+                <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 3,
+                        }}
+                    >
                         <IconButton
                             aria-label='chevron_left'
                             onClick={this.goToPreviousSlide}
                             color='primary'
-                            style={{marginTop: '25vh'}}
+                            disabled={this.state.currentIndex <= 0}
                         >
-                            <Icon>chevron_left</Icon>
+                            <ChevronLeft />
                         </IconButton>
                     </div>
-                </Grid>
-                <Grid container xs={10} style={{position: 'relative'}}>
-                    {this.getSlideRenderable()}
-                </Grid>
-                <Grid xs={1} style={{zIndex: 10}}>
-                    <div style={{textAlign: 'center'}}>
+                    <div style={{flex: 1, position: 'relative'}}>{this.getSlide()}</div>
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 3,
+                        }}
+                    >
                         <IconButton
                             aria-label='chevron_right'
                             onClick={this.goToNextSlide}
                             color='primary'
-                            style={{marginTop: '25vh'}}
+                            disabled={
+                                this.state.currentIndex >=
+                                Math.ceil(this.props.slides.length / 6) - 1
+                            }
                         >
-                            <Icon>chevron_right</Icon>
+                            <ChevronRight />
                         </IconButton>
                     </div>
-                </Grid>
+                </div>
                 <AVOLessonFSM
                     changeToNewMastery={this.props.changeToNewMastery}
                     showPostLessonModal={this.props.showPostLessonModal}
@@ -117,126 +117,123 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                     valueLabelDisplay='auto'
                     aria-label='avo page slider'
                     min={0}
-                    max={this.state.slides.length - 1}
+                    max={Math.ceil(this.props.slides.length / 6) - 1}
                     onChange={(_, value: number | number[]) =>
                         this.setState({currentIndex: value as number})
                     }
+                    style={{zIndex: 2}}
                     value={this.state.currentIndex}
                     valueLabelFormat={() =>
-                        formatLabel(
-                            this.state.currentIndex,
-                            3,
-                            this.state.slides[this.state.currentIndex].length,
-                        )
+                        formatLabel(this.state.currentIndex, 6, this.getGroup().length)
                     }
                 />
-            </Grid>
+            </div>
         );
     }
-    getSlideRenderable = () => {
-        const output: ReactElement[] = [];
-        this.state.slides.forEach((group, gIndex) => {
-            let slideGroup: ReactElement[] = [];
-            group.forEach((lesson, LIndex) => {
-                slideGroup.push(
-                    <Fade in={this.getSlideTranslation(gIndex) == 0}>
-                        <Grid item xs={4}>
-                            <Card
-                                className={`avo-card`}
-                                style={{
-                                    padding: '10px',
-                                    flex: 1,
-                                    margin: 'none',
-                                    width: 'auto',
-                                    display: 'flex',
-                                    position: 'relative',
-                                    flexDirection: 'column',
-                                }}
-                                id={`avo-lesson__card-${LIndex}-${gIndex}`}
-                                key={`avo-learn__card-key:${LIndex}`}
-                            >
-                                <IconButton
-                                    onClick={() =>
-                                        this.openLessonFSM(lesson, `${LIndex}-${gIndex}`)
-                                    }
-                                    color='primary'
-                                    aria-label='fullscreen'
-                                    style={{
-                                        position: 'absolute',
-                                        right: '0.125em',
-                                        top: '0.125em',
-                                        zIndex: 10,
-                                    }}
-                                >
-                                    <Icon>fullscreen</Icon>
-                                </IconButton>
-                                <AVOMasteryGauge
-                                    theme={this.props.theme}
-                                    comprehension={Math.floor(
-                                        (lesson.newMastery || lesson.mastery) * 100,
-                                    )}
-                                />
-                                <Typography variant={'h6'}>{lesson.name}</Typography>
-                                <Typography variant={'subtitle1'}>
-                                    {lesson.lesson.substring(0, 20)}...
-                                </Typography>
-                            </Card>
-                        </Grid>
-                    </Fade>,
-                );
-            });
-            output.push(
-                <Grid
-                    item
-                    container
-                    xs={12}
-                    spacing={6}
+
+    getGroup = (index = 0) => {
+        const idx = this.state.currentIndex + index;
+        if (idx >= 0 && idx < Math.ceil(this.props.slides.length))
+            return this.props.slides.slice(6 * idx, 6 * (idx + 1));
+        else {
+            return [];
+        }
+    };
+
+    getCard = (group: AvoLesson[], gIndex: number, lesson: AvoLesson, LIndex: number) => (
+        <Card
+            className={`avo-card`}
+            style={{
+                padding: 0,
+                margin: '4px',
+                display: 'flex',
+                position: 'relative',
+                flexDirection: 'column',
+                minHeight: '100%',
+                width: 'calc(33.3% - 10px)',
+            }}
+            id={`avo-lesson__card-${LIndex}-${gIndex + this.state.currentIndex}`}
+            key={`avo-learn__card-key:${LIndex}`}
+        >
+            <IconButton
+                onClick={() =>
+                    this.openLessonFSM(lesson, `${LIndex}-${gIndex + this.state.currentIndex}`)
+                }
+                disabled={gIndex !== 1}
+                color='primary'
+                aria-label='fullscreen'
+                style={{
+                    position: 'absolute',
+                    padding: '16px',
+                    right: 0,
+                    top: 0,
+                    zIndex: 10,
+                }}
+            >
+                <Fullscreen />
+            </IconButton>
+            <AVOMasteryGauge
+                theme={this.props.theme}
+                margin={0}
+                width='80%'
+                height='80%'
+                comprehension={Math.floor((lesson.newMastery || lesson.mastery) * 100)}
+            />
+            <Typography
+                style={{
+                    position: 'absolute',
+                    padding: '16px',
+                    left: 0,
+                    bottom: 0,
+                    zIndex: 10,
+                }}
+                variant='subtitle1'
+            >
+                {lesson.name}
+            </Typography>
+        </Card>
+    );
+
+    getSlide = () =>
+        [-1, 0, 1].map(this.getGroup).map((group, gIndex) => {
+            const slideGroup = group.map((lesson, LIndex) =>
+                this.getCard(group, gIndex, lesson, LIndex),
+            );
+            return (
+                <div
+                    key={'group' + (gIndex + this.state.currentIndex)}
                     style={{
+                        display: 'flex',
+                        flexDirection: 'column',
                         position: 'absolute',
-                        transition: 'transform 1s ease-in',
+                        transition: 'transform 0.5s ease-in',
                         willChange: 'transform',
-                        transform: `translateX(${this.getSlideTranslation(gIndex)}vw)`,
+                        transform: `translateX(${100 * (gIndex - 1)}%)`,
+                        width: '100%',
+                        height: '100%',
+                        zIndex: gIndex === 1 ? 2 : 1,
                     }}
-                    direction='column'
                 >
-                    <Grid
-                        container
-                        item
-                        xs={12}
-                        style={{height: 'calc(calc(100vh - 64px) / 2)', padding: '5px'}}
-                    >
+                    <div style={{flex: 1, padding: '5px 0', display: 'flex', flexDirection: 'row'}}>
                         {slideGroup.slice(0, 3)}
-                    </Grid>
-                    <Grid
-                        container
-                        item
-                        xs={12}
-                        style={{height: 'calc(calc(100vh - 64px) / 2)', padding: '5px'}}
-                    >
+                    </div>
+                    <div style={{flex: 1, padding: '5px 0', display: 'flex', flexDirection: 'row'}}>
                         {slideGroup.slice(3, 6)}
-                    </Grid>
-                </Grid>,
+                    </div>
+                </div>
             );
         });
-        return output;
-    };
-
-    getSlideTranslation = (index: number) => {
-        if (index < this.state.currentIndex) return -75;
-        if (index > this.state.currentIndex) return 75;
-        return 0;
-    };
 
     goToPreviousSlide = () => {
-        const currentIndex = this.state.currentIndex;
-        if (currentIndex == 0) return;
-        this.setState({currentIndex: currentIndex - 1});
+        if (this.state.currentIndex !== 0) {
+            this.setState({currentIndex: this.state.currentIndex - 1});
+        }
     };
 
     goToNextSlide = () => {
-        const currentIndex = this.state.currentIndex;
-        if (currentIndex > this.state.slides.length - 2) return;
-        this.setState({currentIndex: currentIndex + 1});
+        if (this.state.currentIndex < Math.ceil(this.props.slides.length / 6) - 1) {
+            this.setState({currentIndex: this.state.currentIndex + 1});
+        }
     };
 
     sliderChange = (value: number) => {
@@ -268,9 +265,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                     console.log(res);
                     this.setState({currentLesson: {...lesson, data: {questions: [res]}}});
                 },
-                err => {
-                    console.log(err);
-                },
+                console.warn,
             );
         }
     };
@@ -284,9 +279,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                 this.props.updateParentCurrentLesson(lesson);
                 this.state.fsmRef.current.handleFSM(lesson, LIndex);
             },
-            err => {
-                console.log(err);
-            },
+            console.warn,
         );
     };
     setEndTest = () => {
@@ -298,14 +291,6 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
 function formatLabel(index: number, length: number, range: number): string {
     if (range === 1) return `${index * length + 1}`;
     return `${index * length + 1} - ${index * length + range}`;
-}
-
-function getLabelElement(index: number): React.ElementType {
-    // index + 1 + <slide group size>
-    // if (index + 4 < 10)
-    //     return <span />;
-    // return <span style={{fontSize: '0.8em'}}/>
-    return 'span';
 }
 
 const AVOPageSlider = withStyles({
