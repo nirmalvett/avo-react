@@ -7,7 +7,7 @@ import PasswordResetPage from './SignIn/PasswordReset';
 import {isChrome, isSafari} from './HelperFunctions/Helpers';
 import NotChromeWarningPage from './SignIn/NotChromeWarningPage';
 import {MuiPickersUtilsProvider} from '@material-ui/pickers';
-import {createMuiTheme, MuiThemeProvider} from '@material-ui/core';
+import {createMuiTheme, MuiThemeProvider, Typography} from '@material-ui/core';
 import {colorList} from './SharedComponents/AVOCustomColors';
 
 export interface User {
@@ -52,9 +52,18 @@ export default class App extends Component<AppProps, AppState> {
     }
 
     getContent() {
-        const urlContainsPasswordRest = window.location.href.indexOf('passwordReset') > -1;
-        if (urlContainsPasswordRest) {
-            return <PasswordResetPage />;
+        if (window.location.pathname.startsWith('/passwordReset/')) {
+            return (
+                <PasswordResetPage token={window.location.pathname.substr(15)}>
+                    <Typography variant='h5'>Change Password</Typography>
+                </PasswordResetPage>
+            );
+        } else if (window.location.pathname.startsWith('/setup/')) {
+            return (
+                <PasswordResetPage token={window.location.pathname.substr(7)}>
+                    <Typography variant='h5'>Create a password</Typography>
+                </PasswordResetPage>
+            );
         } else if (this.state.authenticated === false) {
             return <SignIn login={this.updateUser} />;
         } else {

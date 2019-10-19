@@ -36,8 +36,8 @@ export function requestPasswordReset(email: string, success: cb<{}>, failure: cb
     _request('POST', '/requestPasswordReset', success, failure, {email});
 }
 
-export function passwordReset(token: string, password: string, success: cb<{}>, failure: cb) {
-    _request('POST', `/passwordReset/${token}`, success, failure, {password});
+export function resetPassword(token: string, password: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/resetPassword', success, failure, {token, password});
 }
 
 export function completeSetup(token: string, password: string, success: cb<{}>, failure: cb) {

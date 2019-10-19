@@ -161,35 +161,39 @@ def request_password_reset(email: str):
     return jsonify({})
 
 
-@UserRoutes.route('/passwordReset/<token>', methods=['GET', 'POST'])
-@validate(password=[str])
-def password_reset(token, password: str):
-    """
-    Render Reset page and change users password
-    :param token: gotten from email from user
-    :param password: new password
-    :return: redirect to login
-    """
+@UserRoutes.route('/passwordReset/<token>')
+def password_reset(token):
     email = validate_token(token, 3600)
     if email is None:
         return "Invalid Confirmation Link. Please try requesting password change again."
-    user = User.query.filter(User.email == email).first()  # get user from the email
+    user = User.query.filter(User.email == email).first()
     if user is None:
-        # If there is no user found return an error
         return "There is no account associated with the email."
+    return render_template('index.html')
 
-    if request.method == 'GET':
-        return render_template('index.html')
-    elif request.method == 'POST':
-        # Method is POST change password
-        if len(password) < 8:
-            # If the password is les then 8 return error JSON
-            return jsonify(error='Password too short! Please ensure the password is at least 8 characters.')
-        user.change_password(password)
-        db.session.commit()
-        return jsonify({})
-    else:
-        return jsonify(error='An unexpected error occurred. Reference #1j29')
+
+@UserRoutes.route('/setup/<token>')
+def setup(token):
+    email = validate_token(token)
+    if email is None:
+        return "Invalid Setup Link."
+    user = User.query.filter(User.email == email).first()
+    if user is None:
+        return "There is no account associated with the email."
+    return render_template('index.html')
+
+
+@UserRoutes.route('/resetPassword', methods=['POST'])
+@login_required
+@validate(token=str, password=str)
+def reset_password(token: str, password: str):
+    return pw_change(validate_token(token, 3600), password)
+
+
+@UserRoutes.route('/completeSetup', methods=['POST'])
+@validate(token=str, password=str)
+def complete_setup(token: str, password: str):
+    return pw_change(validate_token(token), password)
 
 
 @UserRoutes.route('/changePassword', methods=['POST'])
@@ -199,28 +203,16 @@ def change_password(old_password: str, new_password: str):
     return jsonify(error='not implemented')  # todo
 
 
-@UserRoutes.route('/setup/<token>')
-def setup(token):
-    email = validate_token(token)
+def pw_change(email, password):
     if email is None:
-        return jsonify(error="Invalid Setup Link.")
-    user = User.query.filter(User.email == email).first()  # get user from the email
-    if user is None:
-        # If there is no user found return an error
-        return jsonify(error="There is no account associated with the email.")
-    return render_template('index.html')
-
-
-@UserRoutes.route('/completeSetup', methods=['POST'])
-@validate(token=str, password=str)
-def complete_setup(token: str, password: str):
-    email = validate_token(token)
-    if email is None:
-        return jsonify(error="Invalid Setup Link.")
-    user = User.query.filter(User.email == email).first()
+        return jsonify(error='Invalid token')
+    user: User = User.query.filter(User.email == email).first()
     if user is None:
         return jsonify(error="There is no account associated with the email.")
+    if len(password) < 8:
+        return jsonify(error='Password too short! Please ensure the password is at least 8 characters.')
     user.change_password(password)
+    db.session.commit()
     return jsonify({})
 
 

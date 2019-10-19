@@ -400,8 +400,7 @@ class User(UserMixin, db.Model):
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
-        self.salt = generate_salt()
-        self.password = hash_password(password, self.salt)
+        self.change_password(password)
         self.confirmed = confirmed
         self.is_teacher = is_teacher
         self.is_admin = is_admin
@@ -416,6 +415,10 @@ class User(UserMixin, db.Model):
 
     def get_id(self):
         return unicode(self.email)
+
+    def change_password(self, password):
+        self.salt = generate_salt()
+        self.password = hash_password(password, self.salt)
 
 
 class UserCourse(db.Model):

@@ -11,7 +11,9 @@ import * as Http from '../Http';
 import Logo from '../SharedComponents/Logo';
 import {green} from '@material-ui/core/colors';
 
-interface PasswordResetProps {}
+interface PasswordResetProps {
+    token: string;
+}
 
 interface PasswordResetState {
     newPassword: string;
@@ -62,7 +64,7 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
                 >
                     <Card classes={{root: 'avo-card'}} style={{width: '40ch', maxWidth: '90%'}}>
                         <Logo theme='light' />
-                        <Typography variant='h5'>Change Password</Typography>
+                        {this.props.children}
                         <form noValidate autoComplete='off'>
                             <TextField
                                 id='avo-passreset__new-password'
@@ -103,16 +105,12 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
     }
 
     sendChangeRequest = () => {
-        let starting_index =
-            window.location.href.indexOf('passwordReset') + 'passwordReset'.length + 1;
-        const token = window.location.href.substring(starting_index);
-        const plainAvoUrl = window.location.href.split('passwordReset')[0]; // i.e. app.avocadocore.com/
-        Http.passwordReset(
-            token,
+        Http.resetPassword(
+            this.props.token,
             this.state.newPassword,
             () => {
-                alert('Password successfully changed!');
-                window.history.pushState('backToLogin', 'AvocadoCore', plainAvoUrl);
+                alert('Password successfully changed! You will now be redirected to the login page.');
+                window.history.pushState('backToLogin', 'AvocadoCore', window.location.origin);
                 window.location.reload();
             },
             () => {
