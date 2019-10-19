@@ -60,8 +60,13 @@ export default class CreateTest extends Component<CreateTestProps, CreateTestSta
             name: '',
             attempts: '',
             timeLimit: '',
-            openTime: moment().set({'hour': 0, 'minute': 0}).toDate(),
-            closeTime: moment().set({'hour': 23, 'minute': 55}).add(1, 'weeks').toDate(),
+            openTime: moment()
+                .set({hour: 0, minute: 0})
+                .toDate(),
+            closeTime: moment()
+                .set({hour: 23, minute: 55})
+                .add(1, 'weeks')
+                .toDate(),
         };
     }
 
@@ -247,15 +252,9 @@ export default class CreateTest extends Component<CreateTestProps, CreateTestSta
                     onChange={e => this.setState({attempts: e.target.value})}
                 />
                 <Typography>When should the test be available to students?</Typography>
-                <DatePicker
-                    time={this.state.openTime}
-                    onChange={this.setOpenTime}
-                />
+                <DatePicker time={this.state.openTime} onChange={this.setOpenTime} />
                 <Typography>When should the test stop being available to students?</Typography>
-                <DatePicker
-                    time={this.state.closeTime}
-                    onChange={this.setCloseTime}
-                />
+                <DatePicker time={this.state.closeTime} onChange={this.setCloseTime} />
             </Card>
         );
     }

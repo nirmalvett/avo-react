@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, render_template, redirect
+from flask import Blueprint, jsonify, render_template, redirect
 from flask_login import logout_user, login_user, current_user
 from sqlalchemy.orm.exc import NoResultFound
 
