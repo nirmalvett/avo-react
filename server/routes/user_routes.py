@@ -200,7 +200,11 @@ def complete_setup(token: str, password: str):
 @login_required
 @validate(oldPassword=str, newPassword=str)
 def change_password(old_password: str, new_password: str):
-    return jsonify(error='not implemented')  # todo
+    if not check_password(old_password, current_user.salt, current_user.password):
+        return jsonify(error='Old password is incorrect')
+    if len(new_password) < 8:
+        return jsonify(error='Password too short! Please ensure the password is at least 8 characters.')
+    return current_user.change_password(new_password)
 
 
 def pw_change(email, password):
