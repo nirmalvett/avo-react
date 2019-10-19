@@ -10,6 +10,7 @@ import {
     ListItemText,
     Paper,
     TextField,
+    Typography,
 } from '@material-ui/core';
 import {Delete, Done, Lock, LockOpen, Refresh} from '@material-ui/icons';
 import * as Http from '../../Http';
@@ -20,7 +21,7 @@ import {getMathJax} from '../../HelperFunctions/Utilities';
 import {AnswerInput} from '../../AnswerInput';
 import {FolderIcon} from './FolderIcon';
 import {DatePicker} from './DatePicker';
-
+const moment = require('moment')
 interface CreateTestProps {
     showSnackBar: ShowSnackBar;
     onCreate: () => void;
@@ -58,8 +59,8 @@ export default class CreateTest extends Component<CreateTestProps, CreateTestSta
             name: '',
             attempts: '',
             timeLimit: '',
-            openTime: null,
-            closeTime: null,
+            openTime: moment().set({'hour': 0, 'minute': 0}).toDate(),
+            closeTime: moment().set({'hour': 23, 'minute': 55}).add(1, 'weeks').toDate(),
         };
     }
 
@@ -214,7 +215,6 @@ export default class CreateTest extends Component<CreateTestProps, CreateTestSta
                 }}
             >
                 <CardHeader
-                    title={'Test Settings'}
                     action={
                         <IconButton
                             color='primary'
@@ -225,36 +225,36 @@ export default class CreateTest extends Component<CreateTestProps, CreateTestSta
                         </IconButton>
                     }
                 />
+                <Typography>What should the title of the test be?</Typography>
                 <TextField
                     margin='normal'
-                    label='Name'
                     style={{width: '32ch', margin: '2%'}}
                     onChange={e => this.setState({name: e.target.value})}
                 />
+                <Typography>What should the time limit be?</Typography>
                 <TextField
                     margin='normal'
-                    label='Time Limit'
+                    placeholder='∞'
                     style={{width: '32ch', margin: '2%'}}
                     onChange={e => this.setState({timeLimit: e.target.value})}
                 />
+                <Typography>How many attempts should students have?</Typography>
                 <TextField
                     margin='normal'
-                    label='Attempts'
+                    placeholder='∞'
                     style={{width: '32ch', margin: '2%'}}
                     onChange={e => this.setState({attempts: e.target.value})}
                 />
+                <Typography>When should the test be available to students?</Typography>
                 <DatePicker
                     time={this.state.openTime}
-                    label1='Auto open test'
-                    label2='When to automatically open'
-                    showHide={(openTime: Date | null) => this.setState({openTime})}
+                    label1='When to automatically open'
                     onChange={this.setOpenTime}
                 />
+                <Typography>When should the test stop being available to students?</Typography>
                 <DatePicker
                     time={this.state.closeTime}
-                    label1='Auto close test'
-                    label2='When to automatically close'
-                    showHide={(closeTime: Date | null) => this.setState({closeTime})}
+                    label1='When to automatically close'
                     onChange={this.setCloseTime}
                 />
             </Card>

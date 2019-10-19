@@ -5,35 +5,20 @@ import {DateTimePicker} from '@material-ui/pickers';
 interface DatePickerProps {
     time: Date | null;
     label1: string;
-    label2: string;
-    showHide: (x: Date | null) => void;
     onChange: (e: Date) => void;
 }
 
-export function DatePicker({time, label1, label2, showHide, onChange}: DatePickerProps) {
-    const show = time !== null;
+export function DatePicker({time, label1, onChange}: DatePickerProps) {
     return (
         <Fragment>
-            <FormControlLabel
-                control={
-                    <Switch
-                        checked={show}
-                        color='primary'
-                        onChange={() => showHide(show ? null : new Date())}
-                    />
-                }
+            <DateTimePicker
+                margin='normal'
+                style={{width: '32ch', margin: '2%'}}
                 label={label1}
+                value={time}
+                onChange={(e: any) => onChange(new Date(e._d))}
+                variant='inline'
             />
-            {show && (
-                <DateTimePicker
-                    margin='normal'
-                    style={{width: '32ch', margin: '2%'}}
-                    label={label2}
-                    value={time}
-                    onChange={(e: any) => onChange(new Date(e._d))}
-                    variant='inline'
-                />
-            )}
         </Fragment>
     );
 }
