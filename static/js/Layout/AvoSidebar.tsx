@@ -108,7 +108,7 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                 {this.listItem(HomeOutlined, {name: 'Home'})}
                 {this.listItem(ClassOutlined, {name: 'My Classes', _class: null, _quiz: null})}
                 {this.listItem(SchoolOutlined, {name: 'Learn'})}
-                {this.listItem(SchoolOutlined, {name: 'Mastery'})}
+                {this.props.isAdmin && this.listItem(SchoolOutlined, {name: 'Mastery'})}
             </List>
         );
     }
