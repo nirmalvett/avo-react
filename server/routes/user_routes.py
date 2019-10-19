@@ -192,6 +192,13 @@ def password_reset(token, password: str):
         return jsonify(error='An unexpected error occurred. Reference #1j29')
 
 
+@UserRoutes.route('/changePassword', methods=['POST'])
+@login_required
+@validate(oldPassword=str, newPassword=str)
+def change_password(old_password: str, new_password: str):
+    return jsonify(error='not implemented')  # todo
+
+
 @UserRoutes.route('/setup/<token>')
 def setup(token):
     email = validate_token(token)
