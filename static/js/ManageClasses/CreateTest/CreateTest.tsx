@@ -21,7 +21,8 @@ import {getMathJax} from '../../HelperFunctions/Utilities';
 import {AnswerInput} from '../../AnswerInput';
 import {FolderIcon} from './FolderIcon';
 import {DatePicker} from './DatePicker';
-const moment = require('moment')
+const moment = require('moment');
+
 interface CreateTestProps {
     showSnackBar: ShowSnackBar;
     onCreate: () => void;
@@ -35,8 +36,8 @@ interface CreateTestState {
     name: string;
     attempts: string;
     timeLimit: string;
-    openTime: Date | null;
-    closeTime: Date | null;
+    openTime: Date;
+    closeTime: Date;
 }
 
 interface TestQuestion {
@@ -248,13 +249,11 @@ export default class CreateTest extends Component<CreateTestProps, CreateTestSta
                 <Typography>When should the test be available to students?</Typography>
                 <DatePicker
                     time={this.state.openTime}
-                    label1='When to automatically open'
                     onChange={this.setOpenTime}
                 />
                 <Typography>When should the test stop being available to students?</Typography>
                 <DatePicker
                     time={this.state.closeTime}
-                    label1='When to automatically close'
                     onChange={this.setCloseTime}
                 />
             </Card>
@@ -335,29 +334,15 @@ export default class CreateTest extends Component<CreateTestProps, CreateTestSta
 
     saveTest = () => {
         const s = this.state;
-        const _200_years = 1000 * 60 * 60 * 24 * 365 * 200;
-
-        const questions = s.testQuestions.map(x => x.id);
-        // If a question is not locked, its seed should be -1
-        const seeds = s.testQuestions.map(x => (x.locked ? x.seed : -1));
-        // If there is no open time then it should be set to the current time
-        const openTime = s.openTime ? Number(s.openTime) : Number(new Date());
-        // If there is no close time then it should be set to a long time in the future
-        const closeTime = s.closeTime ? Number(s.closeTime) : Number(new Date()) + _200_years;
-        // If there is no time limit then it should be -1
-        const timer = Number(s.timeLimit) || -1;
-        // If there is no attempts limit then it should be -1
-        const attempts = Number(s.attempts) || -1;
-
         Http.saveTest(
             this.props.classID,
             s.name,
-            openTime,
-            closeTime,
-            timer,
-            attempts,
-            questions,
-            seeds,
+            Number(s.openTime),
+            Number(s.closeTime),
+            Number(s.timeLimit) || -1,
+            Number(s.attempts) || -1,
+            s.testQuestions.map(x => x.id),
+            s.testQuestions.map(x => (x.locked ? x.seed : -1)),
             this.props.onCreate,
             alert,
         );
