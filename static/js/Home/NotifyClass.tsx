@@ -46,14 +46,16 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
             response => {
                 // console.log(response)
                 const classes = response.sections.filter(section => section.role === 'teacher');
-                this.setState(
-                    {
-                        classes,
-                        selectedClassName: classes[0].name,
-                        classNames: classes.map(c => c.name),
-                    },
-                    () => this.getMessages(),
-                );
+                if (classes && classes.length > 0) {
+                    this.setState(
+                        {
+                            classes,
+                            selectedClassName: classes[0].name,
+                            classNames: classes.map(c => c.name),
+                        },
+                        () => this.getMessages(),
+                    );
+                }
             },
             err => {
                 console.log(err);
