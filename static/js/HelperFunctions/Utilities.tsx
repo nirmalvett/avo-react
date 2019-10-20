@@ -310,6 +310,6 @@ export function isOpen(test: GetSections_Test, now: number) {
     return (
         (test.openTime === null || test.openTime < now) &&
         now < test.deadline &&
-        test.submitted.length < test.attempts
+        (test.submitted.length < test.attempts || test.attempts === -1)
     );
 }
