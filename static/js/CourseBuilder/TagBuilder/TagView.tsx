@@ -310,7 +310,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             }}
                         >
                             <IconButton
-                                onClick={() => this.setState({isEditingLesson: false})}
+                                onClick={() => this.setState({isEditingLesson: false}, () => {setTimeout(() => { this.gotoSelectedNode(this.state.selectedConcept); }, 400)})}
                                 aria-label='add'
                                 style={{position: 'absolute', bottom: '28px', right: '28px', zIndex: 100}}
                             >
