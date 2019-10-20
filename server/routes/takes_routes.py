@@ -21,71 +21,62 @@ def get_test(test_id: int):
     Get test data for client
     :return: Data of test
     """
-    test = Test.query.get(test_id)  # Test requested
+    test = Test.query.get(test_id)
     if test is None:
-        # If no test found return error json
         return jsonify(error='Test not found')
-    if SectionRelations(test.SECTION).active:
-        if test.open_time is not None and test.open_time > datetime.now():
-            return jsonify(error='This set of questions has not been opened by your instructor yet')
-        if test.deadline < datetime.now():
-            # If deadline has passed return error JSON
-            return jsonify(error='The deadline has passed for this test')
-        takes = Takes.query.filter(
-            (Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (Takes.time_submitted > datetime.now())
-        ).first()  # Get the most current takes
+    if not SectionRelations(test.SECTION).active:
+        return jsonify(error='You do not have an active subscription to that section')
+    if test.open_time is not None and test.open_time > datetime.now():
+        return jsonify(error='This set of questions has not been opened by your instructor yet')
+    if test.deadline < datetime.now():
+        return jsonify(error='The deadline has passed for this test')
+    takes = Takes.query.filter(
+        (Takes.TEST == test.TEST) & (current_user.USER == Takes.USER) & (Takes.time_submitted > datetime.now())
+    ).first()
+    if takes is None:
+        takes = create_takes(test, current_user.USER)
         if takes is None:
-            # If student has not taken the test create a takes instance
-            takes = create_takes(test_id, current_user.USER)
-            if takes is None:
-                # If takes still fails return error JSON
-                return jsonify(error="Couldn't start test")
-        questions = []  # Questions in test
-        question_ids = eval(test.question_list)  # IDs of questions in test
-        seeds = eval(takes.seeds)  # Seeds of questions in test if -1 gen random seed
-        questions_in_test = Question.query.filter(Question.QUESTION.in_(question_ids)).all()  # All questions in test
-        store_questions = []
-        store_answers = []
-        for i in range(len(question_ids)):
-            # For each question id get the question data and add to question list
-            current_question = next((x for x in questions_in_test if x.QUESTION == question_ids[i]), None)
-            store_questions.append(current_question.string)
-            store_answers.append(current_question.answers)
-            q = AvoQuestion(current_question.string, seeds[i])
-            questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
-        tests_before = Takes.query.filter(
-            (current_user.USER == Takes.USER)
-        ).count()
-        current_tests_before = Takes.query.filter(
-            ((current_user.USER == Takes.USER) & (test.TEST == Takes.TEST))
-        ).count()
-        store = DataStore(current_user.USER, {
-            'takes': takes.TAKES,
-            'time_started': takes.time_started.timestamp(),
-            'time_submitted': takes.time_submitted.timestamp(),
-            'answers': takes.answers,
-            'questions': store_questions,
-            'total_answers': store_answers,
-            'seeds': takes.seeds,
-            'ip': get_ip(),
-            'test': takes.TEST,
-            'marks': takes.marks,
-            'grade': takes.grade,
-            'tests_done_before': tests_before,
-            'current_tests_done_before': current_tests_before
-        }, 'GET_TEST')
-        db.session.add(store)
-        db.session.commit()
-        return jsonify(
-            takes=takes.TAKES,
-            time_submitted=timestamp(takes.time_submitted),
-            answers=eval(takes.answers),
-            questions=questions
-        )
-    elif not SectionRelations(test.SECTION).active:
-        return jsonify(error="User doesn't have access to that section")
-    else:
-        return jsonify(error="Free Trial Expired")
+            return jsonify(error="Couldn't start test")
+    questions = []  # Questions in test
+    question_ids = eval(test.question_list)  # IDs of questions in test
+    seeds = eval(takes.seeds)  # Seeds of questions in test if -1 gen random seed
+    questions_in_test = Question.query.filter(Question.QUESTION.in_(question_ids)).all()  # All questions in test
+    store_questions = []
+    store_answers = []
+    for i in range(len(question_ids)):
+        # For each question id get the question data and add to question list
+        current_question = next((x for x in questions_in_test if x.QUESTION == question_ids[i]), None)
+        store_questions.append(current_question.string)
+        store_answers.append(current_question.answers)
+        q = AvoQuestion(current_question.string, seeds[i])
+        questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
+    tests_before = Takes.query.filter(current_user.USER == Takes.USER).count()
+    current_tests_before = Takes.query.filter(
+        ((current_user.USER == Takes.USER) & (test.TEST == Takes.TEST))
+    ).count()
+    store = DataStore(current_user.USER, {
+        'takes': takes.TAKES,
+        'time_started': takes.time_started.timestamp(),
+        'time_submitted': takes.time_submitted.timestamp(),
+        'answers': takes.answers,
+        'questions': store_questions,
+        'total_answers': store_answers,
+        'seeds': takes.seeds,
+        'ip': get_ip(),
+        'test': takes.TEST,
+        'marks': takes.marks,
+        'grade': takes.grade,
+        'tests_done_before': tests_before,
+        'current_tests_done_before': current_tests_before
+    }, 'GET_TEST')
+    db.session.add(store)
+    db.session.commit()
+    return jsonify(
+        takes=takes.TAKES,
+        time_submitted=timestamp(takes.time_submitted),
+        answers=eval(takes.answers),
+        questions=questions
+    )
 
 
 @TakesRoutes.route('/saveAnswer', methods=['POST'])
@@ -298,38 +289,28 @@ def create_takes(test, user):
     :param user: User creating takes of
     :return: takes object
     """
-    x = Test.query.get(test)  # Test object to create takes instance of
-    if x is None:
-        # If test not found return
-        return
-    # Get all instances of takes by that user from that test
     takes = Takes.query.filter((Takes.TEST == test) & (Takes.USER == user)).all()
-    if x.attempts != -1 and len(takes) >= x.attempts:
-        # If the user has taken more attempts then allowed return
+    if test.attempts != -1 and len(takes) >= test.attempts:
         return
-    test_question_list = eval(x.question_list)  # Question list of test
-    # Generates seeds of test
-    seeds = list(map(lambda seed: randint(0, 65535) if seed == -1 else seed, eval(x.seed_list)))
-    answer_list = []  # Answers of takes instance
-    marks_list = []  # Marks of takes instance
-    questions_in_test = Question.query.filter(Question.QUESTION.in_(test_question_list)).all()  # Questions in test
-    for i in range(len(test_question_list)):
+    test_question_list = eval(test.question_list)
+    seeds = list(map(lambda seed: randint(0, 65535) if seed == -1 else seed, eval(test.seed_list)))
+    answer_list = []
+    marks_list = []
+    questions_in_test = Question.query.filter(Question.QUESTION.in_(test_question_list)).all()
+    for test_question in test_question_list:
         # For each question in test add in mark values per question
-        q = next((x for x in questions_in_test if x.QUESTION == test_question_list[i]), None)  # Current question
-        marks_list.append([0] * len(AvoQuestion(q.string, 0, []).totals))
-        answer_list.append([''] * q.answers)
-    # We want to figure out what the new time should be
-    t = datetime.now()  # Get current time
-    if x.timer == -1:  # CASE 1: We have unlimited time selected, so the deadline is 100 years from now
-        time2 = x.deadline  # Time submitted based off timer
-    else:  # CASE 2: We have a limited amount of time so figure out when the end date and time should be
-        time2 = min(t + timedelta(minutes=x.timer), x.deadline)  # Time submitted based off timer
-
-    # Add all data to takes object and add to database
-    takes = Takes(test, user, t, time2, 0, str(marks_list), str(answer_list), str(seeds))
+        current_question = next((x for x in questions_in_test if x.QUESTION == test_question), None)
+        marks_list.append([0] * len(AvoQuestion(current_question.string, 0, []).totals))
+        answer_list.append([''] * current_question.answers)
+    now = datetime.now()
+    if test.timer == -1:
+        time2 = test.deadline
+    else:
+        time2 = min(now + timedelta(minutes=test.timer), test.deadline)
+    takes = Takes(test, user, now, time2, 0, str(marks_list), str(answer_list), str(seeds))
     db.session.add(takes)
     db.session.commit()
-    return None if takes is None else takes
+    return takes
 
 
 def get_ip():
