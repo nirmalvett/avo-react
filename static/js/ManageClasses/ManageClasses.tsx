@@ -383,7 +383,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                             <Tooltip title='Download CSV'>
                                 <IconButton
                                     onClick={() =>
-                                        (window.location.href = `/CSV/ClassMarks/${selectedClass.sectionID}`)
+                                        (window.location.href = `/CSV/SectionMarks/${selectedClass.sectionID}`)
                                     }
                                 >
                                     <GetAppOutlined />

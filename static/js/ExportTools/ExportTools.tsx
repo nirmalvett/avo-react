@@ -177,7 +177,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
 
     // Uses XHR to return the marks from our system (in CSV format) and returns a JSON object with that data
     fetchClassData = (classId: number) => {
-        let url = '/CSV/ClassMarks/' + classId;
+        let url = '/CSV/SectionMarks/' + classId;
         console.log(url);
         const http = new XMLHttpRequest();
         http.open('GET', url, true);
