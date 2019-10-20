@@ -12,7 +12,6 @@ interface AVOLessonFSMProps {
 }
 
 interface AVOLessonFSMState {
-    activeClass: boolean;
     activeLesson: AvoLesson | undefined;
 }
 
@@ -28,7 +27,6 @@ export default class AVOLessonFSM extends Component<AVOLessonFSMProps, AVOLesson
     constructor(props: AVOLessonFSMProps) {
         super(props);
         this.state = {
-            activeClass: false,
             activeLesson: undefined,
         };
     }
@@ -50,7 +48,7 @@ export default class AVOLessonFSM extends Component<AVOLessonFSMProps, AVOLesson
                 className='avo-card'
             >
                 <div id='FSM-inner__content-div' style={{transition: 'opacity 0.3s'}}>
-                    {!!this.state.activeLesson && (
+                    {this.state.activeLesson && (
                         <Fade in={!!this.state.activeLesson} timeout={{enter: 500}}>
                             <Grid
                                 container
@@ -86,37 +84,33 @@ export default class AVOLessonFSM extends Component<AVOLessonFSMProps, AVOLesson
     }
 
     handleFSM(lesson: AvoLesson) {
-        if (!this.state.activeClass) {
-            let $this = document.getElementById('avo-lesson__expanded-card') as HTMLElement;
-            let $cont = document.getElementById('avo-lesson__layout-div') as HTMLElement;
-            let $card = document.getElementById(`avo-lesson__card-${lesson.conceptID}`) as HTMLElement;
-            this.cardPosition = $card.getBoundingClientRect();
-            this.cardSize = {
-                width: $cont.clientWidth,
-                height: $cont.clientHeight,
-            };
-            this.scaleX = Math.floor($card.clientWidth) / Math.floor(this.cardSize.width);
-            this.scaleY = Math.floor($card.clientHeight) / Math.floor(this.cardSize.height);
-            $this.style.position = 'absolute';
-            $this.style.opacity = '0';
-            $this.style.width = '95%';
-            $this.style.height = '90%';
-            $this.style.transformOrigin = `${Math.abs(this.cardPosition.left)}px ${Math.abs(
-                this.cardPosition.top,
-            ) - 25}px`;
-            $this.style.pointerEvents = 'auto';
-            $this.style.transform = `scale(${this.scaleX}, ${this.scaleY})`;
+        let $this = document.getElementById('avo-lesson__expanded-card') as HTMLElement;
+        let $cont = document.getElementById('avo-lesson__layout-div') as HTMLElement;
+        let $card = document.getElementById(`avo-lesson__card-${lesson.conceptID}`) as HTMLElement;
+        this.cardPosition = $card.getBoundingClientRect();
+        this.cardSize = {
+            width: $cont.clientWidth,
+            height: $cont.clientHeight,
+        };
+        this.scaleX = Math.floor($card.clientWidth) / Math.floor(this.cardSize.width);
+        this.scaleY = Math.floor($card.clientHeight) / Math.floor(this.cardSize.height);
+        $this.style.position = 'absolute';
+        $this.style.opacity = '0';
+        $this.style.width = '95%';
+        $this.style.height = '90%';
+        $this.style.transformOrigin = `${Math.abs(this.cardPosition.left)}px ${Math.abs(
+            this.cardPosition.top,
+        ) - 25}px`;
+        $this.style.pointerEvents = 'auto';
+        $this.style.transform = `scale(${this.scaleX}, ${this.scaleY})`;
 
-            (document.getElementById('FSM-inner__content-div') as HTMLElement).style.opacity = '0';
-            setTimeout(() => {
-                this.setState({activeLesson: lesson});
-            }, 900);
-            setTimeout(() => {
-                this.openFSM('avo-lesson__expanded-card');
-            }, 600);
-        } else {
-            this.closeFSM('avo-lesson__expanded-card');
-        }
+        (document.getElementById('FSM-inner__content-div') as HTMLElement).style.opacity = '0';
+        setTimeout(() => {
+            this.setState({activeLesson: lesson});
+        }, 900);
+        setTimeout(() => {
+            this.openFSM('avo-lesson__expanded-card');
+        }, 600);
     }
 
     openFSM(cardID: string) {

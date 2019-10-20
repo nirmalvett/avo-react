@@ -1,7 +1,6 @@
 import React from 'react';
 import * as Http from '../Http';
-import {AvoLessonData} from './Slider/AVOLessonSlider';
-import {AvoLesson} from './AVOLearnComponent';
+import {AvoLesson, AvoLessonData} from './AVOLearnComponent';
 import {Button} from '@material-ui/core';
 
 const styles = {
@@ -31,9 +30,19 @@ const styles = {
     },
 };
 
+interface AVOLearnIncorrectAnswerModalProps {
+    modalDisplay: 'block' | 'none';
+    hideModal: () => void;
+    lesson: AvoLesson & AvoLessonData
+}
+
+interface AVOLearnIncorrectAnswerModalState {
+    selectedPrereqs: {name: string; conceptID: number}[];
+}
+
 export default class AVOLearnIncorrectAnswerModal extends React.Component<
-    {modalDisplay: 'block' | 'none'; hideModal: () => void; lesson: AvoLesson & AvoLessonData},
-    any
+    AVOLearnIncorrectAnswerModalProps,
+    AVOLearnIncorrectAnswerModalState
 > {
     constructor(props: any) {
         super(props);
@@ -114,7 +123,7 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
             const question = questions[0];
             Http.wrongAnswerSurvey(
                 question.ID,
-                selectedPrereqs,
+                selectedPrereqs.map(x => x.conceptID),
                 res => {
                     this.setState({selectedPrereqs: []});
                     if (selectedPrereqs.length > 0) this.props.hideModal();
