@@ -203,7 +203,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                 style={{width: '100%', flex: 1, display: 'flex'}}
             >
                 <List style={{flex: 1, overflowY: 'auto', paddingTop: 0}}>
-                    <ListSubheader style={{position: 'relative'}}>Class Enrollment</ListSubheader>
+                    <ListSubheader style={{position: 'relative'}}>Section Enrollment</ListSubheader>
                     <ListItem
                         button
                         id='avo-myclasses__enroll-button'
@@ -214,10 +214,10 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                         <ListItemIcon>
                             <AddBoxOutlined color='action' />
                         </ListItemIcon>
-                        <ListItemText primary='Enroll in Class' />
+                        <ListItemText primary='Enroll in Section' />
                     </ListItem>
                     <Divider />
-                    <ListSubheader style={{position: 'relative'}}>Classes</ListSubheader>
+                    <ListSubheader style={{position: 'relative'}}>Sections</ListSubheader>
                     {this.props.sections.map((cls, cIndex) => (
                         <Fragment key={'MyClasses' + cls.sectionID + '-' + cIndex}>
                             <ListItem
@@ -317,13 +317,13 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                     {this.state.joinClassPopperIdx === CONST_ENROLL_TAB && (
                         <Fragment>
                             <Typography component={'span'} variant='body1' color='textPrimary'>
-                                Please enter the course code for the class you want to enroll in.
+                                Please enter the Enroll code for the Section you want to enroll in.
                             </Typography>
                             <TextField
                                 id='avo-myclasses__enroll-textfield'
                                 margin='normal'
                                 style={{width: '60%'}}
-                                label='Course code'
+                                label='Enroll code'
                                 helperText={this.state.enrollErrorMessage + ' '}
                                 error={this.state.enrollErrorMessage !== ''}
                             />
@@ -347,7 +347,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                                 color='primary'
                                 classes={{root: 'avo-padding__16px'}}
                             >
-                                Course code is valid.
+                                Enroll code is valid.
                             </Typography>
                             <Typography
                                 component={'span'}
@@ -634,7 +634,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                         classes={{root: 'avo-padding__16px'}}
                     >
                         {selectedClass.tests.length === 0 &&
-                            "This class doesn't have any tests or assignments yet!"}
+                            "This Section doesn't have any tests or assignments yet!"}
                     </Typography>
                     <div className='mixed-chart'>
                         {selectedClass.tests.length !== 0 ? ( // if there is at least one test then display data
@@ -685,7 +685,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                         color='textPrimary'
                         classes={{root: 'avo-padding__16px'}}
                     >
-                        Looks like you haven't selected a Class or Test yet!
+                        Looks like you haven't selected a Section or Test yet!
                     </Typography>
                     <br />
                 </Fragment>
@@ -1141,12 +1141,12 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                 data: myMark,
             },
             {
-                name: 'Class Average (%)',
+                name: 'Section Average (%)',
                 type: 'column',
                 data: classAvg,
             },
             {
-                name: 'SD for Class Avg (%)',
+                name: 'SD for Section Avg (%)',
                 type: 'column',
                 data: standardDev,
             },

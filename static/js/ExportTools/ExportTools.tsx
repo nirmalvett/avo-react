@@ -117,7 +117,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
                     }}
                 >
                     <FormControl style={{width: '600px'}} className='export-form-control'>
-                        <InputLabel htmlFor='export-form-control'>Course</InputLabel>
+                        <InputLabel htmlFor='export-form-control'>Section</InputLabel>
                         <Select
                             value={this.state.currentClassId}
                             onChange={this.handleCourseChange}
@@ -210,7 +210,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
         // Create the default value
         let items = [
             <MenuItem key={-1} value={-1}>
-                --Please select a course--
+                --Please select a Section--
             </MenuItem>,
         ];
         // Dynamically add the other courses as options from the list of class objects

@@ -185,15 +185,15 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 style={{width: '100%', flex: 1, display: 'flex'}}
             >
                 <List style={{flex: 1, overflowY: 'auto', paddingTop: 0}}>
-                    <ListSubheader style={{position: 'relative'}}>Class Creation</ListSubheader>
+                    <ListSubheader style={{position: 'relative'}}>Section Creation</ListSubheader>
                     <ListItem button id='avo-manageclasses__create-button'>
                         <ListItemIcon>
                             <AddBoxOutlined color='action' />
                         </ListItemIcon>
-                        <ListItemText primary='Create Class' />
+                        <ListItemText primary='Create Section' />
                     </ListItem>
                     <Divider />
-                    <ListSubheader style={{position: 'relative'}}>My Classes</ListSubheader>
+                    <ListSubheader style={{position: 'relative'}}>My Sections</ListSubheader>
                     {this.sideBar_loadClasses() /* For each Class create a menu option */}
                 </List>
             </Paper>
@@ -295,13 +295,13 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     color='textPrimary'
                     classes={{root: 'avo-padding__16px'}}
                 >
-                    Please enter the desired name of the class you wish to create!
+                    Please enter the desired name of the course section you wish to create!
                 </Typography>
                 <TextField
                     id='avo-manageclasses__creation-textfield'
                     margin='normal'
                     style={{width: '60%'}}
-                    label='Class name'
+                    label='Section name'
                     helperText={this.state.createClassErrorMessage + ' '}
                     error={this.state.createClassErrorMessage !== ''}
                 />
@@ -357,7 +357,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     color='textPrimary'
                     classes={{root: 'avo-padding__16px'}}
                 >
-                    Looks like you haven't selected a Class or Test yet!
+                    Looks like you haven't selected a Section or Test yet!
                 </Typography>
                 <br />
             </Fragment>
@@ -426,7 +426,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                             color='textPrimary'
                             classes={{root: 'avo-padding__16px'}}
                         >
-                            This class doesn't have any tests or assignments yet!
+                            This section doesn't have any tests or assignments yet!
                         </Typography>
                     )}
                 </div>
@@ -1495,17 +1495,17 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         }
         return [
             {
-                name: 'Class Median (%)',
+                name: 'Section Median (%)',
                 type: 'column',
                 data: classMed,
             },
             {
-                name: 'Class Average (%)',
+                name: 'Section Average (%)',
                 type: 'column',
                 data: classAvg,
             },
             {
-                name: 'SD for Class Avg (%)',
+                name: 'SD for Section Avg (%)',
                 type: 'column',
                 data: classDev,
             },
