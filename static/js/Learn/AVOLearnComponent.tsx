@@ -1,10 +1,6 @@
 import React, {Component} from 'react';
 import * as Http from '../Http';
-import Button from '@material-ui/core/Button';
-import Input from '@material-ui/core/Input';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
-import TextField from '@material-ui/core/TextField';
+import {Button, Input, MenuItem, Select, TextField} from '@material-ui/core';
 import AVOLessonSlider from './AVOLessonSlider';
 
 import AVOLearnPostTestModel from './AVOLearnPostTestModal';
@@ -12,6 +8,7 @@ import {Course} from '../Http/types';
 
 export interface AvoLesson {
     conceptID: number;
+    preparation: number;
     mastery: number;
     newMastery: number;
     name: string;

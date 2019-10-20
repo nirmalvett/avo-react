@@ -13,7 +13,7 @@ import {QuestionBuilder} from '../QuestionBuilder/QuestionBuilder';
 import QuestionBuilderDocs from '../CourseBuilder/QuestionBuilder/QuestionBuilderDocs';
 import ExportTools from '../ExportTools/ExportTools';
 import AVOLearnComponent from '../Learn/AVOLearnComponent';
-import MasteryHome from '../Learn/MasteryHome';
+import MasteryHome from '../Mastery/MasteryHome';
 import {colorList} from '../SharedComponents/AVOCustomColors';
 import NotifyClass from '../Home/NotifyClass';
 import {createStyles, Theme} from '@material-ui/core/styles';

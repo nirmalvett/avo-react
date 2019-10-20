@@ -1,11 +1,12 @@
-import React, {Component} from 'react';
-import {Card, IconButton, Typography, Slider, withStyles} from '@material-ui/core';
-import {ChevronLeft, ChevronRight, Fullscreen} from '@material-ui/icons';
+import React, {Component, ReactElement} from 'react';
+import {Card, IconButton, Tooltip, Typography, Slider, withStyles} from '@material-ui/core';
+import {ChevronLeft, ChevronRight, Fullscreen, LockOpen, LockOutlined} from '@material-ui/icons';
 import AVOLessonFSM from './AVOLessonFSM';
 import AVOMasteryGauge from './MasteryGauge';
 import AVOLearnTestComp from './AVOLearnTestComp';
 import * as Http from '../Http';
 import {AvoLesson} from './AVOLearnComponent';
+import {green, lightGreen, orange, red} from "@material-ui/core/colors";
 
 export interface AvoLessonData {
     data: {
@@ -155,6 +156,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
             id={`avo-lesson__card-${LIndex}-${gIndex + this.state.currentIndex}`}
             key={`avo-learn__card-key:${LIndex}`}
         >
+            {getIconDisplay(lesson.preparation)}
             <IconButton
                 onClick={() =>
                     this.openLessonFSM(lesson, `${LIndex}-${gIndex + this.state.currentIndex}`)
@@ -164,7 +166,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
                 aria-label='fullscreen'
                 style={{
                     position: 'absolute',
-                    padding: '16px',
+                    margin: '4px',
                     right: 0,
                     top: 0,
                     zIndex: 10,
@@ -327,3 +329,48 @@ const AVOPageSlider = withStyles({
         borderRadius: 4,
     },
 })(Slider);
+
+function getIconDisplay(preparation: number) {
+    const {title, icon} = getIcon(preparation);
+    return (
+        <Tooltip title={title}>
+            <IconButton
+                disableRipple={true}
+                style={{
+                    position: 'absolute',
+                    margin: '4px',
+                    left: 0,
+                    top: 0,
+                    zIndex: 10,
+                }}
+            >
+                {icon}
+            </IconButton>
+        </Tooltip>
+    );
+}
+
+function getIcon(preparation: number): {title: string; icon: ReactElement} {
+    preparation = Math.random();
+    if (preparation < 0.25) {
+        return {
+            title: 'You need more preparation before attempting to learn this material',
+            icon: <LockOutlined style={{color: red['500']}}/>
+        };
+    } else if (preparation < 0.5) {
+        return {
+            title: 'You should prepare more before learning this material',
+            icon: <LockOutlined style={{color: orange['500']}}/>
+        };
+    } else if (preparation < 0.75) {
+        return {
+            title: 'You could prepare more, but this material should be okay',
+            icon: <LockOpen style={{color: lightGreen['500']}}/>
+        };
+    } else {
+        return {
+            title: 'You are ready to learn this material',
+            icon: <LockOpen style={{color: green['500']}}/>
+        };
+    }
+}

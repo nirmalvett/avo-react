@@ -18,7 +18,7 @@ import {
 } from '@material-ui/icons';
 import * as Http from '../Http';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
-import AVOMasteryGauge from './MasteryGauge';
+import AVOMasteryGauge from '../Learn/MasteryGauge';
 import AVOMasteryChart from './AVOMasteryComps/MasteryChart';
 import {GetSections_Section} from '../Http';
 

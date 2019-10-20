@@ -1,7 +1,8 @@
-import React, {Component, ReactElement} from 'react';
+import React from 'react';
 import * as Http from '../Http';
 import {AvoLesson} from './AVOLearnComponent';
-import Button from '@material-ui/core/Button';
+import {Button} from '@material-ui/core';
+
 const styles = {
     modalBackdrop: {
         position: 'fixed' as 'fixed',
@@ -27,6 +28,7 @@ const styles = {
         cursor: 'pointer',
     },
 };
+
 export default class AVOLearnPostTestModel extends React.Component<
     {modalDisplay: 'block' | 'none'; hideModal: () => void; lesson: AvoLesson},
     any
@@ -49,7 +51,7 @@ export default class AVOLearnPostTestModel extends React.Component<
                     }}
                     id='avo_learn_post_lesson_modal'
                 >
-                    <div style={styles.modalBackdrop}></div>
+                    <div style={styles.modalBackdrop}/>
                     <div style={styles.modalBody}>
                         <button
                             onClick={this.props.hideModal}
