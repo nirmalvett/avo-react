@@ -6,7 +6,7 @@ import AVOMasteryGauge from './MasteryGauge';
 import AVOLearnTestComp from './AVOLearnTestComp';
 import * as Http from '../Http';
 import {AvoLesson} from './AVOLearnComponent';
-import {green, lightGreen, orange, red} from "@material-ui/core/colors";
+import {green, lightGreen, orange, red} from '@material-ui/core/colors';
 
 export interface AvoLessonData {
     data: {
@@ -351,26 +351,25 @@ function getIconDisplay(preparation: number) {
 }
 
 function getIcon(preparation: number): {title: string; icon: ReactElement} {
-    preparation = Math.random();
     if (preparation < 0.25) {
         return {
             title: 'You need more preparation before attempting to learn this material',
-            icon: <LockOutlined style={{color: red['500']}}/>
+            icon: <LockOutlined style={{color: red['500']}} />,
         };
     } else if (preparation < 0.5) {
         return {
             title: 'You should prepare more before learning this material',
-            icon: <LockOutlined style={{color: orange['500']}}/>
+            icon: <LockOutlined style={{color: orange['500']}} />,
         };
     } else if (preparation < 0.75) {
         return {
             title: 'You could prepare more, but this material should be okay',
-            icon: <LockOpen style={{color: lightGreen['500']}}/>
+            icon: <LockOpen style={{color: lightGreen['500']}} />,
         };
     } else {
         return {
             title: 'You are ready to learn this material',
-            icon: <LockOpen style={{color: green['500']}}/>
+            icon: <LockOpen style={{color: green['500']}} />,
         };
     }
 }

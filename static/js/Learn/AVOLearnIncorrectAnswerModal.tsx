@@ -52,7 +52,7 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
                     }}
                     id='avo_learn_incorrect_answer_modal'
                 >
-                    <div style={styles.modalBackdrop}/>
+                    <div style={styles.modalBackdrop} />
                     <div style={styles.modalBody}>
                         <button
                             onClick={this.props.hideModal}

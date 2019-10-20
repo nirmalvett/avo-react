@@ -51,7 +51,7 @@ export default class AVOLearnPostTestModel extends React.Component<
                     }}
                     id='avo_learn_post_lesson_modal'
                 >
-                    <div style={styles.modalBackdrop}/>
+                    <div style={styles.modalBackdrop} />
                     <div style={styles.modalBody}>
                         <button
                             onClick={this.props.hideModal}
