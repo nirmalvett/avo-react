@@ -50,12 +50,14 @@ import {convertListFloatToAnalytics} from '../HelperFunctions/Helpers';
 import {DateTimePicker} from '@material-ui/pickers';
 import {ShowSnackBar} from '../Layout/Layout';
 import moment, {Moment} from 'moment';
+import {Course} from '../Http/types';
 
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
 const CONST_TAB_MY_ATTEMPTS = 2;
 
 interface ManageClassesProps {
+    courses: Course[];
     sections: Http.GetSections_Section[];
     updateSections: (sections: Http.GetSections_Section[], cb?: () => void) => void;
     showSnackBar: ShowSnackBar;
@@ -98,6 +100,7 @@ interface ManageClassesState {
     editTest_openTime: number;
     _editTest_openTime: number;
     editTest_confirm_text: string;
+    selectedCourseID: number;
 }
 
 export default class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
@@ -131,6 +134,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             _editTest_openTime: Number(new Date()),
             editTest_name: '',
             editTest_confirm_text: 'Confirm', // first time it's Confirm after that it's "Change Again"
+            selectedCourseID: this.props.courses[0].courseID,
         };
     }
 
@@ -260,9 +264,9 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     const name = (document.getElementById(
                         'avo-manageclasses__creation-textfield',
                     ) as HTMLInputElement).value;
-                    if (name !== null && name !== '') {
+                    if (name !== null && name !== '' && this.state.selectedCourseID) {
                         Http.createSection(
-                            1, // todo: choose course
+                            this.state.selectedCourseID,
                             name,
                             () => {
                                 this.loadClasses('Class Successfully Created!');
@@ -301,6 +305,22 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     helperText={this.state.createClassErrorMessage + ' '}
                     error={this.state.createClassErrorMessage !== ''}
                 />
+                <br />
+                <InputLabel htmlFor='course-select'>Course</InputLabel>
+                <Select
+                    value={this.state.selectedCourseID}
+                    onChange={e => this.setState({selectedCourseID: e.target.value as number})}
+                    inputProps={{
+                        name: 'course select',
+                        id: 'course-select',
+                    }}
+                >
+                    {this.props.courses.map(Course => (
+                        <MenuItem key={`courseID=${Course.courseID}`} value={Course.courseID}>
+                            {Course.name}
+                        </MenuItem>
+                    ))}
+                </Select>
                 <br />
             </AVOModal>
         );

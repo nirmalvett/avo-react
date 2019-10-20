@@ -229,6 +229,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
         } else if (section.name === 'Manage Classes') {
             return (
                 <ManageClasses
+                    courses={this.state.courses}
                     sections={this.state.sections}
                     updateSections={this.updateSections}
                     showSnackBar={this.showSnackBar}
