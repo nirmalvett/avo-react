@@ -25,7 +25,7 @@ export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVO
     render() {
         return (
             <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
-                <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
+                <div style={{flex: 1, display: 'flex', flexDirection: 'row'}} id='avo-lesson__layout-div'>
                     <div
                         style={{
                             display: 'flex',

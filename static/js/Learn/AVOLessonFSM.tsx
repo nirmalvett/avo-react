@@ -89,7 +89,7 @@ export default class AVOLessonFSM extends Component<AVOLessonFSMProps, AVOLesson
         if (!this.state.activeClass) {
             let $this = document.getElementById('avo-lesson__expanded-card') as HTMLElement;
             let $cont = document.getElementById('avo-lesson__layout-div') as HTMLElement;
-            let $card = document.getElementById(`avo-lesson__card`) as HTMLElement;
+            let $card = document.getElementById(`avo-lesson__card-${lesson.conceptID}`) as HTMLElement;
             this.cardPosition = $card.getBoundingClientRect();
             this.cardSize = {
                 width: $cont.clientWidth,

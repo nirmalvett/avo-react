@@ -18,6 +18,7 @@ export function LessonCard(props: AVOLearnCardProps) {
     const {title, icon} = getIcon(lesson.preparation);
     return (
         <Card
+            id={`avo-lesson__card-${lesson.conceptID}`}
             className='avo-card'
             style={{
                 padding: 0,
