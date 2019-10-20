@@ -71,7 +71,10 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
                             Close
                         </button>
                         <h2>Where do you think you made the mistake?</h2>
-                        {this.props.lesson.prereqs.map(prereq => (
+                        {this.props.lesson.prereqs.concat({
+                                name: this.props.lesson.name,
+                                conceptID: this.props.lesson.conceptID,
+                            }).map(prereq => (
                             <Button
                                 onClick={() => {
                                     if (
