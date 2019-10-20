@@ -1,0 +1,106 @@
+import {AvoLesson} from '../AVOLearnComponent';
+import {Card, IconButton, Tooltip, Typography} from '@material-ui/core';
+import {Fullscreen, LockOpen, LockOutlined} from '@material-ui/icons';
+import AVOMasteryGauge from '../MasteryGauge';
+import React, {ReactElement} from 'react';
+import {green, lightGreen, orange, red} from '@material-ui/core/colors';
+import {ThemeObj} from '../../Models';
+
+interface AVOLearnCardProps {
+    disabled: boolean;
+    lesson: AvoLesson;
+    onClick: () => void;
+    theme: ThemeObj;
+}
+
+export function LessonCard(props: AVOLearnCardProps) {
+    const {disabled, lesson, theme, onClick} = props;
+    const {title, icon} = getIcon(lesson.preparation);
+    return (
+        <Card
+            className='avo-card'
+            style={{
+                padding: 0,
+                margin: '4px',
+                display: 'flex',
+                position: 'relative',
+                flexDirection: 'column',
+                minHeight: '100%',
+                width: 'calc(33.3% - 10px)',
+            }}
+        >
+            <Tooltip title={title}>
+                <IconButton
+                    disableRipple={true}
+                    style={{
+                        position: 'absolute',
+                        margin: '4px',
+                        left: 0,
+                        top: 0,
+                        zIndex: 10,
+                    }}
+                >
+                    {icon}
+                </IconButton>
+            </Tooltip>
+            <IconButton
+                onClick={onClick}
+                disabled={disabled}
+                color='primary'
+                aria-label='fullscreen'
+                style={{
+                    position: 'absolute',
+                    margin: '4px',
+                    right: 0,
+                    top: 0,
+                    zIndex: 10,
+                }}
+            >
+                <Fullscreen />
+            </IconButton>
+            <AVOMasteryGauge
+                theme={theme}
+                margin={0}
+                width='80%'
+                height='80%'
+                comprehension={Math.floor((lesson.newMastery || lesson.mastery) * 100)}
+            />
+            <Typography
+                style={{
+                    position: 'absolute',
+                    margin: '4px',
+                    left: 0,
+                    bottom: 0,
+                    zIndex: 10,
+                }}
+                variant='subtitle1'
+            >
+                {lesson.name}
+            </Typography>
+        </Card>
+    );
+}
+
+function getIcon(preparation: number): {title: string; icon: ReactElement} {
+    if (preparation < 0.25) {
+        return {
+            title: 'You need more preparation before attempting to learn this material',
+            icon: <LockOutlined style={{color: red['500']}} />,
+        };
+    } else if (preparation < 0.5) {
+        return {
+            title: 'You should prepare more before learning this material',
+            icon: <LockOutlined style={{color: orange['500']}} />,
+        };
+    } else if (preparation < 0.75) {
+        return {
+            title: 'You could prepare more, but this material should be okay',
+            icon: <LockOpen style={{color: lightGreen['500']}} />,
+        };
+    } else {
+        return {
+            title: 'You are ready to learn this material',
+            icon: <LockOpen style={{color: green['500']}} />,
+        };
+    }
+}

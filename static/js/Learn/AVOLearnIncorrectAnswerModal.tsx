@@ -1,6 +1,6 @@
 import React from 'react';
 import * as Http from '../Http';
-import {AvoLessonData} from './AVOLessonSlider';
+import {AvoLessonData} from './Slider/AVOLessonSlider';
 import {AvoLesson} from './AVOLearnComponent';
 import {Button} from '@material-ui/core';
 

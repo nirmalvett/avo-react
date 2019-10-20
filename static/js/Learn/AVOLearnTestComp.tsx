@@ -8,7 +8,7 @@ import AVOLearnTestCongrat from './AVOLearnTestCongrat';
 import {getMathJax} from '../HelperFunctions/Utilities';
 import {uniqueKey} from '../HelperFunctions/Helpers';
 import {AvoLesson} from './AVOLearnComponent';
-import {AvoLessonData} from './AVOLessonSlider';
+import {AvoLessonData} from './Slider/AVOLessonSlider';
 import AVOLearnIncorrectAnswerModal from './AVOLearnIncorrectAnswerModal';
 type TestState = 'LESSON' | 'QUESTIONS' | 'TEST_END';
 
