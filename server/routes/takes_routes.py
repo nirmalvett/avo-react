@@ -289,7 +289,7 @@ def create_takes(test, user):
     :param user: User creating takes of
     :return: takes object
     """
-    takes = Takes.query.filter((Takes.TEST == test) & (Takes.USER == user)).all()
+    takes = Takes.query.filter((Takes.TEST == test.TEST) & (Takes.USER == user)).all()
     if test.attempts != -1 and len(takes) >= test.attempts:
         return
     test_question_list = eval(test.question_list)
