@@ -198,45 +198,15 @@ def get_next_lessons(course_id: int):
     if not has_access and not able_view_course(course_id):
         return jsonify(error='403')
 
-    concepts: List[Concept] = Concept.query.filter(Concept.COURSE == course_id).all()
-    concept_dict = {}
-    for c in concepts:
-        concept_dict[c.CONCEPT] = {
-            'conceptID': c.CONCEPT,
-            'name': c.name,
-            'lesson': c.lesson_content,
-            'preparation': 1,
-            'mastery': 0,
-            'prereqs': []
-        }
-
-    concept_relations: List[ConceptRelation] = ConceptRelation.query.filter(
-        (ConceptRelation.CHILD == Concept.CONCEPT) & (Concept.COURSE == course_id)
-    ).all()
-    for r in concept_relations:
-        parent = concept_dict[r.PARENT]
-        concept_dict[r.CHILD]['prereqs'].append({
-            'conceptID': parent['conceptID'],
-            'name': parent['name']
-        })
-
-    mastery: List[Mastery] = Mastery.query.filter(
-        (current_user.USER == Mastery.USER) & (Mastery.CONCEPT == Concept.CONCEPT) & (Concept.COURSE == course_id)
-    ).all()
-    mastery_dict = {}  # mapping of concept IDs to Mastery objects
-    for m in mastery:
-        mastery_dict[m.CONCEPT] = m
-        concept_dict[m.CONCEPT]['mastery'] = m.mastery_level
-
+    concept_dict = get_course_graph(course_id)
     lessons = []
     for concept_id, concept_obj in concept_dict.items():
-        # todo: this criteria isn't good enough
-        mastery_values = list(map(
-            lambda x: mastery_dict[x['conceptID']] if x['conceptID'] in mastery_dict else 0, concept_obj['prereqs']
-        ))
-        if len(mastery_values) > 0:
-            concept_obj['preparation'] = round(sum(mastery_values) / (len(mastery_values) or 1), 2)
         lessons.append(concept_obj)
+        concept_obj['prereqs'] = list(map(lambda x: {
+            'conceptID': concept_dict[x[0]]['conceptID'],
+            'name': concept_dict[x[0]]['name'],
+            'weight': x[1]
+        }, concept_obj['prereqs']))
 
     return jsonify(lessons=lessons)
 
@@ -245,10 +215,85 @@ def get_next_lessons(course_id: int):
 @login_required
 @validate(conceptID=int)
 def get_next_question(concept_id):
+    concept = Concept.query.get(concept_id)
+    if concept is None:
+        return jsonify(error='Concept does not exist')
+
+    has_access = bool(Course.query.filter(
+        (concept.COURSE == Section.COURSE) & (Section.SECTION == UserSection.SECTION) & (UserSection.USER == User.USER)
+    ).all())
+    if not has_access and not able_view_course(concept.COURSE):
+        return jsonify(error='403')
+
     questions: List[Question] = Question.query.filter(
         (Question.QUESTION == ConceptQuestion.QUESTION) & (ConceptQuestion.CONCEPT == concept_id)
     ).all()
+
+    question_ids = list(map(lambda x: x.QUESTION, questions))
+    concept_questions: List[ConceptQuestion] = ConceptQuestion.query.filter(
+        ConceptQuestion.QUESTION.in_(question_ids)
+    ).all()
+
+    concept_dict = get_course_graph(concept.COURSE)
+
+    for q in questions:
+        for c in concept_questions:
+            if c.QUESTION == q.QUESTION and c.CONCEPT != concept_id:
+                prep = concept_dict[c.CONCEPT]['preparation']
+                weight = c.weight
+                if weight == 2 and prep == 0 or weight == 3 and prep < 0.4 or weight == 4 and prep < 0.7:
+                    questions.remove(q)
+                    break
+
+    if len(questions) == 0:
+        return jsonify(error='No question available')
     question: Question = choice(questions)
     seed = randint(0, 65535)
     q = AvoQuestion(question.string, seed)
     return jsonify(ID=question.QUESTION, prompt=q.prompt, prompts=q.prompts, seed=seed, types=q.types)
+
+
+def get_course_graph(course_id):
+    concepts: List[Concept] = Concept.query.filter(
+        Concept.COURSE == course_id
+    ).all()
+
+    concept_relations: List[ConceptRelation] = ConceptRelation.query.filter(
+        (ConceptRelation.CHILD == Concept.CONCEPT) & (Concept.COURSE == course_id)
+    ).all()
+
+    mastery: List[Mastery] = Mastery.query.filter(
+        (current_user.USER == Mastery.USER) & (Mastery.CONCEPT == Concept.CONCEPT) & (Concept.COURSE == course_id)
+    ).all()
+
+    concept_dict = {}
+    for c in concepts:
+        concept_dict[c.CONCEPT] = {
+            'conceptID': c.CONCEPT,
+            'name': c.name,
+            'lesson': c.lesson_content,
+            'prereqs': [],
+            'mastery': 0,
+            'mastery_survey': 0,
+            'aptitude_survey': 0,
+            'preparation': 1,
+        }
+
+    for r in concept_relations:
+        concept_dict[r.CHILD]['prereqs'].append((r.PARENT, r.weight))
+
+    for m in mastery:
+        concept_dict[m.CONCEPT]['mastery'] = m.mastery_level
+        concept_dict[m.CONCEPT]['mastery_survey'] = m.mastery_survey
+        concept_dict[m.CONCEPT]['aptitude_survey'] = m.aptitude_survey
+
+    for concept_id, concept_obj in concept_dict.items():
+        mastery_values = list(map(lambda x: concept_dict[x[0]]['mastery'], concept_obj['prereqs']))
+        weights = list(map(lambda x: x[1], concept_obj['prereqs']))
+        if len(weights):
+            preparation = 0
+            for i in range(len(weights)):
+                preparation += mastery_values[i] * weights[i]
+            concept_obj['preparation'] = preparation / sum(weights)
+
+    return concept_dict
