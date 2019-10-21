@@ -200,12 +200,16 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         );
     }
 
+    getAdjustedCIndex = (cls: Http.GetSections_Section) => {
+        return this.props.sections.findIndex(s => s.sectionID === cls.sectionID);
+    };
+
     sideBar_loadClasses() {
         return this.props.sections
             .filter(x => x.role === 'teacher')
             .map((cls, cIndex) => (
                 <Fragment key={'ManageClasses' + cls.sectionID + '-' + cIndex}>
-                    <ListItem button onClick={() => this.selectClass(cIndex)}>
+                    <ListItem button onClick={() => this.selectClass(this.getAdjustedCIndex(cls))}>
                         <ListItemIcon>
                             <PeopleOutlined color='action' />
                         </ListItemIcon>
@@ -229,7 +233,11 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                                             editTestPopperOpen: false,
                                             deleteTestPopperOpen: false,
                                         }); // close the editTest Popper
-                                        this.getTestStats(test.testID, cIndex, tIndex);
+                                        this.getTestStats(
+                                            test.testID,
+                                            this.getAdjustedCIndex(cls),
+                                            tIndex,
+                                        );
                                     }}
                                 >
                                     <ListItemIcon>
