@@ -54,13 +54,13 @@ export default class App extends Component<AppProps, AppState> {
     getContent() {
         if (window.location.pathname.startsWith('/passwordReset/')) {
             return (
-                <PasswordResetPage token={window.location.pathname.substr(15)}>
+                <PasswordResetPage token={window.location.pathname.substr(15)} showTerms={false}>
                     <Typography variant='h5'>Change Password</Typography>
                 </PasswordResetPage>
             );
         } else if (window.location.pathname.startsWith('/setup/')) {
             return (
-                <PasswordResetPage token={window.location.pathname.substr(7)}>
+                <PasswordResetPage token={window.location.pathname.substr(7)} showTerms={true}>
                     <Typography variant='h5'>Create a password</Typography>
                 </PasswordResetPage>
             );
