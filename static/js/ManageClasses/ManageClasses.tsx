@@ -710,16 +710,49 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 </Tooltip>
                 {/* Start/Stop Test Button*/}
                 {isOpen(selectedTest, this.state.now) ? (
-                    <Tooltip title='Close the test'>
-                        <IconButton onClick={() => this.closeTest()}>
-                            <Stop />
-                        </IconButton>
+                    <Tooltip
+                        title={
+                            this.state.now > selectedTest.deadline ||
+                            this.state.now < selectedTest.openTime
+                                ? 'This test has already been closed'
+                                : 'Close the test'
+                        }
+                        placement='bottom'
+                    >
+                        <span>
+                            <IconButton
+                                disabled={
+                                    this.state.now > selectedTest.deadline ||
+                                    this.state.now < selectedTest.openTime
+                                }
+                                onClick={() => this.closeTest()}
+                            >
+                                <Stop />
+                            </IconButton>
+                        </span>
                     </Tooltip>
                 ) : (
-                    <Tooltip title='Open the test'>
-                        <IconButton onClick={() => this.openTest()}>
-                            <PlayArrow />
-                        </IconButton>
+                    <Tooltip
+                        title={
+                            this.state.now > selectedTest.deadline
+                                ? "This test can't be opened again"
+                                : this.state.now < selectedTest.openTime
+                                ? "This test can't be opened yet"
+                                : 'Open the test'
+                        }
+                        placement='bottom'
+                    >
+                        <span>
+                            <IconButton
+                                disabled={
+                                    this.state.now > selectedTest.deadline ||
+                                    this.state.now < selectedTest.openTime
+                                }
+                                onClick={() => this.openTest()}
+                            >
+                                <PlayArrow />
+                            </IconButton>
+                        </span>
                     </Tooltip>
                 )}
                 {/* Delete Test button*/}
