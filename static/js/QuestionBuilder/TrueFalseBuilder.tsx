@@ -123,30 +123,21 @@ export default class TrueFalseBuilder extends Component<
                             }}
                         >
                             <ListItem>
-                                {this.state.setsActive && (
-                                    <ListItemIcon>
-                                        <IconButton
-                                            aria-label='go back'
-                                            size='small'
-                                            onClick={this.props.returnHome}
-                                        >
-                                            <ArrowBack />
-                                        </IconButton>
-                                    </ListItemIcon>
-                                )}
-                                {this.state.setQActive && (
-                                    <ListItemIcon>
-                                        <IconButton
-                                            aria-label='go back'
-                                            size='small'
-                                            onClick={() => this.goBackToSets()}
-                                        >
-                                            <ArrowBack
-                                                onClick={() => this.setState({questionID: -1})}
-                                            />
-                                        </IconButton>
-                                    </ListItemIcon>
-                                )}
+                                <ListItemIcon>
+                                    <IconButton
+                                        aria-label='go back'
+                                        size='small'
+                                        onClick={
+                                            // The back button will either take you back to the set list
+                                            // or back to the homepage
+                                            this.state.setQActive
+                                                ? () => this.goBackToSets()
+                                                : () => this.props.returnHome()
+                                        }
+                                    >
+                                        <ArrowBack />
+                                    </IconButton>
+                                </ListItemIcon>
                                 <ListItemText
                                     primary={
                                         this.state.setQActive
@@ -624,7 +615,7 @@ export default class TrueFalseBuilder extends Component<
     };
 
     goBackToSets = () => {
-        this.setState({setQActive: false});
+        this.setState({setQActive: false, questionID: -1});
         setTimeout(() => {
             this.setState({setsActive: true});
         }, 500);

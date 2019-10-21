@@ -147,11 +147,15 @@ export default class MultipleChoiceBuilder extends Component<
                                         <IconButton
                                             aria-label='go back'
                                             size='small'
-                                            onClick={() => this.goBackToSets()}
+                                            onClick={
+                                                // The back button will either take you back to the set list
+                                                // or back to the homepage
+                                                this.state.setQActive
+                                                    ? () => this.goBackToSets()
+                                                    : () => this.props.returnHome()
+                                            }
                                         >
-                                            <ArrowBack
-                                                onClick={() => this.setState({questionID: -1})}
-                                            />
+                                            <ArrowBack />
                                         </IconButton>
                                     </ListItemIcon>
                                 )}
@@ -742,7 +746,7 @@ export default class MultipleChoiceBuilder extends Component<
     };
 
     goBackToSets = () => {
-        this.setState({setQActive: false});
+        this.setState({setQActive: false, questionID: -1});
         setTimeout(() => {
             this.setState({setsActive: true});
         }, 500);
