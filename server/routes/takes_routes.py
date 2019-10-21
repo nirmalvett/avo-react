@@ -307,7 +307,7 @@ def create_takes(test, user):
         time2 = test.deadline
     else:
         time2 = min(now + timedelta(minutes=test.timer), test.deadline)
-    takes = Takes(test, user, now, time2, 0, str(marks_list), str(answer_list), str(seeds))
+    takes = Takes(test.TEST, user, now, time2, 0, str(marks_list), str(answer_list), str(seeds))
     db.session.add(takes)
     db.session.commit()
     return takes
