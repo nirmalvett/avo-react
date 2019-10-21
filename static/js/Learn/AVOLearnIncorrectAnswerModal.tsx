@@ -1,7 +1,15 @@
 import React from 'react';
 import * as Http from '../Http';
 import {AvoLesson, AvoLessonData} from './AVOLearnComponent';
-import {Button} from '@material-ui/core';
+import {
+    Button,
+    Typography,
+    Paper,
+    IconButton
+} from '@material-ui/core';
+import {
+    Close,
+} from '@material-ui/icons';
 
 const styles = {
     modalBackdrop: {
@@ -18,9 +26,10 @@ const styles = {
         top: '3em',
         bottom: '3em',
         right: '20%',
+        height: '30vh',
         left: '20%',
         padding: '2em 3em',
-        backgroundColor: 'white',
+        borderRadius: '9px',
         overflow: 'auto',
         zIndex: 900002,
     },
@@ -51,7 +60,6 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
         };
     }
     render() {
-        console.log(this.props.lesson);
         return (
             <div>
                 <div
@@ -62,15 +70,18 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
                     id='avo_learn_incorrect_answer_modal'
                 >
                     <div style={styles.modalBackdrop} />
-                    <div style={styles.modalBody}>
-                        <button
+                    <Paper style={styles.modalBody}>
+                        <IconButton
                             onClick={this.props.hideModal}
-                            style={styles.modalClose}
                             id='incorrect_answer_close'
+                            style={{ position : 'absolute', right : '8px', top : '8px' }}
                         >
-                            Close
-                        </button>
-                        <h2>Where do you think you made the mistake?</h2>
+                            <Close/>
+                        </IconButton>
+                        <Typography variant={'h5'}>Where do you think you made the mistake?</Typography>
+                        <Typography variant={'body2'}>Select all areas that apply</Typography>
+                        <br/>
+                        <br/>
                         {this.props.lesson.prereqs.concat({
                                 name: this.props.lesson.name,
                                 conceptID: this.props.lesson.conceptID,
@@ -107,14 +118,16 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
                             </Button>
                         ))}
                         <br />
+                        <br />
                         <Button
                             onClick={this.submitSurvey}
                             variant={'contained'}
-                            style={{borderRadius: '2.5em'}}
+                            color={'primary'}
+                            style={{borderRadius: '2.5em', position : 'absolute', bottom : '8px', right : '8px'}}
                         >
                             Submit
                         </Button>
-                    </div>
+                    </Paper>
                 </div>
             </div>
         );
