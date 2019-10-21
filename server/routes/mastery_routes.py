@@ -73,7 +73,7 @@ def submit_question(question_id: int, seed: int, answers: List[str]):
         baseline_change = 0.4
         new_mastery = max(0, min(1, m.mastery_level + grade * weight_factor * aptitude_factor * baseline_change))
         # </magic>
-        Mastery.mastery_level = new_mastery
+        m.mastery_level = new_mastery
         db.session.add(MasteryHistory(m.MASTERY, new_mastery, datetime.now()))
     db.session.commit()
 
