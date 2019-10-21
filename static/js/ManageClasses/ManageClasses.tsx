@@ -51,7 +51,7 @@ import {DateTimePicker} from '@material-ui/pickers';
 import {ShowSnackBar} from '../Layout/Layout';
 import moment, {Moment} from 'moment';
 import {Course} from '../Http/types';
-import {GetSections_Test} from "../Http";
+import {GetSections_Test} from '../Http';
 
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
@@ -135,7 +135,10 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             _editTest_openTime: Number(new Date()),
             editTest_name: '',
             editTest_confirm_text: 'Confirm', // first time it's Confirm after that it's "Change Again"
-            selectedCourseID: this.props.courses[0].courseID,
+            selectedCourseID:
+                this.props.courses && this.props.courses.length > 0
+                    ? this.props.courses[0].courseID
+                    : -1,
         };
     }
 

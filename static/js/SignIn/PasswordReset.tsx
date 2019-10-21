@@ -89,22 +89,25 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
                                 type='password'
                                 onChange={this.updateConfirmPassword}
                             />
-                            {this.props.showTerms && <>
-                                <br/>
-                                <Typography variant='caption'>
-                                    <Checkbox
-                                        color='primary'
-                                        checked={this.state.hasAgreedToTOS}
-                                        onClick={() =>
-                                            this.setState({
-                                                hasAgreedToTOS: !this.state.hasAgreedToTOS,
-                                            })
-                                        }
-                                    />
-                                    I agree to the Terms of Service found <a id='ToC-here'>here</a>.
+                            {this.props.showTerms && (
+                                <>
                                     <br />
-                                </Typography>
-                            </>}
+                                    <Typography variant='caption'>
+                                        <Checkbox
+                                            color='primary'
+                                            checked={this.state.hasAgreedToTOS}
+                                            onClick={() =>
+                                                this.setState({
+                                                    hasAgreedToTOS: !this.state.hasAgreedToTOS,
+                                                })
+                                            }
+                                        />
+                                        I agree to the Terms of Service found{' '}
+                                        <a id='ToC-here'>here</a>.
+                                        <br />
+                                    </Typography>
+                                </>
+                            )}
                             <br />
                             <br />
                             <Typography variant='caption' color='error'>
@@ -114,7 +117,11 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
                             <Button
                                 style={{float: 'right'}}
                                 color='primary'
-                                disabled={!longEnough || !passwordsMatch || (this.props.showTerms && !this.state.hasAgreedToTOS)}
+                                disabled={
+                                    !longEnough ||
+                                    !passwordsMatch ||
+                                    (this.props.showTerms && !this.state.hasAgreedToTOS)
+                                }
                                 onClick={this.sendChangeRequest}
                             >
                                 Submit New Password

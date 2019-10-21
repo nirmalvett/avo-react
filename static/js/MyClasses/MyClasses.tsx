@@ -45,7 +45,7 @@ import Chart from 'react-apexcharts';
 import paypal from 'paypal-checkout';
 // @ts-ignore
 import paypal_mode from 'js-yaml-loader!../../../config.yaml';
-import {GetSections_Test} from "../Http";
+import {GetSections_Test} from '../Http';
 
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
