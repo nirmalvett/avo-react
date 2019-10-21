@@ -295,6 +295,17 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             wait: 1000,
             immediate: false,
         });
+        if(!this.state.loadingClasses && !this.state.classNames.length) {            
+            return (
+                <div>
+                    <br/>
+                    <br/>
+                    <Typography variant={'body1'} style={{ textAlign : 'center' }}>
+                        You currently have no courses. 
+                    </Typography>
+                </div>
+            );
+        }
         return (
             <div
                 style={{
