@@ -67,7 +67,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
         return (
             <div
                 style={{
-                    width: '70vw',
+                    width: '100%',
                     height: '90vh',
                     padding: 25,
                     overflow: 'auto',
