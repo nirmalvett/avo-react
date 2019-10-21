@@ -42,7 +42,7 @@ import {
     Stop,
 } from '@material-ui/icons';
 import * as Http from '../Http';
-import {copy, getDateString, isOpen} from '../HelperFunctions/Utilities';
+import {copy, getDateString} from '../HelperFunctions/Utilities';
 import AVOModal from '../SharedComponents/MaterialModal';
 // @ts-ignore
 import Chart from 'react-apexcharts';
@@ -51,6 +51,7 @@ import {DateTimePicker} from '@material-ui/pickers';
 import {ShowSnackBar} from '../Layout/Layout';
 import moment, {Moment} from 'moment';
 import {Course} from '../Http/types';
+import {GetSections_Test} from "../Http";
 
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
@@ -1650,4 +1651,8 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             },
         };
     }
+}
+
+function isOpen(test: GetSections_Test, now: number) {
+    return (test.openTime === null || test.openTime < now) && now < test.deadline;
 }

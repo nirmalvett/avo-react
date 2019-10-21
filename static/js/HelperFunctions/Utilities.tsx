@@ -305,11 +305,3 @@ export function format(str: string, ...args: any[]) {
     }
     return result + str;
 }
-
-export function isOpen(test: GetSections_Test, now: number) {
-    return (
-        (test.openTime === null || test.openTime < now) &&
-        now < test.deadline &&
-        (test.submitted.length < test.attempts || test.attempts === -1)
-    );
-}

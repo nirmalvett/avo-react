@@ -31,7 +31,7 @@ import {
     PeopleOutlined,
 } from '@material-ui/icons';
 import * as Http from '../Http';
-import {getDateString, isOpen} from '../HelperFunctions/Utilities';
+import {getDateString} from '../HelperFunctions/Utilities';
 import {convertListFloatToAnalytics} from '../HelperFunctions/Helpers';
 import {ShowSnackBar} from '../Layout/Layout';
 import {
@@ -45,6 +45,7 @@ import Chart from 'react-apexcharts';
 import paypal from 'paypal-checkout';
 // @ts-ignore
 import paypal_mode from 'js-yaml-loader!../../../config.yaml';
+import {GetSections_Test} from "../Http";
 
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
@@ -1182,4 +1183,12 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
             this.props.theme,
         );
     }
+}
+
+function isOpen(test: GetSections_Test, now: number) {
+    return (
+        (test.openTime === null || test.openTime < now) &&
+        now < test.deadline &&
+        (test.submitted.length < test.attempts || test.attempts === -1)
+    );
 }
