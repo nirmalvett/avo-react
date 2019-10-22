@@ -15,6 +15,7 @@ export interface Question {
 
 export interface QuestionSet {
     setID: number;
+    courseID: number;
     name: string;
     canEdit: boolean;
     questions: Question[];

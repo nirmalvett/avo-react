@@ -92,25 +92,12 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
     }
 
     componentDidMount() {
-        Http.getSections(
-            ({sections}) => this.loadTags(sections.map(x => x.sectionID)),
-            console.warn,
+        Http.getConcepts(
+            this.props.sets[this.props.s].courseID,
+            ({concepts}) =>
+                this.setState({concepts: [...this.state.concepts, ...concepts]}),
+            console.warn
         );
-    }
-
-    loadTags(classIDs: number[]) {
-        if (classIDs.length === 0) {
-            return;
-        } else {
-            Http.getConcepts(
-                classIDs[0],
-                ({concepts}) =>
-                    this.setState({concepts: [...this.state.concepts, ...concepts]}, () =>
-                        this.loadTags(classIDs.slice(1)),
-                    ),
-                () => this.loadTags(classIDs.slice(1)),
-            );
-        }
     }
 
     savedQuestion() {

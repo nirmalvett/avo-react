@@ -1,3 +1,5 @@
+from typing import List
+
 from flask import Blueprint, jsonify
 from flask_login import current_user
 
@@ -16,7 +18,7 @@ def get_sets():
     :return: The list of sets
     """
     # Get list of available sets for current user
-    list_of_sets = QuestionSet.query.filter(
+    list_of_sets: List[QuestionSet] = QuestionSet.query.filter(
         (QuestionSet.COURSE == UserCourse.COURSE) & (UserCourse.USER == current_user.USER)
     ).all()
     set_list = []  # List of sets to send back to the user
@@ -42,6 +44,7 @@ def get_sets():
             })
         set_list.append({
             'setID': s.QUESTION_SET,
+            'courseID': s.COURSE,
             'name': s.name,
             'canEdit': able_edit_set(s.QUESTION_SET),
             'questions': question_list

@@ -25,7 +25,7 @@ interface CategoryCardState {
     text: string;
 }
 
-const MAXIMUM = 20;
+const MAXIMUM = 50;
 
 export class CategoryCard extends Component<CategoryCardProps, CategoryCardState> {
     constructor(props: CategoryCardProps) {
