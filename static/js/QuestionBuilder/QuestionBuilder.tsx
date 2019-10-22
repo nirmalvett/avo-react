@@ -94,9 +94,8 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
     componentDidMount() {
         Http.getConcepts(
             this.props.sets[this.props.s].courseID,
-            ({concepts}) =>
-                this.setState({concepts: [...this.state.concepts, ...concepts]}),
-            console.warn
+            ({concepts}) => this.setState({concepts: [...this.state.concepts, ...concepts]}),
+            console.warn,
         );
     }
 
@@ -692,15 +691,15 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
         return sets;
     }
 
-    addTag = (tag: number) => {
+    addTag = (tag: number, weight: number) => {
         Http.setConceptQuestion(
             tag,
             this.savedQuestion().questionID,
-            4, // todo: this should be the highest allowable value
+            weight,
             () => {
                 const {s, q} = this.props;
                 const sets = this.getNewSets();
-                sets[s].questions[q].concepts = [...sets[s].questions[q].concepts, tag];
+                sets[s].questions[q].concepts = {...sets[s].questions[q].concepts, [tag]: weight};
                 this.props.updateProps(this.props.s, this.props.q, sets);
             },
             console.warn,
@@ -715,9 +714,8 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
             () => {
                 const {s, q} = this.props;
                 const sets = this.getNewSets();
-                sets[s].questions[q].concepts = sets[s].questions[q].concepts.filter(
-                    x => x !== tag,
-                );
+                sets[s].questions[q].concepts = {...sets[s].questions[q].concepts};
+                delete sets[s].questions[q].concepts[tag];
                 this.props.updateProps(this.props.s, this.props.q, sets);
             },
             console.warn,

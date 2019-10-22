@@ -22,7 +22,7 @@ def get_sets():
         (QuestionSet.COURSE == UserCourse.COURSE) & (UserCourse.USER == current_user.USER)
     ).all()
     set_list = []  # List of sets to send back to the user
-    tag_questions = ConceptQuestion.query.filter(
+    tag_questions: List[ConceptQuestion] = ConceptQuestion.query.filter(
         (ConceptQuestion.CONCEPT == Concept.CONCEPT) &
         (Concept.COURSE == UserCourse.COURSE) &
         (UserCourse.USER == current_user.USER)
@@ -33,6 +33,10 @@ def get_sets():
         question_list = []  # Question data to return to client
         for q in questions:
             # For each question append the data
+            concept_dict = {}
+            for t in tag_questions:
+                if t.QUESTION == q.QUESTION:
+                    concept_dict[t.CONCEPT] = t.weight
             question_list.append({
                 'questionID': q.QUESTION,
                 'name': q.name,
@@ -40,7 +44,7 @@ def get_sets():
                 'total': q.total,
                 'answers': q.answers,
                 'category': q.category,
-                'concepts': list(map(lambda x: x.CONCEPT, filter(lambda y: y.QUESTION == q.QUESTION, tag_questions)))
+                'concepts': concept_dict
             })
         set_list.append({
             'setID': s.QUESTION_SET,

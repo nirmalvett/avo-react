@@ -16,13 +16,14 @@ interface CategoryCardProps {
     category: number;
     setCategory: (category: number) => () => void;
     concepts: Http.GetConcepts['concepts'];
-    selectedTags: number[];
-    addTag: (id: number) => void;
+    selectedTags: {[conceptID: number]: number};
+    addTag: (id: number, weight: number) => void;
     removeTag: (id: number) => void;
 }
 
 interface CategoryCardState {
     text: string;
+    weight: number;
 }
 
 const MAXIMUM = 50;
@@ -32,6 +33,7 @@ export class CategoryCard extends Component<CategoryCardProps, CategoryCardState
         super(props);
         this.state = {
             text: '',
+            weight: 4,
         };
     }
 
@@ -57,17 +59,25 @@ export class CategoryCard extends Component<CategoryCardProps, CategoryCardState
                     style={{margin: '4px'}}
                 />
                 <br />
+                {[1, 2, 3, 4].map(weight => (
+                    <FormControlLabel
+                        key={'weight:' + weight}
+                        control={<Radio color='primary' checked={this.state.weight === weight} />}
+                        onChange={() => this.setState({weight})}
+                        label={weight}
+                    />
+                ))}
                 {tagsToShow.slice(0, MAXIMUM).map((tag, index) => (
                     <Chip
                         style={{margin: '4px'}}
-                        label={tag.name}
+                        label={tag.name + ' (' + (selectedTags[tag.conceptID] || 0) + ')'}
                         key={'tag' + index}
                         onClick={
-                            selectedTags.includes(tag.conceptID)
+                            selectedTags[tag.conceptID] === this.state.weight
                                 ? () => removeTag(tag.conceptID)
-                                : () => addTag(tag.conceptID)
+                                : () => addTag(tag.conceptID, this.state.weight)
                         }
-                        color={selectedTags.includes(tag.conceptID) ? 'primary' : 'default'}
+                        color={selectedTags.hasOwnProperty(tag.conceptID) ? 'primary' : 'default'}
                     />
                 ))}
                 {tagsToShow.length > MAXIMUM && (

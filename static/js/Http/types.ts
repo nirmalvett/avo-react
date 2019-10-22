@@ -10,7 +10,7 @@ export interface Question {
     total: number;
     answers: number;
     category: number;
-    concepts: number[];
+    concepts: {[conceptID: number]: number};
 }
 
 export interface QuestionSet {
