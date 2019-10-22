@@ -664,7 +664,6 @@ export default class MultipleChoiceBuilder extends Component<
                     disabled={!isMultipleChoice(question.string)}
                     key={question.questionID + '-' + index}
                     button
-                    onClick={() => this.setState({toEdit: index})}
                     onMouseEnter={() => this.setState({hovered: question.questionID})}
                     onMouseLeave={() => this.setState({hovered: -1})}
                 >
@@ -808,15 +807,6 @@ export default class MultipleChoiceBuilder extends Component<
 
     submitQuestion = () => {
         if (this.state.editMode) {
-            // const question: Question = {
-            //     questionID: this.state.questionID,
-            //     name: this.state.questionName,
-            //     string: this.buildQuestionString(),
-            //     answers: 1,
-            //     total: 1,
-            //     category: ,
-            //     concepts: []]
-            // }
             Http.renameQuestion(
                 this.state.questionID,
                 this.state.questionName,
