@@ -288,10 +288,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             );
         }
         const lessonChangeDebouncer = debounce({
-            callback: (e: any) => {
-                console.log('I was called woot', e.target.value);
-                this.setState({lessonText: e.target.value});
-            },
+            callback: (e: any) => this.setState({lessonText: e.target.value}),
             wait: 1000,
             immediate: false,
         });
@@ -332,8 +329,10 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             <IconButton
                                 onClick={() =>
                                     this.setState({isEditingLesson: false}, () => {
+                                        const string_copy:string = (' ' + this.state.lessonText).slice(1);
                                         setTimeout(() => {
                                             this.gotoSelectedNode(this.state.selectedConcept);
+                                            setTimeout(() => this.setState({ lessonText : string_copy }), 200);
                                         }, 400);
                                     })
                                 }
@@ -541,6 +540,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                             primary={
                                                                                 WeightedConcept.name
                                                                             }
+                                                                            secondary={`Weight: ${WeightedConcept.weight}`}
                                                                         />
                                                                         <ListItemSecondaryAction>
                                                                             <IconButton
@@ -632,6 +632,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                             primary={
                                                                                 WeightedConcept.name
                                                                             }
+                                                                            secondary={`Weight: ${WeightedConcept.weight}`}
                                                                         />
                                                                         <ListItemSecondaryAction>
                                                                             <IconButton
