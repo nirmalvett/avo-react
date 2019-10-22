@@ -1,7 +1,10 @@
 import React from 'react';
 import * as Http from '../Http';
 import {AvoLesson} from './AVOLearnComponent';
-import {Button} from '@material-ui/core';
+import {Button, Paper, IconButton, Typography} from '@material-ui/core';
+import {
+    Close
+} from '@material-ui/icons';
 
 const styles = {
     modalBackdrop: {
@@ -19,8 +22,9 @@ const styles = {
         bottom: '3em',
         right: '20%',
         left: '20%',
+        height: '30vh',
         padding: '2em 3em',
-        backgroundColor: 'white',
+        borderRadius: '9px',
         overflow: 'auto',
         zIndex: 900002,
     },
@@ -41,7 +45,6 @@ export default class AVOLearnPostTestModel extends React.Component<
         };
     }
     render() {
-        console.log(this.props.lesson);
         return (
             <div>
                 <div
@@ -52,109 +55,140 @@ export default class AVOLearnPostTestModel extends React.Component<
                     id='avo_learn_post_lesson_modal'
                 >
                     <div style={styles.modalBackdrop} />
-                    <div style={styles.modalBody}>
-                        <button
+                    <Paper style={styles.modalBody} className="avo-card">
+                        <IconButton
                             onClick={this.props.hideModal}
-                            style={styles.modalClose}
+                            style={{ position : 'absolute', top : '9px', right : '9px' }}
                             id='post_test_close'
                         >
-                            Close
-                        </button>
-                        <h2>How well do you know it now?</h2>
+                            <Close/>
+                        </IconButton>
+                        <Typography variant={'h5'}>How well do you know the concept now?</Typography>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <Button
-                                variant={
-                                    this.state.selectedMastery === 1 ? 'contained' : 'outlined'
-                                }
-                                onClick={() => this.setState({selectedMastery: 1})}
-                            >
-                                1
-                            </Button>
-                            <Button
-                                variant={
-                                    this.state.selectedMastery === 2 ? 'contained' : 'outlined'
-                                }
-                                onClick={() => this.setState({selectedMastery: 2})}
-                            >
-                                2
-                            </Button>
-                            <Button
-                                variant={
-                                    this.state.selectedMastery === 3 ? 'contained' : 'outlined'
-                                }
-                                onClick={() => this.setState({selectedMastery: 3})}
-                            >
-                                3
-                            </Button>
-                            <Button
-                                variant={
-                                    this.state.selectedMastery === 4 ? 'contained' : 'outlined'
-                                }
-                                onClick={() => this.setState({selectedMastery: 4})}
-                            >
-                                4
-                            </Button>
-                            <Button
-                                variant={
-                                    this.state.selectedMastery === 5 ? 'contained' : 'outlined'
-                                }
-                                onClick={() => this.setState({selectedMastery: 5})}
-                            >
-                                5
-                            </Button>
+                            <div style={{ flex : 1, padding : '9px' }}>
+                                <Button
+                                    variant={
+                                        this.state.selectedMastery === 1 ? 'contained' : 'outlined'
+                                    }
+                                    color={this.state.selectedMastery === 1 ? 'primary' : undefined}
+                                    onClick={() => this.setState({selectedMastery: 1})}
+                                >
+                                    1
+                                </Button>
+                            </div>
+                            <div style={{ flex : 1, padding : '9px' }}>
+                                <Button
+                                    variant={
+                                        this.state.selectedMastery === 2 ? 'contained' : 'outlined'
+                                    }
+                                    color={this.state.selectedMastery === 2 ? 'primary' : undefined}
+                                    onClick={() => this.setState({selectedMastery: 2})}
+                                >
+                                    2
+                                </Button>
+                            </div>
+                            <div style={{ flex : 1, padding : '9px' }}>
+                                <Button
+                                    variant={
+                                        this.state.selectedMastery === 3 ? 'contained' : 'outlined'
+                                    }
+                                    color={this.state.selectedMastery === 3 ? 'primary' : undefined}
+                                    onClick={() => this.setState({selectedMastery: 3})}
+                                >
+                                    3
+                                </Button>
+                            </div>
+                            <div style={{ flex : 1, padding : '9px' }}>
+                                <Button
+                                    variant={
+                                        this.state.selectedMastery === 4 ? 'contained' : 'outlined'
+                                    }
+                                    color={this.state.selectedMastery === 4 ? 'primary' : undefined}
+                                    onClick={() => this.setState({selectedMastery: 4})}
+                                >
+                                    4
+                                </Button>
+                            </div>
+                            <div style={{ flex : 1, padding : '9px' }}>
+                                <Button
+                                    variant={
+                                        this.state.selectedMastery === 5 ? 'contained' : 'outlined'
+                                    }
+                                    color={this.state.selectedMastery === 5 ? 'primary' : undefined}
+                                    onClick={() => this.setState({selectedMastery: 5})}
+                                >
+                                    5
+                                </Button>
+                            </div>
                         </div>
-                        <h2>How easy was it for you to learn?</h2>
+                        <Typography variant={'h5'}>How easy was it for you to learn?</Typography>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <Button
-                                variant={
-                                    this.state.selectedAptitude === 1 ? 'contained' : 'outlined'
-                                }
-                                onClick={() => this.setState({selectedAptitude: 1})}
-                            >
-                                1
-                            </Button>
-                            <Button
-                                variant={
-                                    this.state.selectedAptitude === 2 ? 'contained' : 'outlined'
-                                }
-                                onClick={() => this.setState({selectedAptitude: 2})}
-                            >
-                                2
-                            </Button>
-                            <Button
-                                variant={
-                                    this.state.selectedAptitude === 3 ? 'contained' : 'outlined'
-                                }
-                                onClick={() => this.setState({selectedAptitude: 3})}
-                            >
-                                3
-                            </Button>
-                            <Button
-                                variant={
-                                    this.state.selectedAptitude === 4 ? 'contained' : 'outlined'
-                                }
-                                onClick={() => this.setState({selectedAptitude: 4})}
-                            >
-                                4
-                            </Button>
-                            <Button
-                                variant={
-                                    this.state.selectedAptitude === 5 ? 'contained' : 'outlined'
-                                }
-                                onClick={() => this.setState({selectedAptitude: 5})}
-                            >
-                                5
-                            </Button>
+                        <div style={{ flex : 1, padding : '9px' }}>
+                                <Button
+                                    variant={
+                                        this.state.selectedAptitude === 1 ? 'contained' : 'outlined'
+                                    }
+                                    color={this.state.selectedAptitude === 1 ? 'primary' : undefined}
+                                    onClick={() => this.setState({selectedAptitude: 1})}
+                                >
+                                    1
+                                </Button>
+                            </div>
+                            <div style={{ flex : 1, padding : '9px' }}>
+                                <Button
+                                    variant={
+                                        this.state.selectedAptitude === 2 ? 'contained' : 'outlined'
+                                    }
+                                    color={this.state.selectedAptitude === 2 ? 'primary' : undefined}
+                                    onClick={() => this.setState({selectedAptitude: 2})}
+                                >
+                                    2
+                                </Button>
+                            </div>
+                            <div style={{ flex : 1, padding : '9px' }}>
+                                <Button
+                                    variant={
+                                        this.state.selectedAptitude === 3 ? 'contained' : 'outlined'
+                                    }
+                                    color={this.state.selectedAptitude === 3 ? 'primary' : undefined}
+                                    onClick={() => this.setState({selectedAptitude: 3})}
+                                >
+                                    3
+                                </Button>
+                            </div>
+                            <div style={{ flex : 1, padding : '9px' }}>
+                                <Button
+                                    variant={
+                                        this.state.selectedAptitude === 4 ? 'contained' : 'outlined'
+                                    }
+                                    color={this.state.selectedAptitude === 4 ? 'primary' : undefined}
+                                    onClick={() => this.setState({selectedAptitude: 4})}
+                                >
+                                    4
+                                </Button>
+                            </div>
+                            <div style={{ flex : 1, padding : '9px' }}>
+                                <Button
+                                    variant={
+                                        this.state.selectedAptitude === 5 ? 'contained' : 'outlined'
+                                    }
+                                    color={this.state.selectedAptitude === 5 ? 'primary' : undefined}
+                                    onClick={() => this.setState({selectedAptitude: 5})}
+                                >
+                                    5
+                                </Button>
+                            </div>
                         </div>
                         <br />
                         <Button
                             onClick={this.submitSurvey}
                             variant={'contained'}
-                            style={{borderRadius: '2.5em'}}
+                            color={'primary'}
+                            style={{borderRadius: '2.5em', position : 'absolute', bottom : '9px', right : '9px' }}
                         >
                             Submit
                         </Button>
-                    </div>
+                    </Paper>
                 </div>
             </div>
         );
