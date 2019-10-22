@@ -210,6 +210,11 @@ export default class AVOLearnComponent extends Component<
             },
         );
     }
+    componentDidUpdate(preProps: AVOLearnComponentProps, prevState: AVOLearnComponentState) {
+        if (preProps.courses !== this.props.courses){
+            if (this.props.courses.length > 0) this.setState({selectedCourse: this.props.courses[0].courseID}, ()=>this.changeClass())
+        }
+    }
 
     changeClass = () => {
         if (this.state.selectedCourse !== -1) {
@@ -232,7 +237,7 @@ export default class AVOLearnComponent extends Component<
                     ...concept,
                     newMastery: concept.mastery,
                 }));
-                this.setState({selectedCourse: courseID, lessons});
+                this.setState({selectedCourse: courseID, lessons, isLoading: false});
             },
             console.warn,
         );
