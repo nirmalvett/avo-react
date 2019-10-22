@@ -664,7 +664,6 @@ export default class MultipleChoiceBuilder extends Component<
                     disabled={!isMultipleChoice(question.string)}
                     key={question.questionID + '-' + index}
                     button
-                    onClick={() => this.setState({toEdit: index})}
                     onMouseEnter={() => this.setState({hovered: question.questionID})}
                     onMouseLeave={() => this.setState({hovered: -1})}
                 >
@@ -678,7 +677,7 @@ export default class MultipleChoiceBuilder extends Component<
                         <IconButton
                             size='small'
                             edge='end'
-                            onClick={() => this.switchQuestion(question)}
+                            onClick={() => this.switchQuestion(index)}
                         >
                             <EditIcon />
                         </IconButton>
@@ -687,7 +686,7 @@ export default class MultipleChoiceBuilder extends Component<
                         <IconButton
                             size='small'
                             edge='end'
-                            onClick={() => this.setState({deleteDiagOpen: true})}
+                            onClick={() => this.setState({deleteDiagOpen: true, toEdit: index})}
                         >
                             <DeleteIcon />
                         </IconButton>
@@ -808,15 +807,6 @@ export default class MultipleChoiceBuilder extends Component<
 
     submitQuestion = () => {
         if (this.state.editMode) {
-            // const question: Question = {
-            //     questionID: this.state.questionID,
-            //     name: this.state.questionName,
-            //     string: this.buildQuestionString(),
-            //     answers: 1,
-            //     total: 1,
-            //     category: ,
-            //     concepts: []]
-            // }
             Http.renameQuestion(
                 this.state.questionID,
                 this.state.questionName,
@@ -845,13 +835,24 @@ export default class MultipleChoiceBuilder extends Component<
     };
 
     postSuccess = () => {
-        Http.getSets(
-            result =>
-                this.props.updateSets(result.sets, () =>
-                    this.props.showSnackBar('success', 'The question has been created', 2000),
-                ),
-            () => this.props.showSnackBar('error', 'Something went wrong', 4000),
-        );
+        if (this.state.editMode) {
+            const {selectedS, toEdit, questionName} = this.state;
+            const {sets} = this.props;
+            const updated = sets.slice();
+            let question: Question = updated[selectedS as number].questions[toEdit as number];
+            question.name = questionName;
+            question.string = this.buildQuestionString();
+            this.props.updateSets(updated);
+        }
+        else {
+            Http.getSets(
+                result =>
+                    this.props.updateSets(result.sets, () =>
+                        this.props.showSnackBar('success', 'The question has been created', 2000),
+                    ),
+                () => this.props.showSnackBar('error', 'Something went wrong', 4000),
+            );
+        }
 
         this.reset();
     };
@@ -869,18 +870,25 @@ export default class MultipleChoiceBuilder extends Component<
             this.reset();
     };
 
-    switchQuestion = (question: Question) => {
+    switchQuestion = (questionIndex: number) => {
+        this.setState({toEdit: questionIndex});
         if (this.state.changed) {
             this.setState({switchDiagOpen: true});
         } else {
-            this.loadQuestion();
+            this.loadQuestion(questionIndex);
         }
     };
 
-    loadQuestion = () => {
+    loadQuestion = (index?: number) => {
         const {selectedS, toEdit} = this.state;
         const {sets} = this.props;
-        const question: Question = sets[selectedS as number].questions[toEdit as number];
+        let question: Question;
+        // Used if the user was presented with a dialog (aka they would have thrown away changes)
+        if (index === null || index === undefined)
+            question = sets[selectedS as number].questions[toEdit as number];
+        // Used when immediately switching to the next question
+        else
+            question = sets[selectedS as number].questions[index];
         if (isMath(question.string)) {
             this.props.showSnackBar(
                 'error',
