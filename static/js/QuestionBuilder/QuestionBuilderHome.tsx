@@ -27,7 +27,7 @@ export type QuestionBuilderSelection = Mode1 | Mode2 | Mode3;
 
 type QuestionBuilderHomeProps = {
     sets: QuestionSet[];
-    updateSets: (sets: QuestionSet[], cb?: () => void) => void;
+    updateSets: (questionSets: QuestionSet[], cb?: () => void) => void;
     showSnackBar: ShowSnackBar;
     courses: Course[];
     theme: 'light' | 'dark';
@@ -89,6 +89,7 @@ export class QuestionBuilderHome extends Component<
                         sets={this.props.sets}
                         courses={this.props.courses}
                         returnHome={() => this.setState({screen: 'home', isActive: true})}
+                        updateSets={this.props.updateSets}
                         showSnackBar={this.props.showSnackBar}
                     />
                 );

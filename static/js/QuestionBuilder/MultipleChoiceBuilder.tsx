@@ -48,6 +48,7 @@ export interface MultipleChoiceBuilderProps {
     showSnackBar: ShowSnackBar;
     sets: QuestionSet[];
     courses: Course[];
+    updateSets: (questionSets: QuestionSet[], cb?: () => void) => void;
     returnHome: () => void;
 }
 
@@ -63,7 +64,6 @@ interface MultipleChoiceBuilderState {
     questionAnsr: number;
     questionExpl: string;
     questionExpE: boolean;
-    sets: QuestionSet[];
     setsActive: boolean;
     setQActive: boolean;
     selectedS: null | number;
@@ -75,7 +75,7 @@ interface MultipleChoiceBuilderState {
     addDiagOpen: boolean;
     editMode: boolean;
     changed: boolean;
-    nextQuestion: null | Question;
+    toEdit: null | number;
     hovered: number;
     course: number;
     setName: string;
@@ -99,7 +99,6 @@ export default class MultipleChoiceBuilder extends Component<
             questionAnsr: 0, // Stores the index of the correct options for the test
             questionExpl: '', // Stores the question Explanation String
             questionExpE: true, // Keeps track of if we're editing the explanation string
-            sets: this.props.sets,
             setsActive: false,
             setQActive: false,
             selectedS: null,
@@ -111,7 +110,7 @@ export default class MultipleChoiceBuilder extends Component<
             addDiagOpen: false,
             editMode: false,
             changed: false,
-            nextQuestion: null, // Used to store a selected question that hasn't been loaded
+            toEdit: null, // The index (within the set) of the question to edit or delete
             hovered: -1, // The ID of the current question being hovered
             course: -1, // The courseID for sets to be added to
             setName: '', // The name for a new set
@@ -532,8 +531,8 @@ export default class MultipleChoiceBuilder extends Component<
                         <Button
                             onClick={() => {
                                 this.setState({switchDiagOpen: false});
-                                if (this.state.nextQuestion) {
-                                    this.loadQuestion(this.state.nextQuestion);
+                                if (this.state.toEdit) {
+                                    this.loadQuestion();
                                 }
                             }}
                             color='primary'
@@ -567,8 +566,7 @@ export default class MultipleChoiceBuilder extends Component<
                         <Button
                             onClick={() => {
                                 this.setState({deleteDiagOpen: false});
-                                if (this.state.nextQuestion != null)
-                                    this.deleteQuestion(this.state.nextQuestion);
+                                if (this.state.toEdit) this.deleteQuestion();
                             }}
                             color='primary'
                             variant='contained'
@@ -625,7 +623,7 @@ export default class MultipleChoiceBuilder extends Component<
 
     renderSetList = () => {
         let {selectedS} = this.state;
-        return this.state.sets.map((set, index) => (
+        return this.props.sets.map((set, index) => (
             <ListItem
                 key={set.setID + '-' + index}
                 button
@@ -658,14 +656,15 @@ export default class MultipleChoiceBuilder extends Component<
     };
 
     renderQuestionList = () => {
-        const {selectedS, sets, questionID, hovered} = this.state;
+        const {selectedS, questionID, hovered} = this.state;
+        const {sets} = this.props;
         if (selectedS !== null)
             return sets[selectedS as number].questions.map((question: Question, index: number) => (
                 <ListItem
                     disabled={!isMultipleChoice(question.string)}
                     key={question.questionID + '-' + index}
                     button
-                    onClick={() => this.setState({nextQuestion: question})}
+                    onClick={() => this.setState({toEdit: index})}
                     onMouseEnter={() => this.setState({hovered: question.questionID})}
                     onMouseLeave={() => this.setState({hovered: -1})}
                 >
@@ -734,8 +733,7 @@ export default class MultipleChoiceBuilder extends Component<
     };
 
     componentDidMount = () => {
-        this.setState({loaded: true});
-        this.getSets();
+        this.setState({loaded: true, setsActive: true});
     };
 
     selectSet = (set: {name: string}, index: number) => {
@@ -752,25 +750,18 @@ export default class MultipleChoiceBuilder extends Component<
         }, 500);
     };
 
-    getSets = () => {
-        Http.getSets(
-            result => this.setState({sets: result.sets, setsActive: true}),
-            () => alert('Something went wrong when retrieving your question list'),
-        );
-    };
-
-    refreshSets = () => {
-        Http.getSets(
-            result => this.setState({sets: result.sets}),
-            () => alert('Something went wrong when retrieving your question list'),
-        );
-    };
-
     newSet = () => {
         Http.newSet(
             this.state.course,
             this.state.setName,
-            () => this.refreshSets(),
+            () =>
+                Http.getSets(
+                    result =>
+                        this.props.updateSets(result.sets, () =>
+                            this.props.showSnackBar('success', 'Set added', 2000),
+                        ),
+                    result => alert(result.error),
+                ),
             result => alert(result.error),
         );
         this.closeAddSetDialog();
@@ -778,14 +769,18 @@ export default class MultipleChoiceBuilder extends Component<
 
     deleteSet = (index: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.stopPropagation();
-        let set = this.state.sets[index];
+        let set = this.props.sets[index];
         let confirmation: boolean = confirm('Are you sure you want to delete this set?');
         if (confirmation)
             Http.deleteSet(
                 set.setID,
                 async () => {
                     await this.setState({selectedS: null, questionID: -1});
-                    this.getSets();
+                    let updated = this.props.sets.slice();
+                    updated.splice(index, 1);
+                    this.props.updateSets(updated, () =>
+                        this.props.showSnackBar('success', 'The set has been deleted', 2000),
+                    );
                 },
                 result => alert(result.error),
             );
@@ -813,6 +808,15 @@ export default class MultipleChoiceBuilder extends Component<
 
     submitQuestion = () => {
         if (this.state.editMode) {
+            // const question: Question = {
+            //     questionID: this.state.questionID,
+            //     name: this.state.questionName,
+            //     string: this.buildQuestionString(),
+            //     answers: 1,
+            //     total: 1,
+            //     category: ,
+            //     concepts: []]
+            // }
             Http.renameQuestion(
                 this.state.questionID,
                 this.state.questionName,
@@ -829,7 +833,7 @@ export default class MultipleChoiceBuilder extends Component<
             );
         } else {
             Http.newQuestion(
-                this.state.sets[this.state.selectedS as number].setID,
+                this.props.sets[this.state.selectedS as number].setID,
                 this.state.questionName,
                 this.buildQuestionString(),
                 1,
@@ -841,27 +845,42 @@ export default class MultipleChoiceBuilder extends Component<
     };
 
     postSuccess = () => {
-        if (this.state.editMode)
-            this.props.showSnackBar('success', 'Question edited successfully', 2000);
-        else this.props.showSnackBar('success', 'Question created successfully', 2000);
+        Http.getSets(
+            result =>
+                this.props.updateSets(result.sets, () =>
+                    this.props.showSnackBar('success', 'The question has been created', 2000),
+                ),
+            () => this.props.showSnackBar('error', 'Something went wrong', 4000),
+        );
+
         this.reset();
     };
 
-    deleteSuccess = (question: Question) => {
-        this.props.showSnackBar('success', 'Question deleted', 2000);
-        if (question.questionID === this.state.questionID) this.reset();
-        else this.refreshSets();
+    deleteSuccess = () => {
+        const {selectedS, toEdit, questionID} = this.state;
+        const {sets} = this.props;
+        let updated = sets.slice();
+        updated[selectedS as number].questions.splice(toEdit as number, 1);
+        this.props.updateSets(updated, () =>
+            this.props.showSnackBar('success', 'Question deleted', 2000),
+        );
+        // If we are deleting the currently selected question, we must refresh the view
+        if (sets[selectedS as number].questions[toEdit as number].questionID === questionID)
+            this.reset();
     };
 
     switchQuestion = (question: Question) => {
         if (this.state.changed) {
             this.setState({switchDiagOpen: true});
         } else {
-            this.loadQuestion(question);
+            this.loadQuestion();
         }
     };
 
-    loadQuestion = (question: Question) => {
+    loadQuestion = () => {
+        const {selectedS, toEdit} = this.state;
+        const {sets} = this.props;
+        const question: Question = sets[selectedS as number].questions[toEdit as number];
         if (isMath(question.string)) {
             this.props.showSnackBar(
                 'error',
@@ -893,10 +912,12 @@ export default class MultipleChoiceBuilder extends Component<
         }
     };
 
-    deleteQuestion = (question: Question) => {
+    deleteQuestion = () => {
+        const {selectedS, toEdit} = this.state;
+        const {sets} = this.props;
         Http.deleteQuestion(
-            question.questionID,
-            () => this.deleteSuccess(question),
+            sets[selectedS as number].questions[toEdit as number].questionID,
+            () => this.deleteSuccess(),
             () => this.props.showSnackBar('error', 'An error occured', 2000),
         );
     };
@@ -917,8 +938,6 @@ export default class MultipleChoiceBuilder extends Component<
             editMode: false,
             changed: false,
         });
-
-        this.refreshSets();
     };
 
     isValid = () => {
