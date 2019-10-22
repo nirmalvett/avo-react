@@ -566,7 +566,7 @@ export default class MultipleChoiceBuilder extends Component<
                         <Button
                             onClick={() => {
                                 this.setState({deleteDiagOpen: false});
-                                this.deleteQuestion();
+                                if (this.state.toEdit) this.deleteQuestion();
                             }}
                             color='primary'
                             variant='contained'
@@ -664,6 +664,7 @@ export default class MultipleChoiceBuilder extends Component<
                     disabled={!isMultipleChoice(question.string)}
                     key={question.questionID + '-' + index}
                     button
+                    onClick={() => this.setState({toEdit: index})}
                     onMouseEnter={() => this.setState({hovered: question.questionID})}
                     onMouseLeave={() => this.setState({hovered: -1})}
                 >
@@ -807,6 +808,15 @@ export default class MultipleChoiceBuilder extends Component<
 
     submitQuestion = () => {
         if (this.state.editMode) {
+            // const question: Question = {
+            //     questionID: this.state.questionID,
+            //     name: this.state.questionName,
+            //     string: this.buildQuestionString(),
+            //     answers: 1,
+            //     total: 1,
+            //     category: ,
+            //     concepts: []]
+            // }
             Http.renameQuestion(
                 this.state.questionID,
                 this.state.questionName,
@@ -857,7 +867,7 @@ export default class MultipleChoiceBuilder extends Component<
         this.reset();
     };
 
-    deleteSuccess = (reset: boolean) => {
+    deleteSuccess = () => {
         const {selectedS, toEdit, questionID} = this.state;
         const {sets} = this.props;
         let updated = sets.slice();
@@ -866,7 +876,7 @@ export default class MultipleChoiceBuilder extends Component<
             this.props.showSnackBar('success', 'Question deleted', 2000),
         );
         // If we are deleting the currently selected question, we must refresh the view
-        if (reset)
+        if (sets[selectedS as number].questions[toEdit as number].questionID === questionID)
             this.reset();
     };
 
@@ -923,11 +933,9 @@ export default class MultipleChoiceBuilder extends Component<
     deleteQuestion = () => {
         const {selectedS, toEdit} = this.state;
         const {sets} = this.props;
-        const question: Question = sets[selectedS as number].questions[toEdit as number];
-        const reset: boolean = question.questionID === this.state.questionID;
         Http.deleteQuestion(
-            question.questionID,
-            () => this.deleteSuccess(reset),
+            sets[selectedS as number].questions[toEdit as number].questionID,
+            () => this.deleteSuccess(),
             () => this.props.showSnackBar('error', 'An error occured', 2000),
         );
     };
