@@ -22,7 +22,8 @@ const styles = {
         bottom: '3em',
         right: '20%',
         left: '20%',
-        height: '30vh',
+        width: '50%',
+        height: '45vh',
         padding: '2em 3em',
         borderRadius: '9px',
         overflow: 'auto',
@@ -65,7 +66,7 @@ export default class AVOLearnPostTestModel extends React.Component<
                         </IconButton>
                         <Typography variant={'h5'}>How well do you know the concept now?</Typography>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <div style={{ flex : 1, padding : '9px' }}>
+                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
                                 <Button
                                     variant={
                                         this.state.selectedMastery === 1 ? 'contained' : 'outlined'
@@ -75,8 +76,10 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     1
                                 </Button>
+                                <br/>
+                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Not at all</Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px' }}>
+                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
                                 <Button
                                     variant={
                                         this.state.selectedMastery === 2 ? 'contained' : 'outlined'
@@ -86,8 +89,10 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     2
                                 </Button>
+                                <br/>
+                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Somewhat</Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px' }}>
+                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
                                 <Button
                                     variant={
                                         this.state.selectedMastery === 3 ? 'contained' : 'outlined'
@@ -97,8 +102,10 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     3
                                 </Button>
+                                <br/>
+                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Mostly</Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px' }}>
+                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
                                 <Button
                                     variant={
                                         this.state.selectedMastery === 4 ? 'contained' : 'outlined'
@@ -108,8 +115,10 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     4
                                 </Button>
+                                <br/>
+                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Fairly Well</Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px' }}>
+                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
                                 <Button
                                     variant={
                                         this.state.selectedMastery === 5 ? 'contained' : 'outlined'
@@ -119,11 +128,13 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     5
                                 </Button>
+                                <br/>
+                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Very Well</Typography>
                             </div>
                         </div>
                         <Typography variant={'h5'}>How easy was it for you to learn?</Typography>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                        <div style={{ flex : 1, padding : '9px' }}>
+                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
                                 <Button
                                     variant={
                                         this.state.selectedAptitude === 1 ? 'contained' : 'outlined'
@@ -133,8 +144,10 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     1
                                 </Button>
+                                <br/>
+                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Not at all</Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px' }}>
+                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
                                 <Button
                                     variant={
                                         this.state.selectedAptitude === 2 ? 'contained' : 'outlined'
@@ -144,8 +157,10 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     2
                                 </Button>
+                                <br/>
+                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Somewhat</Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px' }}>
+                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
                                 <Button
                                     variant={
                                         this.state.selectedAptitude === 3 ? 'contained' : 'outlined'
@@ -155,8 +170,10 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     3
                                 </Button>
+                                <br/>
+                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Mostly</Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px' }}>
+                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
                                 <Button
                                     variant={
                                         this.state.selectedAptitude === 4 ? 'contained' : 'outlined'
@@ -166,8 +183,10 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     4
                                 </Button>
+                                <br/>
+                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Fairly Well</Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px' }}>
+                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
                                 <Button
                                     variant={
                                         this.state.selectedAptitude === 5 ? 'contained' : 'outlined'
@@ -177,6 +196,8 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     5
                                 </Button>
+                                <br/>
+                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Very Well</Typography>
                             </div>
                         </div>
                         <br />
