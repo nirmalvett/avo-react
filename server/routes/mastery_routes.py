@@ -66,6 +66,7 @@ def submit_question(question_id: int, seed: int, answers: List[str]):
 
     grade = 2 * q.score / sum(q.totals) - 1  # their grade ranges from -1 to 1
 
+    mastery_return = {}
     for m in mastery:
         # <magic>
         aptitude_factor = (m.aptitude_survey + 3) / 6 if m.aptitude_survey != 0 else 1
@@ -75,6 +76,7 @@ def submit_question(question_id: int, seed: int, answers: List[str]):
         # </magic>
         m.mastery_level = new_mastery
         db.session.add(MasteryHistory(m.MASTERY, new_mastery, datetime.now()))
+        mastery_return[m.CONCEPT] = new_mastery
     db.session.commit()
 
-    return jsonify(explanation=q.explanation, points=q.scores, totals=q.totals)
+    return jsonify(explanation=q.explanation, points=q.scores, totals=q.totals, mastery=mastery_return)

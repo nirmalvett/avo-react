@@ -219,16 +219,15 @@ export default class AVOLearnComponent extends Component<
         );
     };
 
-    updateMastery = (mastery: number, id: number) => {
-        console.log('Updating', id, mastery);
-        if (mastery && id) {
-            const lessons = [...this.state.lessons];
-            const index = lessons.findIndex(lesson => lesson.conceptID === id);
+    updateMastery = (mastery: {[conceptID: number]: number}) => {
+        const lessons = [...this.state.lessons];
+        for(let conceptID in mastery) {
+            const index = lessons.findIndex(lesson => lesson.conceptID === Number(conceptID));
             if (index !== -1) {
-                lessons[index] = {...lessons[index], newMastery: mastery};
-                this.setState({lessons});
+                lessons[index] = {...lessons[index], newMastery: mastery[conceptID]};
             }
         }
+        this.setState({lessons});
     };
 
     changeToNewMastery = () => {

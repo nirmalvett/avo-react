@@ -3,7 +3,6 @@ import AVOMasteryGauge from './MasteryGauge';
 import {Button, Grid, Grow, Icon, IconButton, Typography} from '@material-ui/core';
 import * as Http from '../Http';
 import {AnswerInput} from '../AnswerInput';
-import * as Helpers from '../HelperFunctions/Utilities';
 import AVOLearnTestCongrat from './AVOLearnTestCongrat';
 import {getMathJax} from '../HelperFunctions/Utilities';
 import {uniqueKey} from '../HelperFunctions/Helpers';
@@ -13,7 +12,7 @@ type TestState = 'LESSON' | 'QUESTIONS' | 'TEST_END';
 
 interface AVOLearnTestCompProps {
     lesson: AvoLesson & AvoLessonData;
-    updateMastery: (mastery: number, lessonID: number) => void;
+    updateMastery: (mastery: {[conceptID: number]: number}) => void;
     theme: {
         theme: 'light' | 'dark';
         color: {
@@ -34,7 +33,7 @@ interface AVOLearnTestCompState {
     currentExplanation: never[];
     explanationIndex: number;
     testEndState: 0 | 1;
-    explanations: string[];
+    explanations: string[][];
     changedMastery: number;
     postLessonModalDisplay: 'none' | 'block';
 }
@@ -53,7 +52,7 @@ export default class AVOLearnTestComp extends Component<
             currentExplanation: [],
             explanationIndex: 0,
             testEndState: 0,
-            explanations: this.props.lesson.data.questions.map(() => ''),
+            explanations: this.props.lesson.data.questions.map(() => ['']),
             changedMastery: this.props.lesson.mastery,
             postLessonModalDisplay: 'none',
         };
@@ -367,13 +366,7 @@ export default class AVOLearnTestComp extends Component<
                         <div>
                             <Grid container spacing={8}>
                                 <Grid item xs={8}>
-                                    <h1>
-                                        {Helpers.getMathJax(
-                                            this.state.explanations[index],
-                                            'body2',
-                                            index.toString(),
-                                        )}
-                                    </h1>
+                                    {this.state.explanations[index].map(x => getMathJax(x))}
                                 </Grid>
                                 <Grid item xs={4}>
                                     <div
@@ -479,13 +472,7 @@ export default class AVOLearnTestComp extends Component<
                     <br />
                     {(this.state.newAnswers[index] && (
                         <div>
-                            <h1>
-                                {Helpers.getMathJax(
-                                    this.state.explanations[index],
-                                    'subtitle1',
-                                    index.toString(),
-                                )}
-                            </h1>
+                            {this.state.explanations[index].map(x => getMathJax(x))}
                         </div>
                     )) ||
                         (!this.state.newAnswers[index] && (
@@ -511,13 +498,13 @@ export default class AVOLearnTestComp extends Component<
             question.ID,
             question.seed,
             [answers[index]],
-            (res: any) => {
+            res => {
                 console.log(res);
                 if (res.points[0] / res.totals[0] < 0.5) this.showModal();
                 const temp = this.state.explanations;
                 temp[index] = res.explanation;
                 this.setState({explanations: temp, changedMastery}, () =>
-                    this.props.updateMastery(res.mastery, this.props.lesson.conceptID),
+                    this.props.updateMastery(res.mastery),
                 );
             },
             err => {

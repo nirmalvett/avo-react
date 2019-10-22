@@ -19,11 +19,18 @@ export function wrongAnswerSurvey(
     _request('POST', '/wrongAnswerSurvey', success, failure, {questionID, concepts});
 }
 
+export interface SubmitQuestion {
+    explanation: string[];
+    points: number[];
+    totals: number[];
+    mastery: {[conceptID: number]: number}; // todo
+}
+
 export function submitQuestion(
     questionID: number,
     seed: number,
     answers: string[],
-    success: cb<{}>,
+    success: cb<SubmitQuestion>,
     failure: cb,
 ) {
     _request('POST', '/submitQuestion', success, failure, {questionID, seed, answers});
