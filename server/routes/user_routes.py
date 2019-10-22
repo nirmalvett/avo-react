@@ -45,7 +45,7 @@ def register(first_name: str, last_name: str, email: str, password: str):
         'Confirm your AvocadoCore Account',
         f'<html><body>Hi {user.first_name},<br/><br/>'
         f'Thanks for signing up! Please click <a href="{url}">here</a> to activate your account. If you have any '
-        f'questions or suggestions for how we can improve, please send us an email at contact@avocadocore.com.'
+        f'questions or suggestions, please send us an email at contact@avocadocore.com.'
         f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
     )
 
