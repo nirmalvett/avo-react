@@ -46,7 +46,7 @@ export default class AVOLearnTestComp extends Component<
         super(props);
         this.state = {
             questionIndex: 0,
-            newAnswers: this.props.lesson.data.questions.map(() => ''),
+            newAnswers: this.props.lesson.data.questions[0].prompts.map(() => ''),
             currentState: 'LESSON',
             questionState: 1,
             currentExplanation: [],
@@ -299,22 +299,29 @@ export default class AVOLearnTestComp extends Component<
                     }}
                 >
                     <div style={{textAlign: 'center'}}>
-                        <AnswerInput
-                            type={question.types[0]}
-                            value={this.state.newAnswers[index]}
-                            prompt={question.prompt}
-                            onChange={value => {
-                                let newAnswerList = [...this.state.newAnswers];
-                                newAnswerList[index] = value;
-                                this.setState({newAnswers: newAnswerList});
-                            }}
-                            save={value => {
-                                let newAnswerList = [...this.state.newAnswers];
-                                newAnswerList[index] = value;
-                                this.setState({newAnswers: newAnswerList});
-                                console.log(newAnswerList);
-                            }}
-                        />
+                        {getMathJax(question.prompt)}
+                        {question.prompts.map( (p, idx) => <>
+                            <br />
+                            <br />
+                            <div style={{textAlign: 'center'}}>
+                                <AnswerInput
+                                    type={question.types[idx]}
+                                    value={this.state.newAnswers[idx]}
+                                    prompt={p}
+                                    onChange={value => {
+                                        let newAnswerList = [...this.state.newAnswers];
+                                        newAnswerList[idx] = value;
+                                        this.setState({newAnswers: newAnswerList});
+                                    }}
+                                    save={value => {
+                                        let newAnswerList = [...this.state.newAnswers];
+                                        newAnswerList[idx] = value;
+                                        this.setState({newAnswers: newAnswerList});
+                                        console.log(newAnswerList);
+                                    }}
+                                />
+                            </div>
+                        </>)}
                     </div>
                     <div style={{position: 'absolute', right: '4px', bottom: '4px'}}>
                         <Button
@@ -387,7 +394,7 @@ export default class AVOLearnTestComp extends Component<
                                         onClick={() => {
                                             this.setState({
                                                 questionIndex: 0,
-                                                newAnswers: this.props.lesson.data.questions.map(
+                                                newAnswers: this.props.lesson.data.questions[0].prompts.map(
                                                     () => '',
                                                 ),
                                             });
@@ -437,18 +444,21 @@ export default class AVOLearnTestComp extends Component<
                         overflowY: 'auto',
                     }}
                 >
-                    <br />
-                    <br />
-                    <div style={{textAlign: 'center'}}>
-                        <AnswerInput
-                            type={question.types[0]}
-                            value={this.state.newAnswers[index]}
-                            prompt={question.prompt}
-                            disabled={true}
-                            onChange={() => {}}
-                            save={() => {}}
-                        />
-                    </div>
+                    {getMathJax(question.prompt)}
+                    {question.prompts.map( (p, idx) => <>
+                        <br />
+                        <br />
+                        <div style={{textAlign: 'center'}}>
+                            <AnswerInput
+                                type={question.types[idx]}
+                                value={this.state.newAnswers[idx]}
+                                prompt={p}
+                                disabled={true}
+                                onChange={() => {}}
+                                save={() => {}}
+                            />
+                        </div>
+                    </>)}
                     <br />
                     {(this.state.newAnswers[index] && (
                         <div>
@@ -476,7 +486,7 @@ export default class AVOLearnTestComp extends Component<
         Http.submitQuestion(
             question.ID,
             question.seed,
-            [answers[index]],
+            [...this.state.newAnswers],
             res => {
                 console.log(res);
                 if (res.points[0] / res.totals[0] < 0.5) this.showModal();
