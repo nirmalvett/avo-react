@@ -92,7 +92,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
     constructor(props: LayoutProps) {
         super(props);
         this.state = {
-            section: {name: 'Home'},
+            section: {name: 'Learn'},
             open: true,
             snackbar: {
                 hideDuration: 5000,

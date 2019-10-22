@@ -8,6 +8,7 @@ import {Course} from '../Http/types';
 import AVOLearnTestComp from './AVOLearnTestComp';
 import AVOLessonFSM from './AVOLessonFSM';
 import {ThemeObj} from '../Models';
+import {HashLoader} from "react-spinners";
 
 export interface AvoLesson {
     conceptID: number;
@@ -46,6 +47,7 @@ interface AVOLearnComponentState {
     postLessonModalDisplay: 'none' | 'block';
     currentLesson: AvoLesson & AvoLessonData;
     isEndTest: boolean;
+    isLoading: boolean;
 }
 
 export default class AVOLearnComponent extends Component<
@@ -63,6 +65,7 @@ export default class AVOLearnComponent extends Component<
             postLessonModalDisplay: 'none',
             currentLesson: {} as AvoLesson & AvoLessonData,
             isEndTest: false,
+            isLoading: true,
         };
     }
 
@@ -78,6 +81,21 @@ export default class AVOLearnComponent extends Component<
 
     render() {
         const lessons = this.getLessonsToShow();
+        if (this.state.isLoading){
+            return (
+                <div
+                    style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <HashLoader size={150} color={'#399103'} />
+                </div>
+            )
+        }
+
         return (
             <div
                 style={{
@@ -185,6 +203,7 @@ export default class AVOLearnComponent extends Component<
                 if (courses.length > 0) {
                     this.setState({selectedCourse: courses[0].courseID}, this.changeClass);
                 }
+                this.setState({isLoading: false})
             },
             err => {
                 console.log(err);
