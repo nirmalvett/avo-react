@@ -4,7 +4,7 @@ import Logo from '../SharedComponents/Logo';
 import MultipleChoiceBuilder from './MultipleChoiceBuilder';
 import QuestionManager from '../CourseBuilder/QuestionBuilder/QuestionManager';
 import TrueFalseBuilder from './TrueFalseBuilder';
-import {QuestionSet} from 'Http/types';
+import {QuestionSet, Course} from 'Http/types';
 import {ShowSnackBar} from 'Layout/Layout';
 
 interface QuestionBuilderHomeState {
@@ -18,6 +18,7 @@ type QuestionBuilderHomeProps = {
     sets: QuestionSet[];
     initBuilder: (s: number, q: number, sets: QuestionSet[]) => void;
     showSnackBar: ShowSnackBar;
+    courses: Course[];
     theme: 'light' | 'dark';
 };
 
@@ -46,12 +47,14 @@ export class QuestionBuilderHome extends Component<
                         s={this.props.s}
                         q={this.props.q}
                         sets={this.props.sets}
+                        courses={this.props.courses}
                     />
                 );
             case 'multiple-choice':
                 return (
                     <MultipleChoiceBuilder
                         sets={this.props.sets}
+                        courses={this.props.courses}
                         returnHome={() => this.setState({mode: 'home', isActive: true})}
                         showSnackBar={this.props.showSnackBar}
                     />
@@ -60,6 +63,7 @@ export class QuestionBuilderHome extends Component<
                 return (
                     <TrueFalseBuilder
                         sets={this.props.sets}
+                        courses={this.props.courses}
                         returnHome={() => this.setState({mode: 'home', isActive: true})}
                         showSnackBar={this.props.showSnackBar}
                     />

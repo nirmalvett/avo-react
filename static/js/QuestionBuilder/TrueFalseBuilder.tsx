@@ -21,18 +21,19 @@ import Lock from '@material-ui/icons/Lock';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Fab from '@material-ui/core/Fab';
 import {InsertDriveFile as QuestionIcon, ArrowBack, CreateNewFolder} from '@material-ui/icons/';
-import {ListItem, ListItemText, ListItemIcon, Popover} from '@material-ui/core';
+import {ListItem, ListItemText, ListItemIcon, Popover, List} from '@material-ui/core';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import {Question, QuestionSet} from 'Http/types';
+import {Question, QuestionSet, Course} from 'Http/types';
 import {ShowSnackBar} from 'Layout/Layout';
 
 export interface TrueFalseBuilderProps {
     showSnackBar: ShowSnackBar;
     sets: QuestionSet[];
+    courses: Course[];
     returnHome: () => void;
 }
 
@@ -55,10 +56,13 @@ interface TrueFalseBuilderState {
     anchorEl: null | HTMLElement;
     switchDiagOpen: boolean;
     deleteDiagOpen: boolean;
+    addDiagOpen: boolean;
     editMode: boolean;
     changed: boolean;
     nextQuestion: null | Question;
     hovered: number;
+    course: number;
+    setName: string;
 }
 
 export default class TrueFalseBuilder extends Component<
@@ -86,10 +90,13 @@ export default class TrueFalseBuilder extends Component<
             anchorEl: null,
             switchDiagOpen: false,
             deleteDiagOpen: false,
+            addDiagOpen: false,
             editMode: false,
             changed: false,
             nextQuestion: null, // Used to store a selected question that hasn't been loaded
             hovered: -1, // The ID of the current question being hovered
+            course: 0,
+            setName: '',
         };
     }
 
@@ -141,7 +148,7 @@ export default class TrueFalseBuilder extends Component<
                                     <IconButton
                                         size='small'
                                         edge='end'
-                                        onClick={() => this.newSet()}
+                                        onClick={() => this.setState({addDiagOpen: true})}
                                     >
                                         <CreateNewFolder />
                                     </IconButton>
@@ -446,6 +453,51 @@ export default class TrueFalseBuilder extends Component<
                         </Button>
                     </DialogActions>
                 </Dialog>
+                <Dialog
+                    onClose={() => this.setState({addDiagOpen: false})}
+                    aria-labelledby='select-course-dialog'
+                    open={this.state.addDiagOpen}
+                >
+                    <DialogTitle id='select-course-dialog'>
+                        Select the course for the set
+                    </DialogTitle>
+                    <List>
+                        {this.props.courses.map(course => (
+                            <ListItem
+                                button
+                                onClick={() => this.setState({course: course.courseID})}
+                                key={course.courseID}
+                                selected={course.courseID === this.state.course}
+                            >
+                                <ListItemText primary={course.name} />
+                            </ListItem>
+                        ))}
+                        <ListItem>
+                            <form noValidate autoComplete='off'>
+                                <TextField
+                                    required
+                                    id='set-name'
+                                    label='Set Name'
+                                    margin='normal'
+                                    onChange={(event: any) =>
+                                        this.setState({setName: event.target.value})
+                                    }
+                                />
+                            </form>
+                        </ListItem>
+                        <ListItem>
+                            <Button color='primary' onClick={() => this.newSet()}>
+                                Add Set
+                            </Button>
+                            <Button
+                                color='primary'
+                                onClick={() => this.setState({addDiagOpen: false})}
+                            >
+                                Cancel
+                            </Button>
+                        </ListItem>
+                    </List>
+                </Dialog>
             </Grid>
         );
     }
@@ -591,10 +643,13 @@ export default class TrueFalseBuilder extends Component<
     };
 
     newSet = () => {
-        let name: string | null = prompt('Set name:', '');
-        if (name !== '' && name !== null)
-            // todo: fix courses
-            Http.newSet(1, name, () => this.refreshSets(), result => alert(result));
+        Http.newSet(
+            this.state.course,
+            this.state.setName,
+            () => this.refreshSets(),
+            result => alert(result),
+        );
+        this.setState({addDiagOpen: false, setName: ''});
     };
 
     deleteSet = (index: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

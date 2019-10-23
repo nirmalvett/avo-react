@@ -36,13 +36,15 @@ import {
     Slide,
     TextField,
     Typography,
+    List,
 } from '@material-ui/core';
-import {QuestionSet, Question} from '../Http/types';
+import {QuestionSet, Question, Course} from '../Http/types';
 import {ShowSnackBar} from '../Layout/Layout';
 
 export interface MultipleChoiceBuilderProps {
     showSnackBar: ShowSnackBar;
     sets: QuestionSet[];
+    courses: Course[];
     returnHome: () => void;
 }
 
@@ -67,10 +69,13 @@ interface MultipleChoiceBuilderState {
     anchorEl: null | HTMLElement;
     switchDiagOpen: boolean;
     deleteDiagOpen: boolean;
+    addDiagOpen: boolean;
     editMode: boolean;
     changed: boolean;
     nextQuestion: null | Question;
     hovered: number;
+    course: number;
+    setName: string;
 }
 
 export default class MultipleChoiceBuilder extends Component<
@@ -100,10 +105,13 @@ export default class MultipleChoiceBuilder extends Component<
             anchorEl: null,
             switchDiagOpen: false,
             deleteDiagOpen: false,
+            addDiagOpen: false,
             editMode: false,
             changed: false,
             nextQuestion: null, // Used to store a selected question that hasn't been loaded
             hovered: -1, // The ID of the current question being hovered
+            course: 0, // The courseID for sets to be added to
+            setName: '', // The name for a new set
         };
     }
 
@@ -155,7 +163,7 @@ export default class MultipleChoiceBuilder extends Component<
                                     <IconButton
                                         size='small'
                                         edge='end'
-                                        onClick={() => this.newSet()}
+                                        onClick={() => this.setState({addDiagOpen: true})}
                                     >
                                         <CreateNewFolder />
                                     </IconButton>
@@ -563,6 +571,52 @@ export default class MultipleChoiceBuilder extends Component<
                         </Button>
                     </DialogActions>
                 </Dialog>
+                <Dialog
+                    onClose={() => this.setState({addDiagOpen: false})}
+                    aria-labelledby='select-course-dialog'
+                    open={this.state.addDiagOpen}
+                >
+                    <DialogTitle id='select-course-dialog'>
+                        Select the course for the set
+                    </DialogTitle>
+                    <List>
+                        {this.props.courses.map(course => (
+                            <ListItem
+                                button
+                                onClick={() => this.setState({course: course.courseID})}
+                                key={course.courseID}
+                                selected={course.courseID === this.state.course}
+                            >
+                                <ListItemText primary={course.name} />
+                            </ListItem>
+                        ))}
+                        <ListItem>
+                            <form noValidate autoComplete='off'>
+                                <TextField
+                                    required
+                                    id='set-name'
+                                    label='Set Name'
+                                    margin='normal'
+                                    onChange={(event: any) =>
+                                        this.setState({setName: event.target.value})
+                                    }
+                                />
+                            </form>
+                        </ListItem>
+                        <ListItem>
+                            <Button color='primary' onClick={() => this.newSet()}>
+                                Add Set
+                            </Button>
+                            <Button
+                                color='primary'
+                                onClick={() => this.setState({addDiagOpen: false})}
+                            >
+                                Cancel
+                            </Button>
+                        </ListItem>
+                    </List>
+                </Dialog>
+                );
             </Grid>
         );
     }
@@ -711,10 +765,13 @@ export default class MultipleChoiceBuilder extends Component<
     };
 
     newSet = () => {
-        let name: string | null = prompt('Set name:', '');
-        if (name !== '' && name !== null)
-            // todo: fix courses
-            Http.newSet(1, name, () => this.refreshSets(), result => alert(result));
+        Http.newSet(
+            this.state.course,
+            this.state.setName,
+            () => this.refreshSets(),
+            result => alert(result),
+        );
+        this.setState({addDiagOpen: false, setName: ''});
     };
 
     deleteSet = (index: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

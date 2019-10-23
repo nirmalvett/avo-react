@@ -269,6 +269,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     q={section.q}
                     sets={section.sets}
                     theme={this.props.theme}
+                    courses={this.state.courses}
                 />
             );
         } else if (section.name === 'Notify Class') {

@@ -7,6 +7,10 @@ import {
     IconButton,
     ListItemText,
     ListItemIcon,
+    Button,
+    Dialog,
+    TextField,
+    DialogTitle,
 } from '@material-ui/core';
 import {
     Add,
@@ -28,12 +32,13 @@ import {uniqueKey} from '../../HelperFunctions/Helpers';
 import {getMathJax} from '../../HelperFunctions/Utilities';
 import {AnswerInput} from '../../AnswerInput';
 import {ShowSnackBar} from '../../Layout/Layout';
-import {QuestionSet} from '../../Http/types';
+import {QuestionSet, Course} from '../../Http/types';
 
 export interface QuestionManagerProps {
     s: number | null;
     q: number | null;
     sets: QuestionSet[];
+    courses: Course[];
     initBuilder: (s: number, q: number, sets: QuestionSet[]) => void;
     showSnackBar: ShowSnackBar;
     returnHome: () => void;
@@ -51,6 +56,9 @@ export interface QuestionManagerState {
         explanation: string[];
         variables: {[variable: string]: string};
     };
+    addDiagOpen: boolean;
+    course: number;
+    setName: string;
 }
 
 export default class QuestionManager extends Component<QuestionManagerProps, QuestionManagerState> {
@@ -68,6 +76,9 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                 explanation: [],
                 variables: {},
             },
+            addDiagOpen: false,
+            course: 0,
+            setName: '',
         };
         if (this.props.sets.length === 0) {
             this.getSets();
@@ -108,7 +119,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                             >
                                 <ArrowBack />
                             </IconButton>
-                            <IconButton onClick={() => this.newSet()}>
+                            <IconButton onClick={() => this.setState({addDiagOpen: true})}>
                                 <CreateNewFolder />
                             </IconButton>
                             <IconButton disabled={!canEdit} onClick={() => this.renameSet()}>
@@ -242,6 +253,51 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                         {this.renderQuestionPreview()}
                     </Paper>
                 </div>
+                <Dialog
+                    onClose={() => this.setState({addDiagOpen: false})}
+                    aria-labelledby='select-course-dialog'
+                    open={this.state.addDiagOpen}
+                >
+                    <DialogTitle id='select-course-dialog'>
+                        Select the course for the set
+                    </DialogTitle>
+                    <List>
+                        {this.props.courses.map(course => (
+                            <ListItem
+                                button
+                                onClick={() => this.setState({course: course.courseID})}
+                                key={course.courseID}
+                                selected={course.courseID === this.state.course}
+                            >
+                                <ListItemText primary={course.name} />
+                            </ListItem>
+                        ))}
+                        <ListItem>
+                            <form noValidate autoComplete='off'>
+                                <TextField
+                                    required
+                                    id='set-name'
+                                    label='Set Name'
+                                    margin='normal'
+                                    onChange={(event: any) =>
+                                        this.setState({setName: event.target.value})
+                                    }
+                                />
+                            </form>
+                        </ListItem>
+                        <ListItem>
+                            <Button color='primary' onClick={() => this.newSet()}>
+                                Add Set
+                            </Button>
+                            <Button
+                                color='primary'
+                                onClick={() => this.setState({addDiagOpen: false})}
+                            >
+                                Cancel
+                            </Button>
+                        </ListItem>
+                    </List>
+                </Dialog>
             </div>
         );
     }
@@ -316,12 +372,15 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
         );
     }
 
-    newSet() {
-        let name = prompt('Set name:', '');
-        if (name !== '' && name !== null)
-            // todo: choose course to add
-            Http.newSet(1, name, () => this.getSets(), result => alert(result));
-    }
+    newSet = () => {
+        Http.newSet(
+            this.state.course,
+            this.state.setName,
+            () => this.getSets(),
+            result => alert(result),
+        );
+        this.setState({addDiagOpen: false, setName: ''});
+    };
 
     renameSet() {
         let set = this.state.sets[this.state.selectedS as number];
