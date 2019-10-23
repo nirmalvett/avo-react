@@ -285,11 +285,13 @@ export default class AVOLearnComponent extends Component<
         Http.getNextQuestion(
             lesson.conceptID,
             res => {
-                console.log(res);
                 this.setState({currentLesson: {...lesson, data: {questions: [res]}}});
                 this.state.fsmRef.current.handleFSM(lesson);
             },
-            console.warn,
+            () => {
+                this.setState({currentLesson: {...lesson,}});
+                this.state.fsmRef.current.handleFSM(lesson);
+            },
         );
     };
 

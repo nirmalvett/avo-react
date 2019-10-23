@@ -46,21 +46,19 @@ export default class AVOLearnTestComp extends Component<
         super(props);
         this.state = {
             questionIndex: 0,
-            newAnswers: this.props.lesson.data.questions[0].prompts.map(() => ''),
+            newAnswers: !!this.props.lesson.data ? this.props.lesson.data.questions[0].prompts.map(() => '') : [],
             currentState: 'LESSON',
             questionState: 1,
             currentExplanation: [],
             explanationIndex: 0,
             testEndState: 0,
-            explanations: this.props.lesson.data.questions.map(() => ['']),
+            explanations: !!this.props.lesson.data ? this.props.lesson.data.questions.map(() => ['']) : [],
             changedMastery: this.props.lesson.mastery,
             postLessonModalDisplay: 'none',
         };
-        console.log(this);
     }
 
     render() {
-        console.log(this.props.lesson.mastery);
         return (
             <div style={{width: '100%', position: 'relative'}}>
                 <AVOLearnIncorrectAnswerModal
@@ -99,6 +97,7 @@ export default class AVOLearnTestComp extends Component<
                             <Button
                                 variant='outlined'
                                 color='primary'
+                                disabled={!(!!this.props.lesson.data)}
                                 onClick={() => this.setState({currentState: 'QUESTIONS'})}
                                 style={{float: 'right'}}
                             >
