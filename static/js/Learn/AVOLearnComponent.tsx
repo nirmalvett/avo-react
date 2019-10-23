@@ -9,6 +9,7 @@ import AVOLearnTestComp from './AVOLearnTestComp';
 import AVOLessonFSM from './AVOLessonFSM';
 import {ThemeObj} from '../Models';
 import {HashLoader} from "react-spinners";
+import {sortFunc} from "../HelperFunctions/Utilities";
 
 export interface AvoLesson {
     conceptID: number;
@@ -76,7 +77,7 @@ export default class AVOLearnComponent extends Component<
             lessons = lessons.filter(lesson => words.every(word => lesson.name.includes(word)));
         }
         const isCompleted = this.state.otherView === 'Completed';
-        return lessons.filter(lesson => isCompleted === lesson.mastery >= 0.85);
+        return lessons.filter(lesson => isCompleted === lesson.mastery >= 0.85).sort(sortFunc(x => -x.preparation));
     }
 
     render() {
