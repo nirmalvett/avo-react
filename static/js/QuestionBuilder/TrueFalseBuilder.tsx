@@ -729,8 +729,7 @@ export default class TrueFalseBuilder extends Component<
             this.props.showSnackBar('success', 'Question deleted', 2000),
         );
         // If we are deleting the currently selected question, we must refresh the view
-        if (reset)
-            this.reset();
+        if (reset) this.reset();
     };
 
     switchQuestion = (questionIndex: number) => {
@@ -750,8 +749,7 @@ export default class TrueFalseBuilder extends Component<
         if (index === null || index === undefined)
             question = sets[selectedS as number].questions[toEdit as number];
         // Used when immediately switching to the next question
-        else
-            question = sets[selectedS as number].questions[index];
+        else question = sets[selectedS as number].questions[index];
         if (!isTrueFalse(question.string)) {
             this.props.showSnackBar(
                 'error',
