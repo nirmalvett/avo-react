@@ -111,33 +111,15 @@ export default class AVOLearnTestComp extends Component<
                     <Grow in={true} timeout={{enter: 1000}}>
                         <Grid container spacing={8}>
                             <Grid item xs={1}>
-                                <div style={{textAlign: 'center'}}>
-                                    <IconButton
-                                        aria-label='chevron_left'
-                                        onClick={this.goToPreviousSlide}
-                                        color='primary'
-                                        style={{marginTop: '25vh'}}
-                                    >
-                                        <Icon>chevron_left</Icon>
-                                    </IconButton>
-                                </div>
+                                
                             </Grid>
                             <Grid item xs={10} style={{position: 'relative'}}>
                                 {this.getQuestionsAndExplanations()}
                             </Grid>
                             <Grid item xs={1}>
-                                <div style={{textAlign: 'center'}}>
-                                    <IconButton
-                                        aria-label='chevron_right'
-                                        onClick={this.goToNextSlide}
-                                        color='primary'
-                                        style={{marginTop: '25vh'}}
-                                    >
-                                        <Icon>chevron_right</Icon>
-                                    </IconButton>
-                                </div>
+                                
                             </Grid>
-                            <div style={{position: 'absolute', left: '0.25em', top: '0.25em'}}>
+                            <div style={{position: 'absolute', left: '4px', top: '4px'}}>
                                 <Button
                                     onClick={() => this.setState({currentState: 'LESSON'})}
                                     variant='outlined'
@@ -179,22 +161,11 @@ export default class AVOLearnTestComp extends Component<
                                 <Grid item xs={8}>
                                     <Typography variant={'h6'}>{this.props.lesson.name}</Typography>
                                     <Grid container spacing={8}>
-                                        <Grid item xs={2}>
-                                            <div style={{textAlign: 'center'}}>
-                                                <IconButton
-                                                    aria-label='chevron_left'
-                                                    onClick={this.goToPreviousExplanationSlide}
-                                                    color='primary'
-                                                    style={{marginTop: '25vh'}}
-                                                >
-                                                    <Icon>chevron_left</Icon>
-                                                </IconButton>
-                                            </div>
-                                        </Grid>
-                                        <Grid item xs={8} style={{position: 'relative'}}>
+                                       
+                                        <Grid item xs={12} style={{position: 'relative'}}>
                                             {this.getTestEndExplanationRenderable()}
                                         </Grid>
-                                        <Grid item xs={2}>
+                                        {/* <Grid item xs={2}>
                                             <div style={{textAlign: 'center'}}>
                                                 <IconButton
                                                     aria-label='chevron_right'
@@ -205,7 +176,7 @@ export default class AVOLearnTestComp extends Component<
                                                     <Icon>chevron_right</Icon>
                                                 </IconButton>
                                             </div>
-                                        </Grid>
+                                        </Grid> */}
                                     </Grid>
                                 </Grid>
                                 <Grid item xs={4}>
@@ -344,6 +315,15 @@ export default class AVOLearnTestComp extends Component<
                                 console.log(newAnswerList);
                             }}
                         />
+                    </div>
+                    <div style={{position: 'absolute', right: '4px', bottom: '4px'}}>
+                        <Button
+                            onClick={this.goToNextSlide}
+                            variant='outlined'
+                            color='primary'
+                        >
+                            Submit Answer
+                        </Button>
                     </div>
                 </div>,
             );
