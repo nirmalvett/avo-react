@@ -44,10 +44,11 @@ export default class AVOLessonFSM extends Component<AVOLessonFSMProps, AVOLesson
                     position: 'absolute',
                     opacity: 0,
                     zIndex: 99,
+                    display: 'flex',
                 }}
                 className='avo-card'
             >
-                <div id='FSM-inner__content-div' style={{transition: 'opacity 0.3s'}}>
+                <div id='FSM-inner__content-div' style={{transition: 'opacity 0.3s', display: 'flex', flexDirection: 'row', flex: 1}}>
                     {this.state.activeLesson && (
                         <Fade in={!!this.state.activeLesson} timeout={{enter: 500}}>
                             <Grid
@@ -60,6 +61,7 @@ export default class AVOLessonFSM extends Component<AVOLessonFSMProps, AVOLesson
                                     padding: '1em',
                                     width: '98% !important',
                                     flex: 1,
+                                    overflowY: 'auto',
                                 }}
                             >
                                 {this.props.children}

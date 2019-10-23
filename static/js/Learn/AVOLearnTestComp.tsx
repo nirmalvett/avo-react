@@ -60,7 +60,7 @@ export default class AVOLearnTestComp extends Component<
 
     render() {
         return (
-            <div style={{width: '100%', position: 'relative'}}>
+            <div style={{width: '95%', position: 'relative'}}>
                 <AVOLearnIncorrectAnswerModal
                     hideModal={() => this.setState({postLessonModalDisplay: 'none'})}
                     modalDisplay={this.state.postLessonModalDisplay}
