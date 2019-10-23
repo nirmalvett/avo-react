@@ -153,7 +153,7 @@ export default class AVOLearnComponent extends Component<
                                 })
                             }
                         >
-                            View {this.state.otherView}
+                            View {this.state.otherView === 'To Do' ? 'Completed' : 'To Do'}
                         </Button>
                         <TextField
                             id='filter-input'
