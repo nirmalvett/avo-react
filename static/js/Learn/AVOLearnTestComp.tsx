@@ -493,7 +493,6 @@ export default class AVOLearnTestComp extends Component<
         console.log(answers);
         console.log(question);
         console.log(this.props.lesson);
-        const {changedMastery} = this.state;
         Http.submitQuestion(
             question.ID,
             question.seed,
@@ -503,6 +502,7 @@ export default class AVOLearnTestComp extends Component<
                 if (res.points[0] / res.totals[0] < 0.5) this.showModal();
                 const temp = this.state.explanations;
                 temp[index] = res.explanation;
+                const changedMastery = res.mastery[this.props.lesson.conceptID] || 0
                 this.setState({explanations: temp, changedMastery}, () =>
                     this.props.updateMastery(res.mastery),
                 );
