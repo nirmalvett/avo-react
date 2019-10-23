@@ -290,7 +290,8 @@ export default class AVOLearnComponent extends Component<
                 this.state.fsmRef.current.handleFSM(lesson);
             },
             () => {
-                this.setState({currentLesson: {...lesson,}});
+                // @ts-ignore todo
+                this.setState({currentLesson: lesson});
                 this.state.fsmRef.current.handleFSM(lesson);
             },
         );
