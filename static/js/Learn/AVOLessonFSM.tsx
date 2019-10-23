@@ -4,6 +4,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Fade from '@material-ui/core/Fade';
 import {FullscreenExit} from '@material-ui/icons';
 import {AvoLesson} from './AVOLearnComponent';
+import { Paper } from '@material-ui/core';
 
 interface AVOLessonFSMProps {
     changeToNewMastery: () => void;
@@ -33,12 +34,11 @@ export default class AVOLessonFSM extends Component<AVOLessonFSMProps, AVOLesson
 
     render() {
         return (
-            <div
+            <Paper
                 id='avo-lesson__expanded-card'
                 style={{
                     pointerEvents: 'none',
                     transition: 'transform 500ms ease-out, opacity, 500ms ease-out',
-                    background: 'white',
                     maxHeight: 'none',
                     overflowY: 'hidden',
                     position: 'absolute',
@@ -79,7 +79,7 @@ export default class AVOLessonFSM extends Component<AVOLessonFSMProps, AVOLesson
                         </Fade>
                     )}
                 </div>
-            </div>
+            </Paper>
         );
     }
 

@@ -200,7 +200,7 @@ export default class AVOLearnTestComp extends Component<
                                             )}
                                             theme={this.props.theme}
                                         />
-                                        <Typography variant={'subtitle2'}>
+                                        <Typography variant={'body2'}>
                                             Mastery of {this.props.lesson.name} changed by{' '}
                                             {(
                                                 (this.state.changedMastery -

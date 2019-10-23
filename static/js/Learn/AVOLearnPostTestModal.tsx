@@ -171,7 +171,7 @@ export default class AVOLearnPostTestModel extends React.Component<
                                     3
                                 </Button>
                                 <br/>
-                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Mostly</Typography>
+                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>I got most of it</Typography>
                             </div>
                             <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
                                 <Button
@@ -184,7 +184,7 @@ export default class AVOLearnPostTestModel extends React.Component<
                                     4
                                 </Button>
                                 <br/>
-                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Fairly Well</Typography>
+                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Fairly Easy</Typography>
                             </div>
                             <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
                                 <Button
@@ -197,7 +197,7 @@ export default class AVOLearnPostTestModel extends React.Component<
                                     5
                                 </Button>
                                 <br/>
-                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Very Well</Typography>
+                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Very Easy</Typography>
                             </div>
                         </div>
                         <br />
