@@ -292,13 +292,13 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             wait: 1000,
             immediate: false,
         });
-        if(!this.state.loadingClasses && !this.state.classNames.length) {            
+        if (!this.state.loadingClasses && !this.state.classNames.length) {
             return (
                 <div>
-                    <br/>
-                    <br/>
-                    <Typography variant={'body1'} style={{ textAlign : 'center' }}>
-                        You currently have no courses. 
+                    <br />
+                    <br />
+                    <Typography variant={'body1'} style={{textAlign: 'center'}}>
+                        You currently have no courses.
                     </Typography>
                 </div>
             );
@@ -329,10 +329,15 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             <IconButton
                                 onClick={() =>
                                     this.setState({isEditingLesson: false}, () => {
-                                        const string_copy:string = (' ' + this.state.lessonText).slice(1);
+                                        const string_copy: string = (
+                                            ' ' + this.state.lessonText
+                                        ).slice(1);
                                         setTimeout(() => {
                                             this.gotoSelectedNode(this.state.selectedConcept);
-                                            setTimeout(() => this.setState({ lessonText : string_copy }), 200);
+                                            setTimeout(
+                                                () => this.setState({lessonText: string_copy}),
+                                                200,
+                                            );
                                         }, 400);
                                     })
                                 }

@@ -46,13 +46,17 @@ export default class AVOLearnTestComp extends Component<
         super(props);
         this.state = {
             questionIndex: 0,
-            newAnswers: !!this.props.lesson.data ? this.props.lesson.data.questions[0].prompts.map(() => '') : [],
+            newAnswers: !!this.props.lesson.data
+                ? this.props.lesson.data.questions[0].prompts.map(() => '')
+                : [],
             currentState: 'LESSON',
             questionState: 1,
             currentExplanation: [],
             explanationIndex: 0,
             testEndState: 0,
-            explanations: !!this.props.lesson.data ? this.props.lesson.data.questions.map(() => ['']) : [],
+            explanations: !!this.props.lesson.data
+                ? this.props.lesson.data.questions.map(() => [''])
+                : [],
             changedMastery: this.props.lesson.mastery,
             postLessonModalDisplay: 'none',
         };
@@ -97,7 +101,7 @@ export default class AVOLearnTestComp extends Component<
                             <Button
                                 variant='outlined'
                                 color='primary'
-                                disabled={!(!!this.props.lesson.data)}
+                                disabled={!!!this.props.lesson.data}
                                 onClick={() => this.setState({currentState: 'QUESTIONS'})}
                                 style={{float: 'right'}}
                             >
@@ -109,15 +113,11 @@ export default class AVOLearnTestComp extends Component<
                 {this.state.currentState === 'QUESTIONS' && (
                     <Grow in={true} timeout={{enter: 1000}}>
                         <Grid container spacing={8}>
-                            <Grid item xs={1}>
-                                
-                            </Grid>
+                            <Grid item xs={1}></Grid>
                             <Grid item xs={10} style={{position: 'relative'}}>
                                 {this.getQuestionsAndExplanations()}
                             </Grid>
-                            <Grid item xs={1}>
-                                
-                            </Grid>
+                            <Grid item xs={1}></Grid>
                             <div style={{position: 'absolute', left: '4px', top: '4px'}}>
                                 <Button
                                     onClick={() => this.setState({currentState: 'LESSON'})}
@@ -160,7 +160,6 @@ export default class AVOLearnTestComp extends Component<
                                 <Grid item xs={8}>
                                     <Typography variant={'h6'}>{this.props.lesson.name}</Typography>
                                     <Grid container spacing={8}>
-                                       
                                         <Grid item xs={12} style={{position: 'relative'}}>
                                             {this.getTestEndExplanationRenderable()}
                                         </Grid>
@@ -299,35 +298,33 @@ export default class AVOLearnTestComp extends Component<
                 >
                     <div style={{textAlign: 'center'}}>
                         {getMathJax(question.prompt)}
-                        {question.prompts.map( (p, idx) => <>
-                            <br />
-                            <br />
-                            <div style={{textAlign: 'center'}}>
-                                <AnswerInput
-                                    type={question.types[idx]}
-                                    value={this.state.newAnswers[idx]}
-                                    prompt={p}
-                                    onChange={value => {
-                                        let newAnswerList = [...this.state.newAnswers];
-                                        newAnswerList[idx] = value;
-                                        this.setState({newAnswers: newAnswerList});
-                                    }}
-                                    save={value => {
-                                        let newAnswerList = [...this.state.newAnswers];
-                                        newAnswerList[idx] = value;
-                                        this.setState({newAnswers: newAnswerList});
-                                        console.log(newAnswerList);
-                                    }}
-                                />
-                            </div>
-                        </>)}
+                        {question.prompts.map((p, idx) => (
+                            <>
+                                <br />
+                                <br />
+                                <div style={{textAlign: 'center'}}>
+                                    <AnswerInput
+                                        type={question.types[idx]}
+                                        value={this.state.newAnswers[idx]}
+                                        prompt={p}
+                                        onChange={value => {
+                                            let newAnswerList = [...this.state.newAnswers];
+                                            newAnswerList[idx] = value;
+                                            this.setState({newAnswers: newAnswerList});
+                                        }}
+                                        save={value => {
+                                            let newAnswerList = [...this.state.newAnswers];
+                                            newAnswerList[idx] = value;
+                                            this.setState({newAnswers: newAnswerList});
+                                            console.log(newAnswerList);
+                                        }}
+                                    />
+                                </div>
+                            </>
+                        ))}
                     </div>
                     <div style={{position: 'absolute', right: '4px', bottom: '4px'}}>
-                        <Button
-                            onClick={this.goToNextSlide}
-                            variant='outlined'
-                            color='primary'
-                        >
+                        <Button onClick={this.goToNextSlide} variant='outlined' color='primary'>
                             Submit Answer
                         </Button>
                     </div>
@@ -444,25 +441,25 @@ export default class AVOLearnTestComp extends Component<
                     }}
                 >
                     {getMathJax(question.prompt)}
-                    {question.prompts.map( (p, idx) => <>
-                        <br />
-                        <br />
-                        <div style={{textAlign: 'center'}}>
-                            <AnswerInput
-                                type={question.types[idx]}
-                                value={this.state.newAnswers[idx]}
-                                prompt={p}
-                                disabled={true}
-                                onChange={() => {}}
-                                save={() => {}}
-                            />
-                        </div>
-                    </>)}
+                    {question.prompts.map((p, idx) => (
+                        <>
+                            <br />
+                            <br />
+                            <div style={{textAlign: 'center'}}>
+                                <AnswerInput
+                                    type={question.types[idx]}
+                                    value={this.state.newAnswers[idx]}
+                                    prompt={p}
+                                    disabled={true}
+                                    onChange={() => {}}
+                                    save={() => {}}
+                                />
+                            </div>
+                        </>
+                    ))}
                     <br />
                     {(this.state.newAnswers[index] && (
-                        <div>
-                            {this.state.explanations[index].map(x => getMathJax(x))}
-                        </div>
+                        <div>{this.state.explanations[index].map(x => getMathJax(x))}</div>
                     )) ||
                         (!this.state.newAnswers[index] && (
                             <div>
@@ -491,7 +488,7 @@ export default class AVOLearnTestComp extends Component<
                 if (res.points[0] / res.totals[0] < 0.5) this.showModal();
                 const temp = this.state.explanations;
                 temp[index] = res.explanation;
-                const changedMastery = res.mastery[this.props.lesson.conceptID] || 0
+                const changedMastery = res.mastery[this.props.lesson.conceptID] || 0;
                 this.setState({explanations: temp, changedMastery}, () =>
                     this.props.updateMastery(res.mastery),
                 );

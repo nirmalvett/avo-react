@@ -4,7 +4,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Fade from '@material-ui/core/Fade';
 import {FullscreenExit} from '@material-ui/icons';
 import {AvoLesson} from './AVOLearnComponent';
-import { Paper } from '@material-ui/core';
+import {Paper} from '@material-ui/core';
 
 interface AVOLessonFSMProps {
     changeToNewMastery: () => void;
@@ -48,7 +48,15 @@ export default class AVOLessonFSM extends Component<AVOLessonFSMProps, AVOLesson
                 }}
                 className='avo-card'
             >
-                <div id='FSM-inner__content-div' style={{transition: 'opacity 0.3s', display: 'flex', flexDirection: 'row', flex: 1}}>
+                <div
+                    id='FSM-inner__content-div'
+                    style={{
+                        transition: 'opacity 0.3s',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        flex: 1,
+                    }}
+                >
                     {this.state.activeLesson && (
                         <Fade in={!!this.state.activeLesson} timeout={{enter: 500}}>
                             <Grid

@@ -374,11 +374,9 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
         );
     };
 
-
     getFilteredSections = () => {
-        return this.props.sections.filter(section => section.role === 'teacher')
-    }
-
+        return this.props.sections.filter(section => section.role === 'teacher');
+    };
 
     highlight = (e: DragEvent<HTMLDivElement>) => {
         e.preventDefault();

@@ -8,8 +8,8 @@ import {Course} from '../Http/types';
 import AVOLearnTestComp from './AVOLearnTestComp';
 import AVOLessonFSM from './AVOLessonFSM';
 import {ThemeObj} from '../Models';
-import {HashLoader} from "react-spinners";
-import {sortFunc} from "../HelperFunctions/Utilities";
+import {HashLoader} from 'react-spinners';
+import {sortFunc} from '../HelperFunctions/Utilities';
 
 export interface AvoLesson {
     conceptID: number;
@@ -77,12 +77,14 @@ export default class AVOLearnComponent extends Component<
             lessons = lessons.filter(lesson => words.every(word => lesson.name.includes(word)));
         }
         const isCompleted = this.state.otherView === 'Completed';
-        return lessons.filter(lesson => isCompleted === lesson.mastery >= 0.85).sort(sortFunc(x => -x.preparation));
+        return lessons
+            .filter(lesson => isCompleted === lesson.mastery >= 0.85)
+            .sort(sortFunc(x => -x.preparation));
     }
 
     render() {
         const lessons = this.getLessonsToShow();
-        if (this.state.isLoading){
+        if (this.state.isLoading) {
             return (
                 <div
                     style={{
@@ -94,7 +96,7 @@ export default class AVOLearnComponent extends Component<
                 >
                     <HashLoader size={150} color={'#399103'} />
                 </div>
-            )
+            );
         }
 
         return (
@@ -204,7 +206,7 @@ export default class AVOLearnComponent extends Component<
                 if (courses.length > 0) {
                     this.setState({selectedCourse: courses[0].courseID}, this.changeClass);
                 }
-                this.setState({isLoading: false})
+                this.setState({isLoading: false});
             },
             err => {
                 console.log(err);
@@ -212,8 +214,11 @@ export default class AVOLearnComponent extends Component<
         );
     }
     componentDidUpdate(preProps: AVOLearnComponentProps, prevState: AVOLearnComponentState) {
-        if (preProps.courses !== this.props.courses){
-            if (this.props.courses.length > 0) this.setState({selectedCourse: this.props.courses[0].courseID}, ()=>this.changeClass())
+        if (preProps.courses !== this.props.courses) {
+            if (this.props.courses.length > 0)
+                this.setState({selectedCourse: this.props.courses[0].courseID}, () =>
+                    this.changeClass(),
+                );
         }
     }
 
@@ -246,7 +251,7 @@ export default class AVOLearnComponent extends Component<
 
     updateMastery = (mastery: {[conceptID: number]: number}) => {
         const lessons = [...this.state.lessons];
-        for(let conceptID in mastery) {
+        for (let conceptID in mastery) {
             const index = lessons.findIndex(lesson => lesson.conceptID === Number(conceptID));
             if (index !== -1) {
                 lessons[index] = {...lessons[index], newMastery: mastery[conceptID]};

@@ -2,9 +2,7 @@ import React from 'react';
 import * as Http from '../Http';
 import {AvoLesson} from './AVOLearnComponent';
 import {Button, Paper, IconButton, Typography} from '@material-ui/core';
-import {
-    Close
-} from '@material-ui/icons';
+import {Close} from '@material-ui/icons';
 
 const styles = {
     modalBackdrop: {
@@ -56,17 +54,26 @@ export default class AVOLearnPostTestModel extends React.Component<
                     id='avo_learn_post_lesson_modal'
                 >
                     <div style={styles.modalBackdrop} />
-                    <Paper style={styles.modalBody} className="avo-card">
+                    <Paper style={styles.modalBody} className='avo-card'>
                         <IconButton
                             onClick={this.props.hideModal}
-                            style={{ position : 'absolute', top : '9px', right : '9px' }}
+                            style={{position: 'absolute', top: '9px', right: '9px'}}
                             id='post_test_close'
                         >
-                            <Close/>
+                            <Close />
                         </IconButton>
-                        <Typography variant={'h5'}>How well do you know the concept now?</Typography>
+                        <Typography variant={'h5'}>
+                            How well do you know the concept now?
+                        </Typography>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
+                            <div
+                                style={{
+                                    flex: 1,
+                                    padding: '9px',
+                                    margin: '0% 4%',
+                                    borderRadius: '2.5em',
+                                }}
+                            >
                                 <Button
                                     variant={
                                         this.state.selectedMastery === 1 ? 'contained' : 'outlined'
@@ -76,10 +83,19 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     1
                                 </Button>
-                                <br/>
-                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Not at all</Typography>
+                                <br />
+                                <Typography variant={'body2'} style={{textAlign: 'center'}}>
+                                    Not at all
+                                </Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
+                            <div
+                                style={{
+                                    flex: 1,
+                                    padding: '9px',
+                                    margin: '0% 4%',
+                                    borderRadius: '2.5em',
+                                }}
+                            >
                                 <Button
                                     variant={
                                         this.state.selectedMastery === 2 ? 'contained' : 'outlined'
@@ -89,10 +105,19 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     2
                                 </Button>
-                                <br/>
-                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Somewhat</Typography>
+                                <br />
+                                <Typography variant={'body2'} style={{textAlign: 'center'}}>
+                                    Somewhat
+                                </Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
+                            <div
+                                style={{
+                                    flex: 1,
+                                    padding: '9px',
+                                    margin: '0% 4%',
+                                    borderRadius: '2.5em',
+                                }}
+                            >
                                 <Button
                                     variant={
                                         this.state.selectedMastery === 3 ? 'contained' : 'outlined'
@@ -102,10 +127,19 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     3
                                 </Button>
-                                <br/>
-                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Mostly</Typography>
+                                <br />
+                                <Typography variant={'body2'} style={{textAlign: 'center'}}>
+                                    Mostly
+                                </Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
+                            <div
+                                style={{
+                                    flex: 1,
+                                    padding: '9px',
+                                    margin: '0% 4%',
+                                    borderRadius: '2.5em',
+                                }}
+                            >
                                 <Button
                                     variant={
                                         this.state.selectedMastery === 4 ? 'contained' : 'outlined'
@@ -115,10 +149,19 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     4
                                 </Button>
-                                <br/>
-                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Fairly Well</Typography>
+                                <br />
+                                <Typography variant={'body2'} style={{textAlign: 'center'}}>
+                                    Fairly Well
+                                </Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
+                            <div
+                                style={{
+                                    flex: 1,
+                                    padding: '9px',
+                                    margin: '0% 4%',
+                                    borderRadius: '2.5em',
+                                }}
+                            >
                                 <Button
                                     variant={
                                         this.state.selectedMastery === 5 ? 'contained' : 'outlined'
@@ -128,76 +171,133 @@ export default class AVOLearnPostTestModel extends React.Component<
                                 >
                                     5
                                 </Button>
-                                <br/>
-                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Very Well</Typography>
+                                <br />
+                                <Typography variant={'body2'} style={{textAlign: 'center'}}>
+                                    Very Well
+                                </Typography>
                             </div>
                         </div>
                         <Typography variant={'h5'}>How easy was it for you to learn?</Typography>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
+                            <div
+                                style={{
+                                    flex: 1,
+                                    padding: '9px',
+                                    margin: '0% 4%',
+                                    borderRadius: '2.5em',
+                                }}
+                            >
                                 <Button
                                     variant={
                                         this.state.selectedAptitude === 1 ? 'contained' : 'outlined'
                                     }
-                                    color={this.state.selectedAptitude === 1 ? 'primary' : undefined}
+                                    color={
+                                        this.state.selectedAptitude === 1 ? 'primary' : undefined
+                                    }
                                     onClick={() => this.setState({selectedAptitude: 1})}
                                 >
                                     1
                                 </Button>
-                                <br/>
-                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Not at all</Typography>
+                                <br />
+                                <Typography variant={'body2'} style={{textAlign: 'center'}}>
+                                    Not at all
+                                </Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
+                            <div
+                                style={{
+                                    flex: 1,
+                                    padding: '9px',
+                                    margin: '0% 4%',
+                                    borderRadius: '2.5em',
+                                }}
+                            >
                                 <Button
                                     variant={
                                         this.state.selectedAptitude === 2 ? 'contained' : 'outlined'
                                     }
-                                    color={this.state.selectedAptitude === 2 ? 'primary' : undefined}
+                                    color={
+                                        this.state.selectedAptitude === 2 ? 'primary' : undefined
+                                    }
                                     onClick={() => this.setState({selectedAptitude: 2})}
                                 >
                                     2
                                 </Button>
-                                <br/>
-                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Somewhat</Typography>
+                                <br />
+                                <Typography variant={'body2'} style={{textAlign: 'center'}}>
+                                    Somewhat
+                                </Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
+                            <div
+                                style={{
+                                    flex: 1,
+                                    padding: '9px',
+                                    margin: '0% 4%',
+                                    borderRadius: '2.5em',
+                                }}
+                            >
                                 <Button
                                     variant={
                                         this.state.selectedAptitude === 3 ? 'contained' : 'outlined'
                                     }
-                                    color={this.state.selectedAptitude === 3 ? 'primary' : undefined}
+                                    color={
+                                        this.state.selectedAptitude === 3 ? 'primary' : undefined
+                                    }
                                     onClick={() => this.setState({selectedAptitude: 3})}
                                 >
                                     3
                                 </Button>
-                                <br/>
-                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>I got most of it</Typography>
+                                <br />
+                                <Typography variant={'body2'} style={{textAlign: 'center'}}>
+                                    I got most of it
+                                </Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
+                            <div
+                                style={{
+                                    flex: 1,
+                                    padding: '9px',
+                                    margin: '0% 4%',
+                                    borderRadius: '2.5em',
+                                }}
+                            >
                                 <Button
                                     variant={
                                         this.state.selectedAptitude === 4 ? 'contained' : 'outlined'
                                     }
-                                    color={this.state.selectedAptitude === 4 ? 'primary' : undefined}
+                                    color={
+                                        this.state.selectedAptitude === 4 ? 'primary' : undefined
+                                    }
                                     onClick={() => this.setState({selectedAptitude: 4})}
                                 >
                                     4
                                 </Button>
-                                <br/>
-                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Fairly Easy</Typography>
+                                <br />
+                                <Typography variant={'body2'} style={{textAlign: 'center'}}>
+                                    Fairly Easy
+                                </Typography>
                             </div>
-                            <div style={{ flex : 1, padding : '9px', margin : '0% 4%', borderRadius : '2.5em' }}>
+                            <div
+                                style={{
+                                    flex: 1,
+                                    padding: '9px',
+                                    margin: '0% 4%',
+                                    borderRadius: '2.5em',
+                                }}
+                            >
                                 <Button
                                     variant={
                                         this.state.selectedAptitude === 5 ? 'contained' : 'outlined'
                                     }
-                                    color={this.state.selectedAptitude === 5 ? 'primary' : undefined}
+                                    color={
+                                        this.state.selectedAptitude === 5 ? 'primary' : undefined
+                                    }
                                     onClick={() => this.setState({selectedAptitude: 5})}
                                 >
                                     5
                                 </Button>
-                                <br/>
-                                <Typography variant={'body2'} style={{ textAlign : 'center' }}>Very Easy</Typography>
+                                <br />
+                                <Typography variant={'body2'} style={{textAlign: 'center'}}>
+                                    Very Easy
+                                </Typography>
                             </div>
                         </div>
                         <br />
@@ -205,7 +305,12 @@ export default class AVOLearnPostTestModel extends React.Component<
                             onClick={this.submitSurvey}
                             variant={'contained'}
                             color={'primary'}
-                            style={{borderRadius: '2.5em', position : 'absolute', bottom : '9px', right : '9px' }}
+                            style={{
+                                borderRadius: '2.5em',
+                                position: 'absolute',
+                                bottom: '9px',
+                                right: '9px',
+                            }}
                         >
                             Submit
                         </Button>
