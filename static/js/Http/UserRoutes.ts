@@ -51,3 +51,7 @@ export function changeColor(color: number, success: cb<{}>, failure: cb) {
 export function changeTheme(theme: number, success: cb<{}>, failure: cb) {
     _request('POST', '/changeTheme', success, failure, {theme});
 }
+
+export function sendFeedback(message: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/sendFeedback', success, failure, {message});
+}

@@ -33,6 +33,10 @@ interface ExportTools {
     name: 'Export Tools';
 }
 
+interface Feedback {
+    name: 'Feedback';
+}
+
 interface Home {
     name: 'Home';
 }
@@ -97,6 +101,7 @@ export type Section =
     | Documentation
     | Explanations
     | ExportTools
+    | Feedback
     | Home
     | InClassTools
     | Learn

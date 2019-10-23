@@ -13,6 +13,7 @@ import {
     ListItemIcon,
 } from '@material-ui/core';
 import {
+    BugReportOutlined,
     HomeOutlined,
     BuildOutlined,
     HelpOutline,
@@ -88,6 +89,7 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                 <Divider />
                 <List>
                     {this.listItem(SettingsOutlined, {name: 'Preferences'})}
+                    {this.listItem(BugReportOutlined, {name: 'Feedback'})}
                     <SidebarListItem
                         section={this.props.section}
                         Icon={ExitToAppOutlined}

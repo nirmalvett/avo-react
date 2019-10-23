@@ -27,6 +27,7 @@ import {Section} from './LayoutModels';
 import {Course, QuestionSet} from '../Http/types';
 import {QuestionBuilderHome} from '../QuestionBuilder/QuestionBuilderHome';
 import {GetSections_Section} from '../Http';
+import {Feedback} from '../Feedback/Feedback';
 const drawerWidth = 240;
 
 const styles = (theme: Theme) =>
@@ -208,6 +209,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     color={this.color()}
                 />
             );
+        } else if (section.name === 'Feedback') {
+            return <Feedback />;
         } else if (section.name === 'Home') {
             return (
                 <HomePage

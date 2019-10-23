@@ -1,6 +1,8 @@
 from flask_login import UserMixin
 from flask_login._compat import unicode
 from flask_sqlalchemy import SQLAlchemy
+from git import Repo
+
 from server.PasswordHash import generate_salt, hash_password
 from datetime import datetime
 
@@ -125,6 +127,27 @@ class Discount(db.Model):
 
     def __repr__(self):
         return f'<Discount {self.DISCOUNT} {self.SECTION} {self.price} {self.single_use}>'
+
+
+class Feedback(db.Model):
+    __tablename__ = 'FEEDBACK'
+
+    FEEDBACK = db.Column(db.Integer, primary_key=True)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    message = db.Column(db.String(2000), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
+    commit = db.Column(db.String(40), nullable=False)
+
+    USER_RELATION = db.relationship('User', back_populates='FEEDBACK_RELATION')
+
+    def __init__(self, user_id, message):
+        self.USER = user_id
+        self.message = message
+        self.timestamp = datetime.now()
+        self.commit = str(Repo().head.commit)
+
+    def __repr__(self):
+        return f'<Feedback {self.FEEDBACK} {self.USER} {self.message} {self.timestamp}>'
 
 
 class Mastery(db.Model):
@@ -386,6 +409,7 @@ class User(UserMixin, db.Model):
     color = db.Column(db.Integer, nullable=False, default=9)
     theme = db.Column(db.Boolean, nullable=False, default=False)
 
+    FEEDBACK_RELATION = db.relationship('Feedback', back_populates='USER_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='USER_RELATION')
     MESSAGE_RELATION = db.relationship('Message', back_populates='USER_RELATION')
     PAYMENT_RELATION = db.relationship('Payment', back_populates='USER_RELATION')

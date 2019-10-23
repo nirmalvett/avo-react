@@ -7,7 +7,7 @@ import re
 
 from server.decorators import login_required, admin_only, validate
 from server.auth import send_email, get_url, validate_token
-from server.models import db, User
+from server.models import db, User, Feedback
 
 UserRoutes = Blueprint('UserRoutes', __name__)
 
@@ -284,3 +284,12 @@ def remove_account(user_id: int):
     db.session.delete(user)
     db.session.commit()
     return jsonify(message="All User Data Removed")
+
+
+@UserRoutes.route('/sendFeedback', methods=['POST'])
+@login_required
+@validate(message=str)
+def send_feedback(message: str):
+    db.session.add(Feedback(current_user.USER, message))
+    db.session.commit()
+    return jsonify({})
