@@ -57,11 +57,13 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
             response => {
                 this.setState(
                     {
-                        sections: response.sections.map(x => ({
-                            classID: x.sectionID,
-                            name: x.name,
-                            whitelist: [],
-                        })),
+                        sections: response.sections
+                            .filter(section => section.role === 'teacher')
+                            .map(x => ({
+                                classID: x.sectionID,
+                                name: x.name,
+                                whitelist: [],
+                            })),
                     },
                     this.loadWhiteLists,
                 );

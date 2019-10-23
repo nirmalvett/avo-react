@@ -215,7 +215,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
         ];
         // Dynamically add the other courses as options from the list of class objects
         items = items.concat(
-            this.props.sections.map(section => {
+            this.getFilteredSections().map(section => {
                 return (
                     <MenuItem key={section.sectionID} value={section.sectionID}>
                         {section.name}
@@ -374,6 +374,12 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
         );
     };
 
+
+    getFilteredSections = () => {
+        return this.props.sections.filter(section => section.role === 'teacher')
+    }
+
+
     highlight = (e: DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
@@ -406,7 +412,7 @@ export default class ExportTools extends Component<ExportToolsProps, ExportTools
         reader.onload = e => {
             this.fileToJSON(((e.target as unknown) as {result: string}).result, classId);
             let objectsCopy = copy(this.state.jsonObjects);
-            const section = this.props.sections.find(
+            const section = this.getFilteredSections().find(
                 c => c.sectionID == classId,
             ) as Http.GetSections_Section;
             const filename = section.name + ': ' + file.name;
