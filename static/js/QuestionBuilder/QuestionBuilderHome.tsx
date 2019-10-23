@@ -100,6 +100,7 @@ export class QuestionBuilderHome extends Component<
                         courses={this.props.courses}
                         returnHome={() => this.setState({screen: 'home', isActive: true})}
                         showSnackBar={this.props.showSnackBar}
+                        updateSets={this.props.updateSets}
                     />
                 );
             default:

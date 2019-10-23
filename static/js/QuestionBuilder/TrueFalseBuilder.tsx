@@ -44,6 +44,7 @@ export interface TrueFalseBuilderProps {
     showSnackBar: ShowSnackBar;
     sets: QuestionSet[];
     courses: Course[];
+    updateSets: (questionSets: QuestionSet[], cb?: () => void) => void;
     returnHome: () => void;
 }
 
@@ -57,7 +58,6 @@ interface TrueFalseBuilderState {
     questionAnsr: 'true' | 'false';
     questionExpl: string;
     questionExpE: boolean;
-    sets: QuestionSet[];
     setsActive: boolean;
     setQActive: boolean;
     selectedS: null | number;
@@ -69,7 +69,7 @@ interface TrueFalseBuilderState {
     addDiagOpen: boolean;
     editMode: boolean;
     changed: boolean;
-    nextQuestion: null | Question;
+    toEdit: null | number;
     hovered: number;
     course: number;
     setName: string;
@@ -91,7 +91,6 @@ export default class TrueFalseBuilder extends Component<
             questionAnsr: 'true', // Stores whether the answer is true or false
             questionExpl: '', // Stores the question Explanation String
             questionExpE: true, // Keeps track of if we're editing the explanation string
-            sets: this.props.sets,
             setsActive: false,
             setQActive: false,
             selectedS: null, // Selected Set
@@ -103,7 +102,7 @@ export default class TrueFalseBuilder extends Component<
             addDiagOpen: false,
             editMode: false,
             changed: false,
-            nextQuestion: null, // Used to store a selected question that hasn't been loaded
+            toEdit: null,
             hovered: -1, // The ID of the current question being hovered
             course: -1,
             setName: '',
@@ -409,8 +408,7 @@ export default class TrueFalseBuilder extends Component<
                         <Button
                             onClick={() => {
                                 this.setState({switchDiagOpen: false});
-                                if (this.state.nextQuestion !== null)
-                                    this.loadQuestion(this.state.nextQuestion);
+                                this.loadQuestion();
                             }}
                             color='primary'
                             variant='contained'
@@ -443,8 +441,7 @@ export default class TrueFalseBuilder extends Component<
                         <Button
                             onClick={() => {
                                 this.setState({deleteDiagOpen: false});
-                                if (this.state.nextQuestion !== null)
-                                    this.deleteQuestion(this.state.nextQuestion);
+                                this.deleteQuestion();
                             }}
                             color='primary'
                             variant='contained'
@@ -500,7 +497,7 @@ export default class TrueFalseBuilder extends Component<
 
     renderSetList = () => {
         let {selectedS} = this.state;
-        return this.state.sets.map((set, index) => (
+        return this.props.sets.map((set, index) => (
             <ListItem
                 key={set.setID + '-' + index}
                 button
@@ -533,7 +530,8 @@ export default class TrueFalseBuilder extends Component<
     };
 
     renderQuestionList = () => {
-        const {selectedS, sets, questionID, hovered} = this.state;
+        const {selectedS, questionID, hovered} = this.state;
+        const {sets} = this.props;
         if (selectedS !== null)
             return sets[selectedS as number].questions.map((question: Question, index: number) => (
                 <ListItem
@@ -542,7 +540,6 @@ export default class TrueFalseBuilder extends Component<
                     button
                     onMouseEnter={() => this.setState({hovered: question.questionID})}
                     onMouseLeave={() => this.setState({hovered: -1})}
-                    onClick={() => this.setState({nextQuestion: question})}
                 >
                     <ListItemIcon>
                         <QuestionIcon
@@ -554,7 +551,7 @@ export default class TrueFalseBuilder extends Component<
                         <IconButton
                             size='small'
                             edge='end'
-                            onClick={() => this.switchQuestion(question)}
+                            onClick={() => this.switchQuestion(index)}
                         >
                             <EditIcon />
                         </IconButton>
@@ -563,7 +560,7 @@ export default class TrueFalseBuilder extends Component<
                         <IconButton
                             size='small'
                             edge='end'
-                            onClick={() => this.setState({deleteDiagOpen: true})}
+                            onClick={() => this.setState({deleteDiagOpen: true, toEdit: index})}
                         >
                             <DeleteIcon />
                         </IconButton>
@@ -603,8 +600,7 @@ export default class TrueFalseBuilder extends Component<
     };
 
     componentDidMount = () => {
-        this.setState({loaded: true});
-        this.getSets();
+        this.setState({loaded: true, setsActive: true});
     };
 
     selectSet = (set: QuestionSet, index: number) => {
@@ -621,23 +617,6 @@ export default class TrueFalseBuilder extends Component<
         }, 500);
     };
 
-    getSets = () => {
-        Http.getSets(
-            result => {
-                this.setState({sets: result.sets, setsActive: true});
-                console.log(result);
-            },
-            () => alert('Something went wrong when retrieving your question list'),
-        );
-    };
-
-    refreshSets = () => {
-        Http.getSets(
-            result => this.setState({sets: result.sets}),
-            () => alert('Something went wrong when retrieving your question list'),
-        );
-    };
-
     newSet = () => {
         Http.newSet(
             this.state.course,
@@ -650,14 +629,18 @@ export default class TrueFalseBuilder extends Component<
 
     deleteSet = (index: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.stopPropagation();
-        let set = this.state.sets[index];
+        let set = this.props.sets[index];
         let confirmation: boolean = confirm('Are you sure you want to delete this set?');
         if (confirmation)
             Http.deleteSet(
                 set.setID,
                 async () => {
                     await this.setState({selectedS: null, questionID: -1});
-                    this.getSets();
+                    let updated = this.props.sets.slice();
+                    updated.splice(index, 1);
+                    this.props.updateSets(updated, () =>
+                        this.props.showSnackBar('success', 'The set has been deleted', 2000),
+                    );
                 },
                 result => alert(result.error),
             );
@@ -703,7 +686,7 @@ export default class TrueFalseBuilder extends Component<
             );
         } else {
             Http.newQuestion(
-                this.state.sets[this.state.selectedS as number].setID,
+                this.props.sets[this.state.selectedS as number].setID,
                 this.state.questionName,
                 this.buildQuestionString(),
                 1,
@@ -715,27 +698,60 @@ export default class TrueFalseBuilder extends Component<
     };
 
     postSuccess = () => {
-        if (this.state.editMode)
-            this.props.showSnackBar('success', 'Question edited successfully', 2000);
-        else this.props.showSnackBar('success', 'Question created successfully', 2000);
+        if (this.state.editMode) {
+            const {selectedS, toEdit, questionName} = this.state;
+            const {sets} = this.props;
+            const updated = sets.slice();
+            let question: Question = updated[selectedS as number].questions[toEdit as number];
+            question.name = questionName;
+            question.string = this.buildQuestionString();
+            this.props.updateSets(updated);
+        }
+        else {
+            Http.getSets(
+                result =>
+                    this.props.updateSets(result.sets, () =>
+                        this.props.showSnackBar('success', 'The question has been created', 2000),
+                    ),
+                () => this.props.showSnackBar('error', 'Something went wrong', 4000),
+            );
+        }
+
         this.reset();
     };
 
-    deleteSuccess = (question: Question) => {
-        this.props.showSnackBar('success', 'Question deleted', 2000);
-        if (question.questionID === this.state.questionID) this.reset();
-        else this.refreshSets();
+    deleteSuccess = (reset: boolean) => {
+        const {selectedS, toEdit, questionID} = this.state;
+        const {sets} = this.props;
+        let updated = sets.slice();
+        updated[selectedS as number].questions.splice(toEdit as number, 1);
+        this.props.updateSets(updated, () =>
+            this.props.showSnackBar('success', 'Question deleted', 2000),
+        );
+        // If we are deleting the currently selected question, we must refresh the view
+        if (reset)
+            this.reset();
     };
 
-    switchQuestion = (question: Question) => {
+    switchQuestion = (questionIndex: number) => {
+        this.setState({toEdit: questionIndex});
         if (this.state.changed) {
             this.setState({switchDiagOpen: true});
         } else {
-            this.loadQuestion(question);
+            this.loadQuestion(questionIndex);
         }
     };
 
-    loadQuestion = (question: Question) => {
+    loadQuestion = (index?: number) => {
+        const {selectedS, toEdit} = this.state;
+        const {sets} = this.props;
+        let question: Question;
+        // Used if the user was presented with a dialog (aka they would have thrown away changes)
+        if (index === null || index === undefined)
+            question = sets[selectedS as number].questions[toEdit as number];
+        // Used when immediately switching to the next question
+        else
+            question = sets[selectedS as number].questions[index];
         if (!isTrueFalse(question.string)) {
             this.props.showSnackBar(
                 'error',
@@ -762,10 +778,14 @@ export default class TrueFalseBuilder extends Component<
         }
     };
 
-    deleteQuestion = (question: Question) => {
+    deleteQuestion = () => {
+        const {selectedS, toEdit} = this.state;
+        const {sets} = this.props;
+        const question: Question = sets[selectedS as number].questions[toEdit as number];
+        const reset: boolean = question.questionID === this.state.questionID;
         Http.deleteQuestion(
             question.questionID,
-            () => this.deleteSuccess(question),
+            () => this.deleteSuccess(reset),
             () => this.props.showSnackBar('error', 'An error occured', 2000),
         );
     };
@@ -784,8 +804,6 @@ export default class TrueFalseBuilder extends Component<
             editMode: false,
             changed: false,
         });
-
-        this.refreshSets();
     };
 
     isValid = () => {
