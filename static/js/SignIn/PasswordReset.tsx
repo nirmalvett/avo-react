@@ -148,21 +148,40 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
     }
 
     sendChangeRequest = () => {
-        Http.resetPassword(
-            this.props.token,
-            this.state.newPassword,
-            () => {
-                alert(
-                    'Password successfully changed! You will now be redirected to the login page.',
-                );
-                window.history.pushState('backToLogin', 'AvocadoCore', window.location.origin);
-                window.location.reload();
-            },
-            () => {
-                alert(
-                    'An error occurred when making the request please try again in 5-10 minutes.',
-                );
-            },
-        );
+        if (this.props.showTerms) {
+            Http.completeSetup(
+                this.props.token,
+                this.state.newPassword,
+                () => {
+                    alert(
+                        'Password successfully created! You will now be redirected to the login page.',
+                    );
+                    window.history.pushState('backToLogin', 'AvocadoCore', window.location.origin);
+                    window.location.reload();
+                },
+                () => {
+                    alert(
+                        'An error occurred when making the request, please try again in 5-10 minutes.',
+                    );
+                },
+            );
+        } else {
+            Http.resetPassword(
+                this.props.token,
+                this.state.newPassword,
+                () => {
+                    alert(
+                        'Password successfully changed! You will now be redirected to the login page.',
+                    );
+                    window.history.pushState('backToLogin', 'AvocadoCore', window.location.origin);
+                    window.location.reload();
+                },
+                () => {
+                    alert(
+                        'An error occurred when making the request, please try again in 5-10 minutes.',
+                    );
+                },
+            );
+        }
     };
 }

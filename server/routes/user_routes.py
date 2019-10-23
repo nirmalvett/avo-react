@@ -184,7 +184,6 @@ def setup(token):
 
 
 @UserRoutes.route('/resetPassword', methods=['POST'])
-@login_required
 @validate(token=str, password=str)
 def reset_password(token: str, password: str):
     return pw_change(validate_token(token, 3600), password)
@@ -193,7 +192,7 @@ def reset_password(token: str, password: str):
 @UserRoutes.route('/completeSetup', methods=['POST'])
 @validate(token=str, password=str)
 def complete_setup(token: str, password: str):
-    return pw_change(validate_token(token), password)
+    return pw_change(validate_token(token), password, True)
 
 
 @UserRoutes.route('/changePassword', methods=['POST'])
@@ -207,12 +206,14 @@ def change_password(old_password: str, new_password: str):
     return current_user.change_password(new_password)
 
 
-def pw_change(email, password):
+def pw_change(email, password, setup_only=False):
     if email is None:
         return jsonify(error='Invalid token')
     user: User = User.query.filter(User.email == email).first()
     if user is None:
         return jsonify(error="There is no account associated with the email.")
+    if user.salt != '' and user.password != '' and setup_only:
+        return jsonify(error="Password already created")
     if len(password) < 8:
         return jsonify(error='Password too short! Please ensure the password is at least 8 characters.')
     user.change_password(password)
