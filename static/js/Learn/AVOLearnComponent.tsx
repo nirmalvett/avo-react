@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import * as Http from '../Http';
 import {Button, Input, MenuItem, Select, TextField} from '@material-ui/core';
-import AVOLessonSlider from './Slider/AVOLessonSlider';
+import LessonSlider from './Slider/LessonSlider';
 
-import AVOLearnPostTestModel from './AVOLearnPostTestModal';
+import LearnPostTestModal from './LearnPostTestModal';
 import {Course} from '../Http/types';
 import AVOLearnTestComp from './AVOLearnTestComp';
 import AVOLessonFSM from './AVOLessonFSM';
@@ -128,7 +128,7 @@ export default class AVOLearnComponent extends Component<
                         />
                     )}
                 </AVOLessonFSM>
-                <AVOLearnPostTestModel
+                <LearnPostTestModal
                     hideModal={this.hidePostLessonModal}
                     modalDisplay={this.state.postLessonModalDisplay}
                     lesson={
@@ -183,7 +183,7 @@ export default class AVOLearnComponent extends Component<
                     </Select>
                 </div>
                 {lessons.length !== 0 && (
-                    <AVOLessonSlider
+                    <LessonSlider
                         onClick={this.openLessonFSM}
                         key={'LessonSlider' + lessons.length}
                         theme={this.props.theme}

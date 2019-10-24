@@ -46,7 +46,7 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
     AVOLearnIncorrectAnswerModalProps,
     AVOLearnIncorrectAnswerModalState
 > {
-    constructor(props: any) {
+    constructor(props: AVOLearnIncorrectAnswerModalProps) {
         super(props);
         this.state = {
             selectedPrereqs: [],
@@ -87,7 +87,7 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
                                     onClick={() => {
                                         if (
                                             this.state.selectedPrereqs.findIndex(
-                                                (p: any) => p.conceptID === prereq.conceptID,
+                                                p => p.conceptID === prereq.conceptID,
                                             ) === -1
                                         ) {
                                             const {selectedPrereqs} = this.state;
@@ -97,14 +97,14 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
                                             const {selectedPrereqs} = this.state;
                                             this.setState({
                                                 selectedPrereqs: selectedPrereqs.filter(
-                                                    (p: any) => p.conceptID !== prereq.conceptID,
+                                                    p => p.conceptID !== prereq.conceptID,
                                                 ),
                                             });
                                         }
                                     }}
                                     variant={
                                         this.state.selectedPrereqs.findIndex(
-                                            (p: any) => p.conceptID === prereq.conceptID,
+                                            p => p.conceptID === prereq.conceptID,
                                         ) !== -1
                                             ? 'contained'
                                             : 'outlined'

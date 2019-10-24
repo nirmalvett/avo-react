@@ -16,7 +16,7 @@ interface AVOLessonSliderState {
     currentIndex: number;
 }
 
-export default class AVOLessonSlider extends Component<AVOLessonSliderProps, AVOLessonSliderState> {
+export default class LessonSlider extends Component<AVOLessonSliderProps, AVOLessonSliderState> {
     constructor(props: AVOLessonSliderProps) {
         super(props);
         this.state = {currentIndex: 0};

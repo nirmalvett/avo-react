@@ -1,6 +1,6 @@
 import React, {Component, ReactElement} from 'react';
 import AVOMasteryGauge from './MasteryGauge';
-import {Button, Grid, Grow, Icon, IconButton, Typography} from '@material-ui/core';
+import {Button, Grid, Grow, Typography} from '@material-ui/core';
 import * as Http from '../Http';
 import {AnswerInput} from '../AnswerInput';
 import AVOLearnTestCongrat from './AVOLearnTestCongrat';
@@ -8,19 +8,13 @@ import {getMathJax} from '../HelperFunctions/Utilities';
 import {uniqueKey} from '../HelperFunctions/Helpers';
 import {AvoLesson, AvoLessonData} from './AVOLearnComponent';
 import AVOLearnIncorrectAnswerModal from './AVOLearnIncorrectAnswerModal';
+import {ThemeObj} from "../Models";
 type TestState = 'LESSON' | 'QUESTIONS' | 'TEST_END';
 
 interface AVOLearnTestCompProps {
     lesson: AvoLesson & AvoLessonData;
     updateMastery: (mastery: {[conceptID: number]: number}) => void;
-    theme: {
-        theme: 'light' | 'dark';
-        color: {
-            '100': string;
-            '200': string;
-            '500': string;
-        };
-    };
+    theme: ThemeObj;
     setEndTest: () => void;
     getNewQuestion: () => void;
 }
@@ -101,7 +95,7 @@ export default class AVOLearnTestComp extends Component<
                             <Button
                                 variant='outlined'
                                 color='primary'
-                                disabled={!!!this.props.lesson.data}
+                                disabled={!this.props.lesson.data}
                                 onClick={() => this.setState({currentState: 'QUESTIONS'})}
                                 style={{float: 'right'}}
                             >
@@ -113,11 +107,11 @@ export default class AVOLearnTestComp extends Component<
                 {this.state.currentState === 'QUESTIONS' && (
                     <Grow in={true} timeout={{enter: 1000}}>
                         <Grid container spacing={8}>
-                            <Grid item xs={1}></Grid>
+                            <Grid item xs={1}/>
                             <Grid item xs={10} style={{position: 'relative'}}>
                                 {this.getQuestionsAndExplanations()}
                             </Grid>
-                            <Grid item xs={1}></Grid>
+                            <Grid item xs={1}/>
                             <div style={{position: 'absolute', left: '4px', top: '4px'}}>
                                 <Button
                                     onClick={() => this.setState({currentState: 'LESSON'})}
