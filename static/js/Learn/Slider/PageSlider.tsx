@@ -3,7 +3,7 @@ import {Slider, withStyles} from '@material-ui/core';
 export const PageSlider = withStyles({
     root: {
         height: 8,
-        width: '90%',
+        width: 'calc(100% - 32px)',
         margin: 'auto',
     },
     thumb: {

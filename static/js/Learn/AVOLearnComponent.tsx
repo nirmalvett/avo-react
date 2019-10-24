@@ -36,7 +36,6 @@ interface AVOLearnComponentState {
     selectedCourse: number;
     postLessonModalDisplay: 'none' | 'block';
     currentLesson: AvoLesson | undefined;
-    isEndTest: boolean;
     isLoading: boolean;
 }
 
@@ -51,7 +50,6 @@ export default class AVOLearnComponent extends Component<
             selectedCourse: -1,
             postLessonModalDisplay: 'none',
             currentLesson: undefined,
-            isEndTest: false,
             isLoading: true,
         };
     }
@@ -101,7 +99,6 @@ export default class AVOLearnComponent extends Component<
                             lesson={this.state.currentLesson}
                             updateMastery={this.updateMastery}
                             theme={this.props.theme}
-                            setEndTest={this.setEndTest}
                         />
                     )}
                 </AVOLessonFSM>
@@ -133,16 +130,18 @@ export default class AVOLearnComponent extends Component<
         }
     }
 
-    changeCourse(courseID: number) {
-        Http.getNextLessons(
-            courseID,
-            res => {
-                const lessons = res.lessons;
-                this.setState({selectedCourse: courseID, lessons, isLoading: false});
-            },
-            console.warn,
-        );
-    }
+    changeCourse = (courseID: number) => {
+        this.setState({isLoading: true}, () => {
+            Http.getNextLessons(
+                courseID,
+                res => {
+                    const lessons = res.lessons;
+                    this.setState({selectedCourse: courseID, lessons, isLoading: false});
+                },
+                console.warn,
+            );
+        });
+    };
 
     getLessons = (courseID: number) => {
         Http.getNextLessons(
@@ -173,11 +172,5 @@ export default class AVOLearnComponent extends Component<
 
     hidePostLessonModal = () => this.setState({postLessonModalDisplay: 'none'});
 
-    openLessonFSM = (lesson: AvoLesson) => {
-        this.setState({isEndTest: false, currentLesson: lesson});
-    };
-
-    setEndTest = () => {
-        this.setState({isEndTest: true});
-    };
+    openLessonFSM = (lesson: AvoLesson) => this.setState({currentLesson: lesson});
 }

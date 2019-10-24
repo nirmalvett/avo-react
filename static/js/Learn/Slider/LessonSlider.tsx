@@ -46,14 +46,6 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
     }
 
     render() {
-        const lessons = this.getLessonsToShow();
-        if (lessons.length === 0) {
-            return (
-                <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                    <Typography variant='h3'>No lessons to display</Typography>
-                </div>
-            );
-        }
         return (
             <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
                 <div
@@ -77,13 +69,21 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
                             <ChevronLeft />
                         </IconButton>
                     </div>
-                    <div style={{flex: 1, position: 'relative'}}>
+                    <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
                         {this.renderTopBar()}
-                        <LessonGroup
-                            groups={[-1, 0, 1].map(this.getGroup)}
-                            theme={this.props.theme}
-                            onClick={this.props.onClick}
-                            currentPage={this.state.currentIndex}
+                        <div style={{flex: 1, position: 'relative'}}>
+                            {this.renderGroup()}
+                        </div>
+                        <PageSlider
+                            color='primary'
+                            valueLabelDisplay='auto'
+                            aria-label='avo page slider'
+                            min={0}
+                            max={this.pageCount() - 1}
+                            onChange={this.sliderChange}
+                            style={{zIndex: 2}}
+                            value={this.state.currentIndex}
+                            valueLabelFormat={this.formatLabel}
                         />
                     </div>
                     <div
@@ -104,17 +104,6 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
                         </IconButton>
                     </div>
                 </div>
-                <PageSlider
-                    color='primary'
-                    valueLabelDisplay='auto'
-                    aria-label='avo page slider'
-                    min={0}
-                    max={this.pageCount() - 1}
-                    onChange={this.sliderChange}
-                    style={{zIndex: 2}}
-                    value={this.state.currentIndex}
-                    valueLabelFormat={this.formatLabel}
-                />
             </div>
         );
     }
@@ -157,6 +146,26 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
                 </Select>
             </div>
         );
+    }
+
+    renderGroup() {
+        const lessons = this.getLessonsToShow();
+        if (lessons.length === 0) {
+            return (
+                <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                    <Typography variant='h4'>No lessons to display</Typography>
+                </div>
+            );
+        } else {
+            return (
+                <LessonGroup
+                    groups={[-1, 0, 1].map(this.getGroup)}
+                    theme={this.props.theme}
+                    onClick={this.props.onClick}
+                    currentPage={this.state.currentIndex}
+                />
+            );
+        }
     }
 
     toggleView = () => this.setState({

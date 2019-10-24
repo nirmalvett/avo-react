@@ -13,7 +13,6 @@ interface LearnTestCompProps {
     lesson: AvoLesson;
     updateMastery: (mastery: {[conceptID: number]: number}) => void;
     theme: ThemeObj;
-    setEndTest: () => void;
 }
 
 interface LearnTestCompState {
@@ -250,7 +249,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                                 <Button
                                     variant='outlined'
                                     color='primary'
-                                    onClick={() => this.switchToTestEnd()}
+                                    onClick={() => this.setState({mode: 'finish'})}
                                 >
                                     Finish concept for now
                                 </Button>
@@ -425,13 +424,5 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                 </div>
             );
         });
-    }
-
-    switchToTestEnd() {
-        this.setState({mode: 'finish'});
-        setTimeout(() => {
-            this.setState({testEndState: 1});
-            this.props.setEndTest();
-        }, 3000);
     }
 }
