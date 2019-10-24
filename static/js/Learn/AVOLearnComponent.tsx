@@ -15,7 +15,6 @@ export interface AvoLesson {
     conceptID: number;
     preparation: number;
     mastery: number;
-    newMastery: number;
     name: string;
     lesson: string;
     prereqs: {name: string; conceptID: number}[];
@@ -40,13 +39,12 @@ interface AVOLearnComponentProps {
 }
 
 interface AVOLearnComponentState {
-    fsmRef: {current: AVOLessonFSM};
     lessons: AvoLesson[];
     filterInput: string;
     selectedCourse: number;
     otherView: 'Completed' | 'To Do';
     postLessonModalDisplay: 'none' | 'block';
-    currentLesson: AvoLesson & AvoLessonData;
+    currentLesson: AvoLesson | undefined;
     isEndTest: boolean;
     isLoading: boolean;
 }
@@ -58,13 +56,12 @@ export default class AVOLearnComponent extends Component<
     constructor(props: AVOLearnComponentProps) {
         super(props);
         this.state = {
-            fsmRef: React.createRef() as {current: AVOLessonFSM},
             lessons: [],
             filterInput: '',
             selectedCourse: -1,
             otherView: 'To Do',
             postLessonModalDisplay: 'none',
-            currentLesson: {} as AvoLesson & AvoLessonData,
+            currentLesson: undefined,
             isEndTest: false,
             isLoading: true,
         };
@@ -80,6 +77,12 @@ export default class AVOLearnComponent extends Component<
         return lessons
             .filter(lesson => isCompleted === lesson.mastery >= 0.85)
             .sort(sortFunc(x => -x.preparation));
+    }
+
+    getSourceID() {
+        if (this.state.currentLesson) {
+            return `avo-lesson__card-${this.state.currentLesson.conceptID}`;
+        }
     }
 
     render() {
@@ -113,29 +116,22 @@ export default class AVOLearnComponent extends Component<
                 }}
             >
                 <AVOLessonFSM
-                    changeToNewMastery={this.changeToNewMastery}
-                    showPostLessonModal={this.showPostLessonModal}
-                    isEndTest={this.state.isEndTest}
-                    ref={this.state.fsmRef}
+                    sourceID={this.getSourceID()}
+                    onClose={() => this.setState({currentLesson: undefined})}
                 >
                     {this.state.currentLesson && (
                         <AVOLearnTestComp
-                            lesson={this.state.currentLesson}
+                            lesson={this.state.currentLesson as any}
                             updateMastery={this.updateMastery}
                             theme={this.props.theme}
                             setEndTest={this.setEndTest}
-                            getNewQuestion={this.getNewQuestion}
                         />
                     )}
                 </AVOLessonFSM>
                 <LearnPostTestModal
                     hideModal={this.hidePostLessonModal}
                     modalDisplay={this.state.postLessonModalDisplay}
-                    lesson={
-                        this.state.lessons.find(
-                            x => x.conceptID === this.state.currentLesson.conceptID,
-                        ) as AvoLesson
-                    }
+                    lesson={this.state.currentLesson as AvoLesson}
                 />
                 <div
                     style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}
@@ -254,67 +250,18 @@ export default class AVOLearnComponent extends Component<
         for (let conceptID in mastery) {
             const index = lessons.findIndex(lesson => lesson.conceptID === Number(conceptID));
             if (index !== -1) {
-                lessons[index] = {...lessons[index], newMastery: mastery[conceptID]};
+                lessons[index] = {...lessons[index], mastery: mastery[conceptID]};
             }
         }
         this.setState({lessons});
     };
 
-    changeToNewMastery = () => {
-        const lessons = this.state.lessons.map(lesson => {
-            if (lesson.newMastery) {
-                return {...lesson, mastery: lesson.newMastery};
-            } else {
-                return lesson;
-            }
-        });
-        this.setState({lessons});
-    };
+    showPostLessonModal = () => this.setState({postLessonModalDisplay: 'block'});
 
-    showPostLessonModal = () => {
-        this.setState({postLessonModalDisplay: 'block'});
-    };
-    hidePostLessonModal = () => {
-        this.setState({postLessonModalDisplay: 'none'});
-
-        // const modal = document.getElementById('avo_learn_post_lesson_modal');
-        // if (modal) {
-        //     event.preventDefault();
-        //     modal.style.display = 'none';
-        // } else {
-        //     console.log('oh no');
-        // }
-    };
+    hidePostLessonModal = () => this.setState({postLessonModalDisplay: 'none'});
 
     openLessonFSM = (lesson: AvoLesson) => {
-        this.setState({isEndTest: false});
-        Http.getNextQuestion(
-            lesson.conceptID,
-            res => {
-                this.setState({currentLesson: {...lesson, data: {questions: [res]}}});
-                this.state.fsmRef.current.handleFSM(lesson);
-            },
-            () => {
-                // @ts-ignore todo
-                this.setState({currentLesson: lesson});
-                this.state.fsmRef.current.handleFSM(lesson);
-            },
-        );
-    };
-
-    getNewQuestion = () => {
-        this.setState({isEndTest: false});
-        const lesson = this.state.currentLesson;
-        if (lesson) {
-            Http.getNextQuestion(
-                lesson.conceptID,
-                res => {
-                    console.log(res);
-                    this.setState({currentLesson: {...lesson, data: {questions: [res]}}});
-                },
-                console.warn,
-            );
-        }
+        this.setState({isEndTest: false, currentLesson: lesson});
     };
 
     setEndTest = () => {

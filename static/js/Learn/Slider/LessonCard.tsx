@@ -50,7 +50,7 @@ export function LessonCard(props: AVOLearnCardProps) {
                 margin={0}
                 width='80%'
                 height='80%'
-                comprehension={Math.floor((lesson.newMastery || lesson.mastery) * 100)}
+                comprehension={Math.floor(lesson.mastery * 100)}
             />
             <Typography
                 style={{
