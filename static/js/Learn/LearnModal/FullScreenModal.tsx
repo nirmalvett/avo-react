@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import {Fade, Grid, IconButton, Paper} from '@material-ui/core';
+import {Fade, IconButton, Paper} from '@material-ui/core';
 import {FullscreenExit} from '@material-ui/icons';
 
 interface FullScreenModalProps {
@@ -45,33 +45,20 @@ export default class FullScreenModal extends PureComponent<FullScreenModalProps>
                 >
                     {sourceID && (
                         <Fade in={!!sourceID} timeout={{enter: 500}}>
-                            <Grid
-                                container
-                                md={12}
-                                style={{
-                                    paddingBottom: 0,
-                                    position: 'relative',
-                                    display: 'flex',
-                                    padding: '1em',
-                                    width: '98% !important',
-                                    flex: 1,
-                                    overflowY: 'auto',
-                                }}
-                            >
+                            <div style={{flex: 1, display: 'flex', flexDirection: 'row', position: 'relative', overflow: 'hidden'}}>
                                 {children}
                                 <IconButton
                                     onClick={() => this.closeFSM(sourceID)}
                                     color='primary'
                                     style={{
-                                        float: 'right',
                                         position: 'absolute',
-                                        top: '0.0em',
-                                        right: '0.0em',
+                                        top: 0,
+                                        right: 0,
                                     }}
                                 >
                                     <FullscreenExit color='primary' />
                                 </IconButton>
-                            </Grid>
+                            </div>
                         </Fade>
                     )}
                 </div>

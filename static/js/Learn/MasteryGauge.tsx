@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {CSSProperties} from 'react';
 
 interface AVOMasteryGaugeProps {
+    style?: CSSProperties;
     comprehension: number;
     theme: {
         color: {
@@ -14,8 +15,6 @@ interface AVOMasteryGaugeProps {
 }
 
 export default function AVOMasteryGauge(props: AVOMasteryGaugeProps) {
-    const width = props.width || '200px';
-    const height = props.height || '200px';
     const triangles = [];
     if (!!props.comprehension) {
         const rotate = (cx: number, cy: number, x: number, y: number, angle: number) => {
@@ -84,13 +83,13 @@ export default function AVOMasteryGauge(props: AVOMasteryGaugeProps) {
             }
         }
     }
+    const style = {width: '200px', height: '200px', ...props.style};
     return (
-        <div className='avo-progression-gauge-container'>
+        <div className='avo-progression-gauge-container' style={style}>
             <svg
-                width={width}
-                height={height}
+                width='100%'
+                height='100%'
                 viewBox='0 0 42 42'
-                style={{margin: props.margin}}
                 className='donut'
             >
                 <circle

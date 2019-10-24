@@ -1,4 +1,4 @@
-import React, {Component, ReactElement} from 'react';
+import React, {Component, Fragment, ReactElement} from 'react';
 import * as Http from '../../Http';
 import {AvoLesson, AvoLessonData} from '../Learn';
 import AVOLearnIncorrectAnswerModal from '../AVOLearnIncorrectAnswerModal';
@@ -58,7 +58,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
 
     render() {
         return (
-            <div style={{width: '95%', position: 'relative'}}>
+            <Fragment>
                 <AVOLearnIncorrectAnswerModal
                     hideModal={() => this.setState({postLessonModalDisplay: 'none'})}
                     modalDisplay={this.state.postLessonModalDisplay}
@@ -66,7 +66,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                     questionID={(this.state.nextQuestion || {ID: 0}).ID}
                 />
                 {this.getContent()}
-            </div>
+            </Fragment>
         );
     }
 
@@ -134,10 +134,9 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
             question.seed,
             this.state.nextAnswers,
             res => {
-                if (
-                    res.points.reduce((x, y) => x + y, 0) / res.totals.reduce((x, y) => x + y, 0) <
-                    0.5
-                ) {
+                const points = res.points.reduce((x, y) => x + y, 0);
+                const total = res.totals.reduce((x, y) => x + y, 0);
+                if (points / total < 0.5) {
                     this.showModal();
                 }
                 const questions = [...this.state.questions, question];

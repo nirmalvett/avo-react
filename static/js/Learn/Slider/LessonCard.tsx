@@ -51,9 +51,7 @@ export function LessonCard(props: AVOLearnCardProps) {
             </Tooltip>
             <AVOMasteryGauge
                 theme={theme}
-                margin={0}
-                width='80%'
-                height='80%'
+                style={{width: '80%', height: '80%', position: 'absolute', top: '5%', left: '10%'}}
                 comprehension={Math.floor(lesson.mastery * 100)}
             />
             <Typography
