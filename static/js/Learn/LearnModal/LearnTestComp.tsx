@@ -47,6 +47,10 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
         };
     }
 
+    componentDidMount() {
+        this.getQuestion();
+    }
+
     getQuestion() {
         Http.getNextQuestion(
             this.props.lesson.conceptID,
