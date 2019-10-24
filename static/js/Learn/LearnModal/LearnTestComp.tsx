@@ -3,7 +3,6 @@ import * as Http from '../../Http';
 import {AvoLesson, AvoLessonData} from '../Learn';
 import AVOLearnIncorrectAnswerModal from '../AVOLearnIncorrectAnswerModal';
 import {ThemeObj} from '../../Models';
-import FullScreenModal from './FullScreenModal';
 import {LessonScreen} from './LessonScreen';
 import {QuestionScreen} from './QuestionScreen';
 import {ExplanationScreen} from './ExplanationScreen';
@@ -48,10 +47,6 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
         };
     }
 
-    componentDidMount() {
-        this.getQuestion();
-    }
-
     getQuestion() {
         Http.getNextQuestion(
             this.props.lesson.conceptID,
@@ -61,25 +56,17 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
         );
     }
 
-    getSourceID() {
-        if (this.props.lesson) {
-            return `avo-lesson__card-${this.props.lesson.conceptID}`;
-        }
-    }
-
     render() {
         return (
-            <FullScreenModal sourceID={this.getSourceID()} onClose={this.props.onClose}>
-                <div style={{width: '95%', position: 'relative'}}>
-                    <AVOLearnIncorrectAnswerModal
-                        hideModal={() => this.setState({postLessonModalDisplay: 'none'})}
-                        modalDisplay={this.state.postLessonModalDisplay}
-                        lesson={this.props.lesson}
-                        questionID={(this.state.nextQuestion || {ID: 0}).ID}
-                    />
-                    {this.getContent()}
-                </div>
-            </FullScreenModal>
+            <div style={{width: '95%', position: 'relative'}}>
+                <AVOLearnIncorrectAnswerModal
+                    hideModal={() => this.setState({postLessonModalDisplay: 'none'})}
+                    modalDisplay={this.state.postLessonModalDisplay}
+                    lesson={this.props.lesson as AvoLesson}
+                    questionID={(this.state.nextQuestion || {ID: 0}).ID}
+                />
+                {this.getContent()}
+            </div>
         );
     }
 

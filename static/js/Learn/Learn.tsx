@@ -4,9 +4,9 @@ import LessonSlider from './Slider/LessonSlider';
 import LearnPostTestModal from './LearnPostTestModal';
 import {Course} from '../Http/types';
 import LearnTestComp from './LearnModal/LearnTestComp';
-import FullScreenModal from './LearnModal/FullScreenModal';
 import {ThemeObj} from '../Models';
 import {HashLoader} from 'react-spinners';
+import FullScreenModal from "./LearnModal/FullScreenModal";
 
 export interface AvoLesson {
     conceptID: number;
@@ -51,6 +51,12 @@ export default class Learn extends Component<LearnProps, LearnState> {
         };
     }
 
+    getSourceID() {
+        if (this.state.currentLesson) {
+            return `avo-lesson__card-${this.state.currentLesson.conceptID}`;
+        }
+    }
+
     render() {
         if (this.state.isLoading) {
             return (
@@ -80,15 +86,17 @@ export default class Learn extends Component<LearnProps, LearnState> {
                     overflowX: 'hidden',
                 }}
             >
-                {this.state.currentLesson && (
-                    <LearnTestComp
-                        onClose={this.closeLessonFSM}
-                        key={(this.state.currentLesson || {conceptID: 0}).conceptID}
-                        lesson={this.state.currentLesson}
-                        updateMastery={this.updateMastery}
-                        theme={this.props.theme}
-                    />
-                )}
+                <FullScreenModal sourceID={this.getSourceID()} onClose={this.closeLessonFSM}>
+                    {this.state.currentLesson && (
+                        <LearnTestComp
+                            onClose={this.closeLessonFSM}
+                            key={(this.state.currentLesson || {conceptID: 0}).conceptID}
+                            lesson={this.state.currentLesson}
+                            updateMastery={this.updateMastery}
+                            theme={this.props.theme}
+                        />
+                    )}
+                </FullScreenModal>
                 <LearnPostTestModal
                     hideModal={this.hidePostLessonModal}
                     modalDisplay={this.state.postLessonModalDisplay}
