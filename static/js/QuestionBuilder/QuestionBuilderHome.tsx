@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Button, Card, Grid, Grow, Typography} from '@material-ui/core';
 import Logo from '../SharedComponents/Logo';
 import MultipleChoiceBuilder from './MultipleChoiceBuilder';
-import QuestionManager from '../CourseBuilder/QuestionBuilder/QuestionManager';
+import QuestionManager from './QuestionManager';
 import TrueFalseBuilder from './TrueFalseBuilder';
 import {QuestionSet, Course} from 'Http/types';
 import {ShowSnackBar} from 'Layout/Layout';

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import * as Http from '../Http';
 import HomePage from '../Home/HomePage';
-import TagView from '../CourseBuilder/TagBuilder/TagView';
+import TagView from '../ConceptBuilder/TagView';
 import PostTest from '../SharedComponents/PostTest';
 import MarkEditor from '../ManageClasses/MarkEditor';
 import TakeTest from '../MyClasses/TakeTest';
@@ -10,7 +10,7 @@ import CreateTest from '../ManageClasses/CreateTest/CreateTest';
 import Preferences from '../Preferences/Preferences';
 import ManageClasses from '../ManageClasses/ManageClasses';
 import {QuestionBuilder} from '../QuestionBuilder/QuestionBuilder';
-import QuestionBuilderDocs from '../CourseBuilder/QuestionBuilder/QuestionBuilderDocs';
+import QuestionBuilderDocs from '../QuestionBuilder/QuestionBuilderDocs';
 import ExportTools from '../ExportTools/ExportTools';
 import AVOLearnComponent from '../Learn/AVOLearnComponent';
 import MasteryHome from '../Mastery/MasteryHome';

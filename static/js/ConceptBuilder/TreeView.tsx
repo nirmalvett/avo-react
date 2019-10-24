@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import cytoscape, {ElementsDefinition} from 'cytoscape';
 // @ts-ignore
 import dagre from 'cytoscape-dagre';
-import * as Http from '../../Http';
+import * as Http from '../Http';
 
 interface Concept {
     conceptID: number;

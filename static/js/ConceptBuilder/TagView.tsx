@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import TreeView from './TreeView';
-import {getMathJax} from '../../HelperFunctions/Utilities';
+import {getMathJax} from '../HelperFunctions/Utilities';
 import Downshift from 'downshift';
-import debounce from '../../SharedComponents/AVODebouncer';
-import AVOPopupMenu from '../../SharedComponents/AVOPopupMenu';
+import debounce from '../SharedComponents/AVODebouncer';
+import AVOPopupMenu from '../SharedComponents/AVOPopupMenu';
 import {
     Edit,
     ExpandMore,
@@ -39,8 +39,8 @@ import {
 } from '@material-ui/core';
 import {MenuItemProps} from '@material-ui/core/MenuItem';
 import {TextFieldProps} from '@material-ui/core/TextField';
-import * as Http from '../../Http';
-import {Course} from '../../Http/types';
+import * as Http from '../Http';
+import {Course} from '../Http/types';
 // @ts-ignore
 import SwipeableViews from 'react-swipeable-views';
 

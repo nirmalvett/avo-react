@@ -27,12 +27,12 @@ import {
     CreateNewFolder,
     ArrowBack,
 } from '@material-ui/icons';
-import * as Http from '../../Http';
-import {uniqueKey} from '../../HelperFunctions/Helpers';
-import {getMathJax} from '../../HelperFunctions/Utilities';
-import {AnswerInput} from '../../AnswerInput';
-import {ShowSnackBar} from '../../Layout/Layout';
-import {QuestionSet, Course} from '../../Http/types';
+import * as Http from '../Http';
+import {uniqueKey} from '../HelperFunctions/Helpers';
+import {getMathJax} from '../HelperFunctions/Utilities';
+import {AnswerInput} from '../AnswerInput';
+import {ShowSnackBar} from '../Layout/Layout';
+import {QuestionSet, Course} from '../Http/types';
 
 export interface QuestionManagerProps {
     s: number | null;
