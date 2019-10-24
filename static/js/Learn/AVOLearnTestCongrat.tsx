@@ -20,7 +20,6 @@ export default class AVOLearnTestCongrat extends Component<
     }
 
     render() {
-        const props = this.props;
         const triangles = [];
         let currentRotation = 0;
         let rotationAmount = 45;
@@ -48,8 +47,8 @@ export default class AVOLearnTestCongrat extends Component<
                 additionalRot += 22.5 + 22.5 / 3;
                 currentRotation = 0;
             }
-            const tri_color = !!props.colors[triangles.length]
-                ? props.colors[triangles.length]
+            const tri_color = !!this.props.colors[triangles.length]
+                ? this.props.colors[triangles.length]
                 : '#399103';
             items.push(
                 <path
@@ -77,7 +76,6 @@ export default class AVOLearnTestCongrat extends Component<
                 items = [];
             }
         }
-        console.log(triangles);
         return (
             <div className='avo-progression-gauge-container' style={{transform: 'scale(1.25)'}}>
                 <svg
@@ -124,7 +122,7 @@ export default class AVOLearnTestCongrat extends Component<
                         y='46'
                         style={{fontSize: '3px'}}
                         fill='lightslategrey'
-                        font-family='Roboto'
+                        fontFamily='Roboto'
                     >
                         Congrats!
                     </text>
@@ -133,7 +131,7 @@ export default class AVOLearnTestCongrat extends Component<
                         y='50'
                         style={{fontSize: '3px'}}
                         fill='lightslategrey'
-                        font-family='Roboto'
+                        fontFamily='Roboto'
                     >
                         You completed
                     </text>
@@ -142,7 +140,7 @@ export default class AVOLearnTestCongrat extends Component<
                         y='54'
                         style={{fontSize: '3px'}}
                         fill='lightslategrey'
-                        font-family='Roboto'
+                        fontFamily='Roboto'
                     >
                         the test.
                     </text>
@@ -160,7 +158,7 @@ export default class AVOLearnTestCongrat extends Component<
         let radius = 22;
         for (let k = 0; k < 2; k++) {
             setTimeout(() => {
-                if (!!k) radius = 19;
+                if (k) radius = 19;
                 for (let i = 0; i < 12; i++) {
                     let x = [];
                     let y = [];
@@ -170,7 +168,7 @@ export default class AVOLearnTestCongrat extends Component<
                             centerY,
                             centerX + radius,
                             centerY + radius,
-                            360 - (currentRotation + rotationAmount * j + additionalRot), // remember, svgs tend to be inverted, so we need to invert this
+                            360 - (currentRotation + rotationAmount * j + additionalRot), // remember, SVGs tend to be inverted, so we need to invert this
                         );
                         x.push(newPoint[0]);
                         y.push(newPoint[1]);
