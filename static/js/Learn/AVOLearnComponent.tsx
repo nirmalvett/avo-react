@@ -1,15 +1,12 @@
 import React, {Component} from 'react';
 import * as Http from '../Http';
-import {Button, Input, MenuItem, Select, TextField} from '@material-ui/core';
 import LessonSlider from './Slider/LessonSlider';
-
 import LearnPostTestModal from './LearnPostTestModal';
 import {Course} from '../Http/types';
-import AVOLearnTestComp from './AVOLearnTestComp';
+import LearnTestComp from './LearnTestComp';
 import AVOLessonFSM from './AVOLessonFSM';
 import {ThemeObj} from '../Models';
 import {HashLoader} from 'react-spinners';
-import {sortFunc} from '../HelperFunctions/Utilities';
 
 export interface AvoLesson {
     conceptID: number;
@@ -21,15 +18,11 @@ export interface AvoLesson {
 }
 
 export interface AvoLessonData {
-    data: {
-        questions: {
-            prompt: string;
-            prompts: string[];
-            types: string[];
-            ID: number;
-            seed: number;
-        }[];
-    };
+    prompt: string;
+    prompts: string[];
+    types: string[];
+    ID: number;
+    seed: number;
 }
 
 interface AVOLearnComponentProps {
@@ -40,9 +33,7 @@ interface AVOLearnComponentProps {
 
 interface AVOLearnComponentState {
     lessons: AvoLesson[];
-    filterInput: string;
     selectedCourse: number;
-    otherView: 'Completed' | 'To Do';
     postLessonModalDisplay: 'none' | 'block';
     currentLesson: AvoLesson | undefined;
     isEndTest: boolean;
@@ -57,26 +48,12 @@ export default class AVOLearnComponent extends Component<
         super(props);
         this.state = {
             lessons: [],
-            filterInput: '',
             selectedCourse: -1,
-            otherView: 'To Do',
             postLessonModalDisplay: 'none',
             currentLesson: undefined,
             isEndTest: false,
             isLoading: true,
         };
-    }
-
-    getLessonsToShow() {
-        let lessons = this.state.lessons;
-        if (this.state.filterInput !== '') {
-            const words = this.state.filterInput.split(' ');
-            lessons = lessons.filter(lesson => words.every(word => lesson.name.includes(word)));
-        }
-        const isCompleted = this.state.otherView === 'Completed';
-        return lessons
-            .filter(lesson => isCompleted === lesson.mastery >= 0.85)
-            .sort(sortFunc(x => -x.preparation));
     }
 
     getSourceID() {
@@ -86,7 +63,6 @@ export default class AVOLearnComponent extends Component<
     }
 
     render() {
-        const lessons = this.getLessonsToShow();
         if (this.state.isLoading) {
             return (
                 <div
@@ -97,7 +73,7 @@ export default class AVOLearnComponent extends Component<
                         justifyContent: 'center',
                     }}
                 >
-                    <HashLoader size={150} color={'#399103'} />
+                    <HashLoader size={150} color='#399103' />
                 </div>
             );
         }
@@ -120,8 +96,9 @@ export default class AVOLearnComponent extends Component<
                     onClose={() => this.setState({currentLesson: undefined})}
                 >
                     {this.state.currentLesson && (
-                        <AVOLearnTestComp
-                            lesson={this.state.currentLesson as any}
+                        <LearnTestComp
+                            key={(this.state.currentLesson || {conceptID: 0}).conceptID}
+                            lesson={this.state.currentLesson}
                             updateMastery={this.updateMastery}
                             theme={this.props.theme}
                             setEndTest={this.setEndTest}
@@ -133,103 +110,39 @@ export default class AVOLearnComponent extends Component<
                     modalDisplay={this.state.postLessonModalDisplay}
                     lesson={this.state.currentLesson as AvoLesson}
                 />
-                <div
-                    style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}
-                >
-                    <div style={{display: 'flex', flexDirection: 'row'}}>
-                        <Button
-                            variant='outlined'
-                            style={{
-                                borderRadius: '2.5em',
-                                marginLeft: '6ch',
-                                marginRight: '2ch' /*todo*/,
-                            }}
-                            onClick={() =>
-                                this.setState({
-                                    otherView:
-                                        this.state.otherView === 'To Do' ? 'Completed' : 'To Do',
-                                })
-                            }
-                        >
-                            View {this.state.otherView === 'To Do' ? 'Completed' : 'To Do'}
-                        </Button>
-                        <TextField
-                            id='filter-input'
-                            label='Filter lessons...'
-                            value={this.state.filterInput}
-                            onChange={this.filterLessons}
-                        />
-                    </div>
-                    <Select
-                        value={this.state.selectedCourse}
-                        input={<Input name='data' id='select-class' />}
-                        style={{marginRight: '6ch' /*todo*/}}
-                        onChange={e =>
-                            this.setState(
-                                {selectedCourse: e.target.value as number},
-                                this.changeClass,
-                            )
-                        }
-                    >
-                        {this.props.courses.map((c, i) => (
-                            <MenuItem key={i} value={c.courseID}>
-                                {c.name}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </div>
-                {lessons.length !== 0 && (
-                    <LessonSlider
-                        onClick={this.openLessonFSM}
-                        key={'LessonSlider' + lessons.length}
-                        theme={this.props.theme}
-                        lessons={lessons}
-                    />
-                )}
+                <LessonSlider
+                    onClick={this.openLessonFSM}
+                    key={'LessonSlider' + this.state.selectedCourse}
+                    theme={this.props.theme}
+                    lessons={this.state.lessons}
+                    courses={this.props.courses}
+                    selectedCourse={this.state.selectedCourse}
+                    changeCourse={this.changeCourse}
+                />
             </div>
         );
     }
 
-    componentDidMount() {
-        this.getClasses();
-    }
-
-    getClasses() {
-        Http.getCourses(
-            res => {
-                console.log(res);
-                const courses = res.courses;
-                if (courses.length > 0) {
-                    this.setState({selectedCourse: courses[0].courseID}, this.changeClass);
-                }
+    componentDidUpdate(prevProps: AVOLearnComponentProps, prevState: AVOLearnComponentState) {
+        if (prevProps.courses !== this.props.courses) {
+            if (this.props.courses.length) {
+                this.changeCourse(this.props.courses[0].courseID);
+            } else {
                 this.setState({isLoading: false});
-            },
-            err => {
-                console.log(err);
-            },
-        );
-    }
-    componentDidUpdate(preProps: AVOLearnComponentProps, prevState: AVOLearnComponentState) {
-        if (preProps.courses !== this.props.courses) {
-            if (this.props.courses.length > 0)
-                this.setState({selectedCourse: this.props.courses[0].courseID}, () =>
-                    this.changeClass(),
-                );
-        }
-    }
-
-    changeClass = () => {
-        if (this.state.selectedCourse !== -1) {
-            const selectedCourse = this.props.courses.find(
-                c => c.courseID === this.state.selectedCourse,
-            );
-            if (selectedCourse) {
-                this.getLessons(selectedCourse.courseID);
             }
         }
-    };
+    }
 
-    filterLessons = (e: any) => this.setState({filterInput: e.target.value});
+    changeCourse(courseID: number) {
+        Http.getNextLessons(
+            courseID,
+            res => {
+                const lessons = res.lessons;
+                this.setState({selectedCourse: courseID, lessons, isLoading: false});
+            },
+            console.warn,
+        );
+    }
 
     getLessons = (courseID: number) => {
         Http.getNextLessons(

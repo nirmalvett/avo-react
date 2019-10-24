@@ -1,8 +1,8 @@
 import React from 'react';
 import * as Http from '../Http';
-import {AvoLesson, AvoLessonData} from './AVOLearnComponent';
 import {Button, Typography, Paper, IconButton} from '@material-ui/core';
 import {Close} from '@material-ui/icons';
+import {AvoLesson} from "./AVOLearnComponent";
 
 const styles = {
     modalBackdrop: {
@@ -35,7 +35,8 @@ const styles = {
 interface AVOLearnIncorrectAnswerModalProps {
     modalDisplay: 'block' | 'none';
     hideModal: () => void;
-    lesson: AvoLesson & AvoLessonData;
+    lesson: AvoLesson;
+    questionID: number;
 }
 
 interface AVOLearnIncorrectAnswerModalState {
@@ -52,6 +53,7 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
             selectedPrereqs: [],
         };
     }
+
     render() {
         return (
             <div>
@@ -134,23 +136,20 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
             </div>
         );
     }
+
     submitSurvey = () => {
-        const {questions} = this.props.lesson.data;
         const {selectedPrereqs} = this.state;
-        if (questions && questions.length > 0) {
-            const question = questions[0];
-            Http.wrongAnswerSurvey(
-                question.ID,
-                selectedPrereqs.map(x => x.conceptID),
-                res => {
-                    this.setState({selectedPrereqs: []});
-                    if (selectedPrereqs.length > 0) this.props.hideModal();
-                    console.log(res);
-                },
-                err => {
-                    console.log(err);
-                },
-            );
-        }
+        Http.wrongAnswerSurvey(
+            this.props.questionID,
+            selectedPrereqs.map(x => x.conceptID),
+            res => {
+                this.setState({selectedPrereqs: []});
+                if (selectedPrereqs.length > 0) this.props.hideModal();
+                console.log(res);
+            },
+            err => {
+                console.log(err);
+            },
+        );
     };
 }

@@ -1,28 +1,59 @@
 import React, {Component} from 'react';
-import {IconButton} from '@material-ui/core';
+import {Button, IconButton, Input, MenuItem, Select, TextField, Typography} from '@material-ui/core';
 import {ChevronLeft, ChevronRight} from '@material-ui/icons';
 import {AvoLesson} from '../AVOLearnComponent';
 import {PageSlider} from './PageSlider';
 import {LessonGroup} from './LessonGroup';
 import {ThemeObj} from '../../Models';
+import {Course} from "../../Http/types";
+import {sortFunc} from "../../HelperFunctions/Utilities";
 
-interface AVOLessonSliderProps {
+interface LessonSliderProps {
+    courses: Course[]
     onClick: (lesson: AvoLesson) => void;
     lessons: AvoLesson[];
     theme: ThemeObj;
+    selectedCourse: number;
+    changeCourse: (courseID: number) => void;
 }
 
-interface AVOLessonSliderState {
+interface LessonSliderState {
+    mode: 'Completed' | 'To Do';
+    filterInput: string;
     currentIndex: number;
 }
 
-export default class LessonSlider extends Component<AVOLessonSliderProps, AVOLessonSliderState> {
-    constructor(props: AVOLessonSliderProps) {
+export default class LessonSlider extends Component<LessonSliderProps, LessonSliderState> {
+    constructor(props: LessonSliderProps) {
         super(props);
-        this.state = {currentIndex: 0};
+        this.state = {
+            mode: 'To Do',
+            filterInput: '',
+            currentIndex: 0
+        };
+    }
+
+    getLessonsToShow() {
+        let lessons = this.props.lessons;
+        if (this.state.filterInput !== '') {
+            const words = this.state.filterInput.split(' ');
+            lessons = lessons.filter(lesson => words.every(word => lesson.name.includes(word)));
+        }
+        const isCompleted = this.state.mode === 'Completed';
+        return lessons
+            .filter(lesson => isCompleted === lesson.mastery >= 0.85)
+            .sort(sortFunc(x => -x.preparation));
     }
 
     render() {
+        const lessons = this.getLessonsToShow();
+        if (lessons.length === 0) {
+            return (
+                <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                    <Typography variant='h3'>No lessons to display</Typography>
+                </div>
+            );
+        }
         return (
             <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
                 <div
@@ -47,6 +78,7 @@ export default class LessonSlider extends Component<AVOLessonSliderProps, AVOLes
                         </IconButton>
                     </div>
                     <div style={{flex: 1, position: 'relative'}}>
+                        {this.renderTopBar()}
                         <LessonGroup
                             groups={[-1, 0, 1].map(this.getGroup)}
                             theme={this.props.theme}
@@ -87,6 +119,56 @@ export default class LessonSlider extends Component<AVOLessonSliderProps, AVOLes
         );
     }
 
+    renderTopBar() {
+        return (
+            <div
+                style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}
+            >
+                <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <Button
+                        variant='outlined'
+                        style={{
+                            borderRadius: '2.5em',
+                            marginLeft: '4px',
+                            marginRight: '2ch',
+                        }}
+                        onClick={this.toggleView}
+                    >
+                        View {this.state.mode === 'To Do' ? 'Completed' : 'To Do'}
+                    </Button>
+                    <TextField
+                        id='filter-input'
+                        label='Filter lessons...'
+                        value={this.state.filterInput}
+                        onChange={this.filterLessons}
+                    />
+                </div>
+                <Select
+                    value={this.props.selectedCourse}
+                    input={<Input name='data' id='select-class' />}
+                    style={{marginRight: '4px'}}
+                    onChange={e => this.props.changeCourse(e.target.value as number)}
+                >
+                    {this.props.courses.map((c, i) => (
+                        <MenuItem key={i} value={c.courseID}>
+                            {c.name}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </div>
+        );
+    }
+
+    toggleView = () => this.setState({
+        mode: this.state.mode === 'To Do' ? 'Completed' : 'To Do',
+        currentIndex: 0,
+    });
+
+    filterLessons = (e: any) => this.setState({
+        filterInput: e.target.value,
+        currentIndex: 0,
+    });
+
     formatLabel = () => {
         const startIndex = this.state.currentIndex * 6;
         const range = this.getGroup().length;
@@ -99,11 +181,11 @@ export default class LessonSlider extends Component<AVOLessonSliderProps, AVOLes
 
     getGroup = (index = 0) => {
         const idx = this.state.currentIndex + index;
-        return this.props.lessons.slice(6 * idx, 6 * (idx + 1));
+        return this.getLessonsToShow().slice(6 * idx, 6 * (idx + 1));
     };
 
     pageCount() {
-        return Math.ceil(this.props.lessons.length / 6);
+        return Math.ceil(this.getLessonsToShow().length / 6);
     }
 
     disableBack() {
