@@ -16,6 +16,14 @@ export function QuestionScreen(props: QuestionScreenProps) {
     const question = props.question;
     return (
         <Fragment>
+            <Button
+                onClick={props.back}
+                variant='outlined'
+                color='primary'
+                style={{alignSelf: 'flex-start', left: '16px', top: '4px'}}
+            >
+                Go Back To Lesson
+            </Button>
             <div
                 style={{
                     flex: 1,
@@ -37,16 +45,14 @@ export function QuestionScreen(props: QuestionScreenProps) {
                     />
                 ))}
             </div>
-            <div style={{position: 'absolute', left: '16px', top: '4px'}}>
-                <Button onClick={props.back} variant='outlined' color='primary'>
-                    Go Back To Lesson
-                </Button>
-            </div>
-            <div style={{position: 'absolute', right: '16px', bottom: '4px'}}>
-                <Button onClick={props.next} variant='outlined' color='primary'>
-                    Submit Answer
-                </Button>
-            </div>
+            <Button
+                onClick={props.next}
+                variant='outlined'
+                color='primary'
+                style={{alignSelf: 'flex-end', right: '16px', bottom: '4px'}}
+            >
+                Submit Answer
+            </Button>
         </Fragment>
     );
 }
