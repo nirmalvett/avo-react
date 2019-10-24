@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {Grid, Grow, Typography} from '@material-ui/core';
-import AVOLearnTestCongrat from '../AVOLearnTestCongrat';
+import AVOLearnTestCongrat from './AVOLearnTestCongrat';
 import AVOMasteryGauge from '../MasteryGauge';
 import {AvoLesson, AvoLessonData} from '../Learn';
 import {ThemeObj} from '../../Models';
