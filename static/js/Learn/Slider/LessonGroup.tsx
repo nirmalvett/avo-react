@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import {LessonCard} from './LessonCard';
-import {AvoLesson} from '../AVOLearnComponent';
+import {AvoLesson} from '../Learn';
 import {ThemeObj} from '../../Models';
 
 interface LessonGroupProps {

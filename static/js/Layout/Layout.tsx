@@ -12,7 +12,7 @@ import ManageClasses from '../ManageClasses/ManageClasses';
 import {QuestionBuilder} from '../QuestionBuilder/QuestionBuilder';
 import QuestionBuilderDocs from '../QuestionBuilder/QuestionBuilderDocs';
 import ExportTools from '../ExportTools/ExportTools';
-import AVOLearnComponent from '../Learn/AVOLearnComponent';
+import Learn from '../Learn/Learn';
 import MasteryHome from '../Mastery/MasteryHome';
 import {colorList} from '../SharedComponents/AVOCustomColors';
 import NotifyClass from '../Home/NotifyClass';
@@ -223,7 +223,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
             // return <HomePageOld showSnackBar={this.showSnackBar} />;
         } else if (section.name === 'Learn') {
             return (
-                <AVOLearnComponent
+                <Learn
                     courses={this.state.courses}
                     updateCourses={this.updateCourses}
                     theme={{theme: this.props.theme, color: this.color()}}

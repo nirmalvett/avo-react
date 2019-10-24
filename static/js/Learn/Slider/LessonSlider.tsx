@@ -1,15 +1,23 @@
 import React, {Component} from 'react';
-import {Button, IconButton, Input, MenuItem, Select, TextField, Typography} from '@material-ui/core';
+import {
+    Button,
+    IconButton,
+    Input,
+    MenuItem,
+    Select,
+    TextField,
+    Typography,
+} from '@material-ui/core';
 import {ChevronLeft, ChevronRight} from '@material-ui/icons';
-import {AvoLesson} from '../AVOLearnComponent';
+import {AvoLesson} from '../Learn';
 import {PageSlider} from './PageSlider';
 import {LessonGroup} from './LessonGroup';
 import {ThemeObj} from '../../Models';
-import {Course} from "../../Http/types";
-import {sortFunc} from "../../HelperFunctions/Utilities";
+import {Course} from '../../Http/types';
+import {sortFunc} from '../../HelperFunctions/Utilities';
 
 interface LessonSliderProps {
-    courses: Course[]
+    courses: Course[];
     onClick: (lesson: AvoLesson) => void;
     lessons: AvoLesson[];
     theme: ThemeObj;
@@ -29,7 +37,7 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
         this.state = {
             mode: 'To Do',
             filterInput: '',
-            currentIndex: 0
+            currentIndex: 0,
         };
     }
 
@@ -71,9 +79,7 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
                     </div>
                     <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
                         {this.renderTopBar()}
-                        <div style={{flex: 1, position: 'relative'}}>
-                            {this.renderGroup()}
-                        </div>
+                        <div style={{flex: 1, position: 'relative'}}>{this.renderGroup()}</div>
                         <PageSlider
                             color='primary'
                             valueLabelDisplay='auto'
@@ -110,9 +116,7 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
 
     renderTopBar() {
         return (
-            <div
-                style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}
-            >
+            <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
                 <div style={{display: 'flex', flexDirection: 'row'}}>
                     <Button
                         variant='outlined'
@@ -152,7 +156,14 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
         const lessons = this.getLessonsToShow();
         if (lessons.length === 0) {
             return (
-                <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                <div
+                    style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
                     <Typography variant='h4'>No lessons to display</Typography>
                 </div>
             );
@@ -168,15 +179,17 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
         }
     }
 
-    toggleView = () => this.setState({
-        mode: this.state.mode === 'To Do' ? 'Completed' : 'To Do',
-        currentIndex: 0,
-    });
+    toggleView = () =>
+        this.setState({
+            mode: this.state.mode === 'To Do' ? 'Completed' : 'To Do',
+            currentIndex: 0,
+        });
 
-    filterLessons = (e: any) => this.setState({
-        filterInput: e.target.value,
-        currentIndex: 0,
-    });
+    filterLessons = (e: any) =>
+        this.setState({
+            filterInput: e.target.value,
+            currentIndex: 0,
+        });
 
     formatLabel = () => {
         const startIndex = this.state.currentIndex * 6;

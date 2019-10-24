@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import * as Http from '../Http';
-import {AvoLesson} from './AVOLearnComponent';
+import {AvoLesson} from './Learn';
 import {Button, IconButton, Paper, Typography} from '@material-ui/core';
 import {Close} from '@material-ui/icons';
 
@@ -35,7 +35,7 @@ const styles = {
 interface LearnPostTestModalProps {
     modalDisplay: 'block' | 'none';
     hideModal: () => void;
-    lesson: AvoLesson
+    lesson: AvoLesson;
 }
 
 interface LearnPostTestModalState {
@@ -46,7 +46,10 @@ interface LearnPostTestModalState {
 const masterySurvey = ['Not at all', 'A little bit', 'About half', 'Fairly well', 'Very well'];
 const aptitudeSurvey = ['Very hard', 'Kinda hard', 'It was okay', 'Fairly easy', 'Very easy'];
 
-export default class LearnPostTestModal extends Component<LearnPostTestModalProps, LearnPostTestModalState> {
+export default class LearnPostTestModal extends Component<
+    LearnPostTestModalProps,
+    LearnPostTestModalState
+> {
     constructor(props: LearnPostTestModalProps) {
         super(props);
         this.state = {
@@ -73,9 +76,7 @@ export default class LearnPostTestModal extends Component<LearnPostTestModalProp
                     >
                         <Close />
                     </IconButton>
-                    <Typography variant={'h5'}>
-                        How well do you know the concept now?
-                    </Typography>
+                    <Typography variant={'h5'}>How well do you know the concept now?</Typography>
                     <div style={{display: 'flex', flexDirection: 'row'}}>
                         {masterySurvey.map((label, index) => (
                             <ResponseButton
@@ -133,7 +134,12 @@ export default class LearnPostTestModal extends Component<LearnPostTestModalProp
     };
 }
 
-function ResponseButton(props: {selected: boolean, onClick: () => void, buttonText: string, label: string}) {
+function ResponseButton(props: {
+    selected: boolean;
+    onClick: () => void;
+    buttonText: string;
+    label: string;
+}) {
     return (
         <div
             style={{
@@ -143,9 +149,7 @@ function ResponseButton(props: {selected: boolean, onClick: () => void, buttonTe
             }}
         >
             <Button
-                variant={
-                    props.selected ? 'contained' : 'outlined'
-                }
+                variant={props.selected ? 'contained' : 'outlined'}
                 color={props.selected ? 'primary' : undefined}
                 onClick={props.onClick}
             >

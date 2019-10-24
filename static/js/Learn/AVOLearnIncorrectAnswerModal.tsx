@@ -2,7 +2,7 @@ import React from 'react';
 import * as Http from '../Http';
 import {Button, Typography, Paper, IconButton} from '@material-ui/core';
 import {Close} from '@material-ui/icons';
-import {AvoLesson} from "./AVOLearnComponent";
+import {AvoLesson} from './Learn';
 
 const styles = {
     modalBackdrop: {

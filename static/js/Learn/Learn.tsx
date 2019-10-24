@@ -3,8 +3,8 @@ import * as Http from '../Http';
 import LessonSlider from './Slider/LessonSlider';
 import LearnPostTestModal from './LearnPostTestModal';
 import {Course} from '../Http/types';
-import LearnTestComp from './LearnTestComp';
-import AVOLessonFSM from './AVOLessonFSM';
+import LearnTestComp from './LearnModal/LearnTestComp';
+import FullScreenModal from './LearnModal/FullScreenModal';
 import {ThemeObj} from '../Models';
 import {HashLoader} from 'react-spinners';
 
@@ -25,13 +25,13 @@ export interface AvoLessonData {
     seed: number;
 }
 
-interface AVOLearnComponentProps {
+interface LearnProps {
     courses: Course[];
     updateCourses: (courses: Course[], cb?: () => void) => void;
     theme: ThemeObj;
 }
 
-interface AVOLearnComponentState {
+interface LearnState {
     lessons: AvoLesson[];
     selectedCourse: number;
     postLessonModalDisplay: 'none' | 'block';
@@ -39,11 +39,8 @@ interface AVOLearnComponentState {
     isLoading: boolean;
 }
 
-export default class AVOLearnComponent extends Component<
-    AVOLearnComponentProps,
-    AVOLearnComponentState
-> {
-    constructor(props: AVOLearnComponentProps) {
+export default class Learn extends Component<LearnProps, LearnState> {
+    constructor(props: LearnProps) {
         super(props);
         this.state = {
             lessons: [],
@@ -52,12 +49,6 @@ export default class AVOLearnComponent extends Component<
             currentLesson: undefined,
             isLoading: true,
         };
-    }
-
-    getSourceID() {
-        if (this.state.currentLesson) {
-            return `avo-lesson__card-${this.state.currentLesson.conceptID}`;
-        }
     }
 
     render() {
@@ -89,19 +80,15 @@ export default class AVOLearnComponent extends Component<
                     overflowX: 'hidden',
                 }}
             >
-                <AVOLessonFSM
-                    sourceID={this.getSourceID()}
-                    onClose={() => this.setState({currentLesson: undefined})}
-                >
-                    {this.state.currentLesson && (
-                        <LearnTestComp
-                            key={(this.state.currentLesson || {conceptID: 0}).conceptID}
-                            lesson={this.state.currentLesson}
-                            updateMastery={this.updateMastery}
-                            theme={this.props.theme}
-                        />
-                    )}
-                </AVOLessonFSM>
+                {this.state.currentLesson && (
+                    <LearnTestComp
+                        onClose={this.closeLessonFSM}
+                        key={(this.state.currentLesson || {conceptID: 0}).conceptID}
+                        lesson={this.state.currentLesson}
+                        updateMastery={this.updateMastery}
+                        theme={this.props.theme}
+                    />
+                )}
                 <LearnPostTestModal
                     hideModal={this.hidePostLessonModal}
                     modalDisplay={this.state.postLessonModalDisplay}
@@ -120,7 +107,7 @@ export default class AVOLearnComponent extends Component<
         );
     }
 
-    componentDidUpdate(prevProps: AVOLearnComponentProps, prevState: AVOLearnComponentState) {
+    componentDidUpdate(prevProps: LearnProps, prevState: LearnState) {
         if (prevProps.courses !== this.props.courses) {
             if (this.props.courses.length) {
                 this.changeCourse(this.props.courses[0].courseID);
@@ -143,20 +130,6 @@ export default class AVOLearnComponent extends Component<
         });
     };
 
-    getLessons = (courseID: number) => {
-        Http.getNextLessons(
-            this.state.selectedCourse,
-            res => {
-                const lessons = res.lessons.map(concept => ({
-                    ...concept,
-                    newMastery: concept.mastery,
-                }));
-                this.setState({selectedCourse: courseID, lessons, isLoading: false});
-            },
-            console.warn,
-        );
-    };
-
     updateMastery = (mastery: {[conceptID: number]: number}) => {
         const lessons = [...this.state.lessons];
         for (let conceptID in mastery) {
@@ -173,4 +146,6 @@ export default class AVOLearnComponent extends Component<
     hidePostLessonModal = () => this.setState({postLessonModalDisplay: 'none'});
 
     openLessonFSM = (lesson: AvoLesson) => this.setState({currentLesson: lesson});
+
+    closeLessonFSM = () => this.setState({currentLesson: undefined});
 }

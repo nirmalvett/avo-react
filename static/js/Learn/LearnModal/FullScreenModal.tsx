@@ -2,12 +2,12 @@ import React, {PureComponent} from 'react';
 import {Fade, Grid, IconButton, Paper} from '@material-ui/core';
 import {FullscreenExit} from '@material-ui/icons';
 
-interface AVOLessonFSMProps {
+interface FullScreenModalProps {
     readonly sourceID: string | undefined;
     readonly onClose: () => void;
 }
 
-export default class AVOLessonFSM extends PureComponent<AVOLessonFSMProps> {
+export default class FullScreenModal extends PureComponent<FullScreenModalProps> {
     render() {
         const {sourceID, children} = this.props;
         const border = (16 + 1) * 2;
@@ -79,7 +79,7 @@ export default class AVOLessonFSM extends PureComponent<AVOLessonFSMProps> {
         );
     }
 
-    componentDidUpdate(prevProps: AVOLessonFSMProps) {
+    componentDidUpdate(prevProps: FullScreenModalProps) {
         if (!prevProps.sourceID && this.props.sourceID) {
             this.openFSM(this.props.sourceID);
         } else if (prevProps.sourceID && !this.props.sourceID) {

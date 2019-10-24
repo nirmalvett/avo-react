@@ -1,4 +1,4 @@
-import {AvoLesson} from '../AVOLearnComponent';
+import {AvoLesson} from '../Learn';
 import {ButtonBase, Card, IconButton, Tooltip, Typography} from '@material-ui/core';
 import {LockOpen, LockOutlined} from '@material-ui/icons';
 import AVOMasteryGauge from '../MasteryGauge';
@@ -30,7 +30,11 @@ export function LessonCard(props: AVOLearnCardProps) {
                 width: 'calc(33.3% - 10px)',
             }}
         >
-            <ButtonBase onClick={onClick} disabled={disabled} style={{height: '100%', width: '100%', position: 'absolute', zIndex: 2}}/>
+            <ButtonBase
+                onClick={onClick}
+                disabled={disabled}
+                style={{height: '100%', width: '100%', position: 'absolute', zIndex: 2}}
+            />
             <Tooltip title={title}>
                 <IconButton
                     disableRipple={true}
