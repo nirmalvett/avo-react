@@ -123,13 +123,11 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
 
     goToQuestion = () => this.setState({mode: 'question'});
 
-    changeAnswer(index: number) {
-        return (answer: string) => {
-            const newAnswerList = [...this.state.nextAnswers];
-            newAnswerList[index] = answer;
-            this.setState({nextAnswers: newAnswerList});
-        };
-    }
+    changeAnswer = (index: number) => (answer: string) => {
+        const newAnswerList = [...this.state.nextAnswers];
+        newAnswerList[index] = answer;
+        this.setState({nextAnswers: newAnswerList});
+    };
 
     submitAnswer = () => {
         const question = this.state.nextQuestion as AvoLessonData;
