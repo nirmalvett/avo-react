@@ -109,7 +109,7 @@ export default function AVOMasteryGauge(props: AVOMasteryGaugeProps) {
                     cy='21'
                     r='16'
                     fill='transparent'
-                    stroke={props.theme.color[500]}
+                    stroke={props.theme.color[500] + (props.comprehension ? '' : '00')}
                     strokeWidth='0.85'
                     strokeDasharray={`${props.comprehension} ${100 - props.comprehension}`}
                     strokeDashoffset='25'
