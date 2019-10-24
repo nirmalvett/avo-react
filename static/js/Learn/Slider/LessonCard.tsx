@@ -1,9 +1,9 @@
 import {AvoLesson} from '../AVOLearnComponent';
-import {Card, IconButton, Tooltip, Typography} from '@material-ui/core';
-import {Fullscreen, LockOpen, LockOutlined} from '@material-ui/icons';
+import {ButtonBase, Card, IconButton, Tooltip, Typography} from '@material-ui/core';
+import {LockOpen, LockOutlined} from '@material-ui/icons';
 import AVOMasteryGauge from '../MasteryGauge';
 import React, {ReactElement} from 'react';
-import {green, lightGreen, orange, red} from '@material-ui/core/colors';
+import {blueGrey, green, grey, lightGreen} from '@material-ui/core/colors';
 import {ThemeObj} from '../../Models';
 
 interface AVOLearnCardProps {
@@ -30,6 +30,7 @@ export function LessonCard(props: AVOLearnCardProps) {
                 width: 'calc(33.3% - 10px)',
             }}
         >
+            <ButtonBase onClick={onClick} disabled={disabled} style={{height: '100%', width: '100%', position: 'absolute', zIndex: 2}}/>
             <Tooltip title={title}>
                 <IconButton
                     disableRipple={true}
@@ -38,27 +39,12 @@ export function LessonCard(props: AVOLearnCardProps) {
                         margin: '4px',
                         left: 0,
                         top: 0,
-                        zIndex: 10,
+                        zIndex: 3,
                     }}
                 >
                     {icon}
                 </IconButton>
             </Tooltip>
-            <IconButton
-                onClick={onClick}
-                disabled={disabled}
-                color='primary'
-                aria-label='fullscreen'
-                style={{
-                    position: 'absolute',
-                    margin: '4px',
-                    right: 0,
-                    top: 0,
-                    zIndex: 10,
-                }}
-            >
-                <Fullscreen />
-            </IconButton>
             <AVOMasteryGauge
                 theme={theme}
                 margin={0}
@@ -72,7 +58,7 @@ export function LessonCard(props: AVOLearnCardProps) {
                     margin: '4px',
                     left: 0,
                     bottom: 0,
-                    zIndex: 10,
+                    zIndex: 1,
                 }}
                 variant='subtitle1'
             >
@@ -86,12 +72,12 @@ function getIcon(preparation: number): {title: string; icon: ReactElement} {
     if (preparation < 0.25) {
         return {
             title: 'You need more preparation before attempting to learn this material',
-            icon: <LockOutlined style={{color: red['500']}} />,
+            icon: <LockOutlined style={{color: grey['500']}} />,
         };
     } else if (preparation < 0.5) {
         return {
             title: 'You should prepare more before learning this material',
-            icon: <LockOutlined style={{color: orange['500']}} />,
+            icon: <LockOutlined style={{color: blueGrey['500']}} />,
         };
     } else if (preparation < 0.75) {
         return {
