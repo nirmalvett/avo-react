@@ -54,6 +54,7 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
     }
 
     render() {
+        const pageCount = this.pageCount();
         return (
             <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
                 <div
@@ -79,17 +80,18 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
                     </div>
                     <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
                         {this.renderTopBar()}
-                        <div style={{flex: 1, position: 'relative'}}>{this.renderGroup()}</div>
+                        <div style={{flex: 1, position: 'relative', display: 'flex'}}>{this.renderGroup()}</div>
                         <PageSlider
                             color='primary'
                             valueLabelDisplay='auto'
                             aria-label='avo page slider'
                             min={0}
-                            max={this.pageCount() - 1}
+                            max={pageCount - 1}
                             onChange={this.sliderChange}
                             style={{zIndex: 2}}
                             value={this.state.currentIndex}
                             valueLabelFormat={this.formatLabel}
+                            disabled={pageCount < 2}
                         />
                     </div>
                     <div
