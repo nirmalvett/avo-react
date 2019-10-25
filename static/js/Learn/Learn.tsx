@@ -51,6 +51,10 @@ export default class Learn extends Component<LearnProps, LearnState> {
         };
     }
 
+    componentDidMount(): void {
+        Http.getCourses(({courses}) => this.props.updateCourses(courses), console.warn);
+    }
+
     getSourceID() {
         if (this.state.currentLesson) {
             return `avo-lesson__card-${this.state.currentLesson.conceptID}`;

@@ -8,6 +8,8 @@ interface FullScreenModalProps {
 }
 
 export default class FullScreenModal extends PureComponent<FullScreenModalProps> {
+    transform: string = '';
+
     render() {
         const {sourceID, children} = this.props;
         const border = (16 + 1) * 2;
@@ -48,7 +50,7 @@ export default class FullScreenModal extends PureComponent<FullScreenModalProps>
                             <div style={{flex: 1, display: 'flex', flexDirection: 'row', position: 'relative', overflow: 'hidden'}}>
                                 {children}
                                 <IconButton
-                                    onClick={() => this.closeFSM(sourceID)}
+                                    onClick={this.closeFSM}
                                     color='primary'
                                     style={{
                                         position: 'absolute',
@@ -70,7 +72,7 @@ export default class FullScreenModal extends PureComponent<FullScreenModalProps>
         if (!prevProps.sourceID && this.props.sourceID) {
             this.openFSM(this.props.sourceID);
         } else if (prevProps.sourceID && !this.props.sourceID) {
-            this.closeFSM(prevProps.sourceID);
+            this.closeFSM();
         }
     }
 
@@ -80,7 +82,7 @@ export default class FullScreenModal extends PureComponent<FullScreenModalProps>
 
         $this.style.opacity = '0';
         $this.style.pointerEvents = 'auto';
-        $this.style.transform = getTransform(sourceID);
+        $this.style.transform = this.transform = getTransform(sourceID);
 
         $innerContent.style.opacity = '0';
         setTimeout(() => {
@@ -90,10 +92,10 @@ export default class FullScreenModal extends PureComponent<FullScreenModalProps>
         }, 600);
     }
 
-    closeFSM = (sourceID: string) => {
+    closeFSM = () => {
         const $this = document.getElementById('avo-lesson__expanded-card') as HTMLElement;
         const $innerContent = document.getElementById('FSM-inner__content-div') as HTMLElement;
-        const transform = getTransform(sourceID);
+        const transform = this.transform;
         setTimeout(function() {
             $this.style.transform = transform;
             $this.style.opacity = '0';
