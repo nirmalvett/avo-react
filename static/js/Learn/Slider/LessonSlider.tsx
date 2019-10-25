@@ -49,7 +49,7 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
         }
         const isCompleted = this.state.mode === 'Completed';
         return lessons
-            .filter(lesson => isCompleted === lesson.mastery >= 0.85)
+            .filter(lesson => isCompleted === lesson.mastery >= 0.80)
             .sort(sortFunc(x => -x.preparation));
     }
 

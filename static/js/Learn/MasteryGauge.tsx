@@ -35,7 +35,7 @@ export default function AVOMasteryGauge(props: AVOMasteryGaugeProps) {
         for (let i = 0; i < 12; i++) {
             let x = [];
             let y = [];
-            if (props.comprehension > 75) {
+            if (props.comprehension >= 80) {
                 for (let j = 0; j < 2; j++) {
                     let newPoint = rotate(
                         centerX,
