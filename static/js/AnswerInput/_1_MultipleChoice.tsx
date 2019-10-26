@@ -30,6 +30,6 @@ export class _1_MultipleChoice extends PureComponent<AnswerInputImplementationPr
 
     onChange = (index: number) => () => {
         this.props.save(index.toString());
-        this.props.showSnackBar('info', 'Answer updated', 1000);
+        // this.props.showSnackBar('info', 'Answer updated', 1000); // Removed for milestone 4 to maintain consitency, see issue #185
     };
 }

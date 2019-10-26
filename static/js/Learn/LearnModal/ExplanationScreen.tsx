@@ -23,7 +23,7 @@ export function ExplanationScreen(props: ExplanationScreenProps) {
     return (
         <Fragment>
             <div style={{flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto'}}>
-                {explanation.explanation.map(x => getMathJax(x))}
+                {explanation.explanation.map(x => <>{getMathJax(x)}<br/></>)}
             </div>
             <div style={{maxWidth: '200px'}}>
                 <AVOMasteryGauge
