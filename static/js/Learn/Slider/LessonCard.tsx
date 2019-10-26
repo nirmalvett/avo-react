@@ -1,6 +1,6 @@
 import {AvoLesson} from '../Learn';
 import {ButtonBase, Card, IconButton, Tooltip, Typography} from '@material-ui/core';
-import {LockOpen, LockOutlined} from '@material-ui/icons';
+import {Extension, ExtensionOutlined} from '@material-ui/icons';
 import AVOMasteryGauge from '../MasteryGauge';
 import React, {ReactElement} from 'react';
 import {blueGrey, green, grey, lightGreen} from '@material-ui/core/colors';
@@ -74,22 +74,22 @@ function getIcon(preparation: number): {title: string; icon: ReactElement} {
     if (preparation < 0.25) {
         return {
             title: 'You need more preparation before attempting to learn this material',
-            icon: <LockOutlined style={{color: grey['500']}} />,
+            icon: <ExtensionOutlined style={{color: grey['500']}} />,
         };
     } else if (preparation < 0.5) {
         return {
             title: 'You should prepare more before learning this material',
-            icon: <LockOutlined style={{color: blueGrey['500']}} />,
+            icon: <ExtensionOutlined style={{color: blueGrey['500']}} />,
         };
     } else if (preparation < 0.75) {
         return {
             title: 'You could prepare more, but this material should be okay',
-            icon: <LockOpen style={{color: lightGreen['500']}} />,
+            icon: <Extension style={{color: lightGreen['500']}} />,
         };
     } else {
         return {
             title: 'You are ready to learn this material',
-            icon: <LockOpen style={{color: green['500']}} />,
+            icon: <Extension style={{color: green['500']}} />,
         };
     }
 }
