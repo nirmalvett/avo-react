@@ -18,7 +18,8 @@ interface ExplanationScreenProps {
 
 export function ExplanationScreen(props: ExplanationScreenProps) {
     const explanation = props.explanation;
-    const change = ((props.changedMastery - props.lesson.mastery) * 100).toFixed(2);
+    const change = Math.abs((props.changedMastery - props.lesson.mastery) * 100).toFixed(2);
+    const changeString = props.changedMastery > props.lesson.mastery ? 'gained': 'lost'
     return (
         <Fragment>
             <div style={{flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto'}}>
@@ -30,7 +31,7 @@ export function ExplanationScreen(props: ExplanationScreenProps) {
                     theme={props.theme}
                 />
                 <Typography variant='subtitle2'>
-                    Mastery of {props.lesson.name} changed by {change}%
+                    You {changeString} {change}% mastery in {props.lesson.name}
                 </Typography>
             </div>
             <div

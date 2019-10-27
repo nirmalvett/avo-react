@@ -64,7 +64,8 @@ export class FinishScreen extends Component<FinishScreenProps, FinishScreenState
     }
 
     renderExplanations() {
-        const change = ((this.props.changedMastery - this.props.lesson.mastery) * 100).toFixed(2);
+        const change = Math.abs((this.props.changedMastery - this.props.lesson.mastery) * 100).toFixed(2);
+        const changeString = this.props.changedMastery > this.props.lesson.mastery ? 'gained': 'lost'
         return (
             <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
                 <IconButton onClick={this.prev} disabled={this.state.index === 0} color='primary' style={{zIndex: 1, alignSelf: 'center'}}><ChevronLeft/></IconButton>
@@ -86,7 +87,7 @@ export class FinishScreen extends Component<FinishScreenProps, FinishScreenState
                         theme={this.props.theme}
                     />
                     <Typography variant='subtitle2'>
-                        Mastery of {this.props.lesson.name} changed by {change}%
+                        You {changeString} {change}% mastery in {this.props.lesson.name}
                     </Typography>
                 </div>
             </div>
