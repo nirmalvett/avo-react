@@ -29,11 +29,11 @@ export class _0_TrueFalse extends PureComponent<AnswerInputImplementationProps> 
 
     clickTrue = () => {
         this.props.save('true');
-        this.props.showSnackBar('info', 'Answer updated', 1000);
+        // this.props.showSnackBar('info', 'Answer updated', 1000);
     };
 
     clickFalse = () => {
         this.props.save('false');
-        this.props.showSnackBar('info', 'Answer updated', 1000);
+        // this.props.showSnackBar('info', 'Answer updated', 1000);
     };
 }
