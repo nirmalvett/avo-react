@@ -31,7 +31,7 @@ def get_courses():
                 (Course.COURSE == Section.COURSE) &
                 (Section.SECTION == UserSection.SECTION) &
                 (UserSection.USER == current_user.USER) &
-                (UserSection.expiry > datetime.now())
+                ((UserSection.expiry == None) | (UserSection.expiry > datetime.now()))
         )
     ).all()
     return_courses = list(map(lambda c: {'courseID': c.COURSE, 'name': c.name}, courses))
