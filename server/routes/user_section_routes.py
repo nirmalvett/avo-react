@@ -20,6 +20,11 @@ def add_to_whitelist(section_id: int, uwo_users: list):
     :return: Confirmation that the users were added to the whitelist
     """
     # todo: security
+    section: Section = Section.query.get(section_id)
+    if section.price > 0:
+        enroll_type = UserSectionType.WHITELIST
+    else:
+        enroll_type = UserSectionType.ENROLLED
     for uwo_user in uwo_users:
         user_email = uwo_user + '@uwo.ca'
         user = User.query.filter((User.email == user_email)).first()
@@ -40,7 +45,7 @@ def add_to_whitelist(section_id: int, uwo_users: list):
                 f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
             )
         if not UserSection.query.filter((user.USER == UserSection.USER) & (UserSection.SECTION == section_id)).all():
-            db.session.add(UserSection(user.USER, section_id, UserSectionType.WHITELIST))
+            db.session.add(UserSection(user.USER, section_id, enroll_type))
     db.session.commit()
     return jsonify({})
 
