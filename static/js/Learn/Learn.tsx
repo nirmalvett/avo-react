@@ -151,6 +151,7 @@ export default class Learn extends Component<LearnProps, LearnState> {
             }
         }
         this.setState({lessons});
+        Http.getNextLessons(this.state.selectedCourse, res => this.setState(res), console.warn);
     };
 
     showPostLessonModal = () => this.setState({postLessonModalDisplay: 'block'});
