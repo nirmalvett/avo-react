@@ -236,18 +236,23 @@ def get_next_question(concept_id):
 
     concept_dict = get_course_graph(concept.COURSE)
 
+    valid_questions = []
+
     for q in questions:
+        include = True
         for c in concept_questions:
             if c.QUESTION == q.QUESTION and c.CONCEPT != concept_id:
                 prep = concept_dict[c.CONCEPT]['preparation']
                 weight = c.weight
                 if weight == 2 and prep == 0 or weight == 3 and prep < 0.4 or weight == 4 and prep < 0.7:
-                    questions.remove(q)
+                    include = False
                     break
+        if include:
+            valid_questions.append(q)
 
-    if len(questions) == 0:
+    if len(valid_questions) == 0:
         return jsonify(error='No question available')
-    question: Question = choice(questions)
+    question: Question = choice(valid_questions)
     seed = randint(0, 65535)
     q = AvoQuestion(question.string, seed)
     return jsonify(ID=question.QUESTION, prompt=q.prompt, prompts=q.prompts, seed=seed, types=q.types)
