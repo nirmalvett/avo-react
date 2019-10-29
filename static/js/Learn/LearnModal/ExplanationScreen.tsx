@@ -19,11 +19,16 @@ interface ExplanationScreenProps {
 export function ExplanationScreen(props: ExplanationScreenProps) {
     const explanation = props.explanation;
     const change = Math.abs((props.changedMastery - props.lesson.mastery) * 100).toFixed(2);
-    const changeString = props.changedMastery > props.lesson.mastery ? 'gained': 'lost'
+    const changeString = props.changedMastery > props.lesson.mastery ? 'gained' : 'lost';
     return (
         <Fragment>
             <div style={{flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto'}}>
-                {explanation.explanation.map(x => <>{getMathJax(x)}<br/></>)}
+                {explanation.explanation.map(x => (
+                    <>
+                        {getMathJax(x)}
+                        <br />
+                    </>
+                ))}
             </div>
             <div style={{maxWidth: '200px'}}>
                 <AVOMasteryGauge

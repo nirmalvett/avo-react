@@ -19,7 +19,14 @@ export function LessonScreen(props: LessonScreenProps) {
                 <Typography variant='h6'>{props.lesson.name}</Typography>
                 {getMathJax(props.lesson.lesson, 'body2')}
             </div>
-            <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-end'}}>
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-end',
+                }}
+            >
                 <AVOMasteryGauge
                     comprehension={Math.floor(props.lesson.mastery * 100)}
                     theme={props.theme}

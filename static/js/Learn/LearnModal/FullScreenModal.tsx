@@ -47,7 +47,15 @@ export default class FullScreenModal extends PureComponent<FullScreenModalProps>
                 >
                     {sourceID && (
                         <Fade in={!!sourceID} timeout={{enter: 500}}>
-                            <div style={{flex: 1, display: 'flex', flexDirection: 'row', position: 'relative', overflow: 'hidden'}}>
+                            <div
+                                style={{
+                                    flex: 1,
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                }}
+                            >
                                 {children}
                                 <IconButton
                                     onClick={this.closeFSM}

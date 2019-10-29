@@ -7,7 +7,7 @@ import {ThemeObj} from '../../Models';
 import {SubmitQuestion} from '../../Http';
 import {getMathJax} from '../../HelperFunctions/Utilities';
 import {AnswerInput} from '../../AnswerInput';
-import {ChevronLeft, ChevronRight} from "@material-ui/icons";
+import {ChevronLeft, ChevronRight} from '@material-ui/icons';
 
 interface FinishScreenProps {
     lesson: AvoLesson;
@@ -19,7 +19,7 @@ interface FinishScreenProps {
 }
 
 interface FinishScreenState {
-    mode: 'mastery gauge' | 'explanation'
+    mode: 'mastery gauge' | 'explanation';
     index: number;
 }
 
@@ -45,7 +45,11 @@ export class FinishScreen extends Component<FinishScreenProps, FinishScreenState
     render() {
         return (
             <Fragment>
-                <Grow in={this.state.mode === 'mastery gauge'} timeout={{enter: 1000, exit: 500}} style={{position: 'absolute', alignSelf: 'center', justifySelf: 'center'}}>
+                <Grow
+                    in={this.state.mode === 'mastery gauge'}
+                    timeout={{enter: 1000, exit: 500}}
+                    style={{position: 'absolute', alignSelf: 'center', justifySelf: 'center'}}
+                >
                     {this.renderSpinner()}
                 </Grow>
                 <Grow in={this.state.mode === 'explanation'} timeout={{enter: 1500}}>
@@ -57,19 +61,45 @@ export class FinishScreen extends Component<FinishScreenProps, FinishScreenState
 
     renderSpinner() {
         return (
-            <div style={{flex: 1, left: '50%', right: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+            <div
+                style={{
+                    flex: 1,
+                    left: '50%',
+                    right: '50%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
                 <AVOLearnTestCongrat colors={['#399103', '#039124', '#809103']} />
             </div>
         );
     }
 
     renderExplanations() {
-        const change = Math.abs((this.props.changedMastery - this.props.lesson.mastery) * 100).toFixed(2);
-        const changeString = this.props.changedMastery > this.props.lesson.mastery ? 'gained': 'lost'
+        const change = Math.abs(
+            (this.props.changedMastery - this.props.lesson.mastery) * 100,
+        ).toFixed(2);
+        const changeString =
+            this.props.changedMastery > this.props.lesson.mastery ? 'gained' : 'lost';
         return (
             <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
-                <IconButton onClick={this.prev} disabled={this.state.index === 0} color='primary' style={{zIndex: 1, alignSelf: 'center'}}><ChevronLeft/></IconButton>
-                <div style={{flex: 1, display: 'flex', flexDirection: 'column', position: 'relative'}}>
+                <IconButton
+                    onClick={this.prev}
+                    disabled={this.state.index === 0}
+                    color='primary'
+                    style={{zIndex: 1, alignSelf: 'center'}}
+                >
+                    <ChevronLeft />
+                </IconButton>
+                <div
+                    style={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        position: 'relative',
+                    }}
+                >
                     <Typography variant={'h6'}>{this.props.lesson.name}</Typography>
                     {this.props.questions.map((q, i) => (
                         <IndividualExplanation
@@ -80,7 +110,14 @@ export class FinishScreen extends Component<FinishScreenProps, FinishScreenState
                         />
                     ))}
                 </div>
-                <IconButton onClick={this.next} disabled={this.state.index === this.props.questions.length - 1} color='primary' style={{zIndex: 1, alignSelf: 'center'}}><ChevronRight/></IconButton>
+                <IconButton
+                    onClick={this.next}
+                    disabled={this.state.index === this.props.questions.length - 1}
+                    color='primary'
+                    style={{zIndex: 1, alignSelf: 'center'}}
+                >
+                    <ChevronRight />
+                </IconButton>
                 <div style={{maxWidth: '200px'}}>
                     <AVOMasteryGauge
                         comprehension={Math.floor(this.props.changedMastery * 100)}

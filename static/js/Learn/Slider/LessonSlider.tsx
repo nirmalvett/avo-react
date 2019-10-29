@@ -49,7 +49,7 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
         }
         const isCompleted = this.state.mode === 'Completed';
         return lessons
-            .filter(lesson => isCompleted === lesson.mastery >= 0.80)
+            .filter(lesson => isCompleted === lesson.mastery >= 0.8)
             .sort(sortFunc(x => -x.preparation));
     }
 
@@ -80,7 +80,9 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
                     </div>
                     <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
                         {this.renderTopBar()}
-                        <div style={{flex: 1, position: 'relative', display: 'flex'}}>{this.renderGroup()}</div>
+                        <div style={{flex: 1, position: 'relative', display: 'flex'}}>
+                            {this.renderGroup()}
+                        </div>
                         <PageSlider
                             color='primary'
                             valueLabelDisplay='auto'

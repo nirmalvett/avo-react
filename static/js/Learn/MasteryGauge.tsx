@@ -86,12 +86,7 @@ export default function AVOMasteryGauge(props: AVOMasteryGaugeProps) {
     const style = {width: '200px', height: '200px', ...props.style};
     return (
         <div className='avo-progression-gauge-container' style={style}>
-            <svg
-                width='100%'
-                height='100%'
-                viewBox='0 0 42 42'
-                className='donut'
-            >
+            <svg width='100%' height='100%' viewBox='0 0 42 42' className='donut'>
                 <circle
                     className='donut-ring'
                     cx='21'

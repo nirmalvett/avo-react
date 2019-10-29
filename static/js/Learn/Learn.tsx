@@ -6,7 +6,7 @@ import {Course} from '../Http/types';
 import LearnTestComp from './LearnModal/LearnTestComp';
 import {ThemeObj} from '../Models';
 import {HashLoader} from 'react-spinners';
-import FullScreenModal from "./LearnModal/FullScreenModal";
+import FullScreenModal from './LearnModal/FullScreenModal';
 
 export interface AvoLesson {
     conceptID: number;
