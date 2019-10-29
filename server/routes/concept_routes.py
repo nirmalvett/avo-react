@@ -279,8 +279,8 @@ def get_course_graph(course_id):
             'lesson': c.lesson_content,
             'prereqs': [],
             'mastery': 0,
-            'mastery_survey': 0,
-            'aptitude_survey': 0,
+            'masterySurvey': 0,
+            'aptitudeSurvey': 0,
             'preparation': 1,
         }
 
@@ -289,11 +289,17 @@ def get_course_graph(course_id):
 
     for m in mastery:
         concept_dict[m.CONCEPT]['mastery'] = m.mastery_level
-        concept_dict[m.CONCEPT]['mastery_survey'] = m.mastery_survey
-        concept_dict[m.CONCEPT]['aptitude_survey'] = m.aptitude_survey
+        concept_dict[m.CONCEPT]['masterySurvey'] = m.mastery_survey
+        concept_dict[m.CONCEPT]['aptitudeSurvey'] = m.aptitude_survey
 
     for concept_id, concept_obj in concept_dict.items():
-        mastery_values = list(map(lambda x: concept_dict[x[0]]['mastery'], concept_obj['prereqs']))
+        mastery_values = list(map(
+            lambda x: max(
+                concept_dict[x[0]]['mastery'],
+                concept_dict[x[0]]['masterySurvey'] / 5
+            ),
+            concept_obj['prereqs']
+        ))
         weights = list(map(lambda x: x[1], concept_obj['prereqs']))
         if len(weights):
             preparation = 0

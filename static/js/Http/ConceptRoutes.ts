@@ -84,6 +84,8 @@ export interface GetNextLessons {
         preparation: number;
         mastery: number;
         prereqs: {name: string; conceptID: number}[];
+        masterySurvey: number;
+        aptitudeSurvey: number;
     }[];
 }
 

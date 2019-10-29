@@ -15,6 +15,8 @@ export interface AvoLesson {
     name: string;
     lesson: string;
     prereqs: {name: string; conceptID: number}[];
+    masterySurvey: number;
+    aptitudeSurvey: number;
 }
 
 export interface AvoLessonData {
@@ -37,6 +39,7 @@ interface LearnState {
     postLessonModalDisplay: 'none' | 'block';
     currentLesson: AvoLesson | undefined;
     isLoading: boolean;
+    needUpdate: boolean;
 }
 
 export default class Learn extends Component<LearnProps, LearnState> {
@@ -48,6 +51,7 @@ export default class Learn extends Component<LearnProps, LearnState> {
             postLessonModalDisplay: 'none',
             currentLesson: undefined,
             isLoading: true,
+            needUpdate: false,
         };
     }
 
@@ -93,11 +97,11 @@ export default class Learn extends Component<LearnProps, LearnState> {
                 <FullScreenModal sourceID={this.getSourceID()} onClose={this.closeLessonFSM}>
                     {this.state.currentLesson && (
                         <LearnTestComp
-                            onClose={this.closeLessonFSM}
                             key={(this.state.currentLesson || {conceptID: 0}).conceptID}
                             lesson={this.state.currentLesson}
                             updateMastery={this.updateMastery}
                             theme={this.props.theme}
+                            survey={this.updateSurvey}
                         />
                     )}
                 </FullScreenModal>
@@ -150,8 +154,15 @@ export default class Learn extends Component<LearnProps, LearnState> {
                 lessons[index] = {...lessons[index], mastery: mastery[conceptID]};
             }
         }
-        this.setState({lessons});
-        Http.getNextLessons(this.state.selectedCourse, res => this.setState(res), console.warn);
+        this.setState({lessons, needUpdate: true});
+    };
+
+    updateSurvey = (masterySurvey: number, aptitudeSurvey: number) => () => {
+        const lesson = this.state.currentLesson as AvoLesson;
+        this.setState({
+            currentLesson: {...lesson, masterySurvey, aptitudeSurvey},
+            needUpdate: true,
+        });
     };
 
     showPostLessonModal = () => this.setState({postLessonModalDisplay: 'block'});
@@ -160,5 +171,14 @@ export default class Learn extends Component<LearnProps, LearnState> {
 
     openLessonFSM = (lesson: AvoLesson) => this.setState({currentLesson: lesson});
 
-    closeLessonFSM = () => this.setState({currentLesson: undefined});
+    closeLessonFSM = () => {
+        this.setState({currentLesson: undefined});
+        if (this.state.needUpdate) {
+            Http.getNextLessons(
+                this.state.selectedCourse,
+                res => this.setState({...res, needUpdate: false}),
+                console.warn,
+            );
+        }
+    };
 }

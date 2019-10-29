@@ -12,7 +12,7 @@ interface LearnTestCompProps {
     lesson: AvoLesson;
     updateMastery: (mastery: {[conceptID: number]: number}) => void;
     theme: ThemeObj;
-    onClose: () => void;
+    survey: (mastery: number, aptitude: number) => () => void;
 }
 
 interface LearnTestCompState {
@@ -83,6 +83,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         disabled={!this.state.nextQuestion}
                         theme={this.props.theme}
                         next={this.goToQuestion}
+                        survey={this.props.survey}
                     />
                 );
             case 'question':

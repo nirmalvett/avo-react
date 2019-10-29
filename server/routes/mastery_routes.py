@@ -17,9 +17,10 @@ MasteryRoutes = Blueprint('MasteryRoutes', __name__)
 def post_question_survey(concept_id: int, mastery: int, aptitude: int):
     mastery_obj = Mastery.query.filter((Mastery.CONCEPT == concept_id) & (Mastery.USER == current_user.USER)).first()
     if mastery_obj is None:
-        return jsonify(error='Mastery record not found')
-    mastery_obj.mastery_survey = mastery
-    mastery_obj.aptitude_survey = aptitude
+        db.session.add(Mastery(concept_id, current_user.USER, 0, mastery, aptitude))
+    else:
+        mastery_obj.mastery_survey = mastery
+        mastery_obj.aptitude_survey = aptitude
     db.session.commit()
     return jsonify({})
 

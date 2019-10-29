@@ -58,7 +58,7 @@ export default class FullScreenModal extends PureComponent<FullScreenModalProps>
                             >
                                 {children}
                                 <IconButton
-                                    onClick={this.closeFSM}
+                                    onClick={this.props.onClose}
                                     color='primary'
                                     style={{
                                         position: 'absolute',
@@ -110,7 +110,6 @@ export default class FullScreenModal extends PureComponent<FullScreenModalProps>
             $this.style.pointerEvents = 'none';
             $innerContent.style.opacity = '0';
         }, 100);
-        setTimeout(this.props.onClose, 220);
     };
 }
 
