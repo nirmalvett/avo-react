@@ -329,15 +329,34 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             <IconButton
                                 onClick={() =>
                                     this.setState({isEditingLesson: false}, () => {
+                                        setTimeout(() => {
+                                            this.gotoSelectedNode(this.state.selectedConcept);
+                                        }, 400);
+                                    })
+                                }
+                                aria-label='add'
+                                style={{
+                                    position: 'absolute',
+                                    bottom: '28px',
+                                    right: '86px',
+                                    zIndex: 100,
+                                }}
+                            >
+                                <Close />
+                            </IconButton>
+                            <IconButton
+                                onClick={() =>
+                                    this.setState({isEditingLesson: false}, () => {
                                         const string_copy: string = (
                                             ' ' + this.state.lessonText
                                         ).slice(1);
                                         setTimeout(() => {
-                                            this.gotoSelectedNode(this.state.selectedConcept);
-                                            setTimeout(
-                                                () => this.setState({lessonText: string_copy}),
-                                                200,
-                                            );
+                                            this.saveLesson(string_copy);
+                                            // this.gotoSelectedNode(this.state.selectedConcept);
+                                            // setTimeout(
+                                            //     () => this.setState({lessonText: string_copy}),
+                                            //     200,
+                                            // );
                                         }, 400);
                                     })
                                 }
@@ -1170,7 +1189,42 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                 console.warn(res);
             },
         );
-    }
+    };
+
+    saveLesson(lesson: string) {
+        Http.editConcept(
+            this.state.selectedConcept.conceptID,
+            this.state.selectedConcept.name,
+            lesson,
+            res => {
+                console.log(res);
+                const concepts: Concept[] = [...this.state.concepts];
+                const edges: Edge[] = [...this.state.edges];
+
+                const newConcepts: Concept[] = concepts.map(Concept => {
+                    if (this.state.selectedConcept.conceptID == Concept.conceptID) {
+                        Concept.name =  this.state.selectedConcept.name;
+                        Concept.lesson = lesson;
+                    }
+                    return Concept;
+                });
+                this.setState(
+                    {
+                        concepts: newConcepts,
+                        edges: edges,
+                        isEditingLesson: false,
+                    },
+                    () => {
+                        this.chartRef.current.init();
+                        setTimeout(() => this.gotoSelectedNode(this.state.selectedConcept), 150);
+                    },
+                );
+            },
+            res => {
+                console.warn(res);
+            },
+        );
+    };
 
     deleteConcept() {
         const conceptID: number = this.state.selectedConcept.conceptID;

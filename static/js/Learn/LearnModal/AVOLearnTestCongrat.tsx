@@ -136,13 +136,13 @@ export default class AVOLearnTestCongrat extends Component<
                         You completed
                     </text>
                     <text
-                        x='44.5'
+                        x='40.5'
                         y='54'
                         style={{fontSize: '3px'}}
                         fill='lightslategrey'
                         fontFamily='Roboto'
                     >
-                        the test.
+                        the lesson.
                     </text>
                 </svg>
             </div>
