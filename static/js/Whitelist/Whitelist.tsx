@@ -12,9 +12,10 @@ import {
     Paper,
     Select,
     Typography,
+    Popover,
 } from '@material-ui/core';
 import * as Http from '../Http';
-import {Add, Cancel, CheckCircle, Delete} from '@material-ui/icons';
+import {Add, Cancel, CheckCircle, Delete, HelpOutline} from '@material-ui/icons';
 import {sortFunc} from '../HelperFunctions/Utilities';
 import {green, red} from '@material-ui/core/colors';
 
@@ -39,6 +40,8 @@ interface WhitelistState {
         name: string;
         students: string[];
     }[];
+    helpOpen: boolean;
+    helpAnchorEl: null | Element;
 }
 
 export default class Whitelist extends Component<WhitelistProps, WhitelistState> {
@@ -49,6 +52,8 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
             selectedClass: -1,
             highlighted: false,
             files: [],
+            helpOpen: false,
+            helpAnchorEl: null,
         };
     }
 
@@ -96,8 +101,7 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
                 style={{
                     flex: 1,
                     display: 'flex',
-                    justifyContent: 'flex-start',
-                    flexDirection: 'column',
+                    justifyContent: 'center',
                 }}
             >
                 <Paper
@@ -105,14 +109,16 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
                     id='drop-area'
                     style={{
                         width: '80%',
+                        height: '80%',
                         maxWidth: '60ch',
                         flex: 1,
-                        margin: '50px auto',
                         padding: '20px',
                         overflowY: 'auto',
                         backgroundColor: this.state.highlighted
                             ? this.props.color['500']
                             : undefined,
+                        justifySelf: 'center',
+                        alignSelf: 'center',
                     }}
                     onDragEnter={this.highlight}
                     onDragOver={this.highlight}
@@ -132,6 +138,33 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
                     {this.displayFiles()}
                     {this.displayWhitelist()}
                 </Paper>
+                <HelpOutline
+                    style={{margin: '5px'}}
+                    onMouseEnter={(event: React.MouseEvent<Element, MouseEvent>) =>
+                        this.handleShowHelp(event)
+                    }
+                />
+                <Popover
+                    open={this.state.helpOpen}
+                    anchorEl={this.state.helpAnchorEl}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                    PaperProps={{
+                        onMouseLeave: () => this.handleHideHelp(),
+                        style: {padding: '10px', width: '30%'},
+                    }}
+                >
+                    <Typography variant='h5'>Adding students to a class</Typography>
+                    <Typography variant='body1'>
+                        To add students, select a class, then drag and drop a CSV file onto the drop
+                        area. The CSV file's first column should contain the student IDs of the
+                        students you wish to add. Please note that the first row is ignored as a
+                        header, as well as all other columns, allowing you to directly upload OWL
+                        exports.
+                    </Typography>
+                </Popover>
             </div>
         );
     }
@@ -272,6 +305,16 @@ export default class Whitelist extends Component<WhitelistProps, WhitelistState>
         const students = csvToJSON(contents);
         this.setState({files: [...this.state.files, {name, students}]});
     }
+
+    handleShowHelp = (event: React.MouseEvent<Element, MouseEvent>) => {
+        event.stopPropagation();
+        event.preventDefault();
+        this.setState({helpOpen: true, helpAnchorEl: event.currentTarget});
+    };
+
+    handleHideHelp = () => {
+        this.setState({helpOpen: false, helpAnchorEl: null});
+    };
 }
 
 function csvToJSON(csv: string): string[] {
