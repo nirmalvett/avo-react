@@ -1278,7 +1278,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         const lesson: string = (document as any).getElementById('set-new__node-lesson').value;
         const weight = this.state.relationWeight;
         Http.addConcept(
-            2,
+            this.state.selectedClass.courseID,
             name,
             lesson,
             res => {
