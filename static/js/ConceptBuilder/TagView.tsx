@@ -803,14 +803,14 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                     <Input
                                         id='set-new__node-name'
                                         ref={this.newConceptNameRef}
-                                        defaultValue='New Concept Name'
+                                        placeholder='New Concept Name'
                                     />
                                     <br />
                                     <br />
                                     <Input
                                         id='set-new__node-lesson'
                                         ref={this.newConceptLessonRef}
-                                        defaultValue='New Concept Lesson'
+                                        placeholder='New Concept Lesson'
                                     />
                                 </FormControl>
                                 <br />
@@ -872,14 +872,14 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                             <Input
                                                 id='set-new__node-name'
                                                 ref={this.newConceptNameRef}
-                                                defaultValue='New Concept Name'
+                                                placeholder='New Concept Name'
                                             />
                                             <br />
                                             <br />
                                             <Input
                                                 id='set-new__node-lesson'
                                                 ref={this.newConceptLessonRef}
-                                                defaultValue='New Concept Lesson'
+                                                placeholder='New Concept Lesson'
                                             />
                                             <br />
                                             <br />
@@ -1036,6 +1036,18 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             </div>
         );
     }
+
+    checkIfConceptCreationParametersValid() {
+        const name: string = (document as any).getElementById('set-new__node-name').value;
+        const lesson: string = (document as any).getElementById('set-new__node-lesson').value;
+        let errorString: string = '';
+        if(name.length == 0) 
+            errorString += 'Please Specify a Name for the Concept \n';
+        if(!!errorString.length)
+            alert(errorString);
+
+        return !!errorString;
+    };
 
     setRelation() {
         const newedge: Edge = {
@@ -1244,6 +1256,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         const _this: TagView = this;
         const name: string = (document as any).getElementById('set-new__node-name').value;
         const lesson: string = (document as any).getElementById('set-new__node-lesson').value;
+        if(this.checkIfConceptCreationParametersValid()) return;
         Http.addConcept(
             this.state.selectedClass.courseID,
             name,
@@ -1277,6 +1290,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         const name: string = (document as any).getElementById('set-new__node-name').value;
         const lesson: string = (document as any).getElementById('set-new__node-lesson').value;
         const weight = this.state.relationWeight;
+        if(this.checkIfConceptCreationParametersValid()) return;
         Http.addConcept(
             this.state.selectedClass.courseID,
             name,
