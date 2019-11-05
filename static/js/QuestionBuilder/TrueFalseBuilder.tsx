@@ -20,18 +20,13 @@ import Folder from '@material-ui/icons/Folder';
 import Lock from '@material-ui/icons/Lock';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Fab from '@material-ui/core/Fab';
-import {InsertDriveFile as QuestionIcon, ArrowBack, CreateNewFolder} from '@material-ui/icons/';
 import {
-    ListItem,
-    ListItemText,
-    ListItemIcon,
-    Popover,
-    List,
-    InputLabel,
-    Select,
-    MenuItem,
-    Menu,
-} from '@material-ui/core';
+    InsertDriveFile as QuestionIcon,
+    ArrowBack,
+    CreateNewFolder,
+    AssignmentReturnedOutlined,
+} from '@material-ui/icons/';
+import {ListItem, ListItemText, ListItemIcon, Popover, List} from '@material-ui/core';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -161,6 +156,11 @@ export default class TrueFalseBuilder extends Component<
                                         onClick={() => this.setState({addDiagOpen: true})}
                                     >
                                         <CreateNewFolder />
+                                    </IconButton>
+                                )}
+                                {this.state.setQActive && (
+                                    <IconButton size='small' edge='end'>
+                                        <AssignmentReturnedOutlined />
                                     </IconButton>
                                 )}
                             </ListItem>
