@@ -12,7 +12,11 @@ import {
     Grid,
     Button,
     Typography,
+    Divider,
+    TextField,
 } from '@material-ui/core';
+import {PreviewQuestion} from './types';
+import ImporterPreview from './ImporterPreview';
 
 export interface TFImporterProps {
     set: QuestionSet;
@@ -20,162 +24,172 @@ export interface TFImporterProps {
 }
 
 export interface TFImporterState {
+    input: string;
     questionDelim: string;
+    questionCustom: string;
     nameDelim: string;
+    nameCustom: string;
     promptDelim: string;
+    promptCustom: string;
     answerDelim: string;
+    answerCustom: string;
     explanationDelim: string;
+    explanationCustom: string;
+    questions: PreviewQuestion[];
 }
 
 class TFImporter extends Component<TFImporterProps, TFImporterState> {
     constructor(props: TFImporterProps) {
         super(props);
         this.state = {
-            questionDelim: '',
-            nameDelim: '',
-            promptDelim: '',
-            answerDelim: '',
-            explanationDelim: '',
+            input: '',
+            questionDelim: ',',
+            questionCustom: '',
+            nameDelim: ',',
+            nameCustom: '',
+            promptDelim: ',',
+            promptCustom: '',
+            answerDelim: ',',
+            answerCustom: '',
+            explanationDelim: ',',
+            explanationCustom: '',
+            // questions: [],
+            questions: dummyData,
         };
     }
 
     render() {
         return (
-            <Grid container style={{padding: '20px'}} justify='space-evenly' alignContent='center' alignItems='center'>
-                <Grid item xs={12} justify='center'>
-                    <Typography variant='h3'>Import questions for {this.props.set.name}</Typography>
-                </Grid>
-                <Grid item xs={12} md={6} lg={4} justify='space-evenly'>
-                    <FormControl component='fieldset'>
-                        <FormLabel component='legend'>Question Delimiter</FormLabel>
-                        <RadioGroup
-                            aria-label='question-delim'
-                            name='question-delim'
-                            value={this.state.questionDelim}
-                            onChange={(_, value: string) => this.setState({questionDelim: value})}
-                        >
-                            <ListItem>
+            <div style={{padding: '20px'}}>
+                <Typography variant='h3' align='center'>
+                    Import questions for {this.props.set.name}
+                </Typography>
+                <TextField
+                    id='raw-text-input'
+                    label='Paste your questions here'
+                    multiline
+                    fullWidth
+                    rows='4'
+                    rowsMax='10'
+                    margin='normal'
+                    variant='outlined'
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                        this.setState({input: event.currentTarget.value})
+                    }
+                />
+                <Grid container justify='space-evenly'>
+                    <Grid item xs={12} sm={6} md={4} lg={2} justify='center'>
+                        <FormControl component='fieldset' color='primary' style={{margin: '5px'}}>
+                            <FormLabel component='legend'>Question Delimiter</FormLabel>
+                            <RadioGroup
+                                aria-label='question-delim'
+                                name='question-delim'
+                                value={this.state.questionDelim}
+                                onChange={(_, value: string) =>
+                                    this.setState({questionDelim: value})
+                                }
+                            >
                                 {this.renderDelimRadios([[',', 'Comma'], ['|', 'Bar']])}
-                            </ListItem>
-                        </RadioGroup>
-                    </FormControl>
+                                <FormControlLabel
+                                    value={this.state.questionCustom}
+                                    control={<Radio color='primary' />}
+                                    label={<TextField label='Custom'></TextField>}
+                                />
+                            </RadioGroup>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4} lg={2} justify='center'>
+                        <FormControl component='fieldset' style={{margin: '5px'}}>
+                            <FormLabel component='legend'>Name Delimiter</FormLabel>
+                            <RadioGroup
+                                aria-label='name-delim'
+                                name='name-delim'
+                                value={this.state.nameDelim}
+                                onChange={(_, value: string) => this.setState({nameDelim: value})}
+                            >
+                                {this.renderDelimRadios([[',', 'Comma'], ['|', 'Bar']])}
+                                <FormControlLabel
+                                    value={this.state.nameCustom}
+                                    control={<Radio color='primary' />}
+                                    label={<TextField label='Custom'></TextField>}
+                                />
+                            </RadioGroup>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4} lg={2} justify='center'>
+                        <FormControl component='fieldset' style={{margin: '5px'}}>
+                            <FormLabel component='legend'>Prompt Delimiter</FormLabel>
+                            <RadioGroup
+                                aria-label='prompt-delim'
+                                name='prompt-delim'
+                                value={this.state.promptDelim}
+                                onChange={(_, value: string) => this.setState({promptDelim: value})}
+                            >
+                                {this.renderDelimRadios([[',', 'Comma'], ['|', 'Bar']])}
+                                <FormControlLabel
+                                    value={this.state.promptCustom}
+                                    control={<Radio color='primary' />}
+                                    label={<TextField label='Custom'></TextField>}
+                                />
+                            </RadioGroup>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4} lg={2} justify='center'>
+                        <FormControl component='fieldset' style={{margin: '5px'}}>
+                            <FormLabel component='legend'>Answer Delimiter</FormLabel>
+                            <RadioGroup
+                                aria-label='answer-delim'
+                                name='answer-delim'
+                                value={this.state.answerDelim}
+                                onChange={(_, value: string) => this.setState({answerDelim: value})}
+                            >
+                                {this.renderDelimRadios([[',', 'Comma'], ['|', 'Bar']])}
+                                <FormControlLabel
+                                    value={this.state.answerCustom}
+                                    control={<Radio color='primary' />}
+                                    label={<TextField label='Custom'></TextField>}
+                                />
+                            </RadioGroup>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4} lg={2} justify='center'>
+                        <FormControl component='fieldset' style={{margin: '5px'}}>
+                            <FormLabel component='legend'>Explanation Delimiter</FormLabel>
+                            <RadioGroup
+                                aria-label='explanation-delim'
+                                name='explanation-delim'
+                                value={this.state.explanationDelim}
+                                onChange={(_, value: string) =>
+                                    this.setState({explanationDelim: value})
+                                }
+                            >
+                                {this.renderDelimRadios([[',', 'Comma'], ['|', 'Bar']])}
+                                <FormControlLabel
+                                    value={this.state.answerCustom}
+                                    control={<Radio color='primary' />}
+                                    label={<TextField label='Custom'></TextField>}
+                                />
+                            </RadioGroup>
+                        </FormControl>
+                    </Grid>
                 </Grid>
-                <Grid item xs={12} md={6} lg={4} justify='space-evenly'>
-                    <FormControl component='fieldset'>
-                        <FormLabel component='legend'>Name Delimiter</FormLabel>
-                        <RadioGroup
-                            aria-label='name-delim'
-                            name='name-delim'
-                            value={this.state.nameDelim}
-                            onChange={(_, value: string) => this.setState({nameDelim: value})}
-                        >
-                            <ListItem>
-                                <FormControlLabel
-                                    value=','
-                                    control={<Radio color='primary' />}
-                                    label=', (comma)'
-                                />
-                                <FormControlLabel
-                                    value='|'
-                                    control={<Radio color='primary' />}
-                                    label='| (bar)'
-                                />
-                            </ListItem>
-                        </RadioGroup>
-                    </FormControl>
-                </Grid>
-                <Grid item xs={12} md={6} lg={4} justify='space-evenly'>
-                    <FormControl component='fieldset'>
-                        <FormLabel component='legend'>Prompt Delimiter</FormLabel>
-                        <RadioGroup
-                            aria-label='prompt-delim'
-                            name='prompt-delim'
-                            value={this.state.promptDelim}
-                            onChange={(_, value: string) => this.setState({promptDelim: value})}
-                        >
-                            <ListItem>
-                                <FormControlLabel
-                                    value=','
-                                    control={<Radio color='primary' />}
-                                    label=', (comma)'
-                                />
-                                <FormControlLabel
-                                    value='|'
-                                    control={<Radio color='primary' />}
-                                    label='| (bar)'
-                                />
-                            </ListItem>
-                        </RadioGroup>
-                    </FormControl>
-                </Grid>
-                <Grid item xs={12} md={6} justify='space-evenly'>
-                    <FormControl component='fieldset'>
-                        <FormLabel component='legend'>Answer Delimiter</FormLabel>
-                        <RadioGroup
-                            aria-label='answer-delim'
-                            name='answer-delim'
-                            value={this.state.answerDelim}
-                            onChange={(_, value: string) => this.setState({answerDelim: value})}
-                        >
-                            <ListItem>
-                                <FormControlLabel
-                                    value=','
-                                    control={<Radio color='primary' />}
-                                    label=', (comma)'
-                                />
-                                <FormControlLabel
-                                    value='|'
-                                    control={<Radio color='primary' />}
-                                    label='| (bar)'
-                                />
-                            </ListItem>
-                        </RadioGroup>
-                    </FormControl>
-                </Grid>
-                <Grid item xs={12} lg={6} justify='space-evenly'>
-                    <FormControl component='fieldset'>
-                        <FormLabel component='legend'>Explanation Delimiter</FormLabel>
-                        <RadioGroup
-                            aria-label='explanation-delim'
-                            name='explanation-delim'
-                            value={this.state.explanationDelim}
-                            onChange={(_, value: string) =>
-                                this.setState({explanationDelim: value})
-                            }
-                        >
-                            <ListItem>
-                                <FormControlLabel
-                                    value=','
-                                    control={<Radio color='primary' />}
-                                    label=', (comma)'
-                                />
-                                <FormControlLabel
-                                    value='|'
-                                    control={<Radio color='primary' />}
-                                    label='| (bar)'
-                                />
-                            </ListItem>
-                        </RadioGroup>
-                    </FormControl>
-                </Grid>
-                <Grid item xs={12} justify='center'>
-                    <List>{/* Question preview components will go here */}</List>
-                </Grid>
-                <Grid item xs={12}>
-                    <ListItem>
-                        <Button variant='contained' color='primary' style={{marginRight: '5px'}}>
-                            Import
-                        </Button>
-                        <Button variant='outlined' onClick={this.props.close}>
-                            Cancel
-                        </Button>
-                    </ListItem>
-                </Grid>
-            </Grid>
+                <Typography variant='h6' style={{marginTop: '10px'}}>
+                    Preview
+                </Typography>
+                <List>{this.renderQuestionPreviews(this.state.questions)}</List>
+                <ListItem>
+                    <Button variant='contained' color='primary' style={{marginRight: '5px'}}>
+                        Import
+                    </Button>
+                    <Button variant='outlined' color='primary' onClick={this.props.close}>
+                        Cancel
+                    </Button>
+                </ListItem>
+            </div>
         );
     }
 
-    renderDelimRadios(options: [string, string][]) {
+    renderDelimRadios(options: [string, string][]): JSX.Element[] {
         return options.map((option: [string, string]) => {
             return (
                 <FormControlLabel
@@ -186,6 +200,73 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
             );
         });
     }
+
+    renderQuestionPreviews(questions: PreviewQuestion[]): JSX.Element[] {
+        return questions.map((question: PreviewQuestion) => {
+            return (
+                <ListItem>
+                    <ImporterPreview question={question} />
+                </ListItem>
+            );
+        });
+    }
 }
+
+const dummyData: PreviewQuestion[] = [
+    {
+        name: 'Question Name',
+        prompt: 'This is a prompt',
+        answer: 'True',
+        explanation: 'This is an exlanation',
+    },
+    {
+        name: 'Question Name',
+        prompt: 'This is a prompt',
+        answer: 'True',
+        explanation: 'This is an exlanation',
+    },
+    {
+        name: 'Question Name',
+        prompt: 'This is a prompt',
+        answer: 'True',
+        explanation: 'This is an exlanation',
+    },
+    {
+        name: 'Question Name',
+        prompt: 'This is a prompt',
+        answer: 'True',
+        explanation: 'This is an exlanation',
+    },
+    {
+        name: 'Question Name',
+        prompt: 'This is a prompt',
+        answer: 'True',
+        explanation: 'This is an exlanation',
+    },
+    {
+        name: 'Question Name',
+        prompt: 'This is a prompt',
+        answer: 'True',
+        explanation: 'This is an exlanation',
+    },
+    {
+        name: 'Question Name',
+        prompt: 'This is a prompt',
+        answer: 'True',
+        explanation: 'This is an exlanation',
+    },
+    {
+        name: 'Question Name',
+        prompt: 'This is a prompt',
+        answer: 'True',
+        explanation: 'This is an exlanation',
+    },
+    {
+        name: 'Question Name',
+        prompt: 'This is a prompt',
+        answer: 'True',
+        explanation: 'This is an exlanation',
+    },
+];
 
 export default TFImporter;

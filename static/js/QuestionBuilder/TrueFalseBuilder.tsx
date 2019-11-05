@@ -514,7 +514,7 @@ export default class TrueFalseBuilder extends Component<
                     onClose={() => this.setState({importerOpen: false})}
                     aria-labelledby='true-false-importer-dialog'
                     open={this.state.importerOpen}
-                    maxWidth='lg'
+                    maxWidth='xl'
                 >
                     <TFImporter
                         set={this.state.sets[this.state.selectedS as number]}
