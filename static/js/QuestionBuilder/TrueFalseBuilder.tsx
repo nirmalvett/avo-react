@@ -34,6 +34,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {Question, QuestionSet, Course} from 'Http/types';
 import {ShowSnackBar} from 'Layout/Layout';
+import TFImporter from './TFImporter';
 
 export interface TrueFalseBuilderProps {
     showSnackBar: ShowSnackBar;
@@ -68,6 +69,7 @@ interface TrueFalseBuilderState {
     hovered: number;
     course: number;
     setName: string;
+    importerOpen: boolean;
 }
 
 export default class TrueFalseBuilder extends Component<
@@ -102,6 +104,7 @@ export default class TrueFalseBuilder extends Component<
             hovered: -1, // The ID of the current question being hovered
             course: -1,
             setName: '',
+            importerOpen: false, // Determines whether we are showing the question importer
         };
     }
 
@@ -159,7 +162,11 @@ export default class TrueFalseBuilder extends Component<
                                     </IconButton>
                                 )}
                                 {this.state.setQActive && (
-                                    <IconButton size='small' edge='end'>
+                                    <IconButton
+                                        size='small'
+                                        edge='end'
+                                        onClick={() => this.setState({importerOpen: true})}
+                                    >
                                         <AssignmentReturnedOutlined />
                                     </IconButton>
                                 )}
@@ -502,6 +509,13 @@ export default class TrueFalseBuilder extends Component<
                             </Button>
                         </ListItem>
                     </List>
+                </Dialog>
+                <Dialog
+                    onClose={() => this.setState({importerOpen: false})}
+                    aria-labelledby='true-false-importer-dialog'
+                    open={this.state.importerOpen}
+                >
+                    <TFImporter set={this.state.sets[this.state.selectedS as number]} />
                 </Dialog>
             </Grid>
         );
