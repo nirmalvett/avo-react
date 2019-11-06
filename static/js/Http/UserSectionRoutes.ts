@@ -21,19 +21,21 @@ export function getSectionWhitelist(
     _request('POST', '/getSectionWhitelist', success, failure, {sectionID});
 }
 
-export type Enroll =
-    | {
-          message: 'enrolled';
-      }
-    | {
-          message: undefined;
-          sectionID: number;
-          price: number;
-          discount: number;
-          tax: number;
-          totalPrice: number;
-          freeTrial: boolean;
-      };
+export interface Enroll_Success {
+    message: 'enrolled';
+}
+
+export interface Enroll_PaymentRequired {
+    message: undefined;
+    sectionID: number;
+    price: number;
+    discount: number | null;
+    tax: number;
+    totalPrice: number;
+    freeTrial: boolean;
+}
+
+export type Enroll = Enroll_Success | Enroll_PaymentRequired;
 
 export function enroll(key: string, success: cb<Enroll>, failure: cb) {
     _request('POST', '/enroll', success, failure, {key});

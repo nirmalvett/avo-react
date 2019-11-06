@@ -1,5 +1,6 @@
 import * as Http from '../Http';
 import {convertListFloatToAnalytics} from '../HelperFunctions/Helpers';
+import {GetSections_Test} from '../Http';
 
 interface ThemeObj {
     theme: 'light' | 'dark';
@@ -10,11 +11,10 @@ interface ThemeObj {
     };
 }
 
-export function generateChartOptions(selectedClass: Http.GetSections_Section, theme: ThemeObj) {
-    let xCategories = [];
-    for (let i = 0; i < selectedClass.tests.length; i++) {
-        xCategories.push(selectedClass.tests[i].name);
-    }
+export function generateChartOptions(
+    selectedClass: Http.GetSections_Section,
+    theme: ThemeObj,
+): ChartOptions {
     return {
         chart: {
             fontFamily: 'Roboto',
@@ -26,14 +26,11 @@ export function generateChartOptions(selectedClass: Http.GetSections_Section, th
         xaxis: {
             labels: {
                 formatter: (val: string) => {
-                    for (let i = 0; i < selectedClass.tests.length; i++) {
-                        if (selectedClass.tests[i].name === val) {
-                            return `${val} (size: ${selectedClass.tests[i].sectionSize})`;
-                        }
-                    }
+                    const t = selectedClass.tests.find(x => x.name === val) as GetSections_Test;
+                    if (t) return `${val} (size: ${t.sectionSize})`;
                 },
             },
-            categories: xCategories,
+            categories: selectedClass.tests.map(x => x.name),
         },
         yaxis: {
             min: 0,
@@ -95,7 +92,7 @@ export function getTestCardGraphOptions(
     testStats: Http.TestStats,
     theme: ThemeObj,
     testStatsDataSelectIdx: number,
-) {
+): ChartOptions {
     return {
         chart: {
             fontFamily: 'Roboto',
@@ -111,17 +108,7 @@ export function getTestCardGraphOptions(
             testStatsDataSelectIdx === 2 && selectedTest.submitted.length > 0
                 ? selectedTest.submitted.map((obj, idx) => 'Attempt ' + (idx + 1))
                 : testStatsDataSelectIdx === 3
-                ? (() => {
-                      const dataObj = convertListFloatToAnalytics(
-                          testStats.topMarkPerStudent,
-                          testStats.totalMark as number,
-                      );
-                      delete dataObj['studentSizeWhoTookIt'];
-                      const dataOutArray = [];
-                      for (let key in dataObj)
-                          if (dataObj.hasOwnProperty(key)) dataOutArray.push(key);
-                      return dataOutArray;
-                  })()
+                ? Object.keys(convertListFloatToAnalytics(testStats.grades, selectedTest.total))
                 : ['', selectedTest.name, ''],
         xaxis: {
             title: {
@@ -133,20 +120,8 @@ export function getTestCardGraphOptions(
                 text: testStatsDataSelectIdx === 3 ? 'Number of Students' : 'Mark(%)',
             },
             min: 0,
-            max:
-                testStatsDataSelectIdx === 3
-                    ? convertListFloatToAnalytics(
-                          testStats.topMarkPerStudent,
-                          testStats.totalMark as number,
-                      ).studentSizeWhoTookIt
-                    : 100,
-            tickAmount: Math.min(
-                convertListFloatToAnalytics(
-                    testStats.topMarkPerStudent,
-                    testStats.totalMark as number,
-                ).studentSizeWhoTookIt as number,
-                10,
-            ),
+            max: testStatsDataSelectIdx === 3 ? testStats.grades.length : 100,
+            tickAmount: Math.min(testStats.grades.length, 10),
         },
         fill: {
             opacity: 1,
@@ -202,13 +177,14 @@ export function getPerQuestionGraphOptions(
     testStatsDataQuestionIdx: number,
     testStatsDataSelectIdx: number,
     theme: ThemeObj,
-) {
+): ChartOptions {
     if (!testStats) {
         throw new Error();
     }
+    const topMarksPerStudent = testStats.questions[testStatsDataQuestionIdx].marks;
     let dataObj = convertListFloatToAnalytics(
-        testStats.questions[testStatsDataQuestionIdx].topMarksPerStudent as number[],
-        testStats.questions[testStatsDataQuestionIdx].totalMark as number,
+        topMarksPerStudent,
+        testStats.questions[testStatsDataQuestionIdx].total,
     );
     return {
         chart: {
@@ -221,13 +197,7 @@ export function getPerQuestionGraphOptions(
         stroke: {
             curve: 'smooth',
         },
-        labels: (() => {
-            const dataOutArray = [];
-            for (let key in dataObj)
-                if (dataObj.hasOwnProperty(key) && key !== 'studentSizeWhoTookIt')
-                    dataOutArray.push(key);
-            return dataOutArray;
-        })(),
+        labels: Object.keys(dataObj),
         xaxis: {
             title: {
                 text: testStatsDataSelectIdx === 3 ? 'Marks Scored' : '',
@@ -238,8 +208,8 @@ export function getPerQuestionGraphOptions(
                 text: testStatsDataSelectIdx === 3 ? 'Number of Students' : 'Mark(%)',
             },
             min: 0,
-            max: dataObj.studentSizeWhoTookIt,
-            tickAmount: dataObj.studentSizeWhoTookIt >= 10 ? 10 : dataObj.studentSizeWhoTookIt,
+            max: topMarksPerStudent.length,
+            tickAmount: topMarksPerStudent.length >= 10 ? 10 : topMarksPerStudent.length,
         },
         fill: {
             opacity: 1,
@@ -287,5 +257,86 @@ export function getPerQuestionGraphOptions(
         tooltip: {
             theme: theme.theme,
         },
+    };
+}
+
+interface Axis {
+    labels?: {
+        formatter: (val: any) => any;
+    };
+    title?: {
+        text: string;
+    };
+    min?: number;
+    max?: number;
+    tickAmount?: number;
+    categories?: (string | number)[];
+}
+
+export interface ChartOptions {
+    chart: {
+        fontFamily: 'Roboto';
+        foreColor: string;
+        id: 'basic-bar';
+        type: 'line';
+    };
+    colors: string[];
+    stroke?: {
+        curve: 'smooth';
+    };
+    labels?: string[];
+    xaxis: Axis;
+    yaxis: Axis;
+    fill: {
+        opacity: 1;
+        type: 'solid';
+        colors: string[];
+    };
+    legend: {
+        markers?: {
+            size: number;
+            strokeColor: string;
+            strokeWidth: number;
+            offsetX: number;
+            offsetY: number;
+            radius: number;
+            shape: 'circle';
+        };
+        itemMargin: {
+            horizontal: 20;
+            vertical: 5;
+        };
+        containerMargin: {
+            left: 5;
+            top: 12;
+        };
+        onItemClick: {
+            toggleDataSeries: true;
+        };
+        onItemHover: {
+            highlightDataSeries: true;
+        };
+    };
+    dataLabels: {
+        enabled: false;
+        formatter: (val: any) => any;
+        textAnchor: 'middle';
+        offsetX: 0;
+        offsetY: 0;
+        style: {
+            fontSize: '14px';
+            fontFamily: 'Helvetica, Arial, sans-serif';
+            colors: string[];
+        };
+        dropShadow: {
+            enabled: false;
+            top: 1;
+            left: 1;
+            blur: 1;
+            opacity: 0.45;
+        };
+    };
+    tooltip: {
+        theme: 'light' | 'dark';
     };
 }

@@ -61,21 +61,14 @@ export function closeTest(testID: number, success: cb<{deadline: number}>, failu
 }
 
 export interface TestStats {
-    numberStudents: number;
-    testMean: number;
-    testMedian: number;
-    testSTDEV: number;
     questions: {
-        numberStudents?: 0;
-        questionMean: number;
-        questionMedian: number;
-        questionSTDEV?: number;
-        questionMark?: 0;
-        topMarksPerStudent?: number[];
-        totalMark?: number;
+        mean: number;
+        median: number;
+        standardDeviation: number;
+        total: number;
+        marks: number[];
     }[];
-    topMarkPerStudent: number[];
-    totalMark: number | [];
+    grades: number[];
 }
 
 export function testStats(testID: number, success: cb<TestStats>, failure: cb) {

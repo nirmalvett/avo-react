@@ -41,11 +41,11 @@ export function isSafari(): boolean {
 export function convertListFloatToAnalytics(
     inputList: number[],
     topMark: number,
-): {[key: string]: number | {numberOfStudents: number}} {
-    // This method takes in a list of ints and the topMark then organizes the data by a group of 6 and outputs an object with the keys as the groups and the count
-    const studentSizeWhoTookIt = inputList.length;
+): {[key: string]: number} {
+    // This method takes in a list of ints and the topMark then organizes the data by a group of 6 and outputs an
+    // object with the keys as the groups and the count
     // we want {'0 to 2': 4, '2 to 4': 6, '4 to 6 (max)': 1}
-    const returnObj: {[key: string]: number | {numberOfStudents: number}} = {studentSizeWhoTookIt};
+    const returnObj: {[key: string]: number} = {};
     if (topMark === 0 || inputList.length === 0) {
         return returnObj; // if topMark is 0 then we should just return the object
     }
@@ -74,8 +74,7 @@ export function convertListFloatToAnalytics(
                 : `${lowerBound} to ${upperBound}`; // otherwise show a range i.e. 2 to 4
 
         // Next we will want to go through our list of floats and get range [min, max)
-        const numberInGroup = inputList.filter(x => x >= lowerBound && x < upperBound).length;
-        returnObj[keyString] = {numberOfStudents: numberInGroup};
+        returnObj[keyString] = inputList.filter(x => x >= lowerBound && x < upperBound).length;
 
         trailingNumber = upperBound;
         if (topMarkEven) {
@@ -108,11 +107,10 @@ export function convertListFloatToAnalytics(
     }
 
     // We need to get the last grouping
-    const numberInGroup =
+    returnObj[lastKeyString] =
         lowerBoundSpecial !== -1
             ? inputList.filter(x => x === topMark).length
             : inputList.filter(x => x >= lowerBoundSpecial && x <= topMark).length;
-    returnObj[lastKeyString] = {numberOfStudents: numberInGroup};
 
     return returnObj;
 }

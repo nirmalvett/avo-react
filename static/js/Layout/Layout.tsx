@@ -95,9 +95,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
             section: {name: 'Learn'},
             open: true,
             snackbar: {
-                hideDuration: 5000,
-                isOpen: true,
-                message: 'AVO AI Assistant Online',
+                hideDuration: 0,
+                isOpen: false,
+                message: '',
                 variant: 'success',
             },
             courses: [],

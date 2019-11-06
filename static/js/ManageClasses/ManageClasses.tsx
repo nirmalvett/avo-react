@@ -52,6 +52,7 @@ import {ShowSnackBar} from '../Layout/Layout';
 import moment, {Moment} from 'moment';
 import {Course} from '../Http/types';
 import {GetSections_Test} from '../Http';
+import {ChartOptions} from '../MyClasses/chartOptions';
 
 const CONST_TAB_OVERALL_ANALYTICS = 0;
 const CONST_TAB_PER_QUESTION = 1;
@@ -344,13 +345,18 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         const uniqueKey1 = '1'; // This is no longer used instead we use proper keys
         if (this.state.t !== null) {
             // If a test is selected
-            let {topMarkPerStudent, totalMark} = this.state.testStats as Http.TestStats;
+            let {grades} = this.state.testStats as Http.TestStats;
             const analyticsDataObj = convertListFloatToAnalytics(
-                topMarkPerStudent,
-                totalMark as number,
+                grades,
+                selectedClass.tests[this.state.t].total,
             );
             let selectedTest = selectedClass.tests[this.state.t as number];
-            return this.detailsCard_selectedTest(analyticsDataObj, selectedTest, uniqueKey1);
+            return this.detailsCard_selectedTest(
+                analyticsDataObj,
+                selectedTest,
+                uniqueKey1,
+                grades.length,
+            );
         }
         if (this.state.c !== null)
             // If a class is selected
@@ -447,9 +453,10 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     }
 
     detailsCard_selectedTest(
-        analyticsDataObj: any,
+        analyticsDataObj: {[key: string]: number},
         selectedTest: Http.GetSections_Test,
         uniqueKey1: string,
+        studentCount: number,
     ) {
         return (
             <Fragment key={`detailsCard-${uniqueKey1}`}>
@@ -463,7 +470,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 <div
                     style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}
                 >
-                    <Typography component={'span'} variant='body1' color='textPrimary'>
+                    <Typography component='span' variant='body1' color='textPrimary'>
                         <span style={{marginLeft: '0.75em', marginRight: '0.75em'}}>
                             <b>Deadline: </b>
                             {getDateString(selectedTest.deadline)}
@@ -495,9 +502,9 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 </Tabs>
                 {/* These are the three tabs with their data */}
                 {/* Shows analytics for the entire test */}
-                {this.detailsCard_selectedTest_overallAnalytics(analyticsDataObj)}
+                {this.detailsCard_selectedTest_overallAnalytics(analyticsDataObj, studentCount)}
                 {/* Shows analytics for a single question */}
-                {this.detailsCard_selectedTest_perQuestion(analyticsDataObj)}
+                {this.detailsCard_selectedTest_perQuestion(analyticsDataObj, studentCount)}
                 {/* Shows the attempts per student */}
                 {this.detailsCard_selectedTest_attempts(analyticsDataObj, selectedTest)}
             </Fragment>
@@ -772,8 +779,10 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         );
     }
 
-    detailsCard_selectedTest_overallAnalytics(analyticsDataObj: any) {
-        const ts = this.state.testStats as Http.TestStats;
+    detailsCard_selectedTest_overallAnalytics(
+        analyticsDataObj: {[key: string]: number},
+        studentCount: number,
+    ) {
         return (
             <Fragment>
                 {this.state.activeTab === CONST_TAB_OVERALL_ANALYTICS && (
@@ -791,19 +800,19 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                                     <span>
                                         <span style={{marginLeft: '0.75em', marginRight: '0.75em'}}>
                                             <b>Students:</b>
-                                            {analyticsDataObj.studentSizeWhoTookIt}
+                                            {studentCount}
                                         </span>
                                         <span style={{marginLeft: '0.75em', marginRight: '0.75em'}}>
                                             <b>Median Scores:</b>
-                                            {ts.testMedian}
+                                            {this.selectedTest().sectionMedian}
                                         </span>
                                         <span style={{marginLeft: '0.75em', marginRight: '0.75em'}}>
                                             <b>Mean Scores:</b>
-                                            {ts.testMean}
+                                            {this.selectedTest().sectionAverage}
                                         </span>
                                         <span style={{marginLeft: '0.75em', marginRight: '0.75em'}}>
                                             <b>Std. Dev:</b>
-                                            {ts.testSTDEV}%
+                                            {this.selectedTest().standardDeviation}%
                                         </span>
                                     </span>
                                 </Typography>
@@ -821,7 +830,10 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         );
     }
 
-    detailsCard_selectedTest_perQuestion(analyticsDataObj: any) {
+    detailsCard_selectedTest_perQuestion(
+        analyticsDataObj: {[key: string]: number},
+        studentCount: number,
+    ) {
         const ts = this.state.testStats as Http.TestStats;
         if (this.state.activeTab === CONST_TAB_PER_QUESTION)
             return (
@@ -854,20 +866,21 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                                 </FormControl>
                             </span>
                             <span style={{marginLeft: '1.0em', marginRight: '1.0em'}}>
-                                <b>Students:</b> {analyticsDataObj.studentSizeWhoTookIt}
+                                <b>Students:</b> {studentCount}
                             </span>
                             <span style={{marginLeft: '1.0em', marginRight: '1.0em'}}>
                                 <b>Median:</b>
-                                {ts.questions[this.state.testStatsDataQuestionIdx].questionMedian}
+                                {ts.questions[this.state.testStatsDataQuestionIdx].median}
                             </span>
                             <span style={{marginLeft: '1.0em', marginRight: '1.0em'}}>
                                 <b>Mean:</b>
-                                {ts.questions[this.state.testStatsDataQuestionIdx].questionMean}
+                                {ts.questions[this.state.testStatsDataQuestionIdx].mean}
                             </span>
                             <span style={{marginLeft: '1.0em', marginRight: '1.0em'}}>
                                 <b>Std. Dev:</b>
-                                {(ts.questions[this.state.testStatsDataQuestionIdx]
-                                    .questionSTDEV as number).toFixed(2)}
+                                {ts.questions[
+                                    this.state.testStatsDataQuestionIdx
+                                ].standardDeviation.toFixed(2)}
                                 %
                             </span>
                         </span>
@@ -882,7 +895,10 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             );
     }
 
-    detailsCard_selectedTest_attempts(analyticsDataObj: any, selectedTest: Http.GetSections_Test) {
+    detailsCard_selectedTest_attempts(
+        analyticsDataObj: {[key: string]: number},
+        selectedTest: Http.GetSections_Test,
+    ) {
         const results = this.state.results as Http.GetSectionTestResults['results'];
         if (this.state.activeTab === CONST_TAB_MY_ATTEMPTS)
             return (
@@ -1098,27 +1114,19 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         );
     }
 
-    genStudentNameSearchLabels() {
-        const results = this.state.results as Http.GetSectionTestResults['results'];
-        let outArray = [];
-        for (let i = 0; i < results.length; i++)
-            outArray.push({
-                label: `${results[i].firstName} ${results[i].lastName}`,
-            });
-        return outArray;
-    }
-
     handleResize() {
         const apexContainer = document.getElementById('avo-apex__chart-container');
         if (apexContainer === null) return;
         this.setState({chartWidth: apexContainer.clientWidth - 32});
     }
 
-    getPerQuestionGraphOptions() {
+    getPerQuestionGraphOptions(): ChartOptions {
         const ts = this.state.testStats as Http.TestStats;
+        const topMarksPerStudent = ts.questions[this.state.testStatsDataQuestionIdx].marks;
+        const studentCount = topMarksPerStudent.length;
         let dataObj = convertListFloatToAnalytics(
-            ts.questions[this.state.testStatsDataQuestionIdx].topMarksPerStudent as number[],
-            ts.questions[this.state.testStatsDataQuestionIdx].totalMark as number,
+            topMarksPerStudent,
+            ts.questions[this.state.testStatsDataQuestionIdx].total,
         );
         return {
             chart: {
@@ -1135,13 +1143,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             stroke: {
                 curve: 'smooth',
             },
-            labels: (() => {
-                const dataOutArray = [];
-                for (let key in dataObj)
-                    if (dataObj.hasOwnProperty(key))
-                        if (key !== 'studentSizeWhoTookIt') dataOutArray.push(key);
-                return dataOutArray;
-            })(),
+            labels: Object.keys(dataObj),
             xaxis: {
                 title: {
                     text: this.state.testStatsDataSelectIdx === 3 ? 'Marks Scored' : '',
@@ -1153,12 +1155,8 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         this.state.testStatsDataSelectIdx === 3 ? 'Number of Students' : 'Mark(%)',
                 },
                 min: 0,
-                max: (() => {
-                    return dataObj.studentSizeWhoTookIt;
-                })(),
-                tickAmount: (() => {
-                    return dataObj.studentSizeWhoTookIt >= 10 ? 10 : dataObj.studentSizeWhoTookIt;
-                })(),
+                max: studentCount,
+                tickAmount: studentCount >= 10 ? 10 : studentCount,
             },
             fill: {
                 opacity: 1,
@@ -1218,15 +1216,9 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         const x = (this.state.testStats as Http.TestStats).questions[
             this.state.testStatsDataQuestionIdx
         ];
-        let dataObj = convertListFloatToAnalytics(
-            x.topMarksPerStudent as number[],
-            x.totalMark as number,
-        );
-        delete dataObj['studentSizeWhoTookIt'];
+        let dataObj = convertListFloatToAnalytics(x.marks, x.total);
         const dataOutArray = [];
-        for (let key in dataObj)
-            if (dataObj.hasOwnProperty(key))
-                dataOutArray.push((dataObj[key] as {numberOfStudents: number}).numberOfStudents);
+        for (let key in dataObj) if (dataObj.hasOwnProperty(key)) dataOutArray.push(dataObj[key]);
         return [
             {
                 name: 'Number of Students',
@@ -1236,7 +1228,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         ];
     }
 
-    getTestCardGraphOptions() {
+    getTestCardGraphOptions(): ChartOptions {
         const ts = this.state.testStats as Http.TestStats;
         let selectedTest = this.props.sections[this.state.c as number].tests[
             this.state.t as number
@@ -1266,10 +1258,9 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     : this.state.testStatsDataSelectIdx === 3
                     ? (() => {
                           const dataObj = convertListFloatToAnalytics(
-                              ts.topMarkPerStudent,
-                              ts.totalMark as number,
+                              ts.grades,
+                              selectedTest.total,
                           );
-                          delete dataObj['studentSizeWhoTookIt'];
                           const dataOutArray = [];
                           for (let key in dataObj)
                               if (dataObj.hasOwnProperty(key)) dataOutArray.push(key);
@@ -1287,23 +1278,8 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         this.state.testStatsDataSelectIdx === 3 ? 'Number of Students' : 'Mark(%)',
                 },
                 min: 0,
-                max:
-                    this.state.testStatsDataSelectIdx === 3
-                        ? (() => {
-                              const dataObj = convertListFloatToAnalytics(
-                                  ts.topMarkPerStudent,
-                                  ts.totalMark as number,
-                              );
-                              return dataObj.studentSizeWhoTookIt;
-                          })()
-                        : 100,
-                tickAmount: (() => {
-                    const dataObj = convertListFloatToAnalytics(
-                        ts.topMarkPerStudent,
-                        ts.totalMark as number,
-                    );
-                    return dataObj.studentSizeWhoTookIt >= 10 ? 10 : dataObj.studentSizeWhoTookIt;
-                })(),
+                max: this.state.testStatsDataSelectIdx === 3 ? ts.grades.length : 100,
+                tickAmount: ts.grades.length >= 10 ? 10 : ts.grades.length,
             },
             fill: {
                 opacity: 1,
@@ -1374,12 +1350,12 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 {
                     name: 'Test Mean',
                     type: 'column',
-                    data: ['', ts.testMean, ''],
+                    data: ['', selectedTest.sectionAverage, ''],
                 },
                 {
                     name: 'Test Median',
                     type: 'column',
-                    data: ['', ts.testMedian, ''],
+                    data: ['', selectedTest.sectionMedian, ''],
                 },
                 {
                     name: 'My Average',
@@ -1389,7 +1365,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 {
                     name: 'Test SD',
                     type: 'line',
-                    data: ['', ts.testSTDEV, ''],
+                    data: ['', selectedTest.standardDeviation, ''],
                 },
             ];
         } else if (this.state.testStatsDataSelectIdx === 1) {
@@ -1402,12 +1378,12 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 {
                     name: 'Test Mean',
                     type: 'column',
-                    data: ['', ts.testMean, ''],
+                    data: ['', selectedTest.sectionAverage, ''],
                 },
                 {
                     name: 'Test Median',
                     type: 'column',
-                    data: ['', ts.testMedian, ''],
+                    data: ['', selectedTest.sectionMedian, ''],
                 },
                 {
                     name: 'My Best Attempt',
@@ -1417,7 +1393,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 {
                     name: 'Test SD',
                     type: 'line',
-                    data: ['', ts.testSTDEV, ''],
+                    data: ['', selectedTest.standardDeviation, ''],
                 },
             ];
         } else if (this.state.testStatsDataSelectIdx === 2) {
@@ -1428,15 +1404,15 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             if (selectedTest.submitted.length > 0) {
                 selectedTest.submitted.forEach(obj => {
                     attemptArray.push((obj.grade / selectedTest.total) * 100);
-                    meanArray.push(ts.testMean);
-                    medianArray.push(ts.testMedian);
-                    sdArray.push(ts.testSTDEV);
+                    meanArray.push(selectedTest.sectionAverage);
+                    medianArray.push(selectedTest.sectionMedian);
+                    sdArray.push(selectedTest.standardDeviation);
                 });
             } else {
                 attemptArray = ['', 'No Attempts Available', ''];
-                meanArray = ['', ts.testMean, ''];
-                medianArray = ['', ts.testMedian, ''];
-                sdArray = ['', ts.testSTDEV, ''];
+                meanArray = ['', selectedTest.sectionAverage, ''];
+                medianArray = ['', selectedTest.sectionMedian, ''];
+                sdArray = ['', selectedTest.standardDeviation, ''];
             }
             return [
                 {
@@ -1461,17 +1437,10 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 },
             ];
         } else if (this.state.testStatsDataSelectIdx === 3) {
-            const dataObj = convertListFloatToAnalytics(
-                ts.topMarkPerStudent,
-                ts.totalMark as number,
-            );
-            delete dataObj['studentSizeWhoTookIt'];
+            const dataObj = convertListFloatToAnalytics(ts.grades, selectedTest.total);
             const dataOutArray = [];
             for (let key in dataObj)
-                if (dataObj.hasOwnProperty(key))
-                    dataOutArray.push(
-                        (dataObj[key] as {numberOfStudents: number}).numberOfStudents,
-                    );
+                if (dataObj.hasOwnProperty(key)) dataOutArray.push(dataObj[key]);
             return [
                 {
                     name: 'Number of Students',
@@ -1557,7 +1526,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         ];
     }
 
-    generateChartOptions() {
+    generateChartOptions(): ChartOptions {
         let selectedClass = this.props.sections[this.state.c as number];
         let xCategories = [];
         for (let i = 0; i < selectedClass.tests.length; i++) {
@@ -1653,6 +1622,14 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 theme: this.props.theme.theme,
             },
         };
+    }
+
+    selectedClass(): Http.GetSections_Section {
+        return this.props.sections[this.state.c as number];
+    }
+
+    selectedTest(): Http.GetSections_Test {
+        return this.selectedClass().tests[this.state.t as number];
     }
 }
 

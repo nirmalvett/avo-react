@@ -74,9 +74,11 @@ def enroll(key: str):
         section = Section.query.filter(Section.enroll_key == key).first()
         if section is None:
             return jsonify(error='Invalid enroll key')
+        discount = None
         price = section.price
     else:
         section = Section.query.get(discount.SECTION)
+        discount = discount.price
         price = discount.price
 
     relations = SectionRelations(section.SECTION)
@@ -95,10 +97,10 @@ def enroll(key: str):
     return jsonify(
         sectionID=section.SECTION,
         price=section.price,
-        discount=price,
+        discount=discount,
         tax=round(price * 0.13, 2),
         totalPrice=round(price * 1.13, 2),
-        freeTrial=UserSectionType.TRIAL not in relations
+        freeTrial=UserSectionType.TRIAL not in relations.all
     )
 
 
