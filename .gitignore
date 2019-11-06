@@ -7,3 +7,4 @@ desktop.ini
 config.*
 DS_Store
 .vscode
+launch.bash
