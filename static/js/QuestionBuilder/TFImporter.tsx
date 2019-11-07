@@ -217,7 +217,8 @@ const dummyData: PreviewQuestion[] = [
         name: 'Question Name',
         prompt: 'This is a prompt',
         answer: 'True',
-        explanation: 'This is an exlanation',
+        explanation:
+            'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptates assumenda eum incidunt sequi facere laudantium excepturi, corrupti reiciendis iure culpa libero laboriosam, quibusdam blanditiis aut dolorem ex ipsam ipsum harum nihil dolorum quia sapiente amet. Explicabo nam molestiae quaerat debitis a illum dolorum odit, deserunt magnam, ut blanditiis in quidem.',
     },
     {
         name: 'Question Name',
