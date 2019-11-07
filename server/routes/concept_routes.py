@@ -73,11 +73,9 @@ def delete_concept(concept_id: int):
     if not able_edit_course(concept.COURSE):
         # If the user is not able to edit course return error JSON
         return jsonify(error="User not able to edit course")
-    concept_question = ConceptQuestion.query\
-        .filter(ConceptQuestion.CONCEPT == concept_id).all()  # All questions related to concept
-    if len(concept_question) > 0:
-        # If there are questions with the concept remove the relation between them
-        db.session.delete(concept_question)
+    concept_question = ConceptQuestion.query.filter(ConceptQuestion.CONCEPT == concept_id).all()
+    for c in concept_question:
+        db.session.delete(c)
     concept_relation = ConceptRelation.query.filter((ConceptRelation.PARENT == concept_id) |
                                                     (ConceptRelation.CHILD == concept_id)).all()
     # Get all relations between other concepts and current concept
