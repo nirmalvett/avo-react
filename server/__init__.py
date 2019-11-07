@@ -2,8 +2,8 @@ from flask import Flask
 from flask_compress import Compress
 from server.auth import login_manager
 from server.models import db
-from server.routes import ConceptRoutes, CourseRoutes, FileRoutes, MasteryRoutes, MessageRoutes, QuestionRoutes,\
-    QuestionSetRoutes, SectionRoutes, ServerRoutes, TakesRoutes, TestRoutes, UserRoutes, UserSectionRoutes
+from server.routes import ConceptRoutes, CourseRoutes, FileRoutes, MasteryRoutes, MessageRoutes, QuestionRoutes, \
+    QuestionSetRoutes, SectionRoutes, ServerRoutes, TakesRoutes, TestRoutes, UserRoutes, UserSectionRoutes, ImageRoutes
 import paypalrestsdk
 import config
 # from flask_cors import CORS
@@ -26,6 +26,7 @@ db.init_app(app)
 app.register_blueprint(ConceptRoutes)
 app.register_blueprint(CourseRoutes)
 app.register_blueprint(FileRoutes)
+app.register_blueprint(ImageRoutes)
 app.register_blueprint(MasteryRoutes)
 app.register_blueprint(MessageRoutes)
 app.register_blueprint(QuestionRoutes)

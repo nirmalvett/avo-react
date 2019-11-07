@@ -1,5 +1,6 @@
 export * from './ConceptRoutes';
 export * from './CourseRoutes';
+export * from './ImageRoutes';
 export * from './MasteryRoutes';
 export * from './MessageRoutes';
 export * from './QuestionRoutes';

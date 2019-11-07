@@ -89,6 +89,7 @@ class Course(db.Model):
     name = db.Column(db.String(45), nullable=False)
 
     CONCEPT_RELATION = db.relationship('Concept', back_populates='COURSE_RELATION')
+    IMAGE_RELATION = db.relationship('Image', back_populates='COURSE_RELATION')
     QUESTION_SET_RELATION = db.relationship('QuestionSet', back_populates='COURSE_RELATION')
     SECTION_RELATION = db.relationship('Section', back_populates='COURSE_RELATION')
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='COURSE_RELATION')
@@ -148,6 +149,25 @@ class Feedback(db.Model):
 
     def __repr__(self):
         return f'<Feedback {self.FEEDBACK} {self.USER} {self.message} {self.timestamp}>'
+
+
+class Image(db.Model):
+    __tablename__ = 'IMAGE'
+
+    IMAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
+    name = db.Column(db.String(45), nullable=False)
+    extension = db.Column(db.String(5), nullable=False)
+
+    COURSE_RELATION = db.relationship('Course', back_populates='IMAGE_RELATION')
+
+    def __init__(self, course_id: int, name: str, extension: str):
+        self.COURSE = course_id
+        self.name = name
+        self.extension = extension
+
+    def __repr__(self):
+        return f'<Image {self.IMAGE} {self.COURSE} {self.name}>'
 
 
 class Mastery(db.Model):
