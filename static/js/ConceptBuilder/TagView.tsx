@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import TreeView from './TreeView';
-import {getMathJax} from '../HelperFunctions/Utilities';
 import Downshift from 'downshift';
 import debounce from '../SharedComponents/AVODebouncer';
 import AVOPopupMenu from '../SharedComponents/AVOPopupMenu';
@@ -43,6 +42,7 @@ import * as Http from '../Http';
 import {Course} from '../Http/types';
 // @ts-ignore
 import SwipeableViews from 'react-swipeable-views';
+import {Content} from '../HelperFunctions/Content';
 
 interface Concept {
     conceptID: number;
@@ -402,11 +402,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         />
                                     </Grid>
                                     <Grid item md={6} style={{padding: '9px'}}>
-                                        {getMathJax(
-                                            this.state.lessonText,
-                                            'body2',
-                                            `Lesson_latex_viwe`,
-                                        )}
+                                        <Content>{this.state.lessonText}</Content>
                                     </Grid>
                                 </Grid>
                             </div>
@@ -1201,7 +1197,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                 console.warn(res);
             },
         );
-    };
+    }
 
     saveLesson(lesson: string) {
         Http.editConcept(
@@ -1215,7 +1211,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
 
                 const newConcepts: Concept[] = concepts.map(Concept => {
                     if (this.state.selectedConcept.conceptID == Concept.conceptID) {
-                        Concept.name =  this.state.selectedConcept.name;
+                        Concept.name = this.state.selectedConcept.name;
                         Concept.lesson = lesson;
                     }
                     return Concept;
@@ -1236,7 +1232,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                 console.warn(res);
             },
         );
-    };
+    }
 
     deleteConcept() {
         const conceptID: number = this.state.selectedConcept.conceptID;

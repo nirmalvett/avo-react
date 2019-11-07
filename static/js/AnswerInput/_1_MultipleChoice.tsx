@@ -1,7 +1,7 @@
 import React, {Fragment, PureComponent} from 'react';
-import {getMathJax} from '../HelperFunctions/Utilities';
 import {FormControlLabel, Radio} from '@material-ui/core';
 import {AnswerInputImplementationProps} from './AnswerInput';
+import {Content} from '../HelperFunctions/Content';
 
 export class _1_MultipleChoice extends PureComponent<AnswerInputImplementationProps> {
     render() {
@@ -12,14 +12,14 @@ export class _1_MultipleChoice extends PureComponent<AnswerInputImplementationPr
         const {value, disabled} = this.props;
         return (
             <Fragment>
-                {getMathJax(prompt)}
+                <Content>{prompt}</Content>
                 {answers.map((answer, index) => (
                     <Fragment key={answer + index}>
                         <FormControlLabel
                             control={<Radio color='primary' checked={value === index.toString()} />}
                             disabled={disabled}
                             onChange={this.onChange(index)}
-                            label={getMathJax(answer)}
+                            label={<Content>{answer}</Content>}
                         />
                         <br />
                     </Fragment>

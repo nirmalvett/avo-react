@@ -1,11 +1,11 @@
 import React, {Fragment, PureComponent} from 'react';
 import {Button, IconButton, Typography} from '@material-ui/core';
-import {getMathJax} from '../../HelperFunctions/Utilities';
 import AVOMasteryGauge from '../MasteryGauge';
 import {AvoLesson} from '../Learn';
 import {ThemeObj} from '../../Models';
 import {LooksOne, LooksTwo, Looks3, Looks4, Looks5} from '@material-ui/icons';
 import * as Http from '../../Http';
+import {Content} from '../../HelperFunctions/Content';
 
 interface LessonScreenProps {
     lesson: AvoLesson;
@@ -24,7 +24,7 @@ export class LessonScreen extends PureComponent<LessonScreenProps> {
             <Fragment>
                 <div style={{flex: 1, overflowY: 'auto'}}>
                     <Typography variant='h6'>{lesson.name}</Typography>
-                    {getMathJax(lesson.lesson, 'body2')}
+                    <Content variant='body2'>{lesson.lesson}</Content>
                 </div>
                 <div
                     style={{

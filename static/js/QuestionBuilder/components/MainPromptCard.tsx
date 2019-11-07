@@ -2,9 +2,9 @@ import React, {Fragment, PureComponent} from 'react';
 import {IconButton, TextField, Typography} from '@material-ui/core';
 import {Cancel, Done, Edit} from '@material-ui/icons';
 import {formatString, validateString} from '../mathCodeUtils';
-import {getMathJax} from '../../HelperFunctions/Utilities';
 import {EditorPrompt, QuestionBuilderMode} from '../QuestionBuilder.models';
 import {editText} from '../editText';
+import {Content} from '../../HelperFunctions/Content';
 
 interface MainPromptCardProps {
     mode: QuestionBuilderMode;
@@ -67,7 +67,7 @@ export class MainPromptCard extends PureComponent<MainPromptCardProps> {
                                 <Edit />
                             </IconButton>
                         </div>
-                        {getMathJax(formatString(editorPrompt.prompt, editorPrompt.strings))}
+                        <Content>{formatString(editorPrompt.prompt, editorPrompt.strings)}</Content>
                     </Fragment>
                 );
             } else {
@@ -85,7 +85,7 @@ export class MainPromptCard extends PureComponent<MainPromptCardProps> {
                                 <Edit />
                             </IconButton>
                         </div>
-                        {getMathJax(editorPrompt.prompt)}
+                        <Content>{editorPrompt.prompt}</Content>
                         {/*<Typography>{editorPrompt.errors}</Typography> todo*/}
                     </Fragment>
                 );

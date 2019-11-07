@@ -2,9 +2,9 @@ import React, {Fragment, PureComponent} from 'react';
 import {IconButton, TextField, Typography} from '@material-ui/core';
 import {Cancel, Delete, Done, Edit} from '@material-ui/icons';
 import {buildMathCode, formatString, validateString} from '../mathCodeUtils';
-import {getMathJax} from '../../HelperFunctions/Utilities';
 import {EditorCriteria, QuestionBuilderMode} from '../QuestionBuilder.models';
 import {editText} from '../editText';
+import {Content} from '../../HelperFunctions/Content';
 
 interface CriteriaCardProps {
     mode: QuestionBuilderMode;
@@ -107,8 +107,10 @@ export class CriteriaCard extends PureComponent<CriteriaCardProps> {
                             <Edit />
                         </IconButton>
                     </div>
-                    {getMathJax('\\(' + editorCriteria.LaTeX + '\\)')}
-                    {getMathJax(formatString(editorCriteria.explanation, editorCriteria.strings))}
+                    <Content>{'\\(' + editorCriteria.LaTeX + '\\)'}</Content>
+                    <Content>
+                        {formatString(editorCriteria.explanation, editorCriteria.strings)}
+                    </Content>
                 </Fragment>
             );
     }

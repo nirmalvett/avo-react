@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import * as Http from '../Http';
-import {arrayEq, getMathJax} from '../HelperFunctions/Utilities';
+import {arrayEq} from '../HelperFunctions/Utilities';
 import {AnswerInput} from '../AnswerInput';
 import {
     Button,
@@ -13,6 +13,7 @@ import {
 } from '@material-ui/core';
 import Save from '@material-ui/icons/Save';
 import {ShowSnackBar} from '../Layout/Layout';
+import {Content} from '../HelperFunctions/Content';
 
 interface TakeTestProps {
     showSnackBar: ShowSnackBar;
@@ -89,7 +90,7 @@ export default class TakeTest extends Component<TakeTestProps, TakeTestState> {
         return (
             <Card style={{margin: '20px 10px', padding: '20px'}}>
                 <CardHeader
-                    title={getMathJax(`${index + 1}. ${question.prompt}`)}
+                    title={<Content>{`${index + 1}. ${question.prompt}`}</Content>}
                     action={
                         disabled ? (
                             <Tooltip title='Nothing to save'>

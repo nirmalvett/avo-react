@@ -1,12 +1,12 @@
 import React from 'react';
 import {TextField} from '@material-ui/core';
-import {getMathJax} from '../HelperFunctions/Utilities';
 import {AnswerInputImplementationProps} from './AnswerInput';
+import {Content} from '../HelperFunctions/Content';
 
 export function _3_Expression(props: AnswerInputImplementationProps) {
     return (
         <div>
-            {getMathJax(props.prompt)}
+            <Content>{props.prompt}</Content>
             <TextField
                 value={props.value}
                 onChange={e => props.onChange(e.target.value)}

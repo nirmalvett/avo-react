@@ -1,14 +1,14 @@
 import React, {Fragment, PureComponent} from 'react';
-import {getMathJax} from '../HelperFunctions/Utilities';
 import {FormControlLabel, Radio} from '@material-ui/core';
 import {AnswerInputImplementationProps} from './AnswerInput';
+import {Content} from '../HelperFunctions/Content';
 
 export class _0_TrueFalse extends PureComponent<AnswerInputImplementationProps> {
     render() {
         const {value, prompt, disabled} = this.props;
         return (
             <Fragment>
-                {getMathJax(prompt)}
+                <Content>{prompt}</Content>
                 <FormControlLabel
                     disabled={disabled}
                     value='true'

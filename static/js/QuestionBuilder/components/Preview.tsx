@@ -1,6 +1,5 @@
 import React, {CSSProperties, Fragment} from 'react';
 import {Card, Divider, Typography} from '@material-ui/core';
-import {getMathJax} from '../../HelperFunctions/Utilities';
 import {AnswerInput} from '../../AnswerInput';
 import {
     CompileSuccess,
@@ -9,6 +8,7 @@ import {
     EditorSubPrompt,
 } from '../QuestionBuilder.models';
 import * as Http from '../../Http';
+import {Content} from '../../HelperFunctions/Content';
 
 const cardStyle: CSSProperties = {
     margin: 8,
@@ -48,21 +48,25 @@ export function Preview(props: PreviewProps) {
                         Math
                     </Typography>
                     {editorMath.map(x =>
-                        x.comment === ''
-                            ? getMathJax('\\(\\small ' + x.LaTeX + '\\)')
-                            : getMathJax(
-                                  '\\(\\small ' +
-                                      x.LaTeX +
-                                      '\\color{grey}{\\text{ # ' +
-                                      x.comment +
-                                      '}}\\)',
-                              ),
+                        x.comment === '' ? (
+                            <Content>{'\\(\\small ' + x.LaTeX + '\\'}</Content>
+                        ) : (
+                            <Content>
+                                {'\\(\\small ' +
+                                    x.LaTeX +
+                                    '\\color{grey}{\\text{ # ' +
+                                    x.comment +
+                                    '}}\\)'}
+                            </Content>
+                        ),
                     )}
                     <Divider style={dividerStyle} />
-                    {varList.map(x => getMathJax(`\\(${x[0]}=${x[1]}\\)`))}
+                    {varList.map(x => (
+                        <Content>{`\\(${x[0]}=${x[1]}\\)`}</Content>
+                    ))}
                 </Card>
                 <Card style={cardStyle}>
-                    {getMathJax(props.preview.prompt)}
+                    <Content>{props.preview.prompt}</Content>
                     {props.editorPrompts.map((x, y) => (
                         <Fragment>
                             <Divider style={dividerStyle} />
@@ -74,7 +78,7 @@ export function Preview(props: PreviewProps) {
                     {props.editorCriteria.map((x, y) => (
                         <Fragment>
                             {y > 0 ? <Divider style={dividerStyle} /> : null}
-                            {getMathJax(props.preview.explanation[y])}
+                            <Content>{props.preview.explanation[y]}</Content>
                         </Fragment>
                     ))}
                 </Card>

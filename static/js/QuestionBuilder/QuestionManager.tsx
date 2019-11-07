@@ -29,11 +29,11 @@ import {
 } from '@material-ui/icons';
 import * as Http from '../Http';
 import {uniqueKey} from '../HelperFunctions/Helpers';
-import {getMathJax} from '../HelperFunctions/Utilities';
 import {AnswerInput} from '../AnswerInput';
 import {ShowSnackBar} from '../Layout/Layout';
 import {QuestionSet, Course} from '../Http/types';
 import {QuestionBuilderSelection} from "./QuestionBuilderHome";
+import {Content} from '../HelperFunctions/Content';
 
 export interface QuestionManagerProps {
     selection: QuestionBuilderSelection;
@@ -340,7 +340,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
         if (this.props.selection.mode === 'question')
             return (
                 <Fragment key='ManagerPreview'>
-                    {getMathJax(preview.prompt)}
+                    <Content>{preview.prompt}</Content>
                     {preview.prompts.map((x, y) => (
                         <Fragment key={uniqueKey()}>
                             <Divider style={{marginTop: '10px', marginBottom: '10px'}} />
@@ -350,7 +350,9 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                     {preview.explanation.map(x => (
                         <Fragment key={uniqueKey()}>
                             <Divider style={{marginTop: '10px', marginBottom: '10px'}} />
-                            <div style={{position: 'relative'}}>{getMathJax(x)}</div>
+                            <div style={{position: 'relative'}}>
+                                <Content>{x}</Content>
+                            </div>
                         </Fragment>
                     ))}
                 </Fragment>

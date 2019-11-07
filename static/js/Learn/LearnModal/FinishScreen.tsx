@@ -5,9 +5,9 @@ import AVOMasteryGauge from '../MasteryGauge';
 import {AvoLesson, AvoLessonData} from '../Learn';
 import {ThemeObj} from '../../Models';
 import {SubmitQuestion} from '../../Http';
-import {getMathJax} from '../../HelperFunctions/Utilities';
 import {AnswerInput} from '../../AnswerInput';
 import {ChevronLeft, ChevronRight} from '@material-ui/icons';
+import {Content} from '../../HelperFunctions/Content';
 
 interface FinishScreenProps {
     lesson: AvoLesson;
@@ -163,7 +163,7 @@ function IndividualExplanation({
                 overflowY: 'auto',
             }}
         >
-            {getMathJax(question.prompt)}
+            <Content>{question.prompt}</Content>
             {question.prompts.map((p, idx) => (
                 <AnswerInput
                     type={question.types[idx]}
@@ -174,7 +174,11 @@ function IndividualExplanation({
                     save={() => {}}
                 />
             ))}
-            <div>{explanation.explanation.map(x => getMathJax(x))}</div>
+            <div>
+                {explanation.explanation.map(x => (
+                    <Content>{x}</Content>
+                ))}
+            </div>
         </div>
     );
 }

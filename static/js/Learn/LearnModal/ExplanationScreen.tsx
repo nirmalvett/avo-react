@@ -1,10 +1,10 @@
 import {Button, Typography} from '@material-ui/core';
-import {getMathJax} from '../../HelperFunctions/Utilities';
 import AVOMasteryGauge from '../MasteryGauge';
 import React, {Fragment} from 'react';
 import {SubmitQuestion} from '../../Http';
 import {ThemeObj} from '../../Models';
 import {AvoLesson} from '../Learn';
+import {Content} from '../../HelperFunctions/Content';
 
 interface ExplanationScreenProps {
     lesson: AvoLesson;
@@ -25,7 +25,7 @@ export function ExplanationScreen(props: ExplanationScreenProps) {
             <div style={{flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto'}}>
                 {explanation.explanation.map(x => (
                     <>
-                        {getMathJax(x)}
+                        <Content>{x}</Content>
                         <br />
                     </>
                 ))}

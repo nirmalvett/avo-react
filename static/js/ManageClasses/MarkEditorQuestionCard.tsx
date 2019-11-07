@@ -1,9 +1,9 @@
 import React, {Fragment} from 'react';
 import {Card, CardHeader, Divider, IconButton, Tooltip, Typography} from '@material-ui/core';
 import {Check, Close} from '@material-ui/icons';
-import {getMathJax} from '../HelperFunctions/Utilities';
 import {AnswerInput} from '../AnswerInput';
 import * as Http from '../Http';
+import {Content} from '../HelperFunctions/Content';
 
 interface MarkEditorQuestionCardProps {
     question: Http.PostTest_Question;
@@ -26,7 +26,9 @@ export default function MarkEditorQuestionCard(props: MarkEditorQuestionCardProp
             }}
         >
             <CardHeader
-                title={getMathJax(`(Question ${props.index + 1}): ${props.question.prompt}`)}
+                title={
+                    <Content>{`(Question ${props.index + 1}): ${props.question.prompt}`}</Content>
+                }
                 style={{position: 'relative'}}
                 action={
                     <Typography variant='h5' color='primary'>
@@ -64,7 +66,7 @@ export default function MarkEditorQuestionCard(props: MarkEditorQuestionCardProp
                     </div>
                     <div>
                         <br />
-                        {getMathJax(explanation)}
+                        <Content>{explanation}</Content>
                         <br />
                     </div>
                 </Fragment>

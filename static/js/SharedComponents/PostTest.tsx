@@ -2,11 +2,11 @@ import React, {Component} from 'react';
 import * as Http from '../Http';
 import Card from '@material-ui/core/Card/Card';
 import CardHeader from '@material-ui/core/CardHeader/CardHeader';
-import {getMathJax} from '../HelperFunctions/Utilities';
 import Divider from '@material-ui/core/Divider/Divider';
 import {AnswerInput} from '../AnswerInput';
 import Typography from '@material-ui/core/Typography/Typography';
 import {uniqueKey} from '../HelperFunctions/Helpers';
+import {Content} from '../HelperFunctions/Content';
 
 export interface PostTestProps {
     takes: number;
@@ -60,7 +60,7 @@ export default class PostTest extends Component<PostTestProps, Http.PostTest> {
                 }}
             >
                 <CardHeader
-                    title={getMathJax(question.prompt)}
+                    title={<Content>{question.prompt}</Content>}
                     style={{position: 'relative'}}
                     action={
                         <Typography variant='h5' color='primary'>
@@ -89,7 +89,7 @@ export default class PostTest extends Component<PostTestProps, Http.PostTest> {
                         >
                             {question.scores[y]}/{question.totals[y]}
                         </Typography>
-                        {getMathJax(x)}
+                        <Content>{x}</Content>
                     </div>,
                 ])}
             </Card>

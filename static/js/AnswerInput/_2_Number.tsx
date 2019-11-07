@@ -1,16 +1,21 @@
 import React from 'react';
 import {TextField} from '@material-ui/core';
-import {getMathJax, validateNumber} from '../HelperFunctions/Utilities';
+import {validateNumber} from '../HelperFunctions/Utilities';
 import {AnswerInputImplementationProps} from './AnswerInput';
+import {Content} from '../HelperFunctions/Content';
 
 export function _2_Number(props: AnswerInputImplementationProps) {
     const message = validateNumber(props.value);
     const error = !props.disabled && !Array.isArray(message);
     const helperText = !Array.isArray(message) ? message : undefined;
-    const renderedInput = Array.isArray(message) ? getMathJax(`\\(${message[0]}\\)`) : undefined;
+    const renderedInput = Array.isArray(message) ? (
+        <Content>{`\\(${message[0]}\\)`}</Content>
+    ) : (
+        undefined
+    );
     return (
         <div>
-            {getMathJax(props.prompt)}
+            <Content>{props.prompt}</Content>
             <TextField
                 value={props.value}
                 onChange={e => props.onChange(e.target.value)}

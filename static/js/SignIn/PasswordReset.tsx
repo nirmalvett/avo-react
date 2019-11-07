@@ -55,8 +55,8 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
                 : !longEnough
                 ? 'Passwords must be at least 8 characters long!'
                 : !passwordsMatch
-                    ? 'Passwords do not match!'
-                    : '';
+                ? 'Passwords do not match!'
+                : '';
         return (
             <MuiThemeProvider theme={createMuiTheme({palette: {primary: green}})}>
                 <div
@@ -69,7 +69,7 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
                     }}
                 >
                     <Card classes={{root: 'avo-card'}} style={{width: '40ch', maxWidth: '90%'}}>
-                        <Logo theme='light'/>
+                        <Logo theme='light' />
                         {this.props.children}
                         <form noValidate autoComplete='off'>
                             <TextField
@@ -80,7 +80,7 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
                                 type='password'
                                 onChange={this.updateNewPassword}
                             />
-                            <br/>
+                            <br />
                             <TextField
                                 id='avo-passreset__confirm-password'
                                 margin='normal'
@@ -91,7 +91,7 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
                             />
                             {this.props.showTerms && (
                                 <>
-                                    <br/>
+                                    <br />
                                     <Typography variant='caption'>
                                         <Checkbox
                                             color='primary'
@@ -104,7 +104,7 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
                                         />
                                         I agree to the Terms of Service found{' '}
                                         <a id='ToC-here'>here</a>.
-                                        <br/>
+                                        <br />
                                         <AVOModal
                                             title='Terms of Service'
                                             target='ToC-here'
@@ -122,12 +122,12 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
                                     </Typography>
                                 </>
                             )}
-                            <br/>
-                            <br/>
+                            <br />
+                            <br />
                             <Typography variant='caption' color='error'>
                                 {errorMessage}
                             </Typography>
-                            <br/>
+                            <br />
                             <Button
                                 style={{float: 'right'}}
                                 color='primary'
@@ -142,7 +142,6 @@ export default class PasswordResetPage extends Component<PasswordResetProps, Pas
                             </Button>
                         </form>
                     </Card>
-
                 </div>
             </MuiThemeProvider>
         );

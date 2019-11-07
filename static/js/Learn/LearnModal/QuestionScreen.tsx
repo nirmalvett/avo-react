@@ -1,8 +1,8 @@
 import {AvoLessonData} from '../Learn';
 import {Button} from '@material-ui/core';
-import {getMathJax} from '../../HelperFunctions/Utilities';
 import {AnswerInput} from '../../AnswerInput';
 import React, {Fragment} from 'react';
+import {Content} from '../../HelperFunctions/Content';
 
 interface QuestionScreenProps {
     question: AvoLessonData;
@@ -34,7 +34,7 @@ export function QuestionScreen(props: QuestionScreenProps) {
                     padding: '16px',
                 }}
             >
-                {getMathJax(question.prompt)}
+                <Content>{question.prompt}</Content>
                 {question.prompts.map((p, idx) => (
                     <AnswerInput
                         type={question.types[idx]}

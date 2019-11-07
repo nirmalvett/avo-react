@@ -17,10 +17,10 @@ import * as Http from '../../Http';
 import {QuestionSet} from '../../Http/types';
 import {ShowSnackBar} from '../../Layout/Layout';
 import {HashLoader} from 'react-spinners';
-import {getMathJax} from '../../HelperFunctions/Utilities';
 import {AnswerInput} from '../../AnswerInput';
 import {FolderIcon} from './FolderIcon';
 import {DatePicker} from './DatePicker';
+import {Content} from '../../HelperFunctions/Content';
 const moment = require('moment');
 
 interface CreateTestProps {
@@ -194,7 +194,7 @@ export default class CreateTest extends Component<CreateTestProps, CreateTestSta
                         </div>
                     }
                 />
-                {getMathJax(question.prompt, 'subtitle1')}
+                <Content variant='subtitle1'>{question.prompt}</Content>
                 {question.prompts.map((prompt, pIndex) => (
                     <AnswerInput
                         key={`Create-Test-Answer-index:${qIndex}-${pIndex}`}

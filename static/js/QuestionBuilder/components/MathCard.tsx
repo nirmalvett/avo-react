@@ -2,8 +2,8 @@ import React, {Fragment, PureComponent, ReactElement} from 'react';
 import {IconButton, TextField, Typography} from '@material-ui/core';
 import {Cancel, Done, Edit} from '@material-ui/icons';
 import {buildMathCode} from '../mathCodeUtils';
-import {getMathJax} from '../../HelperFunctions/Utilities';
 import {CompileSuccess, EditorMath, QuestionBuilderMode} from '../QuestionBuilder.models';
+import {Content} from '../../HelperFunctions/Content';
 
 interface MathCardProps {
     mode: QuestionBuilderMode;
@@ -108,22 +108,20 @@ export class MathCard extends PureComponent<MathCardProps> {
                         </IconButton>
                     </div>
                     {filteredMath.map((x, y) =>
-                        x.comment.length === 0
-                            ? getMathJax(
-                                  '\\(\\small ' + x.varNames.join(', ') + '=' + x.LaTeX + '\\)',
-                                  undefined,
-                                  y.toString(),
-                              )
-                            : getMathJax(
-                                  '\\(\\small ' +
-                                      x.varNames.join(', ') +
-                                      '=' +
-                                      x.LaTeX +
-                                      '\\) # ' +
-                                      x.comment,
-                                  undefined,
-                                  y.toString(),
-                              ),
+                        x.comment.length === 0 ? (
+                            <Content key={y}>
+                                {'\\(\\small ' + x.varNames.join(', ') + '=' + x.LaTeX + '\\)'}
+                            </Content>
+                        ) : (
+                            <Content key={y}>
+                                {'\\(\\small ' +
+                                    x.varNames.join(', ') +
+                                    '=' +
+                                    x.LaTeX +
+                                    '\\) # ' +
+                                    x.comment}
+                            </Content>
+                        ),
                     )}
                 </Fragment>
             );
