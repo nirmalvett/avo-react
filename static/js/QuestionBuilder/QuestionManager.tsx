@@ -377,7 +377,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
             this.state.course,
             this.state.setName,
             () => this.getSets(),
-            result => alert(result),
+            result => alert(result.error),
         );
         this.setState({addDiagOpen: false, setName: ''});
     };
@@ -386,7 +386,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
         let set = this.state.sets[this.state.selectedS as number];
         let name = prompt('Set name:', set.name);
         if (name !== '' && name !== null)
-            Http.renameSet(set.setID, name, () => this.getSets(), result => alert(result));
+            Http.renameSet(set.setID, name, () => this.getSets(), result => alert(result.error));
     }
 
     deleteSet() {
@@ -399,7 +399,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                     await this.setState({selectedS: null, selectedQ: null});
                     this.getSets();
                 },
-                result => alert(result),
+                result => alert(result.error),
             );
     }
 
@@ -428,7 +428,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                 question.questionID,
                 name,
                 () => this.getSets(),
-                result => alert(result),
+                result => alert(result.error),
             );
     }
 
@@ -442,7 +442,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
         let question = set.questions[this.state.selectedQ as number];
         let confirmation = confirm('Are you sure you want to delete this question?');
         if (confirmation)
-            Http.deleteQuestion(question.questionID, () => this.getSets(), result => alert(result));
+            Http.deleteQuestion(question.questionID, () => this.getSets(), result => alert(result.error));
     }
 
     copyQuestion() {

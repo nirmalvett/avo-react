@@ -647,7 +647,7 @@ export default class TrueFalseBuilder extends Component<
             this.state.course,
             this.state.setName,
             () => this.refreshSets(),
-            result => alert(result),
+            result => alert(result.error),
         );
         this.setState({addDiagOpen: false, setName: ''});
     };
@@ -663,7 +663,7 @@ export default class TrueFalseBuilder extends Component<
                     await this.setState({selectedS: null, questionID: -1});
                     this.getSets();
                 },
-                result => alert(result),
+                result => alert(result.error),
             );
     };
 
