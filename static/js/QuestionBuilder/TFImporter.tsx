@@ -22,7 +22,7 @@ import * as Http from '../Http';
 export interface TFImporterProps {
     set: QuestionSet;
     close: () => void;
-    buildQuestionString: (question: string, answer: string, explanation: string)
+    buildQuestionString: (question: string, answer: string, explanation: string) => string
 }
 
 export interface TFImporterState {
