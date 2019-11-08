@@ -113,7 +113,7 @@ export default class MultipleChoiceBuilder extends Component<
             changed: false,
             nextQuestion: null, // Used to store a selected question that hasn't been loaded
             hovered: -1, // The ID of the current question being hovered
-            course: props.courses[0].courseID, // The courseID for sets to be added to
+            course: -1, // The courseID for sets to be added to
             setName: '', // The name for a new set
         };
     }
@@ -575,34 +575,16 @@ export default class MultipleChoiceBuilder extends Component<
                     </DialogActions>
                 </Dialog>
                 <Dialog
-                    onClose={() => this.setState({addDiagOpen: false, course: this.props.courses[0].courseID})}
+                    onClose={() => this.closeAddSetDialog()}
                     aria-labelledby='select-course-dialog'
                     open={this.state.addDiagOpen}
                 >
                     <DialogTitle id='select-course-dialog'>Add a new set</DialogTitle>
                     <List>
                         <ListItem>
-                            {/* Ugly work around to fix broken labelId prop for Select */}
-                            <InputLabel id='add-set-select-label'>Course</InputLabel>
-                        </ListItem>
-                        <ListItem>
                             <FormControl>
-                                <Select
-                                    // labelId='add-set-select-label' seems to be broken for some reason
-                                    id='demo-simple-select'
-                                    value={this.state.course}
-                                    onChange={(event: any) =>
-                                        this.setState({course: event.target.value})
-                                    }
-                                >
-                                    {this.props.courses.map(course => {
-                                        return (
-                                            <MenuItem value={course.courseID}>
-                                                {course.name}
-                                            </MenuItem>
-                                        );
-                                    })}
-                                </Select>
+                                <InputLabel id='add-set-select-label'>Course</InputLabel>
+                                {this.renderAddSetSelect()}
                             </FormControl>
                         </ListItem>
                         <ListItem>
@@ -619,13 +601,10 @@ export default class MultipleChoiceBuilder extends Component<
                             </form>
                         </ListItem>
                         <ListItem>
-                            <Button color='primary' onClick={() => this.newSet()}>
+                            <Button color='primary' disabled={this.state.course === -1} onClick={() => this.newSet()}>
                                 Add Set
                             </Button>
-                            <Button
-                                color='primary'
-                                onClick={() => this.setState({addDiagOpen: false, course: this.props.courses[0].courseID})}
-                            >
+                            <Button color='primary' onClick={() => this.closeAddSetDialog()}>
                                 Cancel
                             </Button>
                         </ListItem>
@@ -786,7 +765,7 @@ export default class MultipleChoiceBuilder extends Component<
             () => this.refreshSets(),
             result => alert(result.error),
         );
-        this.setState({addDiagOpen: false, setName: '', course: this.props.courses[0].courseID});
+        this.closeAddSetDialog();
     };
 
     deleteSet = (index: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -943,6 +922,31 @@ export default class MultipleChoiceBuilder extends Component<
             !this.state.questionTxtE &&
             !this.state.questionEdit.includes(true) &&
             !this.state.questionExpE
+        );
+    };
+
+    closeAddSetDialog = () => {
+        this.setState({addDiagOpen: false, setName: '', course: -1});
+    };
+
+    // Had to move this to a function so ts-ignore wouldn't display on the page
+    renderAddSetSelect = () => {
+        // Currently an error with TS believing there is no lablelId prop on Select
+        return (
+            // @ts-ignore
+            <Select
+                labelId='add-set-select-label'
+                id='demo-simple-select'
+                value={this.state.course}
+                onChange={(event: any) => this.setState({course: event.target.value})}
+            >
+                <MenuItem value={-1}>--Select a course--</MenuItem>
+                {this.props.courses.map(course => {
+                    if (course.canEdit) {
+                        return <MenuItem value={course.courseID}>{course.name}</MenuItem>;
+                    }
+                })}
+            </Select>
         );
     };
 }
