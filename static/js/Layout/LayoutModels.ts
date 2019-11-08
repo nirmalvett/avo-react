@@ -1,15 +1,7 @@
 import {GetTest} from '../Http';
-import {QuestionSet} from '../Http/types';
 
 interface AddStudentsToClass {
     name: 'Add Students';
-}
-
-interface BuildQuestion {
-    name: 'Build Question';
-    s: number;
-    q: number;
-    sets: QuestionSet[];
 }
 
 interface ConceptBuilder {
@@ -70,9 +62,6 @@ interface MyClasses {
 
 interface MyQuestions {
     name: 'My Questions';
-    s: number | null;
-    q: number | null;
-    sets: QuestionSet[];
 }
 
 interface NotifyClass {
@@ -95,7 +84,6 @@ interface TakeTest {
 
 export type Section =
     | AddStudentsToClass
-    | BuildQuestion
     | ConceptBuilder
     | CreateTest
     | Documentation

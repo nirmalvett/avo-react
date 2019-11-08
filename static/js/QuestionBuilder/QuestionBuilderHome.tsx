@@ -6,21 +6,38 @@ import QuestionManager from './QuestionManager';
 import TrueFalseBuilder from './TrueFalseBuilder';
 import {QuestionSet, Course} from 'Http/types';
 import {ShowSnackBar} from 'Layout/Layout';
+import {QuestionBuilder} from "./QuestionBuilder";
 
-interface QuestionBuilderHomeState {
-    mode: 'home' | 'math' | 'multiple-choice' | 'true-false';
-    isActive: boolean;
+interface Mode1 {
+    mode: null;
 }
 
+interface Mode2 {
+    mode: 'set';
+    s: number;
+}
+
+interface Mode3 {
+    mode: 'question';
+    s: number;
+    q: number;
+}
+
+export type QuestionBuilderSelection = Mode1 | Mode2 | Mode3;
+
 type QuestionBuilderHomeProps = {
-    s: number | null;
-    q: number | null;
     sets: QuestionSet[];
-    initBuilder: (s: number, q: number, sets: QuestionSet[]) => void;
+    updateSets: (sets: QuestionSet[], cb?: () => void) => void;
     showSnackBar: ShowSnackBar;
     courses: Course[];
     theme: 'light' | 'dark';
 };
+
+interface QuestionBuilderHomeState {
+    screen: 'home' | 'math' | 'math-builder' | 'multiple-choice' | 'true-false';
+    selection: QuestionBuilderSelection;
+    isActive: boolean;
+}
 
 export class QuestionBuilderHome extends Component<
     QuestionBuilderHomeProps,
@@ -29,25 +46,41 @@ export class QuestionBuilderHome extends Component<
     constructor(props: QuestionBuilderHomeProps) {
         super(props);
         this.state = {
-            mode: 'home',
+            screen: 'home',
+            selection: {mode: null},
             isActive: false,
         };
     }
 
     render() {
-        switch (this.state.mode) {
+        switch (this.state.screen) {
             case 'home':
                 return this.renderHomeScreen();
             case 'math':
                 return (
                     <QuestionManager
-                        returnHome={() => this.setState({mode: 'home', isActive: true})}
+                        returnHome={this.returnHome}
+                        deselect={this.deselect}
+                        selectSet={this.selectSet}
+                        selectQuestion={this.selectQuestion}
                         showSnackBar={this.props.showSnackBar}
-                        initBuilder={this.props.initBuilder}
-                        s={this.props.s}
-                        q={this.props.q}
+                        initBuilder={() => this.setState({screen: 'math-builder'})}
+                        selection={this.state.selection}
                         sets={this.props.sets}
                         courses={this.props.courses}
+                        updateSets={this.props.updateSets}
+                    />
+                );
+            case 'math-builder':
+                if (this.state.selection.mode !== 'question') return null;
+                return (
+                    <QuestionBuilder
+                        back={() => this.setState({screen: 'math'})}
+                        updateSets={this.props.updateSets}
+                        showSnackBar={this.props.showSnackBar}
+                        s={this.state.selection.s}
+                        q={this.state.selection.q}
+                        sets={this.props.sets}
                     />
                 );
             case 'multiple-choice':
@@ -55,7 +88,7 @@ export class QuestionBuilderHome extends Component<
                     <MultipleChoiceBuilder
                         sets={this.props.sets}
                         courses={this.props.courses}
-                        returnHome={() => this.setState({mode: 'home', isActive: true})}
+                        returnHome={() => this.setState({screen: 'home', isActive: true})}
                         showSnackBar={this.props.showSnackBar}
                     />
                 );
@@ -64,7 +97,7 @@ export class QuestionBuilderHome extends Component<
                     <TrueFalseBuilder
                         sets={this.props.sets}
                         courses={this.props.courses}
-                        returnHome={() => this.setState({mode: 'home', isActive: true})}
+                        returnHome={() => this.setState({screen: 'home', isActive: true})}
                         showSnackBar={this.props.showSnackBar}
                     />
                 );
@@ -99,7 +132,7 @@ export class QuestionBuilderHome extends Component<
                             </Typography>
                             <br />
                             <Button
-                                onClick={this.switchToMathQB.bind(this)}
+                                onClick={this.switchToMathQB}
                                 variant='outlined'
                                 color='primary'
                                 className=''
@@ -114,7 +147,7 @@ export class QuestionBuilderHome extends Component<
                             </Button>
                             <br />
                             <Button
-                                onClick={this.switchToMCB.bind(this)}
+                                onClick={this.switchToMCB}
                                 variant='outlined'
                                 color='primary'
                                 className=''
@@ -129,7 +162,7 @@ export class QuestionBuilderHome extends Component<
                             </Button>
                             <br />
                             <Button
-                                onClick={this.switchToTF.bind(this)}
+                                onClick={this.switchToTF}
                                 variant='outlined'
                                 color='primary'
                                 className=''
@@ -149,24 +182,37 @@ export class QuestionBuilderHome extends Component<
         this.setState({isActive: true});
     }
 
-    switchToMathQB() {
-        this.setState({isActive: false});
-        setTimeout(() => {
-            this.setState({mode: 'math'});
-        }, 500);
-    }
+    switchToMathQB = () => {
+        this.setState(
+            {isActive: false},
+            () => setTimeout(() => this.setState({screen: 'math'}), 500),
+        );
+    };
 
-    switchToMCB() {
-        this.setState({isActive: false});
-        setTimeout(() => {
-            this.setState({mode: 'multiple-choice'});
-        }, 500);
-    }
+    switchToMCB = () => {
+        this.setState(
+            {isActive: false},
+            () => setTimeout(() => this.setState({screen: 'multiple-choice'}), 500)
+        );
+    };
 
-    switchToTF() {
-        this.setState({isActive: false});
-        setTimeout(() => {
-            this.setState({mode: 'true-false'});
-        }, 500);
-    }
+    switchToTF = () => {
+        this.setState(
+            {isActive: false},
+            () => setTimeout(() => this.setState({screen: 'true-false'}), 500)
+        );
+    };
+
+    returnHome = () => {
+        this.setState(
+            {screen: 'home'},
+            () => setTimeout(() => this.setState({isActive: true}), 500)
+        );
+    };
+
+    deselect = () => this.setState({selection: {mode: null}});
+
+    selectSet = (s: number) => () => this.setState({selection: {mode: 'set', s}});
+
+    selectQuestion = (s: number, q: number) => () => this.setState({selection: {mode: 'question', s, q}});
 }

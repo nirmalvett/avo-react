@@ -23,14 +23,14 @@ import {
     EditorCriteria,
     EditorMath,
     EditorSubPrompt,
-    QuestionBuilderProps,
-    QuestionBuilderState,
-    HintsObj,
+    HintsObj, QuestionBuilderMode, EditorPrompt,
 } from './QuestionBuilder.models';
 import * as Http from '../Http';
 import {copy} from '../HelperFunctions/Utilities';
 import {FUNCTIONS, functionRegex} from './constants';
 import {CategoryCard} from './components/CategoryCard';
+import {ShowSnackBar} from "../Layout/Layout";
+import {QuestionSet} from "../Http/types";
 
 const cardStyle: CSSProperties = {
     margin: 8,
@@ -39,6 +39,27 @@ const cardStyle: CSSProperties = {
     paddingTop: 10,
     paddingBottom: 10,
 };
+
+export interface QuestionBuilderProps {
+    back: () => void;
+    updateSets: (sets: QuestionSet[]) => void;
+    showSnackBar: ShowSnackBar;
+    s: number;
+    q: number;
+    sets: QuestionSet[];
+}
+
+export interface QuestionBuilderState {
+    initError: boolean;
+    mode: QuestionBuilderMode;
+    editorMath: EditorMath[];
+    editorPrompt: EditorPrompt;
+    editorPrompts: EditorSubPrompt[];
+    editorCriteria: EditorCriteria[];
+    editorSeed: number;
+    hints: HintsObj;
+    concepts: Http.GetConcepts['concepts'];
+}
 
 const dividerStyle: CSSProperties = {marginTop: 15, marginBottom: 15};
 
@@ -116,7 +137,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                 <ButtonsEditor
                     disableSave={this.disableSave()}
                     initError={this.state.initError}
-                    exit={this.returnToManager}
+                    exit={this.props.back}
                     save={this.editorSave}
                     preview={this.editorPreview}
                 />
@@ -176,7 +197,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                     <ButtonsPreview
                         disableSave={this.disableSave()}
                         initError={this.state.initError}
-                        exit={this.returnToManager}
+                        exit={this.props.back}
                         save={this.editorSave}
                         cancelPreview={this.editorCancelPreview}
                         newSeed={this.editorNewSeed}
@@ -279,8 +300,6 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
 
     // sidebar buttons
 
-    returnToManager = () => this.props.initManager(this.props.s, this.props.q, this.props.sets);
-
     editorSave = () => {
         const id = this.props.sets[this.props.s].questions[this.props.q].questionID;
         const answers = this.state.editorPrompts.length;
@@ -296,7 +315,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
             () => {
                 const sets = copy(this.props.sets);
                 sets[this.props.s].questions[this.props.q].string = string;
-                this.props.updateProps(this.props.s, this.props.q, sets);
+                this.props.updateSets(sets);
                 this.setState({initError: false});
             },
             result => {
@@ -700,7 +719,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                 const {s, q} = this.props;
                 const sets = this.getNewSets();
                 sets[s].questions[q].concepts = {...sets[s].questions[q].concepts, [tag]: weight};
-                this.props.updateProps(this.props.s, this.props.q, sets);
+                this.props.updateSets(sets);
             },
             console.warn,
         );
@@ -716,7 +735,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                 const sets = this.getNewSets();
                 sets[s].questions[q].concepts = {...sets[s].questions[q].concepts};
                 delete sets[s].questions[q].concepts[tag];
-                this.props.updateProps(this.props.s, this.props.q, sets);
+                this.props.updateSets(sets);
             },
             console.warn,
         );
@@ -730,7 +749,7 @@ export class QuestionBuilder extends Component<QuestionBuilderProps, QuestionBui
                 const {s, q} = this.props;
                 const sets = this.getNewSets();
                 sets[s].questions[q].category = category;
-                this.props.updateProps(this.props.s, this.props.q, sets);
+                this.props.updateSets(sets);
             },
             console.warn,
         );

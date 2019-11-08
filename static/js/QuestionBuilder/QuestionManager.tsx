@@ -33,22 +33,23 @@ import {getMathJax} from '../HelperFunctions/Utilities';
 import {AnswerInput} from '../AnswerInput';
 import {ShowSnackBar} from '../Layout/Layout';
 import {QuestionSet, Course} from '../Http/types';
+import {QuestionBuilderSelection} from "./QuestionBuilderHome";
 
 export interface QuestionManagerProps {
-    s: number | null;
-    q: number | null;
+    selection: QuestionBuilderSelection;
+    deselect: () => void;
+    selectSet: (set: number) => () => void;
+    selectQuestion: (set: number, question: number) => () => void;
     sets: QuestionSet[];
     courses: Course[];
-    initBuilder: (s: number, q: number, sets: QuestionSet[]) => void;
+    initBuilder: () => void;
     showSnackBar: ShowSnackBar;
     returnHome: () => void;
+    updateSets: (sets: QuestionSet[]) => void;
 }
 
 export interface QuestionManagerState {
-    selectedS: number | null;
-    selectedQ: number | null;
-    copiedQ: null | [number, number];
-    sets: QuestionSet[];
+    copiedQ: null | {q: number; s: number;};
     preview: {
         prompt: string;
         prompts: string[];
@@ -65,10 +66,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     constructor(props: QuestionManagerProps) {
         super(props);
         this.state = {
-            selectedS: this.props.s, // Selected Set
-            selectedQ: null, // Selected Question
             copiedQ: null, // [Set, Question]
-            sets: this.props.sets,
             preview: {
                 prompt: '',
                 prompts: [],
@@ -83,21 +81,20 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
         if (this.props.sets.length === 0) {
             this.getSets();
         }
-        if (this.props.q !== null) {
-            this.selectQuestion(this.props.q);
+        if (this.props.selection.mode === 'question') {
+            this.selectQuestion(this.props.selection.q);
         }
     }
 
     getSets = () => {
         Http.getSets(
-            result => this.setState({sets: result.sets}),
+            result => this.props.updateSets(result.sets),
             () => alert('Something went wrong when retrieving your question list'),
         );
     };
 
     render() {
-        let {selectedS, selectedQ} = this.state;
-        let canEdit = selectedS !== null && this.state.sets[selectedS].canEdit;
+        let canEdit = this.props.selection.mode !== null && this.props.sets[this.props.selection.s].canEdit;
         return (
             <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
                 <div style={{flex: 3, display: 'flex'}}>
@@ -158,25 +155,25 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                                 <Add />
                             </IconButton>
                             <IconButton
-                                disabled={!canEdit || selectedQ === null}
+                                disabled={!canEdit || this.props.selection.mode !== 'question'}
                                 onClick={() => this.renameQuestion()}
                             >
                                 <Rename />
                             </IconButton>
                             <IconButton
-                                disabled={!canEdit || selectedQ === null}
-                                onClick={() => this.editQuestion()}
+                                disabled={!canEdit || this.props.selection.mode !== 'question'}
+                                onClick={this.props.initBuilder}
                             >
                                 <Edit />
                             </IconButton>
                             <IconButton
-                                disabled={selectedQ === null}
+                                disabled={this.props.selection.mode !== 'question'}
                                 onClick={() => this.copyQuestion()}
                             >
                                 <CopyIcon />
                             </IconButton>
                             <IconButton
-                                disabled={!canEdit || selectedQ === null}
+                                disabled={!canEdit || this.props.selection.mode !== 'question'}
                                 onClick={() => this.deleteQuestion()}
                             >
                                 <Delete />
@@ -206,9 +203,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                                     </ListItemIcon>
                                     <ListItemText
                                         secondary={
-                                            this.state.sets[this.state.copiedQ[0]].questions[
-                                                this.state.copiedQ[1]
-                                            ].name
+                                            this.props.sets[this.state.copiedQ.s].questions[this.state.copiedQ.q].name
                                         }
                                     />
                                 </ListItem>
@@ -224,7 +219,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                                 </ListItem>
                             </Fragment>
                         ) : null}
-                        {selectedS !== null && !this.state.sets[selectedS].canEdit ? (
+                        {this.props.selection.mode !== null && !this.props.sets[this.props.selection.s].canEdit ? (
                             <Fragment>
                                 <Divider />
                                 <ListItem key='paste'>
@@ -303,14 +298,14 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     }
 
     renderSetList() {
-        let {selectedS} = this.state;
-        return this.state.sets.map((set, index) => (
-            <ListItem key={set.setID + '-' + index} button onClick={() => this.selectSet(index)}>
+        let s = this.props.selection.mode === null ? -1 : this.props.sets[this.props.selection.s].setID;
+        return this.props.sets.map((set, index) => (
+            <ListItem key={set.setID + '-' + index} button onClick={this.props.selectSet(index)}>
                 <ListItemIcon>
                     {set.canEdit ? (
-                        <Folder color={selectedS === index ? 'primary' : 'action'} />
+                        <Folder color={s === set.setID ? 'primary' : 'action'} />
                     ) : (
-                        <Lock color={selectedS === index ? 'primary' : 'action'} />
+                        <Lock color={s === set.setID ? 'primary' : 'action'} />
                     )}
                 </ListItemIcon>
                 <ListItemText primary={set.name} />
@@ -319,8 +314,11 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     }
 
     renderQuestionList() {
-        if (this.state.selectedS !== null)
-            return this.state.sets[this.state.selectedS].questions.map((question, index) => (
+        if (this.props.selection.mode !== null) {
+            const id = this.props.selection.mode === 'question'
+                ? this.props.sets[this.props.selection.s].questions[this.props.selection.q].questionID
+                : -1;
+            return this.props.sets[this.props.selection.s].questions.map((question, index) => (
                 <ListItem
                     key={question.questionID + '-' + index}
                     button
@@ -328,17 +326,18 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                 >
                     <ListItemIcon>
                         <QuestionIcon
-                            color={this.state.selectedQ === index ? 'primary' : 'action'}
+                            color={id === question.questionID ? 'primary' : 'action'}
                         />
                     </ListItemIcon>
-                    <ListItemText secondary={question.name} />
+                    <ListItemText secondary={question.name}/>
                 </ListItem>
             ));
+        }
     }
 
     renderQuestionPreview() {
         let {preview} = this.state;
-        if (this.state.selectedQ !== null)
+        if (this.props.selection.mode === 'question')
             return (
                 <Fragment key='ManagerPreview'>
                     {getMathJax(preview.prompt)}
@@ -358,16 +357,13 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
             );
     }
 
-    selectSet(index: number) {
-        this.setState({selectedS: index, selectedQ: null});
-    }
-
     selectQuestion(index: number) {
-        let {sets, selectedS} = this.state;
+        if (this.props.selection.mode === null) return;
+        const s = this.props.selection.s;
         Http.sampleQuestion(
-            sets[selectedS as number].questions[index].string,
+            this.props.sets[s].questions[index].string,
             0,
-            result => this.setState({selectedQ: index, preview: result}),
+            result => this.setState({preview: result}, this.props.selectQuestion(s, index)),
             () => undefined,
         );
     }
@@ -383,20 +379,25 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     };
 
     renameSet() {
-        let set = this.state.sets[this.state.selectedS as number];
-        let name = prompt('Set name:', set.name);
-        if (name !== '' && name !== null)
-            Http.renameSet(set.setID, name, () => this.getSets(), result => alert(result.error));
+        if (this.props.selection.mode !== null) {
+            let name = prompt('Set name:', this.props.sets[this.props.selection.s].name);
+            if (name !== '' && name !== null) {
+                Http.renameSet(
+                    this.props.sets[this.props.selection.s].setID,
+                    name,
+                    this.getSets,
+                    result => alert(result.error)
+                );
+            }
+        }
     }
 
     deleteSet() {
-        let set = this.state.sets[this.state.selectedS as number];
-        let confirmation = confirm('Are you sure you want to delete this set?');
-        if (confirmation)
+        if (this.props.selection.mode !== null && confirm('Are you sure you want to delete this set?'))
             Http.deleteSet(
-                set.setID,
-                async () => {
-                    await this.setState({selectedS: null, selectedQ: null});
+                this.props.sets[this.props.selection.s].setID,
+                () => {
+                    this.props.deselect();
                     this.getSets();
                 },
                 result => alert(result.error),
@@ -404,62 +405,72 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     }
 
     newQuestion() {
-        Http.newQuestion(
-            this.state.sets[this.state.selectedS as number].setID,
-            'New question',
-            '-3 3 1 3 1 AC，2 3 0 ' +
-                'AB，-2 2 1 3 1 AC；$1，$2，$3；$1 _A，$2 _A，$3 _A；Compute the vector sum \\({0}+{1}{2}\\).，；6；1；@0 $1 ' +
-                '$2 $3 CD CB CN；The first step is to multiply the vector by the scalar, which you can do by multiplying ' +
-                'each number in the vector. The second step is to add the result to the other vector, by adding each ' +
-                'corresponding pair of numbers.；，，',
-            1,
-            1,
-            () => this.getSets(),
-            () => alert("The question couldn't be created."),
-        );
+        if (this.props.selection.mode !== null) {
+            Http.newQuestion(
+                this.props.sets[this.props.selection.s].setID,
+                'New question',
+                '-3 3 1 3 1 AC，2 3 0 AB，-2 2 1 3 1 AC；$1，$2，$3；$1 _A，$2 _A，$3 _A；Compute the vector ' +
+                'sum \\({0}+{1}{2}\\).，；6；1；@0 $1 $2 $3 CD CB CN；The first step is to multiply the vector by the ' +
+                'scalar, which you can do by multiplying each number in the vector. The second step is to add the ' +
+                'result to the other vector, by adding each corresponding pair of numbers.；，，',
+                1,
+                1,
+                () => this.getSets(),
+                () => alert("The question couldn't be created."),
+            );
+        }
     }
 
     renameQuestion() {
-        let set = this.state.sets[this.state.selectedS as number];
-        let question = set.questions[this.state.selectedQ as number];
-        let name = prompt('Question name:', question.name);
-        if (name !== '' && name !== null)
+        if (this.props.selection.mode !== 'question') return;
+        let name = prompt('Question name:', this.props.sets[this.props.selection.s].questions[this.props.selection.q].name);
+        if (name !== '' && name !== null) {
             Http.renameQuestion(
-                question.questionID,
+                this.props.sets[this.props.selection.s].questions[this.props.selection.q].questionID,
                 name,
                 () => this.getSets(),
                 result => alert(result.error),
             );
-    }
-
-    editQuestion() {
-        const {selectedS, selectedQ, sets} = this.state;
-        this.props.initBuilder(selectedS as number, selectedQ as number, sets);
+        }
     }
 
     deleteQuestion() {
-        let set = this.state.sets[this.state.selectedS as number];
-        let question = set.questions[this.state.selectedQ as number];
-        let confirmation = confirm('Are you sure you want to delete this question?');
-        if (confirmation)
-            Http.deleteQuestion(question.questionID, () => this.getSets(), result => alert(result.error));
+        if (
+            this.props.selection.mode === 'question' &&
+            confirm('Are you sure you want to delete this question?')
+        ) {
+            Http.deleteQuestion(
+                this.props.sets[this.props.selection.s].questions[this.props.selection.q].questionID,
+                this.getSets,
+                result => alert(result.error),
+            );
+        }
     }
 
     copyQuestion() {
-        this.setState({copiedQ: [this.state.selectedS as number, this.state.selectedQ as number]});
+        if (this.props.selection.mode === 'question') {
+            this.setState({copiedQ: this.props.selection});
+        }
     }
 
     pasteQuestion() {
-        const copied = this.state.copiedQ as [number, number];
-        const question = this.state.sets[copied[0]].questions[copied[1]];
-        Http.newQuestion(
-            this.state.sets[this.state.selectedS as number].setID,
-            question.name,
-            question.string,
-            question.answers,
-            question.total,
-            this.getSets,
-            () => this.props.showSnackBar('error', "The question couldn't be created.", 3000),
-        );
+        if (this.state.copiedQ) {
+            const question = this.props.sets[this.state.copiedQ.s].questions[this.state.copiedQ.q];
+            if (this.props.selection.mode !== null) {
+                Http.newQuestion(
+                    this.props.sets[this.props.selection.s].setID,
+                    question.name,
+                    question.string,
+                    question.answers,
+                    question.total,
+                    this.getSets,
+                    () => this.props.showSnackBar(
+                        'error',
+                        "The question couldn't be created.",
+                        3000,
+                    ),
+                );
+            }
+        }
     }
 }

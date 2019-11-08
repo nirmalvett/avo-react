@@ -123,12 +123,7 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                     {this.listItem(ClassOutlined, {name: 'Manage Classes'})}
                     {this.listItem(AssignmentTurnedInOutlined, {name: 'Add Students'})}
                     {this.listItem(MessageOutlined, {name: 'Notify Class'})}
-                    {this.listItem(BuildOutlined, {
-                        name: 'My Questions',
-                        s: null,
-                        q: null,
-                        sets: [],
-                    })}
+                    {this.listItem(BuildOutlined, {name: 'My Questions'})}
                     {this.listItem(HelpOutline, {name: 'Documentation'})}
                     {this.listItem(ExtensionOutlined, {name: 'Concept Builder'})}
                     {this.listItem(AssignmentReturnedOutlined, {name: 'Export Tools'})}

@@ -9,7 +9,6 @@ import MyClasses from '../MyClasses/MyClasses';
 import CreateTest from '../ManageClasses/CreateTest/CreateTest';
 import Preferences from '../Preferences/Preferences';
 import ManageClasses from '../ManageClasses/ManageClasses';
-import {QuestionBuilder} from '../QuestionBuilder/QuestionBuilder';
 import QuestionBuilderDocs from '../QuestionBuilder/QuestionBuilderDocs';
 import ExportTools from '../ExportTools/ExportTools';
 import Learn from '../Learn/Learn';
@@ -178,17 +177,6 @@ class Layout extends Component<LayoutProps, LayoutState> {
         const {section} = this.state;
         if (section.name === 'Add Students') {
             return <Whitelist color={this.color()} />;
-        } else if (section.name === 'Build Question') {
-            return (
-                <QuestionBuilder
-                    showSnackBar={this.showSnackBar}
-                    initManager={this.myQuestions}
-                    updateProps={this.buildQuestion}
-                    s={section.s}
-                    q={section.q}
-                    sets={section.sets}
-                />
-            );
         } else if (section.name === 'Concept Builder') {
             return <TagView theme={{theme: this.props.theme, color: this.color()}} />;
         } else if (section.name === 'Create Test') {
@@ -264,10 +252,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
             return (
                 <QuestionBuilderHome
                     showSnackBar={this.showSnackBar}
-                    initBuilder={this.buildQuestion}
-                    s={section.s}
-                    q={section.q}
-                    sets={section.sets}
+                    sets={this.state.questionSets}
+                    updateSets={this.updateQuestionSets}
                     theme={this.props.theme}
                     courses={this.state.courses}
                 />
@@ -303,9 +289,6 @@ class Layout extends Component<LayoutProps, LayoutState> {
         this.setState({section});
     }
 
-    buildQuestion = (s: number, q: number, sets: QuestionSet[]) =>
-        this.navigate({name: 'Build Question', s, q, sets});
-
     createTest = (classID: number) => this.navigate({name: 'Create Test', classID});
 
     manageClasses = () => this.navigate({name: 'Manage Classes'});
@@ -317,8 +300,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
 
     jumpToClass = (_class: number) => this.navigate({name: 'My Classes', _class, _quiz: null});
 
-    myQuestions = (s: number, q: number, sets: QuestionSet[]) =>
-        this.navigate({name: 'My Questions', s, q, sets});
+    myQuestions = () => this.navigate({name: 'My Questions'});
 
     postTest = (takesID: number) => this.navigate({name: 'Post Test', takesID});
 

@@ -1,16 +1,5 @@
-import {QuestionSet} from '../Http/types';
 import {ReactElement} from 'react';
-import {ShowSnackBar} from '../Layout/Layout';
 import * as Http from '../Http';
-
-export interface QuestionBuilderProps {
-    initManager: (s: number, q: number, sets: QuestionSet[]) => void;
-    updateProps: (s: number, q: number, sets: QuestionSet[]) => void;
-    showSnackBar: ShowSnackBar;
-    s: number;
-    q: number;
-    sets: QuestionSet[];
-}
 
 export interface CompileSuccess {
     success: true;
@@ -60,18 +49,6 @@ export interface EditorCriteria {
         mathCode: string;
         LaTeX: string;
     }[];
-}
-
-export interface QuestionBuilderState {
-    initError: boolean;
-    mode: QuestionBuilderMode;
-    editorMath: EditorMath[];
-    editorPrompt: EditorPrompt;
-    editorPrompts: EditorSubPrompt[];
-    editorCriteria: EditorCriteria[];
-    editorSeed: number;
-    hints: HintsObj;
-    concepts: Http.GetConcepts['concepts'];
 }
 
 export interface HintsObj {
