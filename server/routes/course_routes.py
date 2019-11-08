@@ -34,5 +34,11 @@ def get_courses():
                 ((UserSection.expiry == None) | (UserSection.expiry > datetime.now()))
         )
     ).all()
-    return_courses = list(map(lambda c: {'courseID': c.COURSE, 'name': c.name}, courses))
+
+    user_courses: List[UserCourse] = UserCourse.query.filter(
+        (UserCourse.USER == current_user.USER) & (UserCourse.can_edit == 1)
+    ).all()
+    edit = set(map(lambda x: x.COURSE, user_courses))
+
+    return_courses = list(map(lambda c: {'courseID': c.COURSE, 'name': c.name, 'canEdit': c.COURSE in edit}, courses))
     return jsonify(courses=return_courses)

@@ -1,6 +1,7 @@
 export interface Course {
     courseID: number;
     name: string;
+    canEdit: boolean;
 }
 
 export interface Question {
