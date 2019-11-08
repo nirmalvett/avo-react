@@ -21,7 +21,16 @@ import Lock from '@material-ui/icons/Lock';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Fab from '@material-ui/core/Fab';
 import {InsertDriveFile as QuestionIcon, ArrowBack, CreateNewFolder} from '@material-ui/icons/';
-import {ListItem, ListItemText, ListItemIcon, Popover, List} from '@material-ui/core';
+import {
+    ListItem,
+    ListItemText,
+    ListItemIcon,
+    Popover,
+    List,
+    InputLabel,
+    Select,
+    MenuItem,
+} from '@material-ui/core';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -95,7 +104,7 @@ export default class TrueFalseBuilder extends Component<
             changed: false,
             nextQuestion: null, // Used to store a selected question that hasn't been loaded
             hovered: -1, // The ID of the current question being hovered
-            course: 0,
+            course: props.courses[0].courseID,
             setName: '',
         };
     }
@@ -454,24 +463,38 @@ export default class TrueFalseBuilder extends Component<
                     </DialogActions>
                 </Dialog>
                 <Dialog
-                    onClose={() => this.setState({addDiagOpen: false})}
+                    onClose={() => this.setState({addDiagOpen: false, course: this.props.courses[0].courseID})}
                     aria-labelledby='select-course-dialog'
                     open={this.state.addDiagOpen}
                 >
                     <DialogTitle id='select-course-dialog'>
-                        Select the course for the set
+                        Add a new set
                     </DialogTitle>
                     <List>
-                        {this.props.courses.map(course => (
-                            <ListItem
-                                button
-                                onClick={() => this.setState({course: course.courseID})}
-                                key={course.courseID}
-                                selected={course.courseID === this.state.course}
-                            >
-                                <ListItemText primary={course.name} />
-                            </ListItem>
-                        ))}
+                        <ListItem>
+                            {/* Ugly work around to fix broken labelId prop for Select */}
+                            <InputLabel id='add-set-select-label'>Course</InputLabel>
+                        </ListItem>
+                        <ListItem>
+                            <FormControl>
+                                <Select
+                                    // labelId='add-set-select-label' seems to be broken for some reason
+                                    id='demo-simple-select'
+                                    value={this.state.course}
+                                    onChange={(event: any) =>
+                                        this.setState({course: event.target.value})
+                                    }
+                                >
+                                    {this.props.courses.map(course => {
+                                        return (
+                                            <MenuItem value={course.courseID}>
+                                                {course.name}
+                                            </MenuItem>
+                                        );
+                                    })}
+                                </Select>
+                            </FormControl>
+                        </ListItem>
                         <ListItem>
                             <form noValidate autoComplete='off'>
                                 <TextField
@@ -491,7 +514,7 @@ export default class TrueFalseBuilder extends Component<
                             </Button>
                             <Button
                                 color='primary'
-                                onClick={() => this.setState({addDiagOpen: false})}
+                                onClick={() => this.setState({addDiagOpen: false, course: this.props.courses[0].courseID})}
                             >
                                 Cancel
                             </Button>
@@ -649,7 +672,7 @@ export default class TrueFalseBuilder extends Component<
             () => this.refreshSets(),
             result => alert(result.error),
         );
-        this.setState({addDiagOpen: false, setName: ''});
+        this.setState({addDiagOpen: false, setName: '', course: this.props.courses[0].courseID});
     };
 
     deleteSet = (index: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
