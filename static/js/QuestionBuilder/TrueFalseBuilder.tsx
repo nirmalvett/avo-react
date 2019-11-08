@@ -519,6 +519,7 @@ export default class TrueFalseBuilder extends Component<
                     <TFImporter
                         set={this.state.sets[this.state.selectedS as number]}
                         close={() => this.setState({importerOpen: false})}
+                        buildQuestionString={this.buildQuestionString}
                     />
                 </Dialog>
             </Grid>
@@ -700,14 +701,14 @@ export default class TrueFalseBuilder extends Component<
         }
     };
 
-    buildQuestionString = () => {
+    buildQuestionString(question: string, answer:string, explanation: string)  {
         return (
             '；；；' +
-            this.state.questionText +
+            question +
             '，；0；1；@0 *' +
-            (this.state.questionAnsr === 'true' ? 'T' : 'F') +
+            (answer === 'true' ? 'T' : 'F') +
             ' HB；' +
-            this.state.questionExpl +
+            explanation +
             '；'
         );
     };
@@ -732,7 +733,7 @@ export default class TrueFalseBuilder extends Component<
             Http.newQuestion(
                 this.state.sets[this.state.selectedS as number].setID,
                 this.state.questionName,
-                this.buildQuestionString(),
+                this.buildQuestionString(this.state.questionText, this.state.questionAnsr, this.state.questionExpl),
                 1,
                 1,
                 () => this.postSuccess(),

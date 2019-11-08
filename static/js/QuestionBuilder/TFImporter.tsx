@@ -17,10 +17,12 @@ import {
 } from '@material-ui/core';
 import {PreviewQuestion} from './types';
 import ImporterPreview from './ImporterPreview';
+import * as Http from '../Http';
 
 export interface TFImporterProps {
     set: QuestionSet;
     close: () => void;
+    buildQuestionString: (question: string, answer: string, explanation: string)
 }
 
 export interface TFImporterState {
@@ -73,8 +75,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                     rowsMax='10'
                     margin='normal'
                     variant='outlined'
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                        this.setState({input: event.currentTarget.value})
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.generateQuestions()
                     }
                 />
                 <Grid container justify='space-evenly'>
@@ -93,7 +94,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                                 <FormControlLabel
                                     value={this.state.questionCustom}
                                     control={<Radio color='primary' />}
-                                    label={<TextField label='Custom'></TextField>}
+                                    label={<TextField label='Custom' />}
                                 />
                             </RadioGroup>
                         </FormControl>
@@ -209,6 +210,11 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                 </ListItem>
             );
         });
+    }
+
+    generateQuestions(input: string, nDelim: string, pDelim: string, aDelim: string, eDelim: string): PreviewQuestion[] {
+        // Insert parsing logic here
+        return [];
     }
 }
 
