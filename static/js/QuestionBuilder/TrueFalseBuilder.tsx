@@ -721,7 +721,7 @@ export default class TrueFalseBuilder extends Component<
                 () =>
                     Http.editQuestion(
                         this.state.questionID,
-                        this.buildQuestionString(),
+                        this.buildQuestionString(this.state.questionText, this.state.questionAnsr, this.state.questionExpl),
                         1,
                         1,
                         () => this.postSuccess(),
