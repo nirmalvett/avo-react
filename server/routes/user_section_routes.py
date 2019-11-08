@@ -44,9 +44,10 @@ def add_to_whitelist(section_id: int, uwo_users: list):
                 f'questions or suggestions, please send us an email at contact@avocadocore.com.'
                 f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
             )
+            db.session.commit()
         if not UserSection.query.filter((user.USER == UserSection.USER) & (UserSection.SECTION == section_id)).all():
             db.session.add(UserSection(user.USER, section_id, enroll_type))
-    db.session.commit()
+            db.session.commit()
     return jsonify({})
 
 
