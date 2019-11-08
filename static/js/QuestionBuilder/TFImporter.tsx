@@ -56,7 +56,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
             explanationDelim: ',',
             explanationCustom: '',
             // questions: [],
-            questions: dummyData,
+            questions: this.generateQuestions(this.state.input, this.state.nameDelim, this.state.promptDelim, this.state.answerDelim, this.state.explanationDelim, this.state.questionDelim),
         };
     }
 
@@ -93,8 +93,8 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                                 {this.renderDelimRadios([[',', 'Comma'], ['|', 'Bar']])}
                                 <FormControlLabel
                                     value={this.state.questionCustom}
-                                    control={<Radio color='primary' />}
-                                    label={<TextField label='Custom' />}
+                                    control={<Radio color='primary'/>}
+                                    label={<TextField label='Custom'/>}
                                 />
                             </RadioGroup>
                         </FormControl>
@@ -111,7 +111,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                                 {this.renderDelimRadios([[',', 'Comma'], ['|', 'Bar']])}
                                 <FormControlLabel
                                     value={this.state.nameCustom}
-                                    control={<Radio color='primary' />}
+                                    control={<Radio color='primary'/>}
                                     label={<TextField label='Custom'></TextField>}
                                 />
                             </RadioGroup>
@@ -129,7 +129,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                                 {this.renderDelimRadios([[',', 'Comma'], ['|', 'Bar']])}
                                 <FormControlLabel
                                     value={this.state.promptCustom}
-                                    control={<Radio color='primary' />}
+                                    control={<Radio color='primary'/>}
                                     label={<TextField label='Custom'></TextField>}
                                 />
                             </RadioGroup>
@@ -147,7 +147,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                                 {this.renderDelimRadios([[',', 'Comma'], ['|', 'Bar']])}
                                 <FormControlLabel
                                     value={this.state.answerCustom}
-                                    control={<Radio color='primary' />}
+                                    control={<Radio color='primary'/>}
                                     label={<TextField label='Custom'></TextField>}
                                 />
                             </RadioGroup>
@@ -167,7 +167,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                                 {this.renderDelimRadios([[',', 'Comma'], ['|', 'Bar']])}
                                 <FormControlLabel
                                     value={this.state.answerCustom}
-                                    control={<Radio color='primary' />}
+                                    control={<Radio color='primary'/>}
                                     label={<TextField label='Custom'></TextField>}
                                 />
                             </RadioGroup>
@@ -195,7 +195,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
             return (
                 <FormControlLabel
                     value={option[0]}
-                    control={<Radio color='primary' />}
+                    control={<Radio color='primary'/>}
                     label={option[1]}
                 />
             );
@@ -206,15 +206,35 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
         return questions.map((question: PreviewQuestion) => {
             return (
                 <ListItem>
-                    <ImporterPreview question={question} />
+                    <ImporterPreview question={question}/>
                 </ListItem>
             );
         });
     }
 
-    generateQuestions(input: string, nDelim: string, pDelim: string, aDelim: string, eDelim: string): PreviewQuestion[] {
-        // Insert parsing logic here
-        return [];
+    generateQuestions(input?: string, nDelim?: string, pDelim?: string, aDelim?: string, eDelim?: string, qDelim?: string): PreviewQuestion[] {
+        let questionArray = []
+        if (input) {
+            //array we will return at the end
+
+            //selects for given strings
+            let questionRegExp = new RegExp("(.+)\\" + nDelim + "(.+)\\" + pDelim + "(.+)\\" + aDelim + "(.+)\\" + eDelim + "(.+)//" + qDelim, "g");
+            let questionMatch;
+
+            //Look through all matches of regex
+            while (questionMatch = questionRegExp.exec(input)) {
+                //put the current items in an object
+                let currQuestionObj = {
+                    name: questionMatch[1],
+                    prompt: questionMatch[2],
+                    answer: questionMatch[3],
+                    explanation: questionMatch[4]
+                    }
+                //append current object to an array
+                questionArray.push(currQuestionObj)
+            }
+        }
+        return questionArray;
     }
 }
 
