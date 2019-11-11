@@ -6,8 +6,24 @@ from subprocess import check_call, CalledProcessError
 from requests import post
 
 import config
+from server.decorators import admin_only
 
 ServerRoutes = Blueprint('ServerRoutes', __name__)
+
+
+@ServerRoutes.route('/clearCache')
+@admin_only
+def restart():
+    post(
+        url=f'https://api.cloudflare.com/client/v4/zones/{config.cloudflare_zone}/purge_cache',
+        headers={
+            'X-Auth-Email': config.auth_email,
+            'X-Auth-Key': config.auth_key,
+            'Content-Type': 'application/json',
+        },
+        json={"purge_everything": True}
+    )
+    return ''
 
 
 @ServerRoutes.route('/update', methods=['POST'])
