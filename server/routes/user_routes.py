@@ -29,10 +29,16 @@ def register(first_name: str, last_name: str, email: str, password: str):
         # If the password is les then 8 return error JSON
         return jsonify(error='Password too short')
 
-    user = User.query.filter(User.email == email).all()  # Creates a user object based off of the email entered
-    if len(user) != 0:
-        # If no user is found then return error JSON
-        return jsonify(error='User already exists')
+    user = User.query.filter(User.email == email).first()  # Creates a user object based off of the email entered
+    if user is not None:
+        if user.salt != '' and user.password != '':
+            return jsonify(error='User already exists')
+        else:
+            user.change_password(password)
+            user.first_name = first_name
+            user.last_name = last_name
+            db.session.commit()
+            return jsonify(message='password changed')
 
     # Create new user instance form data entered and commit to database
     user = User(email, first_name, last_name, password)
@@ -49,7 +55,7 @@ def register(first_name: str, last_name: str, email: str, password: str):
         f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
     )
 
-    return jsonify({})
+    return jsonify(message='email sent')
 
 
 @UserRoutes.route('/confirm/<token>')

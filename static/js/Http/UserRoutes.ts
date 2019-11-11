@@ -5,7 +5,7 @@ export function register(
     lastName: string,
     email: string,
     password: string,
-    success: cb<{}>,
+    success: cb<{message: 'email sent' | 'password changed'}>,
     failure: cb,
 ) {
     _request('POST', '/register', success, failure, {firstName, lastName, email, password});
