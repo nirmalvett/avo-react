@@ -2,7 +2,7 @@ export interface Notification {
     header: string;
     body: string;
     CLASS?: number;
-    messageID: number;
+    announcementID: number;
     timestamp: number;
     selected?: boolean;
     showEdit?: boolean;

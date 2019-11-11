@@ -13,6 +13,31 @@ from server.helpers import random_key
 db = SQLAlchemy()
 
 
+class Announcement(db.Model):
+    __tablename__ = 'ANNOUNCEMENT'
+
+    ANNOUNCEMENT = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    header = db.Column(db.String(200), nullable=False)
+    body = db.Column(db.String(1000), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
+
+    SECTION_RELATION = db.relationship('Section', back_populates='ANNOUNCEMENT_RELATION')
+    USER_RELATION = db.relationship('User', back_populates='ANNOUNCEMENT_RELATION')
+
+    def __init__(self, section_id, user_id, header, body, timestamp):
+        self.SECTION = section_id
+        self.USER = user_id
+        self.header = header
+        self.body = body
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return f'<Announcement {self.ANNOUNCEMENT} {self.SECTION} {self.USER} {self.header} {self.body}' \
+               f' {self.timestamp}>'
+
+
 class Concept(db.Model):
     __tablename__ = 'CONCEPT'
 
@@ -217,30 +242,6 @@ class MasteryHistory(db.Model):
         return f'<MasteryHistory {self.MASTERY_HISTORY} {self.MASTERY} {self.mastery_level} {self.timestamp}>'
 
 
-class Message(db.Model):
-    __tablename__ = 'MESSAGE'
-
-    MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'), nullable=False)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
-    header = db.Column(db.String(200), nullable=False)
-    body = db.Column(db.String(1000), nullable=False)
-    timestamp = db.Column(db.DateTime, nullable=False)
-
-    SECTION_RELATION = db.relationship('Section', back_populates='MESSAGE_RELATION')
-    USER_RELATION = db.relationship('User', back_populates='MESSAGE_RELATION')
-
-    def __init__(self, section_id, user_id, header, body, timestamp):
-        self.SECTION = section_id
-        self.USER = user_id
-        self.header = header
-        self.body = body
-        self.timestamp = timestamp
-
-    def __repr__(self):
-        return f'<Message {self.MESSAGE} {self.SECTION} {self.USER} {self.header} {self.body} {self.timestamp}>'
-
-
 class Payment(db.Model):
     __tablename__ = 'payment'
 
@@ -320,9 +321,9 @@ class Section(db.Model):
     enroll_key = db.Column(db.String(10))
     price = db.Column(db.Float, nullable=False, default=0)
 
+    ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='SECTION_RELATION')
     COURSE_RELATION = db.relationship('Course', back_populates='SECTION_RELATION')
     DISCOUNT_RELATION = db.relationship('Discount', back_populates='SECTION_RELATION')
-    MESSAGE_RELATION = db.relationship('Message', back_populates='SECTION_RELATION')
     PAYMENT_RELATION = db.relationship('Payment', back_populates='SECTION_RELATION')
     TEST_RELATION = db.relationship('Test', back_populates='SECTION_RELATION')
     USER_SECTION_RELATION = db.relationship('UserSection', back_populates='SECTION_RELATION')
@@ -429,9 +430,9 @@ class User(UserMixin, db.Model):
     color = db.Column(db.Integer, nullable=False, default=9)
     theme = db.Column(db.Boolean, nullable=False, default=False)
 
+    ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='USER_RELATION')
     FEEDBACK_RELATION = db.relationship('Feedback', back_populates='USER_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='USER_RELATION')
-    MESSAGE_RELATION = db.relationship('Message', back_populates='USER_RELATION')
     PAYMENT_RELATION = db.relationship('Payment', back_populates='USER_RELATION')
     TAKES_RELATION = db.relationship('Takes', back_populates='USER_RELATION')
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='USER_RELATION')

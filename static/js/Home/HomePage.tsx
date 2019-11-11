@@ -6,12 +6,13 @@ import moment from 'moment';
 import {CalendarTheme} from '../Models';
 import {DatePicker} from '@material-ui/pickers';
 import {MaterialUiPickersDate} from '@material-ui/pickers/typings/date';
+import {ShowSnackBar} from "../Layout/Layout";
 
 interface HomePageProps {
     color: {'200': string; '500': string};
     jumpToClass(classID: number): void;
     jumpToSet(classID: number, dueDateID: number): void;
-    showSnackBar(header: string, message: string, time: number): void;
+    showSnackBar: ShowSnackBar;
 }
 
 interface HomePageState {
@@ -75,7 +76,7 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
                                 textColor='primary'
                             >
                                 <Tab label='Due dates' />
-                                <Tab label='Messages' />
+                                <Tab label='Announcements' />
                             </Tabs>
                             {value === 0 && (
                                 <Grid container>
@@ -128,7 +129,7 @@ export default class HomePage extends Component<HomePageProps, HomePageState> {
                         {section.name + ':'}
                     </Typography>
                 </div>
-                {section.messages.map((notificationMsg, i) => (
+                {section.announcements.map((notificationMsg, i) => (
                     <div
                         className='avo-clickable-item'
                         key={JSON.stringify(notificationMsg) + i}

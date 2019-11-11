@@ -8,7 +8,7 @@ export interface Home {
     sections: {
         sectionID: number;
         name: string;
-        messages: {
+        announcements: {
             sectionID: number;
             user: string;
             header: string;

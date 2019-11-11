@@ -8,7 +8,7 @@ from sqlalchemy.sql import text
 from server.auth import SectionRelations
 from server.decorators import login_required, teacher_only, validate
 from server.helpers import timestamp
-from server.models import db, Message, Section, Takes, Test, User, UserSection, UserSectionType
+from server.models import db, Announcement, Section, Takes, Test, User, UserSection, UserSectionType
 
 SectionRoutes = Blueprint('SectionRoutes', __name__)
 
@@ -42,8 +42,8 @@ def home():
     sections: List[Section] = Section.query.filter(
         (current_user.USER == UserSection.USER) & (UserSection.SECTION == Section.SECTION)
     ).all()
-    messages: List[Message] = Message.query.filter(
-        (current_user.USER == UserSection.USER) & (UserSection.SECTION == Message.SECTION)
+    announcements: List[Announcement] = Announcement.query.filter(
+        (current_user.USER == UserSection.USER) & (UserSection.SECTION == Announcement.SECTION)
     ).all()
     tests: List[Test] = Test.query.filter(
         (current_user.USER == UserSection.USER) & (UserSection.SECTION == Test.SECTION)
@@ -51,12 +51,12 @@ def home():
 
     return_sections = []
     for section in sections:
-        return_messages = list(map(lambda x: {
+        return_announcements = list(map(lambda x: {
             'user': x.USER_RELATION.email,
             'header': x.header,
             'body': x.body,
             'timestamp': timestamp(x.timestamp),
-        }, filter(lambda x: x.SECTION == section.SECTION, messages)))
+        }, filter(lambda x: x.SECTION == section.SECTION, announcements)))
         return_tests = list(map(lambda x: {
             'testID': x.TEST,
             'name': x.name,
@@ -65,7 +65,7 @@ def home():
         return_sections.append({
             'sectionID': section.SECTION,
             'name': section.name,
-            'messages': return_messages,
+            'announcements': return_announcements,
             'tests': return_tests
         })
 

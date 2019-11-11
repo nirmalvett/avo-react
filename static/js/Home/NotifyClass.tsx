@@ -10,20 +10,20 @@ import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
-import Message from './Message';
+import Announcement from './Announcement';
 import {GetSections_Section} from '../Http';
 import {Notification} from '../Models';
 
 export interface NotifyClassState {
     classes: GetSections_Section[];
     selectedClassName: string;
-    addMessageInput: string;
-    messageBodyInput: string;
-    messages: Notification[];
+    addAnnouncementInput: string;
+    announcementBodyInput: string;
+    announcements: Notification[];
     classNames: string[];
     editTitle: string;
     editBody: string;
-    selectedMessage: Notification | null;
+    selectedAnnouncement: Notification | null;
     showEdit: boolean;
 }
 
@@ -31,13 +31,13 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
     state: NotifyClassState = {
         classes: [],
         selectedClassName: 'Select class...',
-        addMessageInput: '',
-        messageBodyInput: '',
-        messages: [],
+        addAnnouncementInput: '',
+        announcementBodyInput: '',
+        announcements: [],
         classNames: [],
         editTitle: '',
         editBody: '',
-        selectedMessage: null,
+        selectedAnnouncement: null,
         showEdit: false,
     };
 
@@ -53,7 +53,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                             selectedClassName: classes[0].name,
                             classNames: classes.map(c => c.name),
                         },
-                        () => this.getMessages(),
+                        this.getAnnouncements,
                     );
                 }
             },
@@ -84,7 +84,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                                     onChange={e =>
                                         this.setState(
                                             {selectedClassName: e.target.value as string},
-                                            () => this.getMessages(),
+                                            this.getAnnouncements,
                                         )
                                     }
                                 >
@@ -96,7 +96,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                                 </Select>
                             </FormControl>
                             <br />
-                            {this.state.messages.map(this.message)}
+                            {this.state.announcements.map(this.announcement)}
                         </div>
                     </CardContent>
                     <CardActions style={{padding: 0, paddingTop: 'auto'}}>
@@ -115,10 +115,10 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                                     marginLeft: 10,
                                     marginRight: 10,
                                 }}
-                                id='message-title'
-                                label='New message title...'
-                                value={this.state.addMessageInput}
-                                onChange={e => this.setState({addMessageInput: e.target.value})}
+                                id='announcement-title'
+                                label='New announcement title...'
+                                value={this.state.addAnnouncementInput}
+                                onChange={e => this.setState({addAnnouncementInput: e.target.value})}
                                 margin='normal'
                             />
                             <TextField
@@ -130,19 +130,19 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                                     marginRight: 10,
                                 }}
                                 multiline
-                                id='message-body'
-                                label='New message body...'
-                                value={this.state.messageBodyInput}
-                                onChange={e => this.setState({messageBodyInput: e.target.value})}
+                                id='announcement-body'
+                                label='New announcement body...'
+                                value={this.state.announcementBodyInput}
+                                onChange={e => this.setState({announcementBodyInput: e.target.value})}
                                 margin='normal'
                             />
                             <div style={{marginLeft: 'auto'}}>
                                 <Button
                                     style={{borderRadius: '2.5em'}}
                                     variant='outlined'
-                                    onClick={() => this.addMessage()}
+                                    onClick={() => this.addAnnouncement()}
                                 >
-                                    Add new message
+                                    Add new announcement
                                 </Button>
                             </div>
 
@@ -151,9 +151,9 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                             <Button
                                 style={{borderRadius: '2.5em'}}
                                 variant='outlined'
-                                onClick={() => this.deleteMessages()}
+                                onClick={() => this.deleteAnnouncements()}
                             >
-                                Delete selected messages
+                                Delete selected announcements
                             </Button>
                         </Grid>
                     </CardActions>
@@ -162,17 +162,17 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
         );
     }
 
-    addMessage() {
+    addAnnouncement() {
         const _class = this.state.classes.find(
             c => c.name === this.state.selectedClassName,
         ) as GetSections_Section;
-        Http.addMessage(
+        Http.addAnnouncement(
             _class.sectionID,
-            this.state.addMessageInput,
-            this.state.messageBodyInput,
+            this.state.addAnnouncementInput,
+            this.state.announcementBodyInput,
             () => {
-                this.setState({addMessageInput: '', messageBodyInput: ''});
-                this.getMessages();
+                this.setState({addAnnouncementInput: '', announcementBodyInput: ''});
+                this.getAnnouncements();
             },
             err => {
                 console.log(err);
@@ -180,32 +180,32 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
         );
     }
 
-    deleteMessages() {
-        const deleteMessageIDs = this.state.messages.filter(message => message.selected);
-        deleteMessageIDs.forEach(message => {
-            Http.deleteMessage(message.messageID, () => undefined, () => undefined);
+    deleteAnnouncements() {
+        const deleteAnnouncementIDs = this.state.announcements.filter(announcement => announcement.selected);
+        deleteAnnouncementIDs.forEach(announcement => {
+            Http.deleteAnnouncement(announcement.announcementID, () => undefined, () => undefined);
         });
-        let filtered = this.state.messages;
-        deleteMessageIDs.forEach(message => {
-            filtered = filtered.filter(m => m.messageID !== message.messageID);
+        let filtered = this.state.announcements;
+        deleteAnnouncementIDs.forEach(announcement => {
+            filtered = filtered.filter(m => m.announcementID !== announcement.announcementID);
         });
         this.setState({
-            messages: filtered,
+            announcements: filtered,
         });
     }
 
-    saveMessage(message: Notification) {
-        Http.editMessage(
-            message.messageID,
+    saveAnnouncement(announcement: Notification) {
+        Http.editAnnouncement(
+            announcement.announcementID,
             this.state.editTitle,
             this.state.editBody,
             () => {
-                const msg = this.state.messages.findIndex(m => m.messageID === message.messageID);
-                const messages = this.state.messages;
-                messages[msg].showEdit = false;
-                messages[msg].header = this.state.editTitle;
-                messages[msg].body = this.state.editBody;
-                this.setState({messages, showEdit: false, selectedMessage: null});
+                const msg = this.state.announcements.findIndex(m => m.announcementID === announcement.announcementID);
+                const announcements = this.state.announcements;
+                announcements[msg].showEdit = false;
+                announcements[msg].header = this.state.editTitle;
+                announcements[msg].body = this.state.editBody;
+                this.setState({announcements, showEdit: false, selectedAnnouncement: null});
                 // console.log(res);
             },
             err => {
@@ -214,32 +214,32 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
         );
     }
 
-    getMessages() {
+    getAnnouncements = () => {
         const selectedClass = this.state.classes.find(
             c => c.name === this.state.selectedClassName,
         ) as GetSections_Section;
-        Http.getMessages(
+        Http.getAnnouncements(
             selectedClass.sectionID,
             res => {
                 this.setState({
-                    messages: res.messages.map(m => ({...m, selected: false, showEdit: false})),
+                    announcements: res.announcements.map(m => ({...m, selected: false, showEdit: false})),
                 });
             },
             err => {
                 console.log(err);
             },
         );
-    }
+    };
 
-    message = (message: Notification, i: number) => {
-        if (message.showEdit) {
-            return this.messageShowEdit(message, i);
+    announcement = (announcement: Notification, i: number) => {
+        if (announcement.showEdit) {
+            return this.announcementShowEdit(announcement, i);
         } else {
-            return this.messageHideEdit(message, i);
+            return this.announcementHideEdit(announcement, i);
         }
     };
 
-    messageShowEdit(message: Notification, i: number) {
+    announcementShowEdit(announcement: Notification, i: number) {
         return (
             <Card key={i} style={{display: 'inline-block', paddingBottom: 20}}>
                 <CardContent />
@@ -260,7 +260,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                                 marginRight: 10,
                             }}
                             id='edit-title'
-                            label='New message title...'
+                            label='New announcement title...'
                             value={this.state.editTitle}
                             onChange={e =>
                                 this.setState({
@@ -280,7 +280,7 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                             }}
                             multiline
                             id='edit-body'
-                            label='New message body...'
+                            label='New announcement body...'
                             value={this.state.editBody}
                             onChange={e =>
                                 this.setState({
@@ -296,10 +296,10 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                             style={{borderRadius: '2.5em'}}
                             variant='outlined'
                             onClick={() =>
-                                this.saveMessage(this.state.selectedMessage as Notification)
+                                this.saveAnnouncement(this.state.selectedAnnouncement as Notification)
                             }
                         >
-                            Save message
+                            Save announcement
                         </Button>
                     </div>
                 </CardActions>
@@ -307,40 +307,40 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
         );
     }
 
-    messageHideEdit(message: Notification, i: number) {
+    announcementHideEdit(announcement: Notification, i: number) {
         return (
-            <div style={{cursor: 'pointer'}} key={JSON.stringify(message) + i + 'hideEdit'}>
+            <div style={{cursor: 'pointer'}} key={JSON.stringify(announcement) + i + 'hideEdit'}>
                 <div
                     onClick={() => {
-                        const messageIndex = this.state.messages.findIndex(
-                            m => m.messageID === message.messageID,
+                        const announcementIndex = this.state.announcements.findIndex(
+                            m => m.announcementID === announcement.announcementID,
                         );
-                        let newMessages = this.state.messages;
-                        newMessages[messageIndex].selected = !newMessages[messageIndex].selected;
-                        this.setState({messages: newMessages});
+                        let newAnnouncements = this.state.announcements;
+                        newAnnouncements[announcementIndex].selected = !newAnnouncements[announcementIndex].selected;
+                        this.setState({announcements: newAnnouncements});
                     }}
                 >
-                    <Message message={message} />
+                    <Announcement announcement={announcement} />
                 </div>
                 <div
                     style={{clear: 'both'}}
                     onClick={() => {
-                        const messageIndex = this.state.messages.findIndex(
-                            m => m.messageID === message.messageID,
+                        const announcementIndex = this.state.announcements.findIndex(
+                            m => m.announcementID === announcement.announcementID,
                         );
-                        const messages = this.state.messages;
-                        messages.forEach(m => (m.showEdit = false));
-                        messages[messageIndex].showEdit = true;
+                        const announcements = this.state.announcements;
+                        announcements.forEach(m => (m.showEdit = false));
+                        announcements[announcementIndex].showEdit = true;
                         this.setState({
-                            editTitle: message.header,
-                            editBody: message.body,
-                            selectedMessage: message,
-                            messages,
+                            editTitle: announcement.header,
+                            editBody: announcement.body,
+                            selectedAnnouncement: announcement,
+                            announcements,
                         });
                     }}
                 >
                     <Typography
-                        id='edit-message-button'
+                        id='edit-announcement-button'
                         style={{float: 'right'}}
                         variant='caption'
                         color='textPrimary'
