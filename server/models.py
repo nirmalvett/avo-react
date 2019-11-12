@@ -178,6 +178,31 @@ class Feedback(db.Model):
         return f'<Feedback {self.FEEDBACK} {self.USER} {self.message} {self.timestamp}>'
 
 
+class ForumMessage(db.Model):
+    __tablename__ = 'FORUM_MESSAGE'
+
+    FORUM_MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'))
+    PARENT = db.Column(db.Integer, db.ForeignKey('FORUM_MESSAGE.FORUM_MESSAGE'))
+    message = db.Column(db.String(2048))
+    status = db.Column(db.Integer, nullable=False, default=0)
+    timestamp = db.Column(db.DateTime, nullable=False)
+
+    USER_RELATION = db.relationship('User', back_populates='FORUM_MESSAGE_RELATION')
+    children = db.relationship("ForumMessage", backref=db.backref('parent', remote_side=[id]))
+
+    def __init__(self, user_id, parent_id, message, status, timestamp):
+        self.USER = user_id
+        self.PARENT = parent_id
+        self.message = message
+        self.status = status
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return f'<ForumMessage {self.FORUM_MESSAGE} {self.USER} {self.PARENT} {self.message} {self.status}' \
+               f' {self.timestamp}>'
+
+
 class Image(db.Model):
     __tablename__ = 'IMAGE'
 
@@ -518,6 +543,7 @@ class User(UserMixin, db.Model):
 
     ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='USER_RELATION')
     FEEDBACK_RELATION = db.relationship('Feedback', back_populates='USER_RELATION')
+    FORUM_MESSAGE_RELATION = db.relationship('ForumMessage', back_populates='USER_RELATION')
     ISSUE_RELATION = db.relationship('Issue', back_populates='USER_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='USER_RELATION')
     PAYMENT_RELATION = db.relationship('Payment', back_populates='USER_RELATION')
