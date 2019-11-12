@@ -86,6 +86,21 @@ class ConceptQuestion(db.Model):
         return f'<ConceptQuestion {self.CONCEPT_QUESTION} {self.CONCEPT} {self.QUESTION} {self.weight}>'
 
 
+class Conversation(db.Model):
+    __tablename__ = 'CONVERSATION'
+
+    CONVERSATION = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(64), nullable=False)
+
+    USER_CONVERSATION_RELATION = db.relationship('UserConversation', back_populates='CONVERSATION_RELATION')
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return f'<Conversation {self.CONVERSATION} {self.name}>'
+
+
 class ConceptRelation(db.Model):
     __tablename__ = 'concept_relation'
 
@@ -549,6 +564,7 @@ class User(UserMixin, db.Model):
     PAYMENT_RELATION = db.relationship('Payment', back_populates='USER_RELATION')
     QUESTION_HISTORY_RELATION = db.relationship('QuestionHistory', back_populates='USER_RELATION')
     TAKES_RELATION = db.relationship('Takes', back_populates='USER_RELATION')
+    USER_CONVERSATION_RELATION = db.relationship('UserConversation', back_populates='USER_RELATION')
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='USER_RELATION')
     USER_SECTION_RELATION = db.relationship('UserSection', back_populates='USER_RELATION')
 
@@ -578,6 +594,26 @@ class User(UserMixin, db.Model):
     def change_password(self, password):
         self.salt = generate_salt()
         self.password = hash_password(password, self.salt)
+
+
+class UserConversation(db.Model):
+    __tablename__ = 'user_conversation'
+
+    USER_CONVERSATION = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    CONVERSATION = db.Column(db.Integer, db.ForeignKey('CONVERSATION.CONVERSATION'), nullable=False)
+    status = db.Column(db.Integer, nullable=False, default=0)
+
+    CONVERSATION_RELATION = db.relationship('Course', back_populates='USER_COURSE_RELATION')
+    USER_RELATION = db.relationship('User', back_populates='USER_COURSE_RELATION')
+
+    def __init__(self, user, conversation, status=0):
+        self.USER = user
+        self.CONVERSATION = conversation
+        self.status = status
+
+    def __repr__(self):
+        return f'<UserConversation {self.USER_CONVERSATION} {self.USER} {self.CONVERSATION} {self.status}>'
 
 
 class UserCourse(db.Model):
