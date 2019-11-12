@@ -6,7 +6,7 @@ import moment from 'moment';
 import {CalendarTheme} from '../Models';
 import {DatePicker} from '@material-ui/pickers';
 import {MaterialUiPickersDate} from '@material-ui/pickers/typings/date';
-import {ShowSnackBar} from "../Layout/Layout";
+import {ShowSnackBar} from '../Layout/Layout';
 
 interface HomePageProps {
     color: {'200': string; '500': string};

@@ -32,7 +32,7 @@ import {uniqueKey} from '../HelperFunctions/Helpers';
 import {AnswerInput} from '../AnswerInput';
 import {ShowSnackBar} from '../Layout/Layout';
 import {QuestionSet, Course} from '../Http/types';
-import {QuestionBuilderSelection} from "./QuestionBuilderHome";
+import {QuestionBuilderSelection} from './QuestionBuilderHome';
 import {Content} from '../HelperFunctions/Content';
 
 export interface QuestionManagerProps {
@@ -49,7 +49,7 @@ export interface QuestionManagerProps {
 }
 
 export interface QuestionManagerState {
-    copiedQ: null | {q: number; s: number;};
+    copiedQ: null | {q: number; s: number};
     preview: {
         prompt: string;
         prompts: string[];
@@ -94,7 +94,8 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     };
 
     render() {
-        let canEdit = this.props.selection.mode !== null && this.props.sets[this.props.selection.s].canEdit;
+        let canEdit =
+            this.props.selection.mode !== null && this.props.sets[this.props.selection.s].canEdit;
         return (
             <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
                 <div style={{flex: 3, display: 'flex'}}>
@@ -203,7 +204,9 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                                     </ListItemIcon>
                                     <ListItemText
                                         secondary={
-                                            this.props.sets[this.state.copiedQ.s].questions[this.state.copiedQ.q].name
+                                            this.props.sets[this.state.copiedQ.s].questions[
+                                                this.state.copiedQ.q
+                                            ].name
                                         }
                                     />
                                 </ListItem>
@@ -219,7 +222,8 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                                 </ListItem>
                             </Fragment>
                         ) : null}
-                        {this.props.selection.mode !== null && !this.props.sets[this.props.selection.s].canEdit ? (
+                        {this.props.selection.mode !== null &&
+                        !this.props.sets[this.props.selection.s].canEdit ? (
                             <Fragment>
                                 <Divider />
                                 <ListItem key='paste'>
@@ -298,7 +302,8 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     }
 
     renderSetList() {
-        let s = this.props.selection.mode === null ? -1 : this.props.sets[this.props.selection.s].setID;
+        let s =
+            this.props.selection.mode === null ? -1 : this.props.sets[this.props.selection.s].setID;
         return this.props.sets.map((set, index) => (
             <ListItem key={set.setID + '-' + index} button onClick={this.props.selectSet(index)}>
                 <ListItemIcon>
@@ -315,9 +320,11 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
 
     renderQuestionList() {
         if (this.props.selection.mode !== null) {
-            const id = this.props.selection.mode === 'question'
-                ? this.props.sets[this.props.selection.s].questions[this.props.selection.q].questionID
-                : -1;
+            const id =
+                this.props.selection.mode === 'question'
+                    ? this.props.sets[this.props.selection.s].questions[this.props.selection.q]
+                          .questionID
+                    : -1;
             return this.props.sets[this.props.selection.s].questions.map((question, index) => (
                 <ListItem
                     key={question.questionID + '-' + index}
@@ -325,11 +332,9 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                     onClick={() => this.selectQuestion(index)}
                 >
                     <ListItemIcon>
-                        <QuestionIcon
-                            color={id === question.questionID ? 'primary' : 'action'}
-                        />
+                        <QuestionIcon color={id === question.questionID ? 'primary' : 'action'} />
                     </ListItemIcon>
-                    <ListItemText secondary={question.name}/>
+                    <ListItemText secondary={question.name} />
                 </ListItem>
             ));
         }
@@ -388,14 +393,17 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                     this.props.sets[this.props.selection.s].setID,
                     name,
                     this.getSets,
-                    result => alert(result.error)
+                    result => alert(result.error),
                 );
             }
         }
     }
 
     deleteSet() {
-        if (this.props.selection.mode !== null && confirm('Are you sure you want to delete this set?'))
+        if (
+            this.props.selection.mode !== null &&
+            confirm('Are you sure you want to delete this set?')
+        )
             Http.deleteSet(
                 this.props.sets[this.props.selection.s].setID,
                 () => {
@@ -412,9 +420,9 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                 this.props.sets[this.props.selection.s].setID,
                 'New question',
                 '-3 3 1 3 1 AC，2 3 0 AB，-2 2 1 3 1 AC；$1，$2，$3；$1 _A，$2 _A，$3 _A；Compute the vector ' +
-                'sum \\({0}+{1}{2}\\).，；6；1；@0 $1 $2 $3 CD CB CN；The first step is to multiply the vector by the ' +
-                'scalar, which you can do by multiplying each number in the vector. The second step is to add the ' +
-                'result to the other vector, by adding each corresponding pair of numbers.；，，',
+                    'sum \\({0}+{1}{2}\\).，；6；1；@0 $1 $2 $3 CD CB CN；The first step is to multiply the vector by the ' +
+                    'scalar, which you can do by multiplying each number in the vector. The second step is to add the ' +
+                    'result to the other vector, by adding each corresponding pair of numbers.；，，',
                 1,
                 1,
                 () => this.getSets(),
@@ -425,10 +433,14 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
 
     renameQuestion() {
         if (this.props.selection.mode !== 'question') return;
-        let name = prompt('Question name:', this.props.sets[this.props.selection.s].questions[this.props.selection.q].name);
+        let name = prompt(
+            'Question name:',
+            this.props.sets[this.props.selection.s].questions[this.props.selection.q].name,
+        );
         if (name !== '' && name !== null) {
             Http.renameQuestion(
-                this.props.sets[this.props.selection.s].questions[this.props.selection.q].questionID,
+                this.props.sets[this.props.selection.s].questions[this.props.selection.q]
+                    .questionID,
                 name,
                 () => this.getSets(),
                 result => alert(result.error),
@@ -442,7 +454,8 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
             confirm('Are you sure you want to delete this question?')
         ) {
             Http.deleteQuestion(
-                this.props.sets[this.props.selection.s].questions[this.props.selection.q].questionID,
+                this.props.sets[this.props.selection.s].questions[this.props.selection.q]
+                    .questionID,
                 this.getSets,
                 result => alert(result.error),
             );
@@ -466,11 +479,8 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                     question.answers,
                     question.total,
                     this.getSets,
-                    () => this.props.showSnackBar(
-                        'error',
-                        "The question couldn't be created.",
-                        3000,
-                    ),
+                    () =>
+                        this.props.showSnackBar('error', "The question couldn't be created.", 3000),
                 );
             }
         }

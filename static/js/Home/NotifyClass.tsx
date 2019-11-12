@@ -118,7 +118,9 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                                 id='announcement-title'
                                 label='New announcement title...'
                                 value={this.state.addAnnouncementInput}
-                                onChange={e => this.setState({addAnnouncementInput: e.target.value})}
+                                onChange={e =>
+                                    this.setState({addAnnouncementInput: e.target.value})
+                                }
                                 margin='normal'
                             />
                             <TextField
@@ -133,7 +135,9 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                                 id='announcement-body'
                                 label='New announcement body...'
                                 value={this.state.announcementBodyInput}
-                                onChange={e => this.setState({announcementBodyInput: e.target.value})}
+                                onChange={e =>
+                                    this.setState({announcementBodyInput: e.target.value})
+                                }
                                 margin='normal'
                             />
                             <div style={{marginLeft: 'auto'}}>
@@ -181,7 +185,9 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
     }
 
     deleteAnnouncements() {
-        const deleteAnnouncementIDs = this.state.announcements.filter(announcement => announcement.selected);
+        const deleteAnnouncementIDs = this.state.announcements.filter(
+            announcement => announcement.selected,
+        );
         deleteAnnouncementIDs.forEach(announcement => {
             Http.deleteAnnouncement(announcement.announcementID, () => undefined, () => undefined);
         });
@@ -200,7 +206,9 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
             this.state.editTitle,
             this.state.editBody,
             () => {
-                const msg = this.state.announcements.findIndex(m => m.announcementID === announcement.announcementID);
+                const msg = this.state.announcements.findIndex(
+                    m => m.announcementID === announcement.announcementID,
+                );
                 const announcements = this.state.announcements;
                 announcements[msg].showEdit = false;
                 announcements[msg].header = this.state.editTitle;
@@ -222,7 +230,11 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
             selectedClass.sectionID,
             res => {
                 this.setState({
-                    announcements: res.announcements.map(m => ({...m, selected: false, showEdit: false})),
+                    announcements: res.announcements.map(m => ({
+                        ...m,
+                        selected: false,
+                        showEdit: false,
+                    })),
                 });
             },
             err => {
@@ -296,7 +308,8 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                             style={{borderRadius: '2.5em'}}
                             variant='outlined'
                             onClick={() =>
-                                this.saveAnnouncement(this.state.selectedAnnouncement as Notification)
+                                this.saveAnnouncement(this.state
+                                    .selectedAnnouncement as Notification)
                             }
                         >
                             Save announcement
@@ -316,7 +329,9 @@ export default class NotifyClass extends Component<{}, NotifyClassState> {
                             m => m.announcementID === announcement.announcementID,
                         );
                         let newAnnouncements = this.state.announcements;
-                        newAnnouncements[announcementIndex].selected = !newAnnouncements[announcementIndex].selected;
+                        newAnnouncements[announcementIndex].selected = !newAnnouncements[
+                            announcementIndex
+                        ].selected;
                         this.setState({announcements: newAnnouncements});
                     }}
                 >

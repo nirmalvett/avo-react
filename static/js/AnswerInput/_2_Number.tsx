@@ -10,7 +10,9 @@ export function _2_Number(props: AnswerInputImplementationProps) {
     const helperText = !Array.isArray(message) ? message : undefined;
     const renderedInput = Array.isArray(message) ? (
         <Content>{`\\(${message[0]}\\)`}</Content>
-    ) : undefined;
+    ) : (
+        undefined
+    );
     return (
         <div>
             <Content>{props.prompt}</Content>

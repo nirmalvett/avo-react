@@ -11,7 +11,11 @@ interface AnnouncementProps {
 
 export default function Announcement(props: AnnouncementProps) {
     return (
-        <div style={props.announcement.selected ? {textDecoration: 'line-through', color: 'red'} : {}}>
+        <div
+            style={
+                props.announcement.selected ? {textDecoration: 'line-through', color: 'red'} : {}
+            }
+        >
             <Typography component={'span'} variant='h4' color='textPrimary'>
                 {props.announcement.header}
             </Typography>

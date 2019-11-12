@@ -23,14 +23,16 @@ import {
     EditorCriteria,
     EditorMath,
     EditorSubPrompt,
-    HintsObj, QuestionBuilderMode, EditorPrompt,
+    HintsObj,
+    QuestionBuilderMode,
+    EditorPrompt,
 } from './QuestionBuilder.models';
 import * as Http from '../Http';
 import {copy} from '../HelperFunctions/Utilities';
 import {FUNCTIONS, functionRegex} from './constants';
 import {CategoryCard} from './components/CategoryCard';
-import {ShowSnackBar} from "../Layout/Layout";
-import {QuestionSet} from "../Http/types";
+import {ShowSnackBar} from '../Layout/Layout';
+import {QuestionSet} from '../Http/types';
 
 const cardStyle: CSSProperties = {
     margin: 8,

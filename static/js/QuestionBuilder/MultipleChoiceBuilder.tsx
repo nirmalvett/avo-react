@@ -601,7 +601,11 @@ export default class MultipleChoiceBuilder extends Component<
                             </form>
                         </ListItem>
                         <ListItem>
-                            <Button color='primary' disabled={this.state.course === -1} onClick={() => this.newSet()}>
+                            <Button
+                                color='primary'
+                                disabled={this.state.course === -1}
+                                onClick={() => this.newSet()}
+                            >
                                 Add Set
                             </Button>
                             <Button color='primary' onClick={() => this.closeAddSetDialog()}>

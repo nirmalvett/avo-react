@@ -472,14 +472,18 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 )
                                             }
                                         >
-                                            {this.state.classes.map((c : Course, i: number) => (
-                                                <MenuItem key={i} value={c.name} disabled={!c.canEdit}>
-                                                    <ListItemText style={{ float : 'left' }}>
+                                            {this.state.classes.map((c: Course, i: number) => (
+                                                <MenuItem
+                                                    key={i}
+                                                    value={c.name}
+                                                    disabled={!c.canEdit}
+                                                >
+                                                    <ListItemText style={{float: 'left'}}>
                                                         {c.name}
                                                     </ListItemText>
                                                     {!c.canEdit && (
-                                                        <ListItemIcon style={{ float : 'right' }}>
-                                                            <Lock/>
+                                                        <ListItemIcon style={{float: 'right'}}>
+                                                            <Lock />
                                                         </ListItemIcon>
                                                     )}
                                                 </MenuItem>
@@ -501,7 +505,10 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                             <InputAdornment position='end'>
                                                                 <IconButton
                                                                     style={{top: -8}}
-                                                                    disabled={!this.state.selectedClass.canEdit}
+                                                                    disabled={
+                                                                        !this.state.selectedClass
+                                                                            .canEdit
+                                                                    }
                                                                     onClick={() =>
                                                                         this.setState({
                                                                             editingTagName: !this
@@ -541,7 +548,10 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                             <IconButton
                                                                 edge='end'
                                                                 aria-label='Add'
-                                                                disabled={!this.state.selectedClass.canEdit}
+                                                                disabled={
+                                                                    !this.state.selectedClass
+                                                                        .canEdit
+                                                                }
                                                                 onClick={() =>
                                                                     this.setState({
                                                                         showAddRelatedNodeModal: true,
@@ -585,7 +595,11 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                                         'hidden_child',
                                                                                 }}
                                                                                 aria-label='Edit'
-                                                                                disabled={!this.state.selectedClass.canEdit}
+                                                                                disabled={
+                                                                                    !this.state
+                                                                                        .selectedClass
+                                                                                        .canEdit
+                                                                                }
                                                                                 onClick={() =>
                                                                                     this.openWeightModal(
                                                                                         WeightedConcept,
@@ -635,7 +649,10 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                             <IconButton
                                                                 edge='end'
                                                                 aria-label='Add'
-                                                                disabled={!this.state.selectedClass.canEdit}
+                                                                disabled={
+                                                                    !this.state.selectedClass
+                                                                        .canEdit
+                                                                }
                                                                 onClick={() =>
                                                                     this.setState({
                                                                         showAddRelatedNodeModal: true,
@@ -679,7 +696,11 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                                         'hidden_child',
                                                                                 }}
                                                                                 aria-label='Edit'
-                                                                                disabled={!this.state.selectedClass.canEdit}                                                                                
+                                                                                disabled={
+                                                                                    !this.state
+                                                                                        .selectedClass
+                                                                                        .canEdit
+                                                                                }
                                                                                 onClick={() =>
                                                                                     this.openWeightModal(
                                                                                         WeightedConcept,
@@ -1055,13 +1076,11 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         const name: string = (document as any).getElementById('set-new__node-name').value;
         const lesson: string = (document as any).getElementById('set-new__node-lesson').value;
         let errorString: string = '';
-        if(name.length == 0) 
-            errorString += 'Please Specify a Name for the Concept \n';
-        if(!!errorString.length)
-            alert(errorString);
+        if (name.length == 0) errorString += 'Please Specify a Name for the Concept \n';
+        if (!!errorString.length) alert(errorString);
 
         return !!errorString;
-    };
+    }
 
     setRelation() {
         const newedge: Edge = {
@@ -1270,7 +1289,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         const _this: TagView = this;
         const name: string = (document as any).getElementById('set-new__node-name').value;
         const lesson: string = (document as any).getElementById('set-new__node-lesson').value;
-        if(this.checkIfConceptCreationParametersValid()) return;
+        if (this.checkIfConceptCreationParametersValid()) return;
         Http.addConcept(
             this.state.selectedClass.courseID,
             name,
@@ -1304,7 +1323,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         const name: string = (document as any).getElementById('set-new__node-name').value;
         const lesson: string = (document as any).getElementById('set-new__node-lesson').value;
         const weight = this.state.relationWeight;
-        if(this.checkIfConceptCreationParametersValid()) return;
+        if (this.checkIfConceptCreationParametersValid()) return;
         Http.addConcept(
             this.state.selectedClass.courseID,
             name,

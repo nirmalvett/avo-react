@@ -6,7 +6,7 @@ import QuestionManager from './QuestionManager';
 import TrueFalseBuilder from './TrueFalseBuilder';
 import {QuestionSet, Course} from 'Http/types';
 import {ShowSnackBar} from 'Layout/Layout';
-import {QuestionBuilder} from "./QuestionBuilder";
+import {QuestionBuilder} from './QuestionBuilder';
 
 interface Mode1 {
     mode: null;
@@ -183,30 +183,26 @@ export class QuestionBuilderHome extends Component<
     }
 
     switchToMathQB = () => {
-        this.setState(
-            {isActive: false},
-            () => setTimeout(() => this.setState({screen: 'math'}), 500),
+        this.setState({isActive: false}, () =>
+            setTimeout(() => this.setState({screen: 'math'}), 500),
         );
     };
 
     switchToMCB = () => {
-        this.setState(
-            {isActive: false},
-            () => setTimeout(() => this.setState({screen: 'multiple-choice'}), 500)
+        this.setState({isActive: false}, () =>
+            setTimeout(() => this.setState({screen: 'multiple-choice'}), 500),
         );
     };
 
     switchToTF = () => {
-        this.setState(
-            {isActive: false},
-            () => setTimeout(() => this.setState({screen: 'true-false'}), 500)
+        this.setState({isActive: false}, () =>
+            setTimeout(() => this.setState({screen: 'true-false'}), 500),
         );
     };
 
     returnHome = () => {
-        this.setState(
-            {screen: 'home'},
-            () => setTimeout(() => this.setState({isActive: true}), 500)
+        this.setState({screen: 'home'}, () =>
+            setTimeout(() => this.setState({isActive: true}), 500),
         );
     };
 
@@ -214,5 +210,6 @@ export class QuestionBuilderHome extends Component<
 
     selectSet = (s: number) => () => this.setState({selection: {mode: 'set', s}});
 
-    selectQuestion = (s: number, q: number) => () => this.setState({selection: {mode: 'question', s, q}});
+    selectQuestion = (s: number, q: number) => () =>
+        this.setState({selection: {mode: 'question', s, q}});
 }

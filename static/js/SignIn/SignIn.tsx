@@ -337,9 +337,9 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         messageToUser:
                             message === 'email sent'
                                 ? 'Registration successful! To fully activate your account please' +
-                                ' check your email inbox/spam folder for the activation link.'
+                                  ' check your email inbox/spam folder for the activation link.'
                                 : 'Registration successful! Your account was already confirmed by' +
-                                ' your professor, you\'re all set to sign in and start using AVO.',
+                                  " your professor, you're all set to sign in and start using AVO.",
                     }),
                 result => this.setState({messageToUser: result.error}),
             );

@@ -28,7 +28,11 @@ export default function AVOPopMenu(props: any) {
             </IconButton>
             <Menu id='long-menu' anchorEl={anchorEl} keepMounted open={open} onClose={handleClose}>
                 {props.options.map((option: any, index: number) => (
-                    <MenuItem key={`avopopup@key=${index}`} onClick={option.onClick} disabled={option.disabled}>
+                    <MenuItem
+                        key={`avopopup@key=${index}`}
+                        onClick={option.onClick}
+                        disabled={option.disabled}
+                    >
                         {option.label}
                     </MenuItem>
                 ))}
