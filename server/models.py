@@ -54,6 +54,7 @@ class Concept(db.Model):
         'ConceptRelation', back_populates='CONCEPT_CHILD_RELATION', foreign_keys='ConceptRelation.CHILD'
     )
     COURSE_RELATION = db.relationship('Course', back_populates='CONCEPT_RELATION')
+    LESSON_RELATION = db.relationship('Lesson', back_populates='CONCEPT_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='CONCEPT_RELATION')
 
     def __init__(self, course_id, name, lesson_content):
@@ -115,6 +116,7 @@ class Course(db.Model):
 
     CONCEPT_RELATION = db.relationship('Concept', back_populates='COURSE_RELATION')
     IMAGE_RELATION = db.relationship('Image', back_populates='COURSE_RELATION')
+    LESSON_RELATION = db.relationship('Lesson', back_populates='COURSE_RELATION')
     QUESTION_SET_RELATION = db.relationship('QuestionSet', back_populates='COURSE_RELATION')
     SECTION_RELATION = db.relationship('Section', back_populates='COURSE_RELATION')
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='COURSE_RELATION')
@@ -193,6 +195,26 @@ class Image(db.Model):
 
     def __repr__(self):
         return f'<Image {self.IMAGE} {self.COURSE} {self.name}>'
+
+
+class Lesson(db.Model):
+    __tablename__ = 'LESSON'
+
+    LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
+    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
+    content = db.Column(db.String(65536), nullable=False)
+
+    COURSE_RELATION = db.relationship('Course', back_populates='LESSON_RELATION')
+    CONCEPT_RELATION = db.relationship('Concept', back_populates='LESSON_RELATION')
+
+    def __init__(self, course_id: int, concept_id: int, content: str):
+        self.COURSE = course_id
+        self.CONCEPT = concept_id
+        self.content = content
+
+    def __repr__(self):
+        return f'<Lesson {self.LESSON} {self.COURSE} {self.CONCEPT} {self.content}>'
 
 
 class Mastery(db.Model):
