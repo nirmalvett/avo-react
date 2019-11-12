@@ -205,7 +205,7 @@ class ForumMessage(db.Model):
     timestamp = db.Column(db.DateTime, nullable=False)
 
     USER_RELATION = db.relationship('User', back_populates='FORUM_MESSAGE_RELATION')
-    children = db.relationship("ForumMessage", backref=db.backref('parent', remote_side=[id]))
+    r1 = db.relationship("ForumMessage", backref=db.backref('r2'), remote_side=[FORUM_MESSAGE])
 
     def __init__(self, user_id, parent_id, message, status, timestamp):
         self.USER = user_id
@@ -352,8 +352,8 @@ class Message(db.Model):
     content = db.Column(db.String(512), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
 
-    CONVERSATION_RELATION = db.relationship('Conversation', back_populates='MASTERY_RELATION')
-    USER_RELATION = db.relationship('User', back_populates='MASTERY_RELATION')
+    CONVERSATION_RELATION = db.relationship('Conversation', back_populates='MESSAGE_RELATION')
+    USER_RELATION = db.relationship('User', back_populates='MESSAGE_RELATION')
 
     def __init__(self, conversation, user_id, content, timestamp):
         self.CONVERSATION = conversation
@@ -628,8 +628,8 @@ class UserConversation(db.Model):
     CONVERSATION = db.Column(db.Integer, db.ForeignKey('CONVERSATION.CONVERSATION'), nullable=False)
     status = db.Column(db.Integer, nullable=False, default=0)
 
-    CONVERSATION_RELATION = db.relationship('Course', back_populates='USER_COURSE_RELATION')
-    USER_RELATION = db.relationship('User', back_populates='USER_COURSE_RELATION')
+    CONVERSATION_RELATION = db.relationship('Conversation', back_populates='USER_CONVERSATION_RELATION')
+    USER_RELATION = db.relationship('User', back_populates='USER_CONVERSATION_RELATION')
 
     def __init__(self, user, conversation, status=0):
         self.USER = user
