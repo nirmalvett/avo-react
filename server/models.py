@@ -197,13 +197,51 @@ class Image(db.Model):
         return f'<Image {self.IMAGE} {self.COURSE} {self.name}>'
 
 
+class Issue(db.Model):
+    __tablename__ = 'ISSUE'
+
+    ISSUE = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    ISSUE_HUB = db.Column(db.Integer, db.ForeignKey('ISSUE_HUB.ISSUE_HUB'), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    message = db.Column(db.String(512), nullable=False)
+    status = db.Column(db.Integer, nullable=False, default=0)
+    timestamp = db.Column(db.DateTime, nullable=False)
+
+    ISSUE_HUB_RELATION = db.relationship('IssueHub', back_populates='ISSUE_RELATION')
+    USER_RELATION = db.relationship('User', back_populates='ISSUE_RELATION')
+
+    def __init__(self, hub_id, user_id, message, status, timestamp):
+        self.ISSUE_HUB = hub_id
+        self.USER = user_id
+        self.message = message
+        self.status = status
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return f'<Issue {self.ISSUE} {self.ISSUE_HUB} {self.USER} {self.message} {self.status} {self.timestamp}>'
+
+
+class IssueHub(db.Model):
+    __tablename__ = 'ISSUE_HUB'
+
+    ISSUE_HUB = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    ISSUE_RELATION = db.relationship('Issue', back_populates='ISSUE_HUB_RELATION')
+
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        return f'<IssueHub {self.ISSUE_HUB}>'
+
+
 class Lesson(db.Model):
     __tablename__ = 'LESSON'
 
     LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
     COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
     CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
-    content = db.Column(db.String(65536), nullable=False)
+    content = db.Column(db.String(16384), nullable=False)
 
     COURSE_RELATION = db.relationship('Course', back_populates='LESSON_RELATION')
     CONCEPT_RELATION = db.relationship('Concept', back_populates='LESSON_RELATION')
@@ -480,6 +518,7 @@ class User(UserMixin, db.Model):
 
     ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='USER_RELATION')
     FEEDBACK_RELATION = db.relationship('Feedback', back_populates='USER_RELATION')
+    ISSUE_RELATION = db.relationship('Issue', back_populates='USER_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='USER_RELATION')
     PAYMENT_RELATION = db.relationship('Payment', back_populates='USER_RELATION')
     QUESTION_HISTORY_RELATION = db.relationship('QuestionHistory', back_populates='USER_RELATION')
