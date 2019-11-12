@@ -297,6 +297,7 @@ class Question(db.Model):
     question_type = db.Column(db.Integer, nullable=False)
 
     CONCEPT_QUESTION_RELATION = db.relationship('ConceptQuestion', back_populates='QUESTION_RELATION')
+    QUESTION_HISTORY_RELATION = db.relationship('QuestionHistory', back_populates='QUESTION_RELATION')
     QUESTION_SET_RELATION = db.relationship('QuestionSet', back_populates='QUESTION_RELATION')
 
     def __init__(self, question_set, name, string, answers, total, category=0, auto_marked=True, question_type=0):
@@ -314,6 +315,31 @@ class Question(db.Model):
             f'<Question {self.QUESTION} {self.QUESTION_SET} {self.name} {self.string} {self.answers} {self.total}'
             f' {self.category}>'
         )
+
+
+class QuestionHistory(db.Model):
+    __tablename__ = 'question_history'
+
+    QUESTION_HISTORY = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    QUESTION = db.Column(db.Integer, db.ForeignKey('QUESTION.QUESTION'), nullable=False)
+    answer = db.Column(db.String(512), nullable=False)
+    grade = db.Column(db.Float, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
+
+    QUESTION_RELATION = db.relationship('Question', back_populates='QUESTION_HISTORY_RELATION')
+    USER_RELATION = db.relationship('User', back_populates='QUESTION_HISTORY_RELATION')
+
+    def __init__(self, user_id, question_id, answer, grade, timestamp):
+        self.USER = user_id
+        self.QUESTION = question_id
+        self.answer = answer
+        self.grade = grade
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return f'<QuestionHistory {self.QUESTION_HISTORY} {self.USER} {self.QUESTION} {self.answer} {self.grade}' \
+               f' {self.timestamp}>'
 
 
 class QuestionSet(db.Model):
@@ -456,6 +482,7 @@ class User(UserMixin, db.Model):
     FEEDBACK_RELATION = db.relationship('Feedback', back_populates='USER_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='USER_RELATION')
     PAYMENT_RELATION = db.relationship('Payment', back_populates='USER_RELATION')
+    QUESTION_HISTORY_RELATION = db.relationship('QuestionHistory', back_populates='USER_RELATION')
     TAKES_RELATION = db.relationship('Takes', back_populates='USER_RELATION')
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='USER_RELATION')
     USER_SECTION_RELATION = db.relationship('UserSection', back_populates='USER_RELATION')
