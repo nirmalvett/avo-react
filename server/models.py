@@ -92,6 +92,7 @@ class Conversation(db.Model):
     CONVERSATION = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), nullable=False)
 
+    MESSAGE_RELATION = db.relationship('Message', back_populates='CONVERSATION_RELATION')
     USER_CONVERSATION_RELATION = db.relationship('UserConversation', back_populates='CONVERSATION_RELATION')
 
     def __init__(self, name):
@@ -342,6 +343,28 @@ class MasteryHistory(db.Model):
         return f'<MasteryHistory {self.MASTERY_HISTORY} {self.MASTERY} {self.mastery_level} {self.timestamp}>'
 
 
+class Message(db.Model):
+    __tablename__ = 'MESSAGE'
+
+    MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CONVERSATION = db.Column(db.Integer, db.ForeignKey('CONVERSATION.CONVERSATION'), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    content = db.Column(db.String(512), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
+
+    CONVERSATION_RELATION = db.relationship('Conversation', back_populates='MASTERY_RELATION')
+    USER_RELATION = db.relationship('User', back_populates='MASTERY_RELATION')
+
+    def __init__(self, conversation, user_id, content, timestamp):
+        self.CONVERSATION = conversation
+        self.USER = user_id
+        self.content = content
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return f'<Message {self.MESSAGE} {self.CONVERSATION} {self.USER} {self.content} {self.timestamp}'
+
+
 class Payment(db.Model):
     __tablename__ = 'payment'
 
@@ -561,6 +584,7 @@ class User(UserMixin, db.Model):
     FORUM_MESSAGE_RELATION = db.relationship('ForumMessage', back_populates='USER_RELATION')
     ISSUE_RELATION = db.relationship('Issue', back_populates='USER_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='USER_RELATION')
+    MESSAGE_RELATION = db.relationship('Message', back_populates='USER_RELATION')
     PAYMENT_RELATION = db.relationship('Payment', back_populates='USER_RELATION')
     QUESTION_HISTORY_RELATION = db.relationship('QuestionHistory', back_populates='USER_RELATION')
     TAKES_RELATION = db.relationship('Takes', back_populates='USER_RELATION')
