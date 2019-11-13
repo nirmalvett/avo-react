@@ -1,5 +1,5 @@
 import React, {Fragment, PureComponent} from 'react';
-import {Button, IconButton, Typography} from '@material-ui/core';
+import {Button, IconButton, Typography, Tooltip} from '@material-ui/core';
 import AVOMasteryGauge from '../MasteryGauge';
 import {AvoLesson} from '../Learn';
 import {ThemeObj} from '../../Models';
@@ -50,15 +50,17 @@ export class LessonScreen extends PureComponent<LessonScreenProps> {
                             {surveyIcons.map((surveyIcon, index) => {
                                 const Icon = surveyIcon['icon'];
                                 return (
-                                    <IconButton
-                                        title={surveyIcon['understandTooltip']}
-                                        color={
-                                            index === lesson.masterySurvey - 1 ? 'primary' : 'default'
-                                        }
-                                        onClick={this.updateMastery(index + 1)}
-                                    >
-                                        <Icon/>
-                                    </IconButton>
+                                    <Tooltip title={surveyIcon['understandTooltip']}>
+                                        <IconButton
+                                            color={
+                                                index === lesson.masterySurvey - 1 ? 'primary' : 'default'
+                                            }
+                                            onClick={this.updateMastery(index + 1)}
+                                        >
+                                            <Icon/>
+                                        </IconButton>
+                                    </Tooltip>
+
                                 )
                             })}
                         </div>
@@ -67,15 +69,17 @@ export class LessonScreen extends PureComponent<LessonScreenProps> {
                             {surveyIcons.map((surveyIcon, index) => {
                                 const Icon = surveyIcon['icon'];
                                 return (
-                                    <IconButton
-                                        title={surveyIcon['easyToolTip']}
-                                        color={
-                                            index === lesson.aptitudeSurvey - 1 ? 'primary' : 'default'
-                                        }
-                                        onClick={this.updateAptitude(index + 1)}
-                                    >
-                                        <Icon/>
-                                    </IconButton>
+                                    <Tooltip title={surveyIcon['easyToolTip']}>
+                                        <IconButton
+                                            color={
+                                                index === lesson.aptitudeSurvey - 1 ? 'primary' : 'default'
+                                            }
+                                            onClick={this.updateAptitude(index + 1)}
+                                        >
+                                            <Icon/>
+                                        </IconButton>
+                                    </Tooltip>
+
                                 )
                             })}
                         </div>
