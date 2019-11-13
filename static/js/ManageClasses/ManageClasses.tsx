@@ -62,6 +62,7 @@ interface ManageClassesProps {
     courses: Course[];
     sections: Http.GetSections_Section[];
     updateSections: (sections: Http.GetSections_Section[], cb?: () => void) => void;
+    getCourses: () => void;
     showSnackBar: ShowSnackBar;
     theme: {
         color: {
@@ -292,6 +293,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                             () => {
                                 this.loadClasses('Class Successfully Created!');
                                 this.setState({createClassErrorMessage: ''});
+                                this.props.getCourses()
                                 closeFunc();
                             },
                             () =>
@@ -327,7 +329,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     helperText={this.state.createClassErrorMessage + ' '}
                     error={this.state.createClassErrorMessage !== ''}
                 />
-                <br />
+                <br/>
             </AVOModal>
         );
     }
