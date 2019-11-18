@@ -1,6 +1,7 @@
 import {Component} from 'react';
 import {QuestionSet} from 'Http/types';
 import React from 'react';
+
 import {
     List,
     ListItem,
@@ -18,8 +19,12 @@ import {
 import {PreviewQuestion} from './types';
 import ImporterPreview from './ImporterPreview';
 import * as Http from '../Http';
+import {buildQuestionString} from './TrueFalseBuilder'
+import {ShowSnackBar} from 'Layout/Layout'
+
 
 export interface TFImporterProps {
+    showSnackBar: ShowSnackBar
     set: QuestionSet;
     close: () => void;
     buildQuestionString: (question: string, answer: string, explanation: string) => string
@@ -55,8 +60,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
             answerCustom: '',
             explanationDelim: ',',
             explanationCustom: '',
-            // questions: [],
-            questions: this.generateQuestions(this.state.input, this.state.nameDelim, this.state.promptDelim, this.state.answerDelim, this.state.explanationDelim, this.state.questionDelim),
+            questions: []
         };
     }
 
@@ -179,7 +183,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                 </Typography>
                 <List>{this.renderQuestionPreviews(this.state.questions)}</List>
                 <ListItem>
-                    <Button variant='contained' color='primary' style={{marginRight: '5px'}}>
+                    <Button variant='contained' color='primary' style={{marginRight: '5px'}} onClick={this.handleImport}>
                         Import
                     </Button>
                     <Button variant='outlined' color='primary' onClick={this.props.close}>
@@ -212,31 +216,79 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
         });
     }
 
-    generateQuestions(input?: string, nDelim?: string, pDelim?: string, aDelim?: string, eDelim?: string, qDelim?: string): PreviewQuestion[] {
+    generateQuestions = () => {
+        //array we will return at the end
         let questionArray = []
-        if (input) {
-            //array we will return at the end
+        if (this.state.input) {
+            const {
+                nameDelim: n,
+                promptDelim: p,
+                answerDelim: a,
+                explanationDelim: e,
+                questionDelim: q,
+            } = this.state;
 
             //selects for given strings
-            let questionRegExp = new RegExp("(.+)\\" + nDelim + "(.+)\\" + pDelim + "(.+)\\" + aDelim + "(.+)\\" + eDelim + "(.+)//" + qDelim, "g");
+            let questionRegExp = new RegExp(`(.+)\\${n}(.+)\\${p}(.+)\\${a}(.+)\\${e}(.+)//${q}`, "g");
             let questionMatch;
 
             //Look through all matches of regex
-            while (questionMatch = questionRegExp.exec(input)) {
+            while (questionMatch = questionRegExp.exec(this.state.input)) {
                 //put the current items in an object
+                //don't want the [0] index of match array as that is just the entire string
                 let currQuestionObj = {
                     name: questionMatch[1],
                     prompt: questionMatch[2],
                     answer: questionMatch[3],
                     explanation: questionMatch[4]
-                    }
+                    };
                 //append current object to an array
                 questionArray.push(currQuestionObj)
             }
         }
         return questionArray;
     }
-}
+
+    handleImport = () => {
+        //iterate through each question in questions array
+        for (const capturedQuestion of this.state.questions) {
+            //need to create a new question for each in array
+            Http.newQuestion(
+                this.state.sets[this.state.selectedS as number].setID,
+                capturedQuestion.name,
+                buildQuestionString(capturedQuestion.prompt,capturedQuestion.answer,capturedQuestion.explanation ),
+                1,
+                1,
+                () => this.props.showSnackBar('success', 'Question created successfully', 2000),
+                () => this.props.showSnackBar('error', 'Error creating question', 2000),
+                );
+
+        }
+        //After creating all the questions, can reset the state
+        this.reset();
+    }
+    reset = () => {
+        // Reload the default state
+        this.setState({
+            input: '',
+            questionDelim: ',',
+            questionCustom: '',
+            nameDelim: ',',
+            nameCustom: '',
+            promptDelim: ',',
+            promptCustom: '',
+            answerDelim: ',',
+            answerCustom: '',
+            explanationDelim: ',',
+            explanationCustom: '',
+            questions: []
+            });
+
+
+    }
+
+
+};
 
 const dummyData: PreviewQuestion[] = [
     {
