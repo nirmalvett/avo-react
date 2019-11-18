@@ -621,29 +621,26 @@ export default class TrueFalseBuilder extends Component<
         Http.newSet(
             this.state.course,
             this.state.setName,
-            () => this.refreshSets(),
+            () =>
+                Http.getSets(
+                    result =>
+                        this.props.updateSets(result.sets, () =>
+                            this.props.showSnackBar('success', 'Set added', 2000),
+                        ),
+                    result => alert(result.error),
+                ),
             result => alert(result.error),
         );
         this.closeAddSetDialog();
     };
 
     deleteSet = (index: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        // We just want to click delete, not the button
         event.stopPropagation();
-        let set = this.props.sets[index];
         let confirmation: boolean = confirm('Are you sure you want to delete this set?');
+        const set: QuestionSet = this.props.sets[index];
         if (confirmation)
-            Http.deleteSet(
-                set.setID,
-                async () => {
-                    await this.setState({selectedS: null, questionID: -1});
-                    let updated = this.props.sets.slice();
-                    updated.splice(index, 1);
-                    this.props.updateSets(updated, () =>
-                        this.props.showSnackBar('success', 'The set has been deleted', 2000),
-                    );
-                },
-                result => alert(result.error),
-            );
+            Http.deleteSet(set.setID, () => this.deleteSetSuccess(index), result => alert(result.error));
     };
 
     handleAnswerChange = (answer: 'true' | 'false') => {
@@ -698,6 +695,8 @@ export default class TrueFalseBuilder extends Component<
     };
 
     postSuccess = () => {
+        // Editing a question
+        // Here, we can figure out what changed and where, then update the sets manually
         if (this.state.editMode) {
             const {selectedS, toEdit, questionName} = this.state;
             const {sets} = this.props;
@@ -707,7 +706,9 @@ export default class TrueFalseBuilder extends Component<
             question.string = this.buildQuestionString();
             this.props.updateSets(updated);
         }
+        // Creating a fresh question
         else {
+            // Must pull the set list to identify the question ID
             Http.getSets(
                 result =>
                     this.props.updateSets(result.sets, () =>
@@ -720,8 +721,8 @@ export default class TrueFalseBuilder extends Component<
         this.reset();
     };
 
-    deleteSuccess = (reset: boolean) => {
-        const {selectedS, toEdit, questionID} = this.state;
+    deleteQuestionSuccess = (reset: boolean) => {
+        const {selectedS, toEdit} = this.state;
         const {sets} = this.props;
         let updated = sets.slice();
         updated[selectedS as number].questions.splice(toEdit as number, 1);
@@ -730,6 +731,19 @@ export default class TrueFalseBuilder extends Component<
         );
         // If we are deleting the currently selected question, we must refresh the view
         if (reset) this.reset();
+    };
+
+    deleteSetSuccess = (setIndex: number) => {
+        // Clone the set list
+        let updated = this.props.sets.slice();
+        // Remove the set from the list
+        updated.splice(setIndex, 1);
+        this.props.updateSets(updated, () =>
+            this.props.showSnackBar('success', 'The set has been deleted', 2000),
+        );
+        // If we are deleting the set we are currently in and we are editing a question in that set, we should reset the view
+        if (setIndex === this.state.selectedS && this.state.editMode) this.reset();
+        this.setState({selectedS: null});
     };
 
     switchQuestion = (questionIndex: number) => {
@@ -783,7 +797,7 @@ export default class TrueFalseBuilder extends Component<
         const reset: boolean = question.questionID === this.state.questionID;
         Http.deleteQuestion(
             question.questionID,
-            () => this.deleteSuccess(reset),
+            () => this.deleteQuestionSuccess(reset),
             () => this.props.showSnackBar('error', 'An error occured', 2000),
         );
     };
