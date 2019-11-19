@@ -1,14 +1,42 @@
 import React, {PureComponent} from 'react';
-import {Fade, IconButton, Paper} from '@material-ui/core';
-import {FullscreenExit} from '@material-ui/icons';
+import {Fade, IconButton, Tooltip, Paper} from '@material-ui/core';
+import {FullscreenExit, BubbleChartOutlined} from '@material-ui/icons';
+import ConceptRelationsModal from './ConceptRelations';
+import {AvoLesson} from '../Learn';
+
+interface Concept {
+    conceptID: number;
+    name: string;
+    lesson: string;
+}
+
+interface Edge {
+    child: number;
+    parent: number;
+    weight: number;
+}
 
 interface FullScreenModalProps {
     readonly sourceID: string | undefined;
     readonly onClose: () => void;
+    readonly edges: Edge[];
+    readonly concepts: Concept[];   
+    readonly currentLesson: AvoLesson;
 }
 
-export default class FullScreenModal extends PureComponent<FullScreenModalProps> {
+interface FullScreenModalState {
+    showConceptTreeModal: boolean;
+}
+
+export default class FullScreenModal extends PureComponent<FullScreenModalProps, FullScreenModalState> {
     transform: string = '';
+
+    constructor(props: FullScreenModalProps) {
+        super(props);
+        this.state = {
+            showConceptTreeModal : false,
+        };
+    };
 
     render() {
         const {sourceID, children} = this.props;
@@ -57,17 +85,41 @@ export default class FullScreenModal extends PureComponent<FullScreenModalProps>
                                 }}
                             >
                                 {children}
-                                <IconButton
-                                    onClick={this.props.onClose}
-                                    color='primary'
-                                    style={{
-                                        position: 'absolute',
-                                        top: 0,
-                                        right: 0,
-                                    }}
-                                >
-                                    <FullscreenExit color='primary' />
-                                </IconButton>
+                                <Tooltip title={'Minimize'}>
+                                    <IconButton
+                                        onClick={this.props.onClose}
+                                        color='primary'
+                                        style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            right: 0,
+                                        }}
+                                    >
+                                        <FullscreenExit color='primary' />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title={'Show Concept Graph'}>
+                                    <IconButton
+                                        onClick={this.toggleConceptTreeModal}
+                                        color='primary'
+                                        style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            right: '12vw',
+                                        }}
+                                    >
+                                        <BubbleChartOutlined color='primary' />
+                                    </IconButton>
+                                </Tooltip>
+                                {this.state.showConceptTreeModal && (
+                                    <ConceptRelationsModal 
+                                        open={this.state.showConceptTreeModal} 
+                                        closeCallback={this.toggleConceptTreeModal.bind(this)} 
+                                        concepts={this.props.concepts}
+                                        edges={this.props.edges}
+                                        currentLesson={this.props.currentLesson}
+                                    />
+                                )}
                             </div>
                         </Fade>
                     )}
@@ -111,6 +163,10 @@ export default class FullScreenModal extends PureComponent<FullScreenModalProps>
             $innerContent.style.opacity = '0';
         }, 100);
     };
+
+    toggleConceptTreeModal = () => {
+        this.setState({ showConceptTreeModal : !this.state.showConceptTreeModal });
+    }; 
 }
 
 function getTransform(sourceID: string) {
