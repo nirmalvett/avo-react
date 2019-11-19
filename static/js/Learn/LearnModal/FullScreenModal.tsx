@@ -3,6 +3,7 @@ import {Fade, IconButton, Tooltip, Paper} from '@material-ui/core';
 import {FullscreenExit, BubbleChartOutlined} from '@material-ui/icons';
 import ConceptRelationsModal from './ConceptRelations';
 import {AvoLesson} from '../Learn';
+import {ThemeObj} from '../../Models';
 
 interface Concept {
     conceptID: number;
@@ -22,6 +23,8 @@ interface FullScreenModalProps {
     readonly edges: Edge[];
     readonly concepts: Concept[];   
     readonly currentLesson: AvoLesson;
+    readonly lessons: AvoLesson[];
+    readonly theme: ThemeObj;
 }
 
 interface FullScreenModalState {
@@ -118,6 +121,8 @@ export default class FullScreenModal extends PureComponent<FullScreenModalProps,
                                         concepts={this.props.concepts}
                                         edges={this.props.edges}
                                         currentLesson={this.props.currentLesson}
+                                        theme={this.props.theme}
+                                        lessons={this.props.lessons}
                                     />
                                 )}
                             </div>

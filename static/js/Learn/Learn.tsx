@@ -112,10 +112,12 @@ export default class Learn extends Component<LearnProps, LearnState> {
             >
                 <FullScreenModal 
                     sourceID={this.getSourceID()} 
-                    currentLesson={this.state.currentLesson}
+                    currentLesson={this.state.currentLesson as AvoLesson}
                     onClose={this.closeLessonFSM}
                     concepts={this.state.concepts} 
                     edges={this.state.edges}
+                    theme={this.props.theme}
+                    lessons={this.state.lessons}
                 >
                     {this.state.currentLesson && (
                         <LearnTestComp
