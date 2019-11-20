@@ -517,6 +517,7 @@ export default class TrueFalseBuilder extends Component<
                     maxWidth='xl'
                 >
                     <TFImporter
+                        showSnackBar={this.props.showSnackBar}
                         set={this.state.sets[this.state.selectedS as number]}
                         close={() => this.setState({importerOpen: false})}
                         buildQuestionString={this.buildQuestionString}
@@ -701,7 +702,7 @@ export default class TrueFalseBuilder extends Component<
         }
     };
 
-    buildQuestionString(question: string, answer:string, explanation: string)  {
+    buildQuestionString(question: string, answer: string, explanation: string) {
         return (
             '；；；' +
             question +
@@ -711,7 +712,7 @@ export default class TrueFalseBuilder extends Component<
             explanation +
             '；'
         );
-    };
+    }
 
     submitQuestion = () => {
         if (this.state.editMode) {
@@ -721,7 +722,11 @@ export default class TrueFalseBuilder extends Component<
                 () =>
                     Http.editQuestion(
                         this.state.questionID,
-                        this.buildQuestionString(this.state.questionText, this.state.questionAnsr, this.state.questionExpl),
+                        this.buildQuestionString(
+                            this.state.questionText,
+                            this.state.questionAnsr,
+                            this.state.questionExpl,
+                        ),
                         1,
                         1,
                         () => this.postSuccess(),
@@ -733,7 +738,11 @@ export default class TrueFalseBuilder extends Component<
             Http.newQuestion(
                 this.state.sets[this.state.selectedS as number].setID,
                 this.state.questionName,
-                this.buildQuestionString(this.state.questionText, this.state.questionAnsr, this.state.questionExpl),
+                this.buildQuestionString(
+                    this.state.questionText,
+                    this.state.questionAnsr,
+                    this.state.questionExpl,
+                ),
                 1,
                 1,
                 () => this.postSuccess(),
