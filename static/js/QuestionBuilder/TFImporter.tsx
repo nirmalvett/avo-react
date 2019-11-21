@@ -16,10 +16,10 @@ import {
     Divider,
     TextField,
 } from '@material-ui/core';
-import {PreviewQuestion} from './types';
 import ImporterPreview from './ImporterPreview';
 import * as Http from '../Http';
 import {ShowSnackBar} from '../Layout/Layout';
+import {PreviewQuestion} from './types';
 
 export interface TFImporterProps {
     showSnackBar: ShowSnackBar;
