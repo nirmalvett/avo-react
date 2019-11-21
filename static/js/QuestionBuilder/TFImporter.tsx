@@ -19,13 +19,13 @@ import {
 import {PreviewQuestion} from './types';
 import ImporterPreview from './ImporterPreview';
 import * as Http from '../Http';
-import {ShowSnackBar} from "../Layout/Layout";
+import {ShowSnackBar} from '../Layout/Layout';
 
 export interface TFImporterProps {
-    showSnackBar: ShowSnackBar
+    showSnackBar: ShowSnackBar;
     set: QuestionSet;
     close: () => void;
-    buildQuestionString: (question: string, answer: string, explanation: string) => string
+    buildQuestionString: (question: string, answer: string, explanation: string) => string;
 }
 
 export interface TFImporterState {
@@ -50,7 +50,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
             promptAnswerCustom: '',
             answerExplanationDelim: ',',
             answerExplanationCustom: '',
-            questions: []
+            questions: [],
         };
     }
 
@@ -69,11 +69,12 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                     rowsMax='10'
                     margin='normal'
                     variant='outlined'
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.handleInput(event.target.value)
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                        this.handleInput(event.target.value)
                     }
                 />
                 <Grid container justify='space-evenly'>
-                    <Grid item xs={12} sm={6} md={4} lg={2} justify='center'>
+                    <Grid item xs={12} sm={6} md={4} justify='center'>
                         <FormControl component='fieldset' color='primary' style={{margin: '5px'}}>
                             <FormLabel component='legend'>Between Name and Prompt</FormLabel>
                             <RadioGroup
@@ -87,44 +88,81 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                                 {this.renderDelimRadios([[',', 'Comma'], ['|', 'Bar']])}
                                 <FormControlLabel
                                     value={this.state.namePromptCustom}
-                                    control={<Radio color='primary'/>}
-                                    label={<TextField label='Custom' onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.setState({namePromptCustom: event.target.value})}/>}
+                                    control={<Radio color='primary' />}
+                                    label={
+                                        <TextField
+                                            label='Custom'
+                                            onChange={(
+                                                event: React.ChangeEvent<HTMLInputElement>,
+                                            ) =>
+                                                this.setState({
+                                                    namePromptCustom: event.target.value,
+                                                })
+                                            }
+                                        />
+                                    }
                                 />
                             </RadioGroup>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4} lg={2} justify='center'>
+                    <Grid item xs={12} sm={6} md={4} justify='center'>
                         <FormControl component='fieldset' style={{margin: '5px'}}>
                             <FormLabel component='legend'>Between Prompt and Answer</FormLabel>
                             <RadioGroup
                                 aria-label='name-delim'
                                 name='name-delim'
                                 value={this.state.promptAnswerDelim}
-                                onChange={(_, value: string) => this.setState({promptAnswerDelim: value})}
+                                onChange={(_, value: string) =>
+                                    this.setState({promptAnswerDelim: value})
+                                }
                             >
                                 {this.renderDelimRadios([[',', 'Comma'], ['|', 'Bar']])}
                                 <FormControlLabel
                                     value={this.state.promptAnswerCustom}
-                                    control={<Radio color='primary'/>}
-                                    label={<TextField label='Custom' onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.setState({promptAnswerCustom: event.target.value})}/>}
+                                    control={<Radio color='primary' />}
+                                    label={
+                                        <TextField
+                                            label='Custom'
+                                            onChange={(
+                                                event: React.ChangeEvent<HTMLInputElement>,
+                                            ) =>
+                                                this.setState({
+                                                    promptAnswerCustom: event.target.value,
+                                                })
+                                            }
+                                        />
+                                    }
                                 />
                             </RadioGroup>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4} lg={2} justify='center'>
+                    <Grid item xs={12} sm={6} md={4} justify='center'>
                         <FormControl component='fieldset' style={{margin: '5px'}}>
                             <FormLabel component='legend'>Between Answer and Explanation</FormLabel>
                             <RadioGroup
                                 aria-label='prompt-delim'
                                 name='prompt-delim'
                                 value={this.state.answerExplanationDelim}
-                                onChange={(_, value: string) => this.setState({answerExplanationDelim: value})}
+                                onChange={(_, value: string) =>
+                                    this.setState({answerExplanationDelim: value})
+                                }
                             >
                                 {this.renderDelimRadios([[',', 'Comma'], ['|', 'Bar']])}
                                 <FormControlLabel
                                     value={this.state.answerExplanationCustom}
-                                    control={<Radio color='primary'/>}
-                                    label={<TextField label='Custom' onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.setState({answerExplanationCustom: event.target.value})}/>}
+                                    control={<Radio color='primary' />}
+                                    label={
+                                        <TextField
+                                            label='Custom'
+                                            onChange={(
+                                                event: React.ChangeEvent<HTMLInputElement>,
+                                            ) =>
+                                                this.setState({
+                                                    answerExplanationCustom: event.target.value,
+                                                })
+                                            }
+                                        />
+                                    }
                                 />
                             </RadioGroup>
                         </FormControl>
@@ -135,7 +173,12 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                 </Typography>
                 <List>{this.renderQuestionPreviews()}</List>
                 <ListItem>
-                    <Button variant='contained' color='primary' style={{marginRight: '5px'}} onClick={this.handleImport}>
+                    <Button
+                        variant='contained'
+                        color='primary'
+                        style={{marginRight: '5px'}}
+                        onClick={this.handleImport}
+                    >
                         Import
                     </Button>
                     <Button variant='outlined' color='primary' onClick={this.props.close}>
@@ -151,7 +194,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
             return (
                 <FormControlLabel
                     value={option[0]}
-                    control={<Radio color='primary'/>}
+                    control={<Radio color='primary' />}
                     label={option[1]}
                 />
             );
@@ -162,19 +205,19 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
         return this.state.questions.map((question: PreviewQuestion) => {
             return (
                 <ListItem>
-                    <ImporterPreview question={question}/>
+                    <ImporterPreview question={question} />
                 </ListItem>
             );
         });
     }
 
-    generateQuestions = () => {
+    generateQuestions = (input: String) => {
         //TODO Test and move questiongenerate into redend preview
         //Example string: Q1|The capital of Canada is? Toronto
 
         //array we will return at the end
         let questionArray: PreviewQuestion[] = [];
-        if (this.state.input) {
+        if (input) {
             const {
                 namePromptDelim: n,
                 promptAnswerDelim: p,
@@ -183,30 +226,29 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
 
             //selects for given strings
             let questionRegExp = new RegExp(`(.+)\\${n}(.+)\\${p}(.+)\\${a}(.+)`);
-            let questionMatch;
 
             // Split on \n
-            let splitArray: string[] = this.state.input.split("\n");
+            let splitArray: string[] = input.split('\n');
             // for each line, match
-            splitArray.forEach((line) => {
-                const questionMatch = line.match(questionRegExp)
+            splitArray.forEach(line => {
+                const questionMatch = line.match(questionRegExp);
                 if (questionMatch !== null) {
                     let currQuestionObj: PreviewQuestion = {
                         name: questionMatch[1],
                         prompt: questionMatch[2],
                         answer: questionMatch[3],
-                        explanation: questionMatch[4]
+                        explanation: questionMatch[4],
                     };
-                    questionArray.push(currQuestionObj)
+                    questionArray.push(currQuestionObj);
                 }
             });
         }
         this.setState({questions: questionArray});
-    }
+    };
 
     handleInput = (input: string) => {
         this.setState({input: input});
-        this.generateQuestions();
+        this.generateQuestions(input);
     };
 
     handleImport = () => {
@@ -216,12 +258,16 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
             Http.newQuestion(
                 this.props.set.setID,
                 capturedQuestion.name,
-                this.props.buildQuestionString(capturedQuestion.prompt,capturedQuestion.answer,capturedQuestion.explanation),
+                this.props.buildQuestionString(
+                    capturedQuestion.prompt,
+                    capturedQuestion.answer,
+                    capturedQuestion.explanation,
+                ),
                 1,
                 1,
                 () => this.props.showSnackBar('success', 'Question created successfully', 2000),
                 () => this.props.showSnackBar('error', 'Error creating question', 2000),
-                );
+            );
         });
         //After creating all the questions, can reset the state
         this.reset();
@@ -237,14 +283,10 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
             promptAnswerCustom: '',
             answerExplanationDelim: ',',
             answerExplanationCustom: '',
-            questions: []
-            });
-
-
-    }
-
-
-};
+            questions: [],
+        });
+    };
+}
 
 const dummyData: PreviewQuestion[] = [
     {
