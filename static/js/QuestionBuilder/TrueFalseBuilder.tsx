@@ -707,7 +707,7 @@ export default class TrueFalseBuilder extends Component<
             '；；；' +
             question +
             '，；0；1；@0 *' +
-            (answer === 'true' ? 'T' : 'F') +
+            (answer.toLowerCase() === 'true' ? 'T' : 'F') +
             ' HB；' +
             explanation +
             '；'
