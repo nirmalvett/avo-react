@@ -760,7 +760,7 @@ export default class TrueFalseBuilder extends Component<
         const {sets} = this.props;
         let question: Question;
         // Used if the user was presented with a dialog (aka they would have thrown away changes)
-        if (index === null || index === undefined)
+        if (!index)
             question = sets[selectedS as number].questions[toEdit as number];
         // Used when immediately switching to the next question
         else question = sets[selectedS as number].questions[index];
