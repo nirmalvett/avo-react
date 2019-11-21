@@ -252,7 +252,6 @@ class Layout extends Component<LayoutProps, LayoutState> {
             return (
                 <QuestionBuilderHome
                     showSnackBar={this.showSnackBar}
-                    // sets={section.sets}
                     sets={this.state.questionSets}
                     updateSets={this.updateQuestionSets}
                     theme={this.props.theme}
