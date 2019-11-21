@@ -87,11 +87,6 @@ export default class ConceptRelationsModal extends Component<ConceptRelationsMod
 
     componentDidMount() {
         setTimeout(() => {
-            const _this = this;
-    
-            const nodes: ElementsDefinition['nodes'] = [];
-            const edges: ElementsDefinition['edges'] = [];
-    
             const currentConcept: AvoLesson = this.props.currentLesson;
             const parentNodesOfConcept: Concept[] = this.getParentNodes(currentConcept.conceptID);
             const childNodesOfConcept: Concept[] = this.getChildNodes(currentConcept.conceptID);
@@ -107,12 +102,12 @@ export default class ConceptRelationsModal extends Component<ConceptRelationsMod
             ];
 
             const relevantConceptIds: number[] = [];
-            relevantConcepts.forEach(Concept => {
+            const nodes: ElementsDefinition['nodes'] = relevantConcepts.map(Concept => {
                 let mastery: number = this.props.lessons.filter(AvoLesson => AvoLesson.conceptID === Concept.conceptID)[0].mastery;
                 relevantConceptIds.push(Concept.conceptID);
-                nodes.push({
+                return ({
                     data: {
-                        id: 'node-' + Concept.conceptID + '-end', // the + '-end' is for later on filtering
+                        id: `node-${Concept.conceptID}-end`, // the + '-end' is for later on filtering
                         mastery: mastery * 100
                     },
                     style: {
@@ -123,17 +118,16 @@ export default class ConceptRelationsModal extends Component<ConceptRelationsMod
                     },
                 });
             });
-    
-            this.props.edges.forEach(Edge => {
-                if(!!~relevantConceptIds.indexOf(Edge.child) && !!~relevantConceptIds.indexOf(Edge.parent))
-                    edges.push({
+            const edges: any = this.props.edges // Element definition breaks this, so im using any here to prevent that from happening, hope thats cool
+                .filter(Edge => !!~relevantConceptIds.indexOf(Edge.child) && !!~relevantConceptIds.indexOf(Edge.parent))    
+                .map(Edge => ({ 
                         data: {
-                            source: 'node-' + Edge.parent + '-end',
-                            target: 'node-' + Edge.child + '-end',
-                            id: 'between-' + Edge.parent + '-' + Edge.child,
+                            source: `node-${Edge.parent}-end`,
+                            target: `node-${Edge.child}-end`,
+                            id: `between-${Edge.parent}-${Edge.child}`,
                         },
-                    });
-            });
+                    })
+                );
     
             cytoscape.use(dagre);
             (window as any).cy = cytoscape({
