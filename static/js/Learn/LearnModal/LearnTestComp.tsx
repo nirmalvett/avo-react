@@ -137,11 +137,11 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
             question.seed,
             this.state.nextAnswers,
             res => {
-                // const points = res.points.reduce((x, y) => x + y, 0);
-                // const total = res.totals.reduce((x, y) => x + y, 0);
-                // if (points / total < 0.5) {
-                //     this.showModal();
-                // }
+                const points = res.points.reduce((x, y) => x + y, 0);
+                const total = res.totals.reduce((x, y) => x + y, 0);
+                if (points / total < 0.5) {
+                    this.showModal();
+                }
                 const questions = [...this.state.questions, question];
                 const answers = [...this.state.answers, this.state.nextAnswers];
                 const explanations = [...this.state.explanations, res];
