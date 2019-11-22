@@ -78,10 +78,10 @@ interface ManageClassesProps {
 
 interface ManageClassesState {
     now: number;
-    open: {[sectionID: number]: boolean};
+    open: { [sectionID: number]: boolean };
     c: null | number;
     t: null | number;
-    studentNameSearchLabels: {label: string}[];
+    studentNameSearchLabels: { label: string }[];
     anchorEl: null;
     createClassErrorMessage: string;
     chartWidth: number;
@@ -160,7 +160,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             <div style={{width: '100%', flex: 1, display: 'flex'}}>
                 <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
                     <div style={{flex: 4, display: 'flex'}}>{this.sideBar()}</div>
-                    <div style={{flex: 1}} />
+                    <div style={{flex: 1}}/>
                     <div
                         id='avo-apex__chart-container'
                         style={{
@@ -173,7 +173,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     >
                         {this.detailsCard()}
                     </div>
-                    <div style={{flex: 1}} />
+                    <div style={{flex: 1}}/>
                 </div>
                 {this.createClassModal()}{' '}
                 {/* This governs the pop up modal that lets profs make a class */}
@@ -193,11 +193,11 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     <ListSubheader style={{position: 'relative'}}>Section Creation</ListSubheader>
                     <ListItem button id='avo-manageclasses__create-button'>
                         <ListItemIcon>
-                            <AddBoxOutlined color='action' />
+                            <AddBoxOutlined color='action'/>
                         </ListItemIcon>
-                        <ListItemText primary='Create Section' />
+                        <ListItemText primary='Create Section'/>
                     </ListItem>
-                    <Divider />
+                    <Divider/>
                     <ListSubheader style={{position: 'relative'}}>My Sections</ListSubheader>
                     {this.sideBar_loadClasses() /* For each Class create a menu option */}
                 </List>
@@ -216,48 +216,48 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 <Fragment key={'ManageClasses' + cls.sectionID + '-' + cIndex}>
                     <ListItem button onClick={() => this.selectClass(this.getAdjustedCIndex(cls))}>
                         <ListItemIcon>
-                            <PeopleOutlined color='action' />
+                            <PeopleOutlined color='action'/>
                         </ListItemIcon>
-                        <ListItemText primary={cls.name} />
+                        <ListItemText primary={cls.name}/>
                         {this.state.open[cls.sectionID] ? (
-                            <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'} />
+                            <ExpandLess color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
                         ) : (
-                            <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'} />
+                            <ExpandMore color={cls.tests.length === 0 ? 'disabled' : 'action'}/>
                         )}
                     </ListItem>
                     <Collapse in={this.state.open[cls.sectionID]} timeout='auto' unmountOnExit>
                         <List>
                             {// For each test create a menu option
-                            cls.tests.map((test, tIndex) => (
-                                <ListItem
-                                    key={`ManageClasses${cls.sectionID}-${cIndex}-${test.testID}-${tIndex}`}
-                                    button
-                                    onClick={() => {
-                                        this.loadEditTestPopper(test);
-                                        this.setState({
-                                            editTestPopperOpen: false,
-                                            deleteTestPopperOpen: false,
-                                        }); // close the editTest Popper
-                                        this.getTestStats(
-                                            test.testID,
-                                            this.getAdjustedCIndex(cls),
-                                            tIndex,
-                                        );
-                                    }}
-                                >
-                                    <ListItemIcon>
-                                        <AssessmentOutlined
-                                            color={
-                                                isOpen(test, this.state.now)
-                                                    ? 'primary'
-                                                    : 'disabled'
-                                            }
-                                            style={{marginLeft: '10px'}}
-                                        />
-                                    </ListItemIcon>
-                                    <ListItemText primary={test.name} />
-                                </ListItem>
-                            ))}
+                                cls.tests.map((test, tIndex) => (
+                                    <ListItem
+                                        key={`ManageClasses${cls.sectionID}-${cIndex}-${test.testID}-${tIndex}`}
+                                        button
+                                        onClick={() => {
+                                            this.loadEditTestPopper(test);
+                                            this.setState({
+                                                editTestPopperOpen: false,
+                                                deleteTestPopperOpen: false,
+                                            }); // close the editTest Popper
+                                            this.getTestStats(
+                                                test.testID,
+                                                this.getAdjustedCIndex(cls),
+                                                tIndex,
+                                            );
+                                        }}
+                                    >
+                                        <ListItemIcon>
+                                            <AssessmentOutlined
+                                                color={
+                                                    isOpen(test, this.state.now)
+                                                        ? 'primary'
+                                                        : 'disabled'
+                                                }
+                                                style={{marginLeft: '10px'}}
+                                            />
+                                        </ListItemIcon>
+                                        <ListItemText primary={test.name}/>
+                                    </ListItem>
+                                ))}
                         </List>
                     </Collapse>
                 </Fragment>
@@ -299,9 +299,10 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         });
                     }
                 }}
-                onDecline={() => {}}
+                onDecline={() => {
+                }}
             >
-                <br />
+                <br/>
                 <Typography
                     component={'span'}
                     variant='body1'
@@ -318,7 +319,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     helperText={this.state.createClassErrorMessage + ' '}
                     error={this.state.createClassErrorMessage !== ''}
                 />
-                <br />
+                <br/>
                 <InputLabel htmlFor='course-select'>Course</InputLabel>
                 <Select
                     value={this.state.selectedCourseID}
@@ -334,7 +335,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         </MenuItem>
                     ))}
                 </Select>
-                <br />
+                <br/>
             </AVOModal>
         );
     }
@@ -359,7 +360,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             );
         }
         if (this.state.c !== null)
-            // If a class is selected
+        // If a class is selected
             return this.detailsCard_selectedClass(selectedClass, uniqueKey1);
         // Otherwise display the card that says they haven't selected anything
         else return ManageClasses.detailsCard_nothingSelected();
@@ -368,7 +369,13 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     static detailsCard_nothingSelected() {
         return (
             <Fragment>
-                <CardHeader classes={{root: 'avo-card__header'}} title={'Hey there!'} />
+                <Typography
+                    variant='h5'
+                    color='textPrimary'
+                    style={{paddingLeft: '8px', marginBottom: '16px'}}
+                >
+                    Hey there!
+                </Typography>
                 <Typography
                     component={'span'}
                     variant='body1'
@@ -377,7 +384,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 >
                     Looks like you haven't selected a Section or Test yet!
                 </Typography>
-                <br />
+                <br/>
             </Fragment>
         );
     }
@@ -395,7 +402,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                                 <IconButton
                                     onClick={() => this.props.createTest(selectedClass.sectionID)}
                                 >
-                                    <NoteAddOutlined />
+                                    <NoteAddOutlined/>
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title='Download CSV'>
@@ -404,7 +411,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                                         (window.location.href = `/CSV/SectionMarks/${selectedClass.sectionID}`)
                                     }
                                 >
-                                    <GetAppOutlined />
+                                    <GetAppOutlined/>
                                 </IconButton>
                             </Tooltip>
                         </Fragment>
@@ -453,7 +460,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     }
 
     detailsCard_selectedTest(
-        analyticsDataObj: {[key: string]: number},
+        analyticsDataObj: { [key: string]: number },
         selectedTest: Http.GetSections_Test,
         uniqueKey1: string,
         studentCount: number,
@@ -489,16 +496,16 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         </span>
                     </Typography>
                 </div>
-                <br />
+                <br/>
                 <Tabs
                     value={this.state.activeTab}
                     onChange={this.handleTabViewChange.bind(this)}
                     indicatorColor='primary'
                     textColor='primary'
                 >
-                    <Tab label='Overall Analytics' />
-                    <Tab label='Per Question Analytics' />
-                    <Tab label='Test Submissions' />
+                    <Tab label='Overall Analytics'/>
+                    <Tab label='Per Question Analytics'/>
+                    <Tab label='Test Submissions'/>
                 </Tabs>
                 {/* These are the three tabs with their data */}
                 {/* Shows analytics for the entire test */}
@@ -536,10 +543,10 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         classes={{root: 'avo-padding__16px'}}
                     >
                         Are you sure you want to delete {selectedTest.name}?
-                        <br />
+                        <br/>
                         Once a test has been deleted it can not be recovered!
                     </Typography>
-                    <br />
+                    <br/>
                     <div style={{float: 'right', position: 'relative'}}>
                         <Button
                             classes={{root: 'avo-button'}}
@@ -594,7 +601,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 }}
             >
                 <Card style={{marginTop: '5%', marginBottom: '5%', padding: '10px', flex: 1}}>
-                    <CardHeader title={`Adjust ${selectedTest.name} Settings`} />
+                    <CardHeader title={`Adjust ${selectedTest.name} Settings`}/>
                     <TextField
                         margin='normal'
                         label='Name'
@@ -610,7 +617,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         value={this.state.editTest_timer}
                         onChange={e => this.setState({editTest_timer: e.target.value})}
                     />
-                    <br />
+                    <br/>
                     <TextField
                         margin='normal'
                         label='Attempts'
@@ -635,7 +642,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         onChange={this.handleOpenTestChange}
                         variant='inline'
                     />
-                    <br />
+                    <br/>
                     <div style={{float: 'right', position: 'relative'}}>
                         <Button
                             classes={{root: 'avo-button'}}
@@ -716,7 +723,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         onClick={() => this.setState({editTestPopperOpen: true})}
                         id='avo-manageclasses__delete-button'
                     >
-                        <EditOutlined />
+                        <EditOutlined/>
                     </IconButton>
                 </Tooltip>
                 {/* Start/Stop Test Button*/}
@@ -738,7 +745,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                                 }
                                 onClick={() => this.closeTest()}
                             >
-                                <Stop />
+                                <Stop/>
                             </IconButton>
                         </span>
                     </Tooltip>
@@ -761,7 +768,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                                 }
                                 onClick={() => this.openTest()}
                             >
-                                <PlayArrow />
+                                <PlayArrow/>
                             </IconButton>
                         </span>
                     </Tooltip>
@@ -772,7 +779,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         onClick={() => this.setState({deleteTestPopperOpen: true})}
                         id='avo-manageclasses__delete-button'
                     >
-                        <DeleteOutlined />
+                        <DeleteOutlined/>
                     </IconButton>
                 </Tooltip>
             </Fragment>
@@ -780,7 +787,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     }
 
     detailsCard_selectedTest_overallAnalytics(
-        analyticsDataObj: {[key: string]: number},
+        analyticsDataObj: { [key: string]: number },
         studentCount: number,
     ) {
         return (
@@ -788,7 +795,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 {this.state.activeTab === CONST_TAB_OVERALL_ANALYTICS && (
                     <Fragment>
                         <div style={{overflowY: 'auto', overflowX: 'hidden'}}>
-                            <br />
+                            <br/>
                             <div
                                 style={{
                                     display: 'flex',
@@ -831,14 +838,14 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     }
 
     detailsCard_selectedTest_perQuestion(
-        analyticsDataObj: {[key: string]: number},
+        analyticsDataObj: { [key: string]: number },
         studentCount: number,
     ) {
         const ts = this.state.testStats as Http.TestStats;
         if (this.state.activeTab === CONST_TAB_PER_QUESTION)
             return (
                 <div style={{overflowY: 'auto', overflowX: 'hidden'}}>
-                    <br />
+                    <br/>
                     <Typography component={'span'} variant='body1' color='textPrimary'>
                         <span>
                             <span style={{marginLeft: '1.0em', marginRight: '1.0em'}}>
@@ -880,7 +887,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                                 <b>Std. Dev:</b>
                                 {ts.questions[
                                     this.state.testStatsDataQuestionIdx
-                                ].standardDeviation.toFixed(2)}
+                                    ].standardDeviation.toFixed(2)}
                                 %
                             </span>
                         </span>
@@ -896,14 +903,14 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     }
 
     detailsCard_selectedTest_attempts(
-        analyticsDataObj: {[key: string]: number},
+        analyticsDataObj: { [key: string]: number },
         selectedTest: Http.GetSections_Test,
     ) {
         const results = this.state.results as Http.GetSectionTestResults['results'];
         if (this.state.activeTab === CONST_TAB_MY_ATTEMPTS)
             return (
                 <Fragment>
-                    <br />
+                    <br/>
                     <List style={{flex: 1, overflowY: 'auto', overflowX: 'hidden'}}>
                         {/* Show all the students that are in the class*/}
                         {results.map((x, idx) => (
@@ -912,17 +919,17 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                                 disabled={x.tests.length === 0}
                             >
                                 {x.tests.length === 0 ? (
-                                    <AssignmentLate color='action' />
+                                    <AssignmentLate color='action'/>
                                 ) : (
-                                    <AssignmentTurnedIn color='action' />
+                                    <AssignmentTurnedIn color='action'/>
                                 )}
                                 <ListItemText
                                     primary={`${x.firstName} ${x.lastName}`}
                                     secondary={
                                         x.tests[x.tests.length - 1]
                                             ? x.tests[x.tests.length - 1].grade +
-                                              '/' +
-                                              selectedTest.total
+                                            '/' +
+                                            selectedTest.total
                                             : 'This user has not taken any tests yet.'
                                     }
                                 />
@@ -967,11 +974,11 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                                                     this.props.postTest(
                                                         results[idx].tests[
                                                             this.state.resultsIndexArray[idx]
-                                                        ].takesID,
+                                                            ].takesID,
                                                     );
                                                 }}
                                             >
-                                                <RemoveRedEyeOutlined />
+                                                <RemoveRedEyeOutlined/>
                                             </IconButton>
                                         </span>
                                     </Tooltip>
@@ -986,11 +993,11 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                                                 this.props.markEditor(
                                                     results[idx].tests[
                                                         this.state.resultsIndexArray[idx]
-                                                    ].takesID,
+                                                        ].takesID,
                                                 );
                                             }}
                                         >
-                                            <EditOutlined />
+                                            <EditOutlined/>
                                         </IconButton>
                                     </Tooltip>
                                 </ListItemSecondaryAction>
@@ -1024,7 +1031,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         if (this.props.sections[index].tests.length > 0)
             open[this.props.sections[index].sectionID] = !open[
                 this.props.sections[index].sectionID
-            ];
+                ];
         this.setState({open, c: index, t: null});
     }
 
@@ -1064,41 +1071,43 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     openTest() {
         let selectedTest = this.props.sections[this.state.c as number].tests[
             this.state.t as number
-        ];
+            ];
         let newClasses = copy(this.props.sections);
         Http.openTest(
             selectedTest.testID,
             ({openTime}) => {
                 newClasses[this.state.c as number].tests[
                     this.state.t as number
-                ].openTime = openTime;
+                    ].openTime = openTime;
                 this.props.updateSections(newClasses);
             },
-            () => {},
+            () => {
+            },
         );
     }
 
     closeTest() {
         let selectedTest = this.props.sections[this.state.c as number].tests[
             this.state.t as number
-        ];
+            ];
         let newClasses = copy(this.props.sections);
         Http.closeTest(
             selectedTest.testID,
             ({deadline}) => {
                 newClasses[this.state.c as number].tests[
                     this.state.t as number
-                ].deadline = deadline;
+                    ].deadline = deadline;
                 this.props.updateSections(newClasses);
             },
-            () => {},
+            () => {
+            },
         );
     }
 
     deleteTest() {
         let selectedTest = this.props.sections[this.state.c as number].tests[
             this.state.t as number
-        ];
+            ];
         let newClasses = copy(this.props.sections);
         Http.deleteTest(
             selectedTest.testID,
@@ -1110,7 +1119,8 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 }
                 this.setState({t: null}, () => this.props.updateSections(newClasses));
             },
-            () => {},
+            () => {
+            },
         );
     }
 
@@ -1215,7 +1225,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     getPerQuestionGraphData() {
         const x = (this.state.testStats as Http.TestStats).questions[
             this.state.testStatsDataQuestionIdx
-        ];
+            ];
         let dataObj = convertListFloatToAnalytics(x.marks, x.total);
         const dataOutArray = [];
         for (let key in dataObj) if (dataObj.hasOwnProperty(key)) dataOutArray.push(dataObj[key]);
@@ -1232,7 +1242,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         const ts = this.state.testStats as Http.TestStats;
         let selectedTest = this.props.sections[this.state.c as number].tests[
             this.state.t as number
-        ];
+            ];
         return {
             chart: {
                 fontFamily: 'Roboto',
@@ -1251,21 +1261,21 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             labels:
                 this.state.testStatsDataSelectIdx === 2 && selectedTest.submitted.length > 0
                     ? (() => {
-                          let attemptArray: string[] = [];
-                          selectedTest.submitted.map((obj, idx) => `Attempt ${idx + 1}`);
-                          return attemptArray;
-                      })()
+                        let attemptArray: string[] = [];
+                        selectedTest.submitted.map((obj, idx) => `Attempt ${idx + 1}`);
+                        return attemptArray;
+                    })()
                     : this.state.testStatsDataSelectIdx === 3
                     ? (() => {
-                          const dataObj = convertListFloatToAnalytics(
-                              ts.grades,
-                              selectedTest.total,
-                          );
-                          const dataOutArray = [];
-                          for (let key in dataObj)
-                              if (dataObj.hasOwnProperty(key)) dataOutArray.push(key);
-                          return dataOutArray;
-                      })()
+                        const dataObj = convertListFloatToAnalytics(
+                            ts.grades,
+                            selectedTest.total,
+                        );
+                        const dataOutArray = [];
+                        for (let key in dataObj)
+                            if (dataObj.hasOwnProperty(key)) dataOutArray.push(key);
+                        return dataOutArray;
+                    })()
                     : ['', selectedTest.name, ''],
             xaxis: {
                 title: {
@@ -1339,7 +1349,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         const ts = this.state.testStats as Http.TestStats;
         let selectedTest = this.props.sections[this.state.c as number].tests[
             this.state.t as number
-        ];
+            ];
         if (this.state.testStatsDataSelectIdx === 0) {
             let testAverage = 0;
             selectedTest.submitted.forEach(obj => (testAverage += obj.grade));
