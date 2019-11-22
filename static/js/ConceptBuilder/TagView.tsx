@@ -476,16 +476,10 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 <MenuItem
                                                     key={i}
                                                     value={c.name}
-                                                    disabled={!c.canEdit}
                                                 >
                                                     <ListItemText style={{float: 'left'}}>
                                                         {c.name}
                                                     </ListItemText>
-                                                    {!c.canEdit && (
-                                                        <ListItemIcon style={{float: 'right'}}>
-                                                            <Lock />
-                                                        </ListItemIcon>
-                                                    )}
                                                 </MenuItem>
                                             ))}
                                         </Select>

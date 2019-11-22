@@ -169,9 +169,7 @@ def get_concept_graph(course_id: int):
     :param course_id:
     :return: Graph representation of concepts
     """
-    if not able_view_course(course_id):
-        # Checks if the user is in the course
-        return jsonify(error="User Not In Course")
+
     concept_list = Concept.query.filter(Concept.COURSE == course_id).all()
     edge_list = ConceptRelation.query.filter((ConceptRelation.PARENT.in_(o.CONCEPT for o in concept_list)) |
                                              (ConceptRelation.CHILD.in_(o.CONCEPT for o in concept_list))).all()
