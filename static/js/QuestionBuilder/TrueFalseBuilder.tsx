@@ -528,7 +528,7 @@ export default class TrueFalseBuilder extends Component<
                     <TFImporter
                         showSnackBar={this.props.showSnackBar}
                         set={this.state.sets[this.state.selectedS as number]}
-                        close={() => this.setState({importerOpen: false})}
+                        close={(refresh: boolean) => this.closeImporter(refresh)}
                         buildQuestionString={this.buildQuestionString}
                     />
                 </Dialog>
@@ -847,6 +847,16 @@ export default class TrueFalseBuilder extends Component<
 
     closeAddSetDialog = () => {
         this.setState({addDiagOpen: false, setName: '', course: -1});
+    };
+
+    closeImporter = (refresh: boolean) => {
+        this.setState({importerOpen: false});
+        console.log('refresh: ' + refresh);
+        // Refresh the set if new questions have been addded
+        if (refresh) {
+            this.refreshSets();
+            console.log('Refreshing');
+        }
     };
 
     // Had to move this to a function so ts-ignore wouldn't display on the page

@@ -13,18 +13,18 @@ import {
     Grid,
     Button,
     Typography,
-    Divider,
     TextField,
 } from '@material-ui/core';
 import ImporterPreview from './ImporterPreview';
 import * as Http from '../Http';
 import {ShowSnackBar} from '../Layout/Layout';
 import {PreviewQuestion} from './types';
+import {array} from 'prop-types';
 
 export interface TFImporterProps {
     showSnackBar: ShowSnackBar;
     set: QuestionSet;
-    close: () => void;
+    close: (refresh: boolean) => void;
     buildQuestionString: (question: string, answer: string, explanation: string) => string;
 }
 
@@ -199,7 +199,11 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                     >
                         Import
                     </Button>
-                    <Button variant='outlined' color='primary' onClick={this.props.close}>
+                    <Button
+                        variant='outlined'
+                        color='primary'
+                        onClick={() => this.props.close(false)}
+                    >
                         Cancel
                     </Button>
                 </ListItem>
@@ -231,9 +235,6 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
     }
 
     generateQuestions = (input: String) => {
-        //TODO Test and move questiongenerate into redend preview
-        //Example string: Q1|The capital of Canada is? Toronto
-
         //array we will return at the end
         let questionArray: PreviewQuestion[] = [];
         if (input) {
@@ -269,25 +270,57 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
     };
 
     handleImport = () => {
-        //iterate through each question in questions array
-        this.generateQuestions(this.state.input).forEach((capturedQuestion: PreviewQuestion) => {
-            //need to create a new question for each in array
+        // After creating all the questions, refresh the question set and close the importer
+        this.import();
+        this.props.close(true);
+    };
+
+    import = () => {
+        const questions = this.generateQuestions(this.state.input);
+        // If there are no valid questions, do nothing
+        if (questions.length !== 0) {
+            // If there is one question, we don't need to loop
+            if (questions.length > 2) {
+                //iterate through each question in questions array (except the last one)
+                questions
+                    .slice(0, questions.length - 1)
+                    .forEach((capturedQuestion: PreviewQuestion) => {
+                        //need to create a new question for each in array
+                        Http.newQuestion(
+                            this.props.set.setID,
+                            capturedQuestion.name,
+                            this.props.buildQuestionString(
+                                capturedQuestion.prompt,
+                                capturedQuestion.answer,
+                                capturedQuestion.explanation,
+                            ),
+                            1,
+                            1,
+                            () =>
+                                this.props.showSnackBar(
+                                    'success',
+                                    'Question created successfully',
+                                    2000,
+                                ),
+                            () => this.props.showSnackBar('error', 'Error creating question', 2000),
+                        );
+                    });
+            }
+            // We call this outside of the loop to gain access to the callback on success
             Http.newQuestion(
                 this.props.set.setID,
-                capturedQuestion.name,
+                questions[questions.length - 1].name,
                 this.props.buildQuestionString(
-                    capturedQuestion.prompt,
-                    capturedQuestion.answer,
-                    capturedQuestion.explanation,
+                    questions[questions.length - 1].prompt,
+                    questions[questions.length - 1].answer,
+                    questions[questions.length - 1].explanation,
                 ),
                 1,
                 1,
-                () => this.props.showSnackBar('success', 'Question created successfully', 2000),
+                () => this.props.close(true),
                 () => this.props.showSnackBar('error', 'Error creating question', 2000),
             );
-        });
-        //After creating all the questions, close the importer
-        this.props.close();
+        }
     };
 }
 
