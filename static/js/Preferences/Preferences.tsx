@@ -41,6 +41,7 @@ export default class Preferences extends PureComponent<PreferencesProps> {
                         label='Dark Theme'
                     />
                 </RadioGroup>
+                <Typography>To delete account please email: contact@avocadocore.com</Typography>
             </Paper>
         );
     }
