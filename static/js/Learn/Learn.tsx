@@ -27,6 +27,18 @@ export interface AvoLessonData {
     seed: number;
 }
 
+interface Concept {
+    readonly conceptID: number;
+    readonly name: string;
+    readonly lesson: string;
+}
+
+interface Edge {
+    readonly child: number;
+    readonly parent: number;
+    readonly weight: number;
+}
+
 interface LearnProps {
     courses: Course[];
     updateCourses: (courses: Course[], cb?: () => void) => void;
@@ -40,6 +52,8 @@ interface LearnState {
     currentLesson: AvoLesson | undefined;
     isLoading: boolean;
     needUpdate: boolean;
+    concepts: Concept[];
+    edges: Edge[];
 }
 
 export default class Learn extends Component<LearnProps, LearnState> {
@@ -52,6 +66,8 @@ export default class Learn extends Component<LearnProps, LearnState> {
             currentLesson: undefined,
             isLoading: true,
             needUpdate: false,
+            edges: [],
+            concepts: []
         };
     }
 
@@ -94,7 +110,15 @@ export default class Learn extends Component<LearnProps, LearnState> {
                     overflowX: 'hidden',
                 }}
             >
-                <FullScreenModal sourceID={this.getSourceID()} onClose={this.closeLessonFSM}>
+                <FullScreenModal 
+                    sourceID={this.getSourceID()} 
+                    currentLesson={this.state.currentLesson as AvoLesson}
+                    onClose={this.closeLessonFSM}
+                    concepts={this.state.concepts} 
+                    edges={this.state.edges}
+                    theme={this.props.theme}
+                    lessons={this.state.lessons}
+                >
                     {this.state.currentLesson && (
                         <LearnTestComp
                             key={(this.state.currentLesson || {conceptID: 0}).conceptID}
@@ -139,7 +163,19 @@ export default class Learn extends Component<LearnProps, LearnState> {
                 courseID,
                 res => {
                     const lessons = res.lessons;
-                    this.setState({selectedCourse: courseID, lessons, isLoading: false});
+                    Http.getConceptGraph(
+                        courseID, //this.state.selectedClass.classID,
+                        res => {
+                            this.setState({
+                                concepts: res.concepts,
+                                edges: res.edges,
+                                selectedCourse: courseID, 
+                                lessons, 
+                                isLoading: false
+                            });
+                        },
+                        console.warn,
+                    );
                 },
                 console.warn,
             );
