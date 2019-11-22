@@ -27,6 +27,7 @@ import {Course, QuestionSet} from '../Http/types';
 import {QuestionBuilderHome} from '../QuestionBuilder/QuestionBuilderHome';
 import {GetSections_Section} from '../Http';
 import {Feedback} from '../Feedback/Feedback';
+
 const drawerWidth = 240;
 
 const styles = (theme: Theme) =>
@@ -159,7 +160,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 >
                     {this.getContent()}
                 </div>
-                <AvoSnackBar {...this.state.snackbar} onClose={this.closeSnackbar} />
+                <AvoSnackBar {...this.state.snackbar} onClose={this.closeSnackbar}/>
             </div>
         );
     }
@@ -176,9 +177,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
         const {isTeacher, color, theme} = this.props;
         const {section} = this.state;
         if (section.name === 'Add Students') {
-            return <Whitelist color={this.color()} />;
+            return <Whitelist color={this.color()}/>;
         } else if (section.name === 'Concept Builder') {
-            return <TagView theme={{theme: this.props.theme, color: this.color()}} />;
+            return <TagView theme={{theme: this.props.theme, color: this.color()}}/>;
         } else if (section.name === 'Create Test') {
             return (
                 <CreateTest
@@ -188,7 +189,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name === 'Documentation') {
-            return <QuestionBuilderDocs />;
+            return <QuestionBuilderDocs/>;
         } else if (section.name === 'Export Tools') {
             return (
                 <ExportTools
@@ -198,7 +199,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name === 'Feedback') {
-            return <Feedback />;
+            return <Feedback/>;
         } else if (section.name === 'Home') {
             return (
                 <HomePage
@@ -222,6 +223,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 <ManageClasses
                     courses={this.state.courses}
                     sections={this.state.sections}
+                    getCourses={() => Http.getCourses(x => this.setState(x), console.warn)}
                     updateSections={this.updateSections}
                     showSnackBar={this.showSnackBar}
                     createTest={this.createTest}
@@ -231,9 +233,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name === 'Mark Editor') {
-            return <MarkEditor showSnackBar={this.showSnackBar} takes={section.takesID} />;
+            return <MarkEditor showSnackBar={this.showSnackBar} takes={section.takesID}/>;
         } else if (section.name === 'Mastery') {
-            return <MasteryHome theme={{theme: this.props.theme, color: this.color()}} />;
+            return <MasteryHome theme={{theme: this.props.theme, color: this.color()}}/>;
         } else if (section.name === 'My Classes') {
             return (
                 <MyClasses
@@ -259,9 +261,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name === 'Notify Class') {
-            return <NotifyClass />;
+            return <NotifyClass/>;
         } else if (section.name === 'Post Test') {
-            return <PostTest takes={section.takesID} />;
+            return <PostTest takes={section.takesID}/>;
         } else if (section.name === 'Preferences') {
             return (
                 <Preferences

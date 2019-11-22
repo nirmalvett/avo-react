@@ -62,6 +62,7 @@ interface ManageClassesProps {
     courses: Course[];
     sections: Http.GetSections_Section[];
     updateSections: (sections: Http.GetSections_Section[], cb?: () => void) => void;
+    getCourses: () => void;
     showSnackBar: ShowSnackBar;
     theme: {
         color: {
@@ -176,7 +177,9 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     <div style={{flex: 1}}/>
                 </div>
                 {this.createClassModal()}{' '}
-                {/* This governs the pop up modal that lets profs make a class */}
+                {/* This governs the pop up modal that lets profs make a section */}
+                {this.createCourseModal()}{' '}
+                {/* This governs the pop up modal that lets profs make a course */}
             </div>
         );
     }
@@ -190,6 +193,13 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                 style={{width: '100%', flex: 1, display: 'flex'}}
             >
                 <List style={{flex: 1, overflowY: 'auto', paddingTop: 0}}>
+                    <ListSubheader style={{position: 'relative'}}>Course Creation</ListSubheader>
+                    <ListItem button id='avo-manageclasses__create-button_2'>
+                        <ListItemIcon>
+                            <AddBoxOutlined color='action'/>
+                        </ListItemIcon>
+                        <ListItemText primary='Create Course'/>
+                    </ListItem>
                     <ListSubheader style={{position: 'relative'}}>Section Creation</ListSubheader>
                     <ListItem button id='avo-manageclasses__create-button'>
                         <ListItemIcon>
@@ -264,10 +274,70 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             ));
     }
 
+    createCourseModal() {
+        return (
+            <AVOModal
+                title='Create a course'
+                target='avo-manageclasses__create-button_2'
+                acceptText='Create'
+                declineText='Never mind'
+                noDefaultClose={true}
+                onAccept={(closeFunc: () => void) => {
+                    // get the name given
+                    const name = (document.getElementById(
+                        'avo-manageclasses__creation-textfield_2',
+                    ) as HTMLInputElement).value;
+                    if (name !== null && name !== '' && this.state.selectedCourseID) {
+                        Http.createCourse(
+                            name,
+                            () => {
+                                this.loadClasses('Class Successfully Created!');
+                                this.setState({createClassErrorMessage: ''});
+                                this.props.getCourses()
+                                closeFunc();
+                            },
+                            () =>
+                                this.setState({
+                                    createClassErrorMessage:
+                                        'Something went wrong :( try again later.',
+                                }),
+                        );
+                    } else {
+                        this.setState({
+                            createClassErrorMessage:
+                                "Your class must have a name, if it doesn't how is anyone going to find it?",
+                        });
+                    }
+                }}
+                onDecline={() => {
+                }}
+            >
+                <br/>
+                <Typography
+                    component={'span'}
+                    variant='body1'
+                    color='textPrimary'
+                    classes={{root: 'avo-padding__16px'}}
+                >
+                    Please enter the desired name of the course section you wish to create!
+                </Typography>
+                <TextField
+                    id='avo-manageclasses__creation-textfield_2'
+                    margin='normal'
+                    style={{width: '60%'}}
+                    label='Course name'
+                    helperText={this.state.createClassErrorMessage + ' '}
+                    error={this.state.createClassErrorMessage !== ''}
+                />
+                <br/>
+            </AVOModal>
+        );
+    }
+
     createClassModal() {
         return (
             <AVOModal
-                title='Create a class'
+                title='Create a section'
                 target='avo-manageclasses__create-button'
                 acceptText='Create'
                 declineText='Never mind'
