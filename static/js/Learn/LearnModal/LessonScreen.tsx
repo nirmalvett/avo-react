@@ -1,5 +1,5 @@
 import React, {Fragment, PureComponent} from 'react';
-import {Button, IconButton, Typography} from '@material-ui/core';
+import {Button, IconButton, Typography, Tooltip} from '@material-ui/core';
 import AVOMasteryGauge from '../MasteryGauge';
 import {AvoLesson} from '../Learn';
 import {ThemeObj} from '../../Models';
@@ -15,7 +15,13 @@ interface LessonScreenProps {
     survey: (mastery: number, aptitude: number) => () => void;
 }
 
-const surveyIcons = [LooksOne, LooksTwo, Looks3, Looks4, Looks5];
+const surveyIcons = [
+    {'icon': LooksOne, 'understandTooltip': "I'm extremely confused", 'easyToolTip': 'I was unable to do it at all'},
+    {'icon': LooksTwo, 'understandTooltip': "I didn't understand most of it", 'easyToolTip': "It was extremely hard"},
+    {'icon': Looks3, 'understandTooltip': "I understood some of it", 'easyToolTip': "It was challenging but doable"},
+    {'icon': Looks4, 'understandTooltip': "I understand most of it", 'easyToolTip': "It was not difficult"},
+    {'icon': Looks5, 'understandTooltip': "Understand it completely", 'easyToolTip': "It was extremely easy"},
+];
 
 export class LessonScreen extends PureComponent<LessonScreenProps> {
     render() {
@@ -41,29 +47,41 @@ export class LessonScreen extends PureComponent<LessonScreenProps> {
                     <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                         <Typography>How well do you understand it?</Typography>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                            {surveyIcons.map((Icon, index) => (
-                                <IconButton
-                                    color={
-                                        index === lesson.masterySurvey - 1 ? 'primary' : 'default'
-                                    }
-                                    onClick={this.updateMastery(index + 1)}
-                                >
-                                    <Icon />
-                                </IconButton>
-                            ))}
+                            {surveyIcons.map((surveyIcon, index) => {
+                                const Icon = surveyIcon['icon'];
+                                return (
+                                    <Tooltip title={surveyIcon['understandTooltip']}>
+                                        <IconButton
+                                            color={
+                                                index === lesson.masterySurvey - 1 ? 'primary' : 'default'
+                                            }
+                                            onClick={this.updateMastery(index + 1)}
+                                        >
+                                            <Icon/>
+                                        </IconButton>
+                                    </Tooltip>
+
+                                )
+                            })}
                         </div>
                         <Typography>How easy was it?</Typography>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                            {surveyIcons.map((Icon, index) => (
-                                <IconButton
-                                    color={
-                                        index === lesson.aptitudeSurvey - 1 ? 'primary' : 'default'
-                                    }
-                                    onClick={this.updateAptitude(index + 1)}
-                                >
-                                    <Icon />
-                                </IconButton>
-                            ))}
+                            {surveyIcons.map((surveyIcon, index) => {
+                                const Icon = surveyIcon['icon'];
+                                return (
+                                    <Tooltip title={surveyIcon['easyToolTip']}>
+                                        <IconButton
+                                            color={
+                                                index === lesson.aptitudeSurvey - 1 ? 'primary' : 'default'
+                                            }
+                                            onClick={this.updateAptitude(index + 1)}
+                                        >
+                                            <Icon/>
+                                        </IconButton>
+                                    </Tooltip>
+
+                                )
+                            })}
                         </div>
                     </div>
                     <Button variant='outlined' color='primary' disabled={disabled} onClick={next}>
