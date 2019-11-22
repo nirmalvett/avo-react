@@ -439,7 +439,13 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
     static detailsCard_nothingSelected() {
         return (
             <Fragment>
-                <CardHeader classes={{root: 'avo-card__header'}} title={'Hey there!'}/>
+                <Typography
+                    variant='h5'
+                    color='textPrimary'
+                    style={{paddingLeft: '8px', marginBottom: '16px'}}
+                >
+                    Hey there!
+                </Typography>
                 <Typography
                     component={'span'}
                     variant='body1'
