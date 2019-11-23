@@ -20,7 +20,12 @@ import Folder from '@material-ui/icons/Folder';
 import Lock from '@material-ui/icons/Lock';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Fab from '@material-ui/core/Fab';
-import {InsertDriveFile as QuestionIcon, ArrowBack, CreateNewFolder} from '@material-ui/icons/';
+import {
+    InsertDriveFile as QuestionIcon,
+    ArrowBack,
+    CreateNewFolder,
+    AssignmentReturnedOutlined,
+} from '@material-ui/icons/';
 import {
     ListItem,
     ListItemText,
@@ -28,9 +33,8 @@ import {
     Popover,
     List,
     InputLabel,
-    Select,
     MenuItem,
-    Menu,
+    Select,
 } from '@material-ui/core';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -39,6 +43,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {Question, QuestionSet, Course} from 'Http/types';
 import {ShowSnackBar} from 'Layout/Layout';
+import TFImporter from './TFImporter';
 
 export interface TrueFalseBuilderProps {
     showSnackBar: ShowSnackBar;
@@ -73,6 +78,7 @@ interface TrueFalseBuilderState {
     hovered: number;
     course: number;
     setName: string;
+    importerOpen: boolean;
 }
 
 export default class TrueFalseBuilder extends Component<
@@ -106,6 +112,7 @@ export default class TrueFalseBuilder extends Component<
             hovered: -1, // The ID of the current question being hovered
             course: -1,
             setName: '',
+            importerOpen: false, // Determines whether we are showing the question importer
         };
     }
 
@@ -151,6 +158,15 @@ export default class TrueFalseBuilder extends Component<
                                         onClick={() => this.setState({addDiagOpen: true})}
                                     >
                                         <CreateNewFolder />
+                                    </IconButton>
+                                )}
+                                {this.state.setQActive && (
+                                    <IconButton
+                                        size='small'
+                                        edge='end'
+                                        onClick={() => this.setState({importerOpen: true})}
+                                    >
+                                        <AssignmentReturnedOutlined />
                                     </IconButton>
                                 )}
                             </ListItem>
@@ -491,6 +507,19 @@ export default class TrueFalseBuilder extends Component<
                         </ListItem>
                     </List>
                 </Dialog>
+                <Dialog
+                    onClose={() => this.setState({importerOpen: false})}
+                    aria-labelledby='true-false-importer-dialog'
+                    open={this.state.importerOpen}
+                    maxWidth='xl'
+                >
+                    <TFImporter
+                        showSnackBar={this.props.showSnackBar}
+                        set={this.state.sets[this.state.selectedS as number]}
+                        close={(refresh: boolean) => this.closeImporter(refresh)}
+                        buildQuestionString={this.buildQuestionString}
+                    />
+                </Dialog>
             </Grid>
         );
     }
@@ -653,17 +682,17 @@ export default class TrueFalseBuilder extends Component<
         }
     };
 
-    buildQuestionString = () => {
+    buildQuestionString(question: string, answer: string, explanation: string) {
         return (
             '；；；' +
-            this.state.questionText +
+            question +
             '，；0；1；@0 *' +
-            (this.state.questionAnsr === 'true' ? 'T' : 'F') +
+            (answer.toLowerCase() === 'true' ? 'T' : 'F') +
             ' HB；' +
-            this.state.questionExpl +
+            explanation +
             '；'
         );
-    };
+    }
 
     submitQuestion = () => {
         if (this.state.editMode) {
@@ -673,7 +702,11 @@ export default class TrueFalseBuilder extends Component<
                 () =>
                     Http.editQuestion(
                         this.state.questionID,
-                        this.buildQuestionString(),
+                        this.buildQuestionString(
+                            this.state.questionText,
+                            this.state.questionAnsr,
+                            this.state.questionExpl,
+                        ),
                         1,
                         1,
                         () => this.postSuccess(),
@@ -685,7 +718,11 @@ export default class TrueFalseBuilder extends Component<
             Http.newQuestion(
                 this.props.sets[this.state.selectedS as number].setID,
                 this.state.questionName,
-                this.buildQuestionString(),
+                this.buildQuestionString(
+                    this.state.questionText,
+                    this.state.questionAnsr,
+                    this.state.questionExpl,
+                ),
                 1,
                 1,
                 () => this.postSuccess(),
@@ -831,6 +868,16 @@ export default class TrueFalseBuilder extends Component<
 
     closeAddSetDialog = () => {
         this.setState({addDiagOpen: false, setName: '', course: -1});
+    };
+
+    closeImporter = (refresh: boolean) => {
+        this.setState({importerOpen: false});
+        console.log('refresh: ' + refresh);
+        // Refresh the set if new questions have been addded
+        if (refresh) {
+            this.refreshSets();
+            console.log('Refreshing');
+        }
     };
 
     // Had to move this to a function so ts-ignore wouldn't display on the page
