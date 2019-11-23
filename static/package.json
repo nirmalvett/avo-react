@@ -12,8 +12,7 @@
     "dev-build": "webpack --progress -d --config webpack.config.js",
     "watch": "webpack --progress -d --config webpack.config.js --watch",
     "prettier": "prettier --write js/**/*.ts js/**/*.tsx",
-    "clean": "rm -rf dist",
-    "test": "karma start"
+    "clean": "rm -rf dist"
   },
   "author": "AvocadoCore",
   "devDependencies": {
@@ -40,9 +39,7 @@
     "puppeteer": "^2.0.0",
     "sass-loader": "^8.0.0",
     "ts-loader": "^6.0.1",
-    "typescript": "^3.4.5",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^3.1.0"
+    "typescript": "^3.4.5"
   },
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.4.4",
@@ -87,7 +84,6 @@
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
     "style-loader": "0.23.0",
-    "thunk": "0.0.1",
-    "webpack-karma-jasmine": "^3.0.8"
+    "thunk": "0.0.1"
   }
 }
