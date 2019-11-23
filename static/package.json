@@ -11,7 +11,8 @@
     "build": "webpack --progress --config webpack.config.js",
     "dev-build": "webpack --progress -d --config webpack.config.js",
     "watch": "webpack --progress -d --config webpack.config.js --watch",
-    "prettier": "prettier --write js/**/*.ts js/**/*.tsx"
+    "prettier": "prettier --write js/**/*.ts js/**/*.tsx",
+    "clean":  "rm -rf dist"
   },
   "author": "AvocadoCore",
   "devDependencies": {

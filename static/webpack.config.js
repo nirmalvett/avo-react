@@ -59,8 +59,8 @@ const config = {
         new MiniCssExtractPlugin({
             filename: "app.css"
         }),
-        // new webpack.HotModuleReplacementPlugin({}),
-        // new webpack.EnvironmentPlugin(['NODE_ENV'])
+        new webpack.HotModuleReplacementPlugin({}),
+        new webpack.EnvironmentPlugin(['NODE_ENV'])
     ]
 };
 
