@@ -173,8 +173,6 @@ def get_concept_graph(course_id: int):
     concept_list = Concept.query.filter(Concept.COURSE == course_id).all()
     edge_list = ConceptRelation.query.filter((ConceptRelation.PARENT.in_(o.CONCEPT for o in concept_list)) |
                                              (ConceptRelation.CHILD.in_(o.CONCEPT for o in concept_list))).all()
-    concepts = []  # List of concepts to return
-    edges = []  # List of edges to return
 
     # For each concept add it to the return list
     concepts = [{"conceptID": concept.CONCEPT, "name": concept.name, "lesson": concept.lesson_content}

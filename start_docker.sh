@@ -1,1 +1,0 @@
-docker start avo-react

@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-import '../css/app.css';
+require('../css/app.scss');
+require('../favicon.ico');
 import {unregister} from './serviceWorker';
 
 unregister();

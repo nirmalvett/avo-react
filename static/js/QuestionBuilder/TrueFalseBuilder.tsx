@@ -81,10 +81,8 @@ interface TrueFalseBuilderState {
     importerOpen: boolean;
 }
 
-export default class TrueFalseBuilder extends Component<
-    TrueFalseBuilderProps,
-    TrueFalseBuilderState
-> {
+export default class TrueFalseBuilder extends Component<TrueFalseBuilderProps,
+    TrueFalseBuilderState> {
     constructor(props: TrueFalseBuilderProps) {
         super(props);
         this.state = {
@@ -141,7 +139,7 @@ export default class TrueFalseBuilder extends Component<
                                                 : () => this.props.returnHome()
                                         }
                                     >
-                                        <ArrowBack />
+                                        <ArrowBack/>
                                     </IconButton>
                                 </ListItemIcon>
                                 <ListItemText
@@ -157,7 +155,7 @@ export default class TrueFalseBuilder extends Component<
                                         edge='end'
                                         onClick={() => this.setState({addDiagOpen: true})}
                                     >
-                                        <CreateNewFolder />
+                                        <CreateNewFolder/>
                                     </IconButton>
                                 )}
                                 {this.state.setQActive && (
@@ -166,11 +164,11 @@ export default class TrueFalseBuilder extends Component<
                                         edge='end'
                                         onClick={() => this.setState({importerOpen: true})}
                                     >
-                                        <AssignmentReturnedOutlined />
+                                        <AssignmentReturnedOutlined/>
                                     </IconButton>
                                 )}
                             </ListItem>
-                            <Divider />
+                            <Divider/>
                             <Slide
                                 in={this.state.setsActive}
                                 direction='right'
@@ -220,7 +218,7 @@ export default class TrueFalseBuilder extends Component<
                                         size='small'
                                         onClick={() => this.setState({questionNmeE: false})}
                                     >
-                                        <SaveIcon fontSize='inherit' />
+                                        <SaveIcon fontSize='inherit'/>
                                     </IconButton>
                                 </span>
                             ) : (
@@ -240,13 +238,13 @@ export default class TrueFalseBuilder extends Component<
                                             size='small'
                                             onClick={() => this.setState({questionNmeE: true})}
                                         >
-                                            <EditIcon fontSize='inherit' />
+                                            <EditIcon fontSize='inherit'/>
                                         </IconButton>
                                     </span>
                                 </span>
                             )}
-                            <br />
-                            <br />
+                            <br/>
+                            <br/>
                             {this.state.questionTxtE ? (
                                 <span>
                                     <TextField
@@ -272,7 +270,7 @@ export default class TrueFalseBuilder extends Component<
                                         size='small'
                                         onClick={() => this.setState({questionTxtE: false})}
                                     >
-                                        <SaveIcon fontSize='inherit' />
+                                        <SaveIcon fontSize='inherit'/>
                                     </IconButton>
                                 </span>
                             ) : (
@@ -288,13 +286,13 @@ export default class TrueFalseBuilder extends Component<
                                             size='small'
                                             onClick={() => this.setState({questionTxtE: true})}
                                         >
-                                            <EditIcon fontSize='inherit' />
+                                            <EditIcon fontSize='inherit'/>
                                         </IconButton>
                                     </span>
                                 </span>
                             )}
-                            <br />
-                            <br />
+                            <br/>
+                            <br/>
                             <FormControl component='fieldset'>
                                 <FormLabel component='legend'>Answer Choices</FormLabel>
                                 <RadioGroup
@@ -308,19 +306,19 @@ export default class TrueFalseBuilder extends Component<
                                 >
                                     <FormControlLabel
                                         value='true'
-                                        control={<Radio color='primary' />}
+                                        control={<Radio color='primary'/>}
                                         label='True'
                                         labelPlacement='end'
                                     />
                                     <FormControlLabel
                                         value='false'
-                                        control={<Radio color='primary' />}
+                                        control={<Radio color='primary'/>}
                                         label='False'
                                         labelPlacement='end'
                                     />
                                 </RadioGroup>
                             </FormControl>
-                            <br />
+                            <br/>
                             {this.state.questionExpE ? (
                                 <span>
                                     <TextField
@@ -346,7 +344,7 @@ export default class TrueFalseBuilder extends Component<
                                         size='small'
                                         onClick={() => this.setState({questionExpE: false})}
                                     >
-                                        <SaveIcon fontSize='inherit' />
+                                        <SaveIcon fontSize='inherit'/>
                                     </IconButton>
                                 </span>
                             ) : (
@@ -362,7 +360,7 @@ export default class TrueFalseBuilder extends Component<
                                             size='small'
                                             onClick={() => this.setState({questionExpE: true})}
                                         >
-                                            <EditIcon fontSize='inherit' />
+                                            <EditIcon fontSize='inherit'/>
                                         </IconButton>
                                     </span>
                                 </span>
@@ -380,7 +378,7 @@ export default class TrueFalseBuilder extends Component<
                             disabled={!this.isValid()}
                             onClick={() => this.submitQuestion()}
                         >
-                            <SaveIcon />
+                            <SaveIcon/>
                         </Fab>
                         <Popover
                             open={this.state.popopen}
@@ -515,7 +513,7 @@ export default class TrueFalseBuilder extends Component<
                 >
                     <TFImporter
                         showSnackBar={this.props.showSnackBar}
-                        set={this.state.sets[this.state.selectedS as number]}
+                        set={this.props.sets[this.state.selectedS as number]}
                         close={(refresh: boolean) => this.closeImporter(refresh)}
                         buildQuestionString={this.buildQuestionString}
                     />
@@ -537,12 +535,12 @@ export default class TrueFalseBuilder extends Component<
             >
                 <ListItemIcon>
                     {set.canEdit ? (
-                        <Folder color={selectedS === index ? 'primary' : 'action'} />
+                        <Folder color={selectedS === index ? 'primary' : 'action'}/>
                     ) : (
-                        <Lock color={selectedS === index ? 'primary' : 'action'} />
+                        <Lock color={selectedS === index ? 'primary' : 'action'}/>
                     )}
                 </ListItemIcon>
-                <ListItemText primary={set.name} />
+                <ListItemText primary={set.name}/>
                 {index === this.state.hovered && (
                     <IconButton
                         size='small'
@@ -551,7 +549,7 @@ export default class TrueFalseBuilder extends Component<
                             this.deleteSet(index, event)
                         }
                     >
-                        <DeleteIcon />
+                        <DeleteIcon/>
                     </IconButton>
                 )}
             </ListItem>
@@ -575,14 +573,14 @@ export default class TrueFalseBuilder extends Component<
                             color={questionID === question.questionID ? 'primary' : 'action'}
                         />
                     </ListItemIcon>
-                    <ListItemText secondary={question.name} />
+                    <ListItemText secondary={question.name}/>
                     {hovered === question.questionID && (
                         <IconButton
                             size='small'
                             edge='end'
                             onClick={() => this.switchQuestion(index)}
                         >
-                            <EditIcon />
+                            <EditIcon/>
                         </IconButton>
                     )}
                     {hovered === question.questionID && (
@@ -591,7 +589,7 @@ export default class TrueFalseBuilder extends Component<
                             edge='end'
                             onClick={() => this.setState({deleteDiagOpen: true, toEdit: index})}
                         >
-                            <DeleteIcon />
+                            <DeleteIcon/>
                         </IconButton>
                     )}
                 </ListItem>
@@ -740,7 +738,11 @@ export default class TrueFalseBuilder extends Component<
             const updated = sets.slice();
             let question: Question = updated[selectedS as number].questions[toEdit as number];
             question.name = questionName;
-            question.string = this.buildQuestionString();
+            question.string = this.buildQuestionString(
+                this.state.questionText,
+                this.state.questionAnsr,
+                this.state.questionExpl,
+            );
             this.props.updateSets(updated);
         }
         // Creating a fresh question
@@ -875,7 +877,6 @@ export default class TrueFalseBuilder extends Component<
         console.log('refresh: ' + refresh);
         // Refresh the set if new questions have been addded
         if (refresh) {
-            this.refreshSets();
             console.log('Refreshing');
         }
     };
