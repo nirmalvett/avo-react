@@ -151,7 +151,7 @@ export default class ConceptRelationsModal extends Component<ConceptRelationsMod
                             'background-opacity' : 0,
                             'background-fit'     : 'cover',
                             'background-clip'    : 'node',
-                        },
+                        } as any,
                     },
                     {
                         selector: 'edge',

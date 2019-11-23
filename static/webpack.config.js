@@ -1,54 +1,66 @@
-const webpack = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+const webpack = require("webpack");
+const HtmlWebPackPlugin = require("html-webpack-plugin");
+const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const config = {
-    entry:  __dirname + '/js/index.tsx',
-    devtool: 'inline-source-map',
+    entry: "./js/index.tsx",
+    devtool: "inline-source-map",
     node: {
         fs: "empty",
     },
     output: {
-        path: __dirname + '/dist',
-        filename: 'bundle.js',
+        path: path.resolve(__dirname, "dist"),
+        filename: `bundle.js?version=${Math.round(Math.random() * 100).toFixed(2)}`
     },
+
     resolve: {
-        extensions: ['.tsx', '.ts', ".js", ".jsx", ".css"]
-    },
-    watchOptions: {
-        poll: true,
-        ignored: /node_modules/
+        extensions: [".tsx", ".ts", ".js", ".jsx", ".css"]
     },
     module: {
         rules: [
             {
                 test: /\.tsx?$/,
-                use: 'ts-loader',
+                use: "ts-loader",
                 exclude: /node_modules/
             },
             {
                 test: /\.jsx?/,
                 exclude: /node_modules/,
-                use: 'babel-loader'
+                use: "babel-loader"
             },
             {
                 test: /\.css$/,
-                use: ExtractTextPlugin.extract({
-                    fallback: 'style-loader',
-                    use: 'css-loader',
-                })
+                use: [MiniCssExtractPlugin.loader, "css-loader"]
             },
             {
-                test: /\.(png|svg|jpg|gif)$/,
-                use: 'file-loader'
+                test: /\.(png|svg|jpg|gif|ico)$/,
+                use: "file-loader?name=[name].[ext]"
             },
-            {
+              {
                 test: /\.yaml$/,
-                use: 'js-yaml-loader',
+                use: "js-yaml-loader"
+              },
+            {
+                test: /\.html$/,
+                use: [
+                    {
+                        loader: "html-loader"
+                    }
+                ]
             }
         ]
     },
     plugins: [
-        new ExtractTextPlugin('css/app.css'),
+        new HtmlWebPackPlugin({
+            template: "./index.html",
+            filename: "./index.html"
+        }),
+        new MiniCssExtractPlugin({
+            filename: "app.css"
+        }),
+        // new webpack.HotModuleReplacementPlugin({}),
+        // new webpack.EnvironmentPlugin(['NODE_ENV'])
     ]
 };
 
