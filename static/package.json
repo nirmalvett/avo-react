@@ -12,7 +12,7 @@
     "dev-build": "webpack --progress -d --config webpack.config.js",
     "watch": "webpack --progress -d --config webpack.config.js --watch",
     "prettier": "prettier --write js/**/*.ts js/**/*.tsx",
-    "clean":  "rm -rf dist"
+    "clean": "rm -rf dist"
   },
   "author": "AvocadoCore",
   "devDependencies": {
@@ -34,9 +34,12 @@
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.8.0",
+    "node-sass": "^4.13.0",
     "prettier": "1.18.2",
+    "sass-loader": "^8.0.0",
     "ts-loader": "^6.0.1",
     "typescript": "^3.4.5",
+    "webpack": "^4.41.2",
     "webpack-cli": "3.1.0"
   },
   "dependencies": {
@@ -80,7 +83,6 @@
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
     "style-loader": "0.23.0",
-    "thunk": "0.0.1",
-    "webpack": "^4.32.0"
+    "thunk": "0.0.1"
   }
 }

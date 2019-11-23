@@ -11,11 +11,11 @@ const config = {
     },
     output: {
         path: path.resolve(__dirname, "dist"),
-        filename: `bundle.js?version=${Math.round(Math.random() * 100).toFixed(2)}`
+        filename: `bundle.js?version=${Math.random().toFixed(2)}`
     },
 
     resolve: {
-        extensions: [".tsx", ".ts", ".js", ".jsx", ".css"]
+        extensions: [".tsx", ".ts", ".js", ".jsx", ".css", ".scss"]
     },
     module: {
         rules: [
@@ -37,10 +37,10 @@ const config = {
                 test: /\.(png|svg|jpg|gif|ico)$/,
                 use: "file-loader?name=[name].[ext]"
             },
-              {
+            {
                 test: /\.yaml$/,
                 use: "js-yaml-loader"
-              },
+            },
             {
                 test: /\.html$/,
                 use: [
@@ -48,7 +48,19 @@ const config = {
                         loader: "html-loader"
                     }
                 ]
-            }
+            },
+            {
+                test: /\.s[ac]ss$/i,
+                use: [
+                    // Creates `style` nodes from JS strings
+                    'style-loader',
+                    // Translates CSS into CommonJS\
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    // Compiles Sass to CSS
+                    'sass-loader',
+                ],
+            },
         ]
     },
     plugins: [
