@@ -1,4 +1,4 @@
-# How to install:
+# How to install/run:
 
 ## Frontend:
 `cd static && npm i` will install the frontend dependencies.
