@@ -13,4 +13,6 @@ Inside the `static` folder
 `pip install -r requirements.txt` will install backend requirements,
 `python app.py` will run the server (will launch on port 5000)
 
-You will need `config.py` and `config.yaml` in the root directory of this folder, please ask for these files if you don't have them
+You will need `config.py` and `config.yaml` in the root directory of this folder
+
+Please ask for these files if you don't have them and feel free to ask any questions
