@@ -1,3 +1,5 @@
+.ipynb_checkpoints/
+*.ipynb
 .idea/
 dist/
 node_modules/
