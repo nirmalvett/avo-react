@@ -18,7 +18,7 @@ paypalrestsdk.configure({
 })
 
 # Create and configure the Flask App, attach the login manager, and attach the database
-app = Flask(__name__, static_folder='../static/dist', template_folder='../static')
+app = Flask(__name__, static_folder='../static/dist', template_folder='../static/dist')
 app.config.from_object('config')
 login_manager.init_app(app)
 db.init_app(app)

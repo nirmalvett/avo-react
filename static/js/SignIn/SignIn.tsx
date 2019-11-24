@@ -350,7 +350,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
         const s = this.state;
 
         const isValid =
-            /^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.rEmail) &&
+            // /^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.rEmail) &&
             s.rPassword1.length >= 8 &&
             s.rPassword2 === s.rPassword1;
         if (isValid && s.hasAgreedToTOS) return true;

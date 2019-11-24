@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, render_template, redirect
+from flask import Blueprint, jsonify, render_template, redirect, send_from_directory
 from flask_login import logout_user, login_user, current_user
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -6,7 +6,7 @@ from server.PasswordHash import check_password
 import re
 
 from server.decorators import login_required, admin_only, validate
-from server.auth import send_email, get_url, validate_token
+from server.auth import send_email, get_url, validate_token, send_gmail
 from server.models import db, User, Feedback
 
 UserRoutes = Blueprint('UserRoutes', __name__)
@@ -65,6 +65,8 @@ def confirm(token):
     :param token: The token give from the email URL
     :return: The user to the home page
     """
+    if token_is_file(token):
+        return send_from_directory('../static/dist/', token, conditional=True)
     email = validate_token(token, 3600)
     if email is None:
         return "Invalid confirmation link"
@@ -143,7 +145,30 @@ def logout():
     return jsonify({})
 
 
-# Password reset
+@UserRoutes.route('/sendWelcome', methods=['POST'])
+@validate(email=str, sender=str, password=str)
+def send_welcome(email: str, sender: str, password: str):
+    try:
+        user = User.query.filter(User.email == email).first()
+        if user is None:
+            return jsonify(error="The email you requested is not associated with an AVO account. "
+                                 "Perhaps it was a typo? Please try again.")
+
+        url = get_url(email, 'UserRoutes.password_reset')
+        send_gmail(
+            email,
+            "Password Reset Request",
+            f'<html><body>Hi,<br/><br/>'
+            f'Please click <a href="{url}">here</a> to change your password. If you did not request a password reset, '
+            f'you do not need to do anything. This link will expire in one hour.'
+            f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>',
+            sender,
+            password
+        )
+
+        return jsonify({'message': 'success'})
+    except:
+        return jsonify({'message': 'error'})
 
 
 @UserRoutes.route('/requestPasswordReset', methods=['POST'])
@@ -167,8 +192,18 @@ def request_password_reset(email: str):
     return jsonify({})
 
 
+def token_is_file(token):
+    return token.endswith('.css') or \
+           token.endswith('.png') or \
+           token.endswith('.js') or \
+           token.endswith('.ico') or \
+           token.endswith('.svg')
+
+
 @UserRoutes.route('/passwordReset/<token>')
 def password_reset(token):
+    if token_is_file(token):
+        return send_from_directory('../static/dist/', token, conditional=True)
     email = validate_token(token, 3600)
     if email is None:
         return "Invalid Confirmation Link. Please try requesting password change again."
@@ -180,6 +215,8 @@ def password_reset(token):
 
 @UserRoutes.route('/setup/<token>')
 def setup(token):
+    if token_is_file(token):
+        return send_from_directory('../static/dist/', token, conditional=True)
     email = validate_token(token)
     if email is None:
         return "Invalid Setup Link."
