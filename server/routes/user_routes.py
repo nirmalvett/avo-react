@@ -238,7 +238,7 @@ def password_reset(token):
         return send_from_directory('../static/dist/', token, conditional=True)
     email = validate_token(token, 3600)
     if email is None:
-        return "Invalid Confirmation Link. Please try requesting password change again."
+        return 'Password reset link expired. Please go to <a href="https://app.avocadocore.com">https://app.avocadocore.com </a> and try requesting a password change.'
     user = User.query.filter(User.email == email).first()
     if user is None:
         return "There is no account associated with the email."
