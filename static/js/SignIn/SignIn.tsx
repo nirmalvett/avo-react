@@ -68,6 +68,17 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                 'Your account was successfully confirmed! You may now log in and begin using AVO.',
             );
         }
+        const checkQuertString = (name: string) => {
+            var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+            return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+        };
+
+
+        if (checkQuertString('expiredPasswordReset')) {
+            const label = document.getElementById('avo-signin__reset-password');
+            if (label)
+                label.click()
+        }
     }
 
     updateFirstName = (e: Event) => this.setState({rFirstName: e.target.value});
@@ -123,7 +134,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
         let passwordError = s.password.length > 0 && s.password.length < 8;
         return (
             <Fragment>
-                <Logo theme='light' />
+                <Logo theme='light'/>
                 <Typography variant='h5'>Sign In</Typography>
                 <form style={style} noValidate autoComplete='off'>
                     <TextField
@@ -134,7 +145,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         value={s.username}
                         error={usernameError}
                     />
-                    <br />
+                    <br/>
                     <TextField
                         margin='normal'
                         style={style}
@@ -144,11 +155,11 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         value={s.password}
                         error={passwordError}
                     />
-                    <br />
+                    <br/>
                     <Typography variant='caption' color='error'>
                         {s.signInError}
                     </Typography>
-                    <br />
+                    <br/>
                     <Button
                         color='primary'
                         className='avo-button avo-styles__float-right'
@@ -157,8 +168,8 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         Sign In
                     </Button>
                 </form>
-                <br />
-                <br />
+                <br/>
+                <br/>
             </Fragment>
         );
     }
@@ -179,7 +190,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         onChange={this.updateFirstName}
                         value={s.rFirstName}
                     />
-                    <br />
+                    <br/>
                     <TextField
                         margin='normal'
                         style={style}
@@ -187,7 +198,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         onChange={this.updateLastName}
                         value={s.rLastName}
                     />
-                    <br />
+                    <br/>
                     <TextField
                         margin='normal'
                         style={style}
@@ -196,7 +207,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         value={s.rEmail}
                         error={emailError}
                     />
-                    <br />
+                    <br/>
                     <TextField
                         margin='normal'
                         style={style}
@@ -207,7 +218,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         error={rPw1Error}
                         helperText='(Minimum 8 characters)'
                     />
-                    <br />
+                    <br/>
                     <TextField
                         margin='normal'
                         style={style}
@@ -217,7 +228,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         value={s.rPassword2}
                         error={rPw2Error}
                     />
-                    <br />
+                    <br/>
                     <Typography variant='caption'>
                         <Checkbox
                             color='primary'
@@ -229,7 +240,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                             }
                         />
                         I agree to the Terms of Service found <a id='ToC-here'>here</a>.
-                        <br />
+                        <br/>
                         <Typography color='error'>{s.messageToUser}</Typography>
                     </Typography>
                     <Button
@@ -259,7 +270,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                 >
                     {agreement}
                 </AVOModal>
-                <br />
+                <br/>
             </Fragment>
         );
     }
@@ -269,7 +280,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
         return (
             s.isSigningIn && (
                 <Fragment>
-                    <br />
+                    <br/>
                     <Typography variant='caption' id='avo-signin__reset-password'>
                         Forgot your password/Want to change your password? Click{' '}
                         <a className='avo-styles__link'> here </a>
@@ -286,13 +297,14 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                                     () =>
                                         alert(
                                             'An email has been sent with a reset link, ' +
-                                                'please check your inbox.',
+                                            'please check your inbox.',
                                         ),
                                     e => alert(e.error),
                                 );
                             }
                         }}
-                        onDecline={() => {}}
+                        onDecline={() => {
+                        }}
                     >
                         <Typography variant='caption'>
                             Enter the email associated to the account and we'll send you a link to
@@ -307,7 +319,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                             value={s.resetEmail}
                             onChange={this.updateResetEmail}
                         />
-                        <br />
+                        <br/>
                     </AVOModal>
                 </Fragment>
             )
@@ -337,9 +349,9 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         messageToUser:
                             message === 'email sent'
                                 ? 'Registration successful! To fully activate your account please' +
-                                  ' check your email inbox/spam folder for the activation link.'
+                                ' check your email inbox/spam folder for the activation link.'
                                 : 'Registration successful! Your account was already confirmed by' +
-                                  " your professor, you're all set to sign in and start using AVO.",
+                                " your professor, you're all set to sign in and start using AVO.",
                     }),
                 result => this.setState({messageToUser: result.error}),
             );

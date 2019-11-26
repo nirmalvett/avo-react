@@ -1,7 +1,7 @@
-from flask import Blueprint, jsonify, render_template, redirect, send_from_directory
+from flask import Blueprint, jsonify, render_template, redirect, send_from_directory, redirect
 from flask_login import logout_user, login_user, current_user
 from sqlalchemy.orm.exc import NoResultFound
-
+import glob
 from server.PasswordHash import check_password
 import re
 
@@ -225,11 +225,9 @@ def request_password_reset(email: str):
 
 
 def token_is_file(token):
-    return token.endswith('.css') or \
-           token.endswith('.png') or \
-           token.endswith('.js') or \
-           token.endswith('.ico') or \
-           token.endswith('.svg')
+    files = glob.glob('static/dist/*')
+    files = [file.replace('static/dist/', '') for file in files]
+    return token in files
 
 
 @UserRoutes.route('/passwordReset/<token>')
@@ -238,6 +236,7 @@ def password_reset(token):
         return send_from_directory('../static/dist/', token, conditional=True)
     email = validate_token(token, 3600)
     if email is None:
+        return redirect('/?expiredPasswordReset=True', code=302)
         return 'Password reset link expired. Please go to <a href="https://app.avocadocore.com">https://app.avocadocore.com </a> and try requesting a password change.'
     user = User.query.filter(User.email == email).first()
     if user is None:
