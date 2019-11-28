@@ -25,23 +25,20 @@ export function _request<S, T>(
         },
         body
     }).pipe(
-        map(response => {
-                const res = response.response;
-                if (res.error) {
-                    console.warn(
-                        `Error from ${url}:
+        first(),
+        flatMap(response => {
+            const res = response.response;
+            if (res.error) {
+                console.warn(
+                    `Error from ${url}:
                         ${res.error}`
-                    );
-                    failure(res);
-                } else {
-                    success(res);
-                }
+                );
+                throw res.error;
             }
-        ),
-        catchError(error => {
-            failure(error);
-            console.log('error: ', error);
-            return of(error);
-        })
-    ).subscribe()
+            return of(response);
+        }),
+    ).subscribe(
+        res => success(res.response),
+        err => failure(err),
+    )
 }
