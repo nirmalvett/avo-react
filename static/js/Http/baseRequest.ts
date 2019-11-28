@@ -27,34 +27,13 @@ export function _request<S, T>(
     failure: cb<ErrorResponse & T>,
     body: any = {},
 ) {
-    const url = `${BASE_URL}${route}`;
-    return ajax({
-        url,
-        method,
-        headers: {
-            'Content-Type': 'application/json;charset=UTF-8',
-        },
-        body
-    }).pipe(
-        first(),
-        flatMap(response => {
-            const res = response.response;
-            if (res.error) {
-                console.warn(
-                    `Error from ${url}:
-                        ${res.error}`
-                );
-                throw res.error;
-            }
-            return of(res);
-        }),
-    ).subscribe(
+    observable_request$(method, route, body).subscribe(
         res => success(res),
         err => failure(err),
     )
 }
 
-export function _observable_request<S, T>(
+export function observable_request$<S, T>(
     method: RequestType,
     route: string,
     body: any = {},
