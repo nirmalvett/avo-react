@@ -35,10 +35,10 @@ export function _request<S, T>(
                 );
                 throw res.error;
             }
-            return of(response);
+            return of(res);
         }),
     ).subscribe(
-        res => success(res.response),
+        res => success(res),
         err => failure(err),
     )
 }
