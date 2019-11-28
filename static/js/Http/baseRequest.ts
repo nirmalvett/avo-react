@@ -2,6 +2,16 @@ import {ajax} from 'rxjs/ajax'
 import {of, pipe} from 'rxjs'
 import {flatMap, first, map, catchError} from 'rxjs/operators'
 
+const getBaseUrl = () => {
+    if (process.env.NODE_ENV == 'PROD') {
+        return 'https://app.avocadocore.com';
+    } else if (process.env.NODE_ENV == 'DEV') {
+        return 'https://dev.avocadocore.com';
+    } else {
+        return '';
+    }
+};
+const BASE_URL = getBaseUrl();
 export type RequestType = 'GET' | 'POST';
 
 interface ErrorResponse {
@@ -17,6 +27,7 @@ export function _request<S, T>(
     failure: cb<ErrorResponse & T>,
     body: any = {},
 ) {
+    url = `${BASE_URL}${url}`;
     return ajax({
         url,
         method,
