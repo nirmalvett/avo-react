@@ -22,12 +22,12 @@ export type cb<T = ErrorResponse> = (x: T) => void;
 
 export function _request<S, T>(
     method: RequestType,
-    url: string,
+    route: string,
     success: cb<S>,
     failure: cb<ErrorResponse & T>,
     body: any = {},
 ) {
-    url = `${BASE_URL}${url}`;
+    const url = `${BASE_URL}${route}`;
     return ajax({
         url,
         method,
@@ -56,9 +56,10 @@ export function _request<S, T>(
 
 export function _observable_request<S, T>(
     method: RequestType,
-    url: string,
+    route: string,
     body: any = {},
 ) {
+    const url = `${BASE_URL}${route}`;
     return ajax({
         url,
         method,
