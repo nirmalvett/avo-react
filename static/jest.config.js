@@ -185,10 +185,6 @@ module.exports = {
 
     // Whether to use watchman for file crawling
     // watchman: true,
-    // "transform": {
-    //     "^.+\\.(ts|tsx)$": "<rootDir>/test-preprocessor.js",
-    //     "^.+\\.(js|jsx)?$": "babel-jest"
-    // },
     "moduleNameMapper": {
         "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/js/__mocks__/fileMock.js",
         "\\.(css|less)$": "<rootDir>/js/__mocks__/styleMock.js"
