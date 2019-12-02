@@ -13,3 +13,4 @@ from server.routes.takes_routes import TakesRoutes
 from server.routes.test_routes import TestRoutes
 from server.routes.user_routes import UserRoutes
 from server.routes.user_section_routes import UserSectionRoutes
+from server.routes.webhook_routes import WebHookRoutes
