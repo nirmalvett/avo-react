@@ -110,7 +110,7 @@ export class QuestionBuilderHome extends Component<
 
     renderHomeScreen() {
         return (
-            <Grid container xs={12}>
+            <Grid style={{overflow: 'auto'}} container xs={12}>
                 <Grid item xs={3} />
                 <Grid item xs={6}>
                     <Grow in={this.state.isActive}>
