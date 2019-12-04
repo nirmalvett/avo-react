@@ -11,7 +11,7 @@ const config = {
     },
     output: {
         path: path.resolve(__dirname, "dist"),
-        filename: `bundle.js?version=${Math.random().toFixed(2)}`
+        filename: `bundle.js?version=${Math.random().toFixed(10)}`
     },
 
     resolve: {
