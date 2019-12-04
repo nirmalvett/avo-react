@@ -1,9 +1,7 @@
 import React, {PureComponent} from 'react';
 import {Typography} from '@material-ui/core';
-import {isChrome} from '../HelperFunctions/Helpers';
-import {ShowSnackBar} from '../Layout/Layout';
 
-export default class HomePageOld extends PureComponent<{showSnackBar: ShowSnackBar}> {
+export default class HomePageOld extends PureComponent<{}> {
     render() {
         return (
             <div style={{margin: '80px', flex: 1, overflowY: 'auto'}}>
@@ -17,17 +15,5 @@ export default class HomePageOld extends PureComponent<{showSnackBar: ShowSnackB
                 <br />
             </div>
         );
-    }
-
-    componentDidMount() {
-        if (!isChrome()) {
-            this.props.showSnackBar(
-                'warning',
-                'We have detected that you are currently not using ' +
-                    'Google Chrome Browser. This is not recommended as AVO has not been properly tested in your current ' +
-                    'browser and many of the basic functionality may not work.',
-                10000000000000,
-            );
-        }
     }
 }
