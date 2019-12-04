@@ -3,6 +3,8 @@ from flask import Blueprint, request, abort
 WebHookRoutes = Blueprint('WebHookRoutes', __name__)
 
 
+# this stuff is for facebook messenger integration
+
 @WebHookRoutes.route("/webhook", methods=['POST'])
 def post_webhook():
     body = request.get_json()
@@ -17,7 +19,7 @@ def post_webhook():
 
 @WebHookRoutes.route('/webhook', methods=['GET'])
 def get_webhook():
-    VERIFY_TOKEN = 'avo'
+    VERIFY_TOKEN = 'avoVKcYNVNpz8JCC7H2'  # TODO: Change
 
     mode = request.args.get('hub.mode')
     token = request.args.get('hub.verify_token')
