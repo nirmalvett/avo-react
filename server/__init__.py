@@ -7,6 +7,7 @@ from server.routes import AnnouncementRoutes, ConceptRoutes, CourseRoutes, FileR
     UserSectionRoutes, ImageRoutes, WebHookRoutes
 import paypalrestsdk
 import config
+import os
 # from flask_cors import CORS
 
 # Configure PayPal
@@ -16,6 +17,8 @@ paypalrestsdk.configure({
     'client_id': config.PAYPAL_ID,
     'client_secret': config.PAYPAL_SECRET
 })
+UPLOAD_FOLDER = os.getcwd()+'/tmp/'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 # Create and configure the Flask App, attach the login manager, and attach the database
 app = Flask(__name__, static_folder='../static/dist', template_folder='../static/dist')
@@ -44,3 +47,4 @@ app.register_blueprint(WebHookRoutes)
 # Add gzip support
 Compress(app)
 # CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
