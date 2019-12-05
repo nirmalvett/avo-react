@@ -224,18 +224,17 @@ class Image(db.Model):
 
     IMAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
     COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
-    name = db.Column(db.String(45), nullable=False)
-    extension = db.Column(db.String(5), nullable=False)
+
+    url = db.Column(db.String(1000))
 
     COURSE_RELATION = db.relationship('Course', back_populates='IMAGE_RELATION')
 
-    def __init__(self, course_id: int, name: str, extension: str):
+    def __init__(self, course_id: int, url: str):
         self.COURSE = course_id
-        self.name = name
-        self.extension = extension
+        self.url = url
 
     def __repr__(self):
-        return f'<Image {self.IMAGE} {self.COURSE} {self.name}>'
+        return f'<Image {self.IMAGE} {self.COURSE} {self.url}>'
 
 
 class Issue(db.Model):
