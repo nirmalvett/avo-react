@@ -30,6 +30,7 @@ def file_upload():
     filename = secure_filename(file.filename)
 
     try:
+        # need to run `aws configure` to link account so this works
         client = boto3.client('s3', region_name='us-east-2')
 
         client.upload_fileobj(
