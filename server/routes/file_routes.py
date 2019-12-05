@@ -4,6 +4,8 @@ from werkzeug.utils import secure_filename
 
 import boto3
 
+from server.decorators import teacher_only
+
 S3_BUCKET = 'avo-frontend'
 
 S3_LOCATION = 'http://{}.s3.amazonaws.com/'.format(S3_BUCKET)
@@ -22,6 +24,7 @@ def serve_dist_file(filename):
     return send_from_directory('../static/dist/', filename, conditional=True)
 
 
+@teacher_only
 @FileRoutes.route('/upload', methods=['POST'])
 def file_upload():
     file = request.files.get('file')
