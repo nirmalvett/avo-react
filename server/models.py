@@ -131,7 +131,6 @@ class Course(db.Model):
     name = db.Column(db.String(45), nullable=False)
 
     CONCEPT_RELATION = db.relationship('Concept', back_populates='COURSE_RELATION')
-    IMAGE_RELATION = db.relationship('Image', back_populates='COURSE_RELATION')
     LESSON_RELATION = db.relationship('Lesson', back_populates='COURSE_RELATION')
     QUESTION_SET_RELATION = db.relationship('QuestionSet', back_populates='COURSE_RELATION')
     SECTION_RELATION = db.relationship('Section', back_populates='COURSE_RELATION')
@@ -223,18 +222,18 @@ class Image(db.Model):
     __tablename__ = 'IMAGE'
 
     IMAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'))
 
     url = db.Column(db.String(1000))
 
-    COURSE_RELATION = db.relationship('Course', back_populates='IMAGE_RELATION')
+    USER_RELATION = db.relationship('User', back_populates='IMAGE_RELATION')
 
-    def __init__(self, course_id: int, url: str):
-        self.COURSE = course_id
+    def __init__(self, user_id: int, url: str):
+        self.USER = user_id
         self.url = url
 
     def __repr__(self):
-        return f'<Image {self.IMAGE} {self.COURSE} {self.url}>'
+        return f'<Image {self.IMAGE} {self.USER} {self.url}>'
 
 
 class Issue(db.Model):
@@ -590,6 +589,7 @@ class User(UserMixin, db.Model):
     USER_CONVERSATION_RELATION = db.relationship('UserConversation', back_populates='USER_RELATION')
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='USER_RELATION')
     USER_SECTION_RELATION = db.relationship('UserSection', back_populates='USER_RELATION')
+    IMAGE_RELATION = db.relationship('Image', back_populates='USER_RELATION')
 
     def __init__(
             self, email, first_name, last_name, password,
