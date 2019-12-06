@@ -15,7 +15,7 @@ export function Content(props: ContentProps) {
     let result = [];
     let counter = 0;
     while (text.length) {
-        const match = /\$(.+?)\$|\\\((.+?)\\\)|\$\$(.+?)\$\$|\\\[(.+?)\\]|<(\d+)>|<<(.*?)>>|\n/g.exec(
+        const match = /\$(.+?)\$|\\\((.+?)\\\)|\$\$(.+?)\$\$|\\\[(.+?)\\]|<img>(.*?)<img>|<<(.*?)>>|\n/g.exec(
             text,
         );
         if (!match) {
@@ -49,7 +49,7 @@ export function Content(props: ContentProps) {
             result.push(<Node key={counter++ + '[' + match[4]}>{match[4]}</Node>);
         } else if (match[5]) {
             // <123>
-            result.push(<img alt='image' src={`${window.location.origin}/image/${match[5]}`} />);
+            result.push(<img alt='image' src={`http://avo-frontend.s3.amazonaws.com/${match[5]}`} />);
         } else if (match[6]) {
             // <<123>>
             result.push(
