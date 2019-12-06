@@ -8,7 +8,7 @@ export function _2_Number(props: AnswerInputImplementationProps) {
     const message = validateNumber(props.value);
     const error = !props.disabled && !Array.isArray(message);
     const helperText = !Array.isArray(message) ? message : undefined;
-    const renderedInput = Array.isArray(message) ? (
+    const renderedInput = Array.isArray(message) && message[0] ? (
         <Content>{`\\(${message[0]}\\)`}</Content>
     ) : (
         undefined
