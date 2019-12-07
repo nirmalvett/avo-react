@@ -8,8 +8,11 @@ import CardContent from '@material-ui/core/CardContent';
 import * as Http from '../Http/index'
 import {Typography} from "@material-ui/core";
 
-export default class ImageUploader extends React.Component {
+export default class ImageUploader extends React.Component<any, any> {
 
+    constructor(props: any) {
+        super(props)
+    }
 
     state = {
         images: {} as any
@@ -32,14 +35,14 @@ export default class ImageUploader extends React.Component {
     render() {
         return (
             <div
-                style={{
+                style={this.props.showCard ? {
                     width: '100%',
                     padding: 25,
                     overflow: 'auto',
                     marginTop: 0,
-                }}
+                } : {padding: 1, margin: 0, overflow: 'auto',}}
             >
-                <Card style={{width: '100%', overflow: 'auto', marginBottom: 20}}>
+                <Card style={{width: '100%'}}>
                     <CardContent>
                         <Dropzone
                             getUploadParams={({meta}: any) => {

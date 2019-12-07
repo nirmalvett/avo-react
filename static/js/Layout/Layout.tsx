@@ -284,7 +284,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name === 'Upload Images') {
-            return <ImageUploader/>
+            return <ImageUploader showCard={true}/>
         }
     }
 
