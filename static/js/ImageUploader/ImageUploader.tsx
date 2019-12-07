@@ -34,7 +34,6 @@ export default class ImageUploader extends React.Component {
             <div
                 style={{
                     width: '100%',
-                    height: '90vh',
                     padding: 25,
                     overflow: 'auto',
                     marginTop: 0,
@@ -55,22 +54,22 @@ export default class ImageUploader extends React.Component {
                             }}
                             accept="image/*"
                         />
-                    </CardContent>
-                    <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', margin: 10}}>
+                        <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', margin: 10}}>
 
-                        {
-                            Object.keys(this.state.images).map(key => {
-                                const img = this.state.images[key];
-                                const name = img.split('/')[3];
-                                return (
-                                    <div>
-                                        <Typography>{name}</Typography>
-                                        <img src={img}/>
-                                    </div>
-                                )
-                            })
-                        }
-                    </div>
+                            {
+                                Object.keys(this.state.images).map(key => {
+                                    const img = this.state.images[key];
+                                    const name = img.split('/')[3];
+                                    return (
+                                        <div>
+                                            <Typography>{name}</Typography>
+                                            <img src={img}/>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                    </CardContent>
                 </Card>
             </div>
         );
