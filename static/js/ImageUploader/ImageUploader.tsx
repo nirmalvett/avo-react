@@ -16,6 +16,10 @@ export default class ImageUploader extends React.Component {
     };
 
     componentDidMount(): void {
+        this.getImages()
+    }
+
+    getImages = () => {
         Http.getImages(
             res => {
                 this.setState({images: res.images});
@@ -23,7 +27,7 @@ export default class ImageUploader extends React.Component {
             },
             err => console.warn
         )
-    }
+    };
 
     render() {
         return (
@@ -46,9 +50,10 @@ export default class ImageUploader extends React.Component {
                                 console.log(status, meta, file)
                             }}
                             onSubmit={(files: any[]) => {
-                                console.log(files.map(f => f.meta))
+                                console.log(files.map(f => f.meta));
+                                this.getImages();
                             }}
-                            accept="image/*,audio/*,video/*"
+                            accept="image/*"
                         />
                     </CardContent>
                     <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', margin: 10}}>
