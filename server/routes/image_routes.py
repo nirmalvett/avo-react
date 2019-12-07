@@ -1,9 +1,10 @@
 from typing import List
 
 from flask import Blueprint, send_from_directory, abort, redirect, jsonify
+from flask_login import current_user
 
 import config
-from server.decorators import login_required, validate
+from server.decorators import login_required, validate, teacher_only
 from server.models import Image
 
 ImageRoutes = Blueprint('ImageRoutes', __name__)
@@ -16,14 +17,13 @@ def image(filename):
     if i is None:
         return abort(404)
     else:
-        return jsonify(url=i.url)
+        return redirect(i.url, code=302)
 
 
-@ImageRoutes.route('/searchImages', methods=['POST'])
-@login_required
-@validate(courseID=str, name=str)
-def search_images(course_id: str, name: str):
-    images: List[Image] = Image.query.filter(
-        (Image.COURSE == course_id) & (Image.url.contains(name))
+@ImageRoutes.route('/getImages')
+@teacher_only
+def get_images():
+    images = Image.query.filter(
+        (Image.USER == current_user.USER)
     ).all()
-    return images
+    return jsonify({'images': {i.IMAGE: i.url for i in images}})

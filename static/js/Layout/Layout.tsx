@@ -27,6 +27,7 @@ import {Course, QuestionSet} from '../Http/types';
 import {QuestionBuilderHome} from '../QuestionBuilder/QuestionBuilderHome';
 import {GetSections_Section} from '../Http';
 import {Feedback} from '../Feedback/Feedback';
+import ImageUploader from '../ImageUploader/ImageUploader'
 
 const drawerWidth = 240;
 
@@ -282,6 +283,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     submitTest={this.postTest}
                 />
             );
+        } else if (section.name === 'Upload Images') {
+            return <ImageUploader/>
         }
     }
 
