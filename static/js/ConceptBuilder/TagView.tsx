@@ -834,7 +834,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                 <br/>
                                 <br/>
                                 <Button onClick={this.editRelationWeight.bind(this)}>
-                                    Add Relation
+                                    Edit Relation
                                 </Button>
                             </Typography>
                         </Paper>
