@@ -2,7 +2,7 @@ import 'react-dropzone-uploader/dist/styles.css'
 import Dropzone from 'react-dropzone-uploader'
 import React, {Component} from 'react';
 
-
+import {BASE_URL} from '../Http/baseRequest'
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import * as Http from '../Http/index'
@@ -61,12 +61,11 @@ export default class ImageUploader extends React.Component<any, any> {
 
                             {
                                 Object.keys(this.state.images).map(key => {
-                                    const img = this.state.images[key];
-                                    const name = img.split('/')[3];
+                                    const name = this.state.images[key];
                                     return (
                                         <div>
                                             <Typography>{name}</Typography>
-                                            <img src={img}/>
+                                            <img src={`${BASE_URL}/image/${name}`}/>
                                         </div>
                                     )
                                 })

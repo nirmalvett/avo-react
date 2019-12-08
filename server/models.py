@@ -223,17 +223,18 @@ class Image(db.Model):
 
     IMAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
     USER = db.Column(db.Integer, db.ForeignKey('USER.USER'))
-
+    name = db.Column(db.String(200), unique=True)
     url = db.Column(db.String(1000))
 
     USER_RELATION = db.relationship('User', back_populates='IMAGE_RELATION')
 
-    def __init__(self, user_id: int, url: str):
+    def __init__(self, user_id: int, url: str, name: str):
         self.USER = user_id
         self.url = url
+        self.name = name
 
     def __repr__(self):
-        return f'<Image {self.IMAGE} {self.USER} {self.url}>'
+        return f'<Image {self.IMAGE} {self.USER} {self.name} {self.url}>'
 
 
 class Issue(db.Model):

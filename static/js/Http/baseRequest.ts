@@ -12,7 +12,7 @@ import {flatMap, first, map, catchError} from 'rxjs/operators'
 //     }
 // };
 // const BASE_URL = getBaseUrl();
-const BASE_URL = '';
+export const BASE_URL = '';
 export type RequestType = 'GET' | 'POST';
 
 interface ErrorResponse {

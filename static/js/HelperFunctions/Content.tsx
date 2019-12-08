@@ -3,15 +3,8 @@ import {Typography} from '@material-ui/core';
 import {ThemeStyle} from '@material-ui/core/styles/createTypography';
 // @ts-ignore
 import {Node, Context} from 'react-mathjax2';
+import {BASE_URL} from '../Http/baseRequest'
 
-const getBaseUrl = () => {
-    if (process.env.NODE_ENV == 'PROD') {
-        return 'http://avo-cdn-app.s3.amazonaws.com';
-    } else {
-        return 'http://avo-cdn-dev.s3.amazonaws.com';
-    }
-};
-const BASE_URL = getBaseUrl();
 
 interface ContentProps {
     variant?: ThemeStyle;
@@ -58,7 +51,7 @@ export function Content(props: ContentProps) {
             result.push(<Node key={counter++ + '[' + match[4]}>{match[4]}</Node>);
         } else if (match[5]) {
             // <123>
-            result.push(<img alt='image' src={`${BASE_URL}/${match[5]}`}/>);
+            result.push(<img alt='image' src={`${BASE_URL}/image/${match[5]}`}/>);
         } else if (match[6]) {
             // <<123>>
             result.push(
