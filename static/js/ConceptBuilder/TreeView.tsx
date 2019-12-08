@@ -70,7 +70,9 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                     id: 'node-' + Concept.conceptID + '-end', // the + '-end' is for later on filtering
                 },
                 style: {
-                    content: Concept.name
+                    content: Concept.name.length > 28
+                            ? Concept.name.substring(0, 25) + '...'
+                            : Concept.name,
                 },
             });
         });
