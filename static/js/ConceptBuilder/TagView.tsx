@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+
 import TreeView from './TreeView';
 import Downshift from 'downshift';
 import debounce from '../SharedComponents/AVODebouncer';
@@ -13,6 +14,7 @@ import {
     Lock,
     Close,
     RedoOutlined,
+    Image
 } from '@material-ui/icons';
 import {
     Button,
@@ -45,6 +47,7 @@ import {Course} from '../Http/types';
 // @ts-ignore
 import SwipeableViews from 'react-swipeable-views';
 import {Content} from '../HelperFunctions/Content';
+import ImageUploader from "../ImageUploader/ImageUploader";
 
 interface Concept {
     conceptID: number;
@@ -77,6 +80,7 @@ interface TagViewProps {
 }
 
 interface TagViewState {
+    showImages: boolean;
     currentView: string;
     selectedClassName: string;
     classNames: string[];
@@ -170,7 +174,7 @@ function renderInput(inputProps: RenderInputProps) {
 interface RenderSuggestionProps {
     highlightedIndex: number | null;
     index: number;
-    itemProps: MenuItemProps<'div', {button?: never}>;
+    itemProps: MenuItemProps<'div', { button?: never }>;
     selectedItem: Concept;
     suggestion: Suggestion;
     onClick: any;
@@ -204,25 +208,27 @@ function getSuggestions(value: string, suggestions: Concept[], {showEmpty = fals
     return inputLength === 0 && !showEmpty
         ? []
         : suggestions.filter(Concept => {
-              const keep =
-                  count < 5 && Concept.name.slice(0, inputLength).toLowerCase() === inputValue;
+            const keep =
+                count < 5 && Concept.name.slice(0, inputLength).toLowerCase() === inputValue;
 
-              if (keep) {
-                  count += 1;
-              }
+            if (keep) {
+                count += 1;
+            }
 
-              return keep;
-          });
+            return keep;
+        });
 }
 
 export default class TagView extends Component<TagViewProps, TagViewState> {
-    chartRef: {current: TreeView};
+    chartRef: { current: TreeView };
     newConceptNameRef: React.RefObject<{}>;
     newConceptLessonRef: React.RefObject<{}>;
     newRelationWeightRef: React.RefObject<{}>;
+
     constructor(props: TagViewProps) {
         super(props);
         this.state = {
+            showImages: false,
             currentView: 'tagTreeView',
             selectedClassName: 'Select class...',
             classNames: [],
@@ -255,7 +261,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             isSearching: false,
             relationWeight: 1,
         };
-        this.chartRef = React.createRef() as {current: TreeView};
+        this.chartRef = React.createRef() as { current: TreeView };
         this.newConceptNameRef = React.createRef();
         this.newConceptLessonRef = React.createRef();
         this.newRelationWeightRef = React.createRef();
@@ -300,8 +306,8 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         if (!this.state.loadingClasses && !this.state.classNames.length) {
             return (
                 <div>
-                    <br />
-                    <br />
+                    <br/>
+                    <br/>
                     <Typography variant={'body1'} style={{textAlign: 'center'}}>
                         You currently have no courses.
                     </Typography>
@@ -315,10 +321,29 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     display: 'flex',
                     flexDirection: 'column',
                     margin: 25,
+                    overflowY: 'auto',
+                    padding: 1
                 }}
             >
-                {this.state.loadingClasses && <div className='avo-loading-icon' />}
-                {this.state.isEditingLesson && (
+                {this.state.loadingClasses && <div className='avo-loading-icon'/>}
+                {this.state.showImages && this.state.isEditingLesson && (
+                    <div>
+                        <ImageUploader/>
+                        <IconButton
+                            onClick={() => this.setState({showImages: false})}
+                            aria-label='add'
+                            style={{
+                                position: 'absolute',
+                                bottom: '28px',
+                                right: '26px',
+                                zIndex: 100,
+                            }}
+                        >
+                            <Close/>
+                        </IconButton>
+                    </div>
+                )}
+                {!this.state.showImages && this.state.isEditingLesson && (
                     <Fade in={this.state.isEditingLesson}>
                         <Card
                             style={{
@@ -328,9 +353,21 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                 flex: 1,
                                 display: 'flex',
                                 flexDirection: 'column',
-                                overflow: 'hidden',
+                                overflowY: 'auto',
                             }}
                         >
+                            <IconButton
+                                onClick={() => this.setState({showImages: true})}
+                                aria-label='add'
+                                style={{
+                                    position: 'absolute',
+                                    bottom: '28px',
+                                    right: '146px',
+                                    zIndex: 100,
+                                }}
+                            >
+                                <Image/>
+                            </IconButton>
                             <IconButton
                                 onClick={() =>
                                     this.setState({isEditingLesson: false}, () => {
@@ -347,7 +384,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                     zIndex: 100,
                                 }}
                             >
-                                <Close />
+                                <Close/>
                             </IconButton>
                             <IconButton
                                 onClick={() =>
@@ -373,7 +410,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                     zIndex: 100,
                                 }}
                             >
-                                <Save />
+                                <Save/>
                             </IconButton>
                             <div
                                 style={{
@@ -423,7 +460,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             flex: 1,
                             display: 'flex',
                             flexDirection: 'column',
-                            overflow: 'hidden',
+                            overflowY: 'auto',
                         }}
                     >
                         <Grid container spacing={8} style={{height: '-webkit-fill-available'}}>
@@ -454,17 +491,17 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         disabled={!this.state.selectedClass.canEdit}
                                         style={{position: 'absolute', bottom: '9px', right: '9px'}}
                                     >
-                                        <Save />
+                                        <Save/>
                                     </IconButton>
                                     <div style={{position: 'absolute', top: '9px', right: '9px'}}>
-                                        <AVOPopupMenu options={menuOptions} />
+                                        <AVOPopupMenu options={menuOptions}/>
                                     </div>
                                     <div
                                         style={{width: '-webkit-fill-available', marginTop: '9px'}}
                                     >
                                         <Select
                                             value={this.state.selectedClassName}
-                                            input={<Input name='data' id='select-class' />}
+                                            input={<Input name='data' id='select-class'/>}
                                             onChange={e =>
                                                 this.setState(
                                                     {selectedClassName: e.target.value as string},
@@ -485,8 +522,8 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         </Select>
                                         {!!this.state.selectedConcept.name ? (
                                             <>
-                                                <br />
-                                                <br />
+                                                <br/>
+                                                <br/>
                                                 <FormControl>
                                                     <Input
                                                         id='edit-concept'
@@ -511,13 +548,13 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                         })
                                                                     }
                                                                 >
-                                                                    <Edit />
+                                                                    <Edit/>
                                                                 </IconButton>
                                                             </InputAdornment>
                                                         }
                                                     />
                                                 </FormControl>
-                                                <br />
+                                                <br/>
                                                 <List
                                                     component='nav'
                                                     style={{maxHeight: '60vh', overflowY: 'auto'}}
@@ -534,9 +571,9 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                             primary={<b>Prerequisite Concepts</b>}
                                                         />
                                                         {showParentNodes ? (
-                                                            <ExpandLess />
+                                                            <ExpandLess/>
                                                         ) : (
-                                                            <ExpandMore />
+                                                            <ExpandMore/>
                                                         )}
                                                         <ListItemSecondaryAction>
                                                             <IconButton
@@ -553,7 +590,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                     })
                                                                 }
                                                             >
-                                                                <Add />
+                                                                <Add/>
                                                             </IconButton>
                                                         </ListItemSecondaryAction>
                                                     </ListItem>
@@ -564,63 +601,63 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                     >
                                                         <List component='div' disablePadding>
                                                             {!!this.state.selectedConcept &&
-                                                                this.getParentNodes(
-                                                                    this.state.selectedConcept
-                                                                        .conceptID,
-                                                                ).map(WeightedConcept => (
-                                                                    <ListItem
-                                                                        button
-                                                                        classes={{
-                                                                            container:
-                                                                                'show-children__on-hover',
-                                                                        }}
-                                                                    >
-                                                                        <ListItemText
-                                                                            primary={
-                                                                                WeightedConcept.name
+                                                            this.getParentNodes(
+                                                                this.state.selectedConcept
+                                                                    .conceptID,
+                                                            ).map(WeightedConcept => (
+                                                                <ListItem
+                                                                    button
+                                                                    classes={{
+                                                                        container:
+                                                                            'show-children__on-hover',
+                                                                    }}
+                                                                >
+                                                                    <ListItemText
+                                                                        primary={
+                                                                            WeightedConcept.name
+                                                                        }
+                                                                        secondary={`Weight: ${WeightedConcept.weight}`}
+                                                                    />
+                                                                    <ListItemSecondaryAction>
+                                                                        <IconButton
+                                                                            edge='end'
+                                                                            classes={{
+                                                                                root:
+                                                                                    'hidden_child',
+                                                                            }}
+                                                                            aria-label='Edit'
+                                                                            disabled={
+                                                                                !this.state
+                                                                                    .selectedClass
+                                                                                    .canEdit
                                                                             }
-                                                                            secondary={`Weight: ${WeightedConcept.weight}`}
-                                                                        />
-                                                                        <ListItemSecondaryAction>
-                                                                            <IconButton
-                                                                                edge='end'
-                                                                                classes={{
-                                                                                    root:
-                                                                                        'hidden_child',
-                                                                                }}
-                                                                                aria-label='Edit'
-                                                                                disabled={
-                                                                                    !this.state
-                                                                                        .selectedClass
-                                                                                        .canEdit
-                                                                                }
-                                                                                onClick={() =>
-                                                                                    this.openWeightModal(
-                                                                                        WeightedConcept,
-                                                                                        true,
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                <Edit />
-                                                                            </IconButton>
-                                                                            <IconButton
-                                                                                edge='end'
-                                                                                classes={{
-                                                                                    root:
-                                                                                        'hidden_child',
-                                                                                }}
-                                                                                aria-label='Go To'
-                                                                                onClick={() =>
-                                                                                    this.gotoSelectedNode(
-                                                                                        WeightedConcept,
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                <RedoOutlined />
-                                                                            </IconButton>
-                                                                        </ListItemSecondaryAction>
-                                                                    </ListItem>
-                                                                ))}
+                                                                            onClick={() =>
+                                                                                this.openWeightModal(
+                                                                                    WeightedConcept,
+                                                                                    true,
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <Edit/>
+                                                                        </IconButton>
+                                                                        <IconButton
+                                                                            edge='end'
+                                                                            classes={{
+                                                                                root:
+                                                                                    'hidden_child',
+                                                                            }}
+                                                                            aria-label='Go To'
+                                                                            onClick={() =>
+                                                                                this.gotoSelectedNode(
+                                                                                    WeightedConcept,
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <RedoOutlined/>
+                                                                        </IconButton>
+                                                                    </ListItemSecondaryAction>
+                                                                </ListItem>
+                                                            ))}
                                                         </List>
                                                     </Collapse>
                                                     <ListItem
@@ -635,9 +672,9 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                             primary={<b>Subsequent Concepts</b>}
                                                         />
                                                         {showChildNodes ? (
-                                                            <ExpandLess />
+                                                            <ExpandLess/>
                                                         ) : (
-                                                            <ExpandMore />
+                                                            <ExpandMore/>
                                                         )}
                                                         <ListItemSecondaryAction>
                                                             <IconButton
@@ -654,7 +691,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                     })
                                                                 }
                                                             >
-                                                                <Add />
+                                                                <Add/>
                                                             </IconButton>
                                                         </ListItemSecondaryAction>
                                                     </ListItem>
@@ -665,72 +702,72 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                     >
                                                         <List component='div' disablePadding>
                                                             {!!this.state.selectedConcept &&
-                                                                this.getChildNodes(
-                                                                    this.state.selectedConcept
-                                                                        .conceptID,
-                                                                ).map(WeightedConcept => (
-                                                                    <ListItem
-                                                                        button
-                                                                        classes={{
-                                                                            container:
-                                                                                'show-children__on-hover',
-                                                                        }}
-                                                                    >
-                                                                        <ListItemText
-                                                                            primary={
-                                                                                WeightedConcept.name
+                                                            this.getChildNodes(
+                                                                this.state.selectedConcept
+                                                                    .conceptID,
+                                                            ).map(WeightedConcept => (
+                                                                <ListItem
+                                                                    button
+                                                                    classes={{
+                                                                        container:
+                                                                            'show-children__on-hover',
+                                                                    }}
+                                                                >
+                                                                    <ListItemText
+                                                                        primary={
+                                                                            WeightedConcept.name
+                                                                        }
+                                                                        secondary={`Weight: ${WeightedConcept.weight}`}
+                                                                    />
+                                                                    <ListItemSecondaryAction>
+                                                                        <IconButton
+                                                                            edge='end'
+                                                                            classes={{
+                                                                                root:
+                                                                                    'hidden_child',
+                                                                            }}
+                                                                            aria-label='Edit'
+                                                                            disabled={
+                                                                                !this.state
+                                                                                    .selectedClass
+                                                                                    .canEdit
                                                                             }
-                                                                            secondary={`Weight: ${WeightedConcept.weight}`}
-                                                                        />
-                                                                        <ListItemSecondaryAction>
-                                                                            <IconButton
-                                                                                edge='end'
-                                                                                classes={{
-                                                                                    root:
-                                                                                        'hidden_child',
-                                                                                }}
-                                                                                aria-label='Edit'
-                                                                                disabled={
-                                                                                    !this.state
-                                                                                        .selectedClass
-                                                                                        .canEdit
-                                                                                }
-                                                                                onClick={() =>
-                                                                                    this.openWeightModal(
-                                                                                        WeightedConcept,
-                                                                                        false,
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                <Edit />
-                                                                            </IconButton>
-                                                                            <IconButton
-                                                                                edge='end'
-                                                                                classes={{
-                                                                                    root:
-                                                                                        'hidden_child',
-                                                                                }}
-                                                                                aria-label='Go To'
-                                                                                onClick={() =>
-                                                                                    this.gotoSelectedNode(
-                                                                                        WeightedConcept,
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                <RedoOutlined />
-                                                                            </IconButton>
-                                                                        </ListItemSecondaryAction>
-                                                                    </ListItem>
-                                                                ))}
+                                                                            onClick={() =>
+                                                                                this.openWeightModal(
+                                                                                    WeightedConcept,
+                                                                                    false,
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <Edit/>
+                                                                        </IconButton>
+                                                                        <IconButton
+                                                                            edge='end'
+                                                                            classes={{
+                                                                                root:
+                                                                                    'hidden_child',
+                                                                            }}
+                                                                            aria-label='Go To'
+                                                                            onClick={() =>
+                                                                                this.gotoSelectedNode(
+                                                                                    WeightedConcept,
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <RedoOutlined/>
+                                                                        </IconButton>
+                                                                    </ListItemSecondaryAction>
+                                                                </ListItem>
+                                                            ))}
                                                         </List>
                                                     </Collapse>
                                                 </List>
                                             </>
                                         ) : (
                                             <Typography variant={'body1'} id='modal-description'>
-                                                <br />
-                                                <br />
-                                                <br />
+                                                <br/>
+                                                <br/>
+                                                <br/>
                                                 Please Select or Create a Concept
                                             </Typography>
                                         )}
@@ -758,20 +795,20 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                 style={{position: 'absolute', right: '9px', top: '9px'}}
                                 onClick={() => this.setState({showModal: false})}
                             >
-                                <Close />
+                                <Close/>
                             </IconButton>
                             <Typography variant={'h5'} id='modal-title'>
                                 Weight of relationship between:
-                                <br />
+                                <br/>
                                 {this.state.selectedConcept.name} and {this.state.modalNode.name}
                             </Typography>
-                            <br />
+                            <br/>
                             <Typography variant={'body1'} id='modal-description'>
                                 Current Weight is: {this.state.modalNode.weight}
-                                <br />
+                                <br/>
                                 <Select
                                     value={`${this.state.relationWeight}`}
-                                    input={<Input name='data' id='select-class' />}
+                                    input={<Input name='data' id='select-class'/>}
                                     onChange={e => {
                                         const newWeight: number = parseInt(e.target
                                             .value as string);
@@ -794,8 +831,8 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         4 - Absolutely required.
                                     </MenuItem>
                                 </Select>
-                                <br />
-                                <br />
+                                <br/>
+                                <br/>
                                 <Button onClick={this.editRelationWeight.bind(this)}>
                                     Edit Relation
                                 </Button>
@@ -821,12 +858,12 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                 style={{position: 'absolute', right: '9px', top: '9px'}}
                                 onClick={() => this.setState({showAddNodeModal: false})}
                             >
-                                <Close />
+                                <Close/>
                             </IconButton>
                             <Typography variant={'h5'} id='modal-title'>
                                 Add New Concept
                             </Typography>
-                            <br />
+                            <br/>
                             <Typography variant={'body1'} id='modal-description'>
                                 <FormControl>
                                     <Input
@@ -834,16 +871,16 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         ref={this.newConceptNameRef}
                                         placeholder='New Concept Name'
                                     />
-                                    <br />
-                                    <br />
+                                    <br/>
+                                    <br/>
                                     <Input
                                         id='set-new__node-lesson'
                                         ref={this.newConceptLessonRef}
                                         placeholder='New Concept Lesson'
                                     />
                                 </FormControl>
-                                <br />
-                                <br />
+                                <br/>
+                                <br/>
                                 <Button onClick={this.createNewConcept.bind(this)}>
                                     Add Concept
                                 </Button>
@@ -874,7 +911,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                 }}
                                 onClick={() => this.setState({showAddRelatedNodeModal: false})}
                             >
-                                <Close />
+                                <Close/>
                             </IconButton>
                             <Tabs
                                 value={this.state.activeTab}
@@ -895,7 +932,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                     <Typography variant={'h5'} id='modal-title'>
                                         Add Related Concept To {this.state.selectedConcept.name}
                                     </Typography>
-                                    <br />
+                                    <br/>
                                     <Typography variant={'body1'} id='modal-description'>
                                         <FormControl>
                                             <Input
@@ -903,18 +940,18 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 ref={this.newConceptNameRef}
                                                 placeholder='New Concept Name'
                                             />
-                                            <br />
-                                            <br />
+                                            <br/>
+                                            <br/>
                                             <Input
                                                 id='set-new__node-lesson'
                                                 ref={this.newConceptLessonRef}
                                                 placeholder='New Concept Lesson'
                                             />
-                                            <br />
-                                            <br />
+                                            <br/>
+                                            <br/>
                                             <Select
                                                 value={this.state.relationWeight}
-                                                input={<Input name='data' id='select-class' />}
+                                                input={<Input name='data' id='select-class'/>}
                                                 onChange={e => {
                                                     const newWeight: number = parseInt(e.target
                                                         .value as string);
@@ -935,8 +972,8 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 </MenuItem>
                                             </Select>
                                         </FormControl>
-                                        <br />
-                                        <br />
+                                        <br/>
+                                        <br/>
                                         <Button onClick={this.createConceptWithRelation.bind(this)}>
                                             Add Related Concept
                                         </Button>
@@ -950,15 +987,15 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         }}
                                     >
                                         {({
-                                            getInputProps,
-                                            getItemProps,
-                                            getLabelProps,
-                                            getMenuProps,
-                                            highlightedIndex,
-                                            inputValue,
-                                            isOpen,
-                                            selectedItem,
-                                        }) => {
+                                              getInputProps,
+                                              getItemProps,
+                                              getLabelProps,
+                                              getMenuProps,
+                                              highlightedIndex,
+                                              inputValue,
+                                              isOpen,
+                                              selectedItem,
+                                          }) => {
                                             const {onBlur, onFocus, ...inputProps} = getInputProps({
                                                 placeholder: 'Search for a Concept',
                                             });
@@ -995,7 +1032,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                                             itemProps: getItemProps(
                                                                                 {
                                                                                     item:
-                                                                                        suggestion.name,
+                                                                                    suggestion.name,
                                                                                 },
                                                                             ),
                                                                             highlightedIndex,
@@ -1016,47 +1053,47 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         }}
                                     </Downshift>
                                     {!this.state.isSearching &&
-                                        !!this.state.selectedSearchItem.conceptID && (
-                                            <Typography variant={'body1'} id='modal-description'>
-                                                Add Relation from{' '}
-                                                {this.state.isAddingParent
-                                                    ? this.state.selectedSearchItem.name
-                                                    : this.state.selectedConcept.name}{' '}
-                                                to{' '}
-                                                {this.state.isAddingParent
-                                                    ? this.state.selectedConcept.name
-                                                    : this.state.selectedSearchItem.name}
-                                                <br />
-                                                <br />
-                                                <Select
-                                                    value={this.state.relationWeight}
-                                                    input={<Input name='data' id='select-class' />}
-                                                    onChange={e => {
-                                                        const newWeight: number = parseInt(e.target
-                                                            .value as string);
-                                                        this.setState({relationWeight: newWeight});
-                                                    }}
-                                                >
-                                                    <MenuItem key={'relation-weight-1'} value={'1'}>
-                                                        1 - Somewhat helpful.
-                                                    </MenuItem>
-                                                    <MenuItem key={'relation-weight-2'} value={'2'}>
-                                                        2 - Recommended.
-                                                    </MenuItem>
-                                                    <MenuItem key={'relation-weight-3'} value={'3'}>
-                                                        3 - Strongly recommended.
-                                                    </MenuItem>
-                                                    <MenuItem key={'relation-weight-4'} value={'4'}>
-                                                        4 - Absolutely required.
-                                                    </MenuItem>
-                                                </Select>
-                                                <br />
-                                                <br />
-                                                <Button onClick={this.setRelation.bind(this)}>
-                                                    Add Relation
-                                                </Button>
-                                            </Typography>
-                                        )}
+                                    !!this.state.selectedSearchItem.conceptID && (
+                                        <Typography variant={'body1'} id='modal-description'>
+                                            Add Relation from{' '}
+                                            {this.state.isAddingParent
+                                                ? this.state.selectedSearchItem.name
+                                                : this.state.selectedConcept.name}{' '}
+                                            to{' '}
+                                            {this.state.isAddingParent
+                                                ? this.state.selectedConcept.name
+                                                : this.state.selectedSearchItem.name}
+                                            <br/>
+                                            <br/>
+                                            <Select
+                                                value={this.state.relationWeight}
+                                                input={<Input name='data' id='select-class'/>}
+                                                onChange={e => {
+                                                    const newWeight: number = parseInt(e.target
+                                                        .value as string);
+                                                    this.setState({relationWeight: newWeight});
+                                                }}
+                                            >
+                                                <MenuItem key={'relation-weight-1'} value={'1'}>
+                                                    1 - Somewhat helpful.
+                                                </MenuItem>
+                                                <MenuItem key={'relation-weight-2'} value={'2'}>
+                                                    2 - Recommended.
+                                                </MenuItem>
+                                                <MenuItem key={'relation-weight-3'} value={'3'}>
+                                                    3 - Strongly recommended.
+                                                </MenuItem>
+                                                <MenuItem key={'relation-weight-4'} value={'4'}>
+                                                    4 - Absolutely required.
+                                                </MenuItem>
+                                            </Select>
+                                            <br/>
+                                            <br/>
+                                            <Button onClick={this.setRelation.bind(this)}>
+                                                Add Relation
+                                            </Button>
+                                        </Typography>
+                                    )}
                                 </TabPanel>
                             </SwipeableViews>
                         </Paper>
@@ -1275,7 +1312,8 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     this.chartRef.current.init();
                 }, 500);
             },
-            res => {},
+            res => {
+            },
         );
     }
 

@@ -12,3 +12,5 @@ def serve_web_app():
 @FileRoutes.route('/<filename>')
 def serve_dist_file(filename):
     return send_from_directory('../static/dist/', filename, conditional=True)
+
+
