@@ -215,7 +215,7 @@ def test_stats(test_id: int):
             return_questions.append({
                 'mean': mean(question_grades),
                 'median': median(question_grades),
-                'standardDeviation': stdev(question_grades),
+                'standardDeviation': stdev(question_grades) if len(question_grades) > 1 else 0,
                 'total': questions[i].total,
                 'marks': question_grades,
             })

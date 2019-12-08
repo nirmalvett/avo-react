@@ -1,0 +1,22 @@
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  image: node:latest
+  stage: build
+  script:
+    - cd static && npm i && npm run build
+  artifacts:
+    paths:
+      - ./static/node_modules
+    expire_in: 1 week
+
+test:
+  image: node:latest
+  stage: test
+  script:
+    - cd static && npm test
+  dependencies:
+    - build

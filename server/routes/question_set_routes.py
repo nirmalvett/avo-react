@@ -11,7 +11,6 @@ QuestionSetRoutes = Blueprint('QuestionSetRoutes', __name__)
 
 
 @QuestionSetRoutes.route('/getSets')
-@teacher_only
 def get_sets():
     """
     Get the list of Sets available to the user

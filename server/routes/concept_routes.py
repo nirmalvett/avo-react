@@ -161,7 +161,6 @@ def get_concepts(course_id: int):
 
 
 @ConceptRoutes.route("/getConceptGraph", methods=['POST'])
-@teacher_only
 @validate(courseID=int)
 def get_concept_graph(course_id: int):
     """

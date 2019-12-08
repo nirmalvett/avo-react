@@ -4,7 +4,6 @@ from git import Repo
 from os import devnull
 from subprocess import check_call, CalledProcessError
 from requests import post
-
 import config
 from server.decorators import admin_only
 

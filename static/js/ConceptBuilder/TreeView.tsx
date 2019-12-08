@@ -70,10 +70,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                     id: 'node-' + Concept.conceptID + '-end', // the + '-end' is for later on filtering
                 },
                 style: {
-                    content:
-                        Concept.name.length > 28
-                            ? Concept.name.substring(0, 25) + '...'
-                            : Concept.name,
+                    content: Concept.name
                 },
             });
         });
@@ -110,7 +107,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                         'background-opacity': 0,
                         'background-fit': 'cover',
                         'background-clip': 'node',
-                    },
+                    } as any,
                 },
                 {
                     selector: 'edge',

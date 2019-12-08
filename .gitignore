@@ -1,10 +1,14 @@
+config-prod.py
+*.csv
+.ipynb_checkpoints/
+*.ipynb
 .idea/
 dist/
 node_modules/
 venv/
 __pycache__/
 desktop.ini
-config.*
+config.py
 DS_Store
 .vscode
 launch.bash
