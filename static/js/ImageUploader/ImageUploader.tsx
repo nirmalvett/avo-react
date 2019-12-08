@@ -1,4 +1,4 @@
-import 'react-dropzone-uploader/dist/styles.css'
+require('react-dropzone-uploader/dist/styles.css')
 import Dropzone from 'react-dropzone-uploader'
 import React, {Component} from 'react';
 
