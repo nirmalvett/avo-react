@@ -8,7 +8,7 @@ import CardContent from '@material-ui/core/CardContent';
 import * as Http from '../Http/index'
 import {Typography} from "@material-ui/core";
 
-export default class ImageUploader extends React.Component<any, any> {
+export default class ImageUploader extends React.Component<{ showCard?: boolean }, { images: Object }> {
 
     constructor(props: any) {
         super(props)
@@ -65,7 +65,7 @@ export default class ImageUploader extends React.Component<any, any> {
                                     return (
                                         <div>
                                             <Typography>{name}</Typography>
-                                            <img src={`${BASE_URL}/image/${name}`}/>
+                                            <img alt={name} src={`${BASE_URL}/image/${name}`}/>
                                         </div>
                                     )
                                 })
