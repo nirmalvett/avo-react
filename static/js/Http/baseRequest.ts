@@ -1,17 +1,18 @@
 import {ajax} from 'rxjs/ajax'
 import {of, pipe} from 'rxjs'
 import {flatMap, first, map, catchError} from 'rxjs/operators'
-
-const getBaseUrl = () => {
-    if (process.env.NODE_ENV == 'PROD') {
-        return 'https://app.avocadocore.com';
-    } else if (process.env.NODE_ENV == 'DEV') {
-        return 'https://dev.avocadocore.com';
-    } else {
-        return '';
-    }
-};
-const BASE_URL = getBaseUrl();
+// For when we have frontend and backend split
+// const getBaseUrl = () => {
+//     if (process.env.NODE_ENV == 'PROD') {
+//         return 'https://app.avocadocore.com';
+//     } else if (process.env.NODE_ENV == 'DEV') {
+//         return 'https://dev.avocadocore.com';
+//     } else {
+//         return '';
+//     }
+// };
+// const BASE_URL = getBaseUrl();
+const BASE_URL = '';
 export type RequestType = 'GET' | 'POST';
 
 interface ErrorResponse {

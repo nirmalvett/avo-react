@@ -9,10 +9,8 @@ import boto3
 from server import db
 from server.decorators import teacher_only, validate, login_required
 from server.models import Image
+from config import S3_BUCKET, S3_LOCATION
 
-S3_BUCKET = 'avo-frontend'
-
-S3_LOCATION = 'http://{}.s3.amazonaws.com/'.format(S3_BUCKET)
 
 FileRoutes = Blueprint('FileRoutes', __name__)
 
@@ -38,7 +36,7 @@ def file_upload():
 
     try:
         # need to run `aws configure` to link account so this works
-        client = boto3.client('s3', region_name='us-east-2')
+        client = boto3.client('s3', region_name='ca-central-1')
 
         client.upload_fileobj(
             file,

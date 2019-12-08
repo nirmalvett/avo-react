@@ -4,6 +4,15 @@ import {ThemeStyle} from '@material-ui/core/styles/createTypography';
 // @ts-ignore
 import {Node, Context} from 'react-mathjax2';
 
+const getBaseUrl = () => {
+    if (process.env.NODE_ENV == 'PROD') {
+        return 'http://avo-cdn-app.s3.amazonaws.com';
+    } else {
+        return 'http://avo-cdn-dev.s3.amazonaws.com';
+    }
+};
+const BASE_URL = getBaseUrl();
+
 interface ContentProps {
     variant?: ThemeStyle;
     children: string;
@@ -26,7 +35,7 @@ export function Content(props: ContentProps) {
         text = text.slice(match.index + match[0].length);
         if (match[0] === '\n' || match[0] === '$\\\\$') {
             // newline
-            result.push(<br key={counter++ + 'nl'} />);
+            result.push(<br key={counter++ + 'nl'}/>);
         } else if (match[1]) {
             // $123$
             result.push(
@@ -49,7 +58,7 @@ export function Content(props: ContentProps) {
             result.push(<Node key={counter++ + '[' + match[4]}>{match[4]}</Node>);
         } else if (match[5]) {
             // <123>
-            result.push(<img alt='image' src={`http://avo-frontend.s3.amazonaws.com/${match[5]}`} />);
+            result.push(<img alt='image' src={`${BASE_URL}/${match[5]}`}/>);
         } else if (match[6]) {
             // <<123>>
             result.push(
