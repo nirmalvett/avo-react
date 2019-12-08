@@ -8,7 +8,7 @@
   "description": "The front end for app.avocadocore.com",
   "main": "index.js",
   "scripts": {
-    "build": "NODE_ENV=PROD webpack --progress --config webpack.config.js",
+    "build": "webpack --progress --config webpack.config.js",
     "dev-build": "webpack --progress -d --config webpack.config.js",
     "watch": "webpack --progress -d --config webpack.config.js --watch",
     "prettier": "prettier --write js/**/*.ts js/**/*.tsx",
