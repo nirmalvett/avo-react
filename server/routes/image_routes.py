@@ -1,10 +1,7 @@
 from flask import Blueprint, abort, redirect, jsonify, request
-
 from flask_login import current_user
 from werkzeug.utils import secure_filename
-
 import boto3
-
 from server import db
 from server.decorators import teacher_only, login_required
 from server.models import Image
