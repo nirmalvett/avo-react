@@ -223,7 +223,7 @@ class Image(db.Model):
 
     IMAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
     USER = db.Column(db.Integer, db.ForeignKey('USER.USER'))
-    name = db.Column(db.String(200), unique=True)
+    name = db.Column(db.String(200))
     url = db.Column(db.String(1000))
 
     USER_RELATION = db.relationship('User', back_populates='IMAGE_RELATION')
