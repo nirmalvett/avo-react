@@ -11,7 +11,7 @@ const config = {
     },
     output: {
         path: path.resolve(__dirname, "dist"),
-        filename: `bundle.js?version=${Math.random().toFixed(2)}`
+        filename: `bundle.js?version=${Math.random().toFixed(10)}`
     },
 
     resolve: {
@@ -52,8 +52,6 @@ const config = {
             {
                 test: /\.s[ac]ss$/i,
                 use: [
-                    // Creates `style` nodes from JS strings
-                    'style-loader',
                     // Translates CSS into CommonJS\
                     MiniCssExtractPlugin.loader,
                     'css-loader',

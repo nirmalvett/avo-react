@@ -3,6 +3,8 @@ import {Typography} from '@material-ui/core';
 import {ThemeStyle} from '@material-ui/core/styles/createTypography';
 // @ts-ignore
 import {Node, Context} from 'react-mathjax2';
+import {BASE_URL} from '../Http/baseRequest'
+
 
 interface ContentProps {
     variant?: ThemeStyle;
@@ -15,7 +17,7 @@ export function Content(props: ContentProps) {
     let result = [];
     let counter = 0;
     while (text.length) {
-        const match = /\$(.+?)\$|\\\((.+?)\\\)|\$\$(.+?)\$\$|\\\[(.+?)\\]|<(\d+)>|<<(.*?)>>|\n/g.exec(
+        const match = /\$(.+?)\$|\\\((.+?)\\\)|\$\$(.+?)\$\$|\\\[(.+?)\\]|<img>(.*?)<img>|<<(.*?)>>|\n/g.exec(
             text,
         );
         if (!match) {
@@ -26,7 +28,7 @@ export function Content(props: ContentProps) {
         text = text.slice(match.index + match[0].length);
         if (match[0] === '\n' || match[0] === '$\\\\$') {
             // newline
-            result.push(<br key={counter++ + 'nl'} />);
+            result.push(<br key={counter++ + 'nl'}/>);
         } else if (match[1]) {
             // $123$
             result.push(
@@ -49,7 +51,7 @@ export function Content(props: ContentProps) {
             result.push(<Node key={counter++ + '[' + match[4]}>{match[4]}</Node>);
         } else if (match[5]) {
             // <123>
-            result.push(<img alt='image' src={`${window.location.origin}/image/${match[5]}`} />);
+            result.push(<img alt='image' src={`${BASE_URL}/image/${match[5]}`}/>);
         } else if (match[6]) {
             // <<123>>
             result.push(
