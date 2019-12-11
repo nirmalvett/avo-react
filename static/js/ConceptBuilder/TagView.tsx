@@ -1005,7 +1005,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             <br/>
                             <Button color="primary" style={{ position : 'absolute', right : '8px', bottom : '8px' }} onClick={() => {
                                 const selectedConcept: Concept = {...this.state.selectedSearchItem} as Concept;
-                                this.setState({
+                                this.setState({ // clears the state
                                     conceptSearchString : '',
                                     showSearch: false 
                                 });
