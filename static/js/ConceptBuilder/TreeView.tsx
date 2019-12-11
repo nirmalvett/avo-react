@@ -105,6 +105,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                         'height': '150px',
                         'text-valign': 'center',
                         'text-halign': 'right',
+                        'font-size': 30,
                         'color': this.props.theme.theme == 'light' ? 'black' : 'white',
                         'background-opacity': 0,
                         'background-fit': 'cover',

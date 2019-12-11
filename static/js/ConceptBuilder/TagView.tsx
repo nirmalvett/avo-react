@@ -104,6 +104,7 @@ interface TagViewState {
     showModal: boolean;
     showAddNodeModal: boolean;
     showAddRelatedNodeModal: boolean;
+    showSearch: boolean;
     isAddingParent: boolean;
     modalNode: WeightedConcept;
     activeTab: number;
@@ -253,6 +254,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             showAddNodeModal: false,
             isAddingParent: false,
             showAddRelatedNodeModal: false,
+            showSearch: false,
             modalNode: {} as WeightedConcept,
             activeTab: 0,
             conceptSearchString: '',
@@ -281,6 +283,13 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     this.setState({showAddNodeModal: true});
                 },
             },
+            {
+                label: 'Search for Concept',
+                disabled: !this.state.concepts.length,
+                onClick: () => {
+                    this.setState({showSearch : true});
+                }
+            }
         ];
         if (!!this.state.selectedConcept.name) {
             menuOptions.push(
@@ -885,6 +894,125 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                     Add Concept
                                 </Button>
                             </Typography>
+                        </Paper>
+                    </Modal>
+                )}
+                {this.state.showSearch && (
+                    <Modal
+                        open={this.state.showSearch}
+                        aria-labelledby='modal-title'
+                        aria-describedby='modal-description'
+                        style={{
+                            width: '40%',
+                            top: '50px',
+                            left: '30%',
+                            right: '30%',
+                            position: 'absolute',
+                        }}
+                    >
+                        <Paper className="avo-card">
+                            <IconButton
+                                style={{
+                                    position: 'absolute' as 'absolute',
+                                    right: '9px',
+                                    top: '9px',
+                                    zIndex: 100,
+                                }}
+                                onClick={() => this.setState({showSearch: false})}
+                            >
+                                <Close/>
+                            </IconButton>
+                            <Typography variant={'h5'} id='modal-title'>
+                                Search Concepts
+                            </Typography>
+                            <br/>
+                            <Downshift
+                                id='downshift-simple'
+                                onSelect={e => {
+                                    this.setState({conceptSearchString: e});
+                                }}
+                            >
+                                {({
+                                        getInputProps,
+                                        getItemProps,
+                                        getLabelProps,
+                                        getMenuProps,
+                                        highlightedIndex,
+                                        inputValue,
+                                        isOpen,
+                                        selectedItem,
+                                    }) => {
+                                    const {onBlur, onFocus, ...inputProps} = getInputProps({
+                                        placeholder: 'Search for a Concept',
+                                    });
+
+                                    return (
+                                        <div>
+                                            <TextField
+                                                InputProps={{
+                                                    placeholder: 'Search for a Concept',
+                                                }}
+                                                value={this.state.conceptSearchString}
+                                                fullWidth={true}
+                                                onChange={(e: any) => {
+                                                    this.setState({
+                                                        conceptSearchString: e.target.value,
+                                                        isSearching: true,
+                                                    });
+                                                }}
+                                            />
+                                            <div {...getMenuProps()}>
+                                                {this.state.isSearching ? (
+                                                    <Paper square>
+                                                        {getSuggestions(
+                                                            this.state.conceptSearchString,
+                                                            this.state.concepts,
+                                                        ).map(
+                                                            (
+                                                                suggestion: Concept,
+                                                                index: number,
+                                                            ) =>
+                                                                renderSuggestion({
+                                                                    suggestion,
+                                                                    index,
+                                                                    itemProps: getItemProps(
+                                                                        {
+                                                                            item:
+                                                                            suggestion.name,
+                                                                        },
+                                                                    ),
+                                                                    highlightedIndex,
+                                                                    selectedItem,
+                                                                    onClick: () => {
+                                                                        console.log(suggestion);
+                                                                        this.setState({
+                                                                            conceptSearchString: suggestion.name,
+                                                                            selectedSearchItem: suggestion,
+                                                                            isSearching: false,
+                                                                        });
+                                                                    },
+                                                                }),
+                                                        )}
+                                                    </Paper>
+                                                ) : null}
+                                            </div>
+                                        </div>
+                                    );
+                                }}
+                            </Downshift>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <Button color="primary" style={{ position : 'absolute', right : '8px', bottom : '8px' }} onClick={() => {
+                                const selectedConcept: Concept = {...this.state.selectedSearchItem} as Concept;
+                                this.setState({ // clears the state
+                                    conceptSearchString : '',
+                                    showSearch: false 
+                                });
+                                setTimeout(() => this.gotoSelectedNode(selectedConcept), 150);
+                            }}>
+                                Go To Concept
+                            </Button>
                         </Paper>
                     </Modal>
                 )}
