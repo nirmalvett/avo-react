@@ -4,13 +4,14 @@ import cytoscape, {ElementsDefinition} from 'cytoscape';
 import dagre from 'cytoscape-dagre';
 import * as Http from '../Http';
 
-interface Concept {
+export interface Concept {
     conceptID: number;
     name: string;
     lesson: string;
+    collapsed?: boolean;
 }
 
-interface Edge {
+export interface Edge {
     child: number;
     parent: number;
     weight: number;
