@@ -14,6 +14,14 @@ interface QuestionScreenProps {
 
 export function QuestionScreen(props: QuestionScreenProps) {
     const question = props.question;
+    const showConceptGraph: HTMLElement = document.querySelector(
+        '[title="Show Concept Graph"]',
+    ) as HTMLElement;
+    if (showConceptGraph) {
+        showConceptGraph.style.right = '0';
+        showConceptGraph.style.top = '3vw';
+    }
+
     return (
         <Fragment>
             <Button

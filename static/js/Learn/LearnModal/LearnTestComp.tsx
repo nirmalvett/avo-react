@@ -92,7 +92,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         question={this.state.nextQuestion as AvoLessonData}
                         answers={this.state.nextAnswers}
                         changeAnswer={this.changeAnswer}
-                        back={() => this.setState({mode: 'lesson'})}
+                        back={this.backFromQuestion}
                         next={this.submitAnswer}
                     />
                 );
@@ -161,6 +161,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         this.getQuestion();
                     },
                 );
+                resetShowConceptGraphButton();
             },
             console.warn,
         );
@@ -169,4 +170,19 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
     showModal = () => {
         this.setState({postLessonModalDisplay: 'block'});
     };
+
+    backFromQuestion = () => {
+        this.setState({mode: 'lesson'});
+        resetShowConceptGraphButton();
+    };
+}
+
+function resetShowConceptGraphButton() {
+    const showConceptGraph: HTMLElement = document.querySelector(
+        '[title="Show Concept Graph"]',
+    ) as HTMLElement;
+    if (showConceptGraph) {
+        showConceptGraph.style.right = '12vw';
+        showConceptGraph.style.top = '0';
+    }
 }
