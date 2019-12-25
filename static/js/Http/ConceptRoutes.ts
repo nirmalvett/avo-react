@@ -104,3 +104,20 @@ export interface GetNextQuestion {
 export function getNextQuestion(conceptID: number, success: cb<GetNextQuestion>, failure: cb) {
     _request('POST', '/getNextQuestion', success, failure, {conceptID});
 }
+
+// Frontend Gives: questionString, ID, type
+//      - questionString: the question student asks
+//      - ID: the ID of the question (a question AVO is asking to challenge the student)  or a concept
+//      - type: 0 for an inquiry about a question, 1 for an inquiry about a concept
+//      - stringifiedQuestionObject: '{prompt: ..., prompts: ...}' to store so that we can see the original question
+
+interface InquirySubmissionData {
+    questionString: string;
+    ID: number;
+    type: number;
+    stringifiedQuestionObject: string;
+};
+
+export function submitInquiry(data: InquirySubmissionData, success: cb<{}>, failure: cb) {
+    _request('POST', '/submitInquiry', success, failure, data);
+};

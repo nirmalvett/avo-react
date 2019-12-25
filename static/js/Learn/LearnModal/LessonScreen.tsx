@@ -85,7 +85,7 @@ export class LessonScreen extends PureComponent<LessonScreenProps> {
                             })}
                         </div>
                     </div>
-                    <InquiryPopup/>
+                    <InquiryPopup ID={lesson.conceptID} object={lesson.lesson}/>
                     <Button variant='outlined' color='primary' disabled={disabled} onClick={next}>
                         Practice Concept
                     </Button>
