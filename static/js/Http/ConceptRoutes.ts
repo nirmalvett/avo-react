@@ -121,3 +121,7 @@ interface InquirySubmissionData {
 export function submitInquiry(data: InquirySubmissionData, success: cb<{}>, failure: cb) {
     _request('POST', '/submitInquiry', success, failure, data);
 };
+
+export function getInquiries(ID:number, type:number, success: cb<{}>, failure: cb) {
+    _request('POST', '/getInquiries', success, failure, {ID, type});
+};
