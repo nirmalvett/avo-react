@@ -67,24 +67,6 @@ class Concept(db.Model):
         return f'<Concept {self.CONCEPT} {self.COURSE} {self.name} {self.lesson_content}>'
 
 
-class ConceptInquiry(db.Model):
-    __tablename__ = 'concept_inquiry'
-
-    CONCEPT_INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
-    INQUIRY = db.Column(db.Integer, db.ForeignKey('INQUIRY.INQUIRY'), nullable=False)
-
-    CONCEPT_RELATION = db.relationship('Concept', back_populates='CONCEPT_INQUIRY_RELATION')
-    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='CONCEPT_INQUIRY_RELATION')
-
-    def __init__(self, concept, inquiry):
-        self.CONCEPT = concept
-        self.INQUIRY = inquiry
-
-    def __repr__(self):
-        return f'Concept Inquiry Relation {self.CONCEPT_INQUIRY} {self.CONCEPT} {self.INQUIRY}'
-
-
 class ConceptQuestion(db.Model):
     __tablename__ = 'concept_question'
 
@@ -260,6 +242,7 @@ class Inquiry(db.Model):
     __tablename__ = 'INQUIRY'
 
     INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'))
     originalInquiry = db.Column(db.Text, nullable=False)
     editedInquiry = db.Column(db.TEXT, nullable=False, default="")
     hasAnswered = db.Column(db.Boolean, nullable=False, default=False)
