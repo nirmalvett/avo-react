@@ -38,5 +38,5 @@ def get_all_inquired_concepts(course_id: int):
     """
     Get all inquiries of a concept given a course ID
     """
-    
+    return jsonify(test="placeholder")
 
