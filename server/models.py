@@ -53,6 +53,7 @@ class Concept(db.Model):
     CONCEPT_CHILD_RELATION = db.relationship(
         'ConceptRelation', back_populates='CONCEPT_CHILD_RELATION', foreign_keys='ConceptRelation.CHILD'
     )
+    CONCEPT_INQUIRY_RELATION = db.relationship('ConceptInquiry', back_populates='CONCEPT_RELATION')
     COURSE_RELATION = db.relationship('Course', back_populates='CONCEPT_RELATION')
     LESSON_RELATION = db.relationship('Lesson', back_populates='CONCEPT_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='CONCEPT_RELATION')
@@ -64,6 +65,24 @@ class Concept(db.Model):
 
     def __repr__(self):
         return f'<Concept {self.CONCEPT} {self.COURSE} {self.name} {self.lesson_content}>'
+
+
+class ConceptInquiry(db.Model):
+    __tablename__ = 'concept_inquiry'
+
+    CONCEPT_INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
+    INQUIRY = db.Column(db.Integer, db.ForeignKey('INQUIRY.INQUIRY'), nullable=False)
+
+    CONCEPT_RELATION = db.relationship('Concept', back_populates='CONCEPT_INQUIRY_RELATION')
+    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='CONCEPT_INQUIRY_RELATION')
+
+    def __init__(self, concept, inquiry):
+        self.CONCEPT = concept
+        self.INQUIRY = inquiry
+
+    def __repr__(self):
+        return f'Concept Inquiry Relation {self.CONCEPT_INQUIRY} {self.CONCEPT} {self.INQUIRY}'
 
 
 class ConceptQuestion(db.Model):
@@ -235,6 +254,28 @@ class Image(db.Model):
 
     def __repr__(self):
         return f'<Image {self.IMAGE} {self.USER} {self.name} {self.url}>'
+
+
+class Inquiry(db.Model):
+    __tablename__ = 'INQUIRY'
+
+    INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    originalInquiry = db.Column(db.Text, nullable=False)
+    editedInquiry = db.Column(db.TEXT, nullable=False, default="")
+    hasAnswered = db.Column(db.Boolean, nullable=False, default=False)
+    stringifiedQuestion = db.Column(db.TEXT, nullable=False, default="")
+    inquiryAnswer = db.Column(db.TEXT, nullable=False, default="")
+
+    CONCEPT_INQUIRY_RELATION = db.relationship('ConceptInquiry', back_populates='INQUIRY_RELATION')
+    USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='INQUIRY_RELATION')
+
+    def __init__(self, original_inquiry, stringified_question):
+        self.originalInquiry = original_inquiry
+        self.stringifiedQuestion = stringified_question
+
+    def __repr__(self):
+        return f'Inquiry {self.INQUIRY} {self.originalInquiry} {self.editedInquiry} {self.hasAnswered} ' \
+               f'{self.stringifiedQuestion} {self.inquiryAnswer}'
 
 
 class Issue(db.Model):
@@ -589,6 +630,7 @@ class User(UserMixin, db.Model):
     TAKES_RELATION = db.relationship('Takes', back_populates='USER_RELATION')
     USER_CONVERSATION_RELATION = db.relationship('UserConversation', back_populates='USER_RELATION')
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='USER_RELATION')
+    USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='USER_RELATION')
     USER_SECTION_RELATION = db.relationship('UserSection', back_populates='USER_RELATION')
     IMAGE_RELATION = db.relationship('Image', back_populates='USER_RELATION')
 
@@ -658,6 +700,26 @@ class UserCourse(db.Model):
 
     def __repr__(self):
         return f'<UserCourse {self.USER_COURSE} {self.USER} {self.COURSE} {self.can_edit}>'
+
+
+class UserInquiry(db.Model):
+    __tablename__ = 'user_inquiry'
+
+    USER_INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    INQUIRY = db.Column(db.Integer, db.ForeignKey('INQUIRY.INQUIRY'))
+    isOwner = db.Column(db.Boolean, default=False)
+
+    USER_RELATION = db.relationship('User', back_populates='USER_INQUIRY_RELATION')
+    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='USER_INQUIRY_RELATION')
+
+    def __init__(self, user, inquiry, is_owner=False):
+        self.USER = user
+        self.INQUIRY = inquiry
+        self.isOwner = is_owner
+
+    def __repr__(self):
+        return f'User Inquiry {self.USER_INQUIRY} {self.USER} {self.INQUIRY} {self.isOwner}'
 
 
 class UserSection(db.Model):
