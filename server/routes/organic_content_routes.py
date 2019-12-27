@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from flask_login import current_user
-from server.decorators import login_required, validate
+from server.decorators import login_required, teacher_only, validate
 from server.models import db, Inquiry, UserInquiry
 
 OrganicContentRoutes = Blueprint("OrganicContentRoutes", __name__)
@@ -29,3 +29,14 @@ def get_inquires():
     ]  # format data to return to client
 
     return jsonify(inquiries=return_inquiries)
+
+
+@OrganicContentRoutes.route('getAllInquiredConcepts')
+@teacher_only
+@validate(courseId=int)
+def get_all_inquired_concepts(course_id: int):
+    """
+    Get all inquiries of a concept given a course ID
+    """
+    
+
