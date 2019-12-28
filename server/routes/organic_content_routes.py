@@ -7,7 +7,7 @@ from server.models import Concept, ConceptQuestion, Course, db, Inquiry, Questio
 OrganicContentRoutes = Blueprint("OrganicContentRoutes", __name__)
 
 
-@OrganicContentRoutes.route('/getInquiries', methods={'GET'})
+@OrganicContentRoutes.route('/getInquiries', methods={'POST'})
 @login_required
 @validate(inquiryType=int, questionID=int)
 def get_inquires(inquiry_type: int, question_id: int):
@@ -16,8 +16,7 @@ def get_inquires(inquiry_type: int, question_id: int):
     :return list of data of Inquires
     """
     inquiry_list = None
-    user_inquiry_list = UserInquiry.query.filter((UserInquiry.USER == current_user.USER) &
-                                               (UserInquiry.isOwner == False)).all()
+    user_inquiry_list = UserInquiry.query.filter((UserInquiry.USER == current_user.USER) ).all()
     subscribed_list = []
     for i in user_inquiry_list:
         subscribed_list.append(i.USER_INQUIRY)

@@ -180,9 +180,9 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                     Submit Question
                 </Button>
                 <div style={{ position: "absolute", top: '0', left: '0', width: '100%', height: '100%', pointerEvents: this.state.hasSubmittedInquiry ? 'auto' : 'none' }}>
-                    <Fade in={this.state.hasSubmittedInquiry} unmountOnExit>
+                    {/* <Grow in={this.state.hasSubmittedInquiry}> */}
                         Congrats, submission complete
-                    </Fade>
+                    {/* </Grow> */}
                 </div>
             </Typography>
         );
@@ -239,7 +239,6 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
     };
 
     getInquiries() {
-        console.log(this.props.ID);
         Http.getInquiries(
             this.props.ID,
             1,
