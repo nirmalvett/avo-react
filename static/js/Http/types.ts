@@ -4,7 +4,20 @@ export interface Course {
     canEdit: boolean;
 }
 
+interface SimpleQuestionConfig {
+    type: string;
+    types: string[];
+    prompts: string[];
+    explanation: string
+    correct_answer: TrueFalseConfigCorrectAnswer | WordInputConfigCorrectAnswer;
+}
+
+export type TrueFalseConfigCorrectAnswer = "true" | "false";
+
+export type WordInputConfigCorrectAnswer = string[];
+
 export interface Question {
+    config: SimpleQuestionConfig;
     questionID: number;
     name: string;
     string: string;

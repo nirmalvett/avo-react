@@ -4,9 +4,11 @@ import Logo from '../SharedComponents/Logo';
 import MultipleChoiceBuilder from './MultipleChoiceBuilder';
 import QuestionManager from './QuestionManager';
 import TrueFalseBuilder from './TrueFalseBuilder';
+import SimpleTrueFalseBuilder from './SimpleTrueFalseBuilder';
 import {QuestionSet, Course} from 'Http/types';
 import {ShowSnackBar} from 'Layout/Layout';
 import {QuestionBuilder} from './QuestionBuilder';
+import WordInputQuestionBuilder from './WordInputQuestionBuilder'
 
 interface Mode1 {
     mode: null;
@@ -34,15 +36,13 @@ type QuestionBuilderHomeProps = {
 };
 
 interface QuestionBuilderHomeState {
-    screen: 'home' | 'math' | 'math-builder' | 'multiple-choice' | 'true-false';
+    screen: 'home' | 'math' | 'math-builder' | 'multiple-choice' | 'true-false' | 'word-input';
     selection: QuestionBuilderSelection;
     isActive: boolean;
 }
 
-export class QuestionBuilderHome extends Component<
-    QuestionBuilderHomeProps,
-    QuestionBuilderHomeState
-> {
+export class QuestionBuilderHome extends Component<QuestionBuilderHomeProps,
+    QuestionBuilderHomeState> {
     constructor(props: QuestionBuilderHomeProps) {
         super(props);
         this.state = {
@@ -95,7 +95,17 @@ export class QuestionBuilderHome extends Component<
                 );
             case 'true-false':
                 return (
-                    <TrueFalseBuilder
+                    <SimpleTrueFalseBuilder
+                        sets={this.props.sets}
+                        courses={this.props.courses}
+                        returnHome={() => this.setState({screen: 'home', isActive: true})}
+                        showSnackBar={this.props.showSnackBar}
+                        updateSets={this.props.updateSets}
+                    />
+                );
+            case "word-input":
+                return (
+                    <WordInputQuestionBuilder
                         sets={this.props.sets}
                         courses={this.props.courses}
                         returnHome={() => this.setState({screen: 'home', isActive: true})}
@@ -111,7 +121,7 @@ export class QuestionBuilderHome extends Component<
     renderHomeScreen() {
         return (
             <Grid style={{overflow: 'auto'}} container xs={12}>
-                <Grid item xs={3} />
+                <Grid item xs={3}/>
                 <Grid item xs={6}>
                     <Grow in={this.state.isActive}>
                         <Card
@@ -132,7 +142,7 @@ export class QuestionBuilderHome extends Component<
                             <Typography variant='subtitle1' gutterBottom>
                                 What type of question would you like to create today?
                             </Typography>
-                            <br />
+                            <br/>
                             <Button
                                 onClick={this.switchToMathQB}
                                 variant='outlined'
@@ -147,7 +157,7 @@ export class QuestionBuilderHome extends Component<
                             >
                                 Math
                             </Button>
-                            <br />
+                            <br/>
                             <Button
                                 onClick={this.switchToMCB}
                                 variant='outlined'
@@ -162,20 +172,35 @@ export class QuestionBuilderHome extends Component<
                             >
                                 Multiple choice
                             </Button>
-                            <br />
+                            <br/>
                             <Button
                                 onClick={this.switchToTF}
                                 variant='outlined'
                                 color='primary'
                                 className=''
-                                style={{width: '90%', borderRadius: '2.5em', margin: '5%'}}
+                                style={{
+                                    width: '90%',
+                                    borderRadius: '2.5em',
+                                    margin: '5%',
+                                    marginBottom: '0px',
+                                }}
                             >
                                 True or False
+                            </Button>
+                            <br/>
+                            <Button
+                                onClick={this.switchToWI}
+                                variant='outlined'
+                                color='primary'
+                                className=''
+                                style={{width: '90%', borderRadius: '2.5em', margin: '5%'}}
+                            >
+                                Word Input
                             </Button>
                         </Card>
                     </Grow>
                 </Grid>
-                <Grid item xs={3} />
+                <Grid item xs={3}/>
             </Grid>
         );
     }
@@ -199,6 +224,12 @@ export class QuestionBuilderHome extends Component<
     switchToTF = () => {
         this.setState({isActive: false}, () =>
             setTimeout(() => this.setState({screen: 'true-false'}), 500),
+        );
+    };
+
+    switchToWI = () => {
+        this.setState({isActive: false}, () =>
+            setTimeout(() => this.setState({screen: 'word-input'}), 500),
         );
     };
 

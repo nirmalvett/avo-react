@@ -9,6 +9,7 @@ from server.auth import SectionRelations
 from server.decorators import login_required, teacher_only, validate
 from server.helpers import timestamp
 from server.models import db, Test, Takes, Question, UserSectionType, DataStore
+from server.question_helpers.answer_factory import get_prompt_prompts_types, answer_question, get_explanations
 
 TakesRoutes = Blueprint('TakesRoutes', __name__)
 
@@ -48,8 +49,14 @@ def get_test(test_id: int):
         current_question = next((x for x in questions_in_test if x.QUESTION == question_ids[i]), None)
         store_questions.append(current_question.string)
         store_answers.append(current_question.answers)
-        q = AvoQuestion(current_question.string, seeds[i])
-        questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
+        # math
+        if not current_question.config:
+            q = AvoQuestion(current_question.string, seeds[i])
+            questions.append({'prompt': q.prompt, 'prompts': q.prompts, 'types': q.types})
+        # simple
+        else:
+            prompt, prompts, types = get_prompt_prompts_types(current_question)
+            questions.append({'prompt': prompt, 'prompts': prompts, 'types': types})
     tests_before = Takes.query.filter(current_user.USER == Takes.USER).count()
     current_tests_before = Takes.query.filter(
         ((current_user.USER == Takes.USER) & (test.TEST == Takes.TEST))
@@ -103,13 +110,25 @@ def save_answer(takes_id: int, question: int, answer: list):
     takes.answers = str(answers)
     db.session.commit()
     try:
-        q = AvoQuestion(current_question.string, eval(takes.seeds)[question], answer)
-        marks = eval(takes.marks)
-        marks[question] = q.scores
-        # Update with new values and commit to DataBase
-        takes.marks = str(marks)
-        takes.grade = sum(map(lambda x: sum(x), marks))
-        db.session.commit()
+        # math
+        if not current_question.config:
+            q = AvoQuestion(current_question.string, eval(takes.seeds)[question], answer)
+            marks = eval(takes.marks)
+            marks[question] = q.scores
+            # Update with new values and commit to DataBase
+            takes.marks = str(marks)
+            takes.grade = sum(map(lambda x: sum(x), marks))
+            db.session.commit()
+        # simple
+        else:
+            results = answer_question(current_question.config, iter(answer))
+            scores = [sum(1 if x else 0 for x in results)/len(results)]
+            marks = eval(takes.marks)
+            marks[question] = scores
+            # Update with new values and commit to DataBase
+            takes.marks = str(marks)
+            takes.grade = sum(map(lambda x: sum(x), marks))
+            db.session.commit()
     except:
         print(f'unable to change mark for takes {takes.TAKES}')
         return jsonify(message='answer saved, but an error occurred while grading')
@@ -224,9 +243,19 @@ def post_test(takes_id: int):
         for i in range(len(questions)):
             # For each question mark question with answer and add to list then return
             current_question = next((x for x in question_objects_in_test if x.QUESTION == questions[i]), None)
-            q = AvoQuestion(current_question.string, seeds[i], answers[i])
-            question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation,
-                                  'types': q.types, 'answers': answers[i], 'totals': q.totals, 'scores': marks[i]})
+            # math
+            if not current_question.config:
+                q = AvoQuestion(current_question.string, seeds[i], answers[i])
+                question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation,
+                                      'types': q.types, 'answers': answers[i], 'totals': q.totals, 'scores': marks[i]})
+            # simple
+            else:
+                prompt, prompts, types = get_prompt_prompts_types(current_question)
+                explanations = get_explanations(current_question.config)
+                totals = [1]
+                question_list.append(
+                    {'prompt': prompt, 'prompts': prompts, 'explanation': explanations,
+                     'types': types, 'answers': answers[i], 'totals': totals, 'scores': marks[i]})
         return jsonify(questions=question_list)
     else:
         return jsonify(error="User isn't in class")
@@ -300,8 +329,15 @@ def create_takes(test, user):
     for test_question in test_question_list:
         # For each question in test add in mark values per question
         current_question = next((x for x in questions_in_test if x.QUESTION == test_question), None)
-        marks_list.append([0] * len(AvoQuestion(current_question.string, 0, []).totals))
-        answer_list.append([''] * current_question.answers)
+        # math
+        if not current_question.config:
+            marks_list.append([0] * len(AvoQuestion(current_question.string, 0, []).totals))
+            answer_list.append([''] * current_question.answers)
+        # simple
+        else:
+            marks_list.append([0] * current_question.answers)
+            answer_list.append([''] * current_question.answers)
+
     now = datetime.now()
     if test.timer == -1:
         time2 = test.deadline

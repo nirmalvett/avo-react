@@ -321,7 +321,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     renderQuestionList() {
         if (this.props.selection.mode !== null) {
             const id =
-                this.props.selection.mode === 'question'
+                this.props.selection.mode === 'question' && this.props.sets[this.props.selection.s].questions[this.props.selection.q]
                     ? this.props.sets[this.props.selection.s].questions[this.props.selection.q]
                           .questionID
                     : -1;
@@ -330,6 +330,7 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                     key={question.questionID + '-' + index}
                     button
                     onClick={() => this.selectQuestion(index)}
+                    disabled={question.config && Object.keys(question.config).length > 0}
                 >
                     <ListItemIcon>
                         <QuestionIcon color={id === question.questionID ? 'primary' : 'action'} />

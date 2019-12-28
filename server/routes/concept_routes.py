@@ -11,6 +11,8 @@ from server.models import db, Concept, ConceptQuestion, ConceptRelation, Mastery
 
 from random import choice, randint
 
+from server.question_helpers.answer_factory import get_prompt_prompts_types
+
 ConceptRoutes = Blueprint('ConceptRoutes', __name__)
 
 
@@ -82,8 +84,9 @@ def delete_concept(concept_id: int):
     for c in concept_relation:
         db.session.delete(c)
     mastery = Mastery.query.filter(Mastery.CONCEPT == concept_id).all()  # Mastery with current concept
-    mastery_history = MasteryHistory.query\
-        .filter(MasteryHistory.MASTERY.in_(list(map(lambda x: x.MASTERY, mastery)))).all()  # Mastery backups with current concept
+    mastery_history = MasteryHistory.query \
+        .filter(MasteryHistory.MASTERY.in_(
+        list(map(lambda x: x.MASTERY, mastery)))).all()  # Mastery backups with current concept
     for m in mastery_history:
         db.session.delete(m)
     for m in mastery:
@@ -247,8 +250,14 @@ def get_next_question(concept_id):
         return jsonify(error='No question available')
     question: Question = choice(valid_questions)
     seed = randint(0, 65535)
-    q = AvoQuestion(question.string, seed)
-    return jsonify(ID=question.QUESTION, prompt=q.prompt, prompts=q.prompts, seed=seed, types=q.types)
+    # math
+    if not question.config:
+        q = AvoQuestion(question.string, seed)
+        return jsonify(ID=question.QUESTION, prompt=q.prompt, prompts=q.prompts, seed=seed, types=q.types)
+    # simple
+    else:
+        prompt, prompts, types = get_prompt_prompts_types(question)
+        return jsonify(ID=question.QUESTION, prompt=prompt, prompts=prompts, seed=seed, types=types)
 
 
 def get_course_graph(course_id):
