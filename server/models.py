@@ -252,9 +252,13 @@ class Inquiry(db.Model):
     CONCEPT_RELATION = db.relationship('Concept', back_populates='INQUIRY_RELATION')
     USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='INQUIRY_RELATION')
 
-    def __init__(self, original_inquiry, stringified_question):
+    def __init__(self, concept, original_inquiry, stringified_question):
+        self.CONCEPT = concept
         self.originalInquiry = original_inquiry
+        self.editedInquiry = None
+        self.hasAnswered = False
         self.stringifiedQuestion = stringified_question
+        self.inquiryAnswer = None
 
     def __repr__(self):
         return f'Inquiry {self.INQUIRY} {self.originalInquiry} {self.editedInquiry} {self.hasAnswered} ' \

@@ -1,18 +1,18 @@
 from flask import Blueprint, jsonify
 from flask_login import current_user
-from server.decorators import login_required, teacher_only, validate
+from server.decorators import login_required, student_only, teacher_only, validate
 from server.auth import able_view_course
-from server.models import Concept, Course, db, Inquiry, UserInquiry
+from server.models import Concept, ConceptQuestion, Course, db, Inquiry, Question, UserInquiry
 
 OrganicContentRoutes = Blueprint("OrganicContentRoutes", __name__)
 
 
 @OrganicContentRoutes.route('/getInquires')
 @login_required
-@validate()
-def get_inquires():
+@validate(conceptID=int)
+def get_inquires(concept_id:int):
     """
-    Gets all Inquires for the current user
+    Return all inquiries that the user does not own that are related to a concept
     :return list of data of Inquires
     """
     inquires_list = Inquiry.query.filter((Inquiry.INQUIRY == UserInquiry.INQUIRY) &
@@ -61,4 +61,27 @@ def get_all_inquired_concepts(course_id: int):
         concept_return_list.append(concept_json)
     return jsonify(concepts=concept_return_list)
 
+
+@OrganicContentRoutes.route('/submitInquiry')
+@student_only
+@validate(questionString=int, questionID=int, inquiryType=int, stringifiedQuestionObject=str)
+def submit_inquiry(question_string: int, question_id: int, inquiry_type: int, stringified_question_object: str):
+    concept = None
+    if inquiry_type == 0:
+        # Inquiry About Question
+        question = Question.query.get(question_id)
+        if question is None:
+            return jsonify(error="Question Not Found")
+        concept = Concept.query.filter((ConceptQuestion.CONCEPT == Concept.CONCEPT) &
+                                        (ConceptQuestion.QUESTION == question.QUESTION)).first()
+        del question
+    if inquiry_type == 1:
+        # Inquiry About Concept
+        concept = Concept.query.get(question_id)
+    if concept is None:
+        return jsonify(error="Concept Not Found")
+    new_inquiry = Inquiry(concept.CONCEPT, question_string, stringified_question_object)
+    db.session.add(new_inquiry)
+    db.session.commit()
+    return jsonify({})
 
