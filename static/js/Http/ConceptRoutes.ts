@@ -127,5 +127,6 @@ interface InquiryObject {
 }
 
 export function getInquiries(questionID:number, inquiryType:number, success: cb<InquiryObject[]>, failure: cb) {
-    _request('GET', '/getInquiries', success, failure, {questionID, inquiryType });
+    console.log(questionID, inquiryType);
+    _request('GET', '/getInquiries', success, failure, {questionID, inquiryType});
 };
