@@ -29,7 +29,7 @@ def get_inquires(inquiry_type: int, question_id: int):
         # Concept type
         inquiry_list = Inquiry.query.filter((Inquiry.CONCEPT == question_id) &
                                             UserInquiry.USER_INQUIRY.in_(subscribed_list)).all()
-    if len(inquiry_list) == 0:
+    if inquiry_list is None:
         return jsonify(error="No inquiries found")
 
     return_list = [{
@@ -43,7 +43,6 @@ def get_inquires(inquiry_type: int, question_id: int):
         'stringifiedQuestion': i.stringifiedQuestion,
         'inquiryAnswer': i.inquiryAnswer
     } for i in inquiry_list]
-
 
     return jsonify(return_list)
 
