@@ -62,9 +62,9 @@ def get_all_inquired_concepts(course_id: int):
     return jsonify(concepts=concept_return_list)
 
 
-@OrganicContentRoutes.route('/submitInquiry')
-@student_only
-@validate(questionString=int, questionID=int, inquiryType=int, stringifiedQuestionObject=str)
+@OrganicContentRoutes.route('/submitInquiry', methods=['POST'])
+@login_required
+@validate(questionString=str, questionID=int, inquiryType=int, stringifiedQuestionObject=str)
 def submit_inquiry(question_string: int, question_id: int, inquiry_type: int, stringified_question_object: str):
     concept = None
     if inquiry_type == 0:
