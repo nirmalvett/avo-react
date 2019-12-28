@@ -197,8 +197,8 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
         Http.submitInquiry(
             {
                 questionString : this.state.question,
-                ID : this.props.ID,
-                type : 1,
+                questionID : this.props.ID,
+                inquiryType : 1,
                 stringifiedQuestionObject : this.state.includeQuestionString ? this.props.object : '',
             },
             (res: any) => { console.log(res); },
