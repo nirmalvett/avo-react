@@ -64,7 +64,7 @@ export default class PostTest extends Component<PostTestProps, Http.PostTest> {
                     style={{position: 'relative'}}
                     action={
                         <Typography variant='h5' color='primary'>
-                            {question.scores.reduce((a, b) => a + b, 0)}/
+                            {question.scores.reduce((a, b) => a + b, 0).toFixed(2)}/
                             {question.totals.reduce((a, b) => a + b, 0)}
                         </Typography>
                     }
@@ -87,7 +87,7 @@ export default class PostTest extends Component<PostTestProps, Http.PostTest> {
                             color='textSecondary'
                             variant='h6'
                         >
-                            {question.scores[y]}/{question.totals[y]}
+                            {question.scores[y].toFixed(2)}/{question.totals[y]}
                         </Typography>
                         <Content>{x}</Content>
                     </div>,

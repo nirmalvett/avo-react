@@ -435,13 +435,13 @@ class Question(db.Model):
     total = db.Column(db.Integer, nullable=False)
     auto_marked = db.Column(db.Boolean, nullable=False, default=True)
     category = db.Column(db.Integer, nullable=False)
-    question_type = db.Column(db.Integer, nullable=False)
+    config = db.Column(db.JSON)
 
     CONCEPT_QUESTION_RELATION = db.relationship('ConceptQuestion', back_populates='QUESTION_RELATION')
     QUESTION_HISTORY_RELATION = db.relationship('QuestionHistory', back_populates='QUESTION_RELATION')
     QUESTION_SET_RELATION = db.relationship('QuestionSet', back_populates='QUESTION_RELATION')
 
-    def __init__(self, question_set, name, string, answers, total, category=0, auto_marked=True, question_type=0):
+    def __init__(self, question_set, name, string, answers, total, category=0, auto_marked=True, config=None):
         self.QUESTION_SET = question_set
         self.name = name
         self.string = string
@@ -449,7 +449,7 @@ class Question(db.Model):
         self.total = total
         self.auto_marked = auto_marked
         self.category = category
-        self.question_type = question_type
+        self.config = config
 
     def __repr__(self):
         return (

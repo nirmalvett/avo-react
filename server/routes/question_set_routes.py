@@ -43,14 +43,16 @@ def get_sets():
                 'total': q.total,
                 'answers': q.answers,
                 'category': q.category,
-                'concepts': concept_dict
+                'concepts': concept_dict,
+                'type': 'math' if not q.config else 'simple',
+                'config': q.config
             })
         set_list.append({
             'setID': s.QUESTION_SET,
             'courseID': s.COURSE,
             'name': s.name,
             'canEdit': able_edit_set(s.QUESTION_SET),
-            'questions': question_list
+            'questions': question_list,
         })
     return jsonify(sets=set_list)
 

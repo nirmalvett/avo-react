@@ -7,6 +7,7 @@ from flask_login import current_user
 from server.MathCode.question import AvoQuestion
 from server.decorators import login_required, validate
 from server.models import Mastery, db, Question, ConceptQuestion, MasteryHistory
+from server.question_helpers.answer_factory import answer_question
 
 MasteryRoutes = Blueprint('MasteryRoutes', __name__)
 
@@ -38,10 +39,7 @@ def wrong_answer_survey(question_id: int, concepts: list):
 @validate(questionID=int, seed=int, answers=list)
 def submit_question(question_id: int, seed: int, answers: List[str]):
     question = Question.query.get(question_id)
-    try:
-        q = AvoQuestion(question.string, seed, answers)
-    except Exception as e:
-        return jsonify(error="Question failed to be created", message=str(e))
+
     concept_questions: List[ConceptQuestion] = ConceptQuestion.query.filter(
         ConceptQuestion.QUESTION == question_id
     ).all()
@@ -64,8 +62,28 @@ def submit_question(question_id: int, seed: int, answers: List[str]):
         db.session.add(m)
         mastery.append(m)
     db.session.commit()
-
-    grade = 2 * q.score / sum(q.totals) - 1  # their grade ranges from -1 to 1
+    try:
+        # math
+        if not question.config:
+            q = AvoQuestion(question.string, seed, answers)
+            grade = 2 * q.score / sum(q.totals) - 1  # their grade ranges from -1 to 1
+            q = {
+                'explanation': q.explanation,
+                'scores': q.scores,
+                'totals': q.totals,
+            }
+        # simple
+        else:
+            results = answer_question(question.config, iter(answers))
+            scores = [sum(1 if x else 0 for x in results) / len(results)]
+            grade = 8 * sum(scores) / len(results) - 1  # TODO: probably needs adjusting
+            q = {
+                'explanation': question.config.get('explanation'),
+                'scores': scores,
+                'totals': [1],
+            }
+    except Exception as e:
+        return jsonify(error="Question failed to be created", message=str(e))
 
     mastery_return = {}
     for m in mastery:
@@ -80,4 +98,4 @@ def submit_question(question_id: int, seed: int, answers: List[str]):
         mastery_return[m.CONCEPT] = new_mastery
     db.session.commit()
 
-    return jsonify(explanation=q.explanation, points=q.scores, totals=q.totals, mastery=mastery_return)
+    return jsonify(explanation=q['explanation'], points=q['scores'], totals=q['totals'], mastery=mastery_return)
