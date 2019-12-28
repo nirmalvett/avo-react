@@ -122,6 +122,10 @@ export function submitInquiry(data: InquirySubmissionData, success: cb<{}>, fail
     _request('POST', '/submitInquiry', success, failure, data);
 };
 
-export function getInquiries(ID:number, type:number, success: cb<{}>, failure: cb) {
-    _request('POST', '/getInquiries', success, failure, {ID, type});
+interface InquiryObject {
+
+}
+
+export function getInquiries(questionID:number, inquiryType:number, success: cb<InquiryObject[]>, failure: cb) {
+    _request('GET', '/getInquiries', success, failure, {questionID, inquiryType });
 };

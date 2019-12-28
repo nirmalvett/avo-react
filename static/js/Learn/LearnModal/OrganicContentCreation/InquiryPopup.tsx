@@ -5,6 +5,7 @@ import {
     Typography, 
     Paper, 
     Grow, 
+    Fade,
     Tabs, 
     Tab, 
     FormControl, 
@@ -33,6 +34,7 @@ interface InquiryPopupState {
     activeTab: number;
     question: string;
     includeQuestionString: boolean;
+    hasSubmittedInquiry: boolean;
 };
 
 interface TabPanelProps {
@@ -52,6 +54,7 @@ function TabPanel(props: TabPanelProps) {
             hidden={value !== index}
             id={`full-width-tabpanel-${index}`}
             aria-labelledby={`full-width-tab-${index}`}
+            style={{ position : 'relative' }}
             {...other}
         >
             <p>{children}</p>
@@ -67,6 +70,7 @@ function a11yProps(index: any) {
 }
 
 export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPopupState> {
+    poller: any;
 
     constructor(props: InquiryPopupProps) {
         super(props);
@@ -75,6 +79,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
             activeTab: 0,
             question: '',
             includeQuestionString: true,
+            hasSubmittedInquiry: false,
         };
     };
 
@@ -85,6 +90,17 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                 {this.renderPopup()}
             </div>
         );
+    };
+
+    componentDidMount() {
+        this.getInquiries();
+        this.poller = setInterval(() => {
+            this.getInquiries();
+        }, 1000 * 60);
+    };
+
+    componentWillUnmount() {
+        clearInterval(this.poller);
     };
 
     // The button which will propmt the user to ask the question
@@ -136,36 +152,39 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
 
     renderAskQuestionTab() {
         return (
-            <>
-                <Typography variant={'body1'} id='modal-description'>
-                    <TextField
-                        id='question-string'
-                        variant='outlined'
-                        multiline
-                        rows='4'
-                        style={{
-                            width : '100%',
-                        }}
-                        placeholder='Your Question Here...'
-                        onChange={(e) => this.setState({ question : e.target.value })}
-                    />
-                    <FormControlLabel
-                        style={{ paddingLeft : '12px' }}
-                        control={
-                            <Checkbox
-                                checked={this.state.includeQuestionString}
-                                onChange={() => this.setState({ includeQuestionString : !this.state.includeQuestionString })}
-                                color="primary"
-                                inputProps={{ 'aria-label': 'primary checkbox' }}
-                            />
-                        }
-                        label="Include Concept Lesson"
-                    />
-                    <Button onClick={this.submitInquiry.bind(this)}>
-                        Submit Question
-                    </Button>
-                </Typography>
-            </>
+            <Typography variant={'body1'} id='modal-description'>
+                <TextField
+                    id='question-string'
+                    variant='outlined'
+                    multiline
+                    rows='4'
+                    style={{
+                        width : '100%',
+                    }}
+                    placeholder='Your Question Here... Must be more than 12 characters.'
+                    onChange={(e) => this.setState({ question : e.target.value })}
+                />
+                <FormControlLabel
+                    style={{ paddingLeft : '12px' }}
+                    control={
+                        <Checkbox
+                            checked={this.state.includeQuestionString}
+                            onChange={() => this.setState({ includeQuestionString : !this.state.includeQuestionString })}
+                            color="primary"
+                            inputProps={{ 'aria-label': 'primary checkbox' }}
+                        />
+                    }
+                    label="Include Concept Lesson"
+                />
+                <Button onClick={this.submitInquiry.bind(this)} disabled={this.state.question.length < 12}>
+                    Submit Question
+                </Button>
+                <div style={{ position: "absolute", top: '0', left: '0', width: '100%', height: '100%', pointerEvents: this.state.hasSubmittedInquiry ? 'auto' : 'none' }}>
+                    <Fade in={this.state.hasSubmittedInquiry} unmountOnExit>
+                        Congrats, submission complete
+                    </Fade>
+                </div>
+            </Typography>
         );
     };
 
@@ -201,6 +220,28 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                 inquiryType : 1,
                 stringifiedQuestionObject : this.state.includeQuestionString ? this.props.object : '',
             },
+            (res: any) => { 
+                this.setState(
+                    { 
+                        includeQuestionString: true,
+                        hasSubmittedInquiry : true,
+                        question: '',
+                    }, 
+                    () => {
+                        setTimeout(() => {
+                            this.setState({ hasSubmittedInquiry : false });
+                        }, 1000);
+                    }
+                );
+            },
+            (res: any) => { console.log(res); },
+        );
+    };
+
+    getInquiries() {
+        Http.getInquiries(
+            this.props.ID,
+            1,
             (res: any) => { console.log(res); },
             (res: any) => { console.log(res); },
         );
