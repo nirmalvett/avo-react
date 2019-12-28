@@ -113,8 +113,8 @@ export function getNextQuestion(conceptID: number, success: cb<GetNextQuestion>,
 
 interface InquirySubmissionData {
     questionString: string;
-    ID: number;
-    type: number;
+    questionID: number;
+    inquiryType: number;
     stringifiedQuestionObject: string;
 };
 

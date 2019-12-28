@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Paper } from '@material-ui/core';
+import { Grid, Paper, Grow } from '@material-ui/core';
 
 interface InquiredConcept {
     ID: number;
@@ -35,7 +35,19 @@ export default class AnswerInquiries extends Component<AnswerInquiriesProps, Ans
 
     render() {
         return (
-            <div></div>
+            <div>
+                <Grid container spacing={8}>
+                    {this.state.inquiredConcepts.map((InquiredConcept, i: number) => (
+                        <Grid item xs={3}>
+                            <Grow in={this.state.hasLoadedConcepts} timeout={i * 300}>
+                                <Paper className='avo-card'>
+                                    {InquiredConcept.name}
+                                </Paper>
+                            </Grow>
+                        </Grid>
+                    ))}
+                </Grid>
+            </div>
         );
     };
 

@@ -105,7 +105,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                         <Tabs
                             variant="fullWidth"
                             value={this.state.activeTab}
-                            onChange={(e: any, val: number) => { console.log(e, val); this.setState({activeTab: val})}}
+                            onChange={(e: any, val: number) => { this.setState({activeTab: val})}}
                             indicatorColor='primary'
                             textColor='primary'
                             aria-label='Question selection Tabs'
@@ -197,9 +197,9 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
         Http.submitInquiry(
             {
                 questionString : this.state.question,
-                ID : this.props.ID,
-                type : 1,
-                stringifiedQuestionObject : this.state.includeQuestionString ? `${JSON.stringify(this.props.object)}` : '',
+                questionID : this.props.ID,
+                inquiryType : 1,
+                stringifiedQuestionObject : this.state.includeQuestionString ? this.props.object : '',
             },
             (res: any) => { console.log(res); },
             (res: any) => { console.log(res); },
