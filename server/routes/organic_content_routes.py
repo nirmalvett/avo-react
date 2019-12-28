@@ -7,29 +7,45 @@ from server.models import Concept, ConceptQuestion, Course, db, Inquiry, Questio
 OrganicContentRoutes = Blueprint("OrganicContentRoutes", __name__)
 
 
-@OrganicContentRoutes.route('/getInquires')
+@OrganicContentRoutes.route('/getInquiries', methods={'GET'})
 @login_required
-@validate(conceptID=int)
-def get_inquires(concept_id:int):
+@validate(inquiryType=int, questionID=int)
+def get_inquires(inquiry_type: int, question_id: int):
     """
     Return all inquiries that the user does not own that are related to a concept
     :return list of data of Inquires
     """
-    inquires_list = Inquiry.query.filter((Inquiry.INQUIRY == UserInquiry.INQUIRY) &
-                                         (UserInquiry.USER == current_user.USER)).all()  # List of all inquiries of user
-    return_inquiries = [
-        {
-            'INQUIRY': i.INQUIRY,
-            'originalInquiry': i.originalInquiry,
-            'editedInquiry': i.editedInquiry,
-            'hasAnswered': i.hasAnswered,
-            'stringifiedQuestion': i.stringifiedQuestion,
-            'inquiryAnswer': i.inquiryAnswer
-        }
-        for i in inquires_list
-    ]  # format data to return to client
+    inquiry_list = None
+    user_inquiry_list = UserInquiry.query.filter((UserInquiry.USER == current_user.USER) &
+                                               (UserInquiry.isOwner == False)).all()
+    subscribed_list = []
+    for i in user_inquiry_list:
+        subscribed_list.append(i.USER_INQUIRY)
+    if inquiry_type == 0:
+        # Question type
+        inquiry_list = Inquiry.query.filter((Inquiry.QUESTION == question_id) &
+                                            UserInquiry.USER_INQUIRY.in_(subscribed_list)).all()
+    if inquiry_type == 1:
+        # Concept type
+        inquiry_list = Inquiry.query.filter((Inquiry.CONCEPT == question_id) &
+                                            UserInquiry.USER_INQUIRY.in_(subscribed_list)).all()
+    if len(inquiry_list) == 0:
+        return jsonify(error="No inquiries found")
 
-    return jsonify(inquiries=return_inquiries)
+    return_list = [{
+        'ID': i.INQUIRY,
+        'CONCEPT': i.CONCEPT,
+        'QUESTION': i.QUESTION,
+        'originalInquiry': i.originalInquiry,
+        'editedInquiry': i.editedInquiry,
+        'inquiryType': i.inquiryType,
+        'hasAnswered': i.hasAnswered,
+        'stringifiedQuestion': i.stringifiedQuestion,
+        'inquiryAnswer': i.inquiryAnswer
+    } for i in inquiry_list]
+
+
+    return jsonify(return_list)
 
 
 @OrganicContentRoutes.route('/getAllInquiredConcepts')
@@ -80,8 +96,14 @@ def submit_inquiry(question_string: int, question_id: int, inquiry_type: int, st
         concept = Concept.query.get(question_id)
     if concept is None:
         return jsonify(error="Concept Not Found")
-    new_inquiry = Inquiry(concept.CONCEPT, question_string, stringified_question_object)
+    new_inquiry = None
+    if inquiry_type == 0:
+        new_inquiry = Inquiry(question_string, inquiry_type, stringified_question_object, question=question_id)
+    else:
+        new_inquiry = Inquiry(question_string, inquiry_type, stringified_question_object, concept=question_id)
     db.session.add(new_inquiry)
+    db.session.commit()
+    db.session.add(UserInquiry(current_user.USER, new_inquiry.INQUIRY, True))
     db.session.commit()
     return jsonify({})
 

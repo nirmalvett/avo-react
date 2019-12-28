@@ -242,20 +242,25 @@ class Inquiry(db.Model):
     __tablename__ = 'INQUIRY'
 
     INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'))
+    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=True)
+    QUESTION = db.Column(db.Integer, db.ForeignKey('QUESTION.QUESTION'), nullable=True)
     originalInquiry = db.Column(db.Text, nullable=False)
     editedInquiry = db.Column(db.TEXT, nullable=False, default="")
+    inquiryType = db.Column(db.Boolean, nullable=False)
     hasAnswered = db.Column(db.Boolean, nullable=False, default=False)
     stringifiedQuestion = db.Column(db.TEXT, nullable=False, default="")
     inquiryAnswer = db.Column(db.TEXT, nullable=False, default="")
 
     CONCEPT_RELATION = db.relationship('Concept', back_populates='INQUIRY_RELATION')
+    QUESTION_RELATION = db.relationship('Question', back_populates='INQUIRY_RELATION')
     USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='INQUIRY_RELATION')
 
-    def __init__(self, concept, original_inquiry, stringified_question):
+    def __init__(self, original_inquiry, inquiry_type, stringified_question, concept=None, question=None):
         self.CONCEPT = concept
+        self.QUESTION = question
         self.originalInquiry = original_inquiry
         self.editedInquiry = None
+        self.inquiryType = inquiry_type
         self.hasAnswered = False
         self.stringifiedQuestion = stringified_question
         self.inquiryAnswer = None
@@ -424,6 +429,7 @@ class Question(db.Model):
     category = db.Column(db.Integer, nullable=False)
     question_type = db.Column(db.Integer, nullable=False)
 
+    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='QUESTION_RELATION')
     CONCEPT_QUESTION_RELATION = db.relationship('ConceptQuestion', back_populates='QUESTION_RELATION')
     QUESTION_HISTORY_RELATION = db.relationship('QuestionHistory', back_populates='QUESTION_RELATION')
     QUESTION_SET_RELATION = db.relationship('QuestionSet', back_populates='QUESTION_RELATION')
