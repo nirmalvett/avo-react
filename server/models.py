@@ -53,8 +53,8 @@ class Concept(db.Model):
     CONCEPT_CHILD_RELATION = db.relationship(
         'ConceptRelation', back_populates='CONCEPT_CHILD_RELATION', foreign_keys='ConceptRelation.CHILD'
     )
-    CONCEPT_INQUIRY_RELATION = db.relationship('ConceptInquiry', back_populates='CONCEPT_RELATION')
     COURSE_RELATION = db.relationship('Course', back_populates='CONCEPT_RELATION')
+    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='CONCEPT_RELATION')
     LESSON_RELATION = db.relationship('Lesson', back_populates='CONCEPT_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='CONCEPT_RELATION')
 
@@ -249,7 +249,7 @@ class Inquiry(db.Model):
     stringifiedQuestion = db.Column(db.TEXT, nullable=False, default="")
     inquiryAnswer = db.Column(db.TEXT, nullable=False, default="")
 
-    CONCEPT_INQUIRY_RELATION = db.relationship('ConceptInquiry', back_populates='INQUIRY_RELATION')
+    CONCEPT_RELATION = db.relationship('Concept', back_populates='INQUIRY_RELATION')
     USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='INQUIRY_RELATION')
 
     def __init__(self, original_inquiry, stringified_question):
