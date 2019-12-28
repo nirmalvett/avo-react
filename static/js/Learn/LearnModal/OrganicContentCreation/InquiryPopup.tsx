@@ -242,8 +242,12 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
         Http.getInquiries(
             this.props.ID,
             1,
-            (res: any) => { console.log(res); },
-            (res: any) => { console.log(res); },
+            (res: any) => { 
+                console.log(res); 
+            },
+            (res: any) => { 
+                console.log(res); 
+            },
         );
     };
 
