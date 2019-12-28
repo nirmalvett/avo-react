@@ -32,7 +32,7 @@ def get_inquires():
     return jsonify(inquiries=return_inquiries)
 
 
-@OrganicContentRoutes.route('getAllInquiredConcepts')
+@OrganicContentRoutes.route('/getAllInquiredConcepts')
 @teacher_only
 @validate(courseId=int)
 def get_all_inquired_concepts(course_id: int):
