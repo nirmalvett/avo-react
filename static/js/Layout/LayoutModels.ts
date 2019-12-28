@@ -86,6 +86,9 @@ interface UploadImages {
     name: 'Upload Images'
 }
 
+interface AnswerInquiries {
+    name: 'Answer Inquiries';
+}
 
 export type Section =
     | AddStudentsToClass
@@ -107,4 +110,5 @@ export type Section =
     | PostTest
     | Preferences
     | TakeTest
-    | UploadImages;
+    | UploadImages
+    | AnswerInquiries;
