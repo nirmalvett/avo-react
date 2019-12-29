@@ -1,3 +1,5 @@
+from typing import Dict, Any
+
 from flask_login import UserMixin
 from flask_login._compat import unicode
 from flask_sqlalchemy import SQLAlchemy
@@ -767,6 +769,25 @@ class DataStore(db.Model):
 
     def __repr__(self):
         return f'store {self.USER} {self.data} {self.type} {self.time_created}'
+
+
+class StudentUsage(db.Model):
+    __tablename__ = 'student_usage'
+    __bind_key__ = 'research'
+
+    uuid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    student_id = db.Column(db.String(50), nullable=False, index=True)
+    data = db.Column(db.JSON, nullable=False)
+    event_type = db.Column(db.String(100), nullable=False, index=True)
+    created_at = db.Column(db.TIMESTAMP, nullable=False, default=datetime.now())
+
+    def __init__(self, student_id: str, data: Dict, event_type: str):
+        self.student_id = student_id
+        self.data = data
+        self.event_type = event_type
+
+    def __repr__(self):
+        return f'student_usage {self.student_id} {self.data} {self.event_type} {self.created_at}'
 
 
 class UserSectionType:
