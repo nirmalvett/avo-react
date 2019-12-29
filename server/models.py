@@ -247,6 +247,7 @@ class Inquiry(db.Model):
     originalInquiry = db.Column(db.Text, nullable=False)
     editedInquiry = db.Column(db.TEXT, nullable=False, default="")
     inquiryType = db.Column(db.Boolean, nullable=False)
+    timeCreated = db.Column(db.DATETIME, nullable=True)
     hasAnswered = db.Column(db.Boolean, nullable=False, default=False)
     stringifiedQuestion = db.Column(db.TEXT, nullable=False, default="")
     inquiryAnswer = db.Column(db.TEXT, nullable=False, default="")
@@ -261,6 +262,7 @@ class Inquiry(db.Model):
         self.originalInquiry = original_inquiry
         self.editedInquiry = None
         self.inquiryType = inquiry_type
+        self.timeCreated = datetime.now()
         self.hasAnswered = False
         self.stringifiedQuestion = stringified_question
         self.inquiryAnswer = None
