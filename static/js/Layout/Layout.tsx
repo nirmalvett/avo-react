@@ -149,7 +149,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                         this.setState({section});
                         Http.collectData(
                             'change screen',
-                            {section},
+                            {section: section.name},
                             () => {
                             },
                             console.warn
