@@ -7,7 +7,21 @@ from server.models import Concept, ConceptQuestion, Course, db, Inquiry, Questio
 OrganicContentRoutes = Blueprint("OrganicContentRoutes", __name__)
 
 
-@OrganicContentRoutes.route('/getInquiries', methods={'POST'})
+@OrganicContentRoutes.route('/editInquiry', methods=['POST'])
+@login_required
+@validate(inquiryID=int, editedQuestion=str, hasAnswered=bool, inquiryAnswer=str)
+def edit_inquiry(inquiry_id: int, edited_question: str, has_answered: bool, inquiry_answer: str):
+    inquiry = Inquiry.query.get(inquiry_id)
+    if inquiry is None:
+        return jsonify(error="Concept not found")
+    inquiry.editedInquiry = edited_question
+    inquiry.hasAnswered = has_answered
+    inquiry.inquiryAnswer = inquiry_answer
+    db.session.commit()
+    return jsonify({})
+
+
+@OrganicContentRoutes.route('/getInquiries', methods=['POST'])
 @login_required
 @validate(inquiryType=int, questionID=int)
 def get_inquires(inquiry_type: int, question_id: int):
