@@ -125,6 +125,7 @@ export default class MultipleChoiceBuilder extends Component<
                         <Paper
                             className='avo-sidebar'
                             style={{
+                                // Compensate for padding and margin
                                 height: 'calc(100vh - 65px)',
                                 overflowY: 'auto',
                             }}
@@ -202,7 +203,7 @@ export default class MultipleChoiceBuilder extends Component<
                             style={{
                                 height: 'auto',
                                 width: 'auto',
-                                maxHeight: 'calc(100vh - 96px)',
+                                maxHeight: '100%',
                                 position: 'absolute',
                                 top: '0',
                                 right: '0',
