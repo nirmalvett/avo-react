@@ -3,6 +3,7 @@ from flask_login import current_user
 from server.decorators import validate
 from server.models import db, StudentUsage
 import hashlib
+from datetime import datetime
 StudentUsageRoutes = Blueprint('StudentUsageRoutes', __name__)
 
 
@@ -15,7 +16,8 @@ def collect_data(event_type: str, data: dict):
     new_record = StudentUsage(
         student_id=str(hashlib.sha1(str.encode(current_user.email)).hexdigest()),
         event_type=event_type,
-        data=data
+        data=data,
+        created_at=datetime.now()
     )
     db.session.add(new_record)
     db.session.commit()

@@ -145,7 +145,16 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     section={this.state.section}
                     open={this.state.open}
                     logout={this.props.logout}
-                    onClick={(section: Section) => this.setState({section})}
+                    onClick={(section: Section) => {
+                        this.setState({section});
+                        Http.collectData(
+                            'change screen',
+                            {section},
+                            () => {
+                            },
+                            console.warn
+                        );
+                    }}
                 />
                 <AvoAppBar
                     section={this.state.section}
