@@ -105,7 +105,17 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         changedMastery={this.state.changedMastery}
                         practiceDisabled={!this.state.nextQuestion}
                         practice={this.goToQuestion}
-                        finish={() => this.setState({mode: 'finish'})}
+                        finish={() => {
+                            this.setState({mode: 'finish'});
+                            const {lesson} = this.props;
+                            Http.collectData(
+                                'finish for now learn',
+                                {lesson},
+                                () => {
+                                },
+                                console.warn
+                            );
+                        }}
                     />
                 );
             case 'finish':
