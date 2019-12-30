@@ -6,5 +6,6 @@ export function collectData(
     success: cb<{}>,
     failure: cb,
 ) {
+    data.URL = window.location.href;
     _request('POST', '/collectData', success, failure, {eventType, data});
 }
