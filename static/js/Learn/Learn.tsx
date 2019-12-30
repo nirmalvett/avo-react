@@ -158,6 +158,13 @@ export default class Learn extends Component<LearnProps, LearnState> {
     }
 
     changeCourse = (courseID: number) => {
+        Http.collectData(
+            'change course learn',
+            {courseID},
+            () => {
+            },
+            console.warn
+        );
         this.setState({isLoading: true}, () => {
             Http.getNextLessons(
                 courseID,
