@@ -14,7 +14,7 @@ export interface AvoLesson {
     mastery: number;
     name: string;
     lesson: string;
-    prereqs: {name: string; conceptID: number}[];
+    prereqs: { name: string; conceptID: number }[];
     masterySurvey: number;
     aptitudeSurvey: number;
 }
@@ -92,7 +92,7 @@ export default class Learn extends Component<LearnProps, LearnState> {
                         justifyContent: 'center',
                     }}
                 >
-                    <HashLoader size={150} color='#399103' />
+                    <HashLoader size={150} color='#399103'/>
                 </div>
             );
         }
@@ -110,11 +110,11 @@ export default class Learn extends Component<LearnProps, LearnState> {
                     overflowX: 'hidden',
                 }}
             >
-                <FullScreenModal 
-                    sourceID={this.getSourceID()} 
+                <FullScreenModal
+                    sourceID={this.getSourceID()}
                     currentLesson={this.state.currentLesson as AvoLesson}
                     onClose={this.closeLessonFSM}
-                    concepts={this.state.concepts} 
+                    concepts={this.state.concepts}
                     edges={this.state.edges}
                     theme={this.props.theme}
                     lessons={this.state.lessons}
@@ -169,8 +169,8 @@ export default class Learn extends Component<LearnProps, LearnState> {
                             this.setState({
                                 concepts: res.concepts,
                                 edges: res.edges,
-                                selectedCourse: courseID, 
-                                lessons, 
+                                selectedCourse: courseID,
+                                lessons,
                                 isLoading: false
                             });
                         },
@@ -182,7 +182,7 @@ export default class Learn extends Component<LearnProps, LearnState> {
         });
     };
 
-    updateMastery = (mastery: {[conceptID: number]: number}) => {
+    updateMastery = (mastery: { [conceptID: number]: number }) => {
         const lessons = [...this.state.lessons];
         for (let conceptID in mastery) {
             const index = lessons.findIndex(lesson => lesson.conceptID === Number(conceptID));
@@ -205,9 +205,25 @@ export default class Learn extends Component<LearnProps, LearnState> {
 
     hidePostLessonModal = () => this.setState({postLessonModalDisplay: 'none'});
 
-    openLessonFSM = (lesson: AvoLesson) => this.setState({currentLesson: lesson});
+    openLessonFSM = (lesson: AvoLesson) => {
+        this.setState({currentLesson: lesson});
+        Http.collectData(
+            'open learn lesson',
+            {lesson},
+            () => {
+            },
+            console.warn
+        )
+    };
 
     closeLessonFSM = () => {
+        Http.collectData(
+            'close learn lesson',
+            {lesson: this.state.currentLesson},
+            () => {
+            },
+            console.warn
+        )
         this.setState({currentLesson: undefined});
         if (this.state.needUpdate) {
             Http.getNextLessons(
