@@ -20,9 +20,20 @@ import {
     ListItemSecondaryAction, 
     ListItemText  
 } from '@material-ui/core';
-import { Close } from '@material-ui/icons'; 
+import { Close, Fullscreen } from '@material-ui/icons'; 
 import SwipeableViews from 'react-swipeable-views';
+import debounce from '../../../SharedComponents/AVODebouncer';
 import * as Http from '../../../Http';
+
+interface InquiryObject {
+    ID: number;
+    editedInquiry: string;
+    hasAnswered: boolean;
+    inquiryAnswer: string;
+    inquiryType: boolean;
+    originalInquiry: string;
+    stringifiedQuestion: string;
+}
 
 interface InquiryPopupProps {
     ID: number;
@@ -35,6 +46,7 @@ interface InquiryPopupState {
     question: string;
     includeQuestionString: boolean;
     hasSubmittedInquiry: boolean;
+    inquiries: InquiryObject[];
 };
 
 interface TabPanelProps {
@@ -80,6 +92,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
             question: '',
             includeQuestionString: true,
             hasSubmittedInquiry: false,
+            inquiries: [],
         };
     };
 
@@ -121,7 +134,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                         <Tabs
                             variant="fullWidth"
                             value={this.state.activeTab}
-                            onChange={(e: any, val: number) => { this.setState({activeTab: val})}}
+                            onChange={(e: any, val: number) => { console.log(this.state); this.setState({activeTab: val})}}
                             indicatorColor='primary'
                             textColor='primary'
                             aria-label='Question selection Tabs'
@@ -151,6 +164,11 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
     };
 
     renderAskQuestionTab() {
+        const questionChangeDebouncer = debounce({
+            callback: (e: any) => this.setState({question: e.target.value}),
+            wait: 300,
+            immediate: false,
+        });
         return (
             <Typography variant={'body1'} id='modal-description'>
                 <TextField
@@ -162,7 +180,10 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                         width : '100%',
                     }}
                     placeholder='Your Question Here... Must be more than 12 characters.'
-                    onChange={(e) => this.setState({ question : e.target.value })}
+                    onChange={(e: any) => {
+                        e.persist();
+                        questionChangeDebouncer(e);
+                    }}
                 />
                 <FormControlLabel
                     style={{ paddingLeft : '12px' }}
@@ -179,10 +200,33 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                 <Button onClick={this.submitInquiry.bind(this)} disabled={this.state.question.length < 12}>
                     Submit Question
                 </Button>
-                <div style={{ position: "absolute", top: '0', left: '0', width: '100%', height: '100%', pointerEvents: this.state.hasSubmittedInquiry ? 'auto' : 'none' }}>
-                    {/* <Grow in={this.state.hasSubmittedInquiry}> */}
-                        Congrats, submission complete
-                    {/* </Grow> */}
+                <div style={{ 
+                    position: "absolute",  
+                    top: '0', 
+                    left: '0', 
+                    width: '100%', 
+                    height: '100%', 
+                    pointerEvents: this.state.hasSubmittedInquiry ? 'auto' : 'none', 
+                    opacity: this.state.hasSubmittedInquiry ? 1 : 0,
+                    transition: 'opacity 300ms ease-in'
+                }}>
+                    <Paper style={{ 
+                        position: "absolute",  
+                        top: '0', 
+                        left: '0', 
+                        width: '100%', 
+                        height: '100%', 
+                    }}>
+                        {this.state.hasSubmittedInquiry && (
+                            <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                <circle className="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                                <path className="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                            </svg>
+                        )}
+                        <Typography variant={'body1'} style={{ textAlign: 'center',  }}>
+                            Congrats, submission complete
+                        </Typography>
+                    </Paper>
                 </div>
             </Typography>
         );
@@ -194,22 +238,48 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                 component='nav'
                 style={{maxHeight: '25vh', overflowY: 'auto'}}
             >
-                 {[1,2,3,4,5,6,7,8,9].map(i => <ListItem role={undefined} dense>
-                    <ListItemText 
-                        primary={`This is a question number #${i}`}
-                        secondary={`${(new Date()).toLocaleString("en-US")}`} 
-                    />
-                    <ListItemSecondaryAction>
-                        <Tooltip title="Subscibe to question">
-                            <Checkbox
-                                color="primary"
-                                inputProps={{ 'aria-label': 'primary checkbox' }}
+                 {this.state.inquiries.map(InquiryObject => { 
+                    let inquiryString: string = `${(InquiryObject.editedInquiry.length > 0 ? InquiryObject.editedInquiry : InquiryObject.originalInquiry)}`;
+                    if(inquiryString.length > 23) {
+                        inquiryString = inquiryString.substring(0, 22) + '...';
+                    }
+                    return( 
+                        <ListItem role={undefined} dense>
+                            <ListItemText  
+                                primary={
+                                    <Tooltip 
+                                        title={
+                                            <div style={{ maxWidth : '200px', height: 'fit-content', overflowWrap: 'break-word', wordWrap: 'break-word', hyphens: 'auto' }}>
+                                                {InquiryObject.editedInquiry.length > 0 ? InquiryObject.editedInquiry : InquiryObject.originalInquiry}
+                                            </div>
+                                        }
+                                    >
+                                        <span>{inquiryString}</span>
+                                    </Tooltip>
+                                }
+                                secondary={`${(new Date()).toLocaleString("en-US")}`} 
                             />
-                        </Tooltip>
-                    </ListItemSecondaryAction>
-                 </ListItem>)}
+                            <ListItemSecondaryAction>
+                                <Tooltip title={'View Question/Answer'}>
+                                    <Fullscreen color="primary" style={{ top: '8px', position: 'relative' }}/>
+                                </Tooltip>
+                                <Tooltip title="Subscibe to question">
+                                    <Checkbox
+                                        color="primary"
+                                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                                    />
+                                </Tooltip>
+                            </ListItemSecondaryAction>
+                        </ListItem>
+                    )}
+                )}
+                {this.state.inquiries.length == 0 && (
+                    <div style={{ margin: 'auto', textAlign: 'center' }}>
+                        No Questions available.
+                    </div>
+                )}
             </List>
-        );
+        ); 
     };
 
     submitInquiry() {
@@ -221,6 +291,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                 stringifiedQuestionObject : this.state.includeQuestionString ? this.props.object : '',
             },
             (res: any) => { 
+                (document as any).getElementById('question-string').value = '';
                 this.setState(
                     { 
                         includeQuestionString: true,
@@ -230,7 +301,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                     () => {
                         setTimeout(() => {
                             this.setState({ hasSubmittedInquiry : false });
-                        }, 1000);
+                        }, 2000);
                     }
                 );
             },
@@ -242,8 +313,8 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
         Http.getInquiries(
             this.props.ID,
             1,
-            (res: any) => { 
-                console.log(res); 
+            (res: InquiryObject[]) => { 
+                this.setState({ inquiries: res });
             },
             (res: any) => { 
                 console.log(res); 

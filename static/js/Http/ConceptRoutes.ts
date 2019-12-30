@@ -112,7 +112,7 @@ export function getNextQuestion(conceptID: number, success: cb<GetNextQuestion>,
 //      - stringifiedQuestionObject: '{prompt: ..., prompts: ...}' to store so that we can see the original question
 
 interface InquirySubmissionData {
-    questionString: string;
+    questionString: string; 
     questionID: number;
     inquiryType: number;
     stringifiedQuestionObject: string;
@@ -123,7 +123,13 @@ export function submitInquiry(data: InquirySubmissionData, success: cb<{}>, fail
 };
 
 interface InquiryObject {
-
+    ID: number;
+    editedInquiry: string;
+    hasAnswered: boolean;
+    inquiryAnswer: string;
+    inquiryType: boolean;
+    originalInquiry: string;
+    stringifiedQuestion: string;
 }
 
 export function getInquiries(questionID:number, inquiryType:number, success: cb<InquiryObject[]>, failure: cb) {
