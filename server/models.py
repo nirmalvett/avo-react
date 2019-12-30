@@ -790,6 +790,9 @@ class StudentUsage(db.Model):
     def __repr__(self):
         return f'student_usage {self.student_id} {self.data} {self.event_type} {self.created_at}'
 
+    def __str__(self):
+        return f'student_usage {self.student_id} {self.data} {self.event_type} {self.created_at}'
+
 
 class UserSectionType:
     ENROLLED = 'enrolled'

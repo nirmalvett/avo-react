@@ -4,6 +4,8 @@ from server.decorators import validate
 from server.models import db, StudentUsage
 import hashlib
 from datetime import datetime
+import os
+
 StudentUsageRoutes = Blueprint('StudentUsageRoutes', __name__)
 
 
@@ -13,12 +15,14 @@ def collect_data(event_type: str, data: dict):
     """
     Saves a piece of data we're collecting from the frontend
     """
-    new_record = StudentUsage(
-        student_id=str(hashlib.sha1(str.encode(current_user.email)).hexdigest()),
-        event_type=event_type,
-        data=data,
-        created_at=datetime.now()
-    )
-    db.session.add(new_record)
-    db.session.commit()
+    research_enabled = os.environ.get('RESEARCH_ENABLED')
+    if research_enabled:
+        new_record = StudentUsage(
+            student_id=str(hashlib.sha1(str.encode(current_user.email)).hexdigest()),
+            event_type=event_type,
+            data=data,
+            created_at=datetime.now()
+        )
+        db.session.add(new_record)
+        db.session.commit()
     return jsonify({})
