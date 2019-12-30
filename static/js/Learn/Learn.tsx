@@ -54,6 +54,7 @@ interface LearnState {
     needUpdate: boolean;
     concepts: Concept[];
     edges: Edge[];
+    closedLesson: AvoLesson | undefined;
 }
 
 export default class Learn extends Component<LearnProps, LearnState> {
@@ -67,7 +68,8 @@ export default class Learn extends Component<LearnProps, LearnState> {
             isLoading: true,
             needUpdate: false,
             edges: [],
-            concepts: []
+            concepts: [],
+            closedLesson: undefined,
         };
     }
 
@@ -132,7 +134,7 @@ export default class Learn extends Component<LearnProps, LearnState> {
                 <LearnPostTestModal
                     hideModal={this.hidePostLessonModal}
                     modalDisplay={this.state.postLessonModalDisplay}
-                    lesson={this.state.currentLesson as AvoLesson}
+                    lesson={this.state.closedLesson as AvoLesson}
                 />
                 <LessonSlider
                     onClick={this.openLessonFSM}
@@ -210,7 +212,7 @@ export default class Learn extends Component<LearnProps, LearnState> {
 
     showPostLessonModal = () => this.setState({postLessonModalDisplay: 'block'});
 
-    hidePostLessonModal = () => this.setState({postLessonModalDisplay: 'none'});
+    hidePostLessonModal = () => this.setState({postLessonModalDisplay: 'none', closedLesson: undefined});
 
     openLessonFSM = (lesson: AvoLesson) => {
         this.setState({currentLesson: lesson});
@@ -224,14 +226,16 @@ export default class Learn extends Component<LearnProps, LearnState> {
     };
 
     closeLessonFSM = () => {
+        const lesson = this.state.currentLesson;
         Http.collectData(
             'close learn lesson',
-            {lesson: this.state.currentLesson},
+            {lesson},
             () => {
             },
             console.warn
-        )
-        this.setState({currentLesson: undefined});
+        );
+        this.showPostLessonModal();
+        this.setState({currentLesson: undefined, closedLesson: lesson});
         if (this.state.needUpdate) {
             Http.getNextLessons(
                 this.state.selectedCourse,

@@ -67,7 +67,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                     hideModal={() => this.setState({incorrectAnswerModalDisplay: 'none'})}
                     modalDisplay={this.state.incorrectAnswerModalDisplay}
                     lesson={this.props.lesson as AvoLesson}
-                    questionID={(this.state.nextQuestion || {ID: 0}).ID}
+                    question={this.state.nextQuestion}
                 />
                 {this.getContent()}
             </Fragment>
