@@ -322,6 +322,13 @@ class Layout extends Component<LayoutProps, LayoutState> {
         Http.getTest(
             test.testID,
             test => {
+                Http.collectData(
+                    'take test my classes',
+                    {test},
+                    () => {
+                    },
+                    console.warn
+                );
                 this.setState({section: {name: 'Take Test', test}});
             },
             result => alert(result.error),
