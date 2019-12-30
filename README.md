@@ -16,6 +16,3 @@ Inside the `static` folder
 You will need `config.py` and `config.yaml` in the root directory of this folder
 
 Please ask for these files if you don't have them and feel free to ask any questions
-
-### Environment variables
-`RESEARCH_ENABLED` needs to be set for data collection to happen, this does not need to be set for local development
