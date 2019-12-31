@@ -30,7 +30,7 @@ def get_inquires(inquiry_type: int, question_id: int):
     :return list of data of Inquires
     """
     inquiry_list = None
-    user_inquiry_list = UserInquiry.query.filter((UserInquiry.USER == current_user.USER) ).all()
+    user_inquiry_list = UserInquiry.query.filter((UserInquiry.USER == current_user.USER)).all()
     subscribed_list = []
     for i in user_inquiry_list:
         subscribed_list.append(i.USER_INQUIRY)
@@ -89,6 +89,32 @@ def get_all_inquired_concepts(course_id: int):
         concept_return_list.append(concept_json)
     return jsonify(concepts=concept_return_list)
 
+
+@OrganicContentRoutes.route('/getAllSubscribedOwnedInquiries', methods=['POST'])
+@login_required
+def get_all_subscribed_owned_inquiries():
+    user_inquiry_list = UserInquiry.query.filter((UserInquiry.USER == current_user.USER)).all()
+    subscribed_list = []
+    for i in user_inquiry_list:
+        subscribed_list.append(i.USER_INQUIRY)
+    inquiry_list = Inquiry.query.filter(UserInquiry.USER_INQUIRY.in_(subscribed_list)).all()
+
+    if inquiry_list is None:
+        return jsonify(error="No inquiries found")
+
+    return_list = [{
+        'ID': i.INQUIRY,
+        'CONCEPT': i.CONCEPT,
+        'QUESTION': i.QUESTION,
+        'originalInquiry': i.originalInquiry,
+        'editedInquiry': i.editedInquiry,
+        'inquiryType': i.inquiryType,
+        'hasAnswered': i.hasAnswered,
+        'stringifiedQuestion': i.stringifiedQuestion,
+        'inquiryAnswer': i.inquiryAnswer
+    } for i in inquiry_list]
+
+    return jsonify(return_list)
 
 @OrganicContentRoutes.route('/submitInquiry', methods=['POST'])
 @login_required
