@@ -136,3 +136,19 @@ def subscribe_inquiry(inquiry_id: int):
     db.session.commit()
     return jsonify({})
 
+
+@OrganicContentRoutes.route('/unsubscribeInquiry', methods=['POST'])
+@login_required
+@validate(inquiryID=int)
+def unsubscribe_inquiry(inquiry_id: int):
+    inquiry = Inquiry.query.get(inquiry_id)
+    if inquiry is None:
+        return jsonify(error="Inquiry Not Found")
+    inquiry_relation = UserInquiry.query.filter((UserInquiry.USER == current_user.USER) &
+                                                (UserInquiry.INQUIRY == inquiry_id)).first()
+    if inquiry_relation is None:
+        return jsonify({})
+    db.session.delete(inquiry_relation)
+    db.session.commit()
+    return jsonify({})
+
