@@ -11,7 +11,8 @@ import {
     FormControl, 
     Input, 
     InputAdornment, 
-    TextField, 
+    TextField,
+    Modal,
     Checkbox, 
     Tooltip,
     FormControlLabel, 
@@ -23,6 +24,7 @@ import {
 import { Close, Fullscreen } from '@material-ui/icons'; 
 import SwipeableViews from 'react-swipeable-views';
 import debounce from '../../../SharedComponents/AVODebouncer';
+import {Content} from '../../../HelperFunctions/Content';
 import * as Http from '../../../Http';
 
 interface InquiryObject {
@@ -44,9 +46,11 @@ interface InquiryPopupState {
     isOpen: boolean;
     activeTab: number;
     question: string;
+    isQuestionModalOpen: boolean;
     includeQuestionString: boolean;
     hasSubmittedInquiry: boolean;
     inquiries: InquiryObject[];
+    selectedInquiry: InquiryObject;
 };
 
 interface TabPanelProps {
@@ -90,9 +94,11 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
             isOpen: false,
             activeTab: 0,
             question: '',
+            isQuestionModalOpen: false,
             includeQuestionString: true,
             hasSubmittedInquiry: false,
             inquiries: [],
+            selectedInquiry: {} as InquiryObject,
         };
     };
 
@@ -101,6 +107,77 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
             <div style={{ position : 'relative' }}>
                 {this.renderButton()}
                 {this.renderPopup()}
+                <Modal
+                    open={this.state.isQuestionModalOpen}
+                    aria-labelledby='modal-title'
+                    aria-describedby='modal-description'
+                    style={{ 
+                        width: '60%',
+                        top: '50px',
+                        left: '20%',
+                        right: '20%',
+                        maxHeight: '90%',
+                        position: 'absolute',
+                    }}
+                >
+                    <Paper className="avo-card">
+                        {this.state.isQuestionModalOpen && (
+                            <>
+                                <IconButton
+                                    style={{position: 'absolute', right: '9px', top: '9px'}}
+                                    onClick={() => this.setState({ isQuestionModalOpen: false })}
+                                >
+                                    <Close/>
+                                </IconButton>
+                                <Typography variant='h4'>
+                                    Question
+                                </Typography>
+                                <Typography variant='caption'>
+                                    Asked on {(new Date()).toLocaleString("en-US")}
+                                </Typography>
+                                <div style={{ marginTop: '4px', marginBottom: '4px' }}>
+                                    <div style={{ display: 'inline-block', width: '20%' }}>
+                                        <Typography variant='h6'>
+                                            Question Text
+                                        </Typography>
+                                    </div>
+                                    <div style={{ display: 'inline-block', width: '75%', marginRight: '5%' }}>
+                                        <hr style={{ position: 'relative', top: '4px' }}/>
+                                    </div>
+                                </div>
+                                <Typography variant='body2'>
+                                    <Content>{this.state.selectedInquiry.stringifiedQuestion}</Content>
+                                </Typography>
+                                <div style={{ marginTop: '4px', marginBottom: '4px' }}>
+                                    <div style={{ display: 'inline-block', width: '20%' }}>
+                                        <Typography variant='h6'>
+                                            Question Asked
+                                        </Typography>
+                                    </div>
+                                    <div style={{ display: 'inline-block', width: '75%', marginRight: '5%' }}>
+                                        <hr style={{ position: 'relative', top: '4px' }}/>
+                                    </div>
+                                </div>
+                                <Typography variant='body2'>
+                                    {this.state.selectedInquiry.editedInquiry.length > 0 ? this.state.selectedInquiry.editedInquiry : this.state.selectedInquiry.originalInquiry}
+                                </Typography>
+                                <div style={{ marginTop: '4px', marginBottom: '4px' }}>
+                                    <div style={{ display: 'inline-block', width: '20%' }}>
+                                        <Typography variant='h6'>
+                                            Answer
+                                        </Typography>
+                                    </div>
+                                    <div style={{ display: 'inline-block', width: '75%', marginRight: '5%' }}>
+                                        <hr style={{ position: 'relative', top: '4px' }}/>
+                                    </div>
+                                </div>
+                                <Typography>
+                                    {this.state.selectedInquiry.hasAnswered ? this.state.selectedInquiry.inquiryAnswer : 'This question has not been answered yet. if you want to get future updates please subscribe!'}
+                                </Typography>   
+                            </>
+                        )}
+                    </Paper>
+                </Modal>
             </div>
         );
     };
@@ -261,7 +338,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                             />
                             <ListItemSecondaryAction>
                                 <Tooltip title={'View Question/Answer'}>
-                                    <Fullscreen color="primary" style={{ top: '8px', position: 'relative' }}/>
+                                    <Fullscreen color="primary" style={{ top: '8px', position: 'relative' }} onClick={() => this.openInquiry(InquiryObject)}/>
                                 </Tooltip>
                                 <Tooltip title="Subscibe to question">
                                     <Checkbox
@@ -280,6 +357,13 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                 )}
             </List>
         ); 
+    };
+
+    openInquiry(inquiry: InquiryObject) {
+        this.setState({  
+            isQuestionModalOpen : true,
+            selectedInquiry: inquiry
+        });
     };
 
     submitInquiry() {
