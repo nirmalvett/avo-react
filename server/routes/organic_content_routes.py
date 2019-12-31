@@ -119,3 +119,20 @@ def submit_inquiry(question_string: int, question_id: int, inquiry_type: int, st
     db.session.commit()
     return jsonify({})
 
+
+@OrganicContentRoutes.route('/subscribeInquiry', methods=['POST'])
+@login_required
+@validate(inquiryID=int)
+def subscribe_inquiry(inquiry_id: int):
+    inquiry = Inquiry.query.get(inquiry_id)
+    if inquiry is None:
+        return jsonify(error="Inquiry Not Found")
+    inquiry_relation = UserInquiry.query.filter((UserInquiry.USER == current_user.USER) &
+                                                (UserInquiry.INQUIRY == inquiry_id)).first()
+    if inquiry_relation is not None:
+        return jsonify({})
+    inquiry_relation = UserInquiry(current_user.USER, inquiry_id)
+    db.session.add(inquiry_relation)
+    db.session.commit()
+    return jsonify({})
+
