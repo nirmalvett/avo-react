@@ -1,9 +1,9 @@
 import {Card, CardHeader, Typography, CardContent, Grid} from '@material-ui/core';
 import React from 'react';
-import {PreviewQuestion} from './types';
+import {PreviewTFQuestion} from './types';
 
 export interface ImporterPreviewProps {
-    question: PreviewQuestion;
+    question: PreviewTFQuestion;
 }
 
 const ImporterPreview: React.SFC<ImporterPreviewProps> = (props: ImporterPreviewProps) => {

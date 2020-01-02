@@ -4,7 +4,7 @@ export interface Course {
     canEdit: boolean;
 }
 
-interface SimpleQuestionConfig {
+export interface SimpleQuestionConfig {
     type: string;
     types: string[];
     prompts: string[];
