@@ -135,3 +135,19 @@ interface InquiryObject {
 export function getInquiries(questionID:number, inquiryType:number, success: cb<InquiryObject[]>, failure: cb) {
     _request('POST', '/getInquiries', success, failure, {questionID, inquiryType});
 };
+
+export function subscribeToInquiry(inquiryID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/subscribeInquiry', success, failure, {inquiryID});
+};
+
+export function unsubscribeToInquiry(inquiryID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/unsubscribeInquiry', success, failure, {inquiryID});
+};
+
+export function getAllSubscribedOwnedInquiries(success: cb<{}>, failure: cb) {
+    _request('POST', '/getAllSubscribedOwnedInquiries', success, failure, {});
+};
+
+export function getAllInquiredConcepts(courseId: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/getAllInquiredConcepts', success, failure, {courseId});
+};

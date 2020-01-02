@@ -138,19 +138,6 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                                 <div style={{ marginTop: '4px', marginBottom: '4px' }}>
                                     <div style={{ display: 'inline-block', width: '20%' }}>
                                         <Typography variant='h6'>
-                                            Question Text
-                                        </Typography>
-                                    </div>
-                                    <div style={{ display: 'inline-block', width: '75%', marginRight: '5%' }}>
-                                        <hr style={{ position: 'relative', top: '4px' }}/>
-                                    </div>
-                                </div>
-                                <Typography variant='body2'>
-                                    <Content>{this.state.selectedInquiry.stringifiedQuestion}</Content>
-                                </Typography>
-                                <div style={{ marginTop: '4px', marginBottom: '4px' }}>
-                                    <div style={{ display: 'inline-block', width: '20%' }}>
-                                        <Typography variant='h6'>
                                             Question Asked
                                         </Typography>
                                     </div>
@@ -172,8 +159,27 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                                     </div>
                                 </div>
                                 <Typography>
-                                    {this.state.selectedInquiry.hasAnswered ? this.state.selectedInquiry.inquiryAnswer : 'This question has not been answered yet. if you want to get future updates please subscribe!'}
+                                    {
+                                        this.state.selectedInquiry.hasAnswered ? 
+                                            <Content>
+                                                {this.state.selectedInquiry.inquiryAnswer}
+                                            </Content> : 
+                                            'This question has not been answered yet. if you want to get future updates please subscribe!'
+                                    }
                                 </Typography>   
+                                <div style={{ marginTop: '4px', marginBottom: '4px' }}>
+                                    <div style={{ display: 'inline-block', width: '20%' }}>
+                                        <Typography variant='h6'>
+                                            Question Text
+                                        </Typography>
+                                    </div>
+                                    <div style={{ display: 'inline-block', width: '75%', marginRight: '5%' }}>
+                                        <hr style={{ position: 'relative', top: '4px' }}/>
+                                    </div>
+                                </div>
+                                <Typography variant='body2'>
+                                    <Content>{this.state.selectedInquiry.stringifiedQuestion}</Content>
+                                </Typography>
                             </>
                         )}
                     </Paper>
@@ -390,6 +396,30 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                 );
             },
             (res: any) => { console.log(res); },
+        );
+    };
+
+    subscribeToInquiry(inquiryID: number) {
+        Http.subscribeToInquiry(
+            inquiryID, 
+            (res) => {
+
+            }, 
+            (res) => {
+
+            }
+        );
+    };
+
+    unsubscribeToInquiry(inquiryID: number) {
+        Http.unsubscribeToInquiry(
+            inquiryID, 
+            (res) => {
+
+            }, 
+            (res) => {
+
+            }
         );
     };
 

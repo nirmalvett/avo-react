@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Grid, Paper, Grow } from '@material-ui/core';
+import * as Http from '../Http';
+import {Course} from '../Http/types';
 
 interface InquiredConcept {
     ID: number;
@@ -16,6 +18,7 @@ interface AnswerInquiriesState {
     hasLoadedConcepts: boolean;
     hasLoadedInquiriesForConcept: boolean;
     inquiredConcepts: InquiredConcept[];
+    courses: Course[];
 };
 
 export default class AnswerInquiries extends Component<AnswerInquiriesProps, AnswerInquiriesState> {
@@ -28,6 +31,7 @@ export default class AnswerInquiries extends Component<AnswerInquiriesProps, Ans
             hasLoadedConcepts: false,
             hasLoadedInquiriesForConcept: false,
             inquiredConcepts: [],
+            courses: []
         };
 
         this.pollFrequency = 1000 * 60 * 2;
@@ -52,7 +56,31 @@ export default class AnswerInquiries extends Component<AnswerInquiriesProps, Ans
     };
 
     componentDidMount() {
-
+        // Http.getAllInquiredConcepts()
+        Http.getCourses(
+            res => {
+                const courses = res.courses;
+                // if (classes.length > 0) {
+                this.setState(
+                    {
+                        courses,
+                    }
+                );
+                Http.getAllInquiredConcepts(
+                    courses[0].courseID,
+                    (res) => {
+                        console.log(res)
+                    },
+                    () => {},
+                );
+                // }
+            },
+            err => {
+                console.log(err);
+            },
+        );
     };
+
+    
 
 };
