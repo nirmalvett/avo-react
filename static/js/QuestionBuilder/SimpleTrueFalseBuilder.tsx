@@ -693,14 +693,14 @@ export default class SimpleTrueFalseBuilder extends Component<
         }
     };
 
-    buildQuestionConfig(
-        answer: TrueFalseConfigCorrectAnswer,
-        explanation: string,
-    ): SimpleQuestionConfig {
+    buildQuestionConfig(answer: string, explanation: string): SimpleQuestionConfig {
+        // Account for lower/upper case and default anything that is not true to false
+        const fixedAnser: TrueFalseConfigCorrectAnswer = answer.toLowerCase() === 'true' ? 'true' : 'false';
+
         return {
             type: 'true/false',
             explanation: explanation,
-            correct_answer: answer,
+            correct_answer: fixedAnser,
             types: ['0'],
             prompts: [''],
         };
@@ -878,10 +878,15 @@ export default class SimpleTrueFalseBuilder extends Component<
 
     closeImporter = (refresh: boolean) => {
         this.setState({importerOpen: false});
-        console.log('refresh: ' + refresh);
         // Refresh the set if new questions have been addded
         if (refresh) {
-            console.log('Refreshing');
+            Http.getSets(
+                result =>
+                    this.props.updateSets(result.sets, () =>
+                        this.props.showSnackBar('success', 'Set added', 2000),
+                    ),
+                result => alert(result.error),
+            );
         }
     };
 

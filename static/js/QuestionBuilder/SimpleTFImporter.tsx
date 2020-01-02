@@ -24,7 +24,7 @@ export interface SimpleTFImporterProps {
     showSnackBar: ShowSnackBar;
     set: QuestionSet;
     close: (refresh: boolean) => void;
-    buildQuestionConfig: (answer: TrueFalseConfigCorrectAnswer, explanation: string) => SimpleQuestionConfig;
+    buildQuestionConfig: (answer: string, explanation: string) => SimpleQuestionConfig;
 }
 
 export interface SimpleTFImporterState {
