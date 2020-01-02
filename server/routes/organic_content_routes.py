@@ -53,6 +53,7 @@ def get_inquires(inquiry_type: int, question_id: int):
         'editedInquiry': i.editedInquiry,
         'inquiryType': i.inquiryType,
         'hasAnswered': i.hasAnswered,
+        'timeCreated': i.timeCreated,
         'stringifiedQuestion': i.stringifiedQuestion,
         'inquiryAnswer': i.inquiryAnswer
     } for i in inquiry_list]
@@ -60,9 +61,9 @@ def get_inquires(inquiry_type: int, question_id: int):
     return jsonify(return_list)
 
 
-@OrganicContentRoutes.route('/getAllInquiredConcepts')
+@OrganicContentRoutes.route('/getAllInquiredConcepts', methods=['POST'])
 @teacher_only
-@validate(courseId=int)
+@validate(courseID=int)
 def get_all_inquired_concepts(course_id: int):
     """
     Get all inquiries of a concept given a course ID
@@ -84,7 +85,8 @@ def get_all_inquired_concepts(course_id: int):
                 answered_inquiry += 1
             else:
                 unanswered_inquiry += 1
-        concept_json["answered", "unanswered"] = answered_inquiry, unanswered_inquiry
+        concept_json["answered"] = answered_inquiry
+        concept_json['unanswered'] = unanswered_inquiry
 
         concept_return_list.append(concept_json)
     return jsonify(concepts=concept_return_list)
@@ -110,11 +112,13 @@ def get_all_subscribed_owned_inquiries():
         'editedInquiry': i.editedInquiry,
         'inquiryType': i.inquiryType,
         'hasAnswered': i.hasAnswered,
+        'timeCreated': i.timeCreated,
         'stringifiedQuestion': i.stringifiedQuestion,
         'inquiryAnswer': i.inquiryAnswer
     } for i in inquiry_list]
 
     return jsonify(return_list)
+
 
 @OrganicContentRoutes.route('/submitInquiry', methods=['POST'])
 @login_required
@@ -134,7 +138,6 @@ def submit_inquiry(question_string: int, question_id: int, inquiry_type: int, st
         concept = Concept.query.get(question_id)
     if concept is None:
         return jsonify(error="Concept Not Found")
-    new_inquiry = None
     if inquiry_type == 0:
         new_inquiry = Inquiry(question_string, inquiry_type, stringified_question_object, question=question_id)
     else:
