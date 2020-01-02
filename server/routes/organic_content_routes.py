@@ -29,20 +29,29 @@ def get_inquires(inquiry_type: int, question_id: int):
     Return all inquiries that the user does not own that are related to a concept
     :return list of data of Inquires
     """
-    inquiry_list = None
+    inquiry_list_subscribed = None
+    inquiry_list_unsubscribed = None
     user_inquiry_list = UserInquiry.query.filter((UserInquiry.USER == current_user.USER)).all()
     subscribed_list = []
     for i in user_inquiry_list:
-        subscribed_list.append(i.USER_INQUIRY)
+        subscribed_list.append(i.INQUIRY)
+    print("SUBSCRIBED LIST")
+    print(subscribed_list)
     if inquiry_type == 0:
         # Question type
-        inquiry_list = Inquiry.query.filter((Inquiry.QUESTION == question_id) &
-                                            UserInquiry.USER_INQUIRY.in_(subscribed_list)).all()
+        inquiry_list_subscribed = Inquiry.query.filter((Inquiry.QUESTION == question_id) &
+                                                       Inquiry.INQUIRY.in_(subscribed_list)).all()
+        inquiry_list_unsubscribed = Inquiry.query.filter((Inquiry.QUESTION == question_id) &
+                                                         Inquiry.INQUIRY.notin_(subscribed_list)).all()
     if inquiry_type == 1:
         # Concept type
-        inquiry_list = Inquiry.query.filter((Inquiry.CONCEPT == question_id) &
-                                            UserInquiry.USER_INQUIRY.in_(subscribed_list)).all()
-    if inquiry_list is None:
+        print("THIS QUERY")
+        inquiry_list_subscribed = Inquiry.query.filter((Inquiry.CONCEPT == question_id) &
+                                                       Inquiry.INQUIRY.in_(subscribed_list)).all()
+        print("AND THIS ONE")
+        inquiry_list_unsubscribed = Inquiry.query.filter((Inquiry.CONCEPT == question_id) &
+                                                         Inquiry.INQUIRY.notin_(subscribed_list)).all()
+    if inquiry_list_subscribed is None and inquiry_list_unsubscribed is None:
         return jsonify(error="No inquiries found")
 
     return_list = [{
@@ -55,8 +64,24 @@ def get_inquires(inquiry_type: int, question_id: int):
         'hasAnswered': i.hasAnswered,
         'timeCreated': i.timeCreated,
         'stringifiedQuestion': i.stringifiedQuestion,
-        'inquiryAnswer': i.inquiryAnswer
-    } for i in inquiry_list]
+        'inquiryAnswer': i.inquiryAnswer,
+        'subscribed': False
+    } for i in inquiry_list_unsubscribed]
+
+    for i in inquiry_list_subscribed:
+        return_list.append({
+            'ID': i.INQUIRY,
+            'CONCEPT': i.CONCEPT,
+            'QUESTION': i.QUESTION,
+            'originalInquiry': i.originalInquiry,
+            'editedInquiry': i.editedInquiry,
+            'inquiryType': i.inquiryType,
+            'hasAnswered': i.hasAnswered,
+            'timeCreated': i.timeCreated,
+            'stringifiedQuestion': i.stringifiedQuestion,
+            'inquiryAnswer': i.inquiryAnswer,
+            'subscribed': True
+        })
 
     return jsonify(return_list)
 
@@ -79,7 +104,7 @@ def get_all_inquired_concepts(course_id: int):
     for concept in concept_list:
         concept_json = {"ID": concept.CONCEPT, "name": concept.name}
         inquiry_list = Inquiry.query.filter(concept.CONCEPT == Inquiry.CONCEPT).all()
-        answered_inquiry,  unanswered_inquiry = 0, 0
+        answered_inquiry, unanswered_inquiry = 0, 0
         for inquiry in inquiry_list:
             if inquiry.hasAnswered:
                 answered_inquiry += 1
@@ -131,7 +156,7 @@ def submit_inquiry(question_string: int, question_id: int, inquiry_type: int, st
         if question is None:
             return jsonify(error="Question Not Found")
         concept = Concept.query.filter((ConceptQuestion.CONCEPT == Concept.CONCEPT) &
-                                        (ConceptQuestion.QUESTION == question.QUESTION)).first()
+                                       (ConceptQuestion.QUESTION == question.QUESTION)).first()
         del question
     if inquiry_type == 1:
         # Inquiry About Concept
@@ -180,4 +205,3 @@ def unsubscribe_inquiry(inquiry_id: int):
     db.session.delete(inquiry_relation)
     db.session.commit()
     return jsonify({})
-
