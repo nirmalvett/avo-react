@@ -263,7 +263,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if(section.name === 'Answer Inquiries') {
-            return <AnswerInquiries/>
+            return <AnswerInquiries theme={{theme: this.props.theme, color: this.color()}} showSnackBar={this.showSnackBar}/>
         } else if (section.name === 'Notify Class') {
             return <NotifyClass/>;
         } else if (section.name === 'Post Test') {

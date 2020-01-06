@@ -35,6 +35,8 @@ interface InquiryObject {
     inquiryType: boolean;
     originalInquiry: string;
     stringifiedQuestion: string;
+    timeCreated: number;
+    subscribed: boolean;
 }
 
 interface InquiryPopupProps {
@@ -340,7 +342,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                                         <span>{inquiryString}</span>
                                     </Tooltip>
                                 }
-                                secondary={`${(new Date()).toLocaleString("en-US")}`} 
+                                secondary={`${(new Date(InquiryObject.timeCreated)).toLocaleString("en-US")}`} 
                             />
                             <ListItemSecondaryAction>
                                 <Tooltip title={'View Question/Answer'}>
@@ -349,6 +351,24 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                                 <Tooltip title="Subscibe to question">
                                     <Checkbox
                                         color="primary"
+                                        onChange={() => {
+                                            let copy = [...this.state.inquiries];
+                                            copy = copy.map((io: InquiryObject) => {
+                                                if(io.ID == InquiryObject.ID)
+                                                {
+                                                    const objectCopy = {...io};
+                                                    objectCopy.subscribed = !objectCopy.subscribed;
+                                                    if(objectCopy.subscribed)
+                                                        this.subscribeToInquiry(objectCopy.ID);
+                                                    else 
+                                                        this.unsubscribeToInquiry(objectCopy.ID);
+                                                    return objectCopy;
+                                                }
+                                                return io;
+                                            });
+                                            this.setState({ inquiries : copy });
+                                        }}
+                                        checked={InquiryObject.subscribed}
                                         inputProps={{ 'aria-label': 'primary checkbox' }}
                                     />
                                 </Tooltip>

@@ -130,10 +130,16 @@ interface InquiryObject {
     inquiryType: boolean;
     originalInquiry: string;
     stringifiedQuestion: string;
+    timeCreated: number;
+    subscribed: boolean;
 }
 
 export function getInquiries(questionID:number, inquiryType:number, success: cb<InquiryObject[]>, failure: cb) {
     _request('POST', '/getInquiries', success, failure, {questionID, inquiryType});
+};
+ 
+export function editInquiry(inquiryID:number, editedQuestion:string, hasAnswered:boolean, inquiryAnswer: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/editInquiry', success, failure, { inquiryID, editedQuestion, hasAnswered, inquiryAnswer});
 };
 
 export function subscribeToInquiry(inquiryID: number, success: cb<{}>, failure: cb) {
@@ -144,10 +150,10 @@ export function unsubscribeToInquiry(inquiryID: number, success: cb<{}>, failure
     _request('POST', '/unsubscribeInquiry', success, failure, {inquiryID});
 };
 
-export function getAllSubscribedOwnedInquiries(success: cb<{}>, failure: cb) {
-    _request('POST', '/getAllSubscribedOwnedInquiries', success, failure, {});
+export function getAllSubscribedOwnedInquiries(courseID: number, success: cb<InquiryObject[]>, failure: cb) {
+    _request('POST', '/getAllSubscribedOwnedInquiries', success, failure, {courseID});
 };
 
-export function getAllInquiredConcepts(courseId: number, success: cb<{}>, failure: cb) {
-    _request('POST', '/getAllInquiredConcepts', success, failure, {courseId});
+export function getAllInquiredConcepts(courseID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/getAllInquiredConcepts', success, failure, {courseID});
 };
