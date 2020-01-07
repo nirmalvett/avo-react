@@ -7,6 +7,7 @@ import MarkEditor from '../ManageClasses/MarkEditor';
 import TakeTest from '../MyClasses/TakeTest';
 import MyClasses from '../MyClasses/MyClasses';
 import CreateTest from '../ManageClasses/CreateTest/CreateTest';
+import AnswerInquiries from '../InquiryAnswering/AnswerInquiries';
 import Preferences from '../Preferences/Preferences';
 import ManageClasses from '../ManageClasses/ManageClasses';
 import QuestionBuilderDocs from '../QuestionBuilder/QuestionBuilderDocs';
@@ -270,6 +271,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     courses={this.state.courses}
                 />
             );
+        } else if(section.name === 'Answer Inquiries') {
+            return <AnswerInquiries theme={{theme: this.props.theme, color: this.color()}} showSnackBar={this.showSnackBar}/>
         } else if (section.name === 'Notify Class') {
             return <NotifyClass/>;
         } else if (section.name === 'Post Test') {

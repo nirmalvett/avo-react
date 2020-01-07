@@ -55,8 +55,8 @@ class Concept(db.Model):
     CONCEPT_CHILD_RELATION = db.relationship(
         'ConceptRelation', back_populates='CONCEPT_CHILD_RELATION', foreign_keys='ConceptRelation.CHILD'
     )
-    CONCEPT_INQUIRY_RELATION = db.relationship('ConceptInquiry', back_populates='CONCEPT_RELATION')
     COURSE_RELATION = db.relationship('Course', back_populates='CONCEPT_RELATION')
+    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='CONCEPT_RELATION')
     LESSON_RELATION = db.relationship('Lesson', back_populates='CONCEPT_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='CONCEPT_RELATION')
 
@@ -67,24 +67,6 @@ class Concept(db.Model):
 
     def __repr__(self):
         return f'<Concept {self.CONCEPT} {self.COURSE} {self.name} {self.lesson_content}>'
-
-
-class ConceptInquiry(db.Model):
-    __tablename__ = 'concept_inquiry'
-
-    CONCEPT_INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
-    INQUIRY = db.Column(db.Integer, db.ForeignKey('INQUIRY.INQUIRY'), nullable=False)
-
-    CONCEPT_RELATION = db.relationship('Concept', back_populates='CONCEPT_INQUIRY_RELATION')
-    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='CONCEPT_INQUIRY_RELATION')
-
-    def __init__(self, concept, inquiry):
-        self.CONCEPT = concept
-        self.INQUIRY = inquiry
-
-    def __repr__(self):
-        return f'Concept Inquiry Relation {self.CONCEPT_INQUIRY} {self.CONCEPT} {self.INQUIRY}'
 
 
 class ConceptQuestion(db.Model):
@@ -262,18 +244,30 @@ class Inquiry(db.Model):
     __tablename__ = 'INQUIRY'
 
     INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=True)
+    QUESTION = db.Column(db.Integer, db.ForeignKey('QUESTION.QUESTION'), nullable=True)
     originalInquiry = db.Column(db.Text, nullable=False)
     editedInquiry = db.Column(db.TEXT, nullable=False, default="")
+    inquiryType = db.Column(db.Boolean, nullable=False)
+    timeCreated = db.Column(db.DATETIME, nullable=True)
     hasAnswered = db.Column(db.Boolean, nullable=False, default=False)
     stringifiedQuestion = db.Column(db.TEXT, nullable=False, default="")
     inquiryAnswer = db.Column(db.TEXT, nullable=False, default="")
 
-    CONCEPT_INQUIRY_RELATION = db.relationship('ConceptInquiry', back_populates='INQUIRY_RELATION')
+    CONCEPT_RELATION = db.relationship('Concept', back_populates='INQUIRY_RELATION')
+    QUESTION_RELATION = db.relationship('Question', back_populates='INQUIRY_RELATION')
     USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='INQUIRY_RELATION')
 
-    def __init__(self, original_inquiry, stringified_question):
+    def __init__(self, original_inquiry, inquiry_type, stringified_question, concept=None, question=None):
+        self.CONCEPT = concept
+        self.QUESTION = question
         self.originalInquiry = original_inquiry
+        self.editedInquiry = None
+        self.inquiryType = inquiry_type
+        self.timeCreated = datetime.now()
+        self.hasAnswered = False
         self.stringifiedQuestion = stringified_question
+        self.inquiryAnswer = None
 
     def __repr__(self):
         return f'Inquiry {self.INQUIRY} {self.originalInquiry} {self.editedInquiry} {self.hasAnswered} ' \
@@ -439,6 +433,7 @@ class Question(db.Model):
     category = db.Column(db.Integer, nullable=False)
     config = db.Column(db.JSON)
 
+    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='QUESTION_RELATION')
     CONCEPT_QUESTION_RELATION = db.relationship('ConceptQuestion', back_populates='QUESTION_RELATION')
     QUESTION_HISTORY_RELATION = db.relationship('QuestionHistory', back_populates='QUESTION_RELATION')
     QUESTION_SET_RELATION = db.relationship('QuestionSet', back_populates='QUESTION_RELATION')
