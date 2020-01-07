@@ -1,4 +1,3 @@
-from typing import Dict, Any
 
 from flask import Blueprint, jsonify
 
@@ -44,8 +43,8 @@ def get_all_questions():
 
 @QuestionRoutes.route('/newQuestion', methods=['POST'])
 @teacher_only
-@validate(setID=int, name=str, string=str, answers=int, total=int, config=Dict)
-def new_question(set_id: int, name: str, string: str, answers: int, total: int, config: Dict):
+@validate(setID=int, name=str, string=str, answers=int, total=int, config=dict)
+def new_question(set_id: int, name: str, string: str, answers: int, total: int, config: dict):
     """
     Creates new Question and adds to set
     :return: ID of new question
@@ -79,8 +78,8 @@ def rename_question(question_id: int, name: str):
 
 @QuestionRoutes.route('/editQuestion', methods=['POST'])
 @teacher_only
-@validate(questionID=int, string=str, answers=int, total=int, config=Dict)
-def edit_question(question_id: int, string: str, answers: int, total: int, config: Dict):
+@validate(questionID=int, string=str, answers=int, total=int, config=dict)
+def edit_question(question_id: int, string: str, answers: int, total: int, config: dict):
     """
     Update Question data
     :return: Confirmation that question has been updated

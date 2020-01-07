@@ -10,3 +10,5 @@ export * from './TakesRoutes';
 export * from './TestRoutes';
 export * from './UserRoutes';
 export * from './UserSectionRoutes';
+export * from './StudentUsageRoutes';
+export * from './UserSectionRoutes';
