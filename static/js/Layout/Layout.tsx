@@ -146,7 +146,16 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     section={this.state.section}
                     open={this.state.open}
                     logout={this.props.logout}
-                    onClick={(section: Section) => this.setState({section})}
+                    onClick={(section: Section) => {
+                        this.setState({section});
+                        Http.collectData(
+                            'change screen',
+                            {section: section.name},
+                            () => {
+                            },
+                            console.warn
+                        );
+                    }}
                 />
                 <AvoAppBar
                     section={this.state.section}
@@ -316,6 +325,13 @@ class Layout extends Component<LayoutProps, LayoutState> {
         Http.getTest(
             test.testID,
             test => {
+                Http.collectData(
+                    'take test my classes',
+                    {test},
+                    () => {
+                    },
+                    console.warn
+                );
                 this.setState({section: {name: 'Take Test', test}});
             },
             result => alert(result.error),

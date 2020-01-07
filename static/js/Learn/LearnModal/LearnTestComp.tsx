@@ -10,7 +10,7 @@ import {FinishScreen} from './FinishScreen';
 
 interface LearnTestCompProps {
     lesson: AvoLesson;
-    updateMastery: (mastery: {[conceptID: number]: number}) => void;
+    updateMastery: (mastery: { [conceptID: number]: number }) => void;
     theme: ThemeObj;
     survey: (mastery: number, aptitude: number) => () => void;
 }
@@ -26,7 +26,7 @@ interface LearnTestCompState {
     readonly nextAnswers: string[];
 
     changedMastery: number;
-    postLessonModalDisplay: 'none' | 'block';
+    incorrectAnswerModalDisplay: 'none' | 'block';
 }
 
 export default class LearnTestComp extends Component<LearnTestCompProps, LearnTestCompState> {
@@ -43,7 +43,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
             nextAnswers: [],
 
             changedMastery: this.props.lesson.mastery,
-            postLessonModalDisplay: 'none',
+            incorrectAnswerModalDisplay: 'none',
         };
     }
 
@@ -64,10 +64,10 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
         return (
             <Fragment>
                 <AVOLearnIncorrectAnswerModal
-                    hideModal={() => this.setState({postLessonModalDisplay: 'none'})}
-                    modalDisplay={this.state.postLessonModalDisplay}
+                    hideModal={() => this.setState({incorrectAnswerModalDisplay: 'none'})}
+                    modalDisplay={this.state.incorrectAnswerModalDisplay}
                     lesson={this.props.lesson as AvoLesson}
-                    questionID={(this.state.nextQuestion || {ID: 0}).ID}
+                    question={this.state.nextQuestion}
                 />
                 {this.getContent()}
             </Fragment>
@@ -105,7 +105,17 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         changedMastery={this.state.changedMastery}
                         practiceDisabled={!this.state.nextQuestion}
                         practice={this.goToQuestion}
-                        finish={() => this.setState({mode: 'finish'})}
+                        finish={() => {
+                            this.setState({mode: 'finish'});
+                            const {lesson} = this.props;
+                            Http.collectData(
+                                'finish for now learn',
+                                {lesson},
+                                () => {
+                                },
+                                console.warn
+                            );
+                        }}
                     />
                 );
             case 'finish':
@@ -122,7 +132,27 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
         }
     }
 
-    goToQuestion = () => this.setState({mode: 'question'});
+    goToQuestion = () => {
+        const {mode, nextQuestion} = this.state;
+        const {lesson} = this.props;
+        if (mode === 'lesson')
+            Http.collectData(
+                'practice concept learn',
+                {question: nextQuestion, lesson},
+                () => {
+                },
+                console.warn
+            );
+        else if (mode === 'explanation')
+            Http.collectData(
+                'practice concept more learn',
+                {question: nextQuestion, lesson},
+                () => {
+                },
+                console.warn
+            );
+        this.setState({mode: 'question'});
+    };
 
     changeAnswer = (index: number) => (answer: string) => {
         const newAnswerList = [...this.state.nextAnswers];
@@ -132,6 +162,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
 
     submitAnswer = () => {
         const question = this.state.nextQuestion as AvoLessonData;
+        const {lesson} = this.props;
         Http.submitQuestion(
             question.ID,
             question.seed,
@@ -146,6 +177,19 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                 const answers = [...this.state.answers, this.state.nextAnswers];
                 const explanations = [...this.state.explanations, res];
                 const changedMastery = res.mastery[this.props.lesson.conceptID] || 0;
+                Http.collectData(
+                    'submit answer learn',
+                    {
+                        question,
+                        results: res,
+                        changedMastery,
+                        answers: this.state.nextAnswers,
+                        lesson
+                    },
+                    () => {
+                    },
+                    console.warn
+                );
                 this.setState(
                     {
                         questions,
@@ -168,12 +212,20 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
     };
 
     showModal = () => {
-        this.setState({postLessonModalDisplay: 'block'});
+        this.setState({incorrectAnswerModalDisplay: 'block'});
     };
 
     backFromQuestion = () => {
+        const {lesson} = this.props;
         this.setState({mode: 'lesson'});
         resetShowConceptGraphButton();
+        Http.collectData(
+            'go back to lesson learn',
+            {lesson},
+            () => {
+            },
+            console.warn
+        );
     };
 }
 

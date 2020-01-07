@@ -23,18 +23,18 @@ interface MyClassesProps {
 interface MyClassesState {
     mode:
         | {
-              mode: null;
-          }
+        mode: null;
+    }
         | {
-              mode: 'section';
-              s: Http.GetSections_Section;
-          }
+        mode: 'section';
+        s: Http.GetSections_Section;
+    }
         | {
-              mode: 'test';
-              s: Http.GetSections_Section;
-              t: Http.GetSections_Test;
-              testStats: Http.TestStats;
-          };
+        mode: 'test';
+        s: Http.GetSections_Section;
+        t: Http.GetSections_Test;
+        testStats: Http.TestStats;
+    };
     now: number;
     chartWidth: number;
     joinClassPopperOpen: boolean;
@@ -93,7 +93,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                 <div style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
                     <div style={{flex: 4, display: 'flex'}}>{this.sideMenu()}</div>
                     {/* Border From Menu To Main*/}
-                    <div style={{flex: 1}} />
+                    <div style={{flex: 1}}/>
                     {/* Right hand side cards, see detailsCard() */}
                     <div
                         id='avo-apex__chart-container'
@@ -107,7 +107,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                     >
                         {this.detailsCard()}
                     </div>
-                    <div style={{flex: 1}} />
+                    <div style={{flex: 1}}/>
                 </div>
                 <EnrollmentPopper
                     open={this.state.joinClassPopperOpen}
@@ -127,12 +127,27 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
     }
 
     clickSection = (sectionID: number) => () => {
-        this.setState({mode: {mode: 'section', s: this.sectionByID(sectionID)}});
+        const section = this.sectionByID(sectionID);
+        this.setState({mode: {mode: 'section', s: section}});
+        Http.collectData(
+            'click section my classes',
+            {section},
+            () => {
+            },
+            console.warn
+        );
     };
 
     clickTest = (sectionID: number, testID: number) => () => {
         const s = this.sectionByID(sectionID);
         const t = s.tests.find(x => x.testID === testID) as Http.GetSections_Test;
+        Http.collectData(
+            'click test my classes',
+            {test: t, section: s},
+            () => {
+            },
+            console.warn
+        );
         Http.testStats(
             testID,
             testStats => this.setState({mode: {mode: 'test', s, t, testStats}}),
@@ -197,7 +212,7 @@ export default class MyClasses extends Component<MyClassesProps, MyClassesState>
                     >
                         Looks like you haven't selected a Section or Test yet!
                     </Typography>
-                    <br />
+                    <br/>
                 </Fragment>
             );
         }

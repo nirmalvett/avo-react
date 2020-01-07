@@ -2,7 +2,7 @@ import React from 'react';
 import * as Http from '../Http';
 import {Button, Typography, Paper, IconButton} from '@material-ui/core';
 import {Close} from '@material-ui/icons';
-import {AvoLesson} from './Learn';
+import {AvoLesson, AvoLessonData} from './Learn';
 
 const styles = {
     modalBackdrop: {
@@ -36,17 +36,15 @@ interface AVOLearnIncorrectAnswerModalProps {
     modalDisplay: 'block' | 'none';
     hideModal: () => void;
     lesson: AvoLesson;
-    questionID: number;
+    question: AvoLessonData | undefined;
 }
 
 interface AVOLearnIncorrectAnswerModalState {
-    selectedPrereqs: {name: string; conceptID: number}[];
+    selectedPrereqs: { name: string; conceptID: number }[];
 }
 
-export default class AVOLearnIncorrectAnswerModal extends React.Component<
-    AVOLearnIncorrectAnswerModalProps,
-    AVOLearnIncorrectAnswerModalState
-> {
+export default class AVOLearnIncorrectAnswerModal extends React.Component<AVOLearnIncorrectAnswerModalProps,
+    AVOLearnIncorrectAnswerModalState> {
     constructor(props: AVOLearnIncorrectAnswerModalProps) {
         super(props);
         this.state = {
@@ -64,21 +62,21 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
                     }}
                     id='avo_learn_incorrect_answer_modal'
                 >
-                    <div style={styles.modalBackdrop} />
+                    <div style={styles.modalBackdrop}/>
                     <Paper style={styles.modalBody}>
                         <IconButton
                             onClick={this.props.hideModal}
                             id='incorrect_answer_close'
                             style={{position: 'absolute', right: '8px', top: '8px'}}
                         >
-                            <Close />
+                            <Close/>
                         </IconButton>
                         <Typography variant={'h5'}>
                             Where do you think you made the mistake?
                         </Typography>
                         <Typography variant={'body2'}>Select all areas that apply</Typography>
-                        <br />
-                        <br />
+                        <br/>
+                        <br/>
                         {this.props.lesson.prereqs
                             .concat({
                                 name: this.props.lesson.name,
@@ -116,8 +114,8 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
                                     {prereq.name}
                                 </Button>
                             ))}
-                        <br />
-                        <br />
+                        <br/>
+                        <br/>
                         <Button
                             onClick={this.submitSurvey}
                             variant={'contained'}
@@ -139,17 +137,16 @@ export default class AVOLearnIncorrectAnswerModal extends React.Component<
 
     submitSurvey = () => {
         const {selectedPrereqs} = this.state;
-        Http.wrongAnswerSurvey(
-            this.props.questionID,
-            selectedPrereqs.map(x => x.conceptID),
-            res => {
-                this.setState({selectedPrereqs: []});
-                if (selectedPrereqs.length > 0) this.props.hideModal();
-                console.log(res);
-            },
-            err => {
-                console.log(err);
-            },
-        );
+        const {lesson, question} = this.props;
+        if (selectedPrereqs.length > 0) {
+            Http.collectData(
+                'incorrect answer learn response',
+                {lesson, selectedPrereqs, question},
+                () => {
+                },
+                console.warn
+            );
+            this.props.hideModal();
+        }
     };
 }
