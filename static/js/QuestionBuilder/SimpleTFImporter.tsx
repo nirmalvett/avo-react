@@ -1,5 +1,5 @@
 import {Component} from 'react';
-import {QuestionSet} from 'Http/types';
+import {QuestionSet, SimpleQuestionConfig, TrueFalseConfigCorrectAnswer} from 'Http/types';
 import React from 'react';
 
 import {
@@ -18,16 +18,16 @@ import {
 import ImporterPreview from './ImporterPreview';
 import * as Http from '../Http';
 import {ShowSnackBar} from '../Layout/Layout';
-import {PreviewTFQuestion} from './types';
+import {SimplePreviewTFQuestion} from './types';
 
-export interface TFImporterProps {
+export interface SimpleTFImporterProps {
     showSnackBar: ShowSnackBar;
     set: QuestionSet;
     close: (refresh: boolean) => void;
-    buildQuestionString: (question: string, answer: string, explanation: string) => string;
+    buildQuestionConfig: (answer: string, explanation: string) => SimpleQuestionConfig;
 }
 
-export interface TFImporterState {
+export interface SimpleTFImporterState {
     input: string;
     namePromptDelim: number;
     namePromptOpts: [string, string, string];
@@ -37,8 +37,8 @@ export interface TFImporterState {
     answerExplanationOpts: [string, string, string];
 }
 
-class TFImporter extends Component<TFImporterProps, TFImporterState> {
-    constructor(props: TFImporterProps) {
+class SimpleTFImporter extends Component<SimpleTFImporterProps, SimpleTFImporterState> {
+    constructor(props: SimpleTFImporterProps) {
         super(props);
         this.state = {
             input: '',
@@ -223,8 +223,8 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
     }
 
     renderQuestionPreviews(): JSX.Element[] {
-        const questions: PreviewTFQuestion[] = this.generateQuestions(this.state.input);
-        return questions.map((question: PreviewTFQuestion) => {
+        const questions: SimplePreviewTFQuestion[] = this.generateQuestions(this.state.input);
+        return questions.map((question: SimplePreviewTFQuestion) => {
             return (
                 <ListItem>
                     <ImporterPreview question={question} />
@@ -235,7 +235,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
 
     generateQuestions = (input: String) => {
         //array we will return at the end
-        let questionArray: PreviewTFQuestion[] = [];
+        let questionArray: SimplePreviewTFQuestion[] = [];
         if (input) {
             const npd = this.state.namePromptOpts[this.state.namePromptDelim];
             const pad = this.state.promptAnswerOpts[this.state.promptAnswerDelim];
@@ -250,10 +250,10 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
             splitArray.forEach(line => {
                 const questionMatch = line.match(questionRegExp);
                 if (questionMatch !== null) {
-                    let currQuestionObj: PreviewTFQuestion = {
+                    let currQuestionObj: SimplePreviewTFQuestion = {
                         name: questionMatch[1],
                         prompt: questionMatch[2],
-                        answer: questionMatch[3],
+                        answer: questionMatch[3] as TrueFalseConfigCorrectAnswer,
                         explanation: questionMatch[4],
                     };
                     questionArray.push(currQuestionObj);
@@ -283,16 +283,12 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                 //iterate through each question in questions array (except the last one)
                 questions
                     .slice(0, questions.length - 1)
-                    .forEach((capturedQuestion: PreviewTFQuestion) => {
+                    .forEach((capturedQuestion: SimplePreviewTFQuestion) => {
                         //need to create a new question for each in array
                         Http.newQuestion(
                             this.props.set.setID,
                             capturedQuestion.name,
-                            this.props.buildQuestionString(
-                                capturedQuestion.prompt,
-                                capturedQuestion.answer,
-                                capturedQuestion.explanation,
-                            ),
+                            capturedQuestion.prompt,
                             1,
                             1,
                             () =>
@@ -302,25 +298,24 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                                     2000,
                                 ),
                             () => this.props.showSnackBar('error', 'Error creating question', 2000),
+                            this.props.buildQuestionConfig(capturedQuestion.answer, capturedQuestion.explanation),
                         );
                     });
             }
             // We call this outside of the loop to gain access to the callback on success
+            const lastQuestion: SimplePreviewTFQuestion = questions[questions.length - 1];
             Http.newQuestion(
                 this.props.set.setID,
-                questions[questions.length - 1].name,
-                this.props.buildQuestionString(
-                    questions[questions.length - 1].prompt,
-                    questions[questions.length - 1].answer,
-                    questions[questions.length - 1].explanation,
-                ),
+                lastQuestion.name,
+                lastQuestion.prompt,
                 1,
                 1,
                 () => this.props.close(true),
                 () => this.props.showSnackBar('error', 'Error creating question', 2000),
+                this.props.buildQuestionConfig(lastQuestion.answer, lastQuestion.explanation),
             );
         }
     };
 }
 
-export default TFImporter;
+export default SimpleTFImporter;

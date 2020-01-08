@@ -41,9 +41,16 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import {Question, QuestionSet, Course, TrueFalseConfigCorrectAnswer} from 'Http/types';
+import {
+    Question,
+    QuestionSet,
+    Course,
+    TrueFalseConfigCorrectAnswer,
+    SimpleQuestionConfig,
+} from 'Http/types';
 import {ShowSnackBar} from 'Layout/Layout';
 import TFImporter from './TFImporter';
+import SimpleTFImporter from './SimpleTFImporter';
 
 export interface SimpleTrueFalseBuilderProps {
     showSnackBar: ShowSnackBar;
@@ -81,8 +88,10 @@ interface SimpleTrueFalseBuilderState {
     importerOpen: boolean;
 }
 
-export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBuilderProps,
-    SimpleTrueFalseBuilderState> {
+export default class SimpleTrueFalseBuilder extends Component<
+    SimpleTrueFalseBuilderProps,
+    SimpleTrueFalseBuilderState
+> {
     constructor(props: SimpleTrueFalseBuilderProps) {
         super(props);
         this.state = {
@@ -139,7 +148,7 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                                                 : () => this.props.returnHome()
                                         }
                                     >
-                                        <ArrowBack/>
+                                        <ArrowBack />
                                     </IconButton>
                                 </ListItemIcon>
                                 <ListItemText
@@ -155,7 +164,7 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                                         edge='end'
                                         onClick={() => this.setState({addDiagOpen: true})}
                                     >
-                                        <CreateNewFolder/>
+                                        <CreateNewFolder />
                                     </IconButton>
                                 )}
                                 {this.state.setQActive && (
@@ -164,11 +173,11 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                                         edge='end'
                                         onClick={() => this.setState({importerOpen: true})}
                                     >
-                                        <AssignmentReturnedOutlined/>
+                                        <AssignmentReturnedOutlined />
                                     </IconButton>
                                 )}
                             </ListItem>
-                            <Divider/>
+                            <Divider />
                             <Slide
                                 in={this.state.setsActive}
                                 direction='right'
@@ -218,7 +227,7 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                                         size='small'
                                         onClick={() => this.setState({questionNmeE: false})}
                                     >
-                                        <SaveIcon fontSize='inherit'/>
+                                        <SaveIcon fontSize='inherit' />
                                     </IconButton>
                                 </span>
                             ) : (
@@ -238,13 +247,13 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                                             size='small'
                                             onClick={() => this.setState({questionNmeE: true})}
                                         >
-                                            <EditIcon fontSize='inherit'/>
+                                            <EditIcon fontSize='inherit' />
                                         </IconButton>
                                     </span>
                                 </span>
                             )}
-                            <br/>
-                            <br/>
+                            <br />
+                            <br />
                             {this.state.questionTxtE ? (
                                 <span>
                                     <TextField
@@ -270,7 +279,7 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                                         size='small'
                                         onClick={() => this.setState({questionTxtE: false})}
                                     >
-                                        <SaveIcon fontSize='inherit'/>
+                                        <SaveIcon fontSize='inherit' />
                                     </IconButton>
                                 </span>
                             ) : (
@@ -286,13 +295,13 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                                             size='small'
                                             onClick={() => this.setState({questionTxtE: true})}
                                         >
-                                            <EditIcon fontSize='inherit'/>
+                                            <EditIcon fontSize='inherit' />
                                         </IconButton>
                                     </span>
                                 </span>
                             )}
-                            <br/>
-                            <br/>
+                            <br />
+                            <br />
                             <FormControl component='fieldset'>
                                 <FormLabel component='legend'>Answer Choices</FormLabel>
                                 <RadioGroup
@@ -306,19 +315,19 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                                 >
                                     <FormControlLabel
                                         value='true'
-                                        control={<Radio color='primary'/>}
+                                        control={<Radio color='primary' />}
                                         label='True'
                                         labelPlacement='end'
                                     />
                                     <FormControlLabel
                                         value='false'
-                                        control={<Radio color='primary'/>}
+                                        control={<Radio color='primary' />}
                                         label='False'
                                         labelPlacement='end'
                                     />
                                 </RadioGroup>
                             </FormControl>
-                            <br/>
+                            <br />
                             {this.state.questionExpE ? (
                                 <span>
                                     <TextField
@@ -344,7 +353,7 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                                         size='small'
                                         onClick={() => this.setState({questionExpE: false})}
                                     >
-                                        <SaveIcon fontSize='inherit'/>
+                                        <SaveIcon fontSize='inherit' />
                                     </IconButton>
                                 </span>
                             ) : (
@@ -360,7 +369,7 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                                             size='small'
                                             onClick={() => this.setState({questionExpE: true})}
                                         >
-                                            <EditIcon fontSize='inherit'/>
+                                            <EditIcon fontSize='inherit' />
                                         </IconButton>
                                     </span>
                                 </span>
@@ -378,7 +387,7 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                             disabled={!this.isValid()}
                             onClick={() => this.submitQuestion()}
                         >
-                            <SaveIcon/>
+                            <SaveIcon />
                         </Fab>
                         <Popover
                             open={this.state.popopen}
@@ -511,11 +520,11 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                     open={this.state.importerOpen}
                     maxWidth='xl'
                 >
-                    <TFImporter
+                    <SimpleTFImporter
                         showSnackBar={this.props.showSnackBar}
                         set={this.props.sets[this.state.selectedS as number]}
                         close={(refresh: boolean) => this.closeImporter(refresh)}
-                        buildQuestionString={this.buildQuestionString}
+                        buildQuestionConfig={this.buildQuestionConfig}
                     />
                 </Dialog>
             </Grid>
@@ -535,12 +544,12 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
             >
                 <ListItemIcon>
                     {set.canEdit ? (
-                        <Folder color={selectedS === index ? 'primary' : 'action'}/>
+                        <Folder color={selectedS === index ? 'primary' : 'action'} />
                     ) : (
-                        <Lock color={selectedS === index ? 'primary' : 'action'}/>
+                        <Lock color={selectedS === index ? 'primary' : 'action'} />
                     )}
                 </ListItemIcon>
-                <ListItemText primary={set.name}/>
+                <ListItemText primary={set.name} />
                 {index === this.state.hovered && (
                     <IconButton
                         size='small'
@@ -549,7 +558,7 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                             this.deleteSet(index, event)
                         }
                     >
-                        <DeleteIcon/>
+                        <DeleteIcon />
                     </IconButton>
                 )}
             </ListItem>
@@ -573,14 +582,14 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                             color={questionID === question.questionID ? 'primary' : 'action'}
                         />
                     </ListItemIcon>
-                    <ListItemText secondary={question.name}/>
+                    <ListItemText secondary={question.name} />
                     {hovered === question.questionID && (
                         <IconButton
                             size='small'
                             edge='end'
                             onClick={() => this.switchQuestion(index)}
                         >
-                            <EditIcon/>
+                            <EditIcon />
                         </IconButton>
                     )}
                     {hovered === question.questionID && (
@@ -589,7 +598,7 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                             edge='end'
                             onClick={() => this.setState({deleteDiagOpen: true, toEdit: index})}
                         >
-                            <DeleteIcon/>
+                            <DeleteIcon />
                         </IconButton>
                     )}
                 </ListItem>
@@ -667,7 +676,11 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
         let confirmation: boolean = confirm('Are you sure you want to delete this set?');
         const set: QuestionSet = this.props.sets[index];
         if (confirmation)
-            Http.deleteSet(set.setID, () => this.deleteSetSuccess(index), result => alert(result.error));
+            Http.deleteSet(
+                set.setID,
+                () => this.deleteSetSuccess(index),
+                result => alert(result.error),
+            );
     };
 
     handleAnswerChange = (answer: 'true' | 'false') => {
@@ -680,16 +693,17 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
         }
     };
 
-    buildQuestionString(question: string, answer: string, explanation: string) {
-        return (
-            '；；；' +
-            question +
-            '，；0；1；@0 *' +
-            (answer.toLowerCase() === 'true' ? 'T' : 'F') +
-            ' HB；' +
-            explanation +
-            '；'
-        );
+    buildQuestionConfig(answer: string, explanation: string): SimpleQuestionConfig {
+        // Account for lower/upper case and default anything that is not true to false
+        const fixedAnser: TrueFalseConfigCorrectAnswer = answer.toLowerCase() === 'true' ? 'true' : 'false';
+
+        return {
+            type: 'true/false',
+            explanation: explanation,
+            correct_answer: fixedAnser,
+            types: ['0'],
+            prompts: [''],
+        };
     }
 
     submitQuestion = () => {
@@ -705,13 +719,7 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                         1,
                         () => this.postSuccess(),
                         () => this.props.showSnackBar('error', 'Error editing question', 2000),
-                        {
-                            'type': 'true/false',
-                            'explanation': this.state.questionExpl,
-                            'correct_answer': this.state.questionAnsr,
-                            'types': ['0'],
-                            'prompts': ['']
-                        }
+                        this.buildQuestionConfig(this.state.questionAnsr, this.state.questionExpl),
                     ),
                 () => this.props.showSnackBar('error', 'Error editing question', 2000),
             );
@@ -725,12 +733,12 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
                 () => this.postSuccess(),
                 () => this.props.showSnackBar('error', 'Error creating question', 2000),
                 {
-                    'type': 'true/false',
-                    'explanation': this.state.questionExpl,
-                    'correct_answer': this.state.questionAnsr,
-                    'types': ['0'],
-                    'prompts': ['']
-                }
+                    type: 'true/false',
+                    explanation: this.state.questionExpl,
+                    correct_answer: this.state.questionAnsr,
+                    types: ['0'],
+                    prompts: [''],
+                },
             );
         }
     };
@@ -745,13 +753,10 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
             let question: Question = updated[selectedS as number].questions[toEdit as number];
             question.name = questionName;
             question.string = this.state.questionText;
-            question.config = {
-                'type': 'true/false',
-                'explanation': this.state.questionExpl,
-                'correct_answer': this.state.questionAnsr,
-                'types': ['0'],
-                'prompts': ['']
-            };
+            question.config = this.buildQuestionConfig(
+                this.state.questionAnsr,
+                this.state.questionExpl,
+            );
             this.props.updateSets(updated);
         }
         // Creating a fresh question
@@ -808,8 +813,7 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
         const {sets} = this.props;
         let question: Question;
         // Used if the user was presented with a dialog (aka they would have thrown away changes)
-        if (!index)
-            question = sets[selectedS as number].questions[toEdit as number];
+        if (!index) question = sets[selectedS as number].questions[toEdit as number];
         // Used when immediately switching to the next question
         else question = sets[selectedS as number].questions[index];
 
@@ -874,10 +878,15 @@ export default class SimpleTrueFalseBuilder extends Component<SimpleTrueFalseBui
 
     closeImporter = (refresh: boolean) => {
         this.setState({importerOpen: false});
-        console.log('refresh: ' + refresh);
         // Refresh the set if new questions have been addded
         if (refresh) {
-            console.log('Refreshing');
+            Http.getSets(
+                result =>
+                    this.props.updateSets(result.sets, () =>
+                        this.props.showSnackBar('success', 'Set added', 2000),
+                    ),
+                result => alert(result.error),
+            );
         }
     };
 
