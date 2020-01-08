@@ -34,6 +34,7 @@ import {ShowSnackBar} from '../Layout/Layout';
 import {QuestionSet, Course} from '../Http/types';
 import {QuestionBuilderSelection} from './QuestionBuilderHome';
 import {Content} from '../HelperFunctions/Content';
+import set = Reflect.set;
 
 export interface QuestionManagerProps {
     selection: QuestionBuilderSelection;
@@ -376,13 +377,16 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     }
 
     newSet = () => {
-        Http.newSet(
-            this.state.course,
-            this.state.setName,
-            () => this.getSets(),
-            result => alert(result.error),
-        );
-        this.setState({addDiagOpen: false, setName: ''});
+        const {course, setName} = this.state;
+        if (course && setName) {
+            Http.newSet(
+                course,
+                setName,
+                () => this.getSets(),
+                result => alert(result.error),
+            );
+            this.setState({addDiagOpen: false, setName: ''});
+        }
     };
 
     renameSet() {
