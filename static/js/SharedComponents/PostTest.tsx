@@ -56,7 +56,7 @@ export default class PostTest extends Component<PostTestProps, Http.PostTest> {
                     marginRight: '10px',
                     marginTop: '20px',
                     marginBottom: '20px',
-                    padding: '20px',
+                    padding: '50px',
                 }}
             >
                 <CardHeader

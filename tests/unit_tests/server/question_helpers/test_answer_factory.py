@@ -28,92 +28,69 @@ def test_multiple_choice_true_false_answer_question(question_config, answers, ex
     (
             {
                 'type': 'word input',
-                'correct_answer': ['the', 'five', 'tennis', ',', 'french']
+                'correct_answer': [1, 5, 2, 3, 4],
+                'word_input_mode': 'word'
             },
-            iter(['~~'.join(['space', 'lol', 'the', 'five', 'tennis', ',', 'french'])]),
+            iter(['~~'.join(['44', '44', '1', '5', '2', '3', '4'])]),
             [False, False, True, True, True]
     ),
     (
             {
                 'type': 'word input',
-                'correct_answer': ['the', 'five', 'tennis', ',', 'french']
+                'correct_answer': [1, 2, 3, 4, 5],
+                'word_input_mode': 'word'
             },
-            iter(['~~'.join(['the', 'five', 'tennis', ',', 'french'])]),
+            iter(['~~'.join(['1', '2', '3', '4', '5'])]),
             [True, True, True, True, True]
     ),
     (
             {
                 'type': 'word input',
-                'correct_answer': ['the', 'five', 'tennis', '+', 'french']
+                'correct_answer': [1, 2, 3, 4, 5],
+                'word_input_mode': 'word'
             },
-            iter(['~~'.join(['the', 'five', 'tennis', ',', 'french'])]),
+            iter(['~~'.join(['1', '2', '3', '123', '5'])]),
             [True, True, True, False, True]
     ),
     (
             {
                 'type': 'word input',
-                'correct_answer': [
-                    'this is a sentence',
-                    'another sentence',
-                    'and yet another sentence'
-                ]
+                'correct_answer': [1, 2, 3],
+                'word_input_mode': 'sentence'
             },
-            iter(['~~'.join([
-                'this is a sentence',
-                'another sentence',
-                'and yet another sentence'
-            ])]),
+            iter(['~~'.join(['1', '2', '3'])]),
             [True, True, True]
     ),
     (
             {
                 'type': 'word input',
-                'correct_answer': [
-                    'this is a sentence',
-                    'another sentence',
-                    'and yet another sentence'
-                ]
+                'correct_answer': [1, 45, 3],
+                'word_input_mode': 'sentence'
             },
-            iter(['~~'.join([
-                'this is a sentence',
-                'another sentence2',
-                'and yet another sentence'
-            ])]),
+            iter(['~~'.join(['1', '2', '3'])]),
             [True, False, True]
     ),
     (
             {
                 'type': 'word input',
-                'correct_answer': [
-                    'this is a sentence',
-                    'another sentence',
-                    'and yet another sentence'
-                ]
+                'correct_answer': [1, 2, 3],
+                'word_input_mode': 'sentence'
             },
-            iter(['~~'.join([
-                'this is a sentenc1e',
-                'another sentence2',
-                'and yet another se43ntence'
-            ])]),
+            iter(['~~'.join(['23', '34', '12'])]),
             [False, False, False]
     ),
     (
             {
                 'type': 'word input',
-                'correct_answer': [
-                    'this is a sentence',
-                    'another sentence',
-                    'and yet another sentence'
-                ]
+                'correct_answer': [1, 2, 3],
+                'word_input_mode': 'sentence'
             },
-            iter(['~~'.join([
-                'this is a sentence',
-            ])]),
+            iter(['~~'.join(['1'])]),
             [True, False, False]
     ),
 ])
 def test_word_input_answer_question(question_config, answers, expected_result):
-    assert answer_question(question_config, answers) == expected_result
+    assert set(answer_question(question_config, answers)) == set(expected_result)
 
 
 @pytest.mark.parametrize(('question_config', 'answers', 'expected_result'), [

@@ -44,6 +44,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import {Question, QuestionSet, Course, WordInputConfigCorrectAnswer} from 'Http/types';
 import {ShowSnackBar} from 'Layout/Layout';
 import TFImporter from './TFImporter';
+import WordInput from '../QuestionBuilder/WordInput'
 
 export interface WordInputQuestionBuilderProps {
     showSnackBar: ShowSnackBar;
@@ -82,6 +83,7 @@ interface WordInputQuestionBuilderState {
     questionAnsrE: boolean;
     questionSelectableString: string;
     questionSelectableStringE: boolean;
+    wordInputMode: 'word' | 'sentence';
 }
 
 export default class WordInputQuestionBuilder extends Component<WordInputQuestionBuilderProps,
@@ -116,7 +118,8 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
             importerOpen: false, // Determines whether we are showing the question importer
             questionAnsrE: true,
             questionSelectableString: '',
-            questionSelectableStringE: true
+            questionSelectableStringE: true,
+            wordInputMode: 'word',
         };
     }
 
@@ -340,24 +343,32 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                             <br/>
                             {this.state.questionAnsrE ? (
                                 <span>
-                                    <TextField
-                                        id='outlined-name'
-                                        label='Question answer'
-                                        multiline
-                                        rows='2'
-                                        margin='normal'
-                                        variant='outlined'
-                                        style={{
-                                            width: '90%',
-                                        }}
-                                        value={this.state.questionAnsr}
-                                        onChange={e =>
+                                    <WordInput
+                                        key={'wordinput1'}
+                                        onChange={value =>
                                             this.setState({
                                                 changed: true,
-                                                questionAnsr: e.target.value,
+                                                questionAnsr: value,
                                             })
                                         }
-                                    />
+                                        color={{200: 'green', 500: 'green'}}
+                                        value={this.state.questionAnsr}
+                                        mode={this.state.wordInputMode}
+                                    >
+                                        {this.state.questionSelectableString}
+                                    </WordInput>
+                                    <Button
+                                        onClick={() => {
+                                            this.setState({
+                                                questionAnsr: '',
+                                                wordInputMode: this.state.wordInputMode === 'word' ? 'sentence' : 'word'
+                                            })
+                                        }}
+                                        color='primary'
+                                        variant='contained'
+                                        autoFocus>
+                                        Switch to {this.state.wordInputMode === 'word' ? 'sentence' : 'word'} mode
+                                    </Button>
                                     <IconButton
                                         aria-label='save'
                                         size='small'
@@ -369,9 +380,17 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                             ) : (
                                 <span>
                                     <span style={{float: 'left'}}>
-                                        <Typography variant='body2' gutterBottom>
-                                            {this.state.questionAnsr}
-                                        </Typography>
+                                        <WordInput
+                                            key={'wordinput2'}
+                                            onChange={value => {
+                                            }}
+                                            color={{200: 'green', 500: 'green'}}
+                                            value={this.state.questionAnsr}
+                                            mode={this.state.wordInputMode}
+                                            disabled={true}
+                                        >
+                                        {this.state.questionSelectableString}
+                                    </WordInput>
                                     </span>
                                     <span>
                                         <IconButton
@@ -390,7 +409,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                 <span>
                                     <TextField
                                         id='outlined-name'
-                                        label={`Explanation as to why the answer is ${this.state.questionAnsr}`}
+                                        label={`Explanation for the answer...`}
                                         multiline
                                         rows='2'
                                         margin='normal'
@@ -751,8 +770,8 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                         {
                             'type': 'word input',
                             'explanation': this.state.questionExpl,
-                            'correct_answer': this.state.questionAnsr.split('~~'),
-                            'types': ['10'],
+                            'correct_answer': this.state.questionAnsr.split('~~').map(answer => Number.parseInt(answer)),
+                            'types': [this.state.wordInputMode === 'word' ? '10' : '11'],
                             'prompts': [this.state.questionSelectableString],
                         }
                     ),
@@ -770,8 +789,8 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                 {
                     'type': 'word input',
                     'explanation': this.state.questionExpl,
-                    'correct_answer': this.state.questionAnsr.split('~~'),
-                    'types': ['10'],
+                    'correct_answer': this.state.questionAnsr.split('~~').map(answer => Number.parseInt(answer)),
+                    'types': [this.state.wordInputMode === 'word' ? '10' : '11'],
                     'prompts': [this.state.questionSelectableString],
                 }
             );
@@ -791,8 +810,8 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
             question.config = {
                 'type': 'word input',
                 'explanation': this.state.questionExpl,
-                'correct_answer': this.state.questionAnsr.split('~~'),
-                'types': ['10'],
+                'correct_answer': this.state.questionAnsr.split('~~').map(answer => Number.parseInt(answer)),
+                'types': [this.state.wordInputMode === 'word' ? '10' : '11'],
                 'prompts': [this.state.questionSelectableString],
             };
             this.props.updateSets(updated);
@@ -863,14 +882,15 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                 questionNmeE: false,
                 questionText: question.string,
                 questionTxtE: false,
-                questionAnsr: (question.config.correct_answer as WordInputConfigCorrectAnswer).join('~~'),
+                questionAnsr: (question.config.correct_answer as WordInputConfigCorrectAnswer).map(q => String(q)).join('~~'),
                 questionExpl: question.config.explanation,
                 questionExpE: false,
                 editMode: true,
                 changed: false,
                 questionSelectableStringE: false,
                 questionAnsrE: false,
-                questionSelectableString: question.config.prompts[0]
+                questionSelectableString: question.config.prompts[0],
+                wordInputMode: question.config.types[0] === '10' ? 'word' : 'sentence'
             });
         }
     };
@@ -903,6 +923,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
             questionAnsrE: true,
             questionSelectableString: '',
             questionSelectableStringE: true,
+            wordInputMode: 'word',
         });
     };
 

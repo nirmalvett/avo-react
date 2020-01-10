@@ -28,14 +28,19 @@ def answer_question(question_config: Dict, answers: Iterator) -> List[bool]:
         return [answer == correct_answer]
     elif question_type == 'word input':
         answers = next(answers)
-        answers = answers.split('~~')
+        answers = [int(a) for a in answers.split('~~')]
         correct_answer: List = question_config['correct_answer']
-        while len(answers) < len(correct_answer):
-            answers.append('')
+        if len(answers) > len(correct_answer):
+            answers = answers[:len(correct_answer)]
+
+        answers = set(answers)
+        correct_answers = set(correct_answer)
+
         return [
-            answer == correct or answer in correct_answer
-            for answer, correct in zip(answers, correct_answer)
+            True if answer in answers else False
+            for answer in correct_answers
         ]
+
     else:
         raise ValueError('Invalid question type')
 
