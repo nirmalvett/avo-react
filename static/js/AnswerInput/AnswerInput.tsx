@@ -8,7 +8,8 @@ import {_3_Expression} from './_3_Expression';
 import {_6_Vector} from './_6_Vector';
 import {_8_Matrix} from './_8_Matrix';
 import {_9_Basis} from './_9_Basis';
-import {_10_WordInput} from './_10_WordInput';
+import {_10_WordInput_WordMode} from './_10_WordInput_WordMode';
+import {_11_WordInput_WordMode} from './_11_WordInput_WordMode';
 
 interface AnswerInputProps {
     type: string;
@@ -56,7 +57,9 @@ export class AnswerInput extends PureComponent<AnswerInputProps> {
         } else if (type === '9') {
             return <_9_Basis {...props} />;
         } else if (type == '10') {
-            return <_10_WordInput {...props} />;
+            return <_10_WordInput_WordMode {...props} />;
+        } else if (type == '11') {
+            return <_11_WordInput_WordMode {...props} />;
         } else {
             return (
                 <Typography variant='body2' color='error'>

@@ -14,7 +14,7 @@ export interface SimpleQuestionConfig {
 
 export type TrueFalseConfigCorrectAnswer = "true" | "false";
 
-export type WordInputConfigCorrectAnswer = string[];
+export type WordInputConfigCorrectAnswer = number[];
 
 export interface Question {
     config: SimpleQuestionConfig;
