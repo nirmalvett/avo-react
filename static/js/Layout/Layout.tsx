@@ -227,6 +227,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     courses={this.state.courses}
                     updateCourses={this.updateCourses}
                     theme={{theme: this.props.theme, color: this.color()}}
+                    showSnackBar={this.showSnackBar}
                 />
             );
         } else if (section.name === 'Manage Classes') {
@@ -338,7 +339,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
         );
     };
 
-    showSnackBar = (variant: SnackbarVariant, message: string, hideDuration: number) => {
+    showSnackBar = (variant: SnackbarVariant, message: string, hideDuration: number): void => {
         /**
          * @param variant can be success, warning, error, info
          * @param message is the message to display

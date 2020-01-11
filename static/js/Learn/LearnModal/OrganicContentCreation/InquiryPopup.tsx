@@ -26,6 +26,8 @@ import SwipeableViews from 'react-swipeable-views';
 import debounce from '../../../SharedComponents/AVODebouncer';
 import {Content} from '../../../HelperFunctions/Content';
 import * as Http from '../../../Http';
+import {ShowSnackBar, SnackbarVariant} from "../../../Layout/Layout";
+import {AVOLanguage} from "../../../Language/English";
 
 interface InquiryObject {
     ID: number;
@@ -42,7 +44,8 @@ interface InquiryObject {
 interface InquiryPopupProps {
     ID: number;
     object: any;
-};
+    showSnackBar: ShowSnackBar;
+}
 
 interface InquiryPopupState {
     isOpen: boolean;
@@ -53,7 +56,7 @@ interface InquiryPopupState {
     hasSubmittedInquiry: boolean;
     inquiries: InquiryObject[];
     selectedInquiry: InquiryObject;
-};
+}
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -86,6 +89,8 @@ function a11yProps(index: any) {
         'aria-controls': `full-width-tabpanel-${index}`,
     };
 }
+
+const msSnackBar: number = 2000;
 
 export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPopupState> {
     poller: any;
@@ -274,6 +279,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                     style={{ paddingLeft : '12px' }}
                     control={
                         <Checkbox
+                            id={`inquiry-checkbox-button-${this.props.ID}`}
                             checked={this.state.includeQuestionString}
                             onChange={() => this.setState({ includeQuestionString : !this.state.includeQuestionString })}
                             color="primary"
@@ -282,8 +288,17 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                     }
                     label="Include Concept Lesson"
                 />
-                <Button onClick={this.submitInquiry.bind(this)} disabled={this.state.question.length < 12}>
-                    Submit Question
+                {/* ================================= SUBMIT INQUIRY BUTTON =========================================*/}
+                <Button
+                    id={`inquiry-submit-button-${this.props.ID}`}
+                    onClick={ this.submitInquiry.bind(this)}
+                    disabled={this.state.question.length < 12}>
+                    {
+                        // If the question length less than 12 characters then we won't let the user submit
+                        this.state.question.length < 12
+                            ? AVOLanguage.StrInquiryNotEnoughCharacter
+                            : AVOLanguage.StrSubmitQuestion
+                    }
                 </Button>
                 <div style={{ 
                     position: "absolute",  
@@ -400,7 +415,8 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                 inquiryType : 1,
                 stringifiedQuestionObject : this.state.includeQuestionString ? this.props.object : '',
             },
-            (res: any) => { 
+            (res: any) => {
+                this.props.showSnackBar('success', "Your question was successfully submitted.", msSnackBar);
                 (document as any).getElementById('question-string').value = '';
                 this.setState(
                     { 
@@ -415,7 +431,10 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                     }
                 );
             },
-            (res: any) => { console.log(res); },
+            (res: any) => {
+                this.props.showSnackBar('error', "Hmm your question could not be submitted... please try again in a couple minutes", msSnackBar);
+                console.log(res);
+            },
         );
     };
 
@@ -423,10 +442,10 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
         Http.subscribeToInquiry(
             inquiryID, 
             (res) => {
-
+                this.props.showSnackBar('success', "You have been successfully subscribed.", msSnackBar);
             }, 
             (res) => {
-
+                this.props.showSnackBar('error', "Hmm it look it like there was an error subscribing... please try again in a couple minutes.", msSnackBar);
             }
         );
     };
@@ -434,11 +453,11 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
     unsubscribeToInquiry(inquiryID: number) {
         Http.unsubscribeToInquiry(
             inquiryID, 
+           (res) => {
+                this.props.showSnackBar('success', "You have been successfully unsubscribed.", msSnackBar);
+            },
             (res) => {
-
-            }, 
-            (res) => {
-
+                this.props.showSnackBar('error', "Hmm it looks like there was an error unsubscribing... please try again in a couple minutes.", msSnackBar);
             }
         );
     };
@@ -450,7 +469,8 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
             (res: InquiryObject[]) => { 
                 this.setState({ inquiries: res });
             },
-            (res: any) => { 
+            (res: any) => {
+                this.props.showSnackBar('error', "Hmm it looks like there was an issue getting inquiries...please try again in a couple mintes..", msSnackBar);
                 console.log(res); 
             },
         );

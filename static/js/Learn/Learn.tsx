@@ -7,6 +7,7 @@ import LearnTestComp from './LearnModal/LearnTestComp';
 import {ThemeObj} from '../Models';
 import {HashLoader} from 'react-spinners';
 import FullScreenModal from './LearnModal/FullScreenModal';
+import {ShowSnackBar, SnackbarVariant} from "../Layout/Layout";
 
 export interface AvoLesson {
     conceptID: number;
@@ -43,6 +44,7 @@ interface LearnProps {
     courses: Course[];
     updateCourses: (courses: Course[], cb?: () => void) => void;
     theme: ThemeObj;
+    showSnackBar: ShowSnackBar
 }
 
 interface LearnState {
@@ -128,6 +130,7 @@ export default class Learn extends Component<LearnProps, LearnState> {
                             updateMastery={this.updateMastery}
                             theme={this.props.theme}
                             survey={this.updateSurvey}
+                            showSnackBar={this.props.showSnackBar}
                         />
                     )}
                 </FullScreenModal>
