@@ -42,7 +42,10 @@ export function QuestionScreen(props: QuestionScreenProps) {
                     padding: '16px',
                 }}
             >
+                {/* Define a max width so that we can align text to the left. The MathJax Nodes force a width of 100%, not allowing for calculations based on the size of the content */}
+                <div style={{maxWidth: '500px', margin: '0 auto', textAlign: 'left'}}>
                 <Content>{question.prompt}</Content>
+                </div>
                 {question.prompts.map((p, idx) => (
                     <AnswerInput
                         type={question.types[idx]}
