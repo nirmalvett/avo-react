@@ -441,9 +441,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
     subscribeToInquiry(inquiryID: number) {
         Http.subscribeToInquiry(
             inquiryID, 
-            (res) => {
-                this.props.showSnackBar('success', "You have been successfully subscribed.", msSnackBar);
-            }, 
+            (res) => {},
             (res) => {
                 this.props.showSnackBar('error', "Hmm it look it like there was an error subscribing... please try again in a couple minutes.", msSnackBar);
             }
@@ -453,9 +451,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
     unsubscribeToInquiry(inquiryID: number) {
         Http.unsubscribeToInquiry(
             inquiryID, 
-           (res) => {
-                this.props.showSnackBar('success', "You have been successfully unsubscribed.", msSnackBar);
-            },
+           (res) => {},
             (res) => {
                 this.props.showSnackBar('error', "Hmm it looks like there was an error unsubscribing... please try again in a couple minutes.", msSnackBar);
             }
