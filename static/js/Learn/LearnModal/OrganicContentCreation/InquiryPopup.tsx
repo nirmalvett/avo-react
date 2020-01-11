@@ -27,7 +27,8 @@ import debounce from '../../../SharedComponents/AVODebouncer';
 import {Content} from '../../../HelperFunctions/Content';
 import * as Http from '../../../Http';
 import {ShowSnackBar, SnackbarVariant} from "../../../Layout/Layout";
-import {AVOLanguage} from "../../../Language/English";
+import {AVOLanguage} from "../../../Language/MainLanguage";
+
 
 interface InquiryObject {
     ID: number;
