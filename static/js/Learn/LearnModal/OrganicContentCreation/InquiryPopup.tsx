@@ -264,7 +264,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                     style={{
                         width : '100%',
                     }}
-                    placeholder='Your Question Here... Must be more than 12 characters.'
+                    placeholder='Your question here... (must be more than 12 characters)'
                     onChange={(e: any) => {
                         e.persist();
                         questionChangeDebouncer(e);
@@ -378,7 +378,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                 )}
                 {this.state.inquiries.length == 0 && (
                     <div style={{ margin: 'auto', textAlign: 'center' }}>
-                        No Questions available.
+                        No questions available.
                     </div>
                 )}
             </List>
