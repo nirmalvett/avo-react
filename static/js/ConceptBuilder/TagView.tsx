@@ -493,15 +493,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         height: '-webkit-fill-available',
                                     }}
                                 >
-                                    <IconButton
-                                        onClick={this.saveConcept.bind(this)}
-                                        color='primary'
-                                        aria-label='save'
-                                        disabled={!this.state.selectedClass.canEdit}
-                                        style={{position: 'absolute', bottom: '9px', right: '9px'}}
-                                    >
-                                        <Save/>
-                                    </IconButton>
+
                                     <div style={{position: 'absolute', top: '9px', right: '9px'}}>
                                         <AVOPopupMenu options={menuOptions}/>
                                     </div>
@@ -770,6 +762,15 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                             ))}
                                                         </List>
                                                     </Collapse>
+                                                    <IconButton
+                                                        onClick={this.saveConcept.bind(this)}
+                                                        color='primary'
+                                                        aria-label='save'
+                                                        disabled={!this.state.selectedClass.canEdit}
+                                                        style={{position: 'relative', bottom: '9px', float: 'right'}}
+                                                    >
+                                                        <Save/>
+                                                    </IconButton>
                                                 </List>
                                             </>
                                         ) : (
