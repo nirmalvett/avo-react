@@ -7,7 +7,7 @@ interface FeedbackState {
     waiting: boolean;
 }
 
-export class Feedback extends Component<{}, FeedbackState> {
+export default class Feedback extends Component<{}, FeedbackState> {
     constructor(props: {}) {
         super(props);
         this.state = {
