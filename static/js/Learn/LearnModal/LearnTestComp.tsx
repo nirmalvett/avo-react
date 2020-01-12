@@ -25,6 +25,9 @@ interface LearnTestCompState {
     nextQuestion: AvoLessonData | undefined;
     readonly nextAnswers: string[];
 
+    lastQuestion: AvoLessonData | undefined;
+    readonly lastAnswers: string[];
+
     changedMastery: number;
     incorrectAnswerModalDisplay: 'none' | 'block';
 }
@@ -41,6 +44,9 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
 
             nextQuestion: undefined,
             nextAnswers: [],
+
+            lastQuestion: undefined,
+            lastAnswers: [],
 
             changedMastery: this.props.lesson.mastery,
             incorrectAnswerModalDisplay: 'none',
@@ -99,6 +105,8 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
             case 'explanation':
                 return (
                     <ExplanationScreen
+                        question={this.state.lastQuestion as AvoLessonData}
+                        answers={this.state.lastAnswers}
                         lesson={this.props.lesson}
                         explanation={this.state.explanations[this.state.explanations.length - 1]}
                         theme={this.props.theme}
@@ -106,7 +114,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         practiceDisabled={!this.state.nextQuestion}
                         practice={this.goToQuestion}
                         finish={() => {
-                            this.setState({mode: 'finish'});
+                            this.setState({mode: 'finish', lastAnswers: [], lastQuestion: undefined});
                             const {lesson} = this.props;
                             Http.collectData(
                                 'finish for now learn',
@@ -151,7 +159,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                 },
                 console.warn
             );
-        this.setState({mode: 'question'});
+        this.setState({mode: 'question', lastQuestion: undefined, lastAnswers: []});
     };
 
     changeAnswer = (index: number) => (answer: string) => {
@@ -163,6 +171,8 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
     submitAnswer = () => {
         const question = this.state.nextQuestion as AvoLessonData;
         const {lesson} = this.props;
+        const lastQuestion = question;
+        const lastAnswers = this.state.nextAnswers;
         Http.submitQuestion(
             question.ID,
             question.seed,
@@ -198,6 +208,8 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         answers,
                         nextQuestion: undefined,
                         nextAnswers: [],
+                        lastQuestion,
+                        lastAnswers,
                         mode: 'explanation',
                     },
                     () => {
