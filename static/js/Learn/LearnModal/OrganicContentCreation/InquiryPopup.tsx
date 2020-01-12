@@ -27,8 +27,9 @@ import debounce from '../../../SharedComponents/AVODebouncer';
 import {Content} from '../../../HelperFunctions/Content';
 import * as Http from '../../../Http';
 import {ShowSnackBar, SnackbarVariant} from "../../../Layout/Layout";
-import {AVOLanguage} from "../../../Language/MainLanguage";
 
+const StrSubmitQuestion = "Submit Question";
+const StrInquiryNotEnoughCharacter = "Questions must be 12 or more characters";
 
 interface InquiryObject {
     ID: number;
@@ -297,8 +298,8 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                     {
                         // If the question length less than 12 characters then we won't let the user submit
                         this.state.question.length < 12
-                            ? AVOLanguage.StrInquiryNotEnoughCharacter
-                            : AVOLanguage.StrSubmitQuestion
+                            ? StrInquiryNotEnoughCharacter
+                            : StrSubmitQuestion
                     }
                 </Button>
                 <div style={{ 
