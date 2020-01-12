@@ -7,6 +7,7 @@ import {LooksOne, LooksTwo, Looks3, Looks4, Looks5} from '@material-ui/icons';
 import * as Http from '../../Http';
 import {Content} from '../../HelperFunctions/Content';
 import InquiryPopup from './OrganicContentCreation/InquiryPopup';
+import {ShowSnackBar} from "../../Layout/Layout";
 
 interface LessonScreenProps {
     lesson: AvoLesson;
@@ -14,6 +15,7 @@ interface LessonScreenProps {
     theme: ThemeObj;
     next: () => void;
     survey: (mastery: number, aptitude: number) => () => void;
+    showSnackBar: ShowSnackBar;
 }
 
 const surveyIcons = [
@@ -85,7 +87,11 @@ export class LessonScreen extends PureComponent<LessonScreenProps> {
                             })}
                         </div>
                     </div>
-                    <InquiryPopup ID={lesson.conceptID} object={lesson.lesson}/>
+                    <InquiryPopup
+                        ID={lesson.conceptID}
+                        object={lesson.lesson}
+                        showSnackBar={this.props.showSnackBar}
+                    />
                     <Button variant='outlined' color='primary' disabled={disabled} onClick={next}>
                         Practice Concept
                     </Button>

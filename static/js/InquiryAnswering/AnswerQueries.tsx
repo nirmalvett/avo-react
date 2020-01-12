@@ -128,7 +128,7 @@ export default class AnswerQueries extends Component<AnswerQueriesProps, AnswerQ
                             <Grid item xs={6}>
                                 <Typography variant="h6">Question Answer</Typography>
                                 <div style={{ height : '30vh', overflowY: 'auto', overflowWrap: 'break-word', margin: '4px' }}>
-                                    <Content>{this.state.answerString.length == 0 ? 'No Answer provided yet' : this.state.answerString}</Content>
+                                    <Content>{this.state.answerString.length == 0 ? 'No answer provided yet' : this.state.answerString}</Content>
                                 </div>
                                 <div style={{ height : '30vh', margin: '4px' }}>
                                     <TextField
@@ -140,7 +140,7 @@ export default class AnswerQueries extends Component<AnswerQueriesProps, AnswerQ
                                         style={{
                                             width : '100%',
                                         }}
-                                        placeholder='Your Answer Here'
+                                        placeholder='Your answer here.'
                                         onChange={(e: any) => {
                                             e.persist();
                                             answerChangeDebouncer(e);
@@ -157,7 +157,7 @@ export default class AnswerQueries extends Component<AnswerQueriesProps, AnswerQ
                                             inputProps={{ 'aria-label': 'primary checkbox' }}
                                         />
                                     }
-                                    label="Show Answer to student"
+                                    label="Show answer to student"
                                 />
                                 <Button color="primary" variant="outlined" onClick={this.editInquiry.bind(this)}>
                                     Save

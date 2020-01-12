@@ -7,12 +7,14 @@ import {LessonScreen} from './LessonScreen';
 import {QuestionScreen} from './QuestionScreen';
 import {ExplanationScreen} from './ExplanationScreen';
 import {FinishScreen} from './FinishScreen';
+import {ShowSnackBar, SnackbarVariant} from "../../Layout/Layout";
 
 interface LearnTestCompProps {
     lesson: AvoLesson;
     updateMastery: (mastery: { [conceptID: number]: number }) => void;
     theme: ThemeObj;
     survey: (mastery: number, aptitude: number) => () => void;
+    showSnackBar: ShowSnackBar;
 }
 
 interface LearnTestCompState {
@@ -90,6 +92,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         theme={this.props.theme}
                         next={this.goToQuestion}
                         survey={this.props.survey}
+                        showSnackBar={this.props.showSnackBar}
                     />
                 );
             case 'question':
