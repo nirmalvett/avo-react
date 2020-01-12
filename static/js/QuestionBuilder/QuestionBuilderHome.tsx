@@ -41,7 +41,7 @@ interface QuestionBuilderHomeState {
     isActive: boolean;
 }
 
-export class QuestionBuilderHome extends Component<QuestionBuilderHomeProps,
+export default class QuestionBuilderHome extends Component<QuestionBuilderHomeProps,
     QuestionBuilderHomeState> {
     constructor(props: QuestionBuilderHomeProps) {
         super(props);

@@ -1,14 +1,16 @@
-import React, {Component} from 'react';
+import React, {Component, Suspense} from 'react';
 import * as Http from './Http';
 import Layout from './Layout/Layout';
-import SignIn from './SignIn/SignIn';
-import MomentUtils from '@date-io/moment';
-import PasswordResetPage from './SignIn/PasswordReset';
 import {isChrome, isSafari} from './HelperFunctions/Helpers';
-import NotChromeWarningPage from './SignIn/NotChromeWarningPage';
+import MomentUtils from '@date-io/moment';
 import {MuiPickersUtilsProvider} from '@material-ui/pickers';
 import {createMuiTheme, MuiThemeProvider, Typography} from '@material-ui/core';
 import {colorList} from './SharedComponents/AVOCustomColors';
+
+const SignIn = React.lazy(() => import('./SignIn/SignIn'));
+const PasswordResetPage = React.lazy(() => import('./SignIn/PasswordReset'));
+const NotChromeWarningPage = React.lazy(() => import('./SignIn/NotChromeWarningPage'));
+
 
 export interface User {
     firstName: string;
@@ -19,7 +21,8 @@ export interface User {
     theme: 'dark' | 'light';
 }
 
-interface AppProps {}
+interface AppProps {
+}
 
 interface AppState {
     authenticated: User | false | null;
@@ -39,13 +42,15 @@ export default class App extends Component<AppProps, AppState> {
 
     render() {
         if (!isChrome() && !isSafari()) {
-            return <NotChromeWarningPage />;
+            return <NotChromeWarningPage/>;
         } else if (this.state.authenticated === null) {
             return null;
         } else {
             return (
                 <MuiPickersUtilsProvider utils={MomentUtils}>
-                    {this.getContent()}
+                    <Suspense fallback={<div>Loading...</div>}>
+                        {this.getContent()}
+                    </Suspense>
                 </MuiPickersUtilsProvider>
             );
         }
@@ -65,7 +70,7 @@ export default class App extends Component<AppProps, AppState> {
                 </PasswordResetPage>
             );
         } else if (this.state.authenticated === false) {
-            return <SignIn login={this.updateUser} />;
+            return <SignIn login={this.updateUser}/>;
         } else {
             const u = this.state.authenticated as User;
             const theme = createMuiTheme({palette: {primary: colorList[u.color], type: u.theme}});
