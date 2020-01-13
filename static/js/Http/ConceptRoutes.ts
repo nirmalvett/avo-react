@@ -157,3 +157,7 @@ export function getAllSubscribedOwnedInquiries(courseID: number, success: cb<Inq
 export function getAllInquiredConcepts(courseID: number, success: cb<{}>, failure: cb) {
     _request('POST', '/getAllInquiredConcepts', success, failure, {courseID});
 };
+
+export function maxMastery(conceptID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/maxMastery', success, failure, {conceptID});
+};

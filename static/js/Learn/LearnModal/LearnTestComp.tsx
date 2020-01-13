@@ -15,6 +15,7 @@ interface LearnTestCompProps {
     theme: ThemeObj;
     survey: (mastery: number, aptitude: number) => () => void;
     showSnackBar: ShowSnackBar;
+    readonly closeFSM: () => void;
 }
 
 interface LearnTestCompState {
@@ -93,6 +94,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         next={this.goToQuestion}
                         survey={this.props.survey}
                         showSnackBar={this.props.showSnackBar}
+                        closeFSM={this.props.closeFSM}
                     />
                 );
             case 'question':
