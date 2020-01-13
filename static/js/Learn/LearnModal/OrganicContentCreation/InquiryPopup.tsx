@@ -46,8 +46,10 @@ interface InquiryObject {
 interface InquiryPopupProps {
     ID: number;
     object: any;
+    inquiries: InquiryObject[];
     showSnackBar: ShowSnackBar;
-}
+    updateInquiryFunc: (newInquiries: InquiryObject[]) => void;
+};
 
 interface InquiryPopupState {
     isOpen: boolean;
@@ -56,7 +58,6 @@ interface InquiryPopupState {
     isQuestionModalOpen: boolean;
     includeQuestionString: boolean;
     hasSubmittedInquiry: boolean;
-    inquiries: InquiryObject[];
     selectedInquiry: InquiryObject;
 }
 
@@ -106,7 +107,6 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
             isQuestionModalOpen: false,
             includeQuestionString: true,
             hasSubmittedInquiry: false,
-            inquiries: [],
             selectedInquiry: {} as InquiryObject,
         };
     };
@@ -197,17 +197,6 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
         );
     };
 
-    componentDidMount() {
-        this.getInquiries();
-        this.poller = setInterval(() => {
-            this.getInquiries();
-        }, 1000 * 60);
-    };
-
-    componentWillUnmount() {
-        clearInterval(this.poller);
-    };
-
     // The button which will propmt the user to ask the question
     renderButton() {
         return (
@@ -231,8 +220,8 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                             textColor='primary'
                             aria-label='Question selection Tabs'
                         >
-                            <Tab label='Ask Question' {...a11yProps(0)} />
-                            <Tab label='View Questions' {...a11yProps(1)} />
+                            <Tab label='View Question' {...a11yProps(0)} />
+                            <Tab label='Ask Questions' {...a11yProps(1)} />
                         </Tabs>
                         <SwipeableViews
                             axis={'x'}
@@ -240,10 +229,10 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                             onChangeIndex={(e: any) => console.log(e)}
                         >
                             <TabPanel value={this.state.activeTab} index={0} dir={'ltr'}>
-                                {this.renderAskQuestionTab()}
+                                {this.renderViewQuestionsTab()}
                             </TabPanel>
                             <TabPanel value={this.state.activeTab} index={1} dir={'ltr'}>
-                                {this.renderViewQuestionsTab()}
+                                {this.renderAskQuestionTab()}
                             </TabPanel>
                         </SwipeableViews>
                         <IconButton style={{ position : 'absolute', bottom : '8px', right : '8px' }} onClick={() => this.setState({ isOpen : false })}>
@@ -340,7 +329,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                 component='nav'
                 style={{maxHeight: '25vh', overflowY: 'auto'}}
             >
-                 {this.state.inquiries.map(InquiryObject => { 
+                 {this.props.inquiries.map(InquiryObject => { 
                     let inquiryString: string = `${(InquiryObject.editedInquiry.length > 0 ? InquiryObject.editedInquiry : InquiryObject.originalInquiry)}`;
                     if(inquiryString.length > 23) {
                         inquiryString = inquiryString.substring(0, 22) + '...';
@@ -363,13 +352,15 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                             />
                             <ListItemSecondaryAction>
                                 <Tooltip title={'View Question/Answer'}>
-                                    <Fullscreen color="primary" style={{ top: '8px', position: 'relative' }} onClick={() => this.openInquiry(InquiryObject)}/>
+                                    <IconButton onClick={() => this.openInquiry(InquiryObject)}>
+                                        <Fullscreen color="primary"/>
+                                    </IconButton>
                                 </Tooltip>
                                 <Tooltip title="Subscibe to question">
                                     <Checkbox
                                         color="primary"
                                         onChange={() => {
-                                            let copy = [...this.state.inquiries];
+                                            let copy = ([...this.props.inquiries] as InquiryObject[]);
                                             copy = copy.map((io: InquiryObject) => {
                                                 if(io.ID == InquiryObject.ID)
                                                 {
@@ -383,7 +374,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                                                 }
                                                 return io;
                                             });
-                                            this.setState({ inquiries : copy });
+                                            this.props.updateInquiryFunc(copy);
                                         }}
                                         checked={InquiryObject.subscribed}
                                         inputProps={{ 'aria-label': 'primary checkbox' }}
@@ -393,9 +384,11 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
                         </ListItem>
                     )}
                 )}
-                {this.state.inquiries.length == 0 && (
+                {this.props.inquiries.length == 0 && (
                     <div style={{ margin: 'auto', textAlign: 'center' }}>
-                        No questions available.
+                        <Typography variant={'body2'}>
+                            No Questions available.
+                        </Typography>
                     </div>
                 )}
             </List>
@@ -457,20 +450,6 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
             (res) => {
                 this.props.showSnackBar('error', "Hmm it looks like there was an error unsubscribing... please try again in a couple minutes.", msSnackBar);
             }
-        );
-    };
-
-    getInquiries() {
-        Http.getInquiries(
-            this.props.ID,
-            1,
-            (res: InquiryObject[]) => { 
-                this.setState({ inquiries: res });
-            },
-            (res: any) => {
-                this.props.showSnackBar('error', "Hmm it looks like there was an issue getting inquiries...please try again in a couple mintes..", msSnackBar);
-                console.log(res); 
-            },
         );
     };
 

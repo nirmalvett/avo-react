@@ -131,6 +131,11 @@ export default class Learn extends Component<LearnProps, LearnState> {
                             theme={this.props.theme}
                             survey={this.updateSurvey}
                             showSnackBar={this.props.showSnackBar}
+                            closeFSM={() => { 
+                                const lessonConceptID:number = ({...this.state.currentLesson} as AvoLesson).conceptID;
+                                this.updateMastery({ [lessonConceptID] : 1 });
+                                this.setState({ currentLesson : undefined });
+                            } }
                         />
                     )}
                 </FullScreenModal>

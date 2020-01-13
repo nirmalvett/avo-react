@@ -97,6 +97,34 @@ def delete_concept(concept_id: int):
     return jsonify({})
 
 
+@ConceptRoutes.route("/maxMastery", methods=['POST'])
+@login_required
+@validate(conceptID=int)
+def max_mastery(concept_id: int):
+    """
+    Takes a given Concept Mastery level and sets it to 1.0 used for lessons without questions
+    input: concept_id: The concept to set mastery to max of
+    """
+    concept = Concept.query.get(concept_id)  # Concept to get mastery of
+    if concept is None:
+        # If no concept exists return error
+        return jsonify(error="Concept Not Found")
+    if not able_view_course(concept.COURSE):
+        # If the user cant access the course associated with the concept return error JSON
+        return jsonify(error="User Not Able To View Course Associated With Concept")
+    mastery = Mastery.query.filter((Mastery.USER == current_user.USER)
+                                   & (Mastery.CONCEPT == concept_id)).first()  # Mastery of Concept of current user
+    if mastery is None:
+        # If no mastery found create new instance and add to database
+        mastery = Mastery(concept_id, current_user.USER, 1.0, 0.0, 0.0)  # New instance of mastery to add to database
+        db.session.add(mastery)
+    else:
+        # Set the mastery value to 1.0
+        mastery.mastery_level = 1.0
+    db.session.commit()
+    return jsonify({})
+
+
 @ConceptRoutes.route("/setConceptRelation", methods=['POST'])
 @teacher_only
 @validate(parentID=int, childID=int, weight=int)
