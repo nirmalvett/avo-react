@@ -1,12 +1,11 @@
-from flask import Blueprint, jsonify, render_template, redirect, send_from_directory, redirect
+from flask import Blueprint, jsonify, render_template, send_from_directory, redirect
 from flask_login import logout_user, login_user, current_user
 from sqlalchemy.orm.exc import NoResultFound
 import glob
 from server.PasswordHash import check_password
 import re
-
-from server.decorators import login_required, admin_only, validate
-from server.auth import send_email, get_url, validate_token, send_gmail
+from server.decorators import login_required, validate
+from server.auth import send_email, get_url, validate_token
 from server.models import db, User, Feedback
 
 UserRoutes = Blueprint('UserRoutes', __name__)
@@ -145,64 +144,6 @@ def logout():
     return jsonify({})
 
 
-@UserRoutes.route('/sendWelcome', methods=['POST'])
-@validate(email=str, sender=str, password=str)
-def send_welcome(email: str, sender: str, password: str):
-    try:
-        user = User.query.filter(User.email == email).first()
-        if user is None:
-            return jsonify(error="The email you requested is not associated with an AVO account. "
-                                 "Perhaps it was a typo? Please try again.")
-
-        url = get_url(email, 'UserRoutes.password_reset')
-        send_gmail(
-            email,
-            "Welcome to AVO!",
-            f'<html><body>An AVO account for math1229 has been created for you with your uwo email as your login email. You just need to click <a href="{url}">here</a> and change your password.'
-            """
-<br /><br />
-Below is a letter to students from the founder.
-<br /><br />
-
----------------------------------------------------------
-<br /><br />
-
-Hey there,
-<br /><br />
-My name is Frank and I'm the founder of Avocadocore. I'm really excited for AVO to help you in your math1229 course.
-<br /><br />
-2 years ago around this time I was taking a linear algebra course at Western and really struggling with a lot of the content. But I came out of the course with a great mark with a whole new skill set because I was lucky to have had a professor who was new to Western and had a lot of time to help me.
-<br /><br />
-In other words, my GPA was great and I learned some valuable skills all because I got lucky. 
-<br /><br />
-That's the reason I started Avocadocore. I want to take the luck out of the equation and I wanted to give all students the opportunity to learn as efficiently as possible and to overcome their weaknesses. 
-<br /><br />
-Together with a great team of students, developers, researchers, and engineers we created AVO. Our goal is for AVO to provide step by step feedback and adaptive learning optimized to help you learn more efficiently. We do this by working with dedicated professors who care about student success and by employing modern AI machine learning algorithms. 
-<br /><br />
-That being said this is an open beta and we would appreciate any feedback and suggestions to further improve our ability to empower students to learn via our feedback button.
-<br /><br />
-If you have any questions or would like to be involved in our movement feel free to reach out to me personally.
-<br /><br />
-<br /><br />
-Cheers
-<br />
-Frank Li
-<br />
-Facebook: facebook.com/avocadocoretech
-<br />
-<img src="https://lh3.googleusercontent.com/O0zo9bK4OCMirKzBZe5hNf4DNXpUJTaG5twcL3oHb83srsgObtAQiwkoE5ReugQ0NzIbXK2v1Fdiljj8bE1a7tWpEWLg3lv_LI0zjiowzcerzRKorbIswwUlnFI9uhwIPo-fe3oI412V3w0UPkeVbAo7v-Hgn_6vyGXF5Ypj83yyeRHjMLD4P3zbuR9VzJm4KN_brmcWZLcvWPx5D4bj7AHTjq6jYhdCqrXmESNMSnk_H09Txe8azSbQYEvmu7o-3XFAQNzVzdzUHroxDeaYPrDJBL0ZIsWqB7QBjeepJl09U1Q-7TXj_KlwTnwq3gkSpTb8XYjZ53IvgmbJkLdiMkau7qSjNhrPwEHxgYRqLbOBALEPvBa_ITy0W6xrAYARixjy44xRNLbaV6vZJbUE8CJCkWe_XNxjDOF7Rg1v9U1dsR4WEEZ9HCwCzeYwQE3bd0ERJEHYSps_f8BEP4VEuOFMOz0LJ1xVuPGwYcxtmwtyDEaaqcQTcH4sbP3sxvfjUP7O7_dfsyEA0wHaruHiIsNVzx9s4atRp89YVgsej19gLdKlOCNtW5UW8cDulhdopEaSCZ_j7ao8vGuPGCqT7LEg4EEwR-8hSQFcGx2UJGlBvdpI2Ai431GoouKlwf7i8n39zhqkgo6ad2YOG-y78jUrI9SIrB-DW67ClAgB7Csjy-nsPQObPwriwEKlNBAZQ07Hv0D7a8geS21Zyp_fSNzzN8JkpRG6KToeXNj0WNY6iOjfLQ=w1314-h876-no" alt="Our Team!">
-</body>
-</html>
-                """,
-            sender,
-            password
-        )
-
-        return jsonify({'message': 'success'})
-    except:
-        return jsonify({'message': 'error'})
-
-
 @UserRoutes.route('/requestPasswordReset', methods=['POST'])
 @validate(email=str)
 def request_password_reset(email: str):
@@ -324,40 +265,6 @@ def change_theme(theme: int):
     current_user.theme = theme
     db.session.commit()
     return jsonify({})
-
-
-# Account management (admin only)
-
-
-@UserRoutes.route('/adminLogin/<user_id>', methods=['GET'])
-@admin_only
-def admin_login(user_id):
-    user_id = int(user_id)
-    logout_user()
-    try:
-        # Try to create the user from the email if not throw error JSON
-        user = User.query.filter(User.USER == user_id).one()
-    except NoResultFound:
-        return jsonify(error='Account does not exist!')
-    if not user.confirmed:
-        # If the user hasn't confirmed their email throw error JSON
-        return jsonify(error='Account has not been confirmed!')
-    else:
-        # Else log the user in
-        login_user(user)
-        return redirect('/')
-
-
-@UserRoutes.route('/removeAccount', methods=['POST'])
-@admin_only
-@validate(userID=int)
-def remove_account(user_id: int):
-    user = User.query.filter(User.USER == user_id).first()
-    if user is None:
-        return jsonify(error="No user found")
-    db.session.delete(user)
-    db.session.commit()
-    return jsonify(message="All User Data Removed")
 
 
 @UserRoutes.route('/sendFeedback', methods=['POST'])
