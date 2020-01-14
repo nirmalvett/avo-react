@@ -3,7 +3,7 @@ from flask import url_for
 from flask_login import LoginManager, current_user
 from datetime import datetime
 import config
-from server.models import User, UserCourse, UserSection, QuestionSet, Concept
+from server.models import User, UserCourse, UserSection, QuestionSet, Concept, Section
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
@@ -44,10 +44,20 @@ def able_edit_course(course_id):
 
 
 def able_view_course(course_id):
-    user_section = UserCourse.query.filter(
+    user_course = UserCourse.query.filter(
         (UserCourse.USER == current_user.USER) & (UserCourse.COURSE == course_id)
     ).first()
-    return user_section is not None
+    if user_course is None:
+        sections = Section.query.join(
+            UserSection, UserSection.SECTION == Section.SECTION
+        ).filter(
+            (Section.COURSE == course_id) &
+            (UserSection.USER == current_user.USER)
+        ).all()
+        if sections:
+            return True
+
+    return user_course is not None
 
 
 def able_edit_concept(concept_id):
