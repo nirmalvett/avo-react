@@ -26,7 +26,6 @@ export default class ImageUploader extends React.Component<{ showCard?: boolean 
         Http.getImages(
             res => {
                 this.setState({images: res.images});
-                console.log(res)
             },
             err => console.warn
         )
@@ -35,6 +34,7 @@ export default class ImageUploader extends React.Component<{ showCard?: boolean 
     render() {
         return (
             <div
+                id='container_image_uploader'
                 style={this.props.showCard ? {
                     width: '100%',
                     padding: 25,
@@ -49,10 +49,8 @@ export default class ImageUploader extends React.Component<{ showCard?: boolean 
                                 return {url: '/upload '}
                             }}
                             onChangeStatus={({meta, file}: any, status: any) => {
-                                console.log(status, meta, file)
                             }}
                             onSubmit={(files: any[]) => {
-                                console.log(files.map(f => f.meta));
                                 this.getImages();
                             }}
                             accept="image/*"
@@ -63,7 +61,7 @@ export default class ImageUploader extends React.Component<{ showCard?: boolean 
                                 Object.keys(this.state.images).map(key => {
                                     const name = this.state.images[key];
                                     return (
-                                        <div>
+                                        <div key={`image_uploader_${key}`} id={`image_uploader_${key}`}>
                                             <Typography>{name}</Typography>
                                             <img alt={name} src={`${BASE_URL}/image/${name}`}/>
                                         </div>

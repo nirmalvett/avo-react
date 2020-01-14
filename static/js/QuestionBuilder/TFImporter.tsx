@@ -18,8 +18,7 @@ import {
 import ImporterPreview from './ImporterPreview';
 import * as Http from '../Http';
 import {ShowSnackBar} from '../Layout/Layout';
-import {PreviewQuestion} from './types';
-import {array} from 'prop-types';
+import {PreviewTFQuestion} from './types';
 
 export interface TFImporterProps {
     showSnackBar: ShowSnackBar;
@@ -224,8 +223,8 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
     }
 
     renderQuestionPreviews(): JSX.Element[] {
-        const questions: PreviewQuestion[] = this.generateQuestions(this.state.input);
-        return questions.map((question: PreviewQuestion) => {
+        const questions: PreviewTFQuestion[] = this.generateQuestions(this.state.input);
+        return questions.map((question: PreviewTFQuestion) => {
             return (
                 <ListItem>
                     <ImporterPreview question={question} />
@@ -236,7 +235,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
 
     generateQuestions = (input: String) => {
         //array we will return at the end
-        let questionArray: PreviewQuestion[] = [];
+        let questionArray: PreviewTFQuestion[] = [];
         if (input) {
             const npd = this.state.namePromptOpts[this.state.namePromptDelim];
             const pad = this.state.promptAnswerOpts[this.state.promptAnswerDelim];
@@ -251,7 +250,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
             splitArray.forEach(line => {
                 const questionMatch = line.match(questionRegExp);
                 if (questionMatch !== null) {
-                    let currQuestionObj: PreviewQuestion = {
+                    let currQuestionObj: PreviewTFQuestion = {
                         name: questionMatch[1],
                         prompt: questionMatch[2],
                         answer: questionMatch[3],
@@ -284,7 +283,7 @@ class TFImporter extends Component<TFImporterProps, TFImporterState> {
                 //iterate through each question in questions array (except the last one)
                 questions
                     .slice(0, questions.length - 1)
-                    .forEach((capturedQuestion: PreviewQuestion) => {
+                    .forEach((capturedQuestion: PreviewTFQuestion) => {
                         //need to create a new question for each in array
                         Http.newQuestion(
                             this.props.set.setID,

@@ -14,3 +14,5 @@ from server.routes.test_routes import TestRoutes
 from server.routes.user_routes import UserRoutes
 from server.routes.user_section_routes import UserSectionRoutes
 from server.routes.webhook_routes import WebHookRoutes
+from server.routes.organic_content_routes import OrganicContentRoutes
+from server.routes.student_usage_routes import StudentUsageRoutes

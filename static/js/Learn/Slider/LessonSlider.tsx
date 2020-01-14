@@ -26,7 +26,7 @@ interface LessonSliderProps {
 }
 
 interface LessonSliderState {
-    mode: 'Completed' | 'To Do';
+    mode: string;
     filterInput: string;
     currentIndex: number;
 }
@@ -35,21 +35,31 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
     constructor(props: LessonSliderProps) {
         super(props);
         this.state = {
-            mode: 'To Do',
+            mode: 'Recommended',
             filterInput: '',
             currentIndex: 0,
         };
     }
 
     getLessonsToShow() {
-        let lessons = this.props.lessons;
+        let lessons = [...this.props.lessons];
         if (this.state.filterInput !== '') {
             const words = this.state.filterInput.split(' ');
             lessons = lessons.filter(lesson => words.every(word => lesson.name.includes(word)));
         }
-        const isCompleted = this.state.mode === 'Completed';
+        switch(this.state.mode) {
+            case 'Completed': 
+                lessons = lessons.filter(lesson => lesson.mastery >= 0.8);
+                break;
+            case 'Recommended':
+                lessons = lessons.filter(lesson => lesson.preparation >= 0.75 && lesson.mastery <= 0.8);
+                break;
+            case 'To Do':
+            default:
+                lessons = lessons.filter(lesson => lesson.mastery <= 0.8);
+                break;
+        }
         return lessons
-            .filter(lesson => isCompleted === lesson.mastery >= 0.8)
             .sort(sortFunc(x => -x.preparation));
     }
 
@@ -122,17 +132,25 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
         return (
             <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
                 <div style={{display: 'flex', flexDirection: 'row'}}>
-                    <Button
-                        variant='outlined'
+                    <Select
                         style={{
-                            borderRadius: '2.5em',
                             marginLeft: '4px',
                             marginRight: '2ch',
                         }}
-                        onClick={this.toggleView}
+                        value={this.state.mode}
+                        onChange={(e: any) => this.setState({ mode : (e.target.value as string), currentIndex : 0 })}
+                        input={<Input name='data' id='select-mode'/>}
                     >
-                        View {this.state.mode === 'To Do' ? 'Completed' : 'To Do'}
-                    </Button>
+                        <MenuItem value="To Do">
+                            To Do
+                        </MenuItem>
+                        <MenuItem value="Completed">
+                            Completed
+                        </MenuItem>
+                        <MenuItem value="Recommended">
+                            Recommended
+                        </MenuItem>
+                    </Select>
                     <TextField
                         id='filter-input'
                         label='Filter lessons...'

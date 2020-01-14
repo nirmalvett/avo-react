@@ -10,7 +10,7 @@ import {
     Button,
     Dialog,
     TextField,
-    DialogTitle,
+    DialogTitle, MenuItem, Select,
 } from '@material-ui/core';
 import {
     Add,
@@ -50,13 +50,13 @@ export interface QuestionManagerProps {
 }
 
 export interface QuestionManagerState {
-    copiedQ: null | {q: number; s: number};
+    copiedQ: null | { q: number; s: number };
     preview: {
         prompt: string;
         prompts: string[];
         types: string[];
         explanation: string[];
-        variables: {[variable: string]: string};
+        variables: { [variable: string]: string };
     };
     addDiagOpen: boolean;
     course: number;
@@ -116,16 +116,16 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                                 aria-label='go back'
                                 onClick={() => this.props.returnHome()}
                             >
-                                <ArrowBack />
+                                <ArrowBack/>
                             </IconButton>
                             <IconButton onClick={() => this.setState({addDiagOpen: true})}>
-                                <CreateNewFolder />
+                                <CreateNewFolder/>
                             </IconButton>
                             <IconButton disabled={!canEdit} onClick={() => this.renameSet()}>
-                                <Rename />
+                                <Rename/>
                             </IconButton>
                             <IconButton disabled={!canEdit} onClick={() => this.deleteSet()}>
-                                <DeleteSet />
+                                <DeleteSet/>
                             </IconButton>
                         </div>
                         <List
@@ -154,31 +154,31 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                     >
                         <div style={{display: 'flex', justifyContent: 'space-evenly'}}>
                             <IconButton disabled={!canEdit} onClick={() => this.newQuestion()}>
-                                <Add />
+                                <Add/>
                             </IconButton>
                             <IconButton
                                 disabled={!canEdit || this.props.selection.mode !== 'question'}
                                 onClick={() => this.renameQuestion()}
                             >
-                                <Rename />
+                                <Rename/>
                             </IconButton>
                             <IconButton
                                 disabled={!canEdit || this.props.selection.mode !== 'question'}
                                 onClick={this.props.initBuilder}
                             >
-                                <Edit />
+                                <Edit/>
                             </IconButton>
                             <IconButton
                                 disabled={this.props.selection.mode !== 'question'}
                                 onClick={() => this.copyQuestion()}
                             >
-                                <CopyIcon />
+                                <CopyIcon/>
                             </IconButton>
                             <IconButton
                                 disabled={!canEdit || this.props.selection.mode !== 'question'}
                                 onClick={() => this.deleteQuestion()}
                             >
-                                <Delete />
+                                <Delete/>
                             </IconButton>
                         </div>
                         <List
@@ -194,20 +194,20 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                         </List>
                         {this.state.copiedQ !== null && canEdit ? (
                             <Fragment>
-                                <Divider />
+                                <Divider/>
                                 <ListItem
                                     key='paste'
                                     button
                                     onClick={this.pasteQuestion.bind(this)}
                                 >
                                     <ListItemIcon>
-                                        <PasteIcon color='action' />
+                                        <PasteIcon color='action'/>
                                     </ListItemIcon>
                                     <ListItemText
                                         secondary={
                                             this.props.sets[this.state.copiedQ.s].questions[
                                                 this.state.copiedQ.q
-                                            ].name
+                                                ].name
                                         }
                                     />
                                 </ListItem>
@@ -217,21 +217,21 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                                     onClick={() => this.setState({copiedQ: null})}
                                 >
                                     <ListItemIcon>
-                                        <Delete color='action' />
+                                        <Delete color='action'/>
                                     </ListItemIcon>
-                                    <ListItemText secondary='Clear Clipboard' />
+                                    <ListItemText secondary='Clear Clipboard'/>
                                 </ListItem>
                             </Fragment>
                         ) : null}
                         {this.props.selection.mode !== null &&
                         !this.props.sets[this.props.selection.s].canEdit ? (
                             <Fragment>
-                                <Divider />
+                                <Divider/>
                                 <ListItem key='paste'>
                                     <ListItemIcon>
-                                        <Warning color='action' />
+                                        <Warning color='action'/>
                                     </ListItemIcon>
-                                    <ListItemText secondary='This set is locked' />
+                                    <ListItemText secondary='This set is locked'/>
                                 </ListItem>
                             </Fragment>
                         ) : null}
@@ -261,17 +261,20 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                     <DialogTitle id='select-course-dialog'>
                         Select the course for the set
                     </DialogTitle>
+
                     <List>
-                        {this.props.courses.map(course => (
-                            <ListItem
-                                button
-                                onClick={() => this.setState({course: course.courseID})}
-                                key={course.courseID}
-                                selected={course.courseID === this.state.course}
-                            >
-                                <ListItemText primary={course.name} />
-                            </ListItem>
-                        ))}
+                        <Select
+                            value={this.state.course}
+                            onChange={(event: any) => this.setState({course: event.target.value})}
+                            style={{marginLeft: 16, width: 165}}
+                        >
+                            <MenuItem value={-1}>--Select a course--</MenuItem>
+                            {this.props.courses.map(course => {
+                                if (course.canEdit) {
+                                    return <MenuItem value={course.courseID}>{course.name}</MenuItem>;
+                                }
+                            })}
+                        </Select>
                         <ListItem>
                             <form noValidate autoComplete='off'>
                                 <TextField
@@ -309,12 +312,12 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
             <ListItem key={set.setID + '-' + index} button onClick={this.props.selectSet(index)}>
                 <ListItemIcon>
                     {set.canEdit ? (
-                        <Folder color={s === set.setID ? 'primary' : 'action'} />
+                        <Folder color={s === set.setID ? 'primary' : 'action'}/>
                     ) : (
-                        <Lock color={s === set.setID ? 'primary' : 'action'} />
+                        <Lock color={s === set.setID ? 'primary' : 'action'}/>
                     )}
                 </ListItemIcon>
-                <ListItemText primary={set.name} />
+                <ListItemText primary={set.name}/>
             </ListItem>
         ));
     }
@@ -322,20 +325,21 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
     renderQuestionList() {
         if (this.props.selection.mode !== null) {
             const id =
-                this.props.selection.mode === 'question'
+                this.props.selection.mode === 'question' && this.props.sets[this.props.selection.s].questions[this.props.selection.q]
                     ? this.props.sets[this.props.selection.s].questions[this.props.selection.q]
-                          .questionID
+                        .questionID
                     : -1;
             return this.props.sets[this.props.selection.s].questions.map((question, index) => (
                 <ListItem
                     key={question.questionID + '-' + index}
                     button
                     onClick={() => this.selectQuestion(index)}
+                    disabled={question.config && Object.keys(question.config).length > 0}
                 >
                     <ListItemIcon>
-                        <QuestionIcon color={id === question.questionID ? 'primary' : 'action'} />
+                        <QuestionIcon color={id === question.questionID ? 'primary' : 'action'}/>
                     </ListItemIcon>
-                    <ListItemText secondary={question.name} />
+                    <ListItemText secondary={question.name}/>
                 </ListItem>
             ));
         }
@@ -349,13 +353,13 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                     <Content>{preview.prompt}</Content>
                     {preview.prompts.map((x, y) => (
                         <Fragment key={uniqueKey()}>
-                            <Divider style={{marginTop: '10px', marginBottom: '10px'}} />
-                            <AnswerInput disabled type={preview.types[y]} prompt={x} />
+                            <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>
+                            <AnswerInput disabled type={preview.types[y]} prompt={x}/>
                         </Fragment>
                     ))}
                     {preview.explanation.map(x => (
                         <Fragment key={uniqueKey()}>
-                            <Divider style={{marginTop: '10px', marginBottom: '10px'}} />
+                            <Divider style={{marginTop: '10px', marginBottom: '10px'}}/>
                             <div style={{position: 'relative'}}>
                                 <Content>{x}</Content>
                             </div>
@@ -424,9 +428,9 @@ export default class QuestionManager extends Component<QuestionManagerProps, Que
                 this.props.sets[this.props.selection.s].setID,
                 'New question',
                 '-3 3 1 3 1 AC，2 3 0 AB，-2 2 1 3 1 AC；$1，$2，$3；$1 _A，$2 _A，$3 _A；Compute the vector ' +
-                    'sum \\({0}+{1}{2}\\).，；6；1；@0 $1 $2 $3 CD CB CN；The first step is to multiply the vector by the ' +
-                    'scalar, which you can do by multiplying each number in the vector. The second step is to add the ' +
-                    'result to the other vector, by adding each corresponding pair of numbers.；，，',
+                'sum \\({0}+{1}{2}\\).，；6；1；@0 $1 $2 $3 CD CB CN；The first step is to multiply the vector by the ' +
+                'scalar, which you can do by multiplying each number in the vector. The second step is to add the ' +
+                'result to the other vector, by adding each corresponding pair of numbers.；，，',
                 1,
                 1,
                 () => this.getSets(),

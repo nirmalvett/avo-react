@@ -7,6 +7,7 @@ import LearnTestComp from './LearnModal/LearnTestComp';
 import {ThemeObj} from '../Models';
 import {HashLoader} from 'react-spinners';
 import FullScreenModal from './LearnModal/FullScreenModal';
+import {ShowSnackBar, SnackbarVariant} from "../Layout/Layout";
 
 export interface AvoLesson {
     conceptID: number;
@@ -14,7 +15,7 @@ export interface AvoLesson {
     mastery: number;
     name: string;
     lesson: string;
-    prereqs: {name: string; conceptID: number}[];
+    prereqs: { name: string; conceptID: number }[];
     masterySurvey: number;
     aptitudeSurvey: number;
 }
@@ -43,6 +44,7 @@ interface LearnProps {
     courses: Course[];
     updateCourses: (courses: Course[], cb?: () => void) => void;
     theme: ThemeObj;
+    showSnackBar: ShowSnackBar
 }
 
 interface LearnState {
@@ -54,6 +56,7 @@ interface LearnState {
     needUpdate: boolean;
     concepts: Concept[];
     edges: Edge[];
+    closedLesson: AvoLesson | undefined;
 }
 
 export default class Learn extends Component<LearnProps, LearnState> {
@@ -67,7 +70,8 @@ export default class Learn extends Component<LearnProps, LearnState> {
             isLoading: true,
             needUpdate: false,
             edges: [],
-            concepts: []
+            concepts: [],
+            closedLesson: undefined,
         };
     }
 
@@ -92,7 +96,7 @@ export default class Learn extends Component<LearnProps, LearnState> {
                         justifyContent: 'center',
                     }}
                 >
-                    <HashLoader size={150} color='#399103' />
+                    <HashLoader size={150} color='#399103'/>
                 </div>
             );
         }
@@ -110,11 +114,11 @@ export default class Learn extends Component<LearnProps, LearnState> {
                     overflowX: 'hidden',
                 }}
             >
-                <FullScreenModal 
-                    sourceID={this.getSourceID()} 
+                <FullScreenModal
+                    sourceID={this.getSourceID()}
                     currentLesson={this.state.currentLesson as AvoLesson}
                     onClose={this.closeLessonFSM}
-                    concepts={this.state.concepts} 
+                    concepts={this.state.concepts}
                     edges={this.state.edges}
                     theme={this.props.theme}
                     lessons={this.state.lessons}
@@ -126,13 +130,19 @@ export default class Learn extends Component<LearnProps, LearnState> {
                             updateMastery={this.updateMastery}
                             theme={this.props.theme}
                             survey={this.updateSurvey}
+                            showSnackBar={this.props.showSnackBar}
+                            closeFSM={() => { 
+                                const lessonConceptID:number = ({...this.state.currentLesson} as AvoLesson).conceptID;
+                                this.updateMastery({ [lessonConceptID] : 1 });
+                                this.setState({ currentLesson : undefined });
+                            } }
                         />
                     )}
                 </FullScreenModal>
                 <LearnPostTestModal
                     hideModal={this.hidePostLessonModal}
                     modalDisplay={this.state.postLessonModalDisplay}
-                    lesson={this.state.currentLesson as AvoLesson}
+                    lesson={this.state.closedLesson as AvoLesson}
                 />
                 <LessonSlider
                     onClick={this.openLessonFSM}
@@ -158,6 +168,13 @@ export default class Learn extends Component<LearnProps, LearnState> {
     }
 
     changeCourse = (courseID: number) => {
+        Http.collectData(
+            'change course learn',
+            {courseID},
+            () => {
+            },
+            console.warn
+        );
         this.setState({isLoading: true}, () => {
             Http.getNextLessons(
                 courseID,
@@ -169,8 +186,8 @@ export default class Learn extends Component<LearnProps, LearnState> {
                             this.setState({
                                 concepts: res.concepts,
                                 edges: res.edges,
-                                selectedCourse: courseID, 
-                                lessons, 
+                                selectedCourse: courseID,
+                                lessons,
                                 isLoading: false
                             });
                         },
@@ -182,7 +199,7 @@ export default class Learn extends Component<LearnProps, LearnState> {
         });
     };
 
-    updateMastery = (mastery: {[conceptID: number]: number}) => {
+    updateMastery = (mastery: { [conceptID: number]: number }) => {
         const lessons = [...this.state.lessons];
         for (let conceptID in mastery) {
             const index = lessons.findIndex(lesson => lesson.conceptID === Number(conceptID));
@@ -203,12 +220,30 @@ export default class Learn extends Component<LearnProps, LearnState> {
 
     showPostLessonModal = () => this.setState({postLessonModalDisplay: 'block'});
 
-    hidePostLessonModal = () => this.setState({postLessonModalDisplay: 'none'});
+    hidePostLessonModal = () => this.setState({postLessonModalDisplay: 'none', closedLesson: undefined});
 
-    openLessonFSM = (lesson: AvoLesson) => this.setState({currentLesson: lesson});
+    openLessonFSM = (lesson: AvoLesson) => {
+        this.setState({currentLesson: lesson});
+        Http.collectData(
+            'open learn lesson',
+            {lesson},
+            () => {
+            },
+            console.warn
+        )
+    };
 
     closeLessonFSM = () => {
-        this.setState({currentLesson: undefined});
+        const lesson = this.state.currentLesson;
+        Http.collectData(
+            'close learn lesson',
+            {lesson},
+            () => {
+            },
+            console.warn
+        );
+        this.showPostLessonModal();
+        this.setState({currentLesson: undefined, closedLesson: lesson});
         if (this.state.needUpdate) {
             Http.getNextLessons(
                 this.state.selectedCourse,
