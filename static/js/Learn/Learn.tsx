@@ -76,7 +76,11 @@ export default class Learn extends Component<LearnProps, LearnState> {
     }
 
     componentDidMount(): void {
-        Http.getCourses(({courses}) => this.props.updateCourses(courses), console.warn);
+        if (this.props.courses && this.props.courses.length > 0) {
+            this.setState({isLoading: false});
+            this.changeCourse(this.props.courses[0].courseID);
+        }
+        else Http.getCourses(({courses}) => this.props.updateCourses(courses), console.warn);
     }
 
     getSourceID() {
@@ -131,7 +135,7 @@ export default class Learn extends Component<LearnProps, LearnState> {
                             theme={this.props.theme}
                             survey={this.updateSurvey}
                             showSnackBar={this.props.showSnackBar}
-                            closeFSM={() => { 
+                            closeFSM={() => {
                                 const lessonConceptID:number = ({...this.state.currentLesson} as AvoLesson).conceptID;
                                 this.updateMastery({ [lessonConceptID] : 1 });
                                 this.setState({ currentLesson : undefined });
