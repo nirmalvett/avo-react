@@ -34,7 +34,6 @@ import {ShowSnackBar} from '../Layout/Layout';
 import {QuestionSet, Course} from '../Http/types';
 import {QuestionBuilderSelection} from './QuestionBuilderHome';
 import {Content} from '../HelperFunctions/Content';
-import set = Reflect.set;
 
 export interface QuestionManagerProps {
     selection: QuestionBuilderSelection;
