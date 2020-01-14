@@ -144,6 +144,9 @@ def find_errors(types, json, kwargs):
                 kwargs[convert_case(_name)] = json[_name]
             else:
                 errors.append(f'{_name} is of the wrong type, expected {_type[0].__name__}')
+        elif isinstance(_type, dict):
+            #TODO: add some logic to better check this
+            pass
         elif _type is None:
             kwargs[convert_case(_name)] = json[_name]
         else:

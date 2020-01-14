@@ -25,7 +25,7 @@ export function MyAttemptsTab(props: MyAttemptsProps) {
                     <ListItem key={'MyClasses:' + x.takesID + ', ' + y}>
                         <ListItemText
                             primary={
-                                'Attempt ' + (y + 1) + ' - ' + x.grade + '/' + props.test.total
+                                'Attempt ' + (y + 1) + ' - ' + x.grade.toFixed(2) + '/' + props.test.total
                             }
                             secondary={'Submitted on ' + getDateString(x.timeSubmitted)}
                         />

@@ -14,6 +14,7 @@ export function newQuestion(
     total: number,
     success: cb<NewQuestion>,
     failure: cb,
+    config?: any
 ) {
     _request('POST', '/newQuestion', success, failure, {
         setID,
@@ -21,6 +22,7 @@ export function newQuestion(
         string,
         answers,
         total,
+        config: config || {}
     });
 }
 
@@ -35,8 +37,9 @@ export function editQuestion(
     total: number,
     success: cb<{}>,
     failure: cb,
+    config?: any
 ) {
-    _request('POST', '/editQuestion', success, failure, {questionID, string, answers, total});
+    _request('POST', '/editQuestion', success, failure, {questionID, string, answers, total, config: config || {}});
 }
 
 export function deleteQuestion(questionID: number, success: cb<{}>, failure: cb) {
@@ -63,7 +66,7 @@ export interface SampleQuestion {
     prompts: string[];
     types: string[];
     explanation: string[];
-    variables: {[variable: string]: string};
+    variables: { [variable: string]: string };
 }
 
 export function sampleQuestion(

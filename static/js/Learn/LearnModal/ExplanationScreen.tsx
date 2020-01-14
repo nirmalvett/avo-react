@@ -3,8 +3,9 @@ import AVOMasteryGauge from '../MasteryGauge';
 import React, {Fragment} from 'react';
 import {SubmitQuestion} from '../../Http';
 import {ThemeObj} from '../../Models';
-import {AvoLesson} from '../Learn';
+import {AvoLesson, AvoLessonData} from '../Learn';
 import {Content} from '../../HelperFunctions/Content';
+import {AnswerInput} from "../../AnswerInput";
 
 interface ExplanationScreenProps {
     lesson: AvoLesson;
@@ -14,21 +15,45 @@ interface ExplanationScreenProps {
     practiceDisabled: boolean;
     practice: () => void;
     finish: () => void;
+    question: AvoLessonData;
+    answers: string[];
 }
 
 export function ExplanationScreen(props: ExplanationScreenProps) {
-    const explanation = props.explanation;
+    const {explanation, question} = props;
     const change = Math.abs((props.changedMastery - props.lesson.mastery) * 100).toFixed(2);
     const changeString = props.changedMastery > props.lesson.mastery ? 'gained' : 'lost';
+    const explanations = explanation.explanation.map(x => (
+        <>
+            <Content>{x}</Content>
+            <br/>
+        </>
+    ));
+    const answers = question.prompts.map((p, idx) => (
+        <AnswerInput
+            type={question.types[idx]}
+            value={props.answers[idx]}
+            prompt={p}
+            onChange={() => {
+            }}
+            save={() => {
+            }}
+            disabled={true}
+        />
+    ));
+    const answersAndExplanations = answers.map((e, i) => [e, explanations[i]]);
     return (
         <Fragment>
             <div style={{flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto'}}>
-                {explanation.explanation.map(x => (
-                    <>
-                        <Content>{x}</Content>
-                        <br />
-                    </>
+                <Content>{question.prompt}</Content>
+                {answersAndExplanations.map(answerAndExplanation => (
+                    <div>
+                        {answerAndExplanation[0]}
+                        <br/>
+                        {answerAndExplanation[1]}
+                    </div>
                 ))}
+
             </div>
             <div style={{maxWidth: '200px'}}>
                 <AVOMasteryGauge

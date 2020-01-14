@@ -46,10 +46,8 @@ interface LearnPostTestModalState {
 const masterySurvey = ['Not at all', 'A little bit', 'About half', 'Fairly well', 'Very well'];
 const aptitudeSurvey = ['Very hard', 'Kinda hard', 'It was okay', 'Fairly easy', 'Very easy'];
 
-export default class LearnPostTestModal extends Component<
-    LearnPostTestModalProps,
-    LearnPostTestModalState
-> {
+export default class LearnPostTestModal extends Component<LearnPostTestModalProps,
+    LearnPostTestModalState> {
     constructor(props: LearnPostTestModalProps) {
         super(props);
         this.state = {
@@ -67,14 +65,14 @@ export default class LearnPostTestModal extends Component<
                 }}
                 id='avo_learn_post_lesson_modal'
             >
-                <div style={styles.modalBackdrop} />
+                <div style={styles.modalBackdrop}/>
                 <Paper style={styles.modalBody} className='avo-card'>
                     <IconButton
                         onClick={this.props.hideModal}
                         style={{position: 'absolute', top: '9px', right: '9px'}}
                         id='post_test_close'
                     >
-                        <Close />
+                        <Close/>
                     </IconButton>
                     <Typography variant={'h5'}>How well do you know the concept now?</Typography>
                     <div style={{display: 'flex', flexDirection: 'row'}}>
@@ -100,7 +98,7 @@ export default class LearnPostTestModal extends Component<
                             />
                         ))}
                     </div>
-                    <br />
+                    <br/>
                     <Button
                         onClick={this.submitSurvey}
                         variant={'contained'}
@@ -121,16 +119,18 @@ export default class LearnPostTestModal extends Component<
 
     submitSurvey = () => {
         const {selectedAptitude, selectedMastery} = this.state;
+        const {lesson} = this.props;
         if (selectedAptitude !== -1 && selectedMastery !== -1) {
-            Http.postQuestionSurvey(
-                this.props.lesson.conceptID,
-                selectedMastery,
-                selectedAptitude,
-                this.props.hideModal,
-                () => this.setState({selectedAptitude, selectedMastery}),
+            Http.collectData(
+                'post concept learn response',
+                {lesson, selectedMastery, selectedAptitude},
+                () => {
+                },
+                console.warn
             );
+            this.setState({selectedAptitude: -1, selectedMastery: -1});
+            this.props.hideModal();
         }
-        this.setState({selectedAptitude: -1, selectedMastery: -1});
     };
 }
 
@@ -155,7 +155,7 @@ function ResponseButton(props: {
             >
                 {props.buttonText}
             </Button>
-            <br />
+            <br/>
             <Typography variant={'body2'} style={{textAlign: 'center'}}>
                 {props.label}
             </Typography>

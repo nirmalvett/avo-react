@@ -8,7 +8,7 @@
   "description": "The front end for app.avocadocore.com",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --progress --config webpack.config.js",
+    "build": "NODE_ENV=production webpack -p --progress --config webpack.config.js",
     "dev-build": "webpack --progress -d --config webpack.config.js",
     "watch": "webpack --progress -d --config webpack.config.js --watch",
     "prettier": "prettier --write js/**/*.ts js/**/*.tsx",
@@ -45,7 +45,8 @@
     "react-test-renderer": "^16.12.0",
     "sass-loader": "^8.0.0",
     "ts-loader": "^6.0.1",
-    "typescript": "^3.4.5"
+    "typescript": "^3.4.5",
+    "webpack-bundle-analyzer": "^3.6.0"
   },
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.4.4",

@@ -1,33 +1,39 @@
-import React, {Component} from 'react';
+import React, {Component, Suspense} from 'react';
 import * as Http from '../Http';
-import HomePage from '../Home/HomePage';
-import TagView from '../ConceptBuilder/TagView';
-import PostTest from '../SharedComponents/PostTest';
-import MarkEditor from '../ManageClasses/MarkEditor';
-import TakeTest from '../MyClasses/TakeTest';
-import MyClasses from '../MyClasses/MyClasses';
-import CreateTest from '../ManageClasses/CreateTest/CreateTest';
-import Preferences from '../Preferences/Preferences';
-import ManageClasses from '../ManageClasses/ManageClasses';
-import QuestionBuilderDocs from '../QuestionBuilder/QuestionBuilderDocs';
-import ExportTools from '../ExportTools/ExportTools';
-import Learn from '../Learn/Learn';
-import MasteryHome from '../Mastery/MasteryHome';
-import {colorList} from '../SharedComponents/AVOCustomColors';
-import NotifyClass from '../Home/NotifyClass';
-import {createStyles, Theme} from '@material-ui/core/styles';
-import {withStyles} from '@material-ui/core';
-import classNames from 'classnames';
+
+const HomePage = React.lazy(() => import('../Home/HomePage'));
+const TagView = React.lazy(() => import('../ConceptBuilder/TagView'));
+const PostTest = React.lazy(() => import('../SharedComponents/PostTest'));
+const MarkEditor = React.lazy(() => import('../ManageClasses/MarkEditor'));
+const TakeTest = React.lazy(() => import('../MyClasses/TakeTest'));
+const MyClasses = React.lazy(() => import('../MyClasses/MyClasses'));
+const CreateTest = React.lazy(() => import('../ManageClasses/CreateTest/CreateTest'));
+const AnswerInquiries = React.lazy(() => import('../InquiryAnswering/AnswerInquiries'));
+const Preferences = React.lazy(() => import('../Preferences/Preferences'));
+const ManageClasses = React.lazy(() => import('../ManageClasses/ManageClasses'));
+const QuestionBuilderDocs = React.lazy(() => import('../QuestionBuilder/QuestionBuilderDocs'));
+const ExportTools = React.lazy(() => import('../ExportTools/ExportTools'));
+const Learn = React.lazy(() => import('../Learn/Learn'));
+const MasteryHome = React.lazy(() => import('../Mastery/MasteryHome'));
+const NotifyClass = React.lazy(() => import('../Home/NotifyClass'));
+const Whitelist = React.lazy(() => import('../Whitelist/Whitelist'));
+const QuestionBuilderHome = React.lazy(() => import('../QuestionBuilder/QuestionBuilderHome'));
+const Feedback = React.lazy(() => import('../Feedback/Feedback'));
+const ImageUploader = React.lazy(() => import('../ImageUploader/ImageUploader'));
+
 import AvoSideBar from './AvoSidebar';
 import AvoAppBar from './AvoAppBar';
 import AvoSnackBar from './AvoSnackBar';
-import Whitelist from '../Whitelist/Whitelist';
+
+
+import {colorList} from '../SharedComponents/AVOCustomColors';
+import {createStyles, Theme} from '@material-ui/core/styles';
+import {withStyles} from '@material-ui/core';
+import classNames from 'classnames';
 import {Section} from './LayoutModels';
 import {Course, QuestionSet} from '../Http/types';
-import {QuestionBuilderHome} from '../QuestionBuilder/QuestionBuilderHome';
 import {GetSections_Section} from '../Http';
-import {Feedback} from '../Feedback/Feedback';
-import ImageUploader from '../ImageUploader/ImageUploader'
+import {HashLoader} from "react-spinners";
 
 const drawerWidth = 240;
 
@@ -145,8 +151,18 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     section={this.state.section}
                     open={this.state.open}
                     logout={this.props.logout}
-                    onClick={(section: Section) => this.setState({section})}
+                    onClick={(section: Section) => {
+                        this.setState({section});
+                        Http.collectData(
+                            'change screen',
+                            {section: section.name},
+                            () => {
+                            },
+                            console.warn
+                        );
+                    }}
                 />
+
                 <AvoAppBar
                     section={this.state.section}
                     name={`${this.props.firstName} ${this.props.lastName}`}
@@ -154,6 +170,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     toggleDrawer={() => this.setState({open: !open})}
                     showSnackBar={this.showSnackBar}
                 />
+
                 <div
                     className={classNames(classes.content, {
                         [classes.contentShift]: open,
@@ -175,6 +192,10 @@ class Layout extends Component<LayoutProps, LayoutState> {
 
     getContent() {
         // this helper returns the logic for what is loaded in the right side of the menu
+        return <Suspense fallback={this.loading()}>{this.renderContent()}</Suspense>
+    }
+
+    renderContent = () => {
         const {isTeacher, color, theme} = this.props;
         const {section} = this.state;
         if (section.name === 'Add Students') {
@@ -217,6 +238,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     courses={this.state.courses}
                     updateCourses={this.updateCourses}
                     theme={{theme: this.props.theme, color: this.color()}}
+                    showSnackBar={this.showSnackBar}
                 />
             );
         } else if (section.name === 'Manage Classes') {
@@ -261,6 +283,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     courses={this.state.courses}
                 />
             );
+        } else if (section.name === 'Answer Inquiries') {
+            return <AnswerInquiries theme={{theme: this.props.theme, color: this.color()}}
+                                    showSnackBar={this.showSnackBar}/>
         } else if (section.name === 'Notify Class') {
             return <NotifyClass/>;
         } else if (section.name === 'Post Test') {
@@ -313,13 +338,20 @@ class Layout extends Component<LayoutProps, LayoutState> {
         Http.getTest(
             test.testID,
             test => {
+                Http.collectData(
+                    'take test my classes',
+                    {test},
+                    () => {
+                    },
+                    console.warn
+                );
                 this.setState({section: {name: 'Take Test', test}});
             },
             result => alert(result.error),
         );
     };
 
-    showSnackBar = (variant: SnackbarVariant, message: string, hideDuration: number) => {
+    showSnackBar = (variant: SnackbarVariant, message: string, hideDuration: number): void => {
         /**
          * @param variant can be success, warning, error, info
          * @param message is the message to display
@@ -334,6 +366,21 @@ class Layout extends Component<LayoutProps, LayoutState> {
             },
         });
     };
+
+    loading() {
+        return (
+            <div
+                style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <HashLoader size={150} color='#399103'/>
+            </div>
+        )
+    }
 }
 
 export default withStyles(styles)(Layout);
