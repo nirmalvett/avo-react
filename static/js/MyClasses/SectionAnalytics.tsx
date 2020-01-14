@@ -71,7 +71,7 @@ function processClassChartData(section: Http.GetSections_Section) {
     for (let i = 0; i < section.tests.length; i++) {
         const testObj = section.tests[i];
         classAvg.push(((testObj.sectionAverage / testObj.total) * 100).toFixed(2));
-        standardDev.push((testObj.standardDeviation * 100).toFixed(2));
+        standardDev.push(((testObj.standardDeviation / testObj.total) * 100).toFixed(2));
         let myAvg = -1;
         for (let j = 0; j < testObj.submitted.length; j++) {
             const takeObj = testObj.submitted[j];
