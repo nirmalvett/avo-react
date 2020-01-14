@@ -26,6 +26,7 @@ import {
     MessageOutlined,
     AssignmentTurnedInOutlined,
     ExtensionOutlined,
+    Image
 } from '@material-ui/icons';
 import {Section} from './LayoutModels';
 const drawerWidth = 240;
@@ -122,11 +123,13 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                 <List subheader={<ListSubheader>Teacher Tools</ListSubheader>}>
                     {this.listItem(ClassOutlined, {name: 'Manage Classes'})}
                     {this.listItem(AssignmentTurnedInOutlined, {name: 'Add Students'})}
+                    {this.listItem(HelpOutline, {name: 'Answer Inquiries'})}
                     {this.listItem(MessageOutlined, {name: 'Notify Class'})}
                     {this.listItem(BuildOutlined, {name: 'My Questions'})}
                     {this.listItem(HelpOutline, {name: 'Documentation'})}
                     {this.listItem(ExtensionOutlined, {name: 'Concept Builder'})}
                     {this.listItem(AssignmentReturnedOutlined, {name: 'Export Tools'})}
+                    {this.listItem(Image, {name: 'Upload Images'})}
                 </List>
             </Fragment>
         );

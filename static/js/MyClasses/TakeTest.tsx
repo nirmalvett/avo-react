@@ -159,9 +159,16 @@ export default class TakeTest extends Component<TakeTestProps, TakeTestState> {
     onSaveError = () => this.props.showSnackBar('error', "Couldn't save answer", 2000);
 
     submitTest = () => {
+        const {test} = this.props;
+        Http.collectData(
+            'submit test my classes',
+            {test},
+            ()=>{},
+            console.warn
+        );
         Http.submitTest(
-            this.props.test.takes,
-            () => this.props.submitTest(this.props.test.takes),
+            test.takes,
+            () => this.props.submitTest(test.takes),
             () => alert('Something went wrong'),
         );
     };

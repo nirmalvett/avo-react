@@ -1,3 +1,5 @@
+from typing import Dict, Any
+
 from flask_login import UserMixin
 from flask_login._compat import unicode
 from flask_sqlalchemy import SQLAlchemy
@@ -54,6 +56,7 @@ class Concept(db.Model):
         'ConceptRelation', back_populates='CONCEPT_CHILD_RELATION', foreign_keys='ConceptRelation.CHILD'
     )
     COURSE_RELATION = db.relationship('Course', back_populates='CONCEPT_RELATION')
+    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='CONCEPT_RELATION')
     LESSON_RELATION = db.relationship('Lesson', back_populates='CONCEPT_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='CONCEPT_RELATION')
 
@@ -131,7 +134,6 @@ class Course(db.Model):
     name = db.Column(db.String(45), nullable=False)
 
     CONCEPT_RELATION = db.relationship('Concept', back_populates='COURSE_RELATION')
-    IMAGE_RELATION = db.relationship('Image', back_populates='COURSE_RELATION')
     LESSON_RELATION = db.relationship('Lesson', back_populates='COURSE_RELATION')
     QUESTION_SET_RELATION = db.relationship('QuestionSet', back_populates='COURSE_RELATION')
     SECTION_RELATION = db.relationship('Section', back_populates='COURSE_RELATION')
@@ -223,19 +225,53 @@ class Image(db.Model):
     __tablename__ = 'IMAGE'
 
     IMAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
-    name = db.Column(db.String(45), nullable=False)
-    extension = db.Column(db.String(5), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'))
+    name = db.Column(db.String(200))
+    url = db.Column(db.String(1000))
 
-    COURSE_RELATION = db.relationship('Course', back_populates='IMAGE_RELATION')
+    USER_RELATION = db.relationship('User', back_populates='IMAGE_RELATION')
 
-    def __init__(self, course_id: int, name: str, extension: str):
-        self.COURSE = course_id
+    def __init__(self, user_id: int, url: str, name: str):
+        self.USER = user_id
+        self.url = url
         self.name = name
-        self.extension = extension
 
     def __repr__(self):
-        return f'<Image {self.IMAGE} {self.COURSE} {self.name}>'
+        return f'<Image {self.IMAGE} {self.USER} {self.name} {self.url}>'
+
+
+class Inquiry(db.Model):
+    __tablename__ = 'INQUIRY'
+
+    INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=True)
+    QUESTION = db.Column(db.Integer, db.ForeignKey('QUESTION.QUESTION'), nullable=True)
+    originalInquiry = db.Column(db.Text, nullable=False)
+    editedInquiry = db.Column(db.TEXT, nullable=False, default="")
+    inquiryType = db.Column(db.Boolean, nullable=False)
+    timeCreated = db.Column(db.DATETIME, nullable=True)
+    hasAnswered = db.Column(db.Boolean, nullable=False, default=False)
+    stringifiedQuestion = db.Column(db.TEXT, nullable=False, default="")
+    inquiryAnswer = db.Column(db.TEXT, nullable=False, default="")
+
+    CONCEPT_RELATION = db.relationship('Concept', back_populates='INQUIRY_RELATION')
+    QUESTION_RELATION = db.relationship('Question', back_populates='INQUIRY_RELATION')
+    USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='INQUIRY_RELATION')
+
+    def __init__(self, original_inquiry, inquiry_type, stringified_question, concept=None, question=None):
+        self.CONCEPT = concept
+        self.QUESTION = question
+        self.originalInquiry = original_inquiry
+        self.editedInquiry = None
+        self.inquiryType = inquiry_type
+        self.timeCreated = datetime.now()
+        self.hasAnswered = False
+        self.stringifiedQuestion = stringified_question
+        self.inquiryAnswer = None
+
+    def __repr__(self):
+        return f'Inquiry {self.INQUIRY} {self.originalInquiry} {self.editedInquiry} {self.hasAnswered} ' \
+               f'{self.stringifiedQuestion} {self.inquiryAnswer}'
 
 
 class Issue(db.Model):
@@ -395,13 +431,14 @@ class Question(db.Model):
     total = db.Column(db.Integer, nullable=False)
     auto_marked = db.Column(db.Boolean, nullable=False, default=True)
     category = db.Column(db.Integer, nullable=False)
-    question_type = db.Column(db.Integer, nullable=False)
+    config = db.Column(db.JSON)
 
+    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='QUESTION_RELATION')
     CONCEPT_QUESTION_RELATION = db.relationship('ConceptQuestion', back_populates='QUESTION_RELATION')
     QUESTION_HISTORY_RELATION = db.relationship('QuestionHistory', back_populates='QUESTION_RELATION')
     QUESTION_SET_RELATION = db.relationship('QuestionSet', back_populates='QUESTION_RELATION')
 
-    def __init__(self, question_set, name, string, answers, total, category=0, auto_marked=True, question_type=0):
+    def __init__(self, question_set, name, string, answers, total, category=0, auto_marked=True, config=None):
         self.QUESTION_SET = question_set
         self.name = name
         self.string = string
@@ -409,7 +446,7 @@ class Question(db.Model):
         self.total = total
         self.auto_marked = auto_marked
         self.category = category
-        self.question_type = question_type
+        self.config = config
 
     def __repr__(self):
         return (
@@ -590,7 +627,9 @@ class User(UserMixin, db.Model):
     TAKES_RELATION = db.relationship('Takes', back_populates='USER_RELATION')
     USER_CONVERSATION_RELATION = db.relationship('UserConversation', back_populates='USER_RELATION')
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='USER_RELATION')
+    USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='USER_RELATION')
     USER_SECTION_RELATION = db.relationship('UserSection', back_populates='USER_RELATION')
+    IMAGE_RELATION = db.relationship('Image', back_populates='USER_RELATION')
 
     def __init__(
             self, email, first_name, last_name, password,
@@ -660,6 +699,26 @@ class UserCourse(db.Model):
         return f'<UserCourse {self.USER_COURSE} {self.USER} {self.COURSE} {self.can_edit}>'
 
 
+class UserInquiry(db.Model):
+    __tablename__ = 'user_inquiry'
+
+    USER_INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    INQUIRY = db.Column(db.Integer, db.ForeignKey('INQUIRY.INQUIRY'))
+    isOwner = db.Column(db.Boolean, default=False)
+
+    USER_RELATION = db.relationship('User', back_populates='USER_INQUIRY_RELATION')
+    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='USER_INQUIRY_RELATION')
+
+    def __init__(self, user, inquiry, is_owner=False):
+        self.USER = user
+        self.INQUIRY = inquiry
+        self.isOwner = is_owner
+
+    def __repr__(self):
+        return f'User Inquiry {self.USER_INQUIRY} {self.USER} {self.INQUIRY} {self.isOwner}'
+
+
 class UserSection(db.Model):
     __tablename__ = 'user_section'
 
@@ -705,6 +764,29 @@ class DataStore(db.Model):
 
     def __repr__(self):
         return f'store {self.USER} {self.data} {self.type} {self.time_created}'
+
+
+class StudentUsage(db.Model):
+    __tablename__ = 'student_usage'
+    __bind_key__ = 'research'
+
+    uuid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    student_id = db.Column(db.String(50), nullable=False, index=True)
+    data = db.Column(db.JSON, nullable=False)
+    event_type = db.Column(db.String(100), nullable=False, index=True)
+    created_at = db.Column(db.TIMESTAMP, nullable=False)
+
+    def __init__(self, student_id: str, data: Dict, event_type: str, created_at: datetime):
+        self.student_id = student_id
+        self.data = data
+        self.event_type = event_type
+        self.created_at = created_at
+
+    def __repr__(self):
+        return f'student_usage {self.student_id} {self.data} {self.event_type} {self.created_at}'
+
+    def __str__(self):
+        return f'student_usage {self.student_id} {self.data} {self.event_type} {self.created_at}'
 
 
 class UserSectionType:

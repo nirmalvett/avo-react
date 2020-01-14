@@ -17,6 +17,7 @@ import {agreement} from './Agreement';
 interface PasswordResetProps {
     token: string;
     showTerms: boolean;
+    children: any;
 }
 
 interface PasswordResetState {

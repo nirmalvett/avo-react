@@ -7,12 +7,15 @@ import {LessonScreen} from './LessonScreen';
 import {QuestionScreen} from './QuestionScreen';
 import {ExplanationScreen} from './ExplanationScreen';
 import {FinishScreen} from './FinishScreen';
+import {ShowSnackBar, SnackbarVariant} from "../../Layout/Layout";
 
 interface LearnTestCompProps {
     lesson: AvoLesson;
-    updateMastery: (mastery: {[conceptID: number]: number}) => void;
+    updateMastery: (mastery: { [conceptID: number]: number }) => void;
     theme: ThemeObj;
     survey: (mastery: number, aptitude: number) => () => void;
+    showSnackBar: ShowSnackBar;
+    readonly closeFSM: () => void;
 }
 
 interface LearnTestCompState {
@@ -25,8 +28,11 @@ interface LearnTestCompState {
     nextQuestion: AvoLessonData | undefined;
     readonly nextAnswers: string[];
 
+    lastQuestion: AvoLessonData | undefined;
+    readonly lastAnswers: string[];
+
     changedMastery: number;
-    postLessonModalDisplay: 'none' | 'block';
+    incorrectAnswerModalDisplay: 'none' | 'block';
 }
 
 export default class LearnTestComp extends Component<LearnTestCompProps, LearnTestCompState> {
@@ -42,8 +48,11 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
             nextQuestion: undefined,
             nextAnswers: [],
 
+            lastQuestion: undefined,
+            lastAnswers: [],
+
             changedMastery: this.props.lesson.mastery,
-            postLessonModalDisplay: 'none',
+            incorrectAnswerModalDisplay: 'none',
         };
     }
 
@@ -64,10 +73,10 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
         return (
             <Fragment>
                 <AVOLearnIncorrectAnswerModal
-                    hideModal={() => this.setState({postLessonModalDisplay: 'none'})}
-                    modalDisplay={this.state.postLessonModalDisplay}
+                    hideModal={() => this.setState({incorrectAnswerModalDisplay: 'none'})}
+                    modalDisplay={this.state.incorrectAnswerModalDisplay}
                     lesson={this.props.lesson as AvoLesson}
-                    questionID={(this.state.nextQuestion || {ID: 0}).ID}
+                    question={this.state.nextQuestion}
                 />
                 {this.getContent()}
             </Fragment>
@@ -84,6 +93,8 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         theme={this.props.theme}
                         next={this.goToQuestion}
                         survey={this.props.survey}
+                        showSnackBar={this.props.showSnackBar}
+                        closeFSM={this.props.closeFSM}
                     />
                 );
             case 'question':
@@ -92,20 +103,32 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         question={this.state.nextQuestion as AvoLessonData}
                         answers={this.state.nextAnswers}
                         changeAnswer={this.changeAnswer}
-                        back={() => this.setState({mode: 'lesson'})}
+                        back={this.backFromQuestion}
                         next={this.submitAnswer}
                     />
                 );
             case 'explanation':
                 return (
                     <ExplanationScreen
+                        question={this.state.lastQuestion as AvoLessonData}
+                        answers={this.state.lastAnswers}
                         lesson={this.props.lesson}
                         explanation={this.state.explanations[this.state.explanations.length - 1]}
                         theme={this.props.theme}
                         changedMastery={this.state.changedMastery}
                         practiceDisabled={!this.state.nextQuestion}
                         practice={this.goToQuestion}
-                        finish={() => this.setState({mode: 'finish'})}
+                        finish={() => {
+                            this.setState({mode: 'finish', lastAnswers: [], lastQuestion: undefined});
+                            const {lesson} = this.props;
+                            Http.collectData(
+                                'finish for now learn',
+                                {lesson},
+                                () => {
+                                },
+                                console.warn
+                            );
+                        }}
                     />
                 );
             case 'finish':
@@ -122,7 +145,27 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
         }
     }
 
-    goToQuestion = () => this.setState({mode: 'question'});
+    goToQuestion = () => {
+        const {mode, nextQuestion} = this.state;
+        const {lesson} = this.props;
+        if (mode === 'lesson')
+            Http.collectData(
+                'practice concept learn',
+                {question: nextQuestion, lesson},
+                () => {
+                },
+                console.warn
+            );
+        else if (mode === 'explanation')
+            Http.collectData(
+                'practice concept more learn',
+                {question: nextQuestion, lesson},
+                () => {
+                },
+                console.warn
+            );
+        this.setState({mode: 'question', lastQuestion: undefined, lastAnswers: []});
+    };
 
     changeAnswer = (index: number) => (answer: string) => {
         const newAnswerList = [...this.state.nextAnswers];
@@ -132,6 +175,9 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
 
     submitAnswer = () => {
         const question = this.state.nextQuestion as AvoLessonData;
+        const {lesson} = this.props;
+        const lastQuestion = question;
+        const lastAnswers = this.state.nextAnswers;
         Http.submitQuestion(
             question.ID,
             question.seed,
@@ -146,6 +192,19 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                 const answers = [...this.state.answers, this.state.nextAnswers];
                 const explanations = [...this.state.explanations, res];
                 const changedMastery = res.mastery[this.props.lesson.conceptID] || 0;
+                Http.collectData(
+                    'submit answer learn',
+                    {
+                        question,
+                        results: res,
+                        changedMastery,
+                        answers: this.state.nextAnswers,
+                        lesson
+                    },
+                    () => {
+                    },
+                    console.warn
+                );
                 this.setState(
                     {
                         questions,
@@ -154,6 +213,8 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         answers,
                         nextQuestion: undefined,
                         nextAnswers: [],
+                        lastQuestion,
+                        lastAnswers,
                         mode: 'explanation',
                     },
                     () => {
@@ -161,12 +222,36 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         this.getQuestion();
                     },
                 );
+                resetShowConceptGraphButton();
             },
             console.warn,
         );
     };
 
     showModal = () => {
-        this.setState({postLessonModalDisplay: 'block'});
+        this.setState({incorrectAnswerModalDisplay: 'block'});
     };
+
+    backFromQuestion = () => {
+        const {lesson} = this.props;
+        this.setState({mode: 'lesson'});
+        resetShowConceptGraphButton();
+        Http.collectData(
+            'go back to lesson learn',
+            {lesson},
+            () => {
+            },
+            console.warn
+        );
+    };
+}
+
+function resetShowConceptGraphButton() {
+    const showConceptGraph: HTMLElement = document.querySelector(
+        '[title="Show Concept Graph"]',
+    ) as HTMLElement;
+    if (showConceptGraph) {
+        showConceptGraph.style.right = '12vw';
+        showConceptGraph.style.top = '0';
+    }
 }

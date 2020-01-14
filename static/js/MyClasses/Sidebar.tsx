@@ -16,7 +16,7 @@ import {
     ExpandMore,
     PeopleOutlined,
 } from '@material-ui/icons';
-import {GetSections_Section, GetSections_Test} from '../Http';
+import {GetSections_Section, GetSections_Test, default as Http, collectData} from '../Http';
 
 interface SidebarProps {
     sections: GetSections_Section[];
@@ -27,7 +27,7 @@ interface SidebarProps {
 }
 
 interface SidebarState {
-    open: {[sectionID: number]: boolean};
+    open: { [sectionID: number]: boolean };
 }
 
 export class Sidebar extends Component<SidebarProps, SidebarState> {
@@ -52,9 +52,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                         <Fragment key={`MyClasses-${s.sectionID}`}>
                             <ListItem button onClick={this.props.clickSection(s.sectionID)}>
                                 <ListItemIcon>
-                                    <PeopleOutlined color='action' />
+                                    <PeopleOutlined color='action'/>
                                 </ListItemIcon>
-                                <ListItemText primary={s.name} />
+                                <ListItemText primary={s.name}/>
                                 <IconButton
                                     disabled={s.tests.length === 0}
                                     onClick={this.toggleOpen(s.sectionID)}
@@ -93,7 +93,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                                                     style={{marginLeft: '10px'}}
                                                 />
                                             </ListItemIcon>
-                                            <ListItemText primary={t.name} />
+                                            <ListItemText primary={t.name}/>
                                         </ListItem>
                                     ))}
                                 </List>
@@ -102,9 +102,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     ))}
                     <ListItem button onClick={this.props.enroll}>
                         <ListItemIcon>
-                            <AddBoxOutlined color='action' />
+                            <AddBoxOutlined color='action'/>
                         </ListItemIcon>
-                        <ListItemText primary='Enroll in Section' />
+                        <ListItemText primary='Enroll in Section'/>
                     </ListItem>
                 </List>
             </Paper>
@@ -113,6 +113,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
     toggleOpen = (sectionID: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation();
+        collectData(
+            'expand section my classes',
+            {section: this.props.sections.find(s => s.sectionID === sectionID)},
+            () => {
+            },
+            console.warn
+        );
         this.setState({
             open: {
                 ...this.state.open,

@@ -1,18 +1,12 @@
 from typing import List
-
 from flask import url_for
 from flask_login import LoginManager, current_user
-from smtplib import SMTP
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from datetime import datetime
 import config
 from server.models import User, UserCourse, UserSection, QuestionSet, Concept
 from itsdangerous import URLSafeTimedSerializer, BadSignature
-import smtplib, ssl
-
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 login_manager = LoginManager()
 login_manager.login_view = "FileRoutes.serve_web_app"
@@ -97,33 +91,6 @@ def validate_token(token, max_age_seconds: int = None):
         return None
 
 
-def send_gmail(recipient: str, subject: str, html: str, sender: str, password: str):
-    sender_email = sender
-    receiver_email = recipient
-
-    message = MIMEMultipart("alternative")
-    message["Subject"] = subject
-    message["From"] = sender_email
-    message["To"] = receiver_email
-
-    # Create the plain-text and HTML version of your message
-
-    # Turn these into plain/html MIMEText objects
-    html = MIMEText(html, "html")
-
-    # Add HTML/plain-text parts to MIMEMultipart message
-    # The email client will try to render the last part first
-    message.attach(html)
-
-    # Create secure connection with server and send email
-    context = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-        server.login(sender_email, password)
-        server.sendmail(
-            sender_email, receiver_email, message.as_string()
-        )
-
-
 def send_email(recipient: str, subject: str, message: str):
     """
     Sends email to a client
@@ -131,25 +98,10 @@ def send_email(recipient: str, subject: str, message: str):
     :param subject: The subject of the email
     :param message: HTML of the email
     """
-    send_gmail(
-        recipient,
-        subject,
-        message,
-        config.EMAIL,
-        config.EMAIL_PASSWORD
-    )
-    # try:
-    #     sender, password = config.EMAIL, config.EMAIL_PASSWORD
-    # except AttributeError:
-    #     return print(f'Sending email to {recipient}\nSubject: {subject}\n{message}\n')
-    # msg = MIMEMultipart()
-    # msg['From'], msg['To'], msg['Subject'] = sender, recipient, subject  # Sets To From Subject values
-    # msg.attach(MIMEText(message, 'html'))
-    # # noinspection SpellCheckingInspection
-    # # Sends email with given configuration
-    # server = SMTP('smtp.zoho.com', 587)
-    # server.ehlo()
-    # server.starttls()
-    # server.ehlo()
-    # server.login(sender, password)
-    # server.sendmail(sender, recipient, msg.as_string())
+    message = Mail(
+        from_email='contact@avocadocore.com',
+        to_emails=recipient,
+        subject=subject,
+        html_content=message)
+    sg = SendGridAPIClient(config.SENDGRID_API_KEY)
+    sg.send(message)

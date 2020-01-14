@@ -82,6 +82,14 @@ interface TakeTest {
     test: GetTest;
 }
 
+interface UploadImages {
+    name: 'Upload Images'
+}
+
+interface AnswerInquiries {
+    name: 'Answer Inquiries';
+}
+
 export type Section =
     | AddStudentsToClass
     | ConceptBuilder
@@ -101,4 +109,6 @@ export type Section =
     | NotifyClass
     | PostTest
     | Preferences
-    | TakeTest;
+    | TakeTest
+    | UploadImages
+    | AnswerInquiries;

@@ -125,6 +125,7 @@ export default class MultipleChoiceBuilder extends Component<
                         <Paper
                             className='avo-sidebar'
                             style={{
+                                // Compensate for padding and margin
                                 height: 'calc(100vh - 65px)',
                                 overflowY: 'auto',
                             }}
@@ -195,7 +196,7 @@ export default class MultipleChoiceBuilder extends Component<
                         </Paper>
                     </Slide>
                 </Grid>
-                <Grid item xs={9}>
+                <Grid item xs={9} style={{position: 'relative'}}>
                     <Grow in={this.state.loaded}>
                         <Paper
                             className='avo-card'
@@ -203,6 +204,11 @@ export default class MultipleChoiceBuilder extends Component<
                                 height: 'auto',
                                 width: 'auto',
                                 maxHeight: '100%',
+                                position: 'absolute',
+                                top: '0',
+                                right: '0',
+                                bottom: '0',
+                                left: '0',
                             }}
                         >
                             {this.state.questionNmeE ? (
@@ -616,7 +622,6 @@ export default class MultipleChoiceBuilder extends Component<
                         </ListItem>
                     </List>
                 </Dialog>
-                );
             </Grid>
         );
     }
@@ -772,7 +777,11 @@ export default class MultipleChoiceBuilder extends Component<
         let confirmation: boolean = confirm('Are you sure you want to delete this set?');
         const set: QuestionSet = this.props.sets[index];
         if (confirmation)
-            Http.deleteSet(set.setID, () => this.deleteSetSuccess(index), result => alert(result.error));
+            Http.deleteSet(
+                set.setID,
+                () => this.deleteSetSuccess(index),
+                result => alert(result.error),
+            );
     };
 
     handleSaveMouseEnter = (event: any) => {
