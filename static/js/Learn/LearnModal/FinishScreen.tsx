@@ -71,7 +71,7 @@ export class FinishScreen extends Component<FinishScreenProps, FinishScreenState
                     alignItems: 'center',
                 }}
             >
-                <AVOLearnTestCongrat colors={['#399103', '#039124', '#809103']} />
+                <AVOLearnTestCongrat colors={['#399103', '#039124', '#809103']}/>
             </div>
         );
     }
@@ -90,7 +90,7 @@ export class FinishScreen extends Component<FinishScreenProps, FinishScreenState
                     color='primary'
                     style={{zIndex: 1, alignSelf: 'center'}}
                 >
-                    <ChevronLeft />
+                    <ChevronLeft/>
                 </IconButton>
                 <div
                     style={{
@@ -116,7 +116,7 @@ export class FinishScreen extends Component<FinishScreenProps, FinishScreenState
                     color='primary'
                     style={{zIndex: 1, alignSelf: 'center'}}
                 >
-                    <ChevronRight />
+                    <ChevronRight/>
                 </IconButton>
                 <div style={{maxWidth: '200px'}}>
                     <AVOMasteryGauge
@@ -144,11 +144,30 @@ interface IndividualExplanationProps {
 }
 
 function IndividualExplanation({
-    question,
-    explanation,
-    answers,
-    translate,
-}: IndividualExplanationProps) {
+                                   question,
+                                   explanation,
+                                   answers,
+                                   translate,
+                               }: IndividualExplanationProps) {
+    const explanations = explanation.explanation.map(x => (
+        <>
+            <Content>{x}</Content>
+            <br/>
+        </>
+    ));
+    const answersList = question.prompts.map((p, idx) => (
+        <AnswerInput
+            type={question.types[idx]}
+            value={answers[idx]}
+            prompt={p}
+            onChange={() => {
+            }}
+            save={() => {
+            }}
+            disabled={true}
+        />
+    ));
+    const answersAndExplanations = answersList.map((e, i) => [e, explanations[i]]);
     return (
         <div
             style={{
@@ -164,21 +183,13 @@ function IndividualExplanation({
             }}
         >
             <Content>{question.prompt}</Content>
-            {question.prompts.map((p, idx) => (
-                <AnswerInput
-                    type={question.types[idx]}
-                    value={answers[idx]}
-                    prompt={p}
-                    disabled={true}
-                    onChange={() => {}}
-                    save={() => {}}
-                />
+            {answersAndExplanations.map(answerAndExplanation => (
+                <div>
+                    {answerAndExplanation[0]}
+                    <br/>
+                    {answerAndExplanation[1]}
+                </div>
             ))}
-            <div>
-                {explanation.explanation.map(x => (
-                    <Content>{x}</Content>
-                ))}
-            </div>
         </div>
     );
 }

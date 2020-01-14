@@ -1,3 +1,18 @@
+import {ajax} from 'rxjs/ajax'
+import {of, pipe} from 'rxjs'
+import {flatMap, first, map, catchError} from 'rxjs/operators'
+// For when we have frontend and backend split
+// const getBaseUrl = () => {
+//     if (process.env.NODE_ENV == 'PROD') {
+//         return 'https://app.avocadocore.com';
+//     } else if (process.env.NODE_ENV == 'DEV') {
+//         return 'https://dev.avocadocore.com';
+//     } else {
+//         return '';
+//     }
+// };
+// const BASE_URL = getBaseUrl();
+export const BASE_URL = '';
 export type RequestType = 'GET' | 'POST';
 
 interface ErrorResponse {
@@ -7,33 +22,43 @@ interface ErrorResponse {
 export type cb<T = ErrorResponse> = (x: T) => void;
 
 export function _request<S, T>(
-    type: RequestType,
-    url: string,
+    method: RequestType,
+    route: string,
     success: cb<S>,
     failure: cb<ErrorResponse & T>,
-    data: any = '',
+    body: any = {},
 ) {
-    const http = new XMLHttpRequest();
-    http.open(type, url, true);
-    http.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
-    http.onreadystatechange = () => {
-        if (http.readyState === 4 && http.status === 200) {
-            try {
-                if (JSON.parse(http.responseText).error) {
-                    console.warn(
-                        'Ajax Error for Route' +
-                            url +
-                            '\n Error Message: ' +
-                            JSON.stringify(JSON.parse(http.responseText)),
-                    );
-                    failure(JSON.parse(http.responseText));
-                } else {
-                    success(JSON.parse(http.responseText));
-                }
-            } catch (e) {
-                console.warn(`Error on ${url}: ${e}`);
+    observable_request$(method, route, body).subscribe(
+        res => success(res),
+        err => failure(err),
+    )
+}
+
+export function observable_request$<S, T>(
+    method: RequestType,
+    route: string,
+    body: any = {},
+) {
+    const url = `${BASE_URL}${route}`;
+    return ajax({
+        url,
+        method,
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        body
+    }).pipe(
+        first(),
+        flatMap(response => {
+            const res = response.response;
+            if (res.error) {
+                console.warn(
+                    `Error from ${url}:
+                        ${res.error}`
+                );
+                throw res.error;
             }
-        }
-    };
-    http.send(JSON.stringify(data));
+            return of(res);
+        }),
+    )
 }

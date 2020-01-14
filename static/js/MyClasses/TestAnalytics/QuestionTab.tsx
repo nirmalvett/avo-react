@@ -53,7 +53,7 @@ export function QuestionTab(props: QuestionTabProps) {
                     }}
                 >
                     <b>Median Score: </b>
-                    {q.median}
+                    {q.median.toFixed(2)}
                 </span>
                 <br />
                 <span
@@ -63,7 +63,7 @@ export function QuestionTab(props: QuestionTabProps) {
                     }}
                 >
                     <b>Mean Score: </b>
-                    {q.mean}
+                    {q.mean.toFixed(2)}
                 </span>
                 <span
                     style={{

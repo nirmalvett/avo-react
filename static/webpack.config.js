@@ -2,16 +2,17 @@ const webpack = require("webpack");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const env = process.env.NODE_ENV;
 
 const config = {
     entry: "./js/index.tsx",
-    devtool: "inline-source-map",
+    devtool: env && env === 'production' ? "" : 'inline-source-map',
     node: {
         fs: "empty",
     },
     output: {
         path: path.resolve(__dirname, "dist"),
-        filename: `bundle.js?version=${Math.random().toFixed(2)}`
+        filename: `bundle.js?version=${Math.random().toFixed(10)}`
     },
 
     resolve: {
@@ -52,8 +53,6 @@ const config = {
             {
                 test: /\.s[ac]ss$/i,
                 use: [
-                    // Creates `style` nodes from JS strings
-                    'style-loader',
                     // Translates CSS into CommonJS\
                     MiniCssExtractPlugin.loader,
                     'css-loader',
@@ -72,7 +71,7 @@ const config = {
             filename: "app.css"
         }),
         new webpack.HotModuleReplacementPlugin({}),
-        new webpack.EnvironmentPlugin(['NODE_ENV'])
+        new webpack.EnvironmentPlugin(['NODE_ENV']),
     ]
 };
 

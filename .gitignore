@@ -1,3 +1,4 @@
+*.csv
 .ipynb_checkpoints/
 *.ipynb
 .idea/
@@ -6,8 +7,9 @@ node_modules/
 venv/
 __pycache__/
 desktop.ini
-config.*
 DS_Store
 .vscode
 launch.bash
 images
+config*.source
+config.py

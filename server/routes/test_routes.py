@@ -19,11 +19,11 @@ TestRoutes = Blueprint('TestRoutes', __name__)
 @teacher_only
 @validate(
     sectionID=int, name=str, openTime=[int], deadline=int,
-    timer=int, attempts=int, questionList=list, seedList=list
+    timer=int, attempts=int, questionList=list, seedList=list,
 )
 def save_test(
         section_id: int, name: str, open_time, deadline: int,
-        timer: int, attempts: int, question_list: list, seed_list: list
+        timer: int, attempts: int, question_list: list, seed_list: list,
 ):
     """
     Save a test created by teacher
@@ -53,7 +53,16 @@ def save_test(
             return jsonify(error="Question Not Found")
         total += current_question.total
     test = Test(
-        section_id, name, False, open_time, deadline, timer, attempts, str(question_list), str(seed_list), total
+        section_id,
+        name,
+        False,
+        open_time,
+        deadline,
+        timer,
+        attempts,
+        str(question_list),
+        str(seed_list),
+        total,
     )
     db.session.add(test)
     db.session.commit()

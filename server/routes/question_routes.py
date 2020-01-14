@@ -1,3 +1,4 @@
+
 from flask import Blueprint, jsonify
 
 from server.MathCode.question import AvoQuestion
@@ -5,6 +6,7 @@ from server.auth import able_edit_set
 from server.decorators import login_required, teacher_only, admin_only, validate
 from server.helpers import question_has_errors
 from server.models import db, Question
+from server.question_helpers.answer_factory import get_prompt_prompts_types
 
 QuestionRoutes = Blueprint('QuestionRoutes', __name__)
 
@@ -28,7 +30,9 @@ def get_all_questions():
                 'name': q.name,
                 'string': q.string,
                 'answers': q.answers,
-                'total': q.total
+                'total': q.total,
+                'type': 'math' if not q.config else 'simple',
+                'config': q.config
             }
         )
     return jsonify(questions=question_array)
@@ -39,17 +43,18 @@ def get_all_questions():
 
 @QuestionRoutes.route('/newQuestion', methods=['POST'])
 @teacher_only
-@validate(setID=int, name=str, string=str, answers=int, total=int)
-def new_question(set_id: int, name: str, string: str, answers: int, total: int):
+@validate(setID=int, name=str, string=str, answers=int, total=int, config=dict)
+def new_question(set_id: int, name: str, string: str, answers: int, total: int, config: dict):
     """
     Creates new Question and adds to set
     :return: ID of new question
     """
     if not able_edit_set(set_id):
         return jsonify(error="User not able to edit Set")
-    if question_has_errors(string):
+    if question_has_errors(string) and not config:
         return jsonify(error="Question Failed to build")
-    question = Question(set_id, name, string, answers, total)
+
+    question = Question(set_id, name, string, answers, total, config=config)
     db.session.add(question)
     db.session.commit()
     return jsonify(questionID=question.QUESTION)
@@ -73,8 +78,8 @@ def rename_question(question_id: int, name: str):
 
 @QuestionRoutes.route('/editQuestion', methods=['POST'])
 @teacher_only
-@validate(questionID=int, string=str, answers=int, total=int)
-def edit_question(question_id: int, string: str, answers: int, total: int):
+@validate(questionID=int, string=str, answers=int, total=int, config=dict)
+def edit_question(question_id: int, string: str, answers: int, total: int, config: dict):
     """
     Update Question data
     :return: Confirmation that question has been updated
@@ -82,11 +87,12 @@ def edit_question(question_id: int, string: str, answers: int, total: int):
     question = Question.query.get(question_id)
     if not able_edit_set(question.QUESTION_SET):
         return jsonify(error="User not able to edit SET")
-    if question_has_errors(string):
+    if question_has_errors(string) and not question.config:
         return jsonify(error="Question could not be created")
     question.string = string
     question.answers = answers
     question.total = total
+    question.config = config
     db.session.commit()
     return jsonify({})
 
@@ -121,8 +127,13 @@ def get_question(question_id: int, seed: int):
     question = Question.query.get(question_id)  # Get question from database
     if question is None:
         return jsonify(error='No question found')
-    q = AvoQuestion(question.string, seed)
-    return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
+    # math question
+    if not question.config:
+        q = AvoQuestion(question.string, seed)
+        return jsonify(prompt=q.prompt, prompts=q.prompts, types=q.types)
+    # simple question
+    prompt, prompts, types = get_prompt_prompts_types(question)
+    return jsonify(prompt=prompt, prompts=prompts, types=types)
 
 
 @QuestionRoutes.route('/sampleQuestion', methods=['POST'])
@@ -141,7 +152,7 @@ def sample_question(string: str, seed: int):
     var_list = {}
     if isinstance(q.var_list, list):
         for i in range(len(q.var_list)):
-            var_list[f'${i+1}'] = repr(q.var_list[i])
+            var_list[f'${i + 1}'] = repr(q.var_list[i])
     else:
         for k in q.var_list:
             var_list[k] = repr(q.var_list[k])
