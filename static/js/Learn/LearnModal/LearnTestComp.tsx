@@ -170,6 +170,16 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
     changeAnswer = (index: number) => (answer: string) => {
         const newAnswerList = [...this.state.nextAnswers];
         newAnswerList[index] = answer;
+        Http.collectData(
+            'change answer learn',
+            {
+                answers: newAnswerList,
+                lesson: this.props.lesson,
+                question: this.state.nextQuestion
+            },
+            ()=>{},
+            console.warn
+        );
         this.setState({nextAnswers: newAnswerList});
     };
 

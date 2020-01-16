@@ -33,17 +33,6 @@ def add_to_whitelist(section_id: int, uwo_users: list):
             user.password = user.salt = ''
             user.confirmed = True
             db.session.add(user)
-            # Create user
-            # url = get_url(user_email, 'UserRoutes.setup')
-            # send_email(
-            #     user_email,
-            #     'Confirm your AvocadoCore Account',
-            #     f'<html><body>Hi {uwo_user},<br/><br/>'
-            #     f'Your instructor ({current_user.email}) has signed you up to join a course. '
-            #     f'Please click <a href="{url}">here</a> to set your password for the first time. If you have any '
-            #     f'questions or suggestions, please send us an email at contact@avocadocore.com.'
-            #     f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
-            # )
             db.session.commit()
         if not UserSection.query.filter((user.USER == UserSection.USER) & (UserSection.SECTION == section_id)).all():
             db.session.add(UserSection(user.USER, section_id, enroll_type))

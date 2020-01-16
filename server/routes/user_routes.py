@@ -36,6 +36,8 @@ def register(first_name: str, last_name: str, email: str, password: str):
             user.change_password(password)
             user.first_name = first_name
             user.last_name = last_name
+            if not user.confirmed:
+                user.confirmed = True
             db.session.commit()
             return jsonify(message='password changed')
 
@@ -66,7 +68,7 @@ def confirm(token):
     """
     if token_is_file(token):
         return send_from_directory('../static/dist/', token, conditional=True)
-    email = validate_token(token, 3600)
+    email = validate_token(token)
     if email is None:
         return "Invalid confirmation link"
     user = User.query.filter(User.email == email).first()  # get user from the email
@@ -201,7 +203,7 @@ def setup(token):
 @UserRoutes.route('/resetPassword', methods=['POST'])
 @validate(token=str, password=str)
 def reset_password(token: str, password: str):
-    return pw_change(validate_token(token, 3600), password)
+    return pw_change(validate_token(token), password)
 
 
 @UserRoutes.route('/completeSetup', methods=['POST'])
