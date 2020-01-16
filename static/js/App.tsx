@@ -41,7 +41,7 @@ export default class App extends Component<AppProps, AppState> {
     }
 
     render() {
-        if (!isChrome() && !isSafari()) {
+        if (!isChrome()) {
             return <NotChromeWarningPage/>;
         } else if (this.state.authenticated === null) {
             return null;
@@ -88,7 +88,9 @@ export default class App extends Component<AppProps, AppState> {
     }
 
     updateUser = (result: Http.GetUserInfo) =>
-        this.setState({authenticated: {...result, theme: result.theme ? 'dark' : 'light'}});
+        this.setState({authenticated: {...result, theme: result.theme ? 'dark' : 'light'}}, () => {
+            Http.collectData('login', {}, ()=>{}, console.warn)
+        });
 
     authError = () => this.setState({authenticated: false});
 

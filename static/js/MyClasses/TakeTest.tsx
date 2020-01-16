@@ -128,6 +128,15 @@ export default class TakeTest extends Component<TakeTestProps, TakeTestState> {
         const newAnswers = [...this.state.newAnswers];
         newAnswers[index1] = [...newAnswers[index1]];
         newAnswers[index1][index2] = value;
+        Http.collectData(
+            'change answer my classes',
+            {
+                answers: newAnswers,
+                test: this.props.test,
+            },
+            ()=>{},
+            console.warn
+        );
         this.setState({newAnswers});
     };
 
@@ -162,7 +171,7 @@ export default class TakeTest extends Component<TakeTestProps, TakeTestState> {
         const {test} = this.props;
         Http.collectData(
             'submit test my classes',
-            {test},
+            {test, answers: this.state.answers},
             ()=>{},
             console.warn
         );

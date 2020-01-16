@@ -40,16 +40,24 @@ def register(first_name: str, last_name: str, email: str, password: str):
             return jsonify(message='password changed')
 
     # Create new user instance form data entered and commit to database
-    user = User(email, first_name, last_name, password)
+    user = User(email, first_name, last_name, password, confirmed=True)
     db.session.add(user)
     db.session.commit()
 
-    url = get_url(email, 'UserRoutes.confirm')
+    # url = get_url(email, 'UserRoutes.confirm')
+    # send_email(
+    #     email,
+    #     'Confirm your AvocadoCore Account',
+    #     f'<html><body>Hi {user.first_name},<br/><br/>'
+    #     f'Thanks for signing up! Please click <a href="{url}">here</a> to activate your account. If you have any '
+    #     f'questions or suggestions, please send us an email at contact@avocadocore.com.'
+    #     f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
+    # )
     send_email(
         email,
-        'Confirm your AvocadoCore Account',
+        'Welcome to AvocadoCore!',
         f'<html><body>Hi {user.first_name},<br/><br/>'
-        f'Thanks for signing up! Please click <a href="{url}">here</a> to activate your account. If you have any '
+        f'Thanks for signing up! If you have any '
         f'questions or suggestions, please send us an email at contact@avocadocore.com.'
         f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
     )
@@ -66,7 +74,7 @@ def confirm(token):
     """
     if token_is_file(token):
         return send_from_directory('../static/dist/', token, conditional=True)
-    email = validate_token(token, 3600)
+    email = validate_token(token)
     if email is None:
         return "Invalid confirmation link"
     user = User.query.filter(User.email == email).first()  # get user from the email
@@ -175,7 +183,7 @@ def token_is_file(token):
 def password_reset(token):
     if token_is_file(token):
         return send_from_directory('../static/dist/', token, conditional=True)
-    email = validate_token(token, 3600)
+    email = validate_token(token)
     if email is None:
         return redirect('/?expiredPasswordReset=True', code=302)
         return 'Password reset link expired. Please go to <a href="https://app.avocadocore.com">https://app.avocadocore.com </a> and try requesting a password change.'
@@ -201,7 +209,7 @@ def setup(token):
 @UserRoutes.route('/resetPassword', methods=['POST'])
 @validate(token=str, password=str)
 def reset_password(token: str, password: str):
-    return pw_change(validate_token(token, 3600), password)
+    return pw_change(validate_token(token), password)
 
 
 @UserRoutes.route('/completeSetup', methods=['POST'])
@@ -232,6 +240,8 @@ def pw_change(email, password, setup_only=False):
     if len(password) < 8:
         return jsonify(error='Password too short! Please ensure the password is at least 8 characters.')
     user.change_password(password)
+    if not user.confirmed:
+        user.confirmed = True
     db.session.commit()
     return jsonify({})
 

@@ -5,7 +5,7 @@ from server.models import db, StudentUsage
 import hashlib
 from datetime import datetime
 import os
-from config import RESEARCH_ENABLED
+from config import RESEARCH_ENABLED, RESEARCH_SALT
 StudentUsageRoutes = Blueprint('StudentUsageRoutes', __name__)
 
 
@@ -17,7 +17,7 @@ def collect_data(event_type: str, data: dict):
     """
     if RESEARCH_ENABLED:
         new_record = StudentUsage(
-            student_id=str(hashlib.sha1(str.encode(current_user.email)).hexdigest()),
+            student_id=str(hashlib.sha1(str.encode(current_user.email + RESEARCH_SALT)).hexdigest()),
             event_type=event_type,
             data=data,
             created_at=datetime.now()

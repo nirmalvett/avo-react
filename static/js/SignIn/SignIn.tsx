@@ -19,7 +19,7 @@ interface Event {
         value: string;
     };
 }
-
+const EMAIL_LINK = 'mailto:contact@avocadocore.com?Subject=Help%20I%20am%20having%20trouble';
 const style = {width: '100%'};
 const theme = createMuiTheme({
     palette: {primary: {'200': '#f8ee7b', '500': '#399103'}, type: 'light'},
@@ -120,6 +120,10 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                                     {'.'}
                                 </Typography>
                                 {this.passwordReset()}
+                                <br/>
+                                <Typography variant='caption'>
+                                    If you are having any difficulties, please email us at <a className='avo-styles__link' href={EMAIL_LINK}>contact@avocadocore.com</a>
+                                </Typography>
                             </footer>
                         </div>
                     </Card>
@@ -348,11 +352,10 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         hasAgreedToTOS: false,
                         messageToUser:
                             message === 'email sent'
-                                ? 'Registration successful! To fully activate your account please' +
-                                ' check your email inbox/spam folder for the activation link.'
+                                ? 'Registration successful!'
                                 : 'Registration successful! Your account was already confirmed by' +
                                 " your professor, you're all set to sign in and start using AVO.",
-                    }),
+                    }, ()=>setTimeout(() => this.setState({isSigningIn: true}), 500)),
                 result => this.setState({messageToUser: result.error}),
             );
         }
