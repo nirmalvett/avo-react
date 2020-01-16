@@ -36,8 +36,6 @@ def register(first_name: str, last_name: str, email: str, password: str):
             user.change_password(password)
             user.first_name = first_name
             user.last_name = last_name
-            if not user.confirmed:
-                user.confirmed = True
             db.session.commit()
             return jsonify(message='password changed')
 
@@ -46,7 +44,7 @@ def register(first_name: str, last_name: str, email: str, password: str):
     db.session.add(user)
     db.session.commit()
 
-    url = get_url(email, 'UserRoutes.confirm')
+    # url = get_url(email, 'UserRoutes.confirm')
     # send_email(
     #     email,
     #     'Confirm your AvocadoCore Account',
@@ -242,6 +240,8 @@ def pw_change(email, password, setup_only=False):
     if len(password) < 8:
         return jsonify(error='Password too short! Please ensure the password is at least 8 characters.')
     user.change_password(password)
+    if not user.confirmed:
+        user.confirmed = True
     db.session.commit()
     return jsonify({})
 
