@@ -42,16 +42,24 @@ def register(first_name: str, last_name: str, email: str, password: str):
             return jsonify(message='password changed')
 
     # Create new user instance form data entered and commit to database
-    user = User(email, first_name, last_name, password)
+    user = User(email, first_name, last_name, password, confirmed=True)
     db.session.add(user)
     db.session.commit()
 
     url = get_url(email, 'UserRoutes.confirm')
+    # send_email(
+    #     email,
+    #     'Confirm your AvocadoCore Account',
+    #     f'<html><body>Hi {user.first_name},<br/><br/>'
+    #     f'Thanks for signing up! Please click <a href="{url}">here</a> to activate your account. If you have any '
+    #     f'questions or suggestions, please send us an email at contact@avocadocore.com.'
+    #     f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
+    # )
     send_email(
         email,
-        'Confirm your AvocadoCore Account',
+        'Welcome to AvocadoCore!',
         f'<html><body>Hi {user.first_name},<br/><br/>'
-        f'Thanks for signing up! Please click <a href="{url}">here</a> to activate your account. If you have any '
+        f'Thanks for signing up! If you have any '
         f'questions or suggestions, please send us an email at contact@avocadocore.com.'
         f'<br/><br/>Best wishes,<br/>The AvocadoCore Team</body></html>'
     )
