@@ -185,7 +185,7 @@ def token_is_file(token):
 def password_reset(token):
     if token_is_file(token):
         return send_from_directory('../static/dist/', token, conditional=True)
-    email = validate_token(token, 3600)
+    email = validate_token(token)
     if email is None:
         return redirect('/?expiredPasswordReset=True', code=302)
         return 'Password reset link expired. Please go to <a href="https://app.avocadocore.com">https://app.avocadocore.com </a> and try requesting a password change.'
