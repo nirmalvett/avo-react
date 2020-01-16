@@ -355,7 +355,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                                 ? 'Registration successful!'
                                 : 'Registration successful! Your account was already confirmed by' +
                                 " your professor, you're all set to sign in and start using AVO.",
-                    }),
+                    }, ()=>setTimeout(() => this.setState({isSigningIn: true}), 500)),
                 result => this.setState({messageToUser: result.error}),
             );
         }
