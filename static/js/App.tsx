@@ -1,7 +1,7 @@
 import React, {Component, Suspense} from 'react';
 import * as Http from './Http';
 import Layout from './Layout/Layout';
-import {isChrome, isSafari} from './HelperFunctions/Helpers';
+import {isChrome, isMobile, isSafari} from './HelperFunctions/Helpers';
 import MomentUtils from '@date-io/moment';
 import {MuiPickersUtilsProvider} from '@material-ui/pickers';
 import {createMuiTheme, MuiThemeProvider, Typography} from '@material-ui/core';
@@ -41,7 +41,7 @@ export default class App extends Component<AppProps, AppState> {
     }
 
     render() {
-        if (!isChrome()) {
+        if (!isChrome() && !isMobile()) {
             return <NotChromeWarningPage/>;
         } else if (this.state.authenticated === null) {
             return null;

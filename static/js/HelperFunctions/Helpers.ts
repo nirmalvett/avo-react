@@ -38,6 +38,11 @@ export function isSafari(): boolean {
     return window.safari !== undefined;
 }
 
+export function isMobile(): boolean {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+}
+
 export function convertListFloatToAnalytics(
     inputList: number[],
     topMark: number,
