@@ -28,10 +28,10 @@ export default function NotChromeWarningPage(): ReactElement {
                     You can download Chrome <a href='https://www.google.com/chrome/'>here</a>.
                 </Typography>
                 <Typography>
-                    <a href='https://www.youtube.com/watch?v=EN9z1Y3_xXA'>Youtube video on how to install Chrome on a Mac.</a>
+                    <a href='https://www.youtube.com/watch?v=EN9z1Y3_xXA'>Youtube video on how to install Chrome on Mac.</a>
                 </Typography>
                 <Typography>
-                  <a href='https://www.youtube.com/watch?v=xiGC2I-qDgc&t=77s'>Youtube video on how to install Chrome on a Windows computer.</a>
+                  <a href='https://www.youtube.com/watch?v=xiGC2I-qDgc&t=77s'>Youtube video on how to install Chrome on Windows.</a>
                 </Typography>
             </Card>
         </div>
