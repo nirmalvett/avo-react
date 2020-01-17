@@ -23,6 +23,7 @@ interface LessonSliderProps {
     theme: ThemeObj;
     selectedCourse: number;
     changeCourse: (courseID: number) => void;
+    reloadLessons: () => void;
 }
 
 interface LessonSliderState {
@@ -47,20 +48,21 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
             const words = this.state.filterInput.split(' ');
             lessons = lessons.filter(lesson => words.every(word => lesson.name.includes(word)));
         }
-        switch(this.state.mode) {
-            case 'Completed': 
+        switch (this.state.mode) {
+            case 'Completed':
                 lessons = lessons.filter(lesson => lesson.mastery >= 0.8);
                 break;
             case 'Recommended':
-                lessons = lessons.filter(lesson => lesson.preparation >= 0.75 && lesson.mastery <= 0.8);
+                lessons = lessons.filter(
+                    lesson => lesson.preparation >= 0.75 && lesson.mastery <= 0.8,
+                );
                 break;
             case 'To Do':
             default:
                 lessons = lessons.filter(lesson => lesson.mastery <= 0.8);
                 break;
         }
-        return lessons
-            .sort(sortFunc(x => -x.preparation));
+        return lessons.sort(sortFunc(x => -x.preparation));
     }
 
     render() {
@@ -138,18 +140,14 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
                             marginRight: '2ch',
                         }}
                         value={this.state.mode}
-                        onChange={(e: any) => this.setState({ mode : (e.target.value as string), currentIndex : 0 })}
-                        input={<Input name='data' id='select-mode'/>}
+                        onChange={(e: any) =>
+                            this.setState({mode: e.target.value as string, currentIndex: 0})
+                        }
+                        input={<Input name='data' id='select-mode' />}
                     >
-                        <MenuItem value="To Do">
-                            To Do
-                        </MenuItem>
-                        <MenuItem value="Completed">
-                            Completed
-                        </MenuItem>
-                        <MenuItem value="Recommended">
-                            Recommended
-                        </MenuItem>
+                        <MenuItem value='To Do'>To Do</MenuItem>
+                        <MenuItem value='Completed'>Completed</MenuItem>
+                        <MenuItem value='Recommended'>Recommended</MenuItem>
                     </Select>
                     <TextField
                         id='filter-input'
@@ -176,7 +174,36 @@ export default class LessonSlider extends Component<LessonSliderProps, LessonSli
 
     renderGroup() {
         const lessons = this.getLessonsToShow();
-        if (lessons.length === 0) {
+        // If there are no more recommended questions but there are more available questions, allow the user to load in more
+        if (
+            lessons.length === 0 &&
+            this.props.lessons.filter(lesson => lesson.mastery <= 0.8).length > 0 &&
+            this.state.mode === 'Recommended'
+        ) {
+            return (
+                <div
+                    style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexDirection: 'column',
+                    }}
+                >
+                    <Typography variant='h4'>
+                        You've finished all your recommended lessons!
+                    </Typography>
+                    <Button
+                        variant='contained'
+                        color='primary'
+                        style={{margin: '15px'}}
+                        onClick={this.props.reloadLessons}
+                    >
+                        Give me more
+                    </Button>
+                </div>
+            );
+        } else if (lessons.length === 0) {
             return (
                 <div
                     style={{
