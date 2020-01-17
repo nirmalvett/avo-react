@@ -25,7 +25,7 @@ export function isChrome(): boolean {
     const isEdge = winNav.userAgent.indexOf('Edge') > -1;
 
     if (isIOSChrome) {
-        return true;
+        return false;
     } else if (isChromium || isHeadlessChrome) {
         return winNav.vendor === 'Google Inc.' && !isOpera && !isEdge;
     } else {

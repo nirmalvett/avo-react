@@ -41,8 +41,10 @@ export default class App extends Component<AppProps, AppState> {
     }
 
     render() {
-        if (!isChrome() && !isMobile()) {
-            return <NotChromeWarningPage/>;
+        if (!isChrome() || !isMobile() || isSafari()) {
+            return <Suspense fallback={<div>Loading...</div>}>
+                        <NotChromeWarningPage/>
+                    </Suspense>;
         } else if (this.state.authenticated === null) {
             return null;
         } else {
