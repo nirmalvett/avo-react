@@ -20,7 +20,7 @@ export default function NotChromeWarningPage(): ReactElement {
                     It looks like you are either not using Google Chrome or you are on your phone.
                     AVO is currently only optimized and tested for Chrome. We promise to work on
                     other browsers and have an awesome mobile app in the future, but for the time
-                    being you will only be able to access AVO with Chrome on a computer"
+                    being you will only be able to access AVO with Chrome on a computer.
                 </Typography>
                 <br />
                 <br />
