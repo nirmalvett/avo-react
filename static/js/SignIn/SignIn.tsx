@@ -387,7 +387,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                 this.props.login(result)
                 Http.collectData('login', {}, ()=>{}, console.warn)
             },
-            result => this.setState({signInError: result.error}),
+            result => this.setState({signInError: result}),
         );
     }
 }

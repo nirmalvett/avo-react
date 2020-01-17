@@ -11,7 +11,7 @@ export function register(
     _request('POST', '/register', success, failure, {firstName, lastName, email, password});
 }
 
-export function login(username: string, password: string, success: cb<GetUserInfo>, failure: cb) {
+export function login(username: string, password: string, success: cb<GetUserInfo>, failure: cb<string>) {
     _request('POST', '/login', success, failure, {username, password});
 }
 
