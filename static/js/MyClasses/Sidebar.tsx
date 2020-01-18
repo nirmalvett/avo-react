@@ -43,7 +43,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     }
 
     componentDidUpdate(prevProps: SidebarProps, prevState: SidebarState) {
-        if (prevProps.sections !== this.props.sections) {
+        if (prevProps.sections !== this.props.sections) {  // if there are new sections then we will want to make sure everything is expanded
             const open = {} as { [sectionID: number]: boolean };
             this.props.sections.forEach(s => {
                 open[s.sectionID] = true;
