@@ -463,7 +463,6 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         return (
             <Fragment>
                 <CardHeader
-                    title={selectedClass.name}
                     classes={{root: 'avo-card__header'}}
                     subheader={'Enroll Key: ' + selectedClass.enrollKey}
                     action={
@@ -487,6 +486,13 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         </Fragment>
                     }
                 />
+                <Typography
+                    variant='h5'
+                    color='textPrimary'
+                    style={{paddingLeft: '8px', marginBottom: '16px'}}
+                >
+                    {selectedClass.name}
+                </Typography>
                 <div className='mixed-chart'>
                     {selectedClass.tests.length !== 0 ? ( // if there is at least one test then display data
                         <Fragment>
