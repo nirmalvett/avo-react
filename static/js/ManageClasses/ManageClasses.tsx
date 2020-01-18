@@ -463,7 +463,6 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         return (
             <Fragment>
                 <CardHeader
-                    title={selectedClass.name}
                     classes={{root: 'avo-card__header'}}
                     subheader={'Enroll Key: ' + selectedClass.enrollKey}
                     action={
@@ -487,6 +486,13 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         </Fragment>
                     }
                 />
+                <Typography
+                    variant='h5'
+                    color='textPrimary'
+                    style={{paddingLeft: '8px', marginBottom: '16px'}}
+                >
+                    {selectedClass.name}
+                </Typography>
                 <div className='mixed-chart'>
                     {selectedClass.tests.length !== 0 ? ( // if there is at least one test then display data
                         <Fragment>
@@ -538,9 +544,15 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         return (
             <Fragment key={`detailsCard-${uniqueKey1}`}>
                 <CardHeader
-                    title={selectedTest.name}
                     action={this.detailsCard_selectedTest_cardHeader(selectedTest)}
                 />
+                <Typography
+                    variant='h5'
+                    color='textPrimary'
+                    style={{paddingLeft: '8px', marginBottom: '16px'}}
+                >
+                    {selectedTest.name}
+                </Typography>
                 {this.deleteTestPopper(selectedTest)} {/* Logic for deleting a test popup*/}
                 {this.editTestPopper(selectedTest)} {/* Logic for editing a test popup*/}
                 {/* Deadline: July 01 at 9:30am  Time Limit: 100 minutes  Attempts: Unlimited */}
@@ -1484,9 +1496,9 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             if (selectedTest.submitted.length > 0) {
                 selectedTest.submitted.forEach(obj => {
                     attemptArray.push((obj.grade / selectedTest.total) * 100);
-                    meanArray.push(selectedTest.sectionAverage);
-                    medianArray.push(selectedTest.sectionMedian);
-                    sdArray.push(selectedTest.standardDeviation);
+                    meanArray.push(selectedTest.sectionAverage / selectedTest.total * 100);
+                    medianArray.push(selectedTest.sectionMedian / selectedTest.total * 100);
+                    sdArray.push(selectedTest.standardDeviation / selectedTest.total * 100);
                 });
             } else {
                 attemptArray = ['', 'No Attempts Available', ''];
@@ -1583,9 +1595,9 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
         let classDev = [];
         for (let i = 0; i < selectedClass.tests.length; i++) {
             const testObj = selectedClass.tests[i];
-            classMed.push(testObj.sectionMedian.toFixed(2));
-            classAvg.push(testObj.sectionAverage.toFixed(2));
-            classDev.push(testObj.standardDeviation.toFixed(2));
+            classMed.push((testObj.sectionMedian / testObj.total * 100).toFixed(2));
+            classAvg.push((testObj.sectionAverage / testObj.total * 100).toFixed(2));
+            classDev.push((testObj.standardDeviation / testObj.total * 100).toFixed(2));
         }
         return [
             {
