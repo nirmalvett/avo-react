@@ -33,9 +33,24 @@ interface SidebarState {
 export class Sidebar extends Component<SidebarProps, SidebarState> {
     constructor(props: SidebarProps) {
         super(props);
+        const open = {} as { [sectionID: number]: boolean };
+        // We want to auto open every hidden class because so students don't get confused
+        this.props.sections.forEach(s => {
+            open[s.sectionID] = true;
+        });
         this.state = {
-            open: {},
+            open,
         };
+    }
+
+    componentDidUpdate(prevProps: SidebarProps, prevState: SidebarState) {
+        if (prevProps.sections !== this.props.sections) {  // if there are new sections then we will want to make sure everything is expanded
+            const open = {} as { [sectionID: number]: boolean };
+            this.props.sections.forEach(s => {
+                open[s.sectionID] = true;
+            });
+            this.setState({open});
+        }
     }
 
     render() {
