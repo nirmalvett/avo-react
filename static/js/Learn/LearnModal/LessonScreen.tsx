@@ -98,7 +98,6 @@ export class LessonScreen extends PureComponent<LessonScreenProps, LessonScreenS
                     </ExpansionPanel>
                     <ExpansionPanel 
                         expanded={expanded === 'panel2'}
-                        // Expand or collapse the panel depending on its current state
                         onChange={() => this.handleChange('panel2')} 
                         style={{ boxShadow: 'none' }}
                     >
