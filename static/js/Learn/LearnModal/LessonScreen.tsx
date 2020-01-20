@@ -97,7 +97,8 @@ export class LessonScreen extends PureComponent<LessonScreenProps, LessonScreenS
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                     <ExpansionPanel 
-                        expanded={expanded === 'panel2'} 
+                        expanded={expanded === 'panel2'}
+                        // Expand or collapse the panel depending on its current state
                         onChange={() => this.handleChange('panel2')} 
                         style={{ boxShadow: 'none' }}
                     >
@@ -367,7 +368,8 @@ export class LessonScreen extends PureComponent<LessonScreenProps, LessonScreenS
     };
 
     handleChange(expanded: string) {
-        this.setState({ expanded });
+        // If expanded (state) is the same as expanded (argument), we are collapsing that section
+        this.state.expanded === expanded ? this.setState({expanded: ''}) : this.setState({ expanded });
     };
 
     updateAptitude = (aptitude: number) => () => {
