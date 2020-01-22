@@ -898,7 +898,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                 questionAnsrE: false,
                 questionSelectableString: question.config.prompts[0],
                 wordInputMode: question.config.types[0] === '10' ? 'word' : 'sentence'
-            }, ()=>this.setState({questionExpl: question.config.explanation.replace(this.constructAnswerForExplanation(), '')}));
+            }, ()=>this.setState({questionExpl: question.config.explanation.replace(`\n${this.constructAnswerForExplanation()}`, '')}));
         }
     };
 
