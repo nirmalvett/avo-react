@@ -53,6 +53,7 @@ interface LessonScreenState {
     expanded: string;
     selectedInquiry: InquiryObject;
     isQuestionModalOpen: boolean;
+    isShowingAnimation: boolean;
 };
 
 const surveyIcons = [
@@ -69,12 +70,30 @@ export class LessonScreen extends PureComponent<LessonScreenProps, LessonScreenS
         expanded: 'panel1',
         selectedInquiry: ({} as InquiryObject),
         isQuestionModalOpen: false,
+        isShowingAnimation: false,
     }
     poller: any;
 
     render() {
         const {lesson, theme, disabled, next} = this.props;
-        const {expanded} = this.state;
+        const {expanded, isShowingAnimation} = this.state;
+        if(isShowingAnimation) 
+            return (
+                <div className="avo-space-animation-wrapper">
+                    <div className="avo-outer-space"/>
+                    <div className="avo-rocket"/>
+                    <div style={{width: '100%', height: '100%'}} className="avo-spaceship-backdrop">
+                        <div className="avo-planet"/>
+                        <div className="avo-clouds"/>
+                        <div className="avo-astronaut-big"/>
+                        <div className="avo-astronaut-small"/>
+                        <div className="avo-rocket-text">
+                            Congratulations!<br/>
+                            You've finished learning {this.props.lesson.name}   
+                        </div> 
+                    </div>
+                </div>
+            );
         return (
             <Fragment>
                 <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -388,7 +407,11 @@ export class LessonScreen extends PureComponent<LessonScreenProps, LessonScreenS
         Http.maxMastery(
             this.props.lesson.conceptID,
             (res: any) => {
-                this.props.closeFSM();
+                this.setState({ 
+                    isShowingAnimation : true
+                }, () => {
+                    setTimeout(this.props.closeFSM, 10000)
+                });
             },
             (res: any) => {},
         );
