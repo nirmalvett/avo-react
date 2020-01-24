@@ -13,7 +13,7 @@ ImageRoutes = Blueprint('ImageRoutes', __name__)
 @ImageRoutes.route('/image/<filename>')
 @login_required
 def image(filename):
-    i: Image = Image.query.filter((Image.name == filename) & (Image.USER == current_user.USER)).first()
+    i: Image = Image.query.filter(Image.name == filename).first()
     if i is None:
         return abort(404)
     else:
