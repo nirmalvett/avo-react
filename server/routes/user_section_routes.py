@@ -25,6 +25,8 @@ def add_to_whitelist(section_id: int, uwo_users: list):
         enroll_type = UserSectionType.WHITELIST
     else:
         enroll_type = UserSectionType.ENROLLED
+    # owl exports have quotes around the user names, remove them
+    uwo_users = [user.replace('"', '') for user in uwo_users]
     for uwo_user in uwo_users:
         user_email = uwo_user + '@uwo.ca'
         user = User.query.filter((User.email == user_email)).first()
