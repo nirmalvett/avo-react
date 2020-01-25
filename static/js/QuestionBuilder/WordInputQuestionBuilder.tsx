@@ -994,10 +994,6 @@ export default class WordInputQuestionBuilder extends Component<
             </Select>
         );
     };
-
-    clearAnswers = () => {
-        this.setState({questionAnsr: ''});
-    };
 }
 
 function isWordInput(question: Question): boolean {
