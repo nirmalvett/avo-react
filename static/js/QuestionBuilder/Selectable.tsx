@@ -19,7 +19,7 @@ export interface SelectableState {
 
 class Selectable extends React.PureComponent<SelectableProps, SelectableState> {
     styles = {
-        hovered: {backgroundColor: this.props.color['200']},
+        hovered: {backgroundColor: this.props.color['200'], cursor: 'pointer'},
         unselected: {backgroundColor: 'inherit'},
         selected: {backgroundColor: this.props.color['500']},
     };
@@ -73,7 +73,8 @@ class Selectable extends React.PureComponent<SelectableProps, SelectableState> {
     }
 
     componentDidUpdate = () => {
-        this.setState({currentStyle: this.props.selected ? this.styles.selected : this.styles.unselected});
+        if (this.props.selected)
+            this.setState({currentStyle: this.styles.selected});
     }
 }
 
