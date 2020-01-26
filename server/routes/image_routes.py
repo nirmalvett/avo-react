@@ -13,7 +13,7 @@ ImageRoutes = Blueprint('ImageRoutes', __name__)
 @ImageRoutes.route('/image/<filename>')
 @login_required
 def image(filename):
-    i: Image = Image.query.filter((Image.name == filename) & (Image.USER == current_user.USER)).first()
+    i: Image = Image.query.filter(Image.name == filename).first()
     if i is None:
         return abort(404)
     else:
@@ -60,7 +60,7 @@ def file_upload():
         (Image.USER == current_user.USER)
     ).first()
     if i is None:
-        img = Image(name=secure_filename(file.filename), url=url, user_id=current_user.USER)
+        img = Image(name=secure_filename(filename), url=url, user_id=current_user.USER)
         db.session.add(img)
     else:
         i.url = url

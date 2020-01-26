@@ -71,6 +71,10 @@ class Selectable extends React.PureComponent<SelectableProps, SelectableState> {
     reset = () => {
         this.setState({currentStyle: this.styles.unselected});
     }
+
+    componentDidUpdate = () => {
+        this.setState({currentStyle: this.props.selected ? this.styles.selected : this.styles.unselected});
+    }
 }
 
 export default Selectable;
