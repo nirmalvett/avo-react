@@ -351,7 +351,7 @@ export default class WordInputQuestionBuilder extends Component<
                                                 changed: true,
                                                 questionAnsr: value,
                                                 questionExpE: !this.state.questionExpE
-                                            }, ()=>this.setState({questionExpE: !this.state.questionExpE}))
+                                            }, ()=>this.setState({questionExpE: !this.state.questionExpE})) // toggling so the saved explanation updates
                                         }
                                         color={{200: 'green', 500: 'green'}}
                                         value={this.state.questionAnsr}
