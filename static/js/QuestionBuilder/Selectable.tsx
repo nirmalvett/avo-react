@@ -4,7 +4,7 @@ import {type} from 'os';
 
 export interface SelectableProps {
     children: string;
-    color: { '200': string; '500': string };
+    color: {'200': string; '500': string};
     add: (position: number) => void;
     remove: (position: number) => void;
     type: string;
@@ -41,7 +41,8 @@ class Selectable extends React.PureComponent<SelectableProps, SelectableState> {
                     onClick={this.handleClick}
                 >
                     {this.props.children}
-                </span>{' '}
+                </span>
+                <span style={{fontSize: '2.5em'}}> </span>
             </React.Fragment>
         );
     }
