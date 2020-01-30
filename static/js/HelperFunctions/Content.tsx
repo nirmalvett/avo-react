@@ -18,7 +18,7 @@ export function Content(props: ContentProps) {
     let result = [];
     let counter = 0;
     while (text.length) {
-        const match = /\$(.+?)\$|\\\((.+?)\\\)|\$\$(.+?)\$\$|\\\[(.+?)\\]|<img>(.*?)<img>|<<(.*?)>>|<wordinput>(.*?)<wordinput>|<sentenceinput>(.*?)<sentenceinput>|\n/g.exec(
+        const match = /\$(.+?)\$|\\\((.+?)\\\)|\$\$(.+?)\$\$|\\\[(.+?)\\]|<img>(.*?)<img>|<<(.*?)>>|<wordinput>([^]*?)<wordinput>|<sentenceinput>([^]*?)<sentenceinput>|\n/g.exec(
             text,
         );
         if (!match) {

@@ -189,9 +189,10 @@ export default class WordInputQuestionBuilder extends Component<
                         <Paper
                             className='avo-card'
                             style={{
-                                height: 'auto',
+                                height: 'calc(100vh - 125px)',
                                 width: 'auto',
                                 maxHeight: '100%',
+                                overflow: 'auto'
                             }}
                         >
                             {this.state.questionNmeE ? (
@@ -247,7 +248,7 @@ export default class WordInputQuestionBuilder extends Component<
                                         id='outlined-name'
                                         label='Question Prompt'
                                         multiline
-                                        rows='2'
+                                        rows='6'
                                         margin='normal'
                                         variant='outlined'
                                         style={{
@@ -295,7 +296,7 @@ export default class WordInputQuestionBuilder extends Component<
                                         id='outlined-name'
                                         label='Phrase to select answer'
                                         multiline
-                                        rows='2'
+                                        rows='10'
                                         margin='normal'
                                         variant='outlined'
                                         style={{
@@ -322,11 +323,14 @@ export default class WordInputQuestionBuilder extends Component<
                                 </span>
                             ) : (
                                 <span>
-                                    <span style={{float: 'left'}}>
+                                    <div style={{float: 'left'}}>
                                         <Typography variant='body2' gutterBottom>
-                                            {this.state.questionSelectableString}
+                                            {this.state.questionSelectableString.split('\n').map(word => <div>
+                                                <br />
+                                                {`${word}\n`}
+                                            </div>)}
                                         </Typography>
-                                    </span>
+                                    </div>
                                     <span>
                                         <IconButton
                                             aria-label='edit'
@@ -1000,7 +1004,7 @@ export default class WordInputQuestionBuilder extends Component<
     constructAnswerForExplanation = () => {
         const selector = this.state.wordInputMode === 'word' ? '<wordinput>' : '<sentenceinput>';
         const {questionAnsr, questionSelectableString} = this.state;
-        return `${selector}${questionSelectableString}~~${questionAnsr}${selector}`;
+        return `The answer is...\n${selector}${questionSelectableString}~~${questionAnsr}${selector}`;
     };
 }
 
