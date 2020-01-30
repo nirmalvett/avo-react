@@ -248,7 +248,7 @@ export default class WordInputQuestionBuilder extends Component<
                                         id='outlined-name'
                                         label='Question Prompt'
                                         multiline
-                                        rows='6'
+                                        rows='10'
                                         margin='normal'
                                         variant='outlined'
                                         style={{
