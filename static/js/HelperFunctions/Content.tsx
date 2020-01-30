@@ -4,6 +4,7 @@ import {ThemeStyle} from '@material-ui/core/styles/createTypography';
 // @ts-ignore
 import {Node, Context} from 'react-mathjax2';
 import {BASE_URL} from '../Http/baseRequest'
+import {AnswerInput} from '../AnswerInput';
 
 
 interface ContentProps {
@@ -17,7 +18,7 @@ export function Content(props: ContentProps) {
     let result = [];
     let counter = 0;
     while (text.length) {
-        const match = /\$(.+?)\$|\\\((.+?)\\\)|\$\$(.+?)\$\$|\\\[(.+?)\\]|<img>(.*?)<img>|<<(.*?)>>|\n/g.exec(
+        const match = /\$(.+?)\$|\\\((.+?)\\\)|\$\$(.+?)\$\$|\\\[(.+?)\\]|<img>(.*?)<img>|<<(.*?)>>|<wordinput>([^]*?)<wordinput>|<sentenceinput>([^]*?)<sentenceinput>|\n/g.exec(
             text,
         );
         if (!match) {
@@ -50,7 +51,7 @@ export function Content(props: ContentProps) {
             // \[123\]
             result.push(<Node key={counter++ + '[' + match[4]}>{match[4]}</Node>);
         } else if (match[5]) {
-            // <123>
+            // <img>123<img>
             result.push(<img alt='image' src={`${BASE_URL}/image/${match[5]}`}/>);
         } else if (match[6]) {
             // <<123>>
@@ -64,6 +65,27 @@ export function Content(props: ContentProps) {
                     allowFullScreen
                 />,
             );
+        } else if (match[7] || match[8]) {
+            // <wordinput>123<wordinput> or <sentenceinput>123<sentenceinput>
+            const type = match[7] ? '10' : '11';
+            const input = (match[7] || match[8]).split('~~');
+            if (input.length > 0) {
+                const inputText = input[0];
+                const answer = input.filter((_, index) => index !== 0);
+                result.push(
+                    <AnswerInput
+                        type={type}
+                        value={answer.length > 1 ? answer.join('~~') : (answer.length === 1 ? answer[0] : '')}
+                        prompt={inputText}
+                        onChange={() => {
+                        }}
+                        save={() => {
+                        }}
+                        disabled={true}
+                    />,
+                );
+
+            }
         }
     }
     return (

@@ -83,7 +83,7 @@ export default class PostTest extends Component<PostTestProps, Http.PostTest> {
                     <Divider key={uniqueKey()} style={{marginTop: '10px', marginBottom: '10px'}} />,
                     <div key={uniqueKey()} style={{position: 'relative'}}>
                         <Typography
-                            style={{position: 'absolute', right: '8px', top: '8px'}}
+                            style={{float: 'right'}}
                             color='textSecondary'
                             variant='h6'
                         >

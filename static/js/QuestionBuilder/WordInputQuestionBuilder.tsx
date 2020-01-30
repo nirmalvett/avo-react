@@ -9,11 +9,7 @@ import Slide from '@material-ui/core/Slide';
 import Paper from '@material-ui/core/Paper';
 import Grow from '@material-ui/core/Grow';
 import TextField from '@material-ui/core/TextField';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
 import EditIcon from '@material-ui/icons/Edit';
 import SaveIcon from '@material-ui/icons/Save';
 import Folder from '@material-ui/icons/Folder';
@@ -24,7 +20,6 @@ import {
     InsertDriveFile as QuestionIcon,
     ArrowBack,
     CreateNewFolder,
-    AssignmentReturnedOutlined,
 } from '@material-ui/icons/';
 import {
     ListItem,
@@ -43,7 +38,6 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {Question, QuestionSet, Course, WordInputConfigCorrectAnswer} from 'Http/types';
 import {ShowSnackBar} from 'Layout/Layout';
-import TFImporter from './TFImporter';
 import WordInput from '../QuestionBuilder/WordInput'
 
 export interface WordInputQuestionBuilderProps {
@@ -86,8 +80,10 @@ interface WordInputQuestionBuilderState {
     wordInputMode: 'word' | 'sentence';
 }
 
-export default class WordInputQuestionBuilder extends Component<WordInputQuestionBuilderProps,
-    WordInputQuestionBuilderState> {
+export default class WordInputQuestionBuilder extends Component<
+    WordInputQuestionBuilderProps,
+    WordInputQuestionBuilderState
+> {
     constructor(props: WordInputQuestionBuilderProps) {
         super(props);
         this.state = {
@@ -148,7 +144,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                                 : () => this.props.returnHome()
                                         }
                                     >
-                                        <ArrowBack/>
+                                        <ArrowBack />
                                     </IconButton>
                                 </ListItemIcon>
                                 <ListItemText
@@ -164,11 +160,11 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                         edge='end'
                                         onClick={() => this.setState({addDiagOpen: true})}
                                     >
-                                        <CreateNewFolder/>
+                                        <CreateNewFolder />
                                     </IconButton>
                                 )}
                             </ListItem>
-                            <Divider/>
+                            <Divider />
                             <Slide
                                 in={this.state.setsActive}
                                 direction='right'
@@ -193,9 +189,10 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                         <Paper
                             className='avo-card'
                             style={{
-                                height: 'auto',
+                                height: 'calc(100vh - 125px)',
                                 width: 'auto',
                                 maxHeight: '100%',
+                                overflow: 'auto'
                             }}
                         >
                             {this.state.questionNmeE ? (
@@ -218,7 +215,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                         size='small'
                                         onClick={() => this.setState({questionNmeE: false})}
                                     >
-                                        <SaveIcon fontSize='inherit'/>
+                                        <SaveIcon fontSize='inherit' />
                                     </IconButton>
                                 </span>
                             ) : (
@@ -238,20 +235,20 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                             size='small'
                                             onClick={() => this.setState({questionNmeE: true})}
                                         >
-                                            <EditIcon fontSize='inherit'/>
+                                            <EditIcon fontSize='inherit' />
                                         </IconButton>
                                     </span>
                                 </span>
                             )}
-                            <br/>
-                            <br/>
+                            <br />
+                            <br />
                             {this.state.questionTxtE ? (
                                 <span>
                                     <TextField
                                         id='outlined-name'
                                         label='Question Prompt'
                                         multiline
-                                        rows='2'
+                                        rows='10'
                                         margin='normal'
                                         variant='outlined'
                                         style={{
@@ -270,7 +267,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                         size='small'
                                         onClick={() => this.setState({questionTxtE: false})}
                                     >
-                                        <SaveIcon fontSize='inherit'/>
+                                        <SaveIcon fontSize='inherit' />
                                     </IconButton>
                                 </span>
                             ) : (
@@ -286,20 +283,20 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                             size='small'
                                             onClick={() => this.setState({questionTxtE: true})}
                                         >
-                                            <EditIcon fontSize='inherit'/>
+                                            <EditIcon fontSize='inherit' />
                                         </IconButton>
                                     </span>
                                 </span>
                             )}
-                            <br/>
-                            <br/>
+                            <br />
+                            <br />
                             {this.state.questionSelectableStringE ? (
                                 <span>
                                     <TextField
                                         id='outlined-name'
                                         label='Phrase to select answer'
                                         multiline
-                                        rows='2'
+                                        rows='10'
                                         margin='normal'
                                         variant='outlined'
                                         style={{
@@ -310,37 +307,45 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                             this.setState({
                                                 changed: true,
                                                 questionSelectableString: e.target.value,
+                                                questionAnsr: '',
                                             })
                                         }
                                     />
                                     <IconButton
                                         aria-label='save'
                                         size='small'
-                                        onClick={() => this.setState({questionSelectableStringE: false})}
+                                        onClick={() =>
+                                            this.setState({questionSelectableStringE: false})
+                                        }
                                     >
-                                        <SaveIcon fontSize='inherit'/>
+                                        <SaveIcon fontSize='inherit' />
                                     </IconButton>
                                 </span>
                             ) : (
                                 <span>
-                                    <span style={{float: 'left'}}>
+                                    <div style={{float: 'left'}}>
                                         <Typography variant='body2' gutterBottom>
-                                            {this.state.questionSelectableString}
+                                            {this.state.questionSelectableString.split('\n').map(word => <div>
+                                                <br />
+                                                {`${word}\n`}
+                                            </div>)}
                                         </Typography>
-                                    </span>
+                                    </div>
                                     <span>
                                         <IconButton
                                             aria-label='edit'
                                             size='small'
-                                            onClick={() => this.setState({questionSelectableStringE: true})}
+                                            onClick={() =>
+                                                this.setState({questionSelectableStringE: true})
+                                            }
                                         >
-                                            <EditIcon fontSize='inherit'/>
+                                            <EditIcon fontSize='inherit' />
                                         </IconButton>
                                     </span>
                                 </span>
                             )}
-                            <br/>
-                            <br/>
+                            <br />
+                            <br />
                             {this.state.questionAnsrE ? (
                                 <span>
                                     <WordInput
@@ -349,7 +354,8 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                             this.setState({
                                                 changed: true,
                                                 questionAnsr: value,
-                                            })
+                                                questionExpE: !this.state.questionExpE
+                                            }, ()=>this.setState({questionExpE: !this.state.questionExpE})) // toggling so the saved explanation updates
                                         }
                                         color={{200: 'green', 500: 'green'}}
                                         value={this.state.questionAnsr}
@@ -361,20 +367,26 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                         onClick={() => {
                                             this.setState({
                                                 questionAnsr: '',
-                                                wordInputMode: this.state.wordInputMode === 'word' ? 'sentence' : 'word'
-                                            })
+                                                wordInputMode:
+                                                    this.state.wordInputMode === 'word'
+                                                        ? 'sentence'
+                                                        : 'word',
+                                            });
                                         }}
                                         color='primary'
                                         variant='contained'
-                                        autoFocus>
-                                        Switch to {this.state.wordInputMode === 'word' ? 'sentence' : 'word'} mode
+                                        autoFocus
+                                    >
+                                        Switch to{' '}
+                                        {this.state.wordInputMode === 'word' ? 'sentence' : 'word'}{' '}
+                                        mode
                                     </Button>
                                     <IconButton
                                         aria-label='save'
                                         size='small'
                                         onClick={() => this.setState({questionAnsrE: false})}
                                     >
-                                        <SaveIcon fontSize='inherit'/>
+                                        <SaveIcon fontSize='inherit' />
                                     </IconButton>
                                 </span>
                             ) : (
@@ -382,15 +394,14 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                     <span style={{float: 'left'}}>
                                         <WordInput
                                             key={'wordinput2'}
-                                            onChange={value => {
-                                            }}
+                                            onChange={value => {}}
                                             color={{200: 'green', 500: 'green'}}
                                             value={this.state.questionAnsr}
                                             mode={this.state.wordInputMode}
                                             disabled={true}
                                         >
-                                        {this.state.questionSelectableString}
-                                    </WordInput>
+                                            {this.state.questionSelectableString}
+                                        </WordInput>
                                     </span>
                                     <span>
                                         <IconButton
@@ -398,11 +409,13 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                             size='small'
                                             onClick={() => this.setState({questionAnsrE: true})}
                                         >
-                                            <EditIcon fontSize='inherit'/>
+                                            <EditIcon fontSize='inherit' />
                                         </IconButton>
                                     </span>
                                 </span>
                             )}
+                            <br/>
+                            <br/>
                             <br/>
                             <br/>
                             {this.state.questionExpE ? (
@@ -430,7 +443,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                         size='small'
                                         onClick={() => this.setState({questionExpE: false})}
                                     >
-                                        <SaveIcon fontSize='inherit'/>
+                                        <SaveIcon fontSize='inherit' />
                                     </IconButton>
                                 </span>
                             ) : (
@@ -439,6 +452,17 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                         <Typography variant='body2' gutterBottom>
                                             {this.state.questionExpl}
                                         </Typography>
+                                        <WordInput
+                                            key={'wordinput3'}
+                                            onChange={value => {
+                                            }}
+                                            color={{200: 'green', 500: 'green'}}
+                                            value={this.state.questionAnsr}
+                                            mode={this.state.wordInputMode}
+                                            disabled={true}
+                                        >
+                                            {this.state.questionSelectableString}
+                                        </WordInput>
                                     </span>
                                     <span>
                                         <IconButton
@@ -446,7 +470,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                             size='small'
                                             onClick={() => this.setState({questionExpE: true})}
                                         >
-                                            <EditIcon fontSize='inherit'/>
+                                            <EditIcon fontSize='inherit' />
                                         </IconButton>
                                     </span>
                                 </span>
@@ -464,7 +488,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                             disabled={!this.isValid()}
                             onClick={() => this.submitQuestion()}
                         >
-                            <SaveIcon/>
+                            <SaveIcon />
                         </Fab>
                         <Popover
                             open={this.state.popopen}
@@ -608,12 +632,12 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
             >
                 <ListItemIcon>
                     {set.canEdit ? (
-                        <Folder color={selectedS === index ? 'primary' : 'action'}/>
+                        <Folder color={selectedS === index ? 'primary' : 'action'} />
                     ) : (
-                        <Lock color={selectedS === index ? 'primary' : 'action'}/>
+                        <Lock color={selectedS === index ? 'primary' : 'action'} />
                     )}
                 </ListItemIcon>
-                <ListItemText primary={set.name}/>
+                <ListItemText primary={set.name} />
                 {index === this.state.hovered && (
                     <IconButton
                         size='small'
@@ -622,7 +646,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                             this.deleteSet(index, event)
                         }
                     >
-                        <DeleteIcon/>
+                        <DeleteIcon />
                     </IconButton>
                 )}
             </ListItem>
@@ -646,14 +670,14 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                             color={questionID === question.questionID ? 'primary' : 'action'}
                         />
                     </ListItemIcon>
-                    <ListItemText secondary={question.name}/>
+                    <ListItemText secondary={question.name} />
                     {hovered === question.questionID && (
                         <IconButton
                             size='small'
                             edge='end'
                             onClick={() => this.switchQuestion(index)}
                         >
-                            <EditIcon/>
+                            <EditIcon />
                         </IconButton>
                     )}
                     {hovered === question.questionID && (
@@ -662,7 +686,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                             edge='end'
                             onClick={() => this.setState({deleteDiagOpen: true, toEdit: index})}
                         >
-                            <DeleteIcon/>
+                            <DeleteIcon />
                         </IconButton>
                     )}
                 </ListItem>
@@ -740,7 +764,11 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
         let confirmation: boolean = confirm('Are you sure you want to delete this set?');
         const set: QuestionSet = this.props.sets[index];
         if (confirmation)
-            Http.deleteSet(set.setID, () => this.deleteSetSuccess(index), result => alert(result.error));
+            Http.deleteSet(
+                set.setID,
+                () => this.deleteSetSuccess(index),
+                result => alert(result.error),
+            );
     };
 
     handleAnswerChange = (answer: 'true' | 'false') => {
@@ -752,7 +780,6 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
             this.setState({popopen: true, anchorEl: event.currentTarget});
         }
     };
-
 
     submitQuestion = () => {
         if (this.state.editMode) {
@@ -769,11 +796,12 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                         () => this.props.showSnackBar('error', 'Error editing question', 2000),
                         {
                             'type': 'word input',
-                            'explanation': this.state.questionExpl,
+                            'explanation': `${this.state.questionExpl}\n${this.constructAnswerForExplanation()}`,
                             'correct_answer': this.state.questionAnsr.split('~~').map(answer => Number.parseInt(answer)),
                             'types': [this.state.wordInputMode === 'word' ? '10' : '11'],
                             'prompts': [this.state.questionSelectableString],
                         }
+
                     ),
                 () => this.props.showSnackBar('error', 'Error editing question', 2000),
             );
@@ -788,7 +816,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                 () => this.props.showSnackBar('error', 'Error creating question', 2000),
                 {
                     'type': 'word input',
-                    'explanation': this.state.questionExpl,
+                    'explanation': `${this.state.questionExpl}\n${this.constructAnswerForExplanation()}`,
                     'correct_answer': this.state.questionAnsr.split('~~').map(answer => Number.parseInt(answer)),
                     'types': [this.state.wordInputMode === 'word' ? '10' : '11'],
                     'prompts': [this.state.questionSelectableString],
@@ -809,7 +837,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
             question.string = this.state.questionText;
             question.config = {
                 'type': 'word input',
-                'explanation': this.state.questionExpl,
+                'explanation': `${this.state.questionExpl}\n${this.constructAnswerForExplanation()}`,
                 'correct_answer': this.state.questionAnsr.split('~~').map(answer => Number.parseInt(answer)),
                 'types': [this.state.wordInputMode === 'word' ? '10' : '11'],
                 'prompts': [this.state.questionSelectableString],
@@ -870,8 +898,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
         const {sets} = this.props;
         let question: Question;
         // Used if the user was presented with a dialog (aka they would have thrown away changes)
-        if (!index)
-            question = sets[selectedS as number].questions[toEdit as number];
+        if (!index) question = sets[selectedS as number].questions[toEdit as number];
         // Used when immediately switching to the next question
         else question = sets[selectedS as number].questions[index];
 
@@ -882,8 +909,9 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                 questionNmeE: false,
                 questionText: question.string,
                 questionTxtE: false,
-                questionAnsr: (question.config.correct_answer as WordInputConfigCorrectAnswer).map(q => String(q)).join('~~'),
-                questionExpl: question.config.explanation,
+                questionAnsr: (question.config.correct_answer as WordInputConfigCorrectAnswer)
+                    .map(q => String(q))
+                    .join('~~'),
                 questionExpE: false,
                 editMode: true,
                 changed: false,
@@ -891,7 +919,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                 questionAnsrE: false,
                 questionSelectableString: question.config.prompts[0],
                 wordInputMode: question.config.types[0] === '10' ? 'word' : 'sentence'
-            });
+            }, ()=>this.setState({questionExpl: question.config.explanation.replace(`\n${this.constructAnswerForExplanation()}`, '')}));
         }
     };
 
@@ -971,6 +999,12 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                 })}
             </Select>
         );
+    };
+
+    constructAnswerForExplanation = () => {
+        const selector = this.state.wordInputMode === 'word' ? '<wordinput>' : '<sentenceinput>';
+        const {questionAnsr, questionSelectableString} = this.state;
+        return `The answer is...\n${selector}${questionSelectableString}~~${questionAnsr}${selector}`;
     };
 }
 
