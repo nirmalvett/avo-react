@@ -4,7 +4,7 @@ import {type} from 'os';
 
 export interface SelectableProps {
     children: string;
-    color: {'200': string; '500': string};
+    color: { '200': string; '500': string };
     add: (position: number) => void;
     remove: (position: number) => void;
     type: string;
@@ -32,17 +32,33 @@ class Selectable extends React.PureComponent<SelectableProps, SelectableState> {
     }
 
     render() {
+        if (this.props.children.includes('\n')) {
+            if (this.props.children === '\n')
+                return <br/>;
+            return (
+                <span>
+                    {this.props.children.startsWith('\n') && <div><br/><br/></div>}
+                    {this.selectable()}
+                    {this.props.children.endsWith('\n') && <div><br/><br/></div>}
+                </span>
+            );
+        }
+
+        return this.selectable()
+    }
+
+    selectable = () => {
         return (
             <React.Fragment>
                 <span
-                    style={{...this.state.currentStyle, fontSize: '2.5em'}}
+                    style={{...this.state.currentStyle, fontSize: '1em'}}
                     onMouseEnter={this.hover}
                     onMouseLeave={this.unhover}
                     onClick={this.handleClick}
                 >
                     {this.props.children}
                 </span>
-                <span style={{fontSize: '2.5em'}}> </span>
+                <span style={{fontSize: '1em'}}> </span>
             </React.Fragment>
         );
     }
