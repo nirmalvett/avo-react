@@ -571,7 +571,7 @@ class Test(db.Model):
 
     TEST = db.Column(db.Integer, primary_key=True, autoincrement=True)
     SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'))
-    name = db.Column(db.String(45), nullable=False)
+    name = db.Column(db.String(200), nullable=False)
     open_time = db.Column(db.DateTime)
     deadline = db.Column(db.DateTime, nullable=False)
     timer = db.Column(db.Integer, nullable=False, default=15)
