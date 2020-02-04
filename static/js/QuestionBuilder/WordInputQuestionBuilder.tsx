@@ -256,7 +256,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                         onChange={e =>
                                             this.setState({
                                                 changed: true,
-                                                questionText: convertToPlain(e.target.value),
+                                                questionText: e.target.value,
                                             })
                                         }
                                     />
@@ -308,7 +308,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                         onChange={e =>
                                             this.setState({
                                                 changed: true,
-                                                questionSelectableString: convertToPlain(e.target.value),
+                                                questionSelectableString: e.target.value,
                                                 questionAnsr: '',
                                                 questionAnsrE: !this.state.questionAnsrE
                                             }, ()=>this.setState({questionAnsrE: !this.state.questionAnsrE})) // toggling so the saved answer clears
@@ -1025,9 +1025,4 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
 
 function isWordInput(question: Question): boolean {
     return Boolean(question.config && question.config.type && question.config.type == 'word input');
-}
-
-function convertToPlain(rtf: string) {
-    rtf = rtf.replace(/\\par[d]?/g, "");
-    return rtf.replace(/\{\*?\\[^{}]+}|[{}]|\\\n?[A-Za-z]+\n?(?:-?\d+)?[ ]?/g, "").trim();
 }
