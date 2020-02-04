@@ -310,7 +310,6 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                                 changed: true,
                                                 questionSelectableString: e.target.value,
                                                 questionAnsr: '',
-                                                questionAnsrE: !this.state.questionAnsrE
                                             }) // toggling so the saved answer clears
                                         }
                                     />
