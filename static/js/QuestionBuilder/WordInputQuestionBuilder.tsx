@@ -718,6 +718,13 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                     <Typography>Save the explanation</Typography>
                 </li>,
             );
+        if (this.state.questionSelectableStringE) {
+            list.push(
+                <li>
+                    <Typography>Save the text you select the answer from</Typography>
+                </li>,
+            );
+        }
         if (this.state.questionAnsr === '')
             list.push(
                 <li>
