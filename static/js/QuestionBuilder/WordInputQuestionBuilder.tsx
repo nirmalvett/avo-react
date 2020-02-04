@@ -311,7 +311,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                                 questionSelectableString: e.target.value,
                                                 questionAnsr: '',
                                                 questionAnsrE: !this.state.questionAnsrE
-                                            }, ()=>this.setState({questionAnsrE: !this.state.questionAnsrE})) // toggling so the saved answer clears
+                                            }) // toggling so the saved answer clears
                                         }
                                     />
                                     <IconButton
