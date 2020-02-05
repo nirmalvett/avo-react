@@ -21,9 +21,9 @@ def register(first_name: str, last_name: str, email: str, password: str):
     Registers a new user account
     :return: Confirmation to the client
     """
-    if not re.fullmatch(r'[a-zA-Z]{2,}\d*@uwo\.ca+', email):
+    if not re.fullmatch(r'[^@ \n]+@[^@ \n]+\.[^@ \n]+', email):
         # Checks if the email is a UWO if not return an error JSON
-        return jsonify(error='Invalid uwo email')
+        return jsonify(error='Invalid email')
     if len(password) < 8:
         # If the password is les then 8 return error JSON
         return jsonify(error='Password too short')

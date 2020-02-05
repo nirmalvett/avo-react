@@ -134,7 +134,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
 
     renderSignIn() {
         const s = this.state;
-        let usernameError = s.username.length > 0 && !/^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.username);
+        let usernameError = s.username.length > 0 && !/[^@ \n]+@[^@ \n]+\.[^@ \n]+$/.test(s.username);
         let passwordError = s.password.length > 0 && s.password.length < 8;
         return (
             <Fragment>
@@ -180,7 +180,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
 
     renderRegister() {
         const s = this.state;
-        const emailError = s.rEmail.length > 0 && !/^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.rEmail);
+        const emailError = s.rEmail.length > 0 && !/[^@ \n]+@[^@ \n]+\.[^@ \n]+$/.test(s.rEmail);
         const rPw1Error = s.rPassword1.length > 0 && s.rPassword1.length < 8;
         const rPw2Error = s.rPassword2.length > 0 && s.rPassword2 !== s.rPassword1;
         return (
@@ -206,7 +206,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                     <TextField
                         margin='normal'
                         style={style}
-                        label='UWO Email'
+                        label='Email'
                         onChange={this.updateEmail}
                         value={s.rEmail}
                         error={emailError}
@@ -365,7 +365,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
         const s = this.state;
 
         const isValid =
-            // /^[a-zA-Z]{2,}\d*@uwo\.ca$/.test(s.rEmail) &&
+            // /[^@ \n]+@[^@ \n]+\.[^@ \n]+$/.test(s.rEmail) &&
             s.rPassword1.length >= 8 &&
             s.rPassword2 === s.rPassword1;
         if (isValid && s.hasAgreedToTOS) return true;
