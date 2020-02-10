@@ -47,7 +47,7 @@ class Concept(db.Model):
     COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'), nullable=False)
     name = db.Column(db.String(45), nullable=False)
     concept_type = db.Column(db.Integer, nullable=False, default=0)
-    lesson_content = db.Column(db.String(2000), nullable=False)
+    lesson_content = db.Column(db.String(5000), nullable=False)
 
     CONCEPT_QUESTION_RELATION = db.relationship('ConceptQuestion', back_populates='CONCEPT_RELATION')
     CONCEPT_PARENT_RELATION = db.relationship(
