@@ -35,8 +35,6 @@ def get_inquires(inquiry_type: int, question_id: int):
     subscribed_list = []
     for i in user_inquiry_list:
         subscribed_list.append(i.INQUIRY)
-    print("SUBSCRIBED LIST")
-    print(subscribed_list)
     if inquiry_type == 0:
         # Question type
         inquiry_list_subscribed = Inquiry.query.filter((Inquiry.QUESTION == question_id) &
@@ -45,10 +43,8 @@ def get_inquires(inquiry_type: int, question_id: int):
                                                          Inquiry.INQUIRY.notin_(subscribed_list)).all()
     if inquiry_type == 1:
         # Concept type
-        print("THIS QUERY")
         inquiry_list_subscribed = Inquiry.query.filter((Inquiry.CONCEPT == question_id) &
                                                        Inquiry.INQUIRY.in_(subscribed_list)).all()
-        print("AND THIS ONE")
         inquiry_list_unsubscribed = Inquiry.query.filter((Inquiry.CONCEPT == question_id) &
                                                          Inquiry.INQUIRY.notin_(subscribed_list)).all()
     if inquiry_list_subscribed is None and inquiry_list_unsubscribed is None:
