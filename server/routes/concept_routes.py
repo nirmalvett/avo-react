@@ -18,18 +18,19 @@ ConceptRoutes = Blueprint('ConceptRoutes', __name__)
 
 @ConceptRoutes.route("/addConcept", methods=['POST'])
 @teacher_only
-@validate(courseID=int, name=str, lesson=str)
-def add_concept(course_id: int, name: str, lesson: str):
+@validate(courseID=int, name=str, concept_type=int, lesson=str)
+def add_concept(course_id: int, name: str, concept_type: int, lesson: str):
     """
     Add a Concept to the database
     :param course_id: The ID of the course to add the concept to
     :param name: Name of the concept
+    :param concept_type: relation value of concept
     :param lesson: the lesson string of the concept
     :return: Confirmation the concept was added into the database
     """
     if not able_edit_course(course_id):
         return jsonify(error="User does not have the ability to edit the course")
-    new_concept = Concept(course_id, name, lesson)
+    new_concept = Concept(course_id, name, concept_type, lesson)
     db.session.add(new_concept)
     db.session.commit()
     return jsonify(conceptID=new_concept.CONCEPT)
@@ -37,12 +38,13 @@ def add_concept(course_id: int, name: str, lesson: str):
 
 @ConceptRoutes.route("/editConcept", methods=['POST'])
 @teacher_only
-@validate(conceptID=int, name=str, lesson=str)
-def edit_concept(concept_id: int, name: str, lesson: str):
+@validate(conceptID=int, name=str, concept_type=int, lesson=str)
+def edit_concept(concept_id: int, name: str, concept_type: int, lesson: str):
     """
     Edit an already existing Concept
     :param concept_id: The Concept to update
     :param name: The new Name of the concept
+    :param concept_type: new relation value of concept
     :param lesson: The new Lesson string of the concept
     :return: Confirmation that the concept was updated
     """
@@ -55,6 +57,7 @@ def edit_concept(concept_id: int, name: str, lesson: str):
         return jsonify(error="User Not Able To Edit Course")
     # Update Concept Data and commit to database and return
     concept.name = name
+    concept.concept_type = concept_type
     concept.lesson_content = lesson
     db.session.commit()
     return jsonify({})
@@ -127,8 +130,8 @@ def max_mastery(concept_id: int):
 
 @ConceptRoutes.route("/setConceptRelation", methods=['POST'])
 @teacher_only
-@validate(parentID=int, childID=int, weight=int)
-def set_concept_relation(parent_id: int, child_id: int, weight: int):
+@validate(parentID=int, childID=int, concept_type=int, weight=int)
+def set_concept_relation(parent_id: int, child_id: int, concept_type: int, weight: int):
     if not able_edit_concept(parent_id):
         return jsonify(error="No permission to edit course")
     concept_relation: ConceptRelation = ConceptRelation.query.filter(
@@ -137,7 +140,7 @@ def set_concept_relation(parent_id: int, child_id: int, weight: int):
     ).first()
     if weight != 0:  # if the relation should exist
         if concept_relation is None:  # if it doesn't currently exist
-            db.session.add(ConceptRelation(parent_id, child_id, weight))
+            db.session.add(ConceptRelation(parent_id, child_id, concept_type, weight))
             db.session.commit()
             return jsonify(message='created relation')
         elif weight != concept_relation.weight:  # if it exists, and needs to be changed
