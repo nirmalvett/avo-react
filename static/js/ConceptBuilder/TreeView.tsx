@@ -48,7 +48,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                 id='cy'
                 style={{
                     flex: 1,
-                    height: '83.65vh',
+                    height: '100%',
                     borderRadius: '0px 28px 28px 0px',
                     background: 'rgba(0,0,0,0.075)',
                     overflow: 'hidden',
@@ -177,7 +177,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
         nodesToSelect.push(...this.getChildNodes(tagID).map(Concept => Concept.conceptID));
 
         (window as any).cy.animate({
-            fit : { eles : (window as any).cy.$(...nodesToSelect.map(number => `#node-${number}-end`)), padding : 250 },
+            fit : { eles : (window as any).cy.$(...nodesToSelect.map(number => `#node-${number}-end`)), padding : 260 },
             duration : 500,
         });
 
