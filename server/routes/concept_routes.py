@@ -208,10 +208,11 @@ def get_concept_graph(course_id: int):
                                              (ConceptRelation.CHILD.in_(o.CONCEPT for o in concept_list))).all()
 
     # For each concept add it to the return list
-    concepts = [{"conceptID": concept.CONCEPT, "name": concept.name, "lesson": concept.lesson_content}
-                for concept in concept_list]
+    concepts = [{"conceptID": concept.CONCEPT, "name": concept.name, "type": concept.concept_type,
+                 "lesson": concept.lesson_content} for concept in concept_list]
     # For each edge add it to the return list
-    edges = [{"parent": edge.PARENT, "child": edge.CHILD, "weight": edge.weight} for edge in edge_list]
+    edges = [{"parent": edge.PARENT, "child": edge.CHILD, "type": edge.concept_type, "weight": edge.weight}
+             for edge in edge_list]
     return jsonify(concepts=concepts, edges=edges)
 
 
