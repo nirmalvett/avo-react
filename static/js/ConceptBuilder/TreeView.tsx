@@ -8,12 +8,14 @@ interface Concept {
     conceptID: number;
     name: string;
     lesson: string;
+    type: number;
 }
 
 interface Edge {
     child: number;
     parent: number;
     weight: number;
+    type: number;
 }
 
 interface TreeViewProps {
@@ -35,11 +37,15 @@ interface TreeViewState {
 }
 
 export default class TreeView extends Component<TreeViewProps, TreeViewState> {
+    lineTypes: string[];
+    lineWidths: string[];
     constructor(props: TreeViewProps) {
         super(props);
         this.state = {
             selectedConceptID: -1,
         };
+        this.lineTypes = ['solid', 'dashed', 'solid'];
+        this.lineWidths = ['4px', '4px', '2px'];
     }
 
     render() {
@@ -83,7 +89,12 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                     source: 'node-' + Edge.parent + '-end',
                     target: 'node-' + Edge.child + '-end',
                     id: 'between-' + Edge.parent + '-' + Edge.child,
+                    type: Edge.type
                 },
+                style: {
+                    'line-style' : this.lineTypes[Edge.type],
+                    'width' : this.lineWidths[Edge.type]
+                }
             });
         });
 
@@ -115,12 +126,10 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                 {
                     selector: 'edge',
                     style: {
-                        width: 4,
                         'target-arrow-shape': 'triangle',
                         'line-color': 'grey',
                         'target-arrow-color': 'grey',
                         'curve-style': 'bezier',
-                        'line-style' : 'solid'
                     },
                 },
             ],
@@ -161,7 +170,12 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                     source: 'node-' + Edge.parent + '-end',
                     target: 'node-' + Edge.child + '-end',
                     id: 'between-' + Edge.parent + '-' + Edge.child,
+                    type: Edge.type
                 },
+                style : {
+                    'line-style' : this.lineTypes[Edge.type],
+                    'width' : this.lineWidths[Edge.type]
+                }
             });
         });
         (window as any).cy.json({elements: {nodes, edges}});
@@ -185,7 +199,8 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
             edge.style({
                 'line-color': 'grey',
                 'target-arrow-color': 'grey',
-                'line-style' : 'solid'
+                'line-style' : this.lineTypes[edge.data('type')],
+                'width' : this.lineWidths[edge.data('type')]
             });
         });
         (window as any).cy.nodes().forEach((node: any) => {
@@ -197,7 +212,8 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                     edge.style({
                         'line-color': this.props.theme.color[500],
                         'target-arrow-color': this.props.theme.color[500],
-                        'line-style' : 'dashed'
+                        'line-style' : this.lineTypes[edge.data('type')],
+                        'width' : this.lineWidths[edge.data('type')]
                     });
                 });
             }else{

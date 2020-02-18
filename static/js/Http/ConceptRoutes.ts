@@ -32,10 +32,11 @@ export function setConceptRelation(
     parentID: number,
     childID: number,
     weight: number,
+    concept_type: number,
     success: cb<{}>,
     failure: cb,
 ) {
-    _request('POST', '/setConceptRelation', success, failure, {parentID, childID, weight});
+    _request('POST', '/setConceptRelation', success, failure, {parentID, childID, weight, concept_type});
 }
 
 export function setConceptQuestion(
@@ -64,11 +65,13 @@ export interface GetConceptGraph {
         conceptID: number;
         name: string;
         lesson: string;
+        type: number;
     }[];
     edges: {
         parent: number;
         child: number;
         weight: number;
+        type: number;
     }[];
 }
 
