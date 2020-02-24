@@ -143,7 +143,8 @@ def set_concept_relation(parent_id: int, child_id: int, concept_type: int, weigh
             db.session.add(ConceptRelation(parent_id, child_id, concept_type, weight))
             db.session.commit()
             return jsonify(message='created relation')
-        elif weight != concept_relation.weight:  # if it exists, and needs to be changed
+        elif weight != concept_relation.weight or \
+                concept_type != concept_relation.concept_type:  # if it exists, and needs to be changed
             concept_relation.weight = weight
             concept_relation.concept_type = concept_type
             db.session.commit()
