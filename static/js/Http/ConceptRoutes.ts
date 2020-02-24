@@ -8,10 +8,11 @@ export function addConcept(
     courseID: number,
     name: string,
     lesson: string,
+    concept_type: number,
     success: cb<AddConcept>,
     failure: cb,
 ) {
-    _request('POST', '/addConcept', success, failure, {courseID, name, lesson});
+    _request('POST', '/addConcept', success, failure, {courseID, name, concept_type, lesson});
 }
 
 export function editConcept(

@@ -109,6 +109,7 @@ interface TagViewState {
     showAddNodeModal: boolean;
     showAddRelatedNodeModal: boolean;
     showSearch: boolean;
+    showAddGrouping: boolean;
     isAddingParent: boolean;
     modalNode: WeightedConcept;
     activeTab: number;
@@ -259,6 +260,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             showModal: false,
             showAddNodeModal: false,
             isAddingParent: false,
+            showAddGrouping: false,
             showAddRelatedNodeModal: false,
             showSearch: false,
             modalNode: {} as WeightedConcept,
@@ -301,6 +303,13 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                 onClick: () => {
                     this.setState({showSearch : true});
                 }
+            },
+            {
+                label: 'Add Group',
+                disabled: !this.state.selectedClass.canEdit,
+                onClick: () => {
+                    this.setState({showAddGrouping: true});
+                },
             }
         ];
         if (!!this.state.selectedConcept.name) {
@@ -875,13 +884,13 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         this.setState({relationType: newType});
                                     }}
                                 >
-                                    <MenuItem key={'relation-type-1'} value={'0'}>
+                                    <MenuItem key={'relation-type-0-add'} value={'0'}>
                                         {this.relationTypes[0]}
                                     </MenuItem>
-                                    <MenuItem key={'relation-type-1'} value={'1'}>
+                                    <MenuItem key={'relation-type-1-add'} value={'1'}>
                                         {this.relationTypes[1]}
                                     </MenuItem>
-                                    <MenuItem key={'relation-type-2'} value={'2'}>
+                                    <MenuItem key={'relation-type-2-add'} value={'2'}>
                                         {this.relationTypes[2]}
                                     </MenuItem>
                                 </Select>
@@ -1158,13 +1167,13 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 this.setState({relationType: newType});
                                             }}
                                         >
-                                            <MenuItem key={'relation-type-1'} value={'0'}>
+                                            <MenuItem key={'relation-type-0-addrel'} value={'0'}>
                                                 {this.relationTypes[0]}
                                             </MenuItem>
-                                            <MenuItem key={'relation-type-1'} value={'1'}>
+                                            <MenuItem key={'relation-type-1-addrel'} value={'1'}>
                                                 {this.relationTypes[1]}
                                             </MenuItem>
-                                            <MenuItem key={'relation-type-2'} value={'2'}>
+                                            <MenuItem key={'relation-type-2-addrel'} value={'2'}>
                                                 {this.relationTypes[2]}
                                             </MenuItem>
                                         </Select>
@@ -1296,13 +1305,13 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                     this.setState({relationType: newType});
                                                 }}
                                             >
-                                                <MenuItem key={'relation-type-1'} value={'0'}>
+                                                <MenuItem key={'relation-type-0-searchNode'} value={'0'}>
                                                     {this.relationTypes[0]}
                                                 </MenuItem>
-                                                <MenuItem key={'relation-type-1'} value={'1'}>
+                                                <MenuItem key={'relation-type-1-searchNode'} value={'1'}>
                                                     {this.relationTypes[1]}
                                                 </MenuItem>
-                                                <MenuItem key={'relation-type-2'} value={'2'}>
+                                                <MenuItem key={'relation-type-2-searchNode'} value={'2'}>
                                                     {this.relationTypes[2]}
                                                 </MenuItem>
                                             </Select>
@@ -1318,13 +1327,59 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                         </Paper>
                     </Modal>
                 )}
+                {this.state.showAddGrouping && (
+                    <Modal
+                        open={this.state.showAddGrouping}
+                        aria-labelledby='modal-title'
+                        aria-describedby='modal-description'
+                        style={{
+                            width: '40%',
+                            top: '50px',
+                            left: '30%',
+                            right: '30%',
+                            position: 'absolute',
+                        }}
+                    >
+                        <Paper className='avo-card'>
+                            <IconButton
+                                style={{
+                                    position: 'absolute' as 'absolute',
+                                    right: '9px',
+                                    top: '9px',
+                                    zIndex: 100,
+                                }}
+                                onClick={() => this.setState({ showAddGrouping : false })}
+                            >
+                                <Close/>
+                            </IconButton>
+                            <Typography variant={'h5'} id='modal-title'>
+                                Add New Grouping
+                            </Typography>
+                            <br/>
+                            <Typography variant={'body1'} id='modal-description'>
+                                <FormControl>
+                                    <Input
+                                        id='set-new__node-name'
+                                        ref={this.newConceptNameRef}
+                                        placeholder='New Group Name'
+                                    />
+                                </FormControl>
+                                <br/>
+                                <br/>
+                                <Button onClick={this.createNewConcept.bind(this)}>
+                                    Add Grouping
+                                </Button>
+                            </Typography>
+                        </Paper>
+                    </Modal>
+                )}
             </div>
         );
     }
 
     checkIfConceptCreationParametersValid() {
         const name: string = (document as any).getElementById('set-new__node-name').value;
-        const lesson: string = (document as any).getElementById('set-new__node-lesson').value;
+        // const lesson: string = (document as any).getElementById('set-new__node-lesson').value;
         let errorString: string = '';
         if (name.length == 0) errorString += 'Please Specify a Name for the Concept \n';
         if (!!errorString.length) alert(errorString);
@@ -1397,7 +1452,10 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                 const edges: Edge[] = [...this.state.edges]
                     .map(Edge => {
                         if (Edge.parent == newedge.parent && Edge.child == newedge.child)
+                        {
                             Edge.weight = newedge.weight;
+                            Edge.type = newedge.type;
+                        }
                         return Edge;
                     })
                     .filter(Edge => Edge.weight != 0);
@@ -1451,6 +1509,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             showModal: true,
             modalNode: node,
             relationType: node.type,
+            relationWeight: node.weight,
             isAddingParent: isAddingParent,
         });
     }
@@ -1545,12 +1604,13 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
     createNewConcept() {
         const _this: TagView = this;
         const name: string = (document as any).getElementById('set-new__node-name').value;
-        const lesson: string = (document as any).getElementById('set-new__node-lesson').value;
+        const lesson: string = this.state.showAddGrouping ? '' : (document as any).getElementById('set-new__node-lesson').value;
         if (this.checkIfConceptCreationParametersValid()) return;
         Http.addConcept(
             this.state.selectedClass.courseID,
             name,
             lesson,
+            this.state.showAddGrouping ? 1 : 0,
             res => {
                 const newconcept: Concept = {conceptID: res.conceptID, name: name, lesson: lesson, type: 0};
                 const concepts: Concept[] = [..._this.state.concepts];
@@ -1559,6 +1619,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                 _this.setState(
                     {
                         showAddNodeModal: false,
+                        showAddGrouping: false,
                         concepts: concepts,
                         edges: edges,
                     },
@@ -1585,6 +1646,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             this.state.selectedClass.courseID,
             name,
             lesson,
+            0,
             res => {
                 console.log(res);
                 const newconcept: Concept = {

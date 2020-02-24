@@ -44,8 +44,8 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
         this.state = {
             selectedConceptID: -1,
         };
-        this.lineTypes = ['solid', 'dashed', 'solid'];
-        this.lineWidths = ['4px', '4px', '2px'];
+        this.lineTypes = ['solid', 'solid', 'dashed'];
+        this.lineWidths = ['8px', '4px', '2px'];
     }
 
     render() {
@@ -74,6 +74,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                 data: {
                     completion : !!Concept.lesson.length ? 1 : 0,
                     id: 'node-' + Concept.conceptID + '-end', // the + '-end' is for later on filtering
+                    type: Concept.type,
                 },
                 style: {
                     content: Concept.name.length > 28
@@ -91,10 +92,6 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                     id: 'between-' + Edge.parent + '-' + Edge.child,
                     type: Edge.type
                 },
-                style: {
-                    'line-style' : this.lineTypes[Edge.type],
-                    'width' : this.lineWidths[Edge.type]
-                }
             });
         });
 
@@ -109,7 +106,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
             },
             style: [
                 {
-                    selector: 'node',
+                    selector: 'node[type = 0]',
                     style: {
                         'background-image': (data: any) => 'url(data:image/svg+xml;base64,' + this.getConceptIcon('grey', 150, data.data('completion')) + ')',
                         'width': '150px',
@@ -124,12 +121,50 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                     } as any,
                 },
                 {
-                    selector: 'edge',
+                    selector: 'node[type = 1]',
+                    style: {
+                        'background-color': this.props.theme.color[200],
+                        'width': '150px',
+                        'height': '150px',
+                        'text-valign': 'center',
+                        'text-halign': 'right',
+                        'font-size': 30,
+                        'color': this.props.theme.theme == 'light' ? 'black' : 'white',
+                        'background-opacity': 1,
+                        'background-clip': 'node',
+                    } as any,
+                },
+                {
+                    selector: 'edge[type = 0]',
                     style: {
                         'target-arrow-shape': 'triangle',
                         'line-color': 'grey',
                         'target-arrow-color': 'grey',
                         'curve-style': 'bezier',
+                        'line-style' : this.lineTypes[0],
+                        'width' : this.lineWidths[0]
+                    },
+                },
+                {
+                    selector: 'edge[type = 1]',
+                    style: {
+                        'target-arrow-shape': 'triangle',
+                        'line-color': 'grey',
+                        'target-arrow-color': 'grey',
+                        'curve-style': 'bezier',
+                        'line-style' : this.lineTypes[1],
+                        'width' : this.lineWidths[1]
+                    },
+                },
+                {
+                    selector: 'edge[type = 2]',
+                    style: {
+                        'target-arrow-shape': 'triangle',
+                        'line-color': 'grey',
+                        'target-arrow-color': 'grey',
+                        'curve-style': 'bezier',
+                        'line-style' : this.lineTypes[2],
+                        'width' : this.lineWidths[2]
                     },
                 },
             ],
@@ -172,10 +207,6 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                     id: 'between-' + Edge.parent + '-' + Edge.child,
                     type: Edge.type
                 },
-                style : {
-                    'line-style' : this.lineTypes[Edge.type],
-                    'width' : this.lineWidths[Edge.type]
-                }
             });
         });
         (window as any).cy.json({elements: {nodes, edges}});
