@@ -12,7 +12,7 @@ interface PreferencesProps {
     showSnackBar: ShowSnackBar;
 }
 
-export default class Preferences extends PureComponent<PreferencesProps> {
+export default class MyAccount extends PureComponent<PreferencesProps> {
     render() {
         return (
             <Paper style={{margin: '20px 15%', padding: '10px', flex: 1, overflowY: 'auto'}}>

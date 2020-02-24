@@ -9,7 +9,7 @@ const TakeTest = React.lazy(() => import('../MyClasses/TakeTest'));
 const MyClasses = React.lazy(() => import('../MyClasses/MyClasses'));
 const CreateTest = React.lazy(() => import('../ManageClasses/CreateTest/CreateTest'));
 const AnswerInquiries = React.lazy(() => import('../InquiryAnswering/AnswerInquiries'));
-const Preferences = React.lazy(() => import('../Preferences/Preferences'));
+const MyAccount = React.lazy(() => import('../MyAccount/MyAccount'));
 const ManageClasses = React.lazy(() => import('../ManageClasses/ManageClasses'));
 const QuestionBuilderDocs = React.lazy(() => import('../QuestionBuilder/QuestionBuilderDocs'));
 const ExportTools = React.lazy(() => import('../ExportTools/ExportTools'));
@@ -290,9 +290,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
             return <NotifyClass/>;
         } else if (section.name === 'Post Test') {
             return <PostTest takes={section.takesID}/>;
-        } else if (section.name === 'Preferences') {
+        } else if (section.name === 'My Account') {
             return (
-                <Preferences
+                <MyAccount
                     color={color}
                     theme={theme}
                     setColor={this.props.setColor}
