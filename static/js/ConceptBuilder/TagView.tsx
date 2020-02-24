@@ -48,11 +48,13 @@ import {Course} from '../Http/types';
 import SwipeableViews from 'react-swipeable-views';
 import {Content} from '../HelperFunctions/Content';
 import ImageUploader from "../ImageUploader/ImageUploader";
+import { height } from '@material-ui/system';
 
 interface Concept {
     conceptID: number;
     name: string;
     lesson: string;
+    type: number;
 }
 
 interface WeightedConcept {
@@ -60,12 +62,14 @@ interface WeightedConcept {
     name: string;
     lesson: string;
     weight: number;
+    type: number;
 }
 
 interface Edge {
     child: number;
     parent: number;
     weight: number;
+    type: number;
 }
 
 interface TagViewProps {
@@ -113,6 +117,7 @@ interface TagViewState {
     isSearching: boolean;
     nodesLoaded: boolean;
     relationWeight: number;
+    relationType: number;
 }
 
 interface TabPanelProps {
@@ -225,6 +230,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
     newConceptNameRef: React.RefObject<{}>;
     newConceptLessonRef: React.RefObject<{}>;
     newRelationWeightRef: React.RefObject<{}>;
+    relationTypes: string[];
 
     constructor(props: TagViewProps) {
         super(props);
@@ -262,11 +268,17 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             selectedSearchItem: {} as Concept,
             isSearching: false,
             relationWeight: 1,
+            relationType: 0,
         };
         this.chartRef = React.createRef() as { current: TreeView };
         this.newConceptNameRef = React.createRef();
         this.newConceptLessonRef = React.createRef();
         this.newRelationWeightRef = React.createRef();
+        this.relationTypes = [
+            'Direct Relationship', 
+            'Order Inconsequent Relationship', 
+            'Indirect Relationship'
+        ];
     }
 
     componentDidMount() {
@@ -329,9 +341,9 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     flex: 1,
                     display: 'flex',
                     flexDirection: 'column',
-                    margin: 25,
+                    margin: 0,
                     overflowY: 'auto',
-                    padding: 1
+                    padding: 0
                 }}
             >
                 {this.state.loadingClasses && <div className='avo-loading-icon'/>}
@@ -354,7 +366,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                 )}
                 {!this.state.showImages && this.state.isEditingLesson && (
                     <Fade in={this.state.isEditingLesson}>
-                        <Card
+                        <div
                             style={{
                                 width: '100%',
                                 margin: 0,
@@ -457,11 +469,11 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                     </Grid>
                                 </Grid>
                             </div>
-                        </Card>
+                        </div> 
                     </Fade>
                 )}
                 {!this.state.loadingClasses && !this.state.isEditingLesson && (
-                    <Card
+                    <div
                         style={{
                             width: '100%',
                             margin: 0,
@@ -472,25 +484,34 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                             overflowY: 'auto',
                         }}
                     >
-                        <Grid container spacing={8} style={{height: '-webkit-fill-available'}}>
-                            <Grid item md={8}>
-                                {this.state.nodesLoaded && (
-                                    <TreeView
-                                        ref={this.chartRef}
-                                        theme={this.props.theme}
-                                        concepts={this.state.concepts}
-                                        edges={this.state.edges}
-                                        setTagIndex={this.setTagIndex.bind(this)}
-                                    />
-                                )}
-                            </Grid>
-                            <Grid item md={4}>
-                                <div
+                        <div style={{height: '100%', position: 'relative'}}>
+                            {this.state.nodesLoaded && (
+                                <TreeView
+                                    ref={this.chartRef}
+                                    theme={this.props.theme}
+                                    concepts={this.state.concepts}
+                                    edges={this.state.edges}
+                                    setTagIndex={this.setTagIndex.bind(this)}
+                                />
+                            )}
+                            <Card 
+                                className="avo-card avo-generic__low-shadow" 
+                                style={{ 
+                                    position: 'absolute', 
+                                    right : '50px', 
+                                    top : '2vh', 
+                                    width: '20vw', 
+                                    height: '72vh',
+                                    maxHeight: '72vh'
+                                }}
+                            >
+                                <div 
                                     style={{
                                         display: 'flex',
                                         flexDirection: 'row',
                                         position: 'relative',
-                                        height: '-webkit-fill-available',
+                                        height: '85vh',
+                                        width: '20vw' 
                                     }}
                                 >
 
@@ -498,7 +519,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         <AVOPopupMenu options={menuOptions}/>
                                     </div>
                                     <div
-                                        style={{width: '-webkit-fill-available', marginTop: '9px'}}
+                                        style={{width: '20vw', marginTop: '9px'}}
                                     >
                                         <Select
                                             value={this.state.selectedClassName}
@@ -558,7 +579,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                 <br/>
                                                 <List
                                                     component='nav'
-                                                    style={{maxHeight: '60vh', overflowY: 'auto'}}
+                                                    style={{maxHeight: '50vh', overflowY: 'auto'}}
                                                 >
                                                     <ListItem
                                                         button
@@ -762,16 +783,16 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                                             ))}
                                                         </List>
                                                     </Collapse>
-                                                    <IconButton
-                                                        onClick={this.saveConcept.bind(this)}
-                                                        color='primary'
-                                                        aria-label='save'
-                                                        disabled={!this.state.selectedClass.canEdit}
-                                                        style={{position: 'relative', bottom: '9px', float: 'right'}}
-                                                    >
-                                                        <Save/>
-                                                    </IconButton>
                                                 </List>
+                                                <IconButton
+                                                    onClick={this.saveConcept.bind(this)}
+                                                    color='primary'
+                                                    aria-label='save'
+                                                    disabled={!this.state.selectedClass.canEdit}
+                                                    style={{position: 'relative', bottom: '9px', float: 'right'}}
+                                                >
+                                                    <Save/>
+                                                </IconButton>
                                             </>
                                         ) : (
                                             <Typography variant={'body1'} id='modal-description'>
@@ -783,9 +804,9 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         )}
                                     </div>
                                 </div>
-                            </Grid>
-                        </Grid>
-                    </Card>
+                            </Card>
+                        </div>
+                    </div>
                 )}
                 {this.state.showModal && (
                     <Modal
@@ -843,7 +864,30 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                 </Select>
                                 <br/>
                                 <br/>
-                                <Button onClick={this.editRelationWeight.bind(this)}>
+                                Current relation type is: {this.relationTypes[this.state.modalNode.type]}
+                                <br/>
+                                <Select
+                                    value={`${this.state.relationType}`}
+                                    input={<Input name='data' id='select-class'/>}
+                                    onChange={e => {
+                                        const newType: number = parseInt(e.target
+                                            .value as string);
+                                        this.setState({relationType: newType});
+                                    }}
+                                >
+                                    <MenuItem key={'relation-type-1'} value={'0'}>
+                                        {this.relationTypes[0]}
+                                    </MenuItem>
+                                    <MenuItem key={'relation-type-1'} value={'1'}>
+                                        {this.relationTypes[1]}
+                                    </MenuItem>
+                                    <MenuItem key={'relation-type-2'} value={'2'}>
+                                        {this.relationTypes[2]}
+                                    </MenuItem>
+                                </Select>
+                                <br/>
+                                <br/>
+                                <Button onClick={this.editRelation.bind(this)}>
                                     Edit Relation
                                 </Button>
                             </Typography>
@@ -1103,6 +1147,29 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                         </FormControl>
                                         <br/>
                                         <br/>
+                                        Current relation type is: {this.relationTypes[this.state.modalNode.type]}
+                                        <br/>
+                                        <Select
+                                            value={`${this.state.relationType}`}
+                                            input={<Input name='data' id='select-class'/>}
+                                            onChange={e => {
+                                                const newType: number = parseInt(e.target
+                                                    .value as string);
+                                                this.setState({relationType: newType});
+                                            }}
+                                        >
+                                            <MenuItem key={'relation-type-1'} value={'0'}>
+                                                {this.relationTypes[0]}
+                                            </MenuItem>
+                                            <MenuItem key={'relation-type-1'} value={'1'}>
+                                                {this.relationTypes[1]}
+                                            </MenuItem>
+                                            <MenuItem key={'relation-type-2'} value={'2'}>
+                                                {this.relationTypes[2]}
+                                            </MenuItem>
+                                        </Select>
+                                        <br/>
+                                        <br/>
                                         <Button onClick={this.createConceptWithRelation.bind(this)}>
                                             Add Related Concept
                                         </Button>
@@ -1218,6 +1285,29 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                             </Select>
                                             <br/>
                                             <br/>
+                                            Current relation type is: {this.relationTypes[this.state.modalNode.type]}
+                                            <br/>
+                                            <Select
+                                                value={`${this.state.relationType}`}
+                                                input={<Input name='data' id='select-class'/>}
+                                                onChange={e => {
+                                                    const newType: number = parseInt(e.target
+                                                        .value as string);
+                                                    this.setState({relationType: newType});
+                                                }}
+                                            >
+                                                <MenuItem key={'relation-type-1'} value={'0'}>
+                                                    {this.relationTypes[0]}
+                                                </MenuItem>
+                                                <MenuItem key={'relation-type-1'} value={'1'}>
+                                                    {this.relationTypes[1]}
+                                                </MenuItem>
+                                                <MenuItem key={'relation-type-2'} value={'2'}>
+                                                    {this.relationTypes[2]}
+                                                </MenuItem>
+                                            </Select>
+                                            <br/>
+                                            <br/>
                                             <Button onClick={this.setRelation.bind(this)}>
                                                 Add Relation
                                             </Button>
@@ -1251,11 +1341,13 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             child: this.state.isAddingParent
                 ? this.state.selectedConcept.conceptID
                 : this.state.selectedSearchItem.conceptID,
+            type: this.state.relationType
         };
         Http.setConceptRelation(
             newedge.parent,
             newedge.child,
             newedge.weight,
+            newedge.type,
             res => {
                 console.log(res);
                 const concepts: Concept[] = [...this.state.concepts];
@@ -1283,7 +1375,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         );
     }
 
-    editRelationWeight() {
+    editRelation() {
         const newedge: Edge = {
             weight: this.state.relationWeight,
             parent: this.state.isAddingParent
@@ -1292,11 +1384,13 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             child: this.state.isAddingParent
                 ? this.state.selectedConcept.conceptID
                 : this.state.modalNode.conceptID,
+            type: this.state.relationType
         };
         Http.setConceptRelation(
             newedge.parent,
             newedge.child,
             newedge.weight,
+            newedge.type,
             res => {
                 console.log(res);
                 const concepts: Concept[] = [...this.state.concepts];
@@ -1313,6 +1407,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                         concepts: concepts,
                         edges: edges,
                         relationWeight: 1,
+                        relationType: 0,
                         modalNode: {} as WeightedConcept,
                     },
                     () => {
@@ -1355,6 +1450,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         this.setState({
             showModal: true,
             modalNode: node,
+            relationType: node.type,
             isAddingParent: isAddingParent,
         });
     }
@@ -1456,7 +1552,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             name,
             lesson,
             res => {
-                const newconcept: Concept = {conceptID: res.conceptID, name: name, lesson: lesson};
+                const newconcept: Concept = {conceptID: res.conceptID, name: name, lesson: lesson, type: 0};
                 const concepts: Concept[] = [..._this.state.concepts];
                 const edges: Edge[] = [..._this.state.edges];
                 concepts.push(newconcept);
@@ -1495,6 +1591,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     conceptID: res.conceptID,
                     name: name,
                     lesson: lesson,
+                    type: 0
                 };
                 const newedge: Edge = {
                     weight: weight,
@@ -1504,11 +1601,13 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                     child: isAddingParent
                         ? _this.state.selectedConcept.conceptID
                         : newconcept.conceptID,
+                    type: _this.state.relationType
                 };
                 Http.setConceptRelation(
                     newedge.parent,
                     newedge.child,
                     newedge.weight,
+                    newedge.type,
                     res => {
                         console.log(res);
                         const concepts: Concept[] = [..._this.state.concepts];
