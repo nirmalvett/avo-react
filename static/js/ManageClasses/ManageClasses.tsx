@@ -2,7 +2,7 @@ import React, {Component, Fragment} from 'react';
 import {
     Button,
     Card,
-    CardHeader,
+    CardHeader, Checkbox,
     Collapse,
     Divider,
     FormControl,
@@ -104,6 +104,7 @@ interface ManageClassesState {
     _editTest_openTime: number;
     editTest_confirm_text: string;
     selectedCourseID: number;
+    courseIsOpen: boolean;
 }
 
 export default class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
@@ -126,6 +127,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             testStatsDataSelectIdx: 3,
             testStatsDataQuestionIdx: 0,
             resultsIndexArray: [],
+            courseIsOpen: false,
 
             // Edit Test Settings: Let teacher modify test after it's made
             editTestPopperOpen: false,
@@ -290,10 +292,11 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     if (name !== null && name !== '' && this.state.selectedCourseID) {
                         Http.createCourse(
                             name,
+                            this.state.courseIsOpen,
                             () => {
                                 this.loadClasses('Class Successfully Created!');
                                 this.setState({createClassErrorMessage: ''});
-                                this.props.getCourses()
+                                this.props.getCourses();
                                 closeFunc();
                             },
                             () =>
@@ -330,6 +333,18 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     error={this.state.createClassErrorMessage !== ''}
                 />
                 <br/>
+                <Typography variant='caption'>
+                    <Checkbox
+                        color='primary'
+                        checked={this.state.courseIsOpen}
+                        onClick={() =>
+                            this.setState({
+                                courseIsOpen: !this.state.courseIsOpen,
+                            })
+                        }
+                    />
+                    Check for your course to be open to the public
+                </Typography>
             </AVOModal>
         );
     }
