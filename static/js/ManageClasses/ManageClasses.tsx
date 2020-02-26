@@ -295,7 +295,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                             this.state.courseIsOpen,
                             () => {
                                 this.loadClasses('Class Successfully Created!');
-                                this.setState({createClassErrorMessage: ''});
+                                this.setState({createClassErrorMessage: '', courseIsOpen: false});
                                 this.props.getCourses();
                                 closeFunc();
                             },
