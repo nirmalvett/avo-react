@@ -90,6 +90,10 @@ interface AnswerInquiries {
     name: 'Answer Inquiries';
 }
 
+interface OpenCourses {
+    name: 'Open Courses'
+}
+
 export type Section =
     | AddStudentsToClass
     | ConceptBuilder
@@ -111,4 +115,5 @@ export type Section =
     | Preferences
     | TakeTest
     | UploadImages
-    | AnswerInquiries;
+    | AnswerInquiries
+    | OpenCourses;

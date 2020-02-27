@@ -20,7 +20,7 @@ const Whitelist = React.lazy(() => import('../Whitelist/Whitelist'));
 const QuestionBuilderHome = React.lazy(() => import('../QuestionBuilder/QuestionBuilderHome'));
 const Feedback = React.lazy(() => import('../Feedback/Feedback'));
 const ImageUploader = React.lazy(() => import('../ImageUploader/ImageUploader'));
-
+const OpenCourses = React.lazy(() => import('../OpenCourses/OpenCourses'));
 import AvoSideBar from './AvoSidebar';
 import AvoAppBar from './AvoAppBar';
 import AvoSnackBar from './AvoSnackBar';
@@ -311,7 +311,10 @@ class Layout extends Component<LayoutProps, LayoutState> {
         } else if (section.name === 'Upload Images') {
             return <ImageUploader showCard={true}/>
         }
-    }
+        else if (section.name === 'Open Courses') {
+            return <OpenCourses/>
+        }
+    };
 
     // ============================== Methods that perform some type of data manipulation =======================
 
