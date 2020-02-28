@@ -100,10 +100,16 @@ def get_all_inquired_concepts(course_id: int):
         return jsonify(error="Invalid Course")
     del course
     concept_list = Concept.query.filter(Concept.COURSE == course_id).all()
+    concept_ids = [concept.CONCEPT for concept in concept_list]
+    inquiries = Inquiry.query.filter(Inquiry.CONCEPT.in_(concept_ids)).all()
+    inquiry_concept_map = {
+        concept: [i for i in inquiries if i.CONCEPT == concept]
+        for concept in concept_ids
+    }
     concept_return_list = []
     for concept in concept_list:
         concept_json = {"ID": concept.CONCEPT, "name": concept.name}
-        inquiry_list = Inquiry.query.filter(concept.CONCEPT == Inquiry.CONCEPT).all()
+        inquiry_list = inquiry_concept_map[concept.CONCEPT]
         answered_inquiry, unanswered_inquiry = 0, 0
         for inquiry in inquiry_list:
             if inquiry.hasAnswered:
