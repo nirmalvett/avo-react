@@ -12,9 +12,9 @@ CourseRoutes = Blueprint('CourseRoutes', __name__)
 
 @CourseRoutes.route('/createCourse', methods=['POST'])
 @teacher_only
-@validate(name=str)
-def create_course(name: str):
-    c = Course(name)
+@validate(name=str, isOpen=bool)
+def create_course(name: str, is_open: bool):
+    c = Course(name, is_open)
     db.session.add(c)
     db.session.flush()
     db.session.add(UserCourse(current_user.USER, c.COURSE, True))
