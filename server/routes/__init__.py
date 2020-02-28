@@ -3,7 +3,6 @@ from server.routes.concept_routes import ConceptRoutes
 from server.routes.course_routes import CourseRoutes
 from server.routes.file_routes import FileRoutes
 from server.routes.image_routes import ImageRoutes
-from server.routes.lesson_routes import LessonRoutes
 from server.routes.mastery_routes import MasteryRoutes
 from server.routes.question_routes import QuestionRoutes
 from server.routes.question_set_routes import QuestionSetRoutes

@@ -216,10 +216,7 @@ def get_concept_graph(course_id: int):
 @login_required
 @validate(courseID=int)
 def get_next_lessons(course_id: int):
-    has_access = bool(Course.query.filter(
-        (course_id == Section.COURSE) & (Section.SECTION == UserSection.SECTION) & (UserSection.USER == User.USER)
-    ).all())
-    if not has_access and not able_view_course(course_id):
+    if not able_view_course(course_id):
         return jsonify(error='403')
 
     concept_dict = get_course_graph(course_id)
@@ -243,15 +240,13 @@ def get_next_question(concept_id):
     if concept is None:
         return jsonify(error='Concept does not exist')
 
-    has_access = bool(Course.query.filter(
-        (concept.COURSE == Section.COURSE) & (Section.SECTION == UserSection.SECTION) & (UserSection.USER == User.USER)
-    ).all())
-    if not has_access and not able_view_course(concept.COURSE):
+    if not able_view_course(concept.COURSE):
         return jsonify(error='403')
 
-    questions: List[Question] = Question.query.filter(
-        (Question.QUESTION == ConceptQuestion.QUESTION) & (ConceptQuestion.CONCEPT == concept_id)
-    ).all()
+    questions: List[Question] = Question.query\
+        .join(ConceptQuestion, Question.QUESTION == ConceptQuestion.QUESTION)\
+        .filter(ConceptQuestion.CONCEPT == concept_id)\
+        .all()
 
     question_ids = list(map(lambda x: x.QUESTION, questions))
     concept_questions: List[ConceptQuestion] = ConceptQuestion.query.filter(
@@ -293,13 +288,17 @@ def get_course_graph(course_id):
         Concept.COURSE == course_id
     ).all()
 
-    concept_relations: List[ConceptRelation] = ConceptRelation.query.filter(
-        (ConceptRelation.CHILD == Concept.CONCEPT) & (Concept.COURSE == course_id)
-    ).all()
+    concept_relations: List[ConceptRelation] = ConceptRelation.query\
+        .join(Concept, ConceptRelation.CHILD == Concept.CONCEPT)\
+        .filter(Concept.COURSE == course_id)\
+        .all()
 
-    mastery: List[Mastery] = Mastery.query.filter(
-        (current_user.USER == Mastery.USER) & (Mastery.CONCEPT == Concept.CONCEPT) & (Concept.COURSE == course_id)
-    ).all()
+    mastery: List[Mastery] = Mastery.query\
+        .join(Concept, Mastery.CONCEPT == Concept.CONCEPT)\
+        .filter(
+            (current_user.USER == Mastery.USER) &
+            (Concept.COURSE == course_id)
+        ).all()
 
     concept_dict = {}
     for c in concepts:

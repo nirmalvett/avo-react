@@ -155,8 +155,10 @@ def submit_inquiry(question_string: int, question_id: int, inquiry_type: int, st
         question = Question.query.get(question_id)
         if question is None:
             return jsonify(error="Question Not Found")
-        concept = Concept.query.filter((ConceptQuestion.CONCEPT == Concept.CONCEPT) &
-                                       (ConceptQuestion.QUESTION == question.QUESTION)).first()
+        concept = Concept.query\
+            .join(ConceptQuestion, ConceptQuestion.CONCEPT == Concept.CONCEPT)\
+            .filter((ConceptQuestion.QUESTION == question.QUESTION))\
+            .first()
         del question
     if inquiry_type == 1:
         # Inquiry About Concept

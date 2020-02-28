@@ -17,15 +17,15 @@ def get_sets():
     :return: The list of sets
     """
     # Get list of available sets for current user
-    list_of_sets: List[QuestionSet] = QuestionSet.query.filter(
-        (QuestionSet.COURSE == UserCourse.COURSE) & (UserCourse.USER == current_user.USER)
-    ).all()
+    list_of_sets: List[QuestionSet] = QuestionSet.query\
+        .join(UserCourse, QuestionSet.COURSE == UserCourse.COURSE)\
+        .filter(UserCourse.USER == current_user.USER)\
+        .all()
     set_list = []  # List of sets to send back to the user
-    tag_questions: List[ConceptQuestion] = ConceptQuestion.query.filter(
-        (ConceptQuestion.CONCEPT == Concept.CONCEPT) &
-        (Concept.COURSE == UserCourse.COURSE) &
-        (UserCourse.USER == current_user.USER)
-    ).all()
+    tag_questions: List[ConceptQuestion] = ConceptQuestion.query\
+        .join(Concept, ConceptQuestion.CONCEPT == Concept.CONCEPT)\
+        .join(UserCourse, Concept.COURSE == UserCourse.COURSE)\
+        .filter(UserCourse.USER == current_user.USER).all()
     for s in list_of_sets:
         # For each set append the data
         questions = Question.query.filter(Question.QUESTION_SET == s.QUESTION_SET).all()  # Get all questions in set
