@@ -42,7 +42,8 @@ def home():
     sections: List[Section] = Section\
         .query\
         .join(UserSection, UserSection.SECTION == Section.SECTION)\
-        .filter(current_user.USER == UserSection.USER).all()
+        .filter(current_user.USER == UserSection.USER)\
+        .all()
 
     announcements: List[Announcement] = Announcement.query\
         .join(UserSection, UserSection.SECTION == Announcement.SECTION)\
