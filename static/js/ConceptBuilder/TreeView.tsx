@@ -69,22 +69,29 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
         const nodes: ElementsDefinition['nodes'] = [];
         const edges: ElementsDefinition['edges'] = [];
 
+        const parentalEdges: any = {}; 
+        this.props.edges.filter(Edge => Edge.type == 3).forEach(Edge => {
+            parentalEdges[Edge.child] = Edge.parent;
+        });
+
         this.props.concepts.forEach(Concept => {
-            nodes.push({
+            const _node:any = {
                 data: {
                     completion : !!Concept.lesson.length ? 1 : 0,
                     id: 'node-' + Concept.conceptID + '-end', // the + '-end' is for later on filtering
-                    type: Concept.type,
+                    type: Number(Concept.type),
                 },
                 style: {
                     content: Concept.name.length > 28
                             ? Concept.name.substring(0, 25) + '...'
                             : Concept.name,
                 },
-            });
+            };
+            if(parentalEdges[Concept.conceptID]) _node.data.parent = 'node-' + parentalEdges[Concept.conceptID] + '-end';
+            nodes.push(_node);
         });
 
-        this.props.edges.forEach(Edge => {
+        this.props.edges.filter(Edge => Edge.type != 3).forEach(Edge => {
             edges.push({
                 data: {
                     source: 'node-' + Edge.parent + '-end',
@@ -123,9 +130,11 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                 {
                     selector: 'node[type = 1]',
                     style: {
-                        'background-color': this.props.theme.color[200],
-                        'width': '150px',
-                        'height': '150px',
+                        'background-color': this.props.theme.theme == 'light' ? '#ffffff' : '#424242',
+                        'shape' : 'round-rectangle',
+                        'border-width' : '5px',
+                        'border-style': 'solid', 
+                        'border-color': 'grey',
                         'text-valign': 'center',
                         'text-halign': 'right',
                         'font-size': 30,
@@ -141,6 +150,10 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                         'line-color': 'grey',
                         'target-arrow-color': 'grey',
                         'curve-style': 'bezier',
+                        'label': 'DIRECT',
+                        'font-size': '11px',
+                        "edge-text-rotation": "autorotate",
+                        'color': this.props.theme.theme == 'light' ? 'black' : 'white',
                         'line-style' : this.lineTypes[0],
                         'width' : this.lineWidths[0]
                     },
@@ -152,6 +165,10 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                         'line-color': 'grey',
                         'target-arrow-color': 'grey',
                         'curve-style': 'bezier',
+                        'label': 'ORDER-INCONSEQUENT',
+                        'font-size': '11px',
+                        "edge-text-rotation": "autorotate",
+                        'color': this.props.theme.theme == 'light' ? 'black' : 'white',
                         'line-style' : this.lineTypes[1],
                         'width' : this.lineWidths[1]
                     },
@@ -163,6 +180,10 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                         'line-color': 'grey',
                         'target-arrow-color': 'grey',
                         'curve-style': 'bezier',
+                        'label': 'INDIRECT',
+                        'font-size': '11px',
+                        "edge-text-rotation": "autorotate",
+                        'color': this.props.theme.theme == 'light' ? 'black' : 'white',
                         'line-style' : this.lineTypes[2],
                         'width' : this.lineWidths[2]
                     },
@@ -234,7 +255,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                 'width' : this.lineWidths[edge.data('type')]
             });
         });
-        (window as any).cy.nodes().forEach((node: any) => {
+        (window as any).cy.nodes('[type = 0]').forEach((node: any) => {
             let nodeProps = {fill : 'grey', size : 150 };
             const nodeID = parseInt(node.id().split('-')[1]);
             if (nodeID === tagID) {
