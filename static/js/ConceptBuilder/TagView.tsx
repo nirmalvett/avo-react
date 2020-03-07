@@ -1814,6 +1814,12 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
 
     addConceptToGroup() {
         const _this = this;
+        const newedge: Edge = {
+            weight: 3,
+            parent: this.getGroupNodes()[this.state.selectedGrouping].conceptID,
+            child: this.state.selectedConcept.conceptID,
+            type: 3
+        };
         Http.setConceptRelation(
             this.getGroupNodes()[this.state.selectedGrouping].conceptID,
             this.state.selectedConcept.conceptID,
@@ -1821,8 +1827,12 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
             3, // currently this is not used for a formal edge type, therefore we'll use it to denot a group relation 
             res => {
                 console.log(res);
+                const edges: Edge[] = [..._this.state.edges];
+                edges.push(newedge);
                 _this.setState(
                     {
+                        edges: edges,
+                        showAddToGroup: false,
                     },
                     () => {
                         _this.chartRef.current.init();
