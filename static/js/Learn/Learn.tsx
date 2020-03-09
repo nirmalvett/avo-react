@@ -32,6 +32,7 @@ interface Concept {
     readonly conceptID: number;
     readonly name: string;
     readonly lesson: string;
+    type: number;
 }
 
 interface Edge {
