@@ -6,7 +6,8 @@ from server.PasswordHash import check_password
 import re
 from server.decorators import login_required, validate
 from server.auth import send_email, get_url, validate_token
-from server.models import db, User, Feedback
+from server.models import db, User, Feedback, SocialMediaLink
+from server.helpers import LANGUAGES, COUNTRIES
 
 UserRoutes = Blueprint('UserRoutes', __name__)
 
@@ -273,6 +274,119 @@ def change_theme(theme: int):
     """
     # Applies the user's changes to the database
     current_user.theme = theme
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/changeCountry', methods=['POST'])
+@login_required
+@validate(country=str)
+def change_country(country: str):
+    if len(country) != 3:
+        return jsonify(error="Invalid country code.")
+    if country not in COUNTRIES:
+        return jsonify(error="Invalid country code.")
+    current_user.country = country
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/changeLanguage', methods=['POST'])
+@login_required
+@validate(language=str)
+def change_language(language: str):
+    if len(language) != 2:
+        return jsonify(error="Invalid language code.")
+    if language not in LANGUAGES:
+        return jsonify(error="Invalid language code.")
+    current_user.language = language
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/changeDescription', methods=['POST'])
+@login_required
+@validate(desc=str)
+def change_description(desc: str):
+    if len(desc) > 1024:
+        return jsonify(error="Description too long.")
+    current_user.description = desc
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/changeDisplayName', methods=['POST'])
+@login_required
+@validate(name=str)
+def change_display_name(name: str):
+    if len(name) > 45:
+        return jsonify(error="Description too long.")
+    if len(name) <= 0:
+        return jsonify(error="Description too short.")
+    current_user.display_name = name
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/changeProfileId', methods=['POST'])
+@login_required
+@validate(id=str)
+def change_profile_id(profile_id: str):
+    if len(profile_id) > 16:
+        return jsonify(error="Profile Id too long.")
+    if len(profile_id) < 3:
+        return jsonify(error="Profile Id too short.")
+    user: User = User.query.filter(User.profile_id == profile_id).first()
+    if user is not None:
+        return jsonify(error="Profile Id taken.")
+    current_user.profile_id = profile_id
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/availableProfileId', methods=['POST'])
+@login_required
+@validate(id=str)
+def available_profile_id(profile_id: str):
+    valid = True
+    if len(profile_id) > 16:
+        valid = False
+    elif len(profile_id) < 3:
+        valid = False
+    else:
+        user: User = User.query.filter(User.profile_id == profile_id).first()
+        if user is not None:
+            valid = False
+    return jsonify({'valid': valid})
+
+
+@UserRoutes.route('/addSocialLink', methods=['POST'])
+@login_required
+@validate(link=str)
+def add_social_link(link: str):
+    sm_link: SocialMediaLink = SocialMediaLink.query.filter(
+        (SocialMediaLink.USER == current_user.USER) &
+        (SocialMediaLink.link == link)
+    ).first()
+    if sm_link is not None:
+        return jsonify(error="Already linked.")
+    add = SocialMediaLink(current_user.USER, link)
+    db.session.add(add)
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/deleteSocialLink', methods=['POST'])
+@login_required
+@validate(link=str)
+def delete_social_link(link: str):
+    sm_link: SocialMediaLink = SocialMediaLink.query.filter(
+        (SocialMediaLink.USER == current_user.USER) &
+        (SocialMediaLink.link == link)
+    ).first()
+    if sm_link is None:
+        return jsonify(error="Link not found.")
+    db.session.delete(sm_link)
     db.session.commit()
     return jsonify({})
 

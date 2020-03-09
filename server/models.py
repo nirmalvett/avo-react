@@ -622,6 +622,11 @@ class User(UserMixin, db.Model):
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     color = db.Column(db.Integer, nullable=False, default=9)
     theme = db.Column(db.Boolean, nullable=False, default=False)
+    country = db.Column(db.String(3), nullable=True)
+    language = db.Column(db.String(2), nullable=False, default='en')
+    description = db.Column(db.String(1024), nullable=True)
+    display_name = db.Column(db.String(45), nullable=False)
+    profile_id = db.Column(db.String(64), nullable=False, unique=True)
 
     ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='USER_RELATION')
     FEEDBACK_RELATION = db.relationship('Feedback', back_populates='USER_RELATION')
@@ -651,6 +656,7 @@ class User(UserMixin, db.Model):
         self.is_admin = is_admin
         self.color = color
         self.theme = theme
+        self.display_name = first_name + ' ' + last_name
 
     def __repr__(self):
         return (
@@ -750,6 +756,24 @@ class UserSection(db.Model):
         return (
             f'<UserSection {self.USER_SECTION} {self.USER} {self.SECTION} {self.user_type} {self.transaction_id}'
             f' {self.expiry}>'
+        )
+
+
+class SocialMediaLink(db.Model):
+    __tablename__ = 'social_media_link'
+
+    # TODO should probably make this a composite primary key of userid and link
+    LINK_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'),  nullable=False)
+    link = db.Column(db.String(100), nullable=False)
+
+    def __init__(self, user, link):
+        self.USER = user
+        self.link = link
+
+    def __repr__(self):
+        return (
+            f'<SocialMediaLink {self.USER} {self.link}>'
         )
 
 
