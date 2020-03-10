@@ -28,11 +28,12 @@ def able_edit_set(set_id):
     :param set_id: Set to check if user can edit
     :return: True if user can edit false if not
     """
-    user_course: UserCourse = UserCourse.query.filter(
-        (set_id == QuestionSet.QUESTION_SET) &
-        (QuestionSet.COURSE == UserCourse.COURSE) &
-        (UserCourse.USER == current_user.USER)
-    ).first()
+    user_course: UserCourse = UserCourse.query\
+        .join(QuestionSet, QuestionSet.COURSE == UserCourse.COURSE)\
+        .filter(
+            (set_id == QuestionSet.QUESTION_SET) &
+            (UserCourse.USER == current_user.USER)
+        ).first()
     return user_course is not None and user_course.can_edit
 
 
@@ -61,12 +62,13 @@ def able_view_course(course_id):
 
 
 def able_edit_concept(concept_id):
-    user_course = UserCourse.query.filter(
-        (concept_id == Concept.CONCEPT) &
-        (Concept.COURSE == UserCourse.COURSE) &
-        (UserCourse.USER == current_user.USER) &
-        UserCourse.can_edit
-    ).first()
+    user_course = UserCourse.query\
+        .join(Concept, Concept.COURSE == UserCourse.COURSE)\
+        .filter(
+            (concept_id == Concept.CONCEPT) &
+            (UserCourse.USER == current_user.USER) &
+            UserCourse.can_edit
+        ).first()
     return user_course is not None and user_course.can_edit
 
 
