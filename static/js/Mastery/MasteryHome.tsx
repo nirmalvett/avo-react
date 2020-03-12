@@ -35,6 +35,7 @@ interface Concept {
     conceptID: number;
     name: string;
     lesson: string;
+    type: number;
     parents: Concept[];
     children: Concept[];
     chartingData: never[];
