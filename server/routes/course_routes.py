@@ -49,6 +49,12 @@ def get_courses():
     return jsonify(courses=return_courses)
 
 
-@CourseRoutes.route('/getOpenCourses')
+@CourseRoutes.route('/getOpenCourses', methods=['GET'])
 def get_open_courses():
-    pass
+    courses = [
+        {'courseID': c.COURSE, 'name': c.name}
+        for c in Course.query.filter(Course.is_open == True).all()
+    ]
+    print(courses)
+    return jsonify(courses=courses)
+

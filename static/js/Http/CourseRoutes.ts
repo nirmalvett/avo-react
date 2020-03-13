@@ -12,3 +12,7 @@ interface GetCourses {
 export function getCourses(success: cb<GetCourses>, failure: cb) {
     _request('POST', '/getCourses', success, failure);
 }
+
+export function getOpenCourses(success: any, failure: any) {
+    _request('GET', '/getOpenCourses', success, failure)
+}
