@@ -4,15 +4,23 @@ export interface Course {
     canEdit: boolean;
 }
 
+export interface Profile {
+    userID: number;
+    username: string;
+    firstName: string;
+    lastName: string;
+    profilePicture: string;
+}
+
 export interface SimpleQuestionConfig {
     type: string;
     types: string[];
     prompts: string[];
-    explanation: string
+    explanation: string;
     correct_answer: TrueFalseConfigCorrectAnswer | WordInputConfigCorrectAnswer;
 }
 
-export type TrueFalseConfigCorrectAnswer = "true" | "false";
+export type TrueFalseConfigCorrectAnswer = 'true' | 'false';
 
 export type WordInputConfigCorrectAnswer = number[];
 
