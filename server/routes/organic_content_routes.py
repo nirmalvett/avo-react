@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify
 from flask_login import current_user
 from server.decorators import login_required, student_only, teacher_only, validate
-from server.auth import able_view_course
-from server.models import Concept, ConceptQuestion, Course, db, Inquiry, Question, UserInquiry
+from server.auth import able_view_course, able_edit_course
+from server.models import Concept, ConceptQuestion, Course, db, Inquiry, Question, UserInquiry, Section
 
 OrganicContentRoutes = Blueprint("OrganicContentRoutes", __name__)
 
@@ -185,6 +185,21 @@ def subscribe_inquiry(inquiry_id: int):
     db.session.add(inquiry_relation)
     db.session.commit()
     return jsonify({})
+
+
+@OrganicContentRoutes.route('/toggleOrganicContent', methods=['POST'])
+@login_required
+@teacher_only
+@validate(sectionID=int)
+def toggle_organic_content(section_id: int)
+    section = Section.query.get(section_id)
+    if section is None:
+        return jsonify(error="Section Not Found")
+    if not able_edit_course(section.COURSE):
+        return jsonify(error="User Not Authorised To Edit Course")
+    section.organic_content_enabled = not section.organic_content_enabled
+    db.session.commit()
+    return jsonify(toggle=section.organic_content_enabled)
 
 
 @OrganicContentRoutes.route('/unsubscribeInquiry', methods=['POST'])

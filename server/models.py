@@ -511,6 +511,7 @@ class Section(db.Model):
     COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
     name = db.Column(db.String(45), nullable=False)
     enroll_key = db.Column(db.String(10))
+    organic_content_enabled = db.Column(db.Boolean, nullable=False, default=False)
     price = db.Column(db.Float, nullable=False, default=0)
 
     ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='SECTION_RELATION')
