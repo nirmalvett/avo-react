@@ -42,6 +42,7 @@ interface SignInState {
     hasAgreedToTOS: boolean;
     messageToUser?: string;
     resetEmail: string;
+    accountType: 'student' | 'teacher';
 }
 
 export default class SignIn extends Component<SignInProps, SignInState> {
@@ -59,6 +60,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
             signInError: '',
             hasAgreedToTOS: false,
             resetEmail: '',
+            accountType: 'student'
         };
     }
 
@@ -236,6 +238,19 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                     <Typography variant='caption'>
                         <Checkbox
                             color='primary'
+                            checked={this.state.accountType === 'teacher'}
+                            onClick={() =>
+                                this.setState({
+                                    accountType: this.state.accountType === 'teacher' ? 'student' : 'teacher'
+                                })
+                            }
+                        />
+                        Teacher Account?
+                    </Typography>
+                    <br/>
+                    <Typography variant='caption'>
+                        <Checkbox
+                            color='primary'
                             checked={s.hasAgreedToTOS}
                             onClick={() =>
                                 this.setState({
@@ -340,6 +355,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                 s.rLastName,
                 s.rEmail,
                 s.rPassword1,
+                this.state.accountType === 'teacher',
                 ({message}) =>
                     this.setState({
                         rFirstName: '',
