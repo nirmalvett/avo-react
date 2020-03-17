@@ -189,14 +189,14 @@ def subscribe_inquiry(inquiry_id: int):
 
 @OrganicContentRoutes.route('/toggleOrganicContent', methods=['POST'])
 @teacher_only
-@validate(sectionID=int)
-def toggle_organic_content(section_id: int):
-    section = Section.query.get(section_id)
-    if section is None:
-        return jsonify(error="Section Not Found")
-    if not able_edit_course(section.COURSE):
+@validate(courseID=int)
+def toggle_organic_content(course_id: int):
+    course = Course.query.get(course_id)
+    if course is None:
+        return jsonify(error="Course Not Found")
+    if not able_edit_course(course_id):
         return jsonify(error="User Not Authorised To Edit Course")
-    section.organic_content_enabled = not section.organic_content_enabled
+    course.organic_content_enabled = not course.organic_content_enabled
     db.session.commit()
     return jsonify(toggle=course.organic_content_enabled)
 
