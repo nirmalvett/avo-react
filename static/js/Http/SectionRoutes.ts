@@ -36,7 +36,6 @@ export interface GetSections_Section {
     courseID: number;
     enrollKey: string | null;
     name: string;
-    organicContentEnabled: boolean;
     tests: GetSections_Test[];
     role: 'teacher' | 'enrolled' | 'trial' | undefined;
 }
