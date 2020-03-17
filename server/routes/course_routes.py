@@ -31,7 +31,6 @@ def get_courses():
         .filter(UserCourse.USER == current_user.USER).all()
 
     courses_in = Course.query\
-        .join(UserCourse, UserCourse.COURSE == Course.COURSE)\
         .join(Section, Section.COURSE == Course.COURSE)\
         .join(UserSection, UserSection.SECTION == Section.SECTION)\
         .filter(and_(
