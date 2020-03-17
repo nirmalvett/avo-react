@@ -25,6 +25,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {ShowSnackBar, SnackbarVariant} from "../../Layout/Layout";
+import { BooleanLiteral } from '@babel/types';
 
 interface InquiryObject {
     ID: number;
@@ -46,6 +47,7 @@ interface LessonScreenProps {
     survey: (mastery: number, aptitude: number) => () => void;
     closeFSM: () => void;
     showSnackBar: ShowSnackBar;
+    organicContentEnabled: boolean;
 }
 
 interface LessonScreenState {
@@ -100,6 +102,7 @@ export class LessonScreen extends PureComponent<LessonScreenProps, LessonScreenS
                         expanded={expanded === 'panel2'}
                         onChange={() => this.handleChange('panel2')} 
                         style={{ boxShadow: 'none' }}
+                        disabled={!this.props.organicContentEnabled}
                     >
                         <ExpansionPanelSummary
                             expandIcon={<ExpandMoreIcon />}
@@ -167,13 +170,15 @@ export class LessonScreen extends PureComponent<LessonScreenProps, LessonScreenS
                             })}
                         </div>
                     </div>
-                    <InquiryPopup 
-                        ID={lesson.conceptID} 
-                        object={lesson.lesson} 
-                        inquiries={this.state.inquiries} 
-                        showSnackBar={this.props.showSnackBar} 
-                        updateInquiryFunc={this.updateInquiries.bind(this)}
-                    />
+                    {this.props.organicContentEnabled && (
+                        <InquiryPopup 
+                            ID={lesson.conceptID} 
+                            object={lesson.lesson} 
+                            inquiries={this.state.inquiries} 
+                            showSnackBar={this.props.showSnackBar} 
+                            updateInquiryFunc={this.updateInquiries.bind(this)}
+                        />
+                    )}
                     {disabled ?
                         <Button id="finish-concept-lesson" variant='outlined' color='primary' onClick={this.finishLesson.bind(this)}>
                             Finish Lesson
