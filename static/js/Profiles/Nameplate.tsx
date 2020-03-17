@@ -1,9 +1,11 @@
 import * as React from 'react';
 import {Profile} from 'Http/types';
-import {Typography, Link} from '@material-ui/core';
+import {Link} from '@material-ui/core';
 
 export interface NameplateProps {
     profile: Profile;
+    diameter?: number;
+    linkStyle?: React.CSSProperties;
 }
 
 const Nameplate: React.SFC<NameplateProps> = (props: NameplateProps) => {
@@ -15,8 +17,8 @@ const Nameplate: React.SFC<NameplateProps> = (props: NameplateProps) => {
                 alt='Profile picture'
                 style={{
                     borderRadius: '50%',
-                    height: '50px',
-                    width: '50px',
+                    height: props.diameter + 'px',
+                    width: props.diameter + 'px',
                     verticalAlign: 'middle',
                     objectFit: 'cover',
                 }}
@@ -25,12 +27,17 @@ const Nameplate: React.SFC<NameplateProps> = (props: NameplateProps) => {
                 href={window.location.origin + '/user/' + props.profile.username}
                 variant='h6'
                 color='inherit'
-                style={{marginLeft: '5px', fontWeight: 'lighter'}}
+                style={props.linkStyle}
             >
                 {props.profile.firstName + ' ' + props.profile.lastName}
             </Link>
         </div>
     );
+};
+
+Nameplate.defaultProps = {
+    diameter: 50,
+    linkStyle: {marginLeft: '5px', fontWeight: 'lighter'},
 };
 
 export default Nameplate;
