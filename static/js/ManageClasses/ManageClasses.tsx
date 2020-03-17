@@ -322,7 +322,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     color='textPrimary'
                     classes={{root: 'avo-padding__16px'}}
                 >
-                    Please enter the desired name of the course section you wish to create!
+                    Please enter the desired name of the course you wish to create!
                 </Typography>
                 <TextField
                     id='avo-manageclasses__creation-textfield_2'

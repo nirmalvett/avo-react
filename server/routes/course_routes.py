@@ -28,17 +28,17 @@ def create_course(name: str, is_open: bool):
 def get_courses():
     courses = Course.query\
         .join(UserCourse, UserCourse.COURSE == Course.COURSE)\
+        .filter(UserCourse.USER == current_user.USER).all()
+
+    courses_in = Course.query\
+        .join(UserCourse, UserCourse.COURSE == Course.COURSE)\
         .join(Section, Section.COURSE == Course.COURSE)\
         .join(UserSection, UserSection.SECTION == Section.SECTION)\
-        .filter(
-            or_(
-                UserCourse.USER == current_user.USER,
-                and_(
+        .filter(and_(
                     UserSection.USER == current_user.USER,
                     or_(UserSection.expiry == None, UserSection.expiry > datetime.now())
-                )
-            )
-        ).all()
+                )).all()
+    courses = courses + courses_in
 
     user_courses: List[UserCourse] = UserCourse.query.filter(
         (UserCourse.USER == current_user.USER) & (UserCourse.can_edit == 1)
@@ -55,6 +55,22 @@ def get_open_courses():
         {'courseID': c.COURSE, 'name': c.name}
         for c in Course.query.filter(Course.is_open == True).all()
     ]
-    print(courses)
     return jsonify(courses=courses)
 
+
+@CourseRoutes.route('/getOpenCourse', methods=['POST'])
+@validate(courseID=int)
+def get_open_course(course_id: int):
+    sections = Section.query.filter(Section.COURSE == course_id).all()
+    course = Course.query.get(course_id)
+    return jsonify(course={
+        'courseID': course_id,
+        'courseName': course.name,
+        'sections': [
+            {
+                'name': section.name,
+                'enrollKey': section.enroll_key,
+            }
+            for section in sections
+        ]
+    })

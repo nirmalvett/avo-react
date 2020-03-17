@@ -16,3 +16,7 @@ export function getCourses(success: cb<GetCourses>, failure: cb) {
 export function getOpenCourses(success: any, failure: any) {
     _request('GET', '/getOpenCourses', success, failure)
 }
+
+export function getOpenCourse(courseID: Number, success: any, failure: any) {
+    _request('POST', '/getOpenCourse', success, failure, {courseID})
+}
