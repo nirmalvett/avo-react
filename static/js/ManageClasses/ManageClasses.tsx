@@ -1156,7 +1156,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             const index = this.state.c; 
             Http.toggleOrganicContent(
                 this.props.sections[index].courseID,
-                (res: any) => {
+                (res: any) => { // TODO: add some types to response
                     this.courseKeyMap[this.props.sections[index].courseID] = res.toggle;
                     this.setState({ organicContentActive : res.toggle }, this.props.getCourses);
                 },
