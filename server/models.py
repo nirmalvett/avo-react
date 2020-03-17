@@ -137,6 +137,7 @@ class Course(db.Model):
     COURSE = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(45), nullable=False)
     is_open = db.Column(db.Boolean, nullable=False)
+    organic_content_enabled = db.Column(db.Boolean, nullable=False, default=True)
 
     CONCEPT_RELATION = db.relationship('Concept', back_populates='COURSE_RELATION')
     LESSON_RELATION = db.relationship('Lesson', back_populates='COURSE_RELATION')

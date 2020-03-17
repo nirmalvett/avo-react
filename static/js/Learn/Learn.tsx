@@ -58,6 +58,7 @@ interface LearnState {
     concepts: Concept[];
     edges: Edge[];
     closedLesson: AvoLesson | undefined;
+    organicContentEnabled: boolean;
 }
 
 export default class Learn extends Component<LearnProps, LearnState> {
@@ -73,6 +74,7 @@ export default class Learn extends Component<LearnProps, LearnState> {
             edges: [],
             concepts: [],
             closedLesson: undefined,
+            organicContentEnabled: false,
         };
     }
 
@@ -134,6 +136,7 @@ export default class Learn extends Component<LearnProps, LearnState> {
                             updateMastery={this.updateMastery}
                             theme={this.props.theme}
                             survey={this.updateSurvey}
+                            organicContentEnabled={this.state.organicContentEnabled}
                             showSnackBar={this.props.showSnackBar}
                             closeFSM={() => {
                                 const lessonConceptID: number = ({
@@ -190,6 +193,7 @@ export default class Learn extends Component<LearnProps, LearnState> {
                                 selectedCourse: courseID,
                                 lessons,
                                 isLoading: false,
+                                organicContentEnabled: this.props.courses[this.props.courses.map(Course => Course.courseID).indexOf(courseID)].organicContentEnabled
                             });
                         },
                         console.warn,

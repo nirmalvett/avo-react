@@ -12,3 +12,7 @@ interface GetCourses {
 export function getCourses(success: cb<GetCourses>, failure: cb) {
     _request('POST', '/getCourses', success, failure);
 }
+
+export function toggleOrganicContent(courseID: number, success: cb<{ toggle: boolean }>, failure: cb) {
+    _request('POST', '/toggleOrganicContent', success, failure, { courseID });
+} 
