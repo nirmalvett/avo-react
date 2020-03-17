@@ -2,7 +2,7 @@ export interface Course {
     courseID: number;
     name: string;
     canEdit: boolean;
-    organic_content_enabled: boolean;
+    organicContentEnabled: boolean;
 }
 
 export interface SimpleQuestionConfig {

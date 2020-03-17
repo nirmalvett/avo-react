@@ -105,7 +105,6 @@ def get_sections():
             'sectionID': s.SECTION,
             'courseID': s.COURSE,
             'enrollKey': s.enroll_key,
-            'organicContentEnabled': s.organic_content_enabled,
             'name': s.name,
             'tests': {}
         }

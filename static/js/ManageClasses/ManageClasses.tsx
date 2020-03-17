@@ -24,6 +24,9 @@ import {
     TextField,
     Tooltip,
     Typography,
+    FormGroup,
+    FormControlLabel,
+    Switch
 } from '@material-ui/core';
 import {
     AddBoxOutlined,
@@ -105,9 +108,14 @@ interface ManageClassesState {
     editTest_confirm_text: string;
     selectedCourseID: number;
     courseIsOpen: boolean;
+    organicContentActive: boolean;
 }
 
 export default class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
+    courseKeyMap: {
+        [courseID: number]: boolean;
+    };
+
     constructor(props: ManageClassesProps) {
         super(props);
         this.state = {
@@ -139,11 +147,14 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             _editTest_openTime: Number(new Date()),
             editTest_name: '',
             editTest_confirm_text: 'Confirm', // first time it's Confirm after that it's "Change Again"
+            organicContentActive: false,
             selectedCourseID:
                 this.props.courses && this.props.courses.length > 0
                     ? this.props.courses[0].courseID
                     : -1,
         };
+        this.courseKeyMap = {};
+        this.props.courses.forEach(Course => this.courseKeyMap[Course.courseID] = Course.organicContentEnabled);
     }
 
     componentDidMount() {
@@ -546,6 +557,14 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         </Typography>
                     )}
                 </div>
+                <FormGroup row>
+                    <FormControlLabel
+                        control={
+                        <Switch checked={this.state.organicContentActive} onChange={this.toggleOrganicContentCreation.bind(this)} value="organicContentActive" color="primary" />
+                        }
+                        label="Organic Content Creation"
+                    />
+                </FormGroup>
             </Fragment>
         );
     }
@@ -1129,8 +1148,16 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             open[this.props.sections[index].sectionID] = !open[
                 this.props.sections[index].sectionID
                 ];
-        this.setState({open, c: index, t: null});
+        this.setState({open, c: index, t: null, organicContentActive: this.courseKeyMap[this.props.sections[index].courseID]});
     }
+
+    toggleOrganicContentCreation() {
+        if(this.state.c !== null) {
+            const currentState = this.courseKeyMap[this.props.sections[this.state.c].courseID];
+            this.courseKeyMap[this.props.sections[this.state.c].courseID] = !currentState;
+            this.setState({ organicContentActive : !currentState });
+        }
+    };
 
     // selectTest(cIndex: number, tIndex: number) {
     //     Http.getClassTestResults(
