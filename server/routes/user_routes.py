@@ -16,8 +16,13 @@ UserRoutes = Blueprint('UserRoutes', __name__)
 
 
 @UserRoutes.route('/register', methods=['POST'])
+<<<<<<< HEAD
 @validate(firstName=str, lastName=str, email=str, password=str, isTeacher=bool)
 def register(first_name: str, last_name: str, email: str, password: str, is_teacher: bool):
+=======
+@validate(firstName=str, lastName=str, email=str, password=str, profileId=str)
+def register(first_name: str, last_name: str, email: str, password: str, profile_id: str):
+>>>>>>> specify profile id when registering
     """
     Registers a new user account
     :return: Confirmation to the client
@@ -28,6 +33,13 @@ def register(first_name: str, last_name: str, email: str, password: str, is_teac
     if len(password) < 8:
         # If the password is les then 8 return error JSON
         return jsonify(error='Password too short')
+    if len(profile_id) > 16:
+        return jsonify(error="Profile Id too long.")
+    if len(profile_id) < 3:
+        return jsonify(error="Profile Id too short.")
+    user: User = User.query.filter(User.profile_id == profile_id).first()
+    if user is not None:
+        return jsonify(error="Profile Id taken.")
 
     user = User.query.filter(User.email == email).first()  # Creates a user object based off of the email entered
     if user is not None:
@@ -41,7 +53,11 @@ def register(first_name: str, last_name: str, email: str, password: str, is_teac
             return jsonify(message='password changed')
 
     # Create new user instance form data entered and commit to database
+<<<<<<< HEAD
     user = User(email, first_name, last_name, password, confirmed=True, is_teacher=is_teacher)
+=======
+    user = User(email, first_name, last_name, password, profile_id, confirmed=True)
+>>>>>>> specify profile id when registering
     db.session.add(user)
     db.session.commit()
 

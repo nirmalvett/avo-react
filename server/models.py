@@ -626,7 +626,7 @@ class User(UserMixin, db.Model):
     language = db.Column(db.String(2), nullable=False, default='en')
     description = db.Column(db.String(1024), nullable=True)
     display_name = db.Column(db.String(45), nullable=False)
-    profile_id = db.Column(db.String(64), nullable=False, unique=True)
+    profile_id = db.Column(db.String(16), nullable=False, unique=True)
 
     ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='USER_RELATION')
     FEEDBACK_RELATION = db.relationship('Feedback', back_populates='USER_RELATION')
@@ -644,13 +644,14 @@ class User(UserMixin, db.Model):
     IMAGE_RELATION = db.relationship('Image', back_populates='USER_RELATION')
 
     def __init__(
-            self, email, first_name, last_name, password,
+            self, email, first_name, last_name, password, profile_id,
             is_teacher=False, color=9, theme=0, confirmed=False, is_admin=False
     ):
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
         self.change_password(password)
+        self.profile_id = profile_id
         self.confirmed = confirmed
         self.is_teacher = is_teacher
         self.is_admin = is_admin
@@ -660,8 +661,8 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return (
-            f'<User {self.USER} {self.email} {self.first_name} {self.last_name} {self.password} {self.salt}'
-            f' {self.confirmed} {self.is_teacher} {self.is_admin} {self.color} {self.theme}>'
+            f'<User {self.USER} {self.email} {self.first_name} {self.last_name} {self.password} {self.profile_id}'
+            f' {self.salt} {self.confirmed} {self.is_teacher} {self.is_admin} {self.color} {self.theme}>'
         )
 
     def get_id(self):
