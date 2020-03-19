@@ -312,7 +312,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
             return <ImageUploader showCard={true}/>
         }
         else if (section.name === 'Open Courses') {
-            return <OpenCourses/>
+            return <OpenCourses color={this.color()}/>
         }
     };
 
