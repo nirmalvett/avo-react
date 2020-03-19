@@ -1,5 +1,4 @@
 import React, {PureComponent} from 'react';
-import {Paper, Typography} from '@material-ui/core';
 import {SelectableCourse} from './SelectableCourse'
 import * as Http from '../Http';
 import {CourseModal} from "./CourseModal";
@@ -17,18 +16,17 @@ export default class OpenCourses extends PureComponent<any, any> {
     }
 
     render() {
+        const {selectedCourse, courseModalDisplay, courses} = this.state;
+        const {color} = this.props;
         return (
             <div className={'selector-container'}>
-                {
-                    this.state.courses.map((course: any) => (
-                        <SelectableCourse color={this.props.color} select={this.selectCourse} course={course}/>
-                    ))
-                }
-                <CourseModal
-                    modalDisplay={this.state.courseModalDisplay}
+                {courses.map((course: any) => (
+                    <SelectableCourse color={color} select={this.selectCourse} course={course}/>))}
+                {selectedCourse && <CourseModal
+                    modalDisplay={courseModalDisplay}
                     hideModal={() => this.setState({courseModalDisplay: 'hidden', selectedCourse: undefined})}
-                    course={this.state.selectedCourse}
-                />
+                    course={selectedCourse}
+                />}
             </div>
         );
     }

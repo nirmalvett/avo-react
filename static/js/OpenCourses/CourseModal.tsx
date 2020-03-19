@@ -1,7 +1,6 @@
 import React from 'react';
 import {IconButton, Paper, Typography, Button} from '@material-ui/core';
 import {Close} from '@material-ui/icons';
-
 const styles = {
     modalBackdrop: {
         position: 'fixed' as 'fixed',
@@ -31,22 +30,20 @@ const styles = {
 };
 
 export function CourseModal(props: any) {
-    if (!props.course)
-        return <div></div>
     return (
         <div
             style={{
                 display: props.modalDisplay,
                 zIndex: 900001,
             }}
-            id='avo_learn_post_lesson_modal'
+            id='avo_open_course_selected_modal'
         >
             <div style={styles.modalBackdrop}/>
             <Paper style={styles.modalBody} className='avo-card'>
                 <IconButton
                     onClick={props.hideModal}
                     style={{position: 'absolute', top: '9px', right: '9px'}}
-                    id='post_test_close'
+                    id='open_course_selected_close'
                 >
                     <Close/>
                 </IconButton>
