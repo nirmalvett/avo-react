@@ -98,23 +98,25 @@ export class LessonScreen extends PureComponent<LessonScreenProps, LessonScreenS
                             </div>
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
-                    <ExpansionPanel 
-                        expanded={expanded === 'panel2'}
-                        onChange={() => this.handleChange('panel2')} 
-                        style={{ boxShadow: 'none' }}
-                        disabled={!this.props.organicContentEnabled}
-                    >
-                        <ExpansionPanelSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel2bh-content"
-                            id="panel2bh-header"
+                    {this.props.organicContentEnabled && (
+                        <ExpansionPanel 
+                            expanded={expanded === 'panel2'}
+                            onChange={() => this.handleChange('panel2')} 
+                            style={{ boxShadow: 'none' }}
+                            disabled={!this.props.organicContentEnabled}
                         >
-                            <Typography variant={'h6'}>Questions Asked</Typography>
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails> 
-                            {this.getInquiriesList()}
-                        </ExpansionPanelDetails>
-                    </ExpansionPanel>
+                            <ExpansionPanelSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2bh-content"
+                                id="panel2bh-header"
+                            >
+                                <Typography variant={'h6'}>Questions Asked</Typography>
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails> 
+                                {this.getInquiriesList()}
+                            </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                    )}
                 </div>
                 <div
                     style={{
