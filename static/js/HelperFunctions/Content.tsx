@@ -52,7 +52,7 @@ export function Content(props: ContentProps) {
             result.push(<Node key={counter++ + '[' + match[4]}>{match[4]}</Node>);
         } else if (match[5]) {
             // <img>123<img>
-            result.push(<img alt='image' src={`${BASE_URL}/image/${match[5]}`}/>);
+            result.push(<img alt='image' style={{ maxWidth: '100%' }} src={`${BASE_URL}/image/${match[5]}`}/>);
         } else if (match[6]) {
             // <<123>>
             result.push(
