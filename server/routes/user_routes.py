@@ -135,6 +135,11 @@ def login(username: str, password: str):
             isAdmin=current_user.is_admin,
             color=current_user.color,
             theme=current_user.theme,
+            country=current_user.country,
+            language=current_user.language,
+            description=current_user.description,
+            displayName=current_user.display_name,
+            profileId=current_user.profile_id
         )
 
 
@@ -153,6 +158,11 @@ def get_user_info():
             isAdmin=current_user.is_admin,
             color=current_user.color,
             theme=current_user.theme,
+            country=current_user.country,
+            language=current_user.language,
+            description=current_user.description,
+            displayName=current_user.display_name,
+            profileId=current_user.profile_id
         )
     except AttributeError:
         return jsonify(error='User does not exist')
