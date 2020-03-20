@@ -5,8 +5,7 @@
   height: 300px;
   width: 300px;
   background-size: cover;
-  transition: box-shadow, linear, 250ms;
-  transition: transform, linear, 250ms;
+  transition: box-shadow, linear, 250ms, transform, linear, 250ms;
   box-sizing: border-box;
 }
 .course-card:hover {
@@ -17,9 +16,9 @@
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
     1px 1px 0 #000;
   margin: auto;
-  text-transform: uppercase;
   color: white;
   text-align: center;
+  font-size: 1.5em;
 }
 .selector-container {
   display: flex;
