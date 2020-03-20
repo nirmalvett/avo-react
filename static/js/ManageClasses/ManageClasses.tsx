@@ -2,7 +2,7 @@ import React, {Component, Fragment} from 'react';
 import {
     Button,
     Card,
-    CardHeader,
+    CardHeader, Checkbox,
     Collapse,
     Divider,
     FormControl,
@@ -24,6 +24,9 @@ import {
     TextField,
     Tooltip,
     Typography,
+    FormGroup,
+    FormControlLabel,
+    Switch
 } from '@material-ui/core';
 import {
     AddBoxOutlined,
@@ -104,9 +107,15 @@ interface ManageClassesState {
     _editTest_openTime: number;
     editTest_confirm_text: string;
     selectedCourseID: number;
+    courseIsOpen: boolean;
+    organicContentActive: boolean;
 }
 
 export default class ManageClasses extends Component<ManageClassesProps, ManageClassesState> {
+    courseKeyMap: {
+        [courseID: number]: boolean;
+    };
+
     constructor(props: ManageClassesProps) {
         super(props);
         this.state = {
@@ -126,6 +135,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             testStatsDataSelectIdx: 3,
             testStatsDataQuestionIdx: 0,
             resultsIndexArray: [],
+            courseIsOpen: false,
 
             // Edit Test Settings: Let teacher modify test after it's made
             editTestPopperOpen: false,
@@ -137,11 +147,14 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             _editTest_openTime: Number(new Date()),
             editTest_name: '',
             editTest_confirm_text: 'Confirm', // first time it's Confirm after that it's "Change Again"
+            organicContentActive: false,
             selectedCourseID:
                 this.props.courses && this.props.courses.length > 0
                     ? this.props.courses[0].courseID
                     : -1,
         };
+        this.courseKeyMap = {};
+        this.props.courses.forEach(Course => this.courseKeyMap[Course.courseID] = Course.organicContentEnabled);
     }
 
     componentDidMount() {
@@ -290,10 +303,11 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     if (name !== null && name !== '' && this.state.selectedCourseID) {
                         Http.createCourse(
                             name,
+                            this.state.courseIsOpen,
                             () => {
                                 this.loadClasses('Class Successfully Created!');
-                                this.setState({createClassErrorMessage: ''});
-                                this.props.getCourses()
+                                this.setState({createClassErrorMessage: '', courseIsOpen: false});
+                                this.props.getCourses();
                                 closeFunc();
                             },
                             () =>
@@ -330,6 +344,18 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     error={this.state.createClassErrorMessage !== ''}
                 />
                 <br/>
+                <Typography variant='caption'>
+                    <Checkbox
+                        color='primary'
+                        checked={this.state.courseIsOpen}
+                        onClick={() =>
+                            this.setState({
+                                courseIsOpen: !this.state.courseIsOpen,
+                            })
+                        }
+                    />
+                    Check for your course to be open to the public
+                </Typography>
             </AVOModal>
         );
     }
@@ -531,6 +557,14 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                         </Typography>
                     )}
                 </div>
+                <FormGroup row>
+                    <FormControlLabel
+                        control={
+                        <Switch checked={this.state.organicContentActive} onChange={this.toggleOrganicContentCreation.bind(this)} value="organicContentActive" color="primary" />
+                        }
+                        label="Organic Content Creation"
+                    />
+                </FormGroup>
             </Fragment>
         );
     }
@@ -1114,8 +1148,22 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             open[this.props.sections[index].sectionID] = !open[
                 this.props.sections[index].sectionID
                 ];
-        this.setState({open, c: index, t: null});
+        this.setState({open, c: index, t: null, organicContentActive: this.courseKeyMap[this.props.sections[index].courseID]});
     }
+
+    toggleOrganicContentCreation() {
+        if(this.state.c !== null) {
+            const index = this.state.c; 
+            Http.toggleOrganicContent(
+                this.props.sections[index].courseID,
+                (res: any) => { // TODO: add some types to response
+                    this.courseKeyMap[this.props.sections[index].courseID] = res.toggle;
+                    this.setState({ organicContentActive : res.toggle }, this.props.getCourses);
+                },
+                (res) => console.log(res),
+            );
+        }
+    };
 
     // selectTest(cIndex: number, tIndex: number) {
     //     Http.getClassTestResults(

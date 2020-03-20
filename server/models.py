@@ -46,7 +46,8 @@ class Concept(db.Model):
     CONCEPT = db.Column(db.Integer, primary_key=True, autoincrement=True)
     COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'), nullable=False)
     name = db.Column(db.String(45), nullable=False)
-    lesson_content = db.Column(db.String(2000), nullable=False)
+    concept_type = db.Column(db.Integer, nullable=False, default=0)
+    lesson_content = db.Column(db.String(5000), nullable=False)
 
     CONCEPT_QUESTION_RELATION = db.relationship('ConceptQuestion', back_populates='CONCEPT_RELATION')
     CONCEPT_PARENT_RELATION = db.relationship(
@@ -60,13 +61,14 @@ class Concept(db.Model):
     LESSON_RELATION = db.relationship('Lesson', back_populates='CONCEPT_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='CONCEPT_RELATION')
 
-    def __init__(self, course_id, name, lesson_content):
+    def __init__(self, course_id, name, concept_type, lesson_content):
         self.COURSE = course_id
         self.name = name
+        self.concept_type = concept_type
         self.lesson_content = lesson_content
 
     def __repr__(self):
-        return f'<Concept {self.CONCEPT} {self.COURSE} {self.name} {self.lesson_content}>'
+        return f'<Concept {self.CONCEPT} {self.COURSE} {self.name} {self.concept_type} {self.lesson_content}>'
 
 
 class ConceptQuestion(db.Model):
@@ -89,6 +91,30 @@ class ConceptQuestion(db.Model):
         return f'<ConceptQuestion {self.CONCEPT_QUESTION} {self.CONCEPT} {self.QUESTION} {self.weight}>'
 
 
+class ConceptRelation(db.Model):
+    __tablename__ = 'concept_relation'
+
+    CONCEPT_RELATION = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    PARENT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
+    CHILD = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
+    concept_type = db.Column(db.Integer, nullable=False, default=0)
+    weight = db.Column(db.Integer, nullable=False)
+
+    CONCEPT_PARENT_RELATION = db.relationship(
+        'Concept', back_populates='CONCEPT_PARENT_RELATION', foreign_keys=[PARENT]
+    )
+    CONCEPT_CHILD_RELATION = db.relationship('Concept', back_populates='CONCEPT_CHILD_RELATION', foreign_keys=[CHILD])
+
+    def __init__(self, parent_id, child_id, concept_type, weight):
+        self.PARENT = parent_id
+        self.CHILD = child_id
+        self.concept_type = concept_type
+        self.weight = weight
+
+    def __repr__(self):
+        return f'<ConceptRelation {self.CONCEPT_RELATION} {self.PARENT} {self.CHILD} {self.concept_type} {self.weight}>'
+
+
 class Conversation(db.Model):
     __tablename__ = 'CONVERSATION'
 
@@ -105,33 +131,13 @@ class Conversation(db.Model):
         return f'<Conversation {self.CONVERSATION} {self.name}>'
 
 
-class ConceptRelation(db.Model):
-    __tablename__ = 'concept_relation'
-
-    CONCEPT_RELATION = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    PARENT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
-    CHILD = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
-    weight = db.Column(db.Integer, nullable=False)
-
-    CONCEPT_PARENT_RELATION = db.relationship(
-        'Concept', back_populates='CONCEPT_PARENT_RELATION', foreign_keys=[PARENT]
-    )
-    CONCEPT_CHILD_RELATION = db.relationship('Concept', back_populates='CONCEPT_CHILD_RELATION', foreign_keys=[CHILD])
-
-    def __init__(self, parent_id, child_id, weight):
-        self.PARENT = parent_id
-        self.CHILD = child_id
-        self.weight = weight
-
-    def __repr__(self):
-        return f'<ConceptRelation {self.CONCEPT_RELATION} {self.PARENT} {self.CHILD} {self.weight}>'
-
-
 class Course(db.Model):
     __tablename__ = 'COURSE'
 
     COURSE = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(45), nullable=False)
+    is_open = db.Column(db.Boolean, nullable=False)
+    organic_content_enabled = db.Column(db.Boolean, nullable=False, default=True)
 
     CONCEPT_RELATION = db.relationship('Concept', back_populates='COURSE_RELATION')
     LESSON_RELATION = db.relationship('Lesson', back_populates='COURSE_RELATION')
@@ -139,11 +145,12 @@ class Course(db.Model):
     SECTION_RELATION = db.relationship('Section', back_populates='COURSE_RELATION')
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='COURSE_RELATION')
 
-    def __init__(self, name):
+    def __init__(self, name, is_open):
         self.name = name
+        self.is_open = is_open
 
     def __repr__(self):
-        return f'<Course {self.COURSE} {self.name}>'
+        return f'<Course {self.COURSE} {self.name} {self.is_open}>'
 
 
 class Discount(db.Model):

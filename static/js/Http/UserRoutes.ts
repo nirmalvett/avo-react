@@ -5,10 +5,11 @@ export function register(
     lastName: string,
     email: string,
     password: string,
+    isTeacher: boolean,
     success: cb<{message: 'email sent' | 'password changed'}>,
     failure: cb,
 ) {
-    _request('POST', '/register', success, failure, {firstName, lastName, email, password});
+    _request('POST', '/register', success, failure, {firstName, lastName, email, password, isTeacher});
 }
 
 export function login(username: string, password: string, success: cb<GetUserInfo>, failure: cb<string>) {

@@ -8,20 +8,22 @@ export function addConcept(
     courseID: number,
     name: string,
     lesson: string,
+    concept_type: number,
     success: cb<AddConcept>,
     failure: cb,
 ) {
-    _request('POST', '/addConcept', success, failure, {courseID, name, lesson});
+    _request('POST', '/addConcept', success, failure, {courseID, name, concept_type, lesson});
 }
 
 export function editConcept(
     conceptID: number,
     name: string,
     lesson: string,
+    concept_type: number,
     success: cb<{}>,
     failure: cb,
 ) {
-    _request('POST', '/editConcept', success, failure, {conceptID, name, lesson});
+    _request('POST', '/editConcept', success, failure, {conceptID, concept_type, name, lesson});
 }
 
 export function deleteConcept(conceptID: number, success: cb<{}>, failure: cb) {
@@ -32,10 +34,11 @@ export function setConceptRelation(
     parentID: number,
     childID: number,
     weight: number,
+    concept_type: number,
     success: cb<{}>,
     failure: cb,
 ) {
-    _request('POST', '/setConceptRelation', success, failure, {parentID, childID, weight});
+    _request('POST', '/setConceptRelation', success, failure, {parentID, childID, weight, concept_type});
 }
 
 export function setConceptQuestion(
@@ -64,11 +67,13 @@ export interface GetConceptGraph {
         conceptID: number;
         name: string;
         lesson: string;
+        type: number;
     }[];
     edges: {
         parent: number;
         child: number;
         weight: number;
+        type: number;
     }[];
 }
 

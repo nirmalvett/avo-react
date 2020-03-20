@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 from flask_login import current_user
 from server.decorators import login_required, student_only, teacher_only, validate
-from server.auth import able_view_course
+from server.auth import able_view_course, able_edit_course
 from server.models import Concept, ConceptQuestion, Course, db, Inquiry, Question, UserInquiry
 
 OrganicContentRoutes = Blueprint("OrganicContentRoutes", __name__)
@@ -35,8 +35,6 @@ def get_inquires(inquiry_type: int, question_id: int):
     subscribed_list = []
     for i in user_inquiry_list:
         subscribed_list.append(i.INQUIRY)
-    print("SUBSCRIBED LIST")
-    print(subscribed_list)
     if inquiry_type == 0:
         # Question type
         inquiry_list_subscribed = Inquiry.query.filter((Inquiry.QUESTION == question_id) &
@@ -45,10 +43,8 @@ def get_inquires(inquiry_type: int, question_id: int):
                                                          Inquiry.INQUIRY.notin_(subscribed_list)).all()
     if inquiry_type == 1:
         # Concept type
-        print("THIS QUERY")
         inquiry_list_subscribed = Inquiry.query.filter((Inquiry.CONCEPT == question_id) &
                                                        Inquiry.INQUIRY.in_(subscribed_list)).all()
-        print("AND THIS ONE")
         inquiry_list_unsubscribed = Inquiry.query.filter((Inquiry.CONCEPT == question_id) &
                                                          Inquiry.INQUIRY.notin_(subscribed_list)).all()
     if inquiry_list_subscribed is None and inquiry_list_unsubscribed is None:
@@ -189,6 +185,20 @@ def subscribe_inquiry(inquiry_id: int):
     db.session.add(inquiry_relation)
     db.session.commit()
     return jsonify({})
+
+
+@OrganicContentRoutes.route('/toggleOrganicContent', methods=['POST'])
+@teacher_only
+@validate(courseID=int)
+def toggle_organic_content(course_id: int):
+    course = Course.query.get(course_id)
+    if course is None:
+        return jsonify(error="Course Not Found")
+    if not able_edit_course(course_id):
+        return jsonify(error="User Not Authorised To Edit Course")
+    course.organic_content_enabled = not course.organic_content_enabled
+    db.session.commit()
+    return jsonify(toggle=course.organic_content_enabled)
 
 
 @OrganicContentRoutes.route('/unsubscribeInquiry', methods=['POST'])
