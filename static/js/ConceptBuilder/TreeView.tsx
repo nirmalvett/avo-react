@@ -8,12 +8,14 @@ interface Concept {
     conceptID: number;
     name: string;
     lesson: string;
+    type: number;
 }
 
 interface Edge {
     child: number;
     parent: number;
     weight: number;
+    type: number;
 }
 
 interface TreeViewProps {
@@ -35,11 +37,15 @@ interface TreeViewState {
 }
 
 export default class TreeView extends Component<TreeViewProps, TreeViewState> {
+    lineTypes: string[];
+    lineWidths: string[];
     constructor(props: TreeViewProps) {
         super(props);
         this.state = {
             selectedConceptID: -1,
         };
+        this.lineTypes = ['solid', 'solid', 'dashed'];
+        this.lineWidths = ['8px', '4px', '2px'];
     }
 
     render() {
@@ -48,7 +54,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                 id='cy'
                 style={{
                     flex: 1,
-                    height: '83.65vh',
+                    height: '100%',
                     borderRadius: '0px 28px 28px 0px',
                     background: 'rgba(0,0,0,0.075)',
                     overflow: 'hidden',
@@ -63,26 +69,35 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
         const nodes: ElementsDefinition['nodes'] = [];
         const edges: ElementsDefinition['edges'] = [];
 
+        const parentalEdges: any = {}; 
+        this.props.edges.filter(Edge => Edge.type == 3).forEach(Edge => {
+            parentalEdges[Edge.child] = Edge.parent;
+        });
+
         this.props.concepts.forEach(Concept => {
-            nodes.push({
+            const _node:any = {
                 data: {
                     completion : !!Concept.lesson.length ? 1 : 0,
                     id: 'node-' + Concept.conceptID + '-end', // the + '-end' is for later on filtering
+                    type: Number(Concept.type),
                 },
                 style: {
                     content: Concept.name.length > 28
                             ? Concept.name.substring(0, 25) + '...'
                             : Concept.name,
                 },
-            });
+            };
+            if(parentalEdges[Concept.conceptID]) _node.data.parent = 'node-' + parentalEdges[Concept.conceptID] + '-end';
+            nodes.push(_node);
         });
 
-        this.props.edges.forEach(Edge => {
+        this.props.edges.filter(Edge => Edge.type != 3).forEach(Edge => {
             edges.push({
                 data: {
                     source: 'node-' + Edge.parent + '-end',
                     target: 'node-' + Edge.child + '-end',
                     id: 'between-' + Edge.parent + '-' + Edge.child,
+                    type: Edge.type
                 },
             });
         });
@@ -98,7 +113,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
             },
             style: [
                 {
-                    selector: 'node',
+                    selector: 'node[type = 0]',
                     style: {
                         'background-image': (data: any) => 'url(data:image/svg+xml;base64,' + this.getConceptIcon('grey', 150, data.data('completion')) + ')',
                         'width': '150px',
@@ -113,14 +128,64 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                     } as any,
                 },
                 {
-                    selector: 'edge',
+                    selector: 'node[type = 1]',
                     style: {
-                        width: 4,
+                        'background-color': this.props.theme.theme == 'light' ? '#ffffff' : '#424242',
+                        'shape' : 'round-rectangle',
+                        'border-width' : '5px',
+                        'border-style': 'solid', 
+                        'border-color': 'grey',
+                        'text-valign': 'center',
+                        'text-halign': 'right',
+                        'font-size': 30,
+                        'color': this.props.theme.theme == 'light' ? 'black' : 'white',
+                        'background-opacity': 1,
+                        'background-clip': 'node',
+                    } as any,
+                },
+                {
+                    selector: 'edge[type = 0]',
+                    style: {
                         'target-arrow-shape': 'triangle',
                         'line-color': 'grey',
                         'target-arrow-color': 'grey',
                         'curve-style': 'bezier',
-                        'line-style' : 'solid'
+                        'label': 'DIRECT',
+                        'font-size': '11px',
+                        "edge-text-rotation": "autorotate",
+                        'color': this.props.theme.theme == 'light' ? 'black' : 'white',
+                        'line-style' : this.lineTypes[0],
+                        'width' : this.lineWidths[0]
+                    },
+                },
+                {
+                    selector: 'edge[type = 1]',
+                    style: {
+                        'target-arrow-shape': 'triangle',
+                        'line-color': 'grey',
+                        'target-arrow-color': 'grey',
+                        'curve-style': 'bezier',
+                        'label': 'ORDER-INCONSEQUENT',
+                        'font-size': '11px',
+                        "edge-text-rotation": "autorotate",
+                        'color': this.props.theme.theme == 'light' ? 'black' : 'white',
+                        'line-style' : this.lineTypes[1],
+                        'width' : this.lineWidths[1]
+                    },
+                },
+                {
+                    selector: 'edge[type = 2]',
+                    style: {
+                        'target-arrow-shape': 'triangle',
+                        'line-color': 'grey',
+                        'target-arrow-color': 'grey',
+                        'curve-style': 'bezier',
+                        'label': 'INDIRECT',
+                        'font-size': '11px',
+                        "edge-text-rotation": "autorotate",
+                        'color': this.props.theme.theme == 'light' ? 'black' : 'white',
+                        'line-style' : this.lineTypes[2],
+                        'width' : this.lineWidths[2]
                     },
                 },
             ],
@@ -161,6 +226,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                     source: 'node-' + Edge.parent + '-end',
                     target: 'node-' + Edge.child + '-end',
                     id: 'between-' + Edge.parent + '-' + Edge.child,
+                    type: Edge.type
                 },
             });
         });
@@ -177,7 +243,7 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
         nodesToSelect.push(...this.getChildNodes(tagID).map(Concept => Concept.conceptID));
 
         (window as any).cy.animate({
-            fit : { eles : (window as any).cy.$(...nodesToSelect.map(number => `#node-${number}-end`)), padding : 250 },
+            fit : { eles : (window as any).cy.$(...nodesToSelect.map(number => `#node-${number}-end`)), padding : 260 },
             duration : 500,
         });
 
@@ -185,10 +251,11 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
             edge.style({
                 'line-color': 'grey',
                 'target-arrow-color': 'grey',
-                'line-style' : 'solid'
+                'line-style' : this.lineTypes[edge.data('type')],
+                'width' : this.lineWidths[edge.data('type')]
             });
         });
-        (window as any).cy.nodes().forEach((node: any) => {
+        (window as any).cy.nodes('[type = 0]').forEach((node: any) => {
             let nodeProps = {fill : 'grey', size : 150 };
             const nodeID = parseInt(node.id().split('-')[1]);
             if (nodeID === tagID) {
@@ -197,7 +264,8 @@ export default class TreeView extends Component<TreeViewProps, TreeViewState> {
                     edge.style({
                         'line-color': this.props.theme.color[500],
                         'target-arrow-color': this.props.theme.color[500],
-                        'line-style' : 'dashed'
+                        'line-style' : this.lineTypes[edge.data('type')],
+                        'width' : this.lineWidths[edge.data('type')]
                     });
                 });
             }else{

@@ -15,6 +15,7 @@ interface LearnTestCompProps {
     theme: ThemeObj;
     survey: (mastery: number, aptitude: number) => () => void;
     showSnackBar: ShowSnackBar;
+    organicContentEnabled: boolean;
     readonly closeFSM: () => void;
 }
 
@@ -95,6 +96,7 @@ export default class LearnTestComp extends Component<LearnTestCompProps, LearnTe
                         survey={this.props.survey}
                         showSnackBar={this.props.showSnackBar}
                         closeFSM={this.props.closeFSM}
+                        organicContentEnabled={!!this.props.organicContentEnabled}
                     />
                 );
             case 'question':

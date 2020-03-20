@@ -44,7 +44,8 @@ def get_courses():
     ).all()
     edit = set(map(lambda x: x.COURSE, user_courses))
 
-    return_courses = list(map(lambda c: {'courseID': c.COURSE, 'name': c.name, 'canEdit': c.COURSE in edit}, courses))
+    return_courses = list(map(lambda c: {'courseID': c.COURSE, 'name': c.name, 'canEdit': c.COURSE in edit,
+                                         'organicContentEnabled': c.organic_content_enabled}, courses))
     return jsonify(courses=return_courses)
 
 

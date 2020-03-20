@@ -15,8 +15,8 @@ UserRoutes = Blueprint('UserRoutes', __name__)
 
 
 @UserRoutes.route('/register', methods=['POST'])
-@validate(firstName=str, lastName=str, email=str, password=str)
-def register(first_name: str, last_name: str, email: str, password: str):
+@validate(firstName=str, lastName=str, email=str, password=str, isTeacher=bool)
+def register(first_name: str, last_name: str, email: str, password: str, is_teacher: bool):
     """
     Registers a new user account
     :return: Confirmation to the client
@@ -40,7 +40,7 @@ def register(first_name: str, last_name: str, email: str, password: str):
             return jsonify(message='password changed')
 
     # Create new user instance form data entered and commit to database
-    user = User(email, first_name, last_name, password, confirmed=True)
+    user = User(email, first_name, last_name, password, confirmed=True, is_teacher=is_teacher)
     db.session.add(user)
     db.session.commit()
 
