@@ -63,6 +63,8 @@ def get_open_courses():
 def get_open_course(course_id: int):
     sections = Section.query.filter(Section.COURSE == course_id).all()
     course = Course.query.get(course_id)
+    enrolled_in = UserSection.query.filter(UserSection.USER == current_user.USER).all()
+    enrolled_in = {u.SECTION for u in enrolled_in}
     return jsonify(course={
         'courseID': course_id,
         'courseName': course.name,
@@ -71,7 +73,8 @@ def get_open_course(course_id: int):
             {
                 'name': section.name,
                 'enrollKey': section.enroll_key,
-                'sectionID': section.SECTION
+                'sectionID': section.SECTION,
+                'enrolled': section.SECTION in enrolled_in
             }
             for section in sections
         ]

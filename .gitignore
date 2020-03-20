@@ -13,3 +13,5 @@ launch.bash
 images
 config*.source
 config.py
+.*.swp
+
