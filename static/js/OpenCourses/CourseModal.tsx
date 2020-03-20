@@ -1,6 +1,7 @@
 import React from 'react';
 import {IconButton, Paper, Typography, Button} from '@material-ui/core';
 import {Close} from '@material-ui/icons';
+
 const styles = {
     modalBackdrop: {
         position: 'fixed' as 'fixed',
@@ -52,14 +53,18 @@ export function CourseModal(props: any) {
                 <Typography variant={'h5'}>Sections:</Typography>
                 {
                     props.course.sections.length > 0 && props.course.sections.map((section: any) => (
-                        <div>
-                            <Typography>
-                                {`${section.name}: ${section.enrollKey}`}
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <Typography style={{marginRight: 25, marginTop: 5}}>
+                                {`${section.name}`}
                             </Typography>
-                            <Button>Enroll</Button>
-                            <br/>
+                            <Button
+                                style={{borderRadius: '2.5em'}}
+                                variant="outlined"
+                                color="primary"
+                                onClick={()=>props.enroll(section)}
+                            >
+                                Enroll</Button>
                         </div>
-
                     ))
                 }
                 {

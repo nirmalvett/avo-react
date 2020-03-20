@@ -26,6 +26,7 @@ export default class OpenCourses extends PureComponent<any, any> {
                     modalDisplay={courseModalDisplay}
                     hideModal={() => this.setState({courseModalDisplay: 'hidden', selectedCourse: undefined})}
                     course={selectedCourse}
+                    enroll={this.enroll}
                 />}
             </div>
         );
@@ -53,6 +54,18 @@ export default class OpenCourses extends PureComponent<any, any> {
             },
             (err: any) => {
                 console.log(err)
+            }
+        )
+    };
+
+    enroll = (section: any) => {
+        Http.enrollOpenCourse(
+            section.sectionID,
+            (res: any) => {
+
+            },
+            (err: any) => {
+
             }
         )
     };

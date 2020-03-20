@@ -6,7 +6,7 @@ from flask_login import current_user
 from server import paypal
 from server.auth import SectionRelations  # , get_url, send_email
 from server.decorators import login_required, student_only, teacher_only, validate
-from server.models import db, Discount, Payment, Section, User, UserSection, UserSectionType
+from server.models import db, Discount, Payment, Section, User, UserSection, UserSectionType, Course
 
 UserSectionRoutes = Blueprint('UserSectionRoutes', __name__)
 
@@ -50,6 +50,19 @@ def get_section_whitelist(section_id):
         (UserSection.SECTION == section_id)
     ).all()
     return jsonify(whitelist=list(map(lambda x: x.email, whitelist)))
+
+
+@UserSectionRoutes.route('/enrollOpenCourse', methods=['POST'])
+@login_required
+@validate(sectionID=int)
+def enroll_open_course(section_id: int):
+    section = Section.query.get(section_id)
+    course = Course.query.get(section.COURSE)
+    if not course.is_open:
+        return jsonify(error='Course is not open')
+    db.session.add(UserSection(current_user.USER, section_id, UserSectionType.ENROLLED))
+    db.session.commit()
+    return jsonify(message=f'Successfully enrolled in {section.name}!')
 
 
 @UserSectionRoutes.route('/enroll', methods=['POST'])

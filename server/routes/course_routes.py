@@ -69,6 +69,7 @@ def get_open_course(course_id: int):
             {
                 'name': section.name,
                 'enrollKey': section.enroll_key,
+                'sectionID': section.SECTION
             }
             for section in sections
         ]
