@@ -13,9 +13,9 @@ CourseRoutes = Blueprint('CourseRoutes', __name__)
 
 @CourseRoutes.route('/createCourse', methods=['POST'])
 @teacher_only
-@validate(name=str, isOpen=bool)
-def create_course(name: str, is_open: bool):
-    c = Course(name, is_open)
+@validate(name=str, isOpen=bool, description=str)
+def create_course(name: str, is_open: bool, description: str):
+    c = Course(name, description, is_open)
     db.session.add(c)
     db.session.flush()
     db.session.add(UserCourse(current_user.USER, c.COURSE, True))
@@ -65,6 +65,7 @@ def get_open_course(course_id: int):
     return jsonify(course={
         'courseID': course_id,
         'courseName': course.name,
+        'description': course.description,
         'sections': [
             {
                 'name': section.name,

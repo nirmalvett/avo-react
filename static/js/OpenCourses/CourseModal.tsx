@@ -48,32 +48,39 @@ export function CourseModal(props: any) {
                 >
                     <Close/>
                 </IconButton>
-                <Typography variant={'h1'}>{props.course.courseName}</Typography>
-                <br/>
-                <Typography variant={'h5'}>Sections:</Typography>
-                {
-                    props.course.sections.length > 0 && props.course.sections.map((section: any) => (
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <Typography style={{marginRight: 25, marginTop: 5}}>
-                                {`${section.name}`}
-                            </Typography>
-                            <Button
-                                style={{borderRadius: '2.5em'}}
-                                variant="outlined"
-                                color="primary"
-                                onClick={()=>props.enroll(section)}
-                            >
-                                Enroll</Button>
-                        </div>
-                    ))
-                }
-                {
-                    props.course.sections.length === 0 && (
-                        <Typography>
-                            No sections
-                        </Typography>
-                    )
-                }
+                <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                    <div style={{flex: 1}}>
+                        <Typography variant={'h3'}>{props.course.courseName}</Typography>
+                        <br/>
+                        <Typography variant={'h5'}>Sections:</Typography>
+                        {
+                            props.course.sections.length > 0 && props.course.sections.map((section: any) => (
+                                <div style={{display: 'flex', flexDirection: 'row'}}>
+                                    <Typography style={{marginRight: 25, marginTop: 5}}>
+                                        {`${section.name}`}
+                                    </Typography>
+                                    <Button
+                                        style={{borderRadius: '2.5em'}}
+                                        variant="outlined"
+                                        color="primary"
+                                        onClick={() => props.enroll(section)}
+                                    >
+                                        Enroll</Button>
+                                </div>
+                            ))
+                        }
+                        {
+                            props.course.sections.length === 0 && (
+                                <Typography>
+                                    No sections
+                                </Typography>
+                            )
+                        }
+                    </div>
+                    <div style={{flex: 1}}>
+                        <Typography>{props.course.description}</Typography>
+                    </div>
+                </div>
             </Paper>
         </div>
     );

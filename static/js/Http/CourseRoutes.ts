@@ -1,8 +1,8 @@
 import {_request, cb} from './baseRequest';
 import {Course} from './types';
 
-export function createCourse(name: string, isOpen: boolean, success: cb<{}>, failure: cb) {
-    _request('POST', '/createCourse', success, failure, {name, isOpen});
+export function createCourse(name: string, description: string, isOpen: boolean, success: cb<{}>, failure: cb) {
+    _request('POST', '/createCourse', success, failure, {name, description, isOpen});
 }
 
 interface GetCourses {
