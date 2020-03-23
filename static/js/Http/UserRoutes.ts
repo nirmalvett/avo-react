@@ -4,15 +4,28 @@ export function register(
     firstName: string,
     lastName: string,
     email: string,
+    username: string,
     password: string,
     isTeacher: boolean,
     success: cb<{message: 'email sent' | 'password changed'}>,
     failure: cb,
 ) {
-    _request('POST', '/register', success, failure, {firstName, lastName, email, password, isTeacher});
+    _request('POST', '/register', success, failure, {
+        firstName,
+        lastName,
+        email,
+        username,
+        password,
+        isTeacher,
+    });
 }
 
-export function login(username: string, password: string, success: cb<GetUserInfo>, failure: cb<string>) {
+export function login(
+    username: string,
+    password: string,
+    success: cb<GetUserInfo>,
+    failure: cb<string>,
+) {
     _request('POST', '/login', success, failure, {username, password});
 }
 
@@ -55,4 +68,8 @@ export function changeTheme(theme: number, success: cb<{}>, failure: cb) {
 
 export function sendFeedback(message: string, success: cb<{}>, failure: cb) {
     _request('POST', '/sendFeedback', success, failure, {message});
+}
+
+export function availableProfileId(profileId: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/availableProfileId', success, failure, {profileId});
 }

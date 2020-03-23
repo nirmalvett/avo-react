@@ -16,19 +16,14 @@ UserRoutes = Blueprint('UserRoutes', __name__)
 
 
 @UserRoutes.route('/register', methods=['POST'])
-<<<<<<< HEAD
-@validate(firstName=str, lastName=str, email=str, password=str, isTeacher=bool)
-def register(first_name: str, last_name: str, email: str, password: str, is_teacher: bool):
-=======
-@validate(firstName=str, lastName=str, email=str, password=str, profileId=str)
-def register(first_name: str, last_name: str, email: str, password: str, profile_id: str):
->>>>>>> specify profile id when registering
+@validate(firstName=str, lastName=str, email=str, profileId=str, password=str, is_teacher=bool)
+def register(first_name: str, last_name: str, email: str, profile_id: str, password: str, is_teacher: bool):
     """
     Registers a new user account
     :return: Confirmation to the client
     """
     if not re.fullmatch(r'[^@ \n]+@[^@ \n]+\.[^@ \n]+', email):
-        # Checks if the email is a UWO if not return an error JSON
+        # Checks if the email is valid, if not return an error JSON
         return jsonify(error='Invalid email')
     if len(password) < 8:
         # If the password is les then 8 return error JSON
@@ -41,7 +36,8 @@ def register(first_name: str, last_name: str, email: str, password: str, profile
     if user is not None:
         return jsonify(error="Profile Id taken.")
 
-    user = User.query.filter(User.email == email).first()  # Creates a user object based off of the email entered
+    # Creates a user object based off of the email entered
+    user = User.query.filter(User.email == email).first()
     if user is not None:
         if user.salt != '' and user.password != '':
             return jsonify(error='User already exists')
@@ -53,11 +49,8 @@ def register(first_name: str, last_name: str, email: str, password: str, profile
             return jsonify(message='password changed')
 
     # Create new user instance form data entered and commit to database
-<<<<<<< HEAD
-    user = User(email, first_name, last_name, password, confirmed=True, is_teacher=is_teacher)
-=======
-    user = User(email, first_name, last_name, password, profile_id, confirmed=True)
->>>>>>> specify profile id when registering
+    user = User(email, first_name, last_name, password,
+                profile_id, confirmed=True, is_teacher=is_teacher)
     db.session.add(user)
     db.session.commit()
 
@@ -94,7 +87,8 @@ def confirm(token):
     email = validate_token(token)
     if email is None:
         return "Invalid confirmation link"
-    user = User.query.filter(User.email == email).first()  # get user from the email
+    # get user from the email
+    user = User.query.filter(User.email == email).first()
     if user is None:
         # If there is no user found return an error
         return "There is no accounts associated with the email in that token"
@@ -135,11 +129,6 @@ def login(username: str, password: str):
             isAdmin=current_user.is_admin,
             color=current_user.color,
             theme=current_user.theme,
-            country=current_user.country,
-            language=current_user.language,
-            description=current_user.description,
-            displayName=current_user.display_name,
-            profileId=current_user.profile_id
         )
 
 
@@ -158,11 +147,6 @@ def get_user_info():
             isAdmin=current_user.is_admin,
             color=current_user.color,
             theme=current_user.theme,
-            country=current_user.country,
-            language=current_user.language,
-            description=current_user.description,
-            displayName=current_user.display_name,
-            profileId=current_user.profile_id
         )
     except AttributeError:
         return jsonify(error='User does not exist')
@@ -371,19 +355,15 @@ def change_profile_id(profile_id: str):
 
 
 @UserRoutes.route('/availableProfileId', methods=['POST'])
-@login_required
-@validate(id=str)
+@validate(profileId=str)
 def available_profile_id(profile_id: str):
-    valid = True
-    if len(profile_id) > 16:
-        valid = False
-    elif len(profile_id) < 3:
-        valid = False
+    if len(profile_id) > 16 or len(profile_id) < 3:
+        return jsonify(error='Invalid username due to length')
     else:
         user: User = User.query.filter(User.profile_id == profile_id).first()
         if user is not None:
-            valid = False
-    return jsonify({'valid': valid})
+            return jsonify(error='Username taken')
+    return jsonify({})
 
 
 @UserRoutes.route('/addSocialLink', methods=['POST'])

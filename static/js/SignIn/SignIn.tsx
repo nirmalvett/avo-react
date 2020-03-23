@@ -7,12 +7,16 @@ import {
     Slide,
     TextField,
     Typography,
+    InputAdornment,
 } from '@material-ui/core';
-import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
+import {ThemeProvider as MuiThemeProvider} from '@material-ui/core/styles';
 import * as Http from '../Http';
 import Logo from '../SharedComponents/Logo';
 import AVOModal from '../SharedComponents/MaterialModal';
 import {agreement} from './Agreement';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import CheckIcon from '@material-ui/icons/Check';
+import ErrorIcon from '@material-ui/icons/Error';
 
 interface Event {
     target: {
@@ -34,15 +38,21 @@ interface SignInState {
     rFirstName: string;
     rLastName: string;
     rEmail: string;
+    rUsername: string;
     rPassword1: string;
     rPassword2: string;
-    username: string;
+    email: string;
     password: string;
     signInError: string;
+    rUsernameHelpText: string;
+    rUsernameError: boolean;
+    rEmailError: boolean;
     hasAgreedToTOS: boolean;
     messageToUser?: string;
     resetEmail: string;
     accountType: 'student' | 'teacher';
+    usernameTimeout: NodeJS.Timeout;
+    usernameStatus: 'none' | 'valid' | 'invalid' | 'validating';
 }
 
 export default class SignIn extends Component<SignInProps, SignInState> {
@@ -53,14 +63,21 @@ export default class SignIn extends Component<SignInProps, SignInState> {
             rFirstName: '',
             rLastName: '',
             rEmail: '',
+            rUsername: '',
             rPassword1: '',
             rPassword2: '',
-            username: '',
+            email: '',
             password: '',
             signInError: '',
+            rUsernameHelpText: 'Must be between 3-16 characters',
+            rUsernameError: false,
+            rEmailError: false,
             hasAgreedToTOS: false,
             resetEmail: '',
-            accountType: 'student'
+            accountType: 'student',
+            // Dummy timeout to satisfy TS
+            usernameTimeout: setTimeout(() => {}, 0),
+            usernameStatus: 'none',
         };
     }
 
@@ -75,11 +92,9 @@ export default class SignIn extends Component<SignInProps, SignInState> {
             return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
         };
 
-
         if (checkQuertString('expiredPasswordReset')) {
             const label = document.getElementById('avo-signin__reset-password');
-            if (label)
-                label.click()
+            if (label) label.click();
         }
     }
 
@@ -87,17 +102,69 @@ export default class SignIn extends Component<SignInProps, SignInState> {
 
     updateLastName = (e: Event) => this.setState({rLastName: e.target.value});
 
-    updateEmail = (e: Event) => this.setState({rEmail: e.target.value.toLowerCase()});
+    updateRegisterEmail = (e: Event) =>
+        this.setState({
+            rEmail: e.target.value.toLowerCase(),
+            rEmailError:
+                e.target.value.length > 0 && !/[^@ \n]+@[^@ \n]+\.[^@ \n]+$/.test(e.target.value),
+        });
+
+    updateRegisterUsername = (e: Event) => {
+        const username: string = e.target.value;
+        this.setState({rUsername: username});
+        // When the user is typing, reset the timer
+        clearTimeout(this.state.usernameTimeout);
+
+        // Once the user stops typing (1 sec delay), validate the username
+        this.setState({
+            usernameTimeout: setTimeout(() => this.checkUsername(username), 1000),
+            usernameStatus: 'validating',
+        });
+    };
 
     updatePassword1 = (e: Event) => this.setState({rPassword1: e.target.value});
 
     updatePassword2 = (e: Event) => this.setState({rPassword2: e.target.value});
 
-    updateUsername = (e: Event) => this.setState({username: e.target.value});
+    updateSignInEmail = (e: Event) => this.setState({email: e.target.value});
 
     updatePassword = (e: Event) => this.setState({password: e.target.value});
 
     updateResetEmail = (e: Event) => this.setState({resetEmail: e.target.value});
+
+    checkUsername = (username: string) => {
+        if (username.length > 0) {
+            if (username.length < 3 || username.length > 16) {
+                this.setState({
+                    rUsernameHelpText: 'Must be between 3-16 characters',
+                    usernameStatus: 'invalid',
+                    rUsernameError: true,
+                });
+            } else {
+                Http.availableProfileId(
+                    username,
+                    () =>
+                        this.setState({
+                            rUsernameHelpText: 'Username available',
+                            usernameStatus: 'valid',
+                            rUsernameError: false,
+                        }),
+                    () =>
+                        this.setState({
+                            rUsernameHelpText: 'Username unavailable',
+                            usernameStatus: 'invalid',
+                            rUsernameError: true,
+                        }),
+                );
+            }
+        } else {
+            this.setState({
+                rUsernameHelpText: 'Must be between 3-16 characters',
+                rUsernameError: false,
+                usernameStatus: 'none',
+            });
+        }
+    };
 
     render() {
         const s = this.state;
@@ -122,9 +189,12 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                                     {'.'}
                                 </Typography>
                                 {this.passwordReset()}
-                                <br/>
+                                <br />
                                 <Typography variant='caption'>
-                                    If you are having any difficulties, please email us at <a className='avo-styles__link' href={EMAIL_LINK}>contact@avocadocore.com</a>
+                                    If you are having any difficulties, please email us at{' '}
+                                    <a className='avo-styles__link' href={EMAIL_LINK}>
+                                        contact@avocadocore.com
+                                    </a>
                                 </Typography>
                             </footer>
                         </div>
@@ -136,22 +206,22 @@ export default class SignIn extends Component<SignInProps, SignInState> {
 
     renderSignIn() {
         const s = this.state;
-        let usernameError = s.username.length > 0 && !/[^@ \n]+@[^@ \n]+\.[^@ \n]+$/.test(s.username);
+        let emailError = s.email.length > 0 && !/[^@ \n]+@[^@ \n]+\.[^@ \n]+$/.test(s.email);
         let passwordError = s.password.length > 0 && s.password.length < 8;
         return (
             <Fragment>
-                <Logo theme='light'/>
+                <Logo theme='light' />
                 <Typography variant='h5'>Sign In</Typography>
                 <form style={style} noValidate autoComplete='off'>
                     <TextField
                         margin='normal'
                         style={style}
                         label='Email'
-                        onChange={this.updateUsername}
-                        value={s.username}
-                        error={usernameError}
+                        onChange={this.updateSignInEmail}
+                        value={s.email}
+                        error={emailError}
                     />
-                    <br/>
+                    <br />
                     <TextField
                         margin='normal'
                         style={style}
@@ -161,11 +231,11 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         value={s.password}
                         error={passwordError}
                     />
-                    <br/>
+                    <br />
                     <Typography variant='caption' color='error'>
                         {s.signInError}
                     </Typography>
-                    <br/>
+                    <br />
                     <Button
                         color='primary'
                         className='avo-button avo-styles__float-right'
@@ -174,17 +244,23 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         Sign In
                     </Button>
                 </form>
-                <br/>
-                <br/>
+                <br />
+                <br />
             </Fragment>
         );
     }
 
     renderRegister() {
         const s = this.state;
-        const emailError = s.rEmail.length > 0 && !/[^@ \n]+@[^@ \n]+\.[^@ \n]+$/.test(s.rEmail);
         const rPw1Error = s.rPassword1.length > 0 && s.rPassword1.length < 8;
         const rPw2Error = s.rPassword2.length > 0 && s.rPassword2 !== s.rPassword1;
+        let usernameIcon: JSX.Element = <Fragment />;
+        if (s.usernameStatus === 'validating')
+            usernameIcon = (
+                <CircularProgress variant='indeterminate' color='primary' size='1.5em' />
+            );
+        else if (s.usernameStatus === 'valid') usernameIcon = <CheckIcon color='primary' />;
+        else if (s.usernameStatus === 'invalid') usernameIcon = <ErrorIcon color='error' />;
         return (
             <Fragment>
                 <Typography variant='h5'>Register</Typography>
@@ -196,7 +272,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         onChange={this.updateFirstName}
                         value={s.rFirstName}
                     />
-                    <br/>
+                    <br />
                     <TextField
                         margin='normal'
                         style={style}
@@ -204,16 +280,34 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         onChange={this.updateLastName}
                         value={s.rLastName}
                     />
-                    <br/>
+                    <br />
                     <TextField
                         margin='normal'
                         style={style}
                         label='Email'
-                        onChange={this.updateEmail}
+                        onChange={this.updateRegisterEmail}
                         value={s.rEmail}
-                        error={emailError}
+                        error={s.rEmailError}
+                        required
                     />
-                    <br/>
+                    <br />
+                    <TextField
+                        margin='normal'
+                        // style={{...style}}
+                        style={{...style, borderColor: s.usernameStatus}}
+                        label='Username'
+                        onChange={this.updateRegisterUsername}
+                        value={s.rUsername}
+                        error={s.rUsernameError}
+                        helperText={s.rUsernameHelpText}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position='end'>{usernameIcon}</InputAdornment>
+                            ),
+                        }}
+                        required
+                    />
+                    <br />
                     <TextField
                         margin='normal'
                         style={style}
@@ -223,8 +317,9 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         value={s.rPassword1}
                         error={rPw1Error}
                         helperText='(Minimum 8 characters)'
+                        required
                     />
-                    <br/>
+                    <br />
                     <TextField
                         margin='normal'
                         style={style}
@@ -233,21 +328,25 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                         onChange={this.updatePassword2}
                         value={s.rPassword2}
                         error={rPw2Error}
+                        required
                     />
-                    <br/>
+                    <br />
                     <Typography variant='caption'>
                         <Checkbox
                             color='primary'
                             checked={this.state.accountType === 'teacher'}
                             onClick={() =>
                                 this.setState({
-                                    accountType: this.state.accountType === 'teacher' ? 'student' : 'teacher'
+                                    accountType:
+                                        this.state.accountType === 'teacher'
+                                            ? 'student'
+                                            : 'teacher',
                                 })
                             }
                         />
                         Teacher Account?
                     </Typography>
-                    <br/>
+                    <br />
                     <Typography variant='caption'>
                         <Checkbox
                             color='primary'
@@ -259,7 +358,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                             }
                         />
                         I agree to the Terms of Service found <a id='ToC-here'>here</a>.
-                        <br/>
+                        <br />
                         <Typography color='error'>{s.messageToUser}</Typography>
                     </Typography>
                     <Button
@@ -289,7 +388,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                 >
                     {agreement}
                 </AVOModal>
-                <br/>
+                <br />
             </Fragment>
         );
     }
@@ -299,7 +398,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
         return (
             s.isSigningIn && (
                 <Fragment>
-                    <br/>
+                    <br />
                     <Typography variant='caption' id='avo-signin__reset-password'>
                         Forgot your password/Want to change your password? Click{' '}
                         <a className='avo-styles__link'> here </a>
@@ -316,14 +415,13 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                                     () =>
                                         alert(
                                             'An email has been sent with a reset link, ' +
-                                            'please check your inbox.',
+                                                'please check your inbox.',
                                         ),
                                     e => alert(e.error),
                                 );
                             }
                         }}
-                        onDecline={() => {
-                        }}
+                        onDecline={() => {}}
                     >
                         <Typography variant='caption'>
                             Enter the email associated to the account and we'll send you a link to
@@ -338,7 +436,7 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                             value={s.resetEmail}
                             onChange={this.updateResetEmail}
                         />
-                        <br/>
+                        <br />
                     </AVOModal>
                 </Fragment>
             )
@@ -354,24 +452,29 @@ export default class SignIn extends Component<SignInProps, SignInState> {
                 s.rFirstName,
                 s.rLastName,
                 s.rEmail,
+                s.rUsername,
                 s.rPassword1,
                 this.state.accountType === 'teacher',
                 ({message}) =>
-                    this.setState({
-                        rFirstName: '',
-                        rLastName: '',
-                        rEmail: '',
-                        rPassword1: '',
-                        rPassword2: '',
-                        username: s.rEmail,
-                        password: s.rPassword1,
-                        hasAgreedToTOS: false,
-                        messageToUser:
-                            message === 'email sent'
-                                ? 'Registration successful!'
-                                : 'Registration successful! Your account was already confirmed by' +
-                                " your professor, you're all set to sign in and start using AVO.",
-                    }, ()=>setTimeout(() => this.setState({isSigningIn: true}), 500)),
+                    this.setState(
+                        {
+                            rFirstName: '',
+                            rLastName: '',
+                            rEmail: '',
+                            rUsername: '',
+                            rPassword1: '',
+                            rPassword2: '',
+                            email: s.rEmail,
+                            password: s.rPassword1,
+                            hasAgreedToTOS: false,
+                            messageToUser:
+                                message === 'email sent'
+                                    ? 'Registration successful!'
+                                    : 'Registration successful! Your account was already confirmed by' +
+                                      " your professor, you're all set to sign in and start using AVO.",
+                        },
+                        () => setTimeout(() => this.setState({isSigningIn: true}), 500),
+                    ),
                 result => this.setState({messageToUser: result.error}),
             );
         }
@@ -380,28 +483,46 @@ export default class SignIn extends Component<SignInProps, SignInState> {
     checkInputFields() {
         const s = this.state;
 
+        const {
+            hasAgreedToTOS,
+            rUsernameError,
+            rEmailError,
+            rEmail,
+            rUsername,
+            rPassword1,
+            rPassword2,
+        } = this.state;
+
         const isValid =
-            // /[^@ \n]+@[^@ \n]+\.[^@ \n]+$/.test(s.rEmail) &&
-            s.rPassword1.length >= 8 &&
-            s.rPassword2 === s.rPassword1;
-        if (isValid && s.hasAgreedToTOS) return true;
-        else if (!isValid)
-            this.setState({messageToUser: 'Please check you email and password fields again.'});
-        else if (!s.hasAgreedToTOS)
+            hasAgreedToTOS &&
+            !rUsernameError &&
+            !rEmailError &&
+            rEmail &&
+            rUsername.length <= 16 &&
+            rUsername.length >= 3 &&
+            rPassword1.length >= 8 &&
+            rPassword2 === rPassword1;
+        if (!hasAgreedToTOS)
             this.setState({
                 messageToUser:
                     'Please click on Terms and Conditions and agree to it before registering',
             });
+        else if (!isValid)
+            this.setState({
+                messageToUser: 'Please check your email, username, and password fields again.',
+            });
+
+        return isValid;
     }
 
     // noinspection JSMethodCanBeStatic
     signIn() {
         Http.login(
-            this.state.username,
+            this.state.email,
             this.state.password,
             result => {
-                this.props.login(result)
-                Http.collectData('login', {}, ()=>{}, console.warn)
+                this.props.login(result);
+                Http.collectData('login', {}, () => {}, console.warn);
             },
             result => this.setState({signInError: result}),
         );
