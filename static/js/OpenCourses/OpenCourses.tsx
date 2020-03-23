@@ -62,10 +62,10 @@ export default class OpenCourses extends PureComponent<any, any> {
         Http.enrollOpenCourse(
             section.sectionID,
             (res: any) => {
-
+                console.log(res);
             },
             (err: any) => {
-
+                console.log(err);
             }
         )
     };

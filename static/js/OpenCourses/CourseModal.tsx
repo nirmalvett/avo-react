@@ -64,27 +64,19 @@ export function CourseModal(props: any) {
                                             <div style={{marginTop: 5}}>
                                                 <Typography>Already enrolled</Typography>
                                             </div>
-                                        )
-                                    }
-                                    {
-                                    
-                                        !section.enrolled && <Button
-                                            style={{borderRadius: '2.5em'}}
-                                            variant="outlined"
-                                            color="primary"
-                                            onClick={() => props.enroll(section)}
-                                        >
-                                            Enroll</Button>
+                                        ) || <Button
+                                                style={{borderRadius: '2.5em'}}
+                                                variant="outlined"
+                                                color="primary"
+                                                onClick={() => props.enroll(section)}
+                                             >
+                                                Enroll
+                                             </Button>
                                     }
                                 </div>
-                            ))
-                        }
-                        {
-                            props.course.sections.length === 0 && (
-                                <Typography>
+                            )) || <Typography>
                                     No sections
-                                </Typography>
-                            )
+                                  </Typography>
                         }
                     </div>
                     <div style={{flex: 1}}>
