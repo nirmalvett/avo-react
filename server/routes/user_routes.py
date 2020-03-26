@@ -16,7 +16,7 @@ UserRoutes = Blueprint('UserRoutes', __name__)
 
 
 @UserRoutes.route('/register', methods=['POST'])
-@validate(firstName=str, lastName=str, email=str, profileId=str, password=str, is_teacher=bool)
+@validate(firstName=str, lastName=str, email=str, profileId=str, password=str, isTeacher=bool)
 def register(first_name: str, last_name: str, email: str, profile_id: str, password: str, is_teacher: bool):
     """
     Registers a new user account

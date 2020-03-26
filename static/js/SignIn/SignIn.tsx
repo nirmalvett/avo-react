@@ -8,8 +8,8 @@ import {
     TextField,
     Typography,
     InputAdornment,
+    MuiThemeProvider,
 } from '@material-ui/core';
-import {ThemeProvider as MuiThemeProvider} from '@material-ui/core/styles';
 import * as Http from '../Http';
 import Logo from '../SharedComponents/Logo';
 import AVOModal from '../SharedComponents/MaterialModal';

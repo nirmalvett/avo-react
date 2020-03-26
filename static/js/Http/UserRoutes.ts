@@ -4,7 +4,7 @@ export function register(
     firstName: string,
     lastName: string,
     email: string,
-    username: string,
+    profileId: string,
     password: string,
     isTeacher: boolean,
     success: cb<{message: 'email sent' | 'password changed'}>,
@@ -14,7 +14,7 @@ export function register(
         firstName,
         lastName,
         email,
-        username,
+        profileId,
         password,
         isTeacher,
     });
