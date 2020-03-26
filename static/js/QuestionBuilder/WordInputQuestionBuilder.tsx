@@ -272,7 +272,11 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                 <span>
                                     <div>
                                         <Typography variant='body2' gutterBottom>
-                                            {this.state.questionText}
+                                            {this.state.questionText.split('\n').map(word => <div>
+                                                <br/>
+                                                <br/>
+                                                {`${word}`}
+                                            </div>)}
                                         </Typography>
                                     </div>
                                     <span>
@@ -323,7 +327,11 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                 <div>
                                     <div style={{float: 'left'}}>
                                         <Typography variant='body2' gutterBottom>
-                                            {this.state.questionSelectableString}
+                                            {this.state.questionSelectableString.split('\n').map(word => <div>
+                                                <br/>
+                                                <br/>
+                                                {`${word}`}
+                                            </div>)}
                                         </Typography>
                                     </div>
                                     <span>
