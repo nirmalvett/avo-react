@@ -269,11 +269,10 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                     </IconButton>
                                 </span>
                             ) : (
-                                <span>
+                                <div>
                                     <div>
                                         <Typography variant='body2' gutterBottom>
                                             {this.state.questionText.split('\n').map(word => <div>
-                                                <br/>
                                                 <br/>
                                                 {`${word}`}
                                             </div>)}
@@ -288,12 +287,12 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                             <EditIcon fontSize='inherit'/>
                                         </IconButton>
                                     </span>
-                                </span>
+                                </div>
                             )}
                             <br/>
                             <br/>
                             {this.state.questionSelectableStringE ? (
-                                <span>
+                                <div>
                                     <TextField
                                         id='to-select-from-input'
                                         label='Phrase to select answer'
@@ -322,13 +321,12 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                     >
                                         <SaveIcon fontSize='inherit'/>
                                     </IconButton>
-                                </span>
+                                </div>
                             ) : (
                                 <div>
-                                    <div style={{float: 'left'}}>
+                                    <div>
                                         <Typography variant='body2' gutterBottom>
                                             {this.state.questionSelectableString.split('\n').map(word => <div>
-                                                <br/>
                                                 <br/>
                                                 {`${word}`}
                                             </div>)}
@@ -393,8 +391,8 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                     </IconButton>
                                 </span>
                             ) : (
-                                <span>
-                                    <span style={{float: 'left'}}>
+                                <div>
+                                    <div>
                                         <WordInput
                                             key={'wordinput2'}
                                             onChange={value => {
@@ -406,7 +404,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                         >
                                             {this.state.questionSelectableString}
                                         </WordInput>
-                                    </span>
+                                    </div>
                                     <span>
                                         <IconButton
                                             aria-label='edit'
@@ -416,7 +414,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                             <EditIcon fontSize='inherit'/>
                                         </IconButton>
                                     </span>
-                                </span>
+                                </div>
                             )}
                             <br/>
                             <br/>
@@ -451,8 +449,8 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                     </IconButton>
                                 </span>
                             ) : (
-                                <span>
-                                    <span style={{float: 'left'}}>
+                                <div>
+                                    <div>
                                         <Typography variant='body2' gutterBottom>
                                             {this.state.questionExpl}
                                         </Typography>
@@ -467,7 +465,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                         >
                                             {this.state.questionSelectableString}
                                         </WordInput>
-                                    </span>
+                                    </div>
                                     <span>
                                         <IconButton
                                             aria-label='edit'
@@ -477,7 +475,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                             <EditIcon fontSize='inherit'/>
                                         </IconButton>
                                     </span>
-                                </span>
+                                </div>
                             )}
                         </Paper>
                     </Grow>
