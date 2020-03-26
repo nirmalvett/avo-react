@@ -118,6 +118,17 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
     }
 
     render() {
+        const editor = document.getElementById('to-select-from-input');
+        if (editor)
+            editor.addEventListener("paste", (e: any) => {
+                // cancel paste
+                e.preventDefault();
+
+                // get text representation of clipboard
+                var text = e.clipboardData.getData('text/plain');
+                // insert text manually
+                document.execCommand("insertHTML", false, text);
+            });
         return (
             <Grid container xs={12}>
                 <Grid item xs={3}>
@@ -295,7 +306,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                             {this.state.questionSelectableStringE ? (
                                 <span>
                                     <TextField
-                                        id='outlined-name'
+                                        id='to-select-from-input'
                                         label='Phrase to select answer'
                                         multiline
                                         rows='10'
