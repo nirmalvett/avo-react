@@ -30,9 +30,34 @@ export default class WordInput extends React.PureComponent<WordInputProps> {
 
     selectify = (input: string) => {
         const {mode, value, disabled} = this.props;
-        const fields: string[] = mode === 'word' ? input.split(/\s+/) : input.split(/(?<=\.) /g);
+        const fields: string[] = mode === 'word' ? input.split(' ') : input.split(/(?<=\.) /g);
         return fields.map((field: string, i) => {
             const isSelected = Boolean(value.split(SEPARATOR).find(a => a === String(i)));
+            const needsNewLines = field.includes('\n')
+            if (needsNewLines) {
+                const lines = field.split('\n')
+                return (
+                    <span>
+                        {lines.map((line, i) => (
+                            <span>
+                                { i !== 0 && <br />}
+                                <Selectable
+                                    key={`${i}__${field}__selectable`}
+                                    color={this.props.color}
+                                    add={this.add}
+                                    remove={this.remove}
+                                    type={mode}
+                                    position={i}
+                                    selected={isSelected}
+                                    disabled={disabled}
+                                >   
+                                    {line}
+                                </Selectable>
+                            </span>
+                        ))}
+                    </span>        
+                ) 
+            }
             return (
                 <Selectable
                     key={`${i}__${field}__selectable`}

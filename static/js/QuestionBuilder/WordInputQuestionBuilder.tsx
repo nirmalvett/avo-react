@@ -117,18 +117,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
         };
     }
 
-    render() {
-        const editor = document.getElementById('to-select-from-input');
-        if (editor)
-            editor.addEventListener("paste", (e: any) => {
-                // cancel paste
-                e.preventDefault();
-
-                // get text representation of clipboard
-                var text = e.clipboardData.getData('text/plain');
-                // insert text manually
-                document.execCommand("insertHTML", false, text);
-            });
+    render() { 
         return (
             <Grid container xs={12}>
                 <Grid item xs={3}>
@@ -283,11 +272,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                 <span>
                                     <div>
                                         <Typography variant='body2' gutterBottom>
-                                            {this.state.questionText.split('\n').map(word => <div>
-                                                <br/>
-                                                <br/>
-                                                {`${word}`}
-                                            </div>)}
+                                            {this.state.questionText}
                                         </Typography>
                                     </div>
                                     <span>
@@ -338,11 +323,7 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
                                 <div>
                                     <div style={{float: 'left'}}>
                                         <Typography variant='body2' gutterBottom>
-                                            {this.state.questionSelectableString.split('\n').map(word => <div>
-                                                <br/>
-                                                <br/>
-                                                {`${word}`}
-                                            </div>)}
+                                            {this.state.questionSelectableString}
                                         </Typography>
                                     </div>
                                     <span>
@@ -753,6 +734,17 @@ export default class WordInputQuestionBuilder extends Component<WordInputQuestio
 
     componentDidMount = () => {
         this.setState({loaded: true, setsActive: true});
+        const editor = document.getElementById('to-select-from-input');
+        if (editor)
+            editor.addEventListener("paste", (e: any) => {
+                // cancel paste
+                e.preventDefault();
+
+                // get text representation of clipboard
+                var text = e.clipboardData.getData('text/plain');
+                // insert text manually
+                document.execCommand("insertHTML", false, text);
+            });
     };
 
     selectSet = (set: QuestionSet, index: number) => {
