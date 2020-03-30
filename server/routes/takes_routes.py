@@ -255,7 +255,8 @@ def post_test(takes_id: int):
                 totals = [1]
                 question_list.append(
                     {'prompt': prompt, 'prompts': prompts, 'explanation': explanations,
-                     'types': types, 'answers': answers[i], 'totals': totals, 'scores': marks[i]})
+                     'types': types, 'answers': answers[i], 'totals': totals, 'scores': marks[i],
+                     'correctAnswer': current_question.config.get('correct_answer')})
         return jsonify(questions=question_list)
     else:
         return jsonify(error="User isn't in class")

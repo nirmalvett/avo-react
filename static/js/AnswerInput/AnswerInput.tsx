@@ -19,6 +19,7 @@ interface AnswerInputProps {
     onChange: (answer: string) => void;
     save: (answer: string) => void;
     showSnackBar: ShowSnackBar;
+    correctAnswer?: any;
 }
 
 export interface AnswerInputImplementationProps {
@@ -28,6 +29,7 @@ export interface AnswerInputImplementationProps {
     onChange: (ans: string) => void;
     save: (ans: string) => void;
     showSnackBar: ShowSnackBar;
+    correctAnswer?: any;
 }
 
 export class AnswerInput extends PureComponent<AnswerInputProps> {
@@ -70,7 +72,7 @@ export class AnswerInput extends PureComponent<AnswerInputProps> {
     }
 
     getProps() {
-        const {value, prompt, disabled, onChange, save, showSnackBar} = this.props;
-        return {value, prompt, disabled, onChange, save, showSnackBar};
+        const {value, prompt, disabled, onChange, save, showSnackBar, correctAnswer} = this.props;
+        return {value, prompt, disabled, onChange, save, showSnackBar, correctAnswer};
     }
 }
