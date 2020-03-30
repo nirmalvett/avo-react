@@ -49,6 +49,8 @@ export default class WordInput extends React.PureComponent<WordInputProps> {
                             const isSelected = Boolean(value.split(SEPARATOR).find(a => a === String(i)));
                             if (isSelected && correctAnswer && correctAnswer.find((num: number) => num === i) === undefined) {
                                 color = {'200': 'red', '500': 'red'}
+                            } else {
+                                color = this.props.color;
                             }
                             const ret = (
                                 <span>
