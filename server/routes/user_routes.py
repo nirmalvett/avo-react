@@ -6,7 +6,8 @@ from server.PasswordHash import check_password
 import re
 from server.decorators import login_required, validate
 from server.auth import send_email, get_url, validate_token
-from server.models import db, User, Feedback
+from server.models import db, User, Feedback, SocialMediaLink
+from server.helpers import LANGUAGES, COUNTRIES
 
 UserRoutes = Blueprint('UserRoutes', __name__)
 
@@ -15,20 +16,28 @@ UserRoutes = Blueprint('UserRoutes', __name__)
 
 
 @UserRoutes.route('/register', methods=['POST'])
-@validate(firstName=str, lastName=str, email=str, password=str, isTeacher=bool)
-def register(first_name: str, last_name: str, email: str, password: str, is_teacher: bool):
+@validate(firstName=str, lastName=str, email=str, profileId=str, password=str, isTeacher=bool)
+def register(first_name: str, last_name: str, email: str, profile_id: str, password: str, is_teacher: bool):
     """
     Registers a new user account
     :return: Confirmation to the client
     """
     if not re.fullmatch(r'[^@ \n]+@[^@ \n]+\.[^@ \n]+', email):
-        # Checks if the email is a UWO if not return an error JSON
+        # Checks if the email is valid, if not return an error JSON
         return jsonify(error='Invalid email')
     if len(password) < 8:
         # If the password is les then 8 return error JSON
         return jsonify(error='Password too short')
+    if len(profile_id) > 16:
+        return jsonify(error="Profile Id too long.")
+    if len(profile_id) < 3:
+        return jsonify(error="Profile Id too short.")
+    user: User = User.query.filter(User.profile_id == profile_id).first()
+    if user is not None:
+        return jsonify(error="Profile Id taken.")
 
-    user = User.query.filter(User.email == email).first()  # Creates a user object based off of the email entered
+    # Creates a user object based off of the email entered
+    user = User.query.filter(User.email == email).first()
     if user is not None:
         if user.salt != '' and user.password != '':
             return jsonify(error='User already exists')
@@ -40,7 +49,8 @@ def register(first_name: str, last_name: str, email: str, password: str, is_teac
             return jsonify(message='password changed')
 
     # Create new user instance form data entered and commit to database
-    user = User(email, first_name, last_name, password, confirmed=True, is_teacher=is_teacher)
+    user = User(email, first_name, last_name, password,
+                profile_id, confirmed=True, is_teacher=is_teacher)
     db.session.add(user)
     db.session.commit()
 
@@ -77,7 +87,8 @@ def confirm(token):
     email = validate_token(token)
     if email is None:
         return "Invalid confirmation link"
-    user = User.query.filter(User.email == email).first()  # get user from the email
+    # get user from the email
+    user = User.query.filter(User.email == email).first()
     if user is None:
         # If there is no user found return an error
         return "There is no accounts associated with the email in that token"
@@ -281,6 +292,115 @@ def change_theme(theme: int):
     """
     # Applies the user's changes to the database
     current_user.theme = theme
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/changeCountry', methods=['POST'])
+@login_required
+@validate(country=str)
+def change_country(country: str):
+    if len(country) != 3:
+        return jsonify(error="Invalid country code.")
+    if country not in COUNTRIES:
+        return jsonify(error="Invalid country code.")
+    current_user.country = country
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/changeLanguage', methods=['POST'])
+@login_required
+@validate(language=str)
+def change_language(language: str):
+    if len(language) != 2:
+        return jsonify(error="Invalid language code.")
+    if language not in LANGUAGES:
+        return jsonify(error="Invalid language code.")
+    current_user.language = language
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/changeDescription', methods=['POST'])
+@login_required
+@validate(desc=str)
+def change_description(desc: str):
+    if len(desc) > 1024:
+        return jsonify(error="Description too long.")
+    current_user.description = desc
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/changeDisplayName', methods=['POST'])
+@login_required
+@validate(name=str)
+def change_display_name(name: str):
+    if len(name) > 45:
+        return jsonify(error="Description too long.")
+    if len(name) <= 0:
+        return jsonify(error="Description too short.")
+    current_user.display_name = name
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/changeProfileId', methods=['POST'])
+@login_required
+@validate(id=str)
+def change_profile_id(profile_id: str):
+    if len(profile_id) > 16:
+        return jsonify(error="Profile Id too long.")
+    if len(profile_id) < 3:
+        return jsonify(error="Profile Id too short.")
+    user: User = User.query.filter(User.profile_id == profile_id).first()
+    if user is not None:
+        return jsonify(error="Profile Id taken.")
+    current_user.profile_id = profile_id
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/availableProfileId', methods=['POST'])
+@validate(profileId=str)
+def available_profile_id(profile_id: str):
+    if len(profile_id) > 16 or len(profile_id) < 3:
+        return jsonify(error='Invalid username due to length')
+    else:
+        user: User = User.query.filter(User.profile_id == profile_id).first()
+        if user is not None:
+            return jsonify(error='Username taken')
+    return jsonify({})
+
+
+@UserRoutes.route('/addSocialLink', methods=['POST'])
+@login_required
+@validate(link=str)
+def add_social_link(link: str):
+    sm_link: SocialMediaLink = SocialMediaLink.query.filter(
+        (SocialMediaLink.USER == current_user.USER) &
+        (SocialMediaLink.link == link)
+    ).first()
+    if sm_link is not None:
+        return jsonify(error="Already linked.")
+    add = SocialMediaLink(current_user.USER, link)
+    db.session.add(add)
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/deleteSocialLink', methods=['POST'])
+@login_required
+@validate(link=str)
+def delete_social_link(link: str):
+    sm_link: SocialMediaLink = SocialMediaLink.query.filter(
+        (SocialMediaLink.USER == current_user.USER) &
+        (SocialMediaLink.link == link)
+    ).first()
+    if sm_link is None:
+        return jsonify(error="Link not found.")
+    db.session.delete(sm_link)
     db.session.commit()
     return jsonify({})
 

@@ -7,6 +7,7 @@ from server import paypal
 from server.auth import SectionRelations  # , get_url, send_email
 from server.decorators import login_required, student_only, teacher_only, validate
 from server.models import db, Discount, Payment, Section, User, UserSection, UserSectionType, Course
+from server.helpers import random_key
 
 UserSectionRoutes = Blueprint('UserSectionRoutes', __name__)
 
@@ -31,7 +32,8 @@ def add_to_whitelist(section_id: int, uwo_users: list):
         user_email = uwo_user + '@uwo.ca'
         user = User.query.filter((User.email == user_email)).first()
         if user is None:
-            user = User(user_email, uwo_user, '', '')
+            # todo: can attempt to give uwo_user as profile_id if available
+            user = User(user_email, uwo_user, '', '', random_key(16))
             user.password = user.salt = ''
             user.confirmed = True
             db.session.add(user)
