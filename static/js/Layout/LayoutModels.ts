@@ -94,6 +94,10 @@ interface OpenCourses {
     name: 'Open Courses'
 }
 
+interface Profile {
+    name: 'Profile'
+}
+
 export type Section =
     | AddStudentsToClass
     | ConceptBuilder
@@ -116,4 +120,5 @@ export type Section =
     | TakeTest
     | UploadImages
     | AnswerInquiries
-    | OpenCourses;
+    | OpenCourses
+    | Profile;

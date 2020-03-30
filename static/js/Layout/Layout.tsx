@@ -21,6 +21,7 @@ const QuestionBuilderHome = React.lazy(() => import('../QuestionBuilder/Question
 const Feedback = React.lazy(() => import('../Feedback/Feedback'));
 const ImageUploader = React.lazy(() => import('../ImageUploader/ImageUploader'));
 const OpenCourses = React.lazy(() => import('../OpenCourses/OpenCourses'));
+const Profile = React.lazy(() => import('../Profile/Profile'));
 import AvoSideBar from './AvoSidebar';
 import AvoAppBar from './AvoAppBar';
 import AvoSnackBar from './AvoSnackBar';
@@ -74,6 +75,7 @@ interface LayoutProps {
     logout: () => void;
     setColor: (color: number) => () => void;
     setTheme: (theme: 'light' | 'dark') => () => void;
+    initialSection?: Section
 }
 
 interface LayoutState {
@@ -99,8 +101,9 @@ export type ShowSnackBar = (
 class Layout extends Component<LayoutProps, LayoutState> {
     constructor(props: LayoutProps) {
         super(props);
+        const {initialSection} = this.props;
         this.state = {
-            section: {name: 'Learn'},
+            section: initialSection || {name: 'Learn'},
             open: true,
             snackbar: {
                 hideDuration: 0,
@@ -313,6 +316,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
         }
         else if (section.name === 'Open Courses') {
             return <OpenCourses color={this.color()}/>
+        }
+        else if (section.name === 'Profile') {
+            return <Profile />
         }
     };
 

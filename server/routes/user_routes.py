@@ -179,6 +179,14 @@ def token_is_file(token):
     return token in files
 
 
+@UserRoutes.route('/user/<token>')
+def profile_route(token):
+    if token_is_file(token):
+        return send_from_directory('../static/dist/', token, conditional=True)
+    else:
+        return render_template('/index.html')
+
+
 @UserRoutes.route('/passwordReset/<token>')
 def password_reset(token):
     if token_is_file(token):
