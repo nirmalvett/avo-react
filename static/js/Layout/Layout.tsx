@@ -318,7 +318,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
             return <OpenCourses color={this.color()}/>
         }
         else if (section.name === 'Profile') {
-            return <Profile />
+            return <Profile color={this.color()}/>
         }
     };
 

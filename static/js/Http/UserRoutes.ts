@@ -73,3 +73,7 @@ export function sendFeedback(message: string, success: cb<{}>, failure: cb) {
 export function availableProfileId(profileId: string, success: cb<{}>, failure: cb) {
     _request('POST', '/availableProfileId', success, failure, {profileId});
 }
+
+export function getProfile(profileId: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/getProfile', success, failure, {profileId});
+}

@@ -629,6 +629,7 @@ class User(UserMixin, db.Model):
     description = db.Column(db.String(1024), nullable=True)
     display_name = db.Column(db.String(45), nullable=False)
     profile_id = db.Column(db.String(16), nullable=False, unique=True)
+    is_public = db.Column(db.Boolean, nullable=False, default=False)
 
     ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='USER_RELATION')
     FEEDBACK_RELATION = db.relationship('Feedback', back_populates='USER_RELATION')

@@ -21,7 +21,7 @@ export default class OpenCourses extends PureComponent<any, any> {
         return (
             <div className={'selector-container'}>
                 {courses.map((course: any) => (
-                    <SelectableCourse color={color} select={this.selectCourse} course={course}/>))}
+                    <SelectableCourse color={color}  course={course}/>))}
                 {selectedCourse && <CourseModal
                     modalDisplay={courseModalDisplay}
                     hideModal={() => this.setState({courseModalDisplay: 'hidden', selectedCourse: undefined})}
