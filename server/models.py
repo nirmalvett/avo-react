@@ -40,6 +40,26 @@ class Announcement(db.Model):
                f' {self.timestamp}>'
 
 
+class Assignment(db.Model):
+    __tablename__ = 'ASSIGNMENT'
+
+    ASSIGNMENT = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    LESSON = db.Column(db.Integer, db.ForeignKey('LESSON.LESSON'), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    url = db.Column(db.String(1000), nullable=False)
+
+    LESSON_RELATION = db.relationship('Lesson', back_populates='ASSIGNMENT_RELATION')
+    USER_RELATION = db.relationship('User', back_populates='ASSIGNMENT_RELATION')
+
+    def __init__(self, lesson, user, url):
+        self.LESSON = lesson
+        self.USER = user
+        self.url = url
+
+    def __repr__(self):
+        return f'{self.ASSIGNMENT} {self.LESSON} {self.USER} {self.url}'
+
+
 class Concept(db.Model):
     __tablename__ = 'CONCEPT'
 
@@ -326,17 +346,23 @@ class Lesson(db.Model):
     COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
     CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
     content = db.Column(db.String(16384), nullable=False)
+    has_assignment = db.Column(db.Boolean, nullable=False, default=False)
+    due_date = db.Column(db.DateTime, nullable=True)
 
+    ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='LESSON_RELATION')
     COURSE_RELATION = db.relationship('Course', back_populates='LESSON_RELATION')
     CONCEPT_RELATION = db.relationship('Concept', back_populates='LESSON_RELATION')
 
-    def __init__(self, course_id: int, concept_id: int, content: str):
+    def __init__(self, course_id: int, concept_id: int, content: str, has_assignment: bool, due_date: datetime):
         self.COURSE = course_id
         self.CONCEPT = concept_id
         self.content = content
+        self.has_assignment = has_assignment
+        self.due_date = due_date
 
     def __repr__(self):
-        return f'<Lesson {self.LESSON} {self.COURSE} {self.CONCEPT} {self.content}>'
+        return f'<Lesson {self.LESSON} {self.COURSE} {self.CONCEPT} {self.content} {self.has_assignment} ' \
+               f'{self.due_date}>'
 
 
 class Mastery(db.Model):
@@ -629,6 +655,7 @@ class User(UserMixin, db.Model):
     profile_id = db.Column(db.String(16), nullable=False, unique=True)
 
     ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='USER_RELATION')
+    ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='USER_RELATION')
     FEEDBACK_RELATION = db.relationship('Feedback', back_populates='USER_RELATION')
     FORUM_MESSAGE_RELATION = db.relationship('ForumMessage', back_populates='USER_RELATION')
     ISSUE_RELATION = db.relationship('Issue', back_populates='USER_RELATION')

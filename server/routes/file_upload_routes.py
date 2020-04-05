@@ -7,10 +7,10 @@ from server.decorators import teacher_only, login_required
 from server.models import Image
 from config import S3_BUCKET, S3_LOCATION
 
-ImageRoutes = Blueprint('ImageRoutes', __name__)
+FileUploadRoutes = Blueprint('ImageRoutes', __name__)
 
 
-@ImageRoutes.route('/image/<filename>')
+@FileUploadRoutes.route('/image/<filename>')
 @login_required
 def image(filename):
     i: Image = Image.query.filter(Image.name == filename).first()
@@ -20,7 +20,7 @@ def image(filename):
         return redirect(i.url, code=302)
 
 
-@ImageRoutes.route('/getImages')
+@FileUploadRoutes.route('/getImages')
 @teacher_only
 def get_images():
     images = Image.query.filter(
@@ -29,7 +29,7 @@ def get_images():
     return jsonify({'images': {i.IMAGE: i.name for i in images}})
 
 
-@ImageRoutes.route('/upload', methods=['POST'])
+@FileUploadRoutes.route('/upload', methods=['POST'])
 @teacher_only
 def file_upload():
     file = request.files.get('file')
