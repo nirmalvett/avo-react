@@ -45,14 +45,16 @@ class Assignment(db.Model):
 
     ASSIGNMENT = db.Column(db.Integer, primary_key=True, autoincrement=True)
     LESSON = db.Column(db.Integer, db.ForeignKey('LESSON.LESSON'), nullable=False)
+    name = db.Column(db.String(200), nullable=False)
     USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
     url = db.Column(db.String(1000), nullable=False)
 
     LESSON_RELATION = db.relationship('Lesson', back_populates='ASSIGNMENT_RELATION')
     USER_RELATION = db.relationship('User', back_populates='ASSIGNMENT_RELATION')
 
-    def __init__(self, lesson, user, url):
+    def __init__(self, lesson, name, user, url):
         self.LESSON = lesson
+        self.name = name
         self.USER = user
         self.url = url
 
