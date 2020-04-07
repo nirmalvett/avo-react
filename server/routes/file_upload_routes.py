@@ -69,7 +69,7 @@ def image_upload():
     return url
 
 
-@FileUploadRoutes.route('upload/assignment', methods=['POST'])
+@FileUploadRoutes.route('/upload/assignment', methods=['POST'])
 @login_required
 @validate(lessonID=int)
 def assignment_upload(lesson_ID: int):
