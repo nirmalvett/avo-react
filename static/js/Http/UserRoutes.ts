@@ -73,3 +73,27 @@ export function sendFeedback(message: string, success: cb<{}>, failure: cb) {
 export function availableProfileId(profileId: string, success: cb<{}>, failure: cb) {
     _request('POST', '/availableProfileId', success, failure, {profileId});
 }
+
+export function changeCountry(country: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/changeCountry', success, failure, {country});
+}
+
+export function changeLanguage(country: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/changeLanguage', success, failure, {country});
+}
+
+export function changeDescription(description: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/changeDescription', success, failure, {description});
+}
+
+export function changeDisplayName(displayName: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/changeDisplayName', success, failure, {displayName});
+}
+
+export function addSocialLink(link: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/addSocialLink', success, failure, {link});
+}
+
+export function deleteSocialLink(link: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/deleteSocialLink', success, failure, {link});
+}
