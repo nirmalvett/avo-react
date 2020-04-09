@@ -22,6 +22,7 @@ export interface User {
     language: string;
     description: string;
     displayName: string;
+    socials: string[];
 }
 
 interface AppProps {}
@@ -84,6 +85,7 @@ export default class App extends Component<AppProps, AppState> {
                         setColor={this.setColor}
                         setTheme={this.setTheme}
                         logout={this.logout}
+                        updateUser={this.updateUser}
                         {...u}
                     />
                 </MuiThemeProvider>

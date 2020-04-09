@@ -40,6 +40,7 @@ export interface GetUserInfo {
     language: string;
     description: string;
     displayName: string;
+    socials: string[];
 }
 
 export function getUserInfo(success: cb<GetUserInfo>, failure: cb) {

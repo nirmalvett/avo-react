@@ -74,9 +74,11 @@ interface LayoutProps {
     language: string;
     description: string;
     displayName: string;
+    socials: string[];
     logout: () => void;
     setColor: (color: number) => () => void;
     setTheme: (theme: 'light' | 'dark') => () => void;
+    updateUser: (result: Http.GetUserInfo) => void;
 }
 
 interface LayoutState {
@@ -297,6 +299,19 @@ class Layout extends Component<LayoutProps, LayoutState> {
         } else if (section.name === 'Post Test') {
             return <PostTest takes={section.takesID} />;
         } else if (section.name === 'My Account') {
+            const {
+                firstName,
+                lastName,
+                isTeacher,
+                isAdmin,
+                color,
+                theme,
+                country,
+                language,
+                description,
+                displayName,
+                socials,
+            } = this.props;
             return (
                 <MyAccount
                     color={color}
@@ -304,6 +319,20 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     setColor={this.props.setColor}
                     setTheme={this.props.setTheme}
                     showSnackBar={this.showSnackBar}
+                    updateUser={this.props.updateUser}
+                    user={{
+                        firstName,
+                        lastName,
+                        isTeacher,
+                        isAdmin,
+                        color,
+                        theme,
+                        country,
+                        language,
+                        description,
+                        displayName,
+                        socials,
+                    }}
                 />
             );
         } else if (section.name === 'Take Test') {
