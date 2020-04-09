@@ -133,6 +133,8 @@ def login(username: str, password: str):
             language=current_user.language,
             description=current_user.description,
             displayName=current_user.display_name,
+            socials=[media_link.link for media_link in SocialMediaLink.query.filter(
+                SocialMediaLink.USER == current_user.USER).all()]
         )
 
 
@@ -155,6 +157,8 @@ def get_user_info():
             language=current_user.language,
             description=current_user.description,
             displayName=current_user.display_name,
+            socials=[media_link.link for media_link in SocialMediaLink.query.filter(
+                SocialMediaLink.USER == current_user.USER).all()]
         )
     except AttributeError:
         return jsonify(error='User does not exist')
