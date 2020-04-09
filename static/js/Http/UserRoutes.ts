@@ -36,6 +36,10 @@ export interface GetUserInfo {
     isAdmin: boolean;
     color: number;
     theme: boolean;
+    country: string;
+    language: string;
+    description: string;
+    displayName: string;
 }
 
 export function getUserInfo(success: cb<GetUserInfo>, failure: cb) {
