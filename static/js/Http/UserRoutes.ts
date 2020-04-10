@@ -102,3 +102,7 @@ export function addSocialLink(link: string, success: cb<{}>, failure: cb) {
 export function deleteSocialLink(link: string, success: cb<{}>, failure: cb) {
     _request('POST', '/deleteSocialLink', success, failure, {link});
 }
+
+export function changeName(firstName: string, lastName: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/changeName', success, failure, {firstName, lastName});
+}

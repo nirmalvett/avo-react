@@ -416,3 +416,13 @@ def send_feedback(message: str):
     db.session.add(Feedback(current_user.USER, message))
     db.session.commit()
     return jsonify({})
+
+
+@UserRoutes.route('/changeName', methods=['POST'])
+@login_required
+@validate(firstName=str, lastName=str)
+def change_name(first_name: str, last_name: str):
+    current_user.first_name = first_name
+    current_user.last_name = last_name
+    db.session.commit()
+    return (jsonify({}))
