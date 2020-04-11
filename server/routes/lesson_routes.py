@@ -11,11 +11,11 @@ LessonRoutes = Blueprint('LessonRoutes', __name__)
 
 @LessonRoutes.route('/addLesson', methods=['POST'])
 @teacher_only
-@validate(courseID=int,  content=str, hasAssignment=bool, dueDate=datetime)
-def add_lesson(course_ID: int, content: str, has_assignment: bool, due_date: datetime):
+@validate(courseID=int,  content=str, name=str, hasAssignment=bool, dueDate=datetime)
+def add_lesson(course_ID: int, content: str, name: str, has_assignment: bool, due_date: datetime):
     if not able_edit_course(course_ID):
         return jsonify(error="Course not found or not able to edit course")
-    lesson = Lesson(course_ID, content, has_assignment, due_date)
+    lesson = Lesson(course_ID, content, name, has_assignment, due_date)
     db.session.add(lesson)
     db.session.commit()
     return jsonify(lesson=lesson.LESSON)
@@ -23,14 +23,15 @@ def add_lesson(course_ID: int, content: str, has_assignment: bool, due_date: dat
 
 @LessonRoutes.route('/editLesson', methods=['POST'])
 @teacher_only
-@validate(lessonID=int, content=str, hasAssignment=bool, dueDate=datetime)
-def edit_lesson(lesson_ID: int, content: str, has_assignment: bool, due_date: datetime):
+@validate(lessonID=int, content=str, name=str, hasAssignment=bool, dueDate=datetime)
+def edit_lesson(lesson_ID: int, content: str, name: str, has_assignment: bool, due_date: datetime):
     lesson = Lesson.query.get(lesson_ID)
     if lesson is None:
         return jsonify(error='Lesson not found')
     if not able_edit_course(lesson.COURSE):
         return jsonify(error="Course not found or not able to edit course")
     lesson.content = content
+    lesson.name = name
     lesson.has_assignment = has_assignment
     lesson.due_date = due_date
     db.session.commit()

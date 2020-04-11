@@ -345,6 +345,7 @@ class Lesson(db.Model):
 
     LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
     COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
+    name = db.Column(db.String(150), nullable=False)
     content = db.Column(db.String(16384), nullable=False)
     has_assignment = db.Column(db.Boolean, nullable=False, default=False)
     due_date = db.Column(db.DateTime, nullable=True)
@@ -352,14 +353,15 @@ class Lesson(db.Model):
     ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='LESSON_RELATION')
     COURSE_RELATION = db.relationship('Course', back_populates='LESSON_RELATION')
 
-    def __init__(self, course_id: int, content: str, has_assignment: bool, due_date: datetime):
+    def __init__(self, course_id: int, name: str, content: str, has_assignment: bool, due_date: datetime):
         self.COURSE = course_id
         self.content = content
+        self.name = name
         self.has_assignment = has_assignment
         self.due_date = due_date
 
     def __repr__(self):
-        return f'<Lesson {self.LESSON} {self.COURSE} {self.content} {self.has_assignment} ' \
+        return f'<Lesson {self.LESSON} {self.COURSE} {self.name} {self.content} {self.has_assignment} ' \
                f'{self.due_date}>'
 
 
