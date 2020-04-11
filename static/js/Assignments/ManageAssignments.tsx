@@ -240,7 +240,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
         }, () => {
             setTimeout(() => {
                 this.setState({ hasLoadedConcepts : true });
-            }, 150 * 6)
+            }, 150 * 6) 
         });
     };
 
@@ -259,6 +259,15 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
     };
 
     getInquiredConcepts(courseID: number) {
+        Http.getLessons(
+            courseID,
+            res => {
+                console.log(res);
+            },
+            res => {
+                console.log(res);
+            }
+        );
         // Http.getAllInquiredConcepts(
         //     courseID,
         //     (res: any) => {
