@@ -8,10 +8,9 @@ import AnswerFSM from '../InquiryAnswering/AnswerFSM';
 import {ShowSnackBar} from '../Layout/Layout';
 import Button from '@material-ui/core/Button';
 import {Content} from '../HelperFunctions/Content';
-import {
-    KeyboardTimePicker,
-    KeyboardDatePicker,
-} from '@material-ui/pickers';
+import {DateTimePicker} from '@material-ui/pickers';
+
+import debounce from '../SharedComponents/AVODebouncer';
 
 interface ManageAssignmentsProps {
     theme: ThemeObj;
@@ -200,6 +199,11 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
     };
 
     renderLessonCreation() {
+        const lessonChangeDebouncer = debounce({
+            callback: (e: any) => this.setState({lessonText: e.target.value}),
+            wait: 1000,
+            immediate: false,
+        });
         return (
             <div
                 style={{
@@ -230,7 +234,8 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                             multiline
                             defaultValue={this.state.lessonText}
                             onChange={(e: any) => {
-                                this.setState({lessonText: e.target.value})
+                                e.persist();
+                                lessonChangeDebouncer(e);
                             }}
                             style={{
                                 height: '-webkit-fill-available',
@@ -240,23 +245,32 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                             rowsMax='12'
                         />
                     </Grid>
-                    <Grid item md={6} style={{padding: '9px'}}>
+                    <Grid item md={6} style={{padding: '9px', height: '39vh', overflow: 'auto'}}>
                         <Content>{this.state.lessonText}</Content>
                     </Grid>
                     <Grid item md={12} >
-                        <KeyboardDatePicker
-                            disableToolbar
+                        <DateTimePicker
                             variant="inline"
                             format="MM/DD/YYYY"
                             margin="normal"
                             id="date-picker-inline"
                             label="Due Date"
                             value={this.state.newLessonDate}
-                            onChange={() => { console.log('a'); }}
-                            KeyboardButtonProps={{
-                                'aria-label': 'change date',
-                            }}
+                            onChange={(e: any) => { this.setState({ newLessonDate : new Date(e._d) }); }}
                         />
+                    </Grid>
+                    <Grid item md={12} >
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            className="avo-button"
+                            id="create_assignment_button"
+                            onClick={() => this.addNewAssignment()}
+                        >
+                            <span style={{ color: 'white' }}>
+                                Create Assignment
+                            </span>
+                        </Button>
                     </Grid>
                 </Grid>
             </div>
@@ -291,9 +305,10 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
         const { lessonText, newLessonName, newLessonDate } = this.state;
         Http.addLesson(
             this.state.selectedCourse.courseID,
+            lessonText,
             newLessonName,
             true,
-            newLessonDate.getTime(),
+            newLessonDate,
             res => {
                 console.log(res);
             },
