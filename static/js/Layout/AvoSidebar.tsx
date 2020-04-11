@@ -122,6 +122,7 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                 <Divider />
                 <List subheader={<ListSubheader>Teacher Tools</ListSubheader>}>
                     {this.listItem(ClassOutlined, {name: 'Manage Classes'})}
+                    {this.listItem(AssignmentTurnedInOutlined, {name: 'Manage Assignments'})}
                     {this.listItem(AssignmentTurnedInOutlined, {name: 'Add Students'})}
                     {this.listItem(HelpOutline, {name: 'Answer Inquiries'})}
                     {this.listItem(MessageOutlined, {name: 'Notify Class'})}

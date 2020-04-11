@@ -20,6 +20,7 @@ const Whitelist = React.lazy(() => import('../Whitelist/Whitelist'));
 const QuestionBuilderHome = React.lazy(() => import('../QuestionBuilder/QuestionBuilderHome'));
 const Feedback = React.lazy(() => import('../Feedback/Feedback'));
 const ImageUploader = React.lazy(() => import('../ImageUploader/ImageUploader'));
+const ManageAssignments = React.lazy(() => import('../Assignments/ManageAssignments'));
 
 import AvoSideBar from './AvoSidebar';
 import AvoAppBar from './AvoAppBar';
@@ -286,7 +287,10 @@ class Layout extends Component<LayoutProps, LayoutState> {
         } else if (section.name === 'Answer Inquiries') {
             return <AnswerInquiries theme={{theme: this.props.theme, color: this.color()}}
                                     showSnackBar={this.showSnackBar}/>
-        } else if (section.name === 'Notify Class') {
+        } else if (section.name === 'Manage Assignments') {
+            return <ManageAssignments theme={{theme: this.props.theme, color: this.color()}}
+                                    showSnackBar={this.showSnackBar}/>
+        }else if (section.name === 'Notify Class') {
             return <NotifyClass/>;
         } else if (section.name === 'Post Test') {
             return <PostTest takes={section.takesID}/>;
