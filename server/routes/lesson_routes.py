@@ -68,7 +68,9 @@ def get_lessons(course_id: int):
     if not able_view_course(course_id):
         return jsonify(error="User not able to view course or course does not exist")
     lessons = Lesson.query.filter(Lesson.COURSE == course_id).all()
-    return jsonify(lessons=lessons)
+    lesson_list = list(map(lambda l: {'ID': l.LESSON, 'COURSE': l.COURSE, 'name': l.name, 'content': l.content,
+                                      'hasAssignment': l.has_assignment, 'dueDate': l.due_date}, lessons))
+    return jsonify(lessons=lesson_list)
 
 
 @LessonRoutes.route('/getAssignments', methods=['POST'])
