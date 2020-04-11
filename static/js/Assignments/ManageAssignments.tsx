@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Paper, Select, Grow, MenuItem, ListItemText, Input, IconButton, Typography } from '@material-ui/core';
+import { Grid, Paper, Select, Grow, MenuItem, ListItemText, Input, IconButton, Typography, TextField } from '@material-ui/core';
 import {ChevronLeft, ChevronRight, Add} from '@material-ui/icons';
 import * as Http from '../Http';
 import {Course} from '../Http/types';
@@ -7,6 +7,11 @@ import {ThemeObj} from '../Models';
 import AnswerFSM from '../InquiryAnswering/AnswerFSM';
 import {ShowSnackBar} from '../Layout/Layout';
 import Button from '@material-ui/core/Button';
+import {Content} from '../HelperFunctions/Content';
+import {
+    KeyboardTimePicker,
+    KeyboardDatePicker,
+} from '@material-ui/pickers';
 
 interface ManageAssignmentsProps {
     theme: ThemeObj;
@@ -20,6 +25,10 @@ interface ManageAssignmentsState {
     selectedCourseName: string;
     selectedCourse: Course;
     currentIndex: number;
+    isCreatingAssignment: boolean;
+    lessonText: string;
+    newLessonDate: Date;
+    newLessonName: string;
 };
 
 export default class ManageAssignments extends Component<ManageAssignmentsProps, ManageAssignmentsState> {
@@ -36,6 +45,10 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
             selectedCourse: {} as Course,
             selectedCourseName: '',
             currentIndex: 0,
+            isCreatingAssignment: false,
+            lessonText: '',
+            newLessonDate: new Date(),
+            newLessonName: '',
         };
 
         this.pollFrequency = 1000 * 60 * 2;
@@ -157,6 +170,8 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                         variant="contained"
                         color="primary"
                         className="avo-button"
+                        id="add_assignment_button"
+                        onClick={() => this.setState({ isCreatingAssignment: true })}
                     >
                         <span style={{ color: 'white' }}>
                             Add Assignment
@@ -164,7 +179,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                         </span>
                     </Button>
                 </div>
-                <AnswerFSM
+                {/* <AnswerFSM
                     sourceID={this.getSourceID()} 
                     onClose={this.closeAnswerFSM.bind(this)}
                     theme={this.props.theme}
@@ -172,7 +187,78 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                     <div>
                         Hello world
                     </div>
+                </AnswerFSM> */}
+                <AnswerFSM
+                    sourceID={this.state.isCreatingAssignment ? "add_assignment_button" : undefined} 
+                    onClose={this.closeAddAssignmentFSM.bind(this)}
+                    theme={this.props.theme}
+                >
+                    {this.renderLessonCreation()}
                 </AnswerFSM>
+            </div>
+        );
+    };
+
+    renderLessonCreation() {
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    position: 'relative',
+                    height: '40vh',
+                    width: '-webkit-fill-available',
+                }}
+            >
+                <Grid
+                    container
+                    md={12}
+                    style={{height: '60vh', position: 'relative'}}
+                >
+                    <Grid item md={12} >
+                        <Input
+                            id='set-lesson_name'
+                            value={this.state.newLessonName}
+                            placeholder="Lesson Name"
+                            onChange={e => this.setState({newLessonName: e.target.value})}
+                        />
+                    </Grid>
+                    <Grid item md={6} style={{padding: '9px'}}>
+                        <TextField
+                            label='Lesson Content'
+                            variant='outlined'
+                            multiline
+                            defaultValue={this.state.lessonText}
+                            onChange={(e: any) => {
+                                this.setState({lessonText: e.target.value})
+                            }}
+                            style={{
+                                height: '-webkit-fill-available',
+                                width: '-webkit-fill-available',
+                            }}
+                            margin='dense'
+                            rowsMax='12'
+                        />
+                    </Grid>
+                    <Grid item md={6} style={{padding: '9px'}}>
+                        <Content>{this.state.lessonText}</Content>
+                    </Grid>
+                    <Grid item md={12} >
+                        <KeyboardDatePicker
+                            disableToolbar
+                            variant="inline"
+                            format="MM/DD/YYYY"
+                            margin="normal"
+                            id="date-picker-inline"
+                            label="Due Date"
+                            value={this.state.newLessonDate}
+                            onChange={() => { console.log('a'); }}
+                            KeyboardButtonProps={{
+                                'aria-label': 'change date',
+                            }}
+                        />
+                    </Grid>
+                </Grid>
             </div>
         );
     };
@@ -201,6 +287,22 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
         clearInterval(this.intervalObject);
     };
 
+    addNewAssignment() {
+        const { lessonText, newLessonName, newLessonDate } = this.state;
+        Http.addLesson(
+            this.state.selectedCourse.courseID,
+            newLessonName,
+            true,
+            newLessonDate.getTime(),
+            res => {
+                console.log(res);
+            },
+            res => {
+                console.log(res);
+            }
+        );
+    };
+
     getSourceID() {
         // if(!!this.state.selectedInquiry.ID)
             // return `concept@id:${this.state.selectedInquiry.ID}`;
@@ -211,6 +313,10 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
     closeAnswerFSM() {
 
     }
+
+    closeAddAssignmentFSM() {
+        this.setState({ isCreatingAssignment : false });
+    };
 
     isNextDisabled() {
         return this.state.currentIndex == this.pageNum - 1;
