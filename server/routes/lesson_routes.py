@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify
 from server import db
 from server.auth import able_edit_course, able_view_course
 from server.decorators import login_required, teacher_only, validate
+from server.helpers import from_timestamp
 from server.models import Assignment, Lesson, User
 
 LessonRoutes = Blueprint('LessonRoutes', __name__)
@@ -11,11 +12,11 @@ LessonRoutes = Blueprint('LessonRoutes', __name__)
 
 @LessonRoutes.route('/addLesson', methods=['POST'])
 @teacher_only
-@validate(courseID=int,  content=str, name=str, hasAssignment=bool, dueDate=datetime)
-def add_lesson(course_ID: int, content: str, name: str, has_assignment: bool, due_date: datetime):
+@validate(courseID=int,  content=str, name=str, hasAssignment=bool, dueDate=int)
+def add_lesson(course_ID: int, content: str, name: str, has_assignment: bool, due_date: int):
     if not able_edit_course(course_ID):
         return jsonify(error="Course not found or not able to edit course")
-    lesson = Lesson(course_ID, content, name, has_assignment, due_date)
+    lesson = Lesson(course_ID, content, name, has_assignment, from_timestamp(due_date))
     db.session.add(lesson)
     db.session.commit()
     return jsonify(lesson=lesson.LESSON)
@@ -23,8 +24,8 @@ def add_lesson(course_ID: int, content: str, name: str, has_assignment: bool, du
 
 @LessonRoutes.route('/editLesson', methods=['POST'])
 @teacher_only
-@validate(lessonID=int, content=str, name=str, hasAssignment=bool, dueDate=datetime)
-def edit_lesson(lesson_ID: int, content: str, name: str, has_assignment: bool, due_date: datetime):
+@validate(lessonID=int, content=str, name=str, hasAssignment=bool, dueDate=int)
+def edit_lesson(lesson_ID: int, content: str, name: str, has_assignment: bool, due_date: int):
     lesson = Lesson.query.get(lesson_ID)
     if lesson is None:
         return jsonify(error='Lesson not found')
@@ -33,6 +34,10 @@ def edit_lesson(lesson_ID: int, content: str, name: str, has_assignment: bool, d
     lesson.content = content
     lesson.name = name
     lesson.has_assignment = has_assignment
+    if has_assignment:
+        lesson.due_date = from_timestamp(due_date)
+    else:
+        lesson.due_date = None
     lesson.due_date = due_date
     db.session.commit()
     return jsonify(code=1)
