@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify
 from server import db
 from server.auth import able_edit_course, able_view_course
 from server.decorators import login_required, teacher_only, validate
-from server.models import Assignment, Concept, Lesson
+from server.models import Assignment, Lesson, User
 
 LessonRoutes = Blueprint('LessonRoutes', __name__)
 
@@ -57,7 +57,7 @@ def delete_lesson(lesson_ID: int):
 def get_lessons(course_id: int):
     if not able_view_course(course_id):
         return jsonify(error="User not able to view course or course does not exist")
-    lessons = Lesson.query.filter(Lesson.COURSE == course_id)
+    lessons = Lesson.query.filter(Lesson.COURSE == course_id).all()
     return jsonify(lessons=lessons)
 
 
@@ -71,5 +71,6 @@ def get_assignments(lesson_id: int):
     if not able_edit_course(lesson.COURSE):
         return jsonify(error='User not able to view course')
     assignment_list = Assignment.query.filter(Assignment.LESSON == lesson.LESSON).all()
+    user_list = User.query.filter().all()
     return 'placeholder'
 
