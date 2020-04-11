@@ -12,6 +12,14 @@ import {DateTimePicker} from '@material-ui/pickers';
 
 import debounce from '../SharedComponents/AVODebouncer';
 
+interface Assignment {
+    name : string,
+    content : string,
+    hasAssignment: boolean;
+    lessonID: number;
+    dueDate: number;
+};
+
 interface ManageAssignmentsProps {
     theme: ThemeObj;
     showSnackBar: ShowSnackBar;
@@ -28,6 +36,7 @@ interface ManageAssignmentsState {
     lessonText: string;
     newLessonDate: Date;
     newLessonName: string;
+    assignments: Assignment[];
 };
 
 export default class ManageAssignments extends Component<ManageAssignmentsProps, ManageAssignmentsState> {
@@ -48,6 +57,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
             lessonText: '',
             newLessonDate: new Date(),
             newLessonName: '',
+            assignments: [],
         };
 
         this.pollFrequency = 1000 * 60 * 2;
@@ -310,7 +320,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
             true,
             newLessonDate.getTime(),
             res => {
-                console.log(res);
+                this.getInquiredConcepts(this.state.selectedCourse.courseID);
             },
             res => {
                 console.log(res);

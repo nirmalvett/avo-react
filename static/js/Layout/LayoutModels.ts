@@ -94,6 +94,11 @@ interface ManageAssignments {
     name: 'Manage Assignments';
 }
 
+
+interface MyAssignments {
+    name: 'My Assignments';
+}
+
 export type Section =
     | AddStudentsToClass
     | ConceptBuilder
@@ -116,4 +121,5 @@ export type Section =
     | TakeTest
     | UploadImages
     | AnswerInquiries
-    | ManageAssignments;
+    | ManageAssignments
+    | MyAssignments;
