@@ -16,7 +16,11 @@ LessonRoutes = Blueprint('LessonRoutes', __name__)
 def add_lesson(course_ID: int, content: str, name: str, has_assignment: bool, due_date: int):
     if not able_edit_course(course_ID):
         return jsonify(error="Course not found or not able to edit course")
-    lesson = Lesson(course_ID, content, name, has_assignment, from_timestamp(due_date))
+    if has_assignment:
+        due_date = from_timestamp(due_date)
+    else:
+        due_date = None
+    lesson = Lesson(course_ID, content, name, has_assignment, due_date)
     db.session.add(lesson)
     db.session.commit()
     return jsonify(lesson=lesson.LESSON)
