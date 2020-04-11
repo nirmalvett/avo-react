@@ -80,7 +80,6 @@ class Concept(db.Model):
     )
     COURSE_RELATION = db.relationship('Course', back_populates='CONCEPT_RELATION')
     INQUIRY_RELATION = db.relationship('Inquiry', back_populates='CONCEPT_RELATION')
-    LESSON_RELATION = db.relationship('Lesson', back_populates='CONCEPT_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='CONCEPT_RELATION')
 
     def __init__(self, course_id, name, concept_type, lesson_content):
@@ -346,24 +345,21 @@ class Lesson(db.Model):
 
     LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
     COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
-    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
     content = db.Column(db.String(16384), nullable=False)
     has_assignment = db.Column(db.Boolean, nullable=False, default=False)
     due_date = db.Column(db.DateTime, nullable=True)
 
     ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='LESSON_RELATION')
     COURSE_RELATION = db.relationship('Course', back_populates='LESSON_RELATION')
-    CONCEPT_RELATION = db.relationship('Concept', back_populates='LESSON_RELATION')
 
-    def __init__(self, course_id: int, concept_id: int, content: str, has_assignment: bool, due_date: datetime):
+    def __init__(self, course_id: int, content: str, has_assignment: bool, due_date: datetime):
         self.COURSE = course_id
-        self.CONCEPT = concept_id
         self.content = content
         self.has_assignment = has_assignment
         self.due_date = due_date
 
     def __repr__(self):
-        return f'<Lesson {self.LESSON} {self.COURSE} {self.CONCEPT} {self.content} {self.has_assignment} ' \
+        return f'<Lesson {self.LESSON} {self.COURSE} {self.content} {self.has_assignment} ' \
                f'{self.due_date}>'
 
 
