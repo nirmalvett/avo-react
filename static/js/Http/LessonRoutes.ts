@@ -1,10 +1,10 @@
 import {_request, cb} from './baseRequest';
 
-export function addLesson(courseID: number, content: string, name: string, hasAssignment: boolean, dueDate: Date, success: cb<{}>, failure: cb) {
+export function addLesson(courseID: number, content: string, name: string, hasAssignment: boolean, dueDate: number, success: cb<{}>, failure: cb) {
     _request('POST', '/addLesson', success, failure, {courseID, content, name, hasAssignment, dueDate});
 }
 
-export function editLesson(lessonID: number, content: string, name: string, hasAssignment: boolean, dueDate: Date, success: cb<{}>, failure: cb) {
+export function editLesson(lessonID: number, content: string, name: string, hasAssignment: boolean, dueDate: number, success: cb<{}>, failure: cb) {
     _request('POST', '/editLesson', success, failure, {lessonID, content, name, hasAssignment, dueDate});
 }
 

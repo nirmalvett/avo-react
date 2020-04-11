@@ -308,7 +308,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
             lessonText,
             newLessonName,
             true,
-            newLessonDate,
+            newLessonDate.getTime(),
             res => {
                 console.log(res);
             },
