@@ -72,9 +72,9 @@ def image_upload():
 @FileUploadRoutes.route('/upload/assignment', methods=['POST'])
 @login_required
 @validate(lessonID=int)
-def assignment_upload(lesson_ID: int):
-    lesson = Lesson.query.get(lesson_ID)
-    if lesson is  None:
+def assignment_upload(lesson_id: int):
+    lesson = Lesson.query.get(lesson_id)
+    if lesson is None:
         return jsonify(error='Lesson not found')
     if not able_view_course(lesson.COURSE):
         return jsonify(error='User not able to view course')
@@ -104,7 +104,7 @@ def assignment_upload(lesson_ID: int):
     assignment = Assignment.query.filter((Assignment.name == secure_filename(file.filename)) &
                                          (Assignment.USER == current_user.USER)).first()
     if assignment is None:
-        assignment = Assignment(lesson=lesson_ID, name=secure_filename(filename), user=current_user.USER, url=url)
+        assignment = Assignment(lesson=lesson_id, name=secure_filename(filename), user=current_user.USER, url=url)
         db.session.add(assignment)
     else:
         assignment.url = url
