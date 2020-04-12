@@ -13,11 +13,12 @@ import {DateTimePicker} from '@material-ui/pickers';
 import debounce from '../SharedComponents/AVODebouncer';
 
 interface Assignment {
-    name : string,
-    content : string,
+    COURSE: number;
+    ID: number;
+    content: string;
+    dueDate: string;
     hasAssignment: boolean;
-    lessonID: number;
-    dueDate: number;
+    name: string;
 };
 
 interface ManageAssignmentsProps {
@@ -26,7 +27,7 @@ interface ManageAssignmentsProps {
 };
 
 interface ManageAssignmentsState {
-    hasLoadedConcepts: boolean;
+    hasLoaded: boolean;
     hasLoadedInquiriesForConcept: boolean;
     courses: Course[];
     selectedCourseName: string;
@@ -37,6 +38,7 @@ interface ManageAssignmentsState {
     newLessonDate: Date;
     newLessonName: string;
     assignments: Assignment[];
+    selectedAssignment: Assignment;
 };
 
 export default class ManageAssignments extends Component<ManageAssignmentsProps, ManageAssignmentsState> {
@@ -47,7 +49,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
     constructor(props: ManageAssignmentsProps) {
         super(props);
         this.state = {
-            hasLoadedConcepts: false,
+            hasLoaded: false,
             hasLoadedInquiriesForConcept: false,
             courses: [],
             selectedCourse: {} as Course,
@@ -58,6 +60,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
             newLessonDate: new Date(),
             newLessonName: '',
             assignments: [],
+            selectedAssignment: {} as Assignment,
         };
 
         this.pollFrequency = 1000 * 60 * 2;
@@ -118,9 +121,9 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                                 gridAutoRows: 'min-content'
                             }}
                         >
-                            {/* {this.state.inquiredConcepts.filter((c: InquiredConcept, i: number) => {
-                                return this.state.currentIndex * 6 <= i && (this.state.currentIndex * 6) + 6 >= i + 1;
-                            }).map((InquiredConcept, i: number) => (
+                            {this.state.assignments.filter((c: Assignment, i: number) => {
+                                return this.state.currentIndex * 12 <= i && (this.state.currentIndex * 12) + 12 >= i + 1;
+                            }).map((Assignment, i: number) => (
                                 <div
                                     style={{ 
                                         padding : '4px',
@@ -128,35 +131,31 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                                         cursor: 'pointer'
                                     }} 
                                     onClick={() => { 
-
+                                        this.setState({ selectedAssignment : Assignment });
                                     }}
-                                    id={`concept@id:${InquiredConcept.ID}`}
-                                    key={`concept@key:${i}`}
+                                    id={`assignment@id:${Assignment.ID}`}
+                                    key={`assignment@key:${i}`}
                                 >
-                                    <Grow in={this.state.hasLoadedConcepts} timeout={i * 150} key={`concept-anim@key:${i}`}>
+                                    <Grow in={this.state.hasLoaded} timeout={i * 150} key={`assignment-anim@key:${i}`}>
                                         <Paper 
                                             className='avo-card' 
                                             style={{ 
                                                 width: 'auto', 
                                                 margin: '0px',
-                                                height: '32vh',
+                                                height: '16vh',
                                                 maxHeight: '500px',
                                             }}
                                         >
-                                            <AnswerGauge 
-                                                theme={this.props.theme} 
-                                                answered={InquiredConcept.answered} 
-                                                unanswered={InquiredConcept.unanswered}
-                                                width={'auto'}
-                                                height={'90%'}
-                                            />
-                                            <Typography variant="body1" style={{ position: 'absolute', bottom: '4px', left: '4px' }}>
-                                                {InquiredConcept.name.length > 23 ? InquiredConcept.name.substring(0, 23) + '...' : InquiredConcept.name}
+                                            <Typography variant="body1" style={{ position: 'absolute', top: '4px', left: '4px' }}>
+                                                {Assignment.name.length > 23 ? Assignment.name.substring(0, 23) + '...' : Assignment.name}
+                                            </Typography>
+                                            <Typography variant="caption" style={{ position: 'absolute', top: '24px', left: '4px' }}>
+                                                {Assignment.dueDate}
                                             </Typography>
                                         </Paper>
                                     </Grow>
                                 </div>
-                            ))} */}
+                            ))}
                         </div>
                     </div>
                     <div>
@@ -188,7 +187,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                         </span>
                     </Button>
                 </div>
-                {/* <AnswerFSM
+                <AnswerFSM
                     sourceID={this.getSourceID()} 
                     onClose={this.closeAnswerFSM.bind(this)}
                     theme={this.props.theme}
@@ -196,7 +195,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                     <div>
                         Hello world
                     </div>
-                </AnswerFSM> */}
+                </AnswerFSM>
                 <AnswerFSM
                     sourceID={this.state.isCreatingAssignment ? "add_assignment_button" : undefined} 
                     onClose={this.closeAddAssignmentFSM.bind(this)}
@@ -321,6 +320,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
             newLessonDate.getTime(),
             res => {
                 this.getInquiredConcepts(this.state.selectedCourse.courseID);
+                this.closeAddAssignmentFSM();
             },
             res => {
                 console.log(res);
@@ -329,14 +329,12 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
     };
 
     getSourceID() {
-        // if(!!this.state.selectedInquiry.ID)
-            // return `concept@id:${this.state.selectedInquiry.ID}`;
-
-        return '69';
+        if(!!this.state.selectedAssignment.ID)
+            return `assignment@id:${this.state.selectedAssignment.ID}`;
     };
 
     closeAnswerFSM() {
-
+        this.setState({ selectedAssignment : {} as Assignment });
     }
 
     closeAddAssignmentFSM() {
@@ -355,10 +353,10 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
         const index: number = this.state.currentIndex + 1;
         this.setState({ 
             currentIndex : index,
-            hasLoadedConcepts : false,
+            hasLoaded : false,
         }, () => {
             setTimeout(() => {
-                this.setState({ hasLoadedConcepts : true });
+                this.setState({ hasLoaded : true });
             }, 150 * 6)
         });
     };
@@ -367,10 +365,10 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
         const index: number = this.state.currentIndex - 1;
         this.setState({ 
             currentIndex : index,
-            hasLoadedConcepts : false,
+            hasLoaded : false,
         }, () => {
             setTimeout(() => {
-                this.setState({ hasLoadedConcepts : true });
+                this.setState({ hasLoaded : true });
             }, 150 * 6) 
         });
     };
@@ -380,8 +378,8 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
         if (selectedCourseName !== 'Select class...') {
             const selectedCourse = courses.find(c => c.name === selectedCourseName);
             if (selectedCourse) {
-                this.setState({selectedCourse, hasLoadedConcepts:false, currentIndex: 0}, () => {
-                    setTimeout(() => {  
+                this.setState({selectedCourse, hasLoaded:false, currentIndex: 0}, () => {
+                    setTimeout(() => {   
                         this.getInquiredConcepts(selectedCourse.courseID);
                     }, 150 * 6)            
                 });
@@ -392,8 +390,8 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
     getInquiredConcepts(courseID: number) {
         Http.getLessons(
             courseID,
-            res => {
-                console.log(res);
+            (res: any) => { 
+                this.setState({ assignments: res.lessons, hasLoaded : true });
             },
             res => {
                 console.log(res);
