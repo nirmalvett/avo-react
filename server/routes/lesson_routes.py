@@ -5,7 +5,7 @@ from server import db
 from server.auth import able_edit_course, able_view_course
 from server.decorators import login_required, teacher_only, validate
 from server.helpers import from_timestamp
-from server.models import Assignment, Lesson, User
+from server.models import Assignment, UserCourse, Lesson, User
 
 LessonRoutes = Blueprint('LessonRoutes', __name__)
 
@@ -83,6 +83,14 @@ def get_assignments(lesson_id: int):
     if not able_edit_course(lesson.COURSE):
         return jsonify(error='User not able to view course')
     assignment_list = Assignment.query.filter(Assignment.LESSON == lesson.LESSON).all()
-    user_list = User.query.filter().all()
-    return 'placeholder'
+    user_list = User.query.filter((User.USER == UserCourse.USER) & (UserCourse.COURSE == lesson.COURSE)).all()
+    student_num = len(user_list)
+    user_list = User.query.filter((Assignment.USER == User.USER) & (Assignment.LESSON == lesson.LESSON)).all()
+    return_list = []
+    for a in assignment_list:
+        for u in user_list:
+            if a.USER == u.USER:
+                return_list.append({'USER': u.email, 'ASSIGNMENT': a.ASSIGNMENT})
+                break
+    return return_list
 
