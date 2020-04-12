@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify
 from flask_login import current_user
-from server.decorators import login_required, student_only, teacher_only, validate
+from server.decorators import login_required, teacher_only, validate
 from server.auth import able_view_course, able_edit_course
-from server.models import Concept, ConceptQuestion, Course, db, Inquiry, Question, UserInquiry
+from server.models import Concept, ConceptQuestion, Course, db, Inquiry, Lesson, Question, UserInquiry
 
 OrganicContentRoutes = Blueprint("OrganicContentRoutes", __name__)
 
@@ -153,16 +153,24 @@ def submit_inquiry(question_string: int, question_id: int, inquiry_type: int, st
             return jsonify(error="Question Not Found")
         concept = Concept.query.filter((ConceptQuestion.CONCEPT == Concept.CONCEPT) &
                                        (ConceptQuestion.QUESTION == question.QUESTION)).first()
+        if concept is None:
+            return jsonify(error="Concept Not Found")
         del question
     if inquiry_type == 1:
         # Inquiry About Concept
         concept = Concept.query.get(question_id)
-    if concept is None:
-        return jsonify(error="Concept Not Found")
+        if concept is None:
+            return jsonify(error="Concept Not Found")
+    if inquiry_type == 2:
+        lesson = Lesson.query.get(question_id)
+        if lesson is None:
+            return jsonify(error='Lesson not found')
     if inquiry_type == 0:
         new_inquiry = Inquiry(question_string, inquiry_type, stringified_question_object, question=question_id)
-    else:
+    elif inquiry_type == 1:
         new_inquiry = Inquiry(question_string, inquiry_type, stringified_question_object, concept=question_id)
+    else:
+        new_inquiry = Inquiry(question_string, inquiry_type, stringified_question_object, lesson=question_id)
     db.session.add(new_inquiry)
     db.session.commit()
     db.session.add(UserInquiry(current_user.USER, new_inquiry.INQUIRY, True))

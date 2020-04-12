@@ -273,6 +273,7 @@ class Inquiry(db.Model):
 
     INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
     CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=True)
+    LESSON = db.Column(db.Integer, db.ForeignKey('LESSON.LESSON'), nullable=True)
     QUESTION = db.Column(db.Integer, db.ForeignKey('QUESTION.QUESTION'), nullable=True)
     originalInquiry = db.Column(db.Text, nullable=False)
     editedInquiry = db.Column(db.TEXT, nullable=False, default="")
@@ -283,10 +284,11 @@ class Inquiry(db.Model):
     inquiryAnswer = db.Column(db.TEXT, nullable=False, default="")
 
     CONCEPT_RELATION = db.relationship('Concept', back_populates='INQUIRY_RELATION')
+    LESSON_RELATION = db.relationship('Lesson', back_populates='INQUIRY_RELATION')
     QUESTION_RELATION = db.relationship('Question', back_populates='INQUIRY_RELATION')
     USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='INQUIRY_RELATION')
 
-    def __init__(self, original_inquiry, inquiry_type, stringified_question, concept=None, question=None):
+    def __init__(self, original_inquiry, inquiry_type, stringified_question, concept=None, question=None, lesson=None):
         self.CONCEPT = concept
         self.QUESTION = question
         self.originalInquiry = original_inquiry
@@ -352,6 +354,7 @@ class Lesson(db.Model):
 
     ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='LESSON_RELATION')
     COURSE_RELATION = db.relationship('Course', back_populates='LESSON_RELATION')
+    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='LESSON_RELATION')
 
     def __init__(self, course_id: int, name: str, content: str, has_assignment: bool, due_date: datetime):
         self.COURSE = course_id
