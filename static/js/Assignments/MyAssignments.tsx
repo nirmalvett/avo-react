@@ -28,6 +28,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Dropzone from 'react-dropzone-uploader'
 import Button from '@material-ui/core/Button';
 import {Content} from '../HelperFunctions/Content';
 import {DateTimePicker} from '@material-ui/pickers';
@@ -212,7 +213,7 @@ export default class MyAssignments extends Component<MyAssignmentsProps, MyAssig
                     onClose={this.closeAnswerFSM.bind(this)}
                     theme={this.props.theme}
                 >
-                    <div style={{ width: '-webkit-fill-available' }}>
+                    <div style={{ width: '-webkit-fill-available', position: 'relative' }}>
                         {this.renderAssignmentData()}
                     </div>
                 </AnswerFSM>
@@ -266,12 +267,37 @@ export default class MyAssignments extends Component<MyAssignmentsProps, MyAssig
                 </div>
                 <div
                     style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-end',
+                        position: 'absolute',
+                        right: '10px',
+                        bottom: '10px',
+                        width: '20%'
                     }}
                 >
+                    <Dropzone
+                        getUploadParams={({meta}: any) => {
+                            return {url: '/upload/assignment'}
+                        }}
+                        onChangeStatus={({meta, file}: any, status: any) => {
+                        }}
+                        onSubmit={(files: any[]) => {
+                            // this.getImages();
+                        }}
+                        accept=""
+                    />
+                    {/* <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', margin: 10}}>
+
+                        {
+                            Object.keys(this.state.images).map(key => {
+                                const name = this.state.images[key];
+                                return (
+                                    <div key={`image_uploader_${key}`} id={`image_uploader_${key}`}>
+                                        <Typography>{name}</Typography>
+                                        <img alt={name} src={`${BASE_URL}/image/${name}`}/>
+                                    </div>
+                                )
+                            })
+                        }
+                    </div> */}
                     <InquiryPopup 
                         ID={this.state.selectedAssignment.ID} 
                         type={2}
