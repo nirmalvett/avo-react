@@ -72,8 +72,6 @@ def image_upload():
 @FileUploadRoutes.route('/upload/assignment/<lesson_id>', methods=['POST'])
 @login_required
 def assignment_upload(lesson_id: int):
-    if not type(lesson_id) == int:
-        return jsonify(error='Invalid Data Type')
     lesson = Lesson.query.get(lesson_id)
     if lesson is None:
         return jsonify(error='Lesson not found')
