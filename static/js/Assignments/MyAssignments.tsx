@@ -32,7 +32,7 @@ import Dropzone from 'react-dropzone-uploader'
 import Button from '@material-ui/core/Button';
 import {Content} from '../HelperFunctions/Content';
 import {DateTimePicker} from '@material-ui/pickers';
-
+require('react-dropzone-uploader/dist/styles.css');
 import debounce from '../SharedComponents/AVODebouncer';
 
 interface InquiryObject {
@@ -283,12 +283,12 @@ export default class MyAssignments extends Component<MyAssignmentsProps, MyAssig
                             // this.getImages();
                         }}
                         styles={{
-                            submitButton : { color : 'red' }
+                            submitButton : { display: 'none' },
                         }}
                         accept=""
                     />
                     {/* <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', margin: 10}}>
-
+ 
                         {
                             Object.keys(this.state.images).map(key => {
                                 const name = this.state.images[key];
