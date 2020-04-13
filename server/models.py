@@ -298,6 +298,7 @@ class Inquiry(db.Model):
         self.hasAnswered = False
         self.stringifiedQuestion = stringified_question
         self.inquiryAnswer = None
+        self.LESSON = lesson
 
     def __repr__(self):
         return f'Inquiry {self.INQUIRY} {self.originalInquiry} {self.editedInquiry} {self.hasAnswered} ' \
