@@ -90,7 +90,7 @@ def get_assignments(lesson_id: int):
     for a in assignment_list:
         for u in user_list:
             if a.USER == u.USER:
-                return_list.append({'USER': u.email, 'ASSIGNMENT': a.ASSIGNMENT})
+                return_list.append({'USER': u.email, 'ASSIGNMENT': a.ASSIGNMENT, 'url': a.url})
                 break
     return return_list
 
