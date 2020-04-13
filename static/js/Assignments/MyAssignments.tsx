@@ -274,8 +274,12 @@ export default class MyAssignments extends Component<MyAssignmentsProps, MyAssig
                     }}
                 >
                     <Dropzone
-                        getUploadParams={({meta}: any) => {
-                            return {url: '/upload/assignment'}
+                        getUploadParams={({file, meta}: any) => {
+                            // return {url: '/upload/assignment'}
+                            const body = new FormData();
+                            body.append('fileField', file);
+                            body.append('lessonID', `${this.state.selectedAssignment.ID}`);
+                            return { url: '/upload/assignment', body };
                         }}
                         onChangeStatus={({meta, file}: any, status: any) => {
                         }}

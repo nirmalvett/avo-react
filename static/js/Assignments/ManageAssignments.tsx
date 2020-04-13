@@ -225,7 +225,6 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
             >
                 <Grid
                     container
-                    md={12}
                     style={{height: '60vh', position: 'relative'}}
                 >
                     <Grid item md={12} >

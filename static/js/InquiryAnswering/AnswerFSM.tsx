@@ -14,8 +14,11 @@ interface AnswerFSMState {}
 export default class AnswerFSM extends PureComponent<AnswerFSMProps, AnswerFSMState> {
     transform: string = '';
 
+    static increment: number = 0;
+
     constructor(props: AnswerFSMProps) {
         super(props);
+        AnswerFSM.increment++;
     };
 
     render() {
@@ -23,7 +26,7 @@ export default class AnswerFSM extends PureComponent<AnswerFSMProps, AnswerFSMSt
         const border = (16 + 1) * 2;
         return (
             <Paper
-                id='avo-lesson__expanded-card'
+                id={`avo-lesson__expanded-card@iteration:${AnswerFSM.increment}`}
                 style={{
                     pointerEvents: 'none',
                     transition: 'transform 500ms ease-out, opacity, 500ms ease-out',
