@@ -92,5 +92,5 @@ def get_assignments(lesson_id: int):
             if a.USER == u.USER:
                 return_list.append({'USER': u.email, 'ASSIGNMENT': a.ASSIGNMENT, 'url': a.url})
                 break
-    return return_list
+    return jsonify(assignments=return_list)
 
