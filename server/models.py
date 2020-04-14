@@ -290,6 +290,7 @@ class Inquiry(db.Model):
 
     def __init__(self, original_inquiry, inquiry_type, stringified_question, concept=None, question=None, lesson=None):
         self.CONCEPT = concept
+        self.LESSON = lesson
         self.QUESTION = question
         self.originalInquiry = original_inquiry
         self.editedInquiry = None
@@ -298,7 +299,6 @@ class Inquiry(db.Model):
         self.hasAnswered = False
         self.stringifiedQuestion = stringified_question
         self.inquiryAnswer = None
-        self.LESSON = lesson
 
     def __repr__(self):
         return f'Inquiry {self.INQUIRY} {self.originalInquiry} {self.editedInquiry} {self.hasAnswered} ' \
