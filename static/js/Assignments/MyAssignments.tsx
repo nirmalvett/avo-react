@@ -1,3 +1,5 @@
+require('react-dropzone-uploader/dist/styles.css');
+
 import React, { Component } from 'react';
 import { 
     Grid, 
@@ -29,11 +31,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Dropzone from 'react-dropzone-uploader'
-import Button from '@material-ui/core/Button';
 import {Content} from '../HelperFunctions/Content';
-import {DateTimePicker} from '@material-ui/pickers';
-require('react-dropzone-uploader/dist/styles.css');
-import debounce from '../SharedComponents/AVODebouncer';
 
 interface InquiryObject {
     ID: number;
@@ -284,6 +282,9 @@ export default class MyAssignments extends Component<MyAssignmentsProps, MyAssig
                         }}
                         styles={{
                             submitButton : { display: 'none' },
+                            inputLabel: { color : this.props.theme.color[500], fontSize : '1em' },
+                            inputLabelWithFiles: { backgroundColor : this.props.theme.color[500], fontSize: '1em', color: 'white', borderRadius: '5em' },
+                            dropzone: { height : '65vh' }
                         }}
                         accept=""
                     />
@@ -301,6 +302,9 @@ export default class MyAssignments extends Component<MyAssignmentsProps, MyAssig
                             })
                         }
                     </div> */}
+                    <br/>
+                    <br/>
+                    <br/>
                     <InquiryPopup 
                         ID={this.state.selectedAssignment.ID} 
                         type={2}
