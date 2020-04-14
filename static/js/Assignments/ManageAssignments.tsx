@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Grid, Paper, Select, Grow, MenuItem, ListItemText, Input, IconButton, Typography, TextField } from '@material-ui/core';
-import {ChevronLeft, ChevronRight, Add} from '@material-ui/icons';
+import { Grid, Paper, Select, Grow, MenuItem, ListItemText, Input, IconButton, Typography, TextField, List, ListItem, ListItemSecondaryAction  } from '@material-ui/core';
+import {ChevronLeft, ChevronRight, Add, CloudDownloadOutlined} from '@material-ui/icons';
 import * as Http from '../Http';
 import {Course} from '../Http/types';
 import {ThemeObj} from '../Models';
@@ -21,6 +21,12 @@ interface Assignment {
     name: string;
 };
 
+interface HandedInAssignment {
+    ASSIGNMENT: number;
+    USER: string;
+    url: string;
+};
+
 interface ManageAssignmentsProps {
     theme: ThemeObj;
     showSnackBar: ShowSnackBar;
@@ -39,6 +45,7 @@ interface ManageAssignmentsState {
     newLessonName: string;
     assignments: Assignment[];
     selectedAssignment: Assignment;
+    handedInAssignments: HandedInAssignment[];
 };
 
 export default class ManageAssignments extends Component<ManageAssignmentsProps, ManageAssignmentsState> {
@@ -61,6 +68,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
             newLessonName: '',
             assignments: [],
             selectedAssignment: {} as Assignment,
+            handedInAssignments: [],
         };
 
         this.pollFrequency = 1000 * 60 * 2;
@@ -131,7 +139,9 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                                         cursor: 'pointer'
                                     }} 
                                     onClick={() => { 
-                                        this.setState({ selectedAssignment : Assignment });
+                                        this.setState({ selectedAssignment : Assignment }, () => {
+                                            this.getAssignments();
+                                        });
                                     }}
                                     id={`assignment@id:${Assignment.ID}`}
                                     key={`assignment@key:${i}`}
@@ -193,7 +203,27 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                     theme={this.props.theme}
                 >
                     <div>
-                        Hello world
+                        <Typography variant="h4">
+                            {this.state.selectedAssignment.name}
+                        </Typography>
+                        {!!this.state.handedInAssignments.length ? (
+                            <List style={{ width: '60vw', height : '90%', overflowY: 'auto' }}>
+                                {this.state.handedInAssignments.map(HandedInAssignment => (
+                                    <ListItem dense>
+                                        <ListItemText>{HandedInAssignment.USER}</ListItemText>
+                                        <ListItemSecondaryAction>
+                                            <IconButton size={'small'} onClick={() => window.open(HandedInAssignment.url)}>
+                                                <CloudDownloadOutlined/>
+                                            </IconButton>
+                                        </ListItemSecondaryAction>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        ) : (
+                            <Typography variant="body1" style={{ textAlign : 'center' }}>
+                                No Assignments have been handed in yet.
+                            </Typography>
+                        )}
                     </div>
                 </AnswerFSM>
                 <AnswerFSM
@@ -384,6 +414,18 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                 });
             }
         }
+    };
+
+    getAssignments() {
+        Http.getAssignments(
+            this.state.selectedAssignment.ID,
+            (res: any) => {
+                this.setState({ handedInAssignments : res.assignments });
+            },
+            (res: any) => {
+                console.log(res);
+            }
+        );
     };
 
     getInquiredConcepts(courseID: number) {
