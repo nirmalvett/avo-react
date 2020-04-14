@@ -277,7 +277,7 @@ class Inquiry(db.Model):
     QUESTION = db.Column(db.Integer, db.ForeignKey('QUESTION.QUESTION'), nullable=True)
     originalInquiry = db.Column(db.Text, nullable=False)
     editedInquiry = db.Column(db.TEXT, nullable=False, default="")
-    inquiryType = db.Column(db.Boolean, nullable=False)
+    inquiryType = db.Column(db.Integer, nullable=False)
     timeCreated = db.Column(db.DATETIME, nullable=True)
     hasAnswered = db.Column(db.Boolean, nullable=False, default=False)
     stringifiedQuestion = db.Column(db.TEXT, nullable=False, default="")
