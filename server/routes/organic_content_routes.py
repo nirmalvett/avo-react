@@ -47,6 +47,12 @@ def get_inquires(inquiry_type: int, question_id: int):
                                                        Inquiry.INQUIRY.in_(subscribed_list)).all()
         inquiry_list_unsubscribed = Inquiry.query.filter((Inquiry.CONCEPT == question_id) &
                                                          Inquiry.INQUIRY.notin_(subscribed_list)).all()
+    if inquiry_type == 2:
+        # Lesson / Assignment type
+        inquiry_list_subscribed = Inquiry.query.filter((Inquiry.LESSON == question_id) &
+                                                       Inquiry.INQUIRY.in_(subscribed_list)).all()
+        inquiry_list_unsubscribed = Inquiry.query.filter((Inquiry.LESSON == question_id) &
+                                                         Inquiry.INQUIRY.notin_(subscribed_list)).all()
     if inquiry_list_subscribed is None and inquiry_list_unsubscribed is None:
         return jsonify(error="No inquiries found")
 
@@ -96,7 +102,9 @@ def get_all_inquired_concepts(course_id: int):
         return jsonify(error="Invalid Course")
     del course
     concept_list = Concept.query.filter(Concept.COURSE == course_id).all()
+    lesson_list = Lesson.query.filter(Lesson.COURSE == course_id).all()
     concept_return_list = []
+    lesson_return_list = []
     for concept in concept_list:
         concept_json = {"ID": concept.CONCEPT, "name": concept.name}
         inquiry_list = Inquiry.query.filter(concept.CONCEPT == Inquiry.CONCEPT).all()
@@ -110,7 +118,20 @@ def get_all_inquired_concepts(course_id: int):
         concept_json['unanswered'] = unanswered_inquiry
 
         concept_return_list.append(concept_json)
-    return jsonify(concepts=concept_return_list)
+    for lesson in lesson_list:
+        lesson_json = {"ID": lesson.LESSON, "name": lesson.name}
+        inquiry_list = Inquiry.query.filter(lesson.LESSON == Inquiry.LESSON).all()
+        answered_inquiry, unanswered_inquiry = 0, 0
+        for inquiry in inquiry_list:
+            if inquiry.hasAnswered:
+                answered_inquiry += 1
+            else:
+                unanswered_inquiry += 1
+        lesson_json["answered"] = answered_inquiry
+        lesson_json['unanswered'] = unanswered_inquiry
+
+        lesson_return_list.append(lesson_json)
+    return jsonify(concepts=concept_return_list, lessons=lesson_return_list)
 
 
 @OrganicContentRoutes.route('/getAllSubscribedOwnedInquiries', methods=['POST'])
