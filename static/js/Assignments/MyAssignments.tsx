@@ -164,7 +164,7 @@ export default class MyAssignments extends Component<MyAssignmentsProps, MyAssig
                                         cursor: 'pointer'
                                     }} 
                                     onClick={() => { 
-                                        this.setState({ selectedAssignment : Assignment });
+                                        this.setState({ selectedAssignment : Assignment }, () => this.getInquiries());
                                     }}
                                     id={`assignment@id:${Assignment.ID}`}
                                     key={`assignment@key:${i}`}
