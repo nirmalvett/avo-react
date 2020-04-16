@@ -278,7 +278,7 @@ export default class MyAssignments extends Component<MyAssignmentsProps, MyAssig
                         onChangeStatus={({meta, file}: any, status: any) => {
                         }}
                         onSubmit={(files: any[]) => {
-                            // this.getImages();
+                            this.props.showSnackBar('success', "Your Assignment has been successfully submitted.", 5000);                
                         }}
                         styles={{
                             submitButton : { display: 'none' },

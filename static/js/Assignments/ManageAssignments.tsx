@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Grid, Paper, Select, Grow, MenuItem, ListItemText, Input, IconButton, Typography, TextField, List, ListItem, ListItemSecondaryAction  } from '@material-ui/core';
-import {ChevronLeft, ChevronRight, Add, CloudDownloadOutlined} from '@material-ui/icons';
+import {ChevronLeft, ChevronRight, Add, CloudDownloadOutlined, Delete} from '@material-ui/icons';
 import * as Http from '../Http';
 import {Course} from '../Http/types';
 import {ThemeObj} from '../Models';
@@ -162,6 +162,12 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                                             <Typography variant="caption" style={{ position: 'absolute', top: '24px', left: '4px' }}>
                                                 {Assignment.dueDate}
                                             </Typography>
+                                            <IconButton
+                                                style={{ position : 'absolute', right : '9px', bottom : '9px' }}
+                                                onClick={() => {}}
+                                            >
+                                                <Delete/>
+                                            </IconButton>
                                         </Paper>
                                     </Grow>
                                 </div>
@@ -262,6 +268,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                             id='set-lesson_name'
                             value={this.state.newLessonName}
                             placeholder="Lesson Name"
+                            style={{ width : '300px' }}
                             onChange={e => this.setState({newLessonName: e.target.value})}
                         />
                     </Grid>
@@ -280,10 +287,10 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                                 width: '-webkit-fill-available',
                             }}
                             margin='dense'
-                            rowsMax='12'
+                            rows='20'
                         />
                     </Grid>
-                    <Grid item md={6} style={{padding: '9px', height: '39vh', overflow: 'auto'}}>
+                    <Grid item md={6} style={{padding: '9px', height: '29vh', overflow: 'auto'}}>
                         <Content>{this.state.lessonText}</Content>
                     </Grid>
                     <Grid item md={12} >
@@ -343,8 +350,8 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
         const { lessonText, newLessonName, newLessonDate } = this.state;
         Http.addLesson(
             this.state.selectedCourse.courseID,
-            lessonText,
             newLessonName,
+            lessonText,  
             true,
             newLessonDate.getTime(),
             res => {
@@ -427,6 +434,18 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
             }
         );
     };
+
+    deleteAssignment(assignmentID: number) {
+        Http.deleteLesson(
+            assignmentID,
+            (res: any) => {
+                this.getInquiredConcepts(this.state.selectedCourse.courseID);
+            },
+            (res: any) => {
+
+            },
+        )
+    }
 
     getInquiredConcepts(courseID: number) {
         Http.getLessons(
