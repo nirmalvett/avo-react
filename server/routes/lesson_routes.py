@@ -56,6 +56,8 @@ def delete_lesson(lesson_id: int):
         return jsonify(error="No lesson found")
     if not able_edit_course(lesson.COURSE):
         return jsonify(error="User not able to edit course")
+    assignment_list = Assignment.query.filter(Assignment.LESSON == lesson.LESSON).all()
+    db.session.delete(assignment_list)
     db.session.delete(lesson)
     db.session.commit()
     return jsonify(code=1)
