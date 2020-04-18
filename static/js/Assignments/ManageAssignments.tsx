@@ -164,8 +164,11 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                                             </Typography>
                                             <IconButton
                                                 style={{ position : 'absolute', right : '9px', bottom : '9px' }}
-                                                onClick={() => {}}
-                                            >
+                                                onClick={(e: any) => {
+                                                    e.stopPropagation();
+                                                    this.deleteAssignment(Assignment.ID);
+                                                }
+                                            }>
                                                 <Delete/>
                                             </IconButton>
                                         </Paper>
