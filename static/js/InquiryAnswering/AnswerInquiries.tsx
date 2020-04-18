@@ -11,6 +11,7 @@ import {ShowSnackBar} from '../Layout/Layout';
 
 interface InquiredConcept {
     ID: number;
+    type: number;
     name: string;
     answered: number;
     unanswered: number;
@@ -170,7 +171,7 @@ export default class AnswerInquiries extends Component<AnswerInquiriesProps, Ans
                     theme={this.props.theme}
                 >
                     {!!this.state.selectedInquiry.ID && (
-                        <AnswerQueries theme={this.props.theme} conceptID={this.state.selectedInquiry.ID} showSnackBar={this.props.showSnackBar}/>
+                        <AnswerQueries theme={this.props.theme} type={this.state.selectedInquiry.type} conceptID={this.state.selectedInquiry.ID} showSnackBar={this.props.showSnackBar}/>
                     )}
                 </AnswerFSM>
             </div>
@@ -256,11 +257,13 @@ export default class AnswerInquiries extends Component<AnswerInquiriesProps, Ans
         }
     };
 
-    getInquiredConcepts(courseID: number) {
+    getInquiredConcepts(courseID: number) {    
         Http.getAllInquiredConcepts(
             courseID,
             (res: any) => {
-                const concepts = (res.concepts as InquiredConcept[])
+                let a: any = res.concepts.map((c: any) => { c.type = 1; return c; });
+                let b: any = res.lessons.map((c: any) => { c.type = 2; return c; });
+                const concepts = ([...a, ...b] as InquiredConcept[])
                     .filter(InquiredConcept => InquiredConcept.answered + InquiredConcept.unanswered != 0)
                 this.pageNum = concepts.length <= 6 ? 1 : Math.floor(concepts.length/6) + (concepts.length % 6 > 0 ? 1 : 0);
                 this.setState({ 

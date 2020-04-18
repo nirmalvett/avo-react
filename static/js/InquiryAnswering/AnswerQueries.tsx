@@ -22,6 +22,7 @@ interface InquiryObject {
 
 interface AnswerQueriesProps {
     conceptID: number;
+    type: number;
     theme: ThemeObj; 
     showSnackBar: ShowSnackBar;
 };
@@ -173,7 +174,7 @@ export default class AnswerQueries extends Component<AnswerQueriesProps, AnswerQ
     componentDidMount() {
         Http.getInquiries(
             this.props.conceptID,
-            1,
+            this.props.type,
             (res: any) => {
                 this.setState({ 
                     inqueries: res, 

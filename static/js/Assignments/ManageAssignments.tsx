@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Grid, Paper, Select, Grow, MenuItem, ListItemText, Input, IconButton, Typography, TextField } from '@material-ui/core';
-import {ChevronLeft, ChevronRight, Add} from '@material-ui/icons';
+import { Grid, Paper, Select, Grow, MenuItem, ListItemText, Input, IconButton, Typography, TextField, List, ListItem, ListItemSecondaryAction  } from '@material-ui/core';
+import {ChevronLeft, ChevronRight, Add, CloudDownloadOutlined, Delete} from '@material-ui/icons';
 import * as Http from '../Http';
 import {Course} from '../Http/types';
 import {ThemeObj} from '../Models';
@@ -21,6 +21,12 @@ interface Assignment {
     name: string;
 };
 
+interface HandedInAssignment {
+    ASSIGNMENT: number;
+    USER: string;
+    url: string;
+};
+
 interface ManageAssignmentsProps {
     theme: ThemeObj;
     showSnackBar: ShowSnackBar;
@@ -39,6 +45,7 @@ interface ManageAssignmentsState {
     newLessonName: string;
     assignments: Assignment[];
     selectedAssignment: Assignment;
+    handedInAssignments: HandedInAssignment[];
 };
 
 export default class ManageAssignments extends Component<ManageAssignmentsProps, ManageAssignmentsState> {
@@ -61,6 +68,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
             newLessonName: '',
             assignments: [],
             selectedAssignment: {} as Assignment,
+            handedInAssignments: [],
         };
 
         this.pollFrequency = 1000 * 60 * 2;
@@ -131,7 +139,9 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                                         cursor: 'pointer'
                                     }} 
                                     onClick={() => { 
-                                        this.setState({ selectedAssignment : Assignment });
+                                        this.setState({ selectedAssignment : Assignment }, () => {
+                                            this.getAssignments();
+                                        });
                                     }}
                                     id={`assignment@id:${Assignment.ID}`}
                                     key={`assignment@key:${i}`}
@@ -152,6 +162,12 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                                             <Typography variant="caption" style={{ position: 'absolute', top: '24px', left: '4px' }}>
                                                 {Assignment.dueDate}
                                             </Typography>
+                                            <IconButton
+                                                style={{ position : 'absolute', right : '9px', bottom : '9px' }}
+                                                onClick={() => {}}
+                                            >
+                                                <Delete/>
+                                            </IconButton>
                                         </Paper>
                                     </Grow>
                                 </div>
@@ -193,7 +209,27 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                     theme={this.props.theme}
                 >
                     <div>
-                        Hello world
+                        <Typography variant="h4">
+                            {this.state.selectedAssignment.name}
+                        </Typography>
+                        {!!this.state.handedInAssignments.length ? (
+                            <List style={{ width: '60vw', height : '90%', overflowY: 'auto' }}>
+                                {this.state.handedInAssignments.map(HandedInAssignment => (
+                                    <ListItem dense>
+                                        <ListItemText>{HandedInAssignment.USER}</ListItemText>
+                                        <ListItemSecondaryAction>
+                                            <IconButton size={'small'} onClick={() => window.open(HandedInAssignment.url)}>
+                                                <CloudDownloadOutlined/>
+                                            </IconButton>
+                                        </ListItemSecondaryAction>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        ) : (
+                            <Typography variant="body1" style={{ textAlign : 'center' }}>
+                                No Assignments have been handed in yet.
+                            </Typography>
+                        )}
                     </div>
                 </AnswerFSM>
                 <AnswerFSM
@@ -232,6 +268,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                             id='set-lesson_name'
                             value={this.state.newLessonName}
                             placeholder="Lesson Name"
+                            style={{ width : '300px' }}
                             onChange={e => this.setState({newLessonName: e.target.value})}
                         />
                     </Grid>
@@ -250,10 +287,10 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                                 width: '-webkit-fill-available',
                             }}
                             margin='dense'
-                            rowsMax='12'
+                            rows='20'
                         />
                     </Grid>
-                    <Grid item md={6} style={{padding: '9px', height: '39vh', overflow: 'auto'}}>
+                    <Grid item md={6} style={{padding: '9px', height: '29vh', overflow: 'auto'}}>
                         <Content>{this.state.lessonText}</Content>
                     </Grid>
                     <Grid item md={12} >
@@ -313,8 +350,8 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
         const { lessonText, newLessonName, newLessonDate } = this.state;
         Http.addLesson(
             this.state.selectedCourse.courseID,
-            lessonText,
             newLessonName,
+            lessonText,  
             true,
             newLessonDate.getTime(),
             res => {
@@ -385,6 +422,30 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
             }
         }
     };
+
+    getAssignments() {
+        Http.getAssignments(
+            this.state.selectedAssignment.ID,
+            (res: any) => {
+                this.setState({ handedInAssignments : res.assignments });
+            },
+            (res: any) => {
+                console.log(res);
+            }
+        );
+    };
+
+    deleteAssignment(assignmentID: number) {
+        Http.deleteLesson(
+            assignmentID,
+            (res: any) => {
+                this.getInquiredConcepts(this.state.selectedCourse.courseID);
+            },
+            (res: any) => {
+
+            },
+        )
+    }
 
     getInquiredConcepts(courseID: number) {
         Http.getLessons(

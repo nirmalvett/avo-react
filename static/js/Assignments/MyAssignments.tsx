@@ -164,7 +164,7 @@ export default class MyAssignments extends Component<MyAssignmentsProps, MyAssig
                                         cursor: 'pointer'
                                     }} 
                                     onClick={() => { 
-                                        this.setState({ selectedAssignment : Assignment });
+                                        this.setState({ selectedAssignment : Assignment }, () => this.getInquiries());
                                     }}
                                     id={`assignment@id:${Assignment.ID}`}
                                     key={`assignment@key:${i}`}
@@ -278,7 +278,7 @@ export default class MyAssignments extends Component<MyAssignmentsProps, MyAssig
                         onChangeStatus={({meta, file}: any, status: any) => {
                         }}
                         onSubmit={(files: any[]) => {
-                            // this.getImages();
+                            this.props.showSnackBar('success', "Your Assignment has been successfully submitted.", 5000);                
                         }}
                         styles={{
                             submitButton : { display: 'none' },
