@@ -40,6 +40,28 @@ class Announcement(db.Model):
                f' {self.timestamp}>'
 
 
+class Assignment(db.Model):
+    __tablename__ = 'ASSIGNMENT'
+
+    ASSIGNMENT = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    LESSON = db.Column(db.Integer, db.ForeignKey('LESSON.LESSON'), nullable=False)
+    name = db.Column(db.String(200), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    url = db.Column(db.String(1000), nullable=False)
+
+    LESSON_RELATION = db.relationship('Lesson', back_populates='ASSIGNMENT_RELATION')
+    USER_RELATION = db.relationship('User', back_populates='ASSIGNMENT_RELATION')
+
+    def __init__(self, lesson, name, user, url):
+        self.LESSON = lesson
+        self.name = name
+        self.USER = user
+        self.url = url
+
+    def __repr__(self):
+        return f'{self.ASSIGNMENT} {self.LESSON} {self.USER} {self.url}'
+
+
 class Concept(db.Model):
     __tablename__ = 'CONCEPT'
 
@@ -58,7 +80,6 @@ class Concept(db.Model):
     )
     COURSE_RELATION = db.relationship('Course', back_populates='CONCEPT_RELATION')
     INQUIRY_RELATION = db.relationship('Inquiry', back_populates='CONCEPT_RELATION')
-    LESSON_RELATION = db.relationship('Lesson', back_populates='CONCEPT_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='CONCEPT_RELATION')
 
     def __init__(self, course_id, name, concept_type, lesson_content):
@@ -252,21 +273,24 @@ class Inquiry(db.Model):
 
     INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
     CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=True)
+    LESSON = db.Column(db.Integer, db.ForeignKey('LESSON.LESSON'), nullable=True)
     QUESTION = db.Column(db.Integer, db.ForeignKey('QUESTION.QUESTION'), nullable=True)
     originalInquiry = db.Column(db.Text, nullable=False)
     editedInquiry = db.Column(db.TEXT, nullable=False, default="")
-    inquiryType = db.Column(db.Boolean, nullable=False)
+    inquiryType = db.Column(db.Integer, nullable=False)
     timeCreated = db.Column(db.DATETIME, nullable=True)
     hasAnswered = db.Column(db.Boolean, nullable=False, default=False)
     stringifiedQuestion = db.Column(db.TEXT, nullable=False, default="")
     inquiryAnswer = db.Column(db.TEXT, nullable=False, default="")
 
     CONCEPT_RELATION = db.relationship('Concept', back_populates='INQUIRY_RELATION')
+    LESSON_RELATION = db.relationship('Lesson', back_populates='INQUIRY_RELATION')
     QUESTION_RELATION = db.relationship('Question', back_populates='INQUIRY_RELATION')
     USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='INQUIRY_RELATION')
 
-    def __init__(self, original_inquiry, inquiry_type, stringified_question, concept=None, question=None):
+    def __init__(self, original_inquiry, inquiry_type, stringified_question, concept=None, question=None, lesson=None):
         self.CONCEPT = concept
+        self.LESSON = lesson
         self.QUESTION = question
         self.originalInquiry = original_inquiry
         self.editedInquiry = None
@@ -324,19 +348,25 @@ class Lesson(db.Model):
 
     LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
     COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
-    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
+    name = db.Column(db.String(150), nullable=False)
     content = db.Column(db.String(16384), nullable=False)
+    has_assignment = db.Column(db.Boolean, nullable=False, default=False)
+    due_date = db.Column(db.DateTime, nullable=True)
 
+    ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='LESSON_RELATION')
     COURSE_RELATION = db.relationship('Course', back_populates='LESSON_RELATION')
-    CONCEPT_RELATION = db.relationship('Concept', back_populates='LESSON_RELATION')
+    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='LESSON_RELATION')
 
-    def __init__(self, course_id: int, concept_id: int, content: str):
+    def __init__(self, course_id: int, name: str, content: str, has_assignment: bool, due_date: datetime):
         self.COURSE = course_id
-        self.CONCEPT = concept_id
         self.content = content
+        self.name = name
+        self.has_assignment = has_assignment
+        self.due_date = due_date
 
     def __repr__(self):
-        return f'<Lesson {self.LESSON} {self.COURSE} {self.CONCEPT} {self.content}>'
+        return f'<Lesson {self.LESSON} {self.COURSE} {self.name} {self.content} {self.has_assignment} ' \
+               f'{self.due_date}>'
 
 
 class Mastery(db.Model):
@@ -629,6 +659,7 @@ class User(UserMixin, db.Model):
     profile_id = db.Column(db.String(16), nullable=False, unique=True)
 
     ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='USER_RELATION')
+    ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='USER_RELATION')
     FEEDBACK_RELATION = db.relationship('Feedback', back_populates='USER_RELATION')
     FORUM_MESSAGE_RELATION = db.relationship('ForumMessage', back_populates='USER_RELATION')
     ISSUE_RELATION = db.relationship('Issue', back_populates='USER_RELATION')

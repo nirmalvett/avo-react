@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify
 from flask_login import current_user
-from server.decorators import login_required, student_only, teacher_only, validate
+from server.decorators import login_required, teacher_only, validate
 from server.auth import able_view_course, able_edit_course
-from server.models import Concept, ConceptQuestion, Course, db, Inquiry, Question, UserInquiry
+from server.models import Concept, ConceptQuestion, Course, db, Inquiry, Lesson, Question, UserInquiry
 
 OrganicContentRoutes = Blueprint("OrganicContentRoutes", __name__)
 
@@ -46,6 +46,12 @@ def get_inquires(inquiry_type: int, question_id: int):
         inquiry_list_subscribed = Inquiry.query.filter((Inquiry.CONCEPT == question_id) &
                                                        Inquiry.INQUIRY.in_(subscribed_list)).all()
         inquiry_list_unsubscribed = Inquiry.query.filter((Inquiry.CONCEPT == question_id) &
+                                                         Inquiry.INQUIRY.notin_(subscribed_list)).all()
+    if inquiry_type == 2:
+        # Lesson / Assignment type
+        inquiry_list_subscribed = Inquiry.query.filter((Inquiry.LESSON == question_id) &
+                                                       Inquiry.INQUIRY.in_(subscribed_list)).all()
+        inquiry_list_unsubscribed = Inquiry.query.filter((Inquiry.LESSON == question_id) &
                                                          Inquiry.INQUIRY.notin_(subscribed_list)).all()
     if inquiry_list_subscribed is None and inquiry_list_unsubscribed is None:
         return jsonify(error="No inquiries found")
@@ -96,7 +102,9 @@ def get_all_inquired_concepts(course_id: int):
         return jsonify(error="Invalid Course")
     del course
     concept_list = Concept.query.filter(Concept.COURSE == course_id).all()
+    lesson_list = Lesson.query.filter(Lesson.COURSE == course_id).all()
     concept_return_list = []
+    lesson_return_list = []
     for concept in concept_list:
         concept_json = {"ID": concept.CONCEPT, "name": concept.name}
         inquiry_list = Inquiry.query.filter(concept.CONCEPT == Inquiry.CONCEPT).all()
@@ -110,7 +118,20 @@ def get_all_inquired_concepts(course_id: int):
         concept_json['unanswered'] = unanswered_inquiry
 
         concept_return_list.append(concept_json)
-    return jsonify(concepts=concept_return_list)
+    for lesson in lesson_list:
+        lesson_json = {"ID": lesson.LESSON, "name": lesson.name}
+        inquiry_list = Inquiry.query.filter(lesson.LESSON == Inquiry.LESSON).all()
+        answered_inquiry, unanswered_inquiry = 0, 0
+        for inquiry in inquiry_list:
+            if inquiry.hasAnswered:
+                answered_inquiry += 1
+            else:
+                unanswered_inquiry += 1
+        lesson_json["answered"] = answered_inquiry
+        lesson_json['unanswered'] = unanswered_inquiry
+
+        lesson_return_list.append(lesson_json)
+    return jsonify(concepts=concept_return_list, lessons=lesson_return_list)
 
 
 @OrganicContentRoutes.route('/getAllSubscribedOwnedInquiries', methods=['POST'])
@@ -153,16 +174,24 @@ def submit_inquiry(question_string: int, question_id: int, inquiry_type: int, st
             return jsonify(error="Question Not Found")
         concept = Concept.query.filter((ConceptQuestion.CONCEPT == Concept.CONCEPT) &
                                        (ConceptQuestion.QUESTION == question.QUESTION)).first()
+        if concept is None:
+            return jsonify(error="Concept Not Found")
         del question
     if inquiry_type == 1:
         # Inquiry About Concept
         concept = Concept.query.get(question_id)
-    if concept is None:
-        return jsonify(error="Concept Not Found")
+        if concept is None:
+            return jsonify(error="Concept Not Found")
+    if inquiry_type == 2:
+        lesson = Lesson.query.get(question_id)
+        if lesson is None:
+            return jsonify(error='Lesson not found')
     if inquiry_type == 0:
         new_inquiry = Inquiry(question_string, inquiry_type, stringified_question_object, question=question_id)
-    else:
+    elif inquiry_type == 1:
         new_inquiry = Inquiry(question_string, inquiry_type, stringified_question_object, concept=question_id)
+    else:
+        new_inquiry = Inquiry(question_string, inquiry_type, stringified_question_object, lesson=question_id)
     db.session.add(new_inquiry)
     db.session.commit()
     db.session.add(UserInquiry(current_user.USER, new_inquiry.INQUIRY, True))

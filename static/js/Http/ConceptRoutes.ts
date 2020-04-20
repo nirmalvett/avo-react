@@ -131,7 +131,7 @@ interface InquiryObject {
     ID: number;
     editedInquiry: string;
     hasAnswered: boolean;
-    inquiryAnswer: string;
+    inquiryAnswer: string;   
     inquiryType: boolean;
     originalInquiry: string;
     stringifiedQuestion: string;

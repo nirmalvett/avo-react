@@ -90,6 +90,15 @@ interface AnswerInquiries {
     name: 'Answer Inquiries';
 }
 
+interface ManageAssignments {
+    name: 'Manage Assignments';
+}
+
+
+interface MyAssignments {
+    name: 'My Assignments';
+}
+
 export type Section =
     | AddStudentsToClass
     | ConceptBuilder
@@ -111,4 +120,6 @@ export type Section =
     | Preferences
     | TakeTest
     | UploadImages
-    | AnswerInquiries;
+    | AnswerInquiries
+    | ManageAssignments
+    | MyAssignments;
