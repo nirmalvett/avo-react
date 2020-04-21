@@ -4,8 +4,8 @@ import * as Http from '../Http';
 import {CourseModal} from "./CourseModal";
 
 require('./OpenCourses.scss');
-export default class OpenCourses extends PureComponent<any, any> {
-    constructor(props: any) {
+export default class OpenCourses extends PureComponent<{color: {'200': string; '500': string}}, any> {
+    constructor(props: {color: {'200': string; '500': string}}) {
         super(props);
         this.state = {
             courses: [],
@@ -21,7 +21,7 @@ export default class OpenCourses extends PureComponent<any, any> {
         return (
             <div className={'selector-container'}>
                 {courses.map((course: any) => (
-                    <SelectableCourse color={color}  course={course}/>))}
+                    <SelectableCourse select={this.selectCourse} color={color}  course={course}/>))}
                 {selectedCourse && <CourseModal
                     modalDisplay={courseModalDisplay}
                     hideModal={() => this.setState({courseModalDisplay: 'hidden', selectedCourse: undefined})}
@@ -61,10 +61,10 @@ export default class OpenCourses extends PureComponent<any, any> {
     enroll = (section: any) => {
         Http.enrollOpenCourse(
             section.sectionID,
-            (res: any) => {
+            (res: {}) => {
                 console.log(res);
             },
-            (err: any) => {
+            (err: {}) => {
                 console.log(err);
             }
         )

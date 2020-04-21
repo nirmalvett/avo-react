@@ -21,7 +21,7 @@ export function getOpenCourse(courseID: Number, success: any, failure: any) {
     _request('POST', '/getOpenCourse', success, failure, {courseID})
 }
 
-export function enrollOpenCourse(sectionID: number, success: any, failure: any) {
+export function enrollOpenCourse(sectionID: number, success: cb, failure: cb) {
     _request('POST', 'enrollOpenCourse', success, failure, {sectionID})
 }
 

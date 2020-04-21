@@ -84,6 +84,7 @@ export default class App extends Component<AppProps, AppState> {
                         setTheme={this.setTheme}
                         logout={this.logout}
                         initialSection={{name: 'Profile'}}
+                        updateUser={this.updateUser}
                         {...u}
                     />
                 </MuiThemeProvider>

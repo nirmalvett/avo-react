@@ -1,19 +1,12 @@
 import React, {Component} from 'react';
-import {Typography, Input} from '@material-ui/core';
+import {Typography} from '@material-ui/core';
 import * as Http from '../Http';
 import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid/Grid';
-import TextField from '@material-ui/core/TextField';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
 import {SelectableCourse} from '../OpenCourses/SelectableCourse'
 import {CourseModal} from "../OpenCourses/CourseModal";
 require('../OpenCourses/OpenCourses.scss');
-export default class Profile extends Component<any, any> {
+export default class Profile extends Component<{color: {'200': string; '500': string}}, any> {
     state = {
         user: {} as any,
         userFromURL: window.location.pathname.substr(6),
