@@ -30,7 +30,7 @@ const styles = {
     },
 };
 
-export function CourseModal(props: any) {
+export function CourseModal(props: {modalDisplay: string, hideModal: ()=>void, course: any, enroll: (section: any)=>void}) {
     return (
         <div
             style={{
