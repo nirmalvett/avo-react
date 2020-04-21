@@ -48,6 +48,7 @@ interface InquiryPopupProps {
     object: any;
     inquiries: InquiryObject[];
     showSnackBar: ShowSnackBar;
+    type: number;
     updateInquiryFunc: (newInquiries: InquiryObject[]) => void;
 };
 
@@ -407,7 +408,7 @@ export default class InquiryPopup extends Component<InquiryPopupProps, InquiryPo
             {
                 questionString : this.state.question,
                 questionID : this.props.ID,
-                inquiryType : 1,
+                inquiryType : this.props.type,
                 stringifiedQuestionObject : this.state.includeQuestionString ? this.props.object : '',
             },
             (res: any) => {

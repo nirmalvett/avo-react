@@ -361,6 +361,7 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                 </div>
             );
         }
+        const addingSelfAsRelation = this.addRelationDisabled.bind(this)();
         return (
             <div
                 style={{
@@ -1336,9 +1337,10 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                                             </Select>
                                             <br/>
                                             <br/>
-                                            <Button onClick={this.setRelation.bind(this)}>
+                                            <Button disabled={addingSelfAsRelation} onClick={this.setRelation.bind(this)}>
                                                 Add Relation
                                             </Button>
+                                            {addingSelfAsRelation && <Typography style={{color: 'red'}}>Cannot make a concept its own parent</Typography>}
                                         </Typography>
                                     )}
                                 </TabPanel>
@@ -1449,6 +1451,20 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
                 )}
             </div>
         );
+    }
+
+    addRelationDisabled() {
+        const newedge: Edge = {
+            weight: this.state.relationWeight,
+            parent: this.state.isAddingParent
+                ? this.state.selectedSearchItem.conceptID
+                : this.state.selectedConcept.conceptID,
+            child: this.state.isAddingParent
+                ? this.state.selectedConcept.conceptID
+                : this.state.selectedSearchItem.conceptID,
+            type: this.state.relationType
+        };
+        return newedge.parent === newedge.child;
     }
 
     checkIfConceptCreationParametersValid() {
@@ -1798,9 +1814,9 @@ export default class TagView extends Component<TagViewProps, TagViewState> {
         [...this.state.concepts].filter(Concept => Concept.type != 1).forEach(Concept => (conceptMapByID[Concept.conceptID] = {...Concept}));
         this.state.edges.forEach(Edge => {
             if (Edge.parent == id) {
-                const Node = {...conceptMapByID[Edge.parent]};
+                const Node = {...conceptMapByID[Edge.child]};
                 Node.weight = Edge.weight;
-                Node.nodeType = {...conceptMapByID[Edge.parent]}.type;
+                Node.nodeType = {...conceptMapByID[Edge.child]}.type;
                 Node.type = Edge.type;
                 childNodes.push(Node);
             }

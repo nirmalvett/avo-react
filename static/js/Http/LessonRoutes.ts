@@ -1,13 +1,21 @@
 import {_request, cb} from './baseRequest';
 
-export function addLesson(success: cb<{}>, failure: cb) {
-    _request('POST', '/addLesson', success, failure, {});
+export function addLesson(courseID: number, content: string, name: string, hasAssignment: boolean, dueDate: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/addLesson', success, failure, {courseID, content, name, hasAssignment, dueDate});
 }
 
-export function editLesson(success: cb<{}>, failure: cb) {
-    _request('POST', '/editLesson', success, failure, {});
+export function editLesson(lessonID: number, content: string, name: string, hasAssignment: boolean, dueDate: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/editLesson', success, failure, {lessonID, content, name, hasAssignment, dueDate});
 }
 
-export function deleteLesson(success: cb<{}>, failure: cb) {
-    _request('POST', '/deleteLesson', success, failure, {});
+export function deleteLesson(lessonID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/deleteLesson', success, failure, { lessonID });
+}
+
+export function getAssignments(lessonID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/getAssignments', success, failure, {lessonID});
+}
+
+export function getLessons(courseID: number, success: cb<{}>, failure: cb) {
+    _request('POST', '/getLessons', success, failure, {courseID});
 }

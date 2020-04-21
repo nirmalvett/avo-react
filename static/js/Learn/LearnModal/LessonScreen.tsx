@@ -195,6 +195,7 @@ export class LessonScreen extends PureComponent<LessonScreenProps, LessonScreenS
                         <InquiryPopup 
                             ID={lesson.conceptID} 
                             object={lesson.lesson} 
+                            type={1}
                             inquiries={this.state.inquiries} 
                             showSnackBar={this.props.showSnackBar} 
                             updateInquiryFunc={this.updateInquiries.bind(this)}
@@ -452,7 +453,7 @@ export class LessonScreen extends PureComponent<LessonScreenProps, LessonScreenS
     getInquiries() {
         Http.getInquiries(
             this.props.lesson.conceptID,       
-            1, // 1 refers to a concept, given that only concepts can have lessons this makes sense here ;p
+            2, // 1 refers to a concept, given that only concepts can have lessons this makes sense here ;p
             (res: InquiryObject[]) => { 
                 this.setState({ inquiries: res });
             },

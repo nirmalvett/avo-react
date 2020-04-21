@@ -98,6 +98,14 @@ interface Profile {
     name: 'Profile'
 }
 
+interface ManageAssignments {
+    name: 'Manage Assignments';
+}
+
+interface MyAssignments {
+    name: 'My Assignments';
+}
+
 export type Section =
     | AddStudentsToClass
     | ConceptBuilder
@@ -121,4 +129,6 @@ export type Section =
     | UploadImages
     | AnswerInquiries
     | OpenCourses
-    | Profile;
+    | Profile
+    | ManageAssignments
+    | MyAssignments;

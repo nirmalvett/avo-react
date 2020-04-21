@@ -113,6 +113,7 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                 {this.listItem(OpenInBrowserOutlined, {name: 'Open Courses'})}
                 {this.listItem(ClassOutlined, {name: 'My Classes', _class: null, _quiz: null})}
                 {this.listItem(SchoolOutlined, {name: 'Learn'})}
+                {this.listItem(AssignmentTurnedInOutlined, {name: 'My Assignments'})}
                 {this.props.isAdmin && this.listItem(SchoolOutlined, {name: 'Mastery'})}
             </List>
         );
@@ -124,6 +125,7 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                 <Divider />
                 <List subheader={<ListSubheader>Teacher Tools</ListSubheader>}>
                     {this.listItem(ClassOutlined, {name: 'Manage Classes'})}
+                    {this.listItem(AssignmentTurnedInOutlined, {name: 'Manage Assignments'})}
                     {this.listItem(AssignmentTurnedInOutlined, {name: 'Add Students'})}
                     {this.listItem(HelpOutline, {name: 'Answer Inquiries'})}
                     {this.listItem(MessageOutlined, {name: 'Notify Class'})}

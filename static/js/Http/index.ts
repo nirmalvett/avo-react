@@ -12,3 +12,4 @@ export * from './UserRoutes';
 export * from './UserSectionRoutes';
 export * from './StudentUsageRoutes';
 export * from './UserSectionRoutes';
+export * from './LessonRoutes';

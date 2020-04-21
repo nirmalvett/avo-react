@@ -2,9 +2,9 @@ from flask import Flask
 from flask_compress import Compress
 from server.auth import login_manager
 from server.models import db
-from server.routes import AnnouncementRoutes, ConceptRoutes, CourseRoutes, FileRoutes, MasteryRoutes, \
-    OrganicContentRoutes, QuestionRoutes, QuestionSetRoutes, SectionRoutes, ServerRoutes, TakesRoutes, TestRoutes, UserRoutes, \
-    UserSectionRoutes, ImageRoutes, WebHookRoutes, StudentUsageRoutes
+from server.routes import AnnouncementRoutes, ConceptRoutes, CourseRoutes, FileRoutes, FileUploadRoutes, \
+    LessonRoutes, MasteryRoutes, OrganicContentRoutes, QuestionRoutes, QuestionSetRoutes, SectionRoutes, ServerRoutes, \
+    TakesRoutes, TestRoutes, UserRoutes, UserSectionRoutes, WebHookRoutes, StudentUsageRoutes
 import paypalrestsdk
 import config
 # from flask_cors import CORS
@@ -28,7 +28,8 @@ app.register_blueprint(AnnouncementRoutes)
 app.register_blueprint(ConceptRoutes)
 app.register_blueprint(CourseRoutes)
 app.register_blueprint(FileRoutes)
-app.register_blueprint(ImageRoutes)
+app.register_blueprint(FileUploadRoutes)
+app.register_blueprint(LessonRoutes)
 app.register_blueprint(MasteryRoutes)
 app.register_blueprint(OrganicContentRoutes)
 app.register_blueprint(QuestionRoutes)

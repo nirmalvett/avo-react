@@ -46,7 +46,7 @@ export default class ImageUploader extends React.Component<{ showCard?: boolean 
                     <CardContent>
                         <Dropzone
                             getUploadParams={({meta}: any) => {
-                                return {url: '/upload '}
+                                return {url: '/upload/image'}
                             }}
                             onChangeStatus={({meta, file}: any, status: any) => {
                             }}
