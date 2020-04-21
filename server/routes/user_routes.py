@@ -129,6 +129,12 @@ def login(username: str, password: str):
             isAdmin=current_user.is_admin,
             color=current_user.color,
             theme=current_user.theme,
+            country=current_user.country,
+            language=current_user.language,
+            description=current_user.description,
+            displayName=current_user.display_name,
+            socials=[media_link.link for media_link in SocialMediaLink.query.filter(
+                SocialMediaLink.USER == current_user.USER).all()]
         )
 
 
@@ -147,6 +153,12 @@ def get_user_info():
             isAdmin=current_user.is_admin,
             color=current_user.color,
             theme=current_user.theme,
+            country=current_user.country,
+            language=current_user.language,
+            description=current_user.description,
+            displayName=current_user.display_name,
+            socials=[media_link.link for media_link in SocialMediaLink.query.filter(
+                SocialMediaLink.USER == current_user.USER).all()]
         )
     except AttributeError:
         return jsonify(error='User does not exist')
@@ -404,3 +416,13 @@ def send_feedback(message: str):
     db.session.add(Feedback(current_user.USER, message))
     db.session.commit()
     return jsonify({})
+
+
+@UserRoutes.route('/changeName', methods=['POST'])
+@login_required
+@validate(firstName=str, lastName=str)
+def change_name(first_name: str, last_name: str):
+    current_user.first_name = first_name
+    current_user.last_name = last_name
+    db.session.commit()
+    return (jsonify({}))
