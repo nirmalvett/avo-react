@@ -2,7 +2,7 @@ from server.routes.announcement_routes import AnnouncementRoutes
 from server.routes.concept_routes import ConceptRoutes
 from server.routes.course_routes import CourseRoutes
 from server.routes.file_routes import FileRoutes
-from server.routes.image_routes import ImageRoutes
+from server.routes.file_upload_routes import FileUploadRoutes
 from server.routes.lesson_routes import LessonRoutes
 from server.routes.mastery_routes import MasteryRoutes
 from server.routes.question_routes import QuestionRoutes
