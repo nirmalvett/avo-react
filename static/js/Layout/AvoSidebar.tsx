@@ -90,7 +90,7 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                 {showTestFeatures && this.testFeatures()}
                 <Divider />
                 <List>
-                    {this.listItem(SettingsOutlined, {name: 'Preferences'})}
+                    {this.listItem(SettingsOutlined, {name: 'My Account'})}
                     {this.listItem(BugReportOutlined, {name: 'Feedback'})}
                     <SidebarListItem
                         section={this.props.section}

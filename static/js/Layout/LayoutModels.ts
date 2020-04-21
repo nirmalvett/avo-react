@@ -73,8 +73,8 @@ interface PostTest {
     takesID: number;
 }
 
-interface Preferences {
-    name: 'Preferences';
+interface MyAccount {
+    name: 'My Account';
 }
 
 interface TakeTest {
@@ -124,7 +124,7 @@ export type Section =
     | MyQuestions
     | NotifyClass
     | PostTest
-    | Preferences
+    | MyAccount
     | TakeTest
     | UploadImages
     | AnswerInquiries
