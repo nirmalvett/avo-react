@@ -24,8 +24,7 @@ def assignment(filename):
         return jsonify(error='User does not own assignment')
     storage_client = storage.Client()
     bucket = storage_client.bucket(BUCKET_NAME)
-    blob_name = a.url.replace(PREFIX, '')
-    blob = bucket.blob(blob_name)
+    blob = bucket.blob(a.name)
     if blob.exists(storage_client):
         fp = tempfile.TemporaryFile()
         blob.download_to_file(fp)
@@ -39,10 +38,8 @@ def assignment(filename):
 def image(filename):
     i: Image = Image.query.filter(Image.name == filename).first()
     storage_client = storage.Client()
-
     bucket = storage_client.bucket(BUCKET_NAME)
-    blob_name = i.url.replace(PREFIX, '')
-    blob = bucket.blob(blob_name)  # TODO: Figure out how we want to deal with security for images
+    blob = bucket.blob(i.name)  # TODO: Figure out how we want to deal with security for images
     if blob.exists(storage_client):
         fp = tempfile.TemporaryFile()
         blob.download_to_file(fp)
