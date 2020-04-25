@@ -443,7 +443,7 @@ def get_profile(profile_id: str):
         return jsonify(error="User's profile is not public")
     return jsonify(
         firstName=user.first_name,
-        lasteName=user.last_name,
+        lastName=user.last_name,
         country=user.country,
         language=user.language,
         description=user.description,
@@ -451,7 +451,7 @@ def get_profile(profile_id: str):
         courses=[
             {
                 'courseID': c.COURSE,
-                'name': c.name,
+                'courseName': c.name,
                 'description': c.description
             }
             for c in courses

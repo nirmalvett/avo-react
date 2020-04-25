@@ -52,7 +52,7 @@ def get_courses():
 @CourseRoutes.route('/getOpenCourses', methods=['GET'])
 def get_open_courses():
     courses = [
-        {'courseID': c.COURSE, 'name': c.name}
+        {'courseID': c.COURSE, 'courseName': c.name}
         for c in Course.query.filter(Course.is_open == True).all()
     ]
     return jsonify(courses=courses)

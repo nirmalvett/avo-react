@@ -5,10 +5,22 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import {SelectableCourse} from '../OpenCourses/SelectableCourse'
 import {CourseModal} from "../OpenCourses/CourseModal";
+
 require('../OpenCourses/OpenCourses.scss');
-export default class Profile extends Component<{color: {'200': string; '500': string}}, any> {
+import {OpenCourse, OpenCourseSection} from '../Http/'
+interface User {
+    country: string | undefined
+    courses?: OpenCourse[]
+    description?: string | undefined;
+    display_name?: string | undefined;
+    firstName?: string;
+    language: string;
+    lastName?: string;
+}
+export default class Profile extends Component<{ color: { '200': string; '500': string } },
+    { user: User | undefined, userFromURL: string, selectedCourse: OpenCourse | undefined, courseModalDisplay: string }> {
     state = {
-        user: {} as any,
+        user: {} as User,
         userFromURL: window.location.pathname.substr(6),
         selectedCourse: undefined,
         courseModalDisplay: 'hidden'
@@ -16,19 +28,19 @@ export default class Profile extends Component<{color: {'200': string; '500': st
 
     componentDidMount() {
         const {userFromURL} = this.state;
-        console.log(userFromURL)
+        console.log(userFromURL);
         if (userFromURL)
             Http.getProfile(
                 userFromURL,
-                (res: any) => {
-                    console.log(res)
+                (res: User) => {
+                    console.log(res);
                     this.setState({user: res})
                 },
-                (res: any) => {
-                    console.log(res)
+                (res: {}) => {
+                    console.log(res);
                     this.setState({user: undefined})
                 }
-            )
+            );
         else
             this.setState({user: undefined})
     }
@@ -37,7 +49,7 @@ export default class Profile extends Component<{color: {'200': string; '500': st
         const {user, userFromURL, selectedCourse, courseModalDisplay} = this.state;
         const courses = user
             ?
-            (user.courses || []).map((c: any) => (
+            (user.courses || []).map((c: OpenCourse) => (
                 <SelectableCourse select={this.selectCourse} color={this.props.color} course={c}/>
             ))
             :
@@ -73,7 +85,10 @@ export default class Profile extends Component<{color: {'200': string; '500': st
                                     {courses}
                                     {selectedCourse && <CourseModal
                                         modalDisplay={courseModalDisplay}
-                                        hideModal={() => this.setState({courseModalDisplay: 'hidden', selectedCourse: undefined})}
+                                        hideModal={() => this.setState({
+                                            courseModalDisplay: 'hidden',
+                                            selectedCourse: undefined
+                                        })}
                                         course={selectedCourse}
                                         enroll={this.enroll}
                                     />}
@@ -89,27 +104,27 @@ export default class Profile extends Component<{color: {'200': string; '500': st
         );
     }
 
-    selectCourse = (course: any) => {
+    selectCourse = (course: OpenCourse) => {
         console.log(course);
         Http.getOpenCourse(
-            course.course.courseID,
-            (res: any) => {
-                console.log(res)
+            course.courseID,
+            (res: { course: OpenCourse }) => {
+                console.log(res);
                 this.setState({selectedCourse: res.course, courseModalDisplay: 'block'})
             },
-            (err: any) => {
+            (err) => {
                 console.log(err)
             }
         )
     };
 
-    enroll = (section: any) => {
+    enroll = (section: OpenCourseSection) => {
         Http.enrollOpenCourse(
             section.sectionID,
-            (res: any) => {
+            (res: {}) => {
                 console.log(res);
             },
-            (err: any) => {
+            (err) => {
                 console.log(err);
             }
         )

@@ -13,11 +13,25 @@ export function getCourses(success: cb<GetCourses>, failure: cb) {
     _request('POST', '/getCourses', success, failure);
 }
 
-export function getOpenCourses(success: any, failure: any) {
+export interface OpenCourse {
+    courseID: number;
+    courseName: string;
+    description?: string;
+    sections?: OpenCourseSection[];
+}
+
+export interface OpenCourseSection {
+    enrollKey: string;
+    enrolled: boolean;
+    name: string;
+    sectionID: number;
+}
+
+export function getOpenCourses(success: cb<{courses: OpenCourse[]}>, failure: cb) {
     _request('GET', '/getOpenCourses', success, failure)
 }
 
-export function getOpenCourse(courseID: Number, success: any, failure: any) {
+export function getOpenCourse(courseID: Number, success: cb<{course: OpenCourse}>, failure: cb) {
     _request('POST', '/getOpenCourse', success, failure, {courseID})
 }
 

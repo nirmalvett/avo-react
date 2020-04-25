@@ -2,10 +2,13 @@ import React, {PureComponent} from 'react';
 import {SelectableCourse} from './SelectableCourse'
 import * as Http from '../Http';
 import {CourseModal} from "./CourseModal";
-
+import {Typography} from "@material-ui/core";
+import {OpenCourse, OpenCourseSection} from '../Http/'
 require('./OpenCourses.scss');
-export default class OpenCourses extends PureComponent<{color: {'200': string; '500': string}}, any> {
-    constructor(props: {color: {'200': string; '500': string}}) {
+
+export default class OpenCourses extends PureComponent<{ color: { '200': string; '500': string } },
+    { courses: OpenCourse[], selectedCourse: OpenCourse | undefined, courseModalDisplay: string }> {
+    constructor(props: { color: { '200': string; '500': string } }) {
         super(props);
         this.state = {
             courses: [],
@@ -21,13 +24,15 @@ export default class OpenCourses extends PureComponent<{color: {'200': string; '
         return (
             <div className={'selector-container'}>
                 {courses.map((course: any) => (
-                    <SelectableCourse select={this.selectCourse} color={color}  course={course}/>))}
+                    <SelectableCourse select={this.selectCourse} color={color} course={course}/>))}
                 {selectedCourse && <CourseModal
                     modalDisplay={courseModalDisplay}
                     hideModal={() => this.setState({courseModalDisplay: 'hidden', selectedCourse: undefined})}
                     course={selectedCourse}
                     enroll={this.enroll}
                 />}
+                {courses.length === 0 &&
+                <Typography variant={'h1'}>There are currently no open courses :( Come back later...</Typography>}
             </div>
         );
     }
@@ -35,36 +40,37 @@ export default class OpenCourses extends PureComponent<{color: {'200': string; '
 
     getOpenCourse = () => {
         Http.getOpenCourses(
-            (res: any) => {
+            (res: {courses: {courseID: number, courseName: string}[]}) => {
+                console.log(res);
                 this.setState({courses: res.courses})
             },
-            (err: any) => {
-                console.log(err)
+            (err) => {
+                console.log(err);
             }
         )
     };
 
-    selectCourse = (course: any) => {
+    selectCourse = (course: OpenCourse) => {
         console.log(course);
         Http.getOpenCourse(
-            course.course.courseID,
-            (res: any) => {
-                console.log(res)
+            course.courseID,
+            (res: {course: OpenCourse}) => {
+                console.log(res);
                 this.setState({selectedCourse: res.course, courseModalDisplay: 'block'})
             },
-            (err: any) => {
+            (err) => {
                 console.log(err)
             }
         )
     };
 
-    enroll = (section: any) => {
+    enroll = (section: OpenCourseSection) => {
         Http.enrollOpenCourse(
             section.sectionID,
             (res: {}) => {
                 console.log(res);
             },
-            (err: {}) => {
+            (err) => {
                 console.log(err);
             }
         )
