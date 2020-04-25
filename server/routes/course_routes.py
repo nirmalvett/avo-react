@@ -37,7 +37,7 @@ def get_courses():
                     UserSection.USER == current_user.USER,
                     or_(UserSection.expiry == None, UserSection.expiry > datetime.now())
                 )).all()
-    courses = courses + courses_in
+    courses = list(set(courses + courses_in))
 
     user_courses: List[UserCourse] = UserCourse.query.filter(
         (UserCourse.USER == current_user.USER) & (UserCourse.can_edit == 1)
