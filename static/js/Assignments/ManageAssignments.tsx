@@ -24,7 +24,7 @@ interface Assignment {
 interface HandedInAssignment {
     ASSIGNMENT: number;
     USER: string;
-    url: string;
+    file: string;
 };
 
 interface ManageAssignmentsProps {
@@ -221,7 +221,7 @@ export default class ManageAssignments extends Component<ManageAssignmentsProps,
                                     <ListItem dense>
                                         <ListItemText>{HandedInAssignment.USER}</ListItemText>
                                         <ListItemSecondaryAction>
-                                            <IconButton size={'small'} onClick={() => window.open(HandedInAssignment.url)}>
+                                            <IconButton size={'small'} onClick={() => window.open(`/assignment/${HandedInAssignment.file}`)}>
                                                 <CloudDownloadOutlined/>
                                             </IconButton>
                                         </ListItemSecondaryAction>
