@@ -36,7 +36,7 @@ export function getOpenCourse(courseID: Number, success: cb<{course: OpenCourse}
 }
 
 export function enrollOpenCourse(sectionID: number, success: cb, failure: cb) {
-    _request('POST', 'enrollOpenCourse', success, failure, {sectionID})
+    _request('POST', '/enrollOpenCourse', success, failure, {sectionID})
 }
 
 export function toggleOrganicContent(courseID: number, success: cb<{ toggle: boolean }>, failure: cb) {
