@@ -350,9 +350,9 @@ def change_description(desc: str):
 @validate(name=str)
 def change_display_name(name: str):
     if len(name) > 45:
-        return jsonify(error="Description too long.")
+        return jsonify(error="name too long.")
     if len(name) <= 0:
-        return jsonify(error="Description too short.")
+        return jsonify(error="name too short.")
     current_user.display_name = name
     db.session.commit()
     return jsonify({})

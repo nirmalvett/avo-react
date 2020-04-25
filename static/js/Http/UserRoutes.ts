@@ -96,16 +96,16 @@ export function changeCountry(country: string, success: cb<{}>, failure: cb) {
     _request('POST', '/changeCountry', success, failure, {country});
 }
 
-export function changeLanguage(country: string, success: cb<{}>, failure: cb) {
-    _request('POST', '/changeLanguage', success, failure, {country});
+export function changeLanguage(language: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/changeLanguage', success, failure, {language});
 }
 
-export function changeDescription(description: string, success: cb<{}>, failure: cb) {
-    _request('POST', '/changeDescription', success, failure, {description});
+export function changeDescription(desc: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/changeDescription', success, failure, {desc});
 }
 
-export function changeDisplayName(displayName: string, success: cb<{}>, failure: cb) {
-    _request('POST', '/changeDisplayName', success, failure, {displayName});
+export function changeDisplayName(name: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/changeDisplayName', success, failure, {name});
 }
 
 export function addSocialLink(link: string, success: cb<{}>, failure: cb) {
