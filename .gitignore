@@ -13,3 +13,4 @@ launch.bash
 images
 config*.source
 config.py
+avo-gcp.json
