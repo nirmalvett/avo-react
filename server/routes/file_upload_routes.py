@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, send_file
 from flask_login import current_user
 from werkzeug.utils import secure_filename
 from server import db
-from server.auth import able_view_course
+from server.auth import able_view_course, able_edit_course
 from server.decorators import teacher_only, login_required
 from server.models import Assignment, File, Lesson, FileType
 from config import BUCKET_NAME
@@ -21,9 +21,8 @@ def assignment(filename):
         .join(Lesson, Lesson.LESSON == Assignment.LESSON) \
         .filter(File.file_name == filename)\
         .first()
-    # check if the user is the student who submitted the assignment or the teacher who made the assignment
-    if current_user.USER != a.USER or current_user.USER != a.LESSON_RELATION.USER:
-        return jsonify(error='User does not own assignment')
+    if not able_edit_course(a.LESSON_RELATION.COURSE):
+        return jsonify(error='User does not own course')
     storage_client = storage.Client()
     bucket = storage_client.bucket(a.FILE_RELATION.bucket)
     blob = bucket.blob(a.FILE_RELATION.file_name)
@@ -62,7 +61,7 @@ def get_images():
         .join(FileType, FileType.FILE_TYPE == File.FILE_TYPE) \
         .filter((FileType.name == 'image') & (File.USER == current_user.USER)) \
         .all()
-    return jsonify({'images': {i.IMAGE: i.file_name for i in images}})
+    return jsonify({'images': {i.FILE: i.file_name for i in images}})
 
 
 @FileUploadRoutes.route('/upload/image', methods=['POST'])
@@ -71,7 +70,7 @@ def image_upload():
     file = request.files.get('file')
     if file is None:
         return 'Error: please send a file'
-    filename = f'images/{current_user.USER}/{secure_filename(file.filename)}'
+    filename = f'images__{current_user.USER}__{secure_filename(file.filename)}'
     try:
         storage_client = storage.Client()
         bucket = storage_client.bucket(BUCKET_NAME)
@@ -108,7 +107,7 @@ def assignment_upload(lesson_id: int):
     file = request.files.get('file')
     if file is None:
         return 'Error: please send a file'
-    filename = f'assignments/{lesson.LESSON}/{current_user.USER}/{secure_filename(file.filename)}'
+    filename = f'assignments__{lesson.LESSON}__{current_user.USER}__{secure_filename(file.filename)}'
 
     try:
         storage_client = storage.Client()

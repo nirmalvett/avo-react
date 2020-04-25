@@ -223,7 +223,7 @@ class File(db.Model):
     def __init__(self, user_id, file_name, file_type, bucket):
         self.USER = user_id
         self.file_name = file_name
-        self.file_type = file_type
+        self.FILE_TYPE = file_type
         self.bucket = bucket
 
     def __repr__(self):
@@ -558,7 +558,7 @@ class User(UserMixin, db.Model):
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='USER_RELATION')
     USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='USER_RELATION')
     USER_SECTION_RELATION = db.relationship('UserSection', back_populates='USER_RELATION')
-    FILE_RELATION = db.relationship('File', back_populates='FILE_RELATION')
+    FILE_RELATION = db.relationship('File', back_populates='USER_RELATION')
 
     def __init__(
             self, email, first_name, last_name, password, profile_id,
