@@ -77,6 +77,7 @@ export default class PostTest extends Component<PostTestProps, Http.PostTest> {
                         type={question.types[y]}
                         value={question.answers[y]}
                         prompt={x}
+                        correctAnswer={question.correctAnswer}
                     />,
                 ])}
                 {question.explanation.map((x, y) => [

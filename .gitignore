@@ -13,4 +13,5 @@ launch.bash
 images
 config*.source
 config.py
+.*.swp
 avo-gcp.json

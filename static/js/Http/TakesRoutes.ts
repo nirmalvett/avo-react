@@ -45,6 +45,7 @@ export interface PostTest_Question {
     scores: number[];
     totals: number[];
     explanation: string[];
+    correctAnswer?: any;
 }
 
 export function postTest(takesID: number, success: cb<PostTest>, failure: cb) {

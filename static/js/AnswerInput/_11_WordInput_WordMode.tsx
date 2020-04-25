@@ -13,6 +13,7 @@ export function _11_WordInput_WordMode(props: AnswerInputImplementationProps) {
             value={props.value}
             mode={'sentence'}
             disabled={props.disabled}
+            correctAnswer={props.correctAnswer}
         >
             {props.prompt}
         </WordInput>
