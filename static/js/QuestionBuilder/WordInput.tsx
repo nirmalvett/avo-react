@@ -8,7 +8,9 @@ export interface WordInputProps {
     value: string
     disabled?: boolean;
     mode: 'word' | 'sentence';
+    correctAnswer?: any;
 }
+
 const SEPARATOR = '~~';
 export default class WordInput extends React.PureComponent<WordInputProps> {
     constructor(props: WordInputProps) {
@@ -29,14 +31,54 @@ export default class WordInput extends React.PureComponent<WordInputProps> {
     }
 
     selectify = (input: string) => {
-        const {mode, value, disabled} = this.props;
+        const {mode, value, disabled, correctAnswer} = this.props;
         const fields: string[] = mode === 'word' ? input.split(' ') : input.split(/(?<=\.) /g);
-        return fields.map((field: string, i) => {
+        let i = 0;
+        return fields.map((field: string) => {
             const isSelected = Boolean(value.split(SEPARATOR).find(a => a === String(i)));
-            return (
+            let color = this.props.color;
+            if (isSelected && correctAnswer && correctAnswer.find((num: number) => num === i) === undefined) {
+                color = {'200': 'red', '500': 'red'}
+            }
+            const needsNewLines = field.includes('\n');
+            if (needsNewLines) {
+                const lines = field.split('\n');
+                return (
+                    <span>
+                        {lines.map((line, j) => {
+                            const isSelected = Boolean(value.split(SEPARATOR).find(a => a === String(i)));
+                            if (isSelected && correctAnswer && correctAnswer.find((num: number) => num === i) === undefined) {
+                                color = {'200': 'red', '500': 'red'}
+                            } else {
+                                color = this.props.color;
+                            }
+                            const ret = (
+                                <span>
+                                    {j !== 0 && <br/>}
+                                    <Selectable
+                                        key={`${i}__${field}__selectable`}
+                                        color={color}
+                                        add={this.add}
+                                        remove={this.remove}
+                                        type={mode}
+                                        position={i}
+                                        selected={isSelected}
+                                        disabled={disabled}
+                                    >
+                                    {line}
+                                </Selectable>
+                            </span>
+                            );
+                            i+=1;
+                            return ret;
+                        })}
+                    </span>
+                )
+            }
+            const ret = (
                 <Selectable
                     key={`${i}__${field}__selectable`}
-                    color={this.props.color}
+                    color={color}
                     add={this.add}
                     remove={this.remove}
                     type={mode}
@@ -47,6 +89,8 @@ export default class WordInput extends React.PureComponent<WordInputProps> {
                     {field}
                 </Selectable>
             );
+            i+=1;
+            return ret;
         });
     };
 
