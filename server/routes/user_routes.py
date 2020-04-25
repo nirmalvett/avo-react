@@ -6,7 +6,7 @@ from server.PasswordHash import check_password
 import re
 from server.decorators import login_required, validate
 from server.auth import send_email, get_url, validate_token
-from server.models import db, User, Feedback, SocialMediaLink
+from server.models import db, User, Feedback, SocialMediaLink, Course, UserCourse
 from server.helpers import LANGUAGES, COUNTRIES
 
 UserRoutes = Blueprint('UserRoutes', __name__)
@@ -200,6 +200,14 @@ def token_is_file(token):
     files = glob.glob('static/dist/*')
     files = [file.replace('static/dist/', '') for file in files]
     return token in files
+
+
+@UserRoutes.route('/user/<token>')
+def profile_route(token):
+    if token_is_file(token):
+        return send_from_directory('../static/dist/', token, conditional=True)
+    else:
+        return render_template('/index.html')
 
 
 @UserRoutes.route('/passwordReset/<token>')
@@ -418,6 +426,38 @@ def send_feedback(message: str):
     return jsonify({})
 
 
+@UserRoutes.route('/getProfile', methods=['POST'])
+@login_required
+@validate(profileId=str)
+def get_profile(profile_id: str):
+    user = User.query.filter(User.profile_id == profile_id).first()
+
+    courses = Course.query\
+        .join(UserCourse, UserCourse.COURSE == Course.COURSE)\
+        .filter((UserCourse.USER == user.USER) & (Course.is_open == True))\
+        .all()
+
+    if user is None:
+        return jsonify(error="User does not exist")
+    if not user.is_public:
+        return jsonify(error="User's profile is not public")
+    return jsonify(
+        firstName=user.first_name,
+        lastName=user.last_name,
+        country=user.country,
+        language=user.language,
+        description=user.description,
+        display_name=user.display_name,
+        courses=[
+            {
+                'courseID': c.COURSE,
+                'courseName': c.name,
+                'description': c.description
+            }
+            for c in courses
+        ]
+    )
+
 @UserRoutes.route('/changeName', methods=['POST'])
 @login_required
 @validate(firstName=str, lastName=str)
@@ -425,4 +465,4 @@ def change_name(first_name: str, last_name: str):
     current_user.first_name = first_name
     current_user.last_name = last_name
     db.session.commit()
-    return (jsonify({}))
+    return jsonify({})

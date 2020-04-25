@@ -184,8 +184,9 @@ def test_stats(test_id: int):
     del test_questions
 
     # All students in the class
-    students: List[User] = User.query.filter(
-        (User.USER == UserSection.USER) &
+    students: List[User] = User.query\
+        .join(UserSection, User.USER == UserSection.USER)\
+        .filter(
         (test.SECTION == UserSection.SECTION) &
         (UserSection.user_type != UserSectionType.TEACHER)
     ).all()

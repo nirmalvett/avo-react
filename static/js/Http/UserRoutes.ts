@@ -1,4 +1,5 @@
 import {_request, cb} from './baseRequest';
+import {OpenCourse} from "./CourseRoutes";
 
 export function register(
     firstName: string,
@@ -77,6 +78,18 @@ export function sendFeedback(message: string, success: cb<{}>, failure: cb) {
 
 export function availableProfileId(profileId: string, success: cb<{}>, failure: cb) {
     _request('POST', '/availableProfileId', success, failure, {profileId});
+}
+
+export function getProfile(profileId: string, success: cb<{
+    country: string | undefined
+    courses?: OpenCourse[]
+    description?: string | undefined;
+    display_name?: string | undefined;
+    firstName?: string;
+    language: string;
+    lastName?: string;
+}>, failure: cb<{}>) {
+    _request('POST', '/getProfile', success, failure, {profileId});
 }
 
 export function changeCountry(country: string, success: cb<{}>, failure: cb) {

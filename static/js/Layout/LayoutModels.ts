@@ -90,10 +90,17 @@ interface AnswerInquiries {
     name: 'Answer Inquiries';
 }
 
+interface OpenCourses {
+    name: 'Open Courses'
+}
+
+interface Profile {
+    name: 'Profile'
+}
+
 interface ManageAssignments {
     name: 'Manage Assignments';
 }
-
 
 interface MyAssignments {
     name: 'My Assignments';
@@ -121,5 +128,7 @@ export type Section =
     | TakeTest
     | UploadImages
     | AnswerInquiries
+    | OpenCourses
+    | Profile
     | ManageAssignments
     | MyAssignments;

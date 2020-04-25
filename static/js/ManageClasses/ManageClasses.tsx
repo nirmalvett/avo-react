@@ -108,6 +108,7 @@ interface ManageClassesState {
     editTest_confirm_text: string;
     selectedCourseID: number;
     courseIsOpen: boolean;
+    createCourseDescription: string;
     organicContentActive: boolean;
 }
 
@@ -136,7 +137,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
             testStatsDataQuestionIdx: 0,
             resultsIndexArray: [],
             courseIsOpen: false,
-
+            createCourseDescription: '',
             // Edit Test Settings: Let teacher modify test after it's made
             editTestPopperOpen: false,
             editTest_attempts: '',
@@ -300,9 +301,12 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     const name = (document.getElementById(
                         'avo-manageclasses__creation-textfield_2',
                     ) as HTMLInputElement).value;
+                    // get the description
+                    const {createCourseDescription} = this.state;
                     if (name !== null && name !== '' && this.state.selectedCourseID) {
                         Http.createCourse(
                             name,
+                            createCourseDescription,
                             this.state.courseIsOpen,
                             () => {
                                 this.loadClasses('Class Successfully Created!');
@@ -333,7 +337,7 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     color='textPrimary'
                     classes={{root: 'avo-padding__16px'}}
                 >
-                    Please enter the desired name of the course section you wish to create!
+                    Please enter the desired name of the course you wish to create!
                 </Typography>
                 <TextField
                     id='avo-manageclasses__creation-textfield_2'
@@ -342,6 +346,19 @@ export default class ManageClasses extends Component<ManageClassesProps, ManageC
                     label='Course name'
                     helperText={this.state.createClassErrorMessage + ' '}
                     error={this.state.createClassErrorMessage !== ''}
+                />
+                <br/>
+                <TextField
+                    id='avo-manageclasses__creation-textfield_3'
+                    margin='normal'
+                    label='Course description'
+                    fullWidth={true}
+                    multiline={true}
+                    value={this.state.createCourseDescription}
+                    onChange={(e)=>{
+                        if (e.target.value.length < 2000)
+                            this.setState({createCourseDescription: e.target.value})
+                    }}
                 />
                 <br/>
                 <Typography variant='caption'>

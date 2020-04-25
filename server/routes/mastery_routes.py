@@ -43,11 +43,12 @@ def submit_question(question_id: int, seed: int, answers: List[str]):
     concept_questions: List[ConceptQuestion] = ConceptQuestion.query.filter(
         ConceptQuestion.QUESTION == question_id
     ).all()
-    mastery: List[Mastery] = Mastery.query.filter(
-        (Mastery.USER == current_user.USER) &
-        (Mastery.CONCEPT == ConceptQuestion.CONCEPT) &
-        (ConceptQuestion.QUESTION == question_id)
-    ).all()
+    mastery: List[Mastery] = Mastery.query.\
+        join(ConceptQuestion, Mastery.CONCEPT == ConceptQuestion.CONCEPT)\
+        .filter(
+            (Mastery.USER == current_user.USER) &
+            (ConceptQuestion.QUESTION == question_id)
+        ).all()
 
     weight_dict = {}
     for c in concept_questions:

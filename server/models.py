@@ -140,7 +140,8 @@ class Course(db.Model):
 
     COURSE = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(45), nullable=False)
-    is_open = db.Column(db.Boolean, nullable=False)
+    is_open = db.Column(db.Boolean, nullable=False, default=False)
+    description = db.Column(db.String(2000), nullable=False, default='')
     organic_content_enabled = db.Column(db.Boolean, nullable=False, default=True)
 
     CONCEPT_RELATION = db.relationship('Concept', back_populates='COURSE_RELATION')
@@ -149,12 +150,13 @@ class Course(db.Model):
     SECTION_RELATION = db.relationship('Section', back_populates='COURSE_RELATION')
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='COURSE_RELATION')
 
-    def __init__(self, name, is_open):
+    def __init__(self, name, description, is_open):
         self.name = name
         self.is_open = is_open
+        self.description = description
 
     def __repr__(self):
-        return f'<Course {self.COURSE} {self.name} {self.is_open}>'
+        return f'<Course {self.COURSE} {self.description} {self.name} {self.is_open}>'
 
 
 class Discount(db.Model):
@@ -548,6 +550,7 @@ class User(UserMixin, db.Model):
     description = db.Column(db.String(1024), nullable=True)
     display_name = db.Column(db.String(45), nullable=False)
     profile_id = db.Column(db.String(16), nullable=False, unique=True)
+    is_public = db.Column(db.Boolean, nullable=False, default=False)
 
     ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='USER_RELATION')
     ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='USER_RELATION')

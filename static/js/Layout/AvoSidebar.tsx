@@ -26,6 +26,7 @@ import {
     MessageOutlined,
     AssignmentTurnedInOutlined,
     ExtensionOutlined,
+    OpenInBrowserOutlined,
     Image
 } from '@material-ui/icons';
 import {Section} from './LayoutModels';
@@ -109,6 +110,7 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
         return (
             <List subheader={isTeacher ? <ListSubheader>Student Tools</ListSubheader> : undefined}>
                 {this.listItem(HomeOutlined, {name: 'Home'})}
+                {this.listItem(OpenInBrowserOutlined, {name: 'Open Courses'})}
                 {this.listItem(ClassOutlined, {name: 'My Classes', _class: null, _quiz: null})}
                 {this.listItem(SchoolOutlined, {name: 'Learn'})}
                 {this.listItem(AssignmentTurnedInOutlined, {name: 'My Assignments'})}

@@ -1,0 +1,29 @@
+.course-card {
+  //   flex: 1;
+  margin: 25px;
+  cursor: pointer;
+  height: 300px;
+  width: 300px;
+  background-size: cover;
+  transition: box-shadow, linear, 250ms, transform, linear, 250ms;
+  box-sizing: border-box;
+}
+.course-card:hover {
+  box-shadow: 5px 10px 8px #888888;
+  transform: translate(0px, -5px);
+}
+.card-header {
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+  margin: auto;
+  color: white;
+  text-align: center;
+  font-size: 1.5em;
+}
+.selector-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: left;
+  align-items: start;
+}

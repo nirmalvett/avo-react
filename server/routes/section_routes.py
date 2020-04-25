@@ -39,15 +39,20 @@ def create_section(course_id: int, name: str):
 @SectionRoutes.route('/home', methods=['POST'])
 @login_required
 def home():
-    sections: List[Section] = Section.query.filter(
-        (current_user.USER == UserSection.USER) & (UserSection.SECTION == Section.SECTION)
-    ).all()
-    announcements: List[Announcement] = Announcement.query.filter(
-        (current_user.USER == UserSection.USER) & (UserSection.SECTION == Announcement.SECTION)
-    ).all()
-    tests: List[Test] = Test.query.filter(
-        (current_user.USER == UserSection.USER) & (UserSection.SECTION == Test.SECTION)
-    ).all()
+    sections: List[Section] = Section\
+        .query\
+        .join(UserSection, UserSection.SECTION == Section.SECTION)\
+        .filter(current_user.USER == UserSection.USER)\
+        .all()
+
+    announcements: List[Announcement] = Announcement.query\
+        .join(UserSection, UserSection.SECTION == Announcement.SECTION)\
+        .filter(current_user.USER == UserSection.USER)\
+        .all()
+    tests: List[Test] = Test.query\
+        .join(UserSection, UserSection.SECTION == Test.SECTION)\
+        .filter(current_user.USER == UserSection.USER)\
+        .all()
 
     return_sections = []
     for section in sections:
@@ -83,18 +88,25 @@ def get_sections():
     now = datetime.now()
 
     # Get data for courses that the user is enrolled in
-    sections: List[Section] = Section.query.filter(
-        (UserSection.USER == current_user.USER) & (UserSection.SECTION == Section.SECTION)
-    ).all()
-    tests: List[Test] = Test.query.filter(
-        (current_user.USER == UserSection.USER) & (UserSection.SECTION == Test.SECTION)
-    ).all()
-    takes: List[Takes] = Takes.query.filter(
-        (current_user.USER == UserSection.USER) &
-        (UserSection.SECTION == Test.SECTION) &
-        (Test.TEST == Takes.TEST) &
-        (current_user.USER == Takes.USER)
-    ).all()
+    sections: List[Section] = Section.query\
+        .join(UserSection, UserSection.SECTION == Section.SECTION)\
+        .filter(UserSection.USER == current_user.USER)\
+        .all()
+
+    tests: List[Test] = Test.query\
+        .join(UserSection, UserSection.SECTION == Test.SECTION)\
+        .filter(current_user.USER == UserSection.USER)\
+        .all()
+
+    takes: List[Takes] = Takes.query\
+        .join(Test, Test.TEST == Takes.TEST)\
+        .join(UserSection, UserSection.SECTION == Test.SECTION)\
+        .filter(
+            (current_user.USER == UserSection.USER) &
+            (current_user.USER == Takes.USER)
+        )\
+        .all()
+
     user_sections: List[UserSection] = UserSection.query.filter(UserSection.USER == current_user.USER).all()
     users_test_stats = db.session.execute(text(test_stats_sql), params={'user': current_user.USER}).fetchall()
     users_medians = db.session.execute(text(test_medians_sql), params={'user': current_user.USER}).fetchall()
@@ -175,7 +187,11 @@ def get_section_test_results(test_id: int):
     if UserSectionType.TEACHER not in SectionRelations(current_test.SECTION).active:
         return jsonify(error="User doesn't teach section")
     # All users in section
-    users = User.query.filter((User.USER == UserSection.USER) & (current_test.SECTION == UserSection.SECTION)).all()
+    users = User.query\
+        .join(UserSection, User.USER == UserSection.USER)\
+        .filter(current_test.SECTION == UserSection.SECTION)\
+        .all()
+
     results = []
     for user in users:
         # For each user get user data and best takes instance and present append to list then return
@@ -204,9 +220,10 @@ def csv_section_marks(section_id):
     if UserSectionType.TEACHER not in SectionRelations(section_id).active:
         return jsonify(error="User does not teach section")
     # Query the database for data on the test section and students data
-    student_array: List[User] = User.query.filter(
-        (UserSection.SECTION == section_id) & (UserSection.USER == User.USER)
-    ).all()
+    student_array: List[User] = User.query\
+        .join(UserSection, UserSection.USER == User.USER)\
+        .filter(UserSection.SECTION == section_id)\
+        .all()
     test_array: List[Test] = Test.query.filter(Test.SECTION == section_id).all()
     output_string = '"Email" '  # The output for the file
 
@@ -237,7 +254,11 @@ def csv_section_marks(section_id):
 def get_section_data(section_id: int):
     if UserSectionType.TEACHER not in SectionRelations(section_id).active:
         return jsonify(error="User does not teach the section")
-    students = User.query.filter((UserSection.SECTION == section_id) & (UserSection.USER == User.USER)).all()
+    students = User.query\
+        .join(UserSection, UserSection.USER == User.USER)\
+        .filter(UserSection.SECTION == section_id)\
+        .all()
+
     tests = Test.query.filter(Test.SECTION == section_id).all()
     test_names = list(map(lambda x: x.name, tests))
     test_totals = list(map(lambda x: x.total, tests))

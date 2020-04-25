@@ -20,6 +20,8 @@ const Whitelist = React.lazy(() => import('../Whitelist/Whitelist'));
 const QuestionBuilderHome = React.lazy(() => import('../QuestionBuilder/QuestionBuilderHome'));
 const Feedback = React.lazy(() => import('../Feedback/Feedback'));
 const ImageUploader = React.lazy(() => import('../ImageUploader/ImageUploader'));
+const OpenCourses = React.lazy(() => import('../OpenCourses/OpenCourses'));
+const Profile = React.lazy(() => import('../Profile/Profile'));
 const ManageAssignments = React.lazy(() => import('../Assignments/ManageAssignments'));
 const MyAssignments = React.lazy(() => import('../Assignments/MyAssignments'));
 
@@ -80,6 +82,7 @@ interface LayoutProps {
     logout: () => void;
     setColor: (color: number) => () => void;
     setTheme: (theme: 'light' | 'dark') => () => void;
+    initialSection?: Section
     updateUser: (result: Http.GetUserInfo) => void;
 }
 
@@ -106,8 +109,9 @@ export type ShowSnackBar = (
 class Layout extends Component<LayoutProps, LayoutState> {
     constructor(props: LayoutProps) {
         super(props);
+        const {initialSection} = this.props;
         this.state = {
-            section: {name: 'Learn'},
+            section: initialSection || {name: 'Learn'},
             open: true,
             snackbar: {
                 hideDuration: 0,
@@ -349,6 +353,12 @@ class Layout extends Component<LayoutProps, LayoutState> {
             );
         } else if (section.name === 'Upload Images') {
             return <ImageUploader showCard={true} />;
+        }
+        else if (section.name === 'Open Courses') {
+            return <OpenCourses color={this.color()}/>
+        }
+        else if (section.name === 'Profile') {
+            return <Profile color={this.color()}/>
         }
     };
 

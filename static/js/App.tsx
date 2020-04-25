@@ -74,6 +74,21 @@ export default class App extends Component<AppProps, AppState> {
                     <Typography variant='h5'>Create a password</Typography>
                 </PasswordResetPage>
             );
+        } else if (this.state.authenticated && window.location.pathname.startsWith('/user/')) {
+            const u = this.state.authenticated as User;
+            const theme = createMuiTheme({palette: {primary: colorList[u.color], type: u.theme}});
+            return (
+                <MuiThemeProvider theme={theme}>
+                    <Layout
+                        setColor={this.setColor}
+                        setTheme={this.setTheme}
+                        logout={this.logout}
+                        initialSection={{name: 'Profile'}}
+                        updateUser={this.updateUser}
+                        {...u}
+                    />
+                </MuiThemeProvider>
+            );
         } else if (this.state.authenticated === false) {
             return <SignIn login={this.updateUser} />;
         } else {
