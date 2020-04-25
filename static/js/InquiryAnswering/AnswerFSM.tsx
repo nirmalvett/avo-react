@@ -13,9 +13,14 @@ interface AnswerFSMState {}
 
 export default class AnswerFSM extends PureComponent<AnswerFSMProps, AnswerFSMState> {
     transform: string = '';
+    iteration: number;
+
+    static increment: number = 0;
 
     constructor(props: AnswerFSMProps) {
         super(props);
+        this.iteration = parseInt('' + AnswerFSM.increment);
+        AnswerFSM.increment++;
     };
 
     render() {
@@ -23,7 +28,7 @@ export default class AnswerFSM extends PureComponent<AnswerFSMProps, AnswerFSMSt
         const border = (16 + 1) * 2;
         return (
             <Paper
-                id='avo-lesson__expanded-card'
+                id={`avo-lesson__expanded-card@iteration:${this.iteration}`}
                 style={{
                     pointerEvents: 'none',
                     transition: 'transform 500ms ease-out, opacity, 500ms ease-out',
@@ -44,7 +49,7 @@ export default class AnswerFSM extends PureComponent<AnswerFSMProps, AnswerFSMSt
                 className='avo-card'
             >
                 <div
-                    id='FSM-inner__content-div'
+                    id={`FSM-inner__content-div@iteration:${this.iteration}`}
                     style={{
                         transition: 'opacity 0.3s',
                         display: 'flex',
@@ -95,12 +100,12 @@ export default class AnswerFSM extends PureComponent<AnswerFSMProps, AnswerFSMSt
     }
 
     openFSM(sourceID: string) {
-        const $this = document.getElementById('avo-lesson__expanded-card') as HTMLElement;
-        const $innerContent = document.getElementById('FSM-inner__content-div') as HTMLElement;
+        const $this = document.getElementById(`avo-lesson__expanded-card@iteration:${this.iteration}`) as HTMLElement;
+        const $innerContent = document.getElementById(`FSM-inner__content-div@iteration:${this.iteration}`) as HTMLElement;
 
         $this.style.opacity = '0';
         $this.style.pointerEvents = 'auto';
-        $this.style.transform = this.transform = getTransform(sourceID);
+        $this.style.transform = this.transform = getTransform(sourceID, this.iteration);
 
         $innerContent.style.opacity = '0';
         setTimeout(() => {
@@ -111,8 +116,8 @@ export default class AnswerFSM extends PureComponent<AnswerFSMProps, AnswerFSMSt
     }
 
     closeFSM = () => {
-        const $this = document.getElementById('avo-lesson__expanded-card') as HTMLElement;
-        const $innerContent = document.getElementById('FSM-inner__content-div') as HTMLElement;
+        const $this = document.getElementById(`avo-lesson__expanded-card@iteration:${this.iteration}`) as HTMLElement;
+        const $innerContent = document.getElementById(`FSM-inner__content-div@iteration:${this.iteration}`) as HTMLElement;
         const transform = this.transform;
         setTimeout(function() {
             $this.style.transform = transform;
@@ -123,8 +128,8 @@ export default class AnswerFSM extends PureComponent<AnswerFSMProps, AnswerFSMSt
     };
 }
 
-function getTransform(sourceID: string) {
-    const $this = document.getElementById('avo-lesson__expanded-card') as HTMLElement;
+function getTransform(sourceID: string, iteration: number) {
+    const $this = document.getElementById(`avo-lesson__expanded-card@iteration:${iteration}`) as HTMLElement;
     const $sharedParent = $this.parentElement as HTMLElement;
     const sharedParentPosition = $sharedParent.getBoundingClientRect();
     const $source = document.getElementById(sourceID) as HTMLElement;

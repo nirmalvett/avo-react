@@ -9,7 +9,7 @@ const TakeTest = React.lazy(() => import('../MyClasses/TakeTest'));
 const MyClasses = React.lazy(() => import('../MyClasses/MyClasses'));
 const CreateTest = React.lazy(() => import('../ManageClasses/CreateTest/CreateTest'));
 const AnswerInquiries = React.lazy(() => import('../InquiryAnswering/AnswerInquiries'));
-const Preferences = React.lazy(() => import('../Preferences/Preferences'));
+const MyAccount = React.lazy(() => import('../MyAccount/MyAccount'));
 const ManageClasses = React.lazy(() => import('../ManageClasses/ManageClasses'));
 const QuestionBuilderDocs = React.lazy(() => import('../QuestionBuilder/QuestionBuilderDocs'));
 const ExportTools = React.lazy(() => import('../ExportTools/ExportTools'));
@@ -20,11 +20,12 @@ const Whitelist = React.lazy(() => import('../Whitelist/Whitelist'));
 const QuestionBuilderHome = React.lazy(() => import('../QuestionBuilder/QuestionBuilderHome'));
 const Feedback = React.lazy(() => import('../Feedback/Feedback'));
 const ImageUploader = React.lazy(() => import('../ImageUploader/ImageUploader'));
+const ManageAssignments = React.lazy(() => import('../Assignments/ManageAssignments'));
+const MyAssignments = React.lazy(() => import('../Assignments/MyAssignments'));
 
 import AvoSideBar from './AvoSidebar';
 import AvoAppBar from './AvoAppBar';
 import AvoSnackBar from './AvoSnackBar';
-
 
 import {colorList} from '../SharedComponents/AVOCustomColors';
 import {createStyles, Theme} from '@material-ui/core/styles';
@@ -33,7 +34,7 @@ import classNames from 'classnames';
 import {Section} from './LayoutModels';
 import {Course, QuestionSet} from '../Http/types';
 import {GetSections_Section} from '../Http';
-import {HashLoader} from "react-spinners";
+import {HashLoader} from 'react-spinners';
 
 const drawerWidth = 240;
 
@@ -71,9 +72,15 @@ interface LayoutProps {
     isAdmin: boolean;
     color: number;
     theme: 'dark' | 'light';
+    country: string;
+    language: string;
+    description: string;
+    displayName: string;
+    socials: string[];
     logout: () => void;
     setColor: (color: number) => () => void;
     setTheme: (theme: 'light' | 'dark') => () => void;
+    updateUser: (result: Http.GetUserInfo) => void;
 }
 
 interface LayoutState {
@@ -156,9 +163,8 @@ class Layout extends Component<LayoutProps, LayoutState> {
                         Http.collectData(
                             'change screen',
                             {section: section.name},
-                            () => {
-                            },
-                            console.warn
+                            () => {},
+                            console.warn,
                         );
                     }}
                 />
@@ -178,7 +184,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 >
                     {this.getContent()}
                 </div>
-                <AvoSnackBar {...this.state.snackbar} onClose={this.closeSnackbar}/>
+                <AvoSnackBar {...this.state.snackbar} onClose={this.closeSnackbar} />
             </div>
         );
     }
@@ -192,16 +198,16 @@ class Layout extends Component<LayoutProps, LayoutState> {
 
     getContent() {
         // this helper returns the logic for what is loaded in the right side of the menu
-        return <Suspense fallback={this.loading()}>{this.renderContent()}</Suspense>
+        return <Suspense fallback={this.loading()}>{this.renderContent()}</Suspense>;
     }
 
     renderContent = () => {
         const {isTeacher, color, theme} = this.props;
         const {section} = this.state;
         if (section.name === 'Add Students') {
-            return <Whitelist color={this.color()}/>;
+            return <Whitelist color={this.color()} />;
         } else if (section.name === 'Concept Builder') {
-            return <TagView theme={{theme: this.props.theme, color: this.color()}}/>;
+            return <TagView theme={{theme: this.props.theme, color: this.color()}} />;
         } else if (section.name === 'Create Test') {
             return (
                 <CreateTest
@@ -211,7 +217,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name === 'Documentation') {
-            return <QuestionBuilderDocs/>;
+            return <QuestionBuilderDocs />;
         } else if (section.name === 'Export Tools') {
             return (
                 <ExportTools
@@ -221,7 +227,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name === 'Feedback') {
-            return <Feedback/>;
+            return <Feedback />;
         } else if (section.name === 'Home') {
             return (
                 <HomePage
@@ -256,9 +262,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name === 'Mark Editor') {
-            return <MarkEditor showSnackBar={this.showSnackBar} takes={section.takesID}/>;
+            return <MarkEditor showSnackBar={this.showSnackBar} takes={section.takesID} />;
         } else if (section.name === 'Mastery') {
-            return <MasteryHome theme={{theme: this.props.theme, color: this.color()}}/>;
+            return <MasteryHome theme={{theme: this.props.theme, color: this.color()}} />;
         } else if (section.name === 'My Classes') {
             return (
                 <MyClasses
@@ -286,18 +292,51 @@ class Layout extends Component<LayoutProps, LayoutState> {
         } else if (section.name === 'Answer Inquiries') {
             return <AnswerInquiries theme={{theme: this.props.theme, color: this.color()}}
                                     showSnackBar={this.showSnackBar}/>
+        } else if (section.name === 'Manage Assignments') {
+            return <ManageAssignments theme={{theme: this.props.theme, color: this.color()}}
+                                    showSnackBar={this.showSnackBar}/>
+        } else if (section.name === 'My Assignments') {
+            return <MyAssignments theme={{theme: this.props.theme, color: this.color()}}
+                                    showSnackBar={this.showSnackBar}/>
         } else if (section.name === 'Notify Class') {
-            return <NotifyClass/>;
+            return <NotifyClass />;
         } else if (section.name === 'Post Test') {
-            return <PostTest takes={section.takesID}/>;
-        } else if (section.name === 'Preferences') {
+            return <PostTest takes={section.takesID} />;
+        } else if (section.name === 'My Account') {
+            const {
+                firstName,
+                lastName,
+                isTeacher,
+                isAdmin,
+                color,
+                theme,
+                country,
+                language,
+                description,
+                displayName,
+                socials,
+            } = this.props;
             return (
-                <Preferences
+                <MyAccount
                     color={color}
                     theme={theme}
                     setColor={this.props.setColor}
                     setTheme={this.props.setTheme}
                     showSnackBar={this.showSnackBar}
+                    updateUser={this.props.updateUser}
+                    user={{
+                        firstName,
+                        lastName,
+                        isTeacher,
+                        isAdmin,
+                        color,
+                        theme,
+                        country,
+                        language,
+                        description,
+                        displayName,
+                        socials,
+                    }}
                 />
             );
         } else if (section.name === 'Take Test') {
@@ -309,9 +348,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name === 'Upload Images') {
-            return <ImageUploader showCard={true}/>
+            return <ImageUploader showCard={true} />;
         }
-    }
+    };
 
     // ============================== Methods that perform some type of data manipulation =======================
 
@@ -338,13 +377,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
         Http.getTest(
             test.testID,
             test => {
-                Http.collectData(
-                    'take test my classes',
-                    {test},
-                    () => {
-                    },
-                    console.warn
-                );
+                Http.collectData('take test my classes', {test}, () => {}, console.warn);
                 this.setState({section: {name: 'Take Test', test}});
             },
             result => alert(result.error),
@@ -377,9 +410,9 @@ class Layout extends Component<LayoutProps, LayoutState> {
                     justifyContent: 'center',
                 }}
             >
-                <HashLoader size={150} color='#399103'/>
+                <HashLoader size={150} color='#399103' />
             </div>
-        )
+        );
     }
 }
 

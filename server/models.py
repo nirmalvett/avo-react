@@ -40,6 +40,27 @@ class Announcement(db.Model):
                f' {self.timestamp}>'
 
 
+class Assignment(db.Model):
+    __tablename__ = 'ASSIGNMENT'
+
+    ASSIGNMENT = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    LESSON = db.Column(db.Integer, db.ForeignKey('LESSON.LESSON'), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    FILE = db.Column(db.Integer, db.ForeignKey('FILE.FILE'), nullable=False)
+
+    LESSON_RELATION = db.relationship('Lesson', back_populates='ASSIGNMENT_RELATION')
+    USER_RELATION = db.relationship('User', back_populates='ASSIGNMENT_RELATION')
+    FILE_RELATION = db.relationship('File', back_populates='ASSIGNMENT_RELATION')
+
+    def __init__(self, lesson, user, file):
+        self.LESSON = lesson
+        self.USER = user
+        self.FILE = file
+
+    def __repr__(self):
+        return f'{self.ASSIGNMENT} {self.LESSON} {self.USER} {self.FILE}'
+
+
 class Concept(db.Model):
     __tablename__ = 'CONCEPT'
 
@@ -58,7 +79,6 @@ class Concept(db.Model):
     )
     COURSE_RELATION = db.relationship('Course', back_populates='CONCEPT_RELATION')
     INQUIRY_RELATION = db.relationship('Inquiry', back_populates='CONCEPT_RELATION')
-    LESSON_RELATION = db.relationship('Lesson', back_populates='CONCEPT_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='CONCEPT_RELATION')
 
     def __init__(self, course_id, name, concept_type, lesson_content):
@@ -113,22 +133,6 @@ class ConceptRelation(db.Model):
 
     def __repr__(self):
         return f'<ConceptRelation {self.CONCEPT_RELATION} {self.PARENT} {self.CHILD} {self.concept_type} {self.weight}>'
-
-
-class Conversation(db.Model):
-    __tablename__ = 'CONVERSATION'
-
-    CONVERSATION = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(64), nullable=False)
-
-    MESSAGE_RELATION = db.relationship('Message', back_populates='CONVERSATION_RELATION')
-    USER_CONVERSATION_RELATION = db.relationship('UserConversation', back_populates='CONVERSATION_RELATION')
-
-    def __init__(self, name):
-        self.name = name
-
-    def __repr__(self):
-        return f'<Conversation {self.CONVERSATION} {self.name}>'
 
 
 class Course(db.Model):
@@ -203,70 +207,67 @@ class Feedback(db.Model):
         return f'<Feedback {self.FEEDBACK} {self.USER} {self.message} {self.timestamp}>'
 
 
-class ForumMessage(db.Model):
-    __tablename__ = 'FORUM_MESSAGE'
+class File(db.Model):
+    __tablename__ = 'FILE'
 
-    FORUM_MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'))
-    PARENT = db.Column(db.Integer, db.ForeignKey('FORUM_MESSAGE.FORUM_MESSAGE'))
-    message = db.Column(db.String(2048))
-    status = db.Column(db.Integer, nullable=False, default=0)
-    timestamp = db.Column(db.DateTime, nullable=False)
+    FILE = db.Column(db.Integer, primary_key=True)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
+    file_name = db.Column(db.String(2000), nullable=False)
+    FILE_TYPE = db.Column(db.Integer, db.ForeignKey('FILE_TYPE.FILE_TYPE'), nullable=False, index=True)
+    bucket = db.Column(db.String(100))
 
-    USER_RELATION = db.relationship('User', back_populates='FORUM_MESSAGE_RELATION')
-    r1 = db.relationship("ForumMessage", backref=db.backref('r2'), remote_side=[FORUM_MESSAGE])
+    USER_RELATION = db.relationship('User', back_populates='FILE_RELATION')
+    FILE_TYPE_RELATION = db.relationship('FileType', back_populates='FILE_RELATION')
+    ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='FILE_RELATION')
 
-    def __init__(self, user_id, parent_id, message, status, timestamp):
+    def __init__(self, user_id, file_name, file_type, bucket):
         self.USER = user_id
-        self.PARENT = parent_id
-        self.message = message
-        self.status = status
-        self.timestamp = timestamp
+        self.file_name = file_name
+        self.FILE_TYPE = file_type
+        self.bucket = bucket
 
     def __repr__(self):
-        return f'<ForumMessage {self.FORUM_MESSAGE} {self.USER} {self.PARENT} {self.message} {self.status}' \
-               f' {self.timestamp}>'
+        return f'<File {self.FILE} {self.USER} {self.file_name}>'
 
 
-class Image(db.Model):
-    __tablename__ = 'IMAGE'
+class FileType(db.Model):
+    __tablename__ = 'FILE_TYPE'
 
-    IMAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'))
-    name = db.Column(db.String(200))
-    url = db.Column(db.String(1000))
+    FILE_TYPE = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
 
-    USER_RELATION = db.relationship('User', back_populates='IMAGE_RELATION')
+    FILE_RELATION = db.relationship('File', back_populates='FILE_TYPE_RELATION')
 
-    def __init__(self, user_id: int, url: str, name: str):
-        self.USER = user_id
-        self.url = url
+    def __init__(self, name: str):
         self.name = name
 
     def __repr__(self):
-        return f'<Image {self.IMAGE} {self.USER} {self.name} {self.url}>'
+        return f'<FileType {self.FILE_TYPE} {self.name}>'
 
 
 class Inquiry(db.Model):
     __tablename__ = 'INQUIRY'
 
     INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=True)
-    QUESTION = db.Column(db.Integer, db.ForeignKey('QUESTION.QUESTION'), nullable=True)
+    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=True, index=True)
+    LESSON = db.Column(db.Integer, db.ForeignKey('LESSON.LESSON'), nullable=True, index=True)
+    QUESTION = db.Column(db.Integer, db.ForeignKey('QUESTION.QUESTION'), nullable=True, index=True)
     originalInquiry = db.Column(db.Text, nullable=False)
     editedInquiry = db.Column(db.TEXT, nullable=False, default="")
-    inquiryType = db.Column(db.Boolean, nullable=False)
+    inquiryType = db.Column(db.Integer, nullable=False)
     timeCreated = db.Column(db.DATETIME, nullable=True)
     hasAnswered = db.Column(db.Boolean, nullable=False, default=False)
     stringifiedQuestion = db.Column(db.TEXT, nullable=False, default="")
     inquiryAnswer = db.Column(db.TEXT, nullable=False, default="")
 
     CONCEPT_RELATION = db.relationship('Concept', back_populates='INQUIRY_RELATION')
+    LESSON_RELATION = db.relationship('Lesson', back_populates='INQUIRY_RELATION')
     QUESTION_RELATION = db.relationship('Question', back_populates='INQUIRY_RELATION')
     USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='INQUIRY_RELATION')
 
-    def __init__(self, original_inquiry, inquiry_type, stringified_question, concept=None, question=None):
+    def __init__(self, original_inquiry, inquiry_type, stringified_question, concept=None, question=None, lesson=None):
         self.CONCEPT = concept
+        self.LESSON = lesson
         self.QUESTION = question
         self.originalInquiry = original_inquiry
         self.editedInquiry = None
@@ -281,70 +282,38 @@ class Inquiry(db.Model):
                f'{self.stringifiedQuestion} {self.inquiryAnswer}'
 
 
-class Issue(db.Model):
-    __tablename__ = 'ISSUE'
-
-    ISSUE = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    ISSUE_HUB = db.Column(db.Integer, db.ForeignKey('ISSUE_HUB.ISSUE_HUB'), nullable=False)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
-    message = db.Column(db.String(512), nullable=False)
-    status = db.Column(db.Integer, nullable=False, default=0)
-    timestamp = db.Column(db.DateTime, nullable=False)
-
-    ISSUE_HUB_RELATION = db.relationship('IssueHub', back_populates='ISSUE_RELATION')
-    USER_RELATION = db.relationship('User', back_populates='ISSUE_RELATION')
-
-    def __init__(self, hub_id, user_id, message, status, timestamp):
-        self.ISSUE_HUB = hub_id
-        self.USER = user_id
-        self.message = message
-        self.status = status
-        self.timestamp = timestamp
-
-    def __repr__(self):
-        return f'<Issue {self.ISSUE} {self.ISSUE_HUB} {self.USER} {self.message} {self.status} {self.timestamp}>'
-
-
-class IssueHub(db.Model):
-    __tablename__ = 'ISSUE_HUB'
-
-    ISSUE_HUB = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
-    ISSUE_RELATION = db.relationship('Issue', back_populates='ISSUE_HUB_RELATION')
-
-    def __init__(self):
-        pass
-
-    def __repr__(self):
-        return f'<IssueHub {self.ISSUE_HUB}>'
-
-
 class Lesson(db.Model):
     __tablename__ = 'LESSON'
 
     LESSON = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
-    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
+    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'), index=True)
+    name = db.Column(db.String(150), nullable=False)
     content = db.Column(db.String(16384), nullable=False)
+    has_assignment = db.Column(db.Boolean, nullable=False, default=False)
+    due_date = db.Column(db.DateTime, nullable=True)
 
+    ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='LESSON_RELATION')
     COURSE_RELATION = db.relationship('Course', back_populates='LESSON_RELATION')
-    CONCEPT_RELATION = db.relationship('Concept', back_populates='LESSON_RELATION')
+    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='LESSON_RELATION')
 
-    def __init__(self, course_id: int, concept_id: int, content: str):
+    def __init__(self, course_id: int, name: str, content: str, has_assignment: bool, due_date: datetime):
         self.COURSE = course_id
-        self.CONCEPT = concept_id
         self.content = content
+        self.name = name
+        self.has_assignment = has_assignment
+        self.due_date = due_date
 
     def __repr__(self):
-        return f'<Lesson {self.LESSON} {self.COURSE} {self.CONCEPT} {self.content}>'
+        return f'<Lesson {self.LESSON} {self.COURSE} {self.name} {self.content} {self.has_assignment} ' \
+               f'{self.due_date}>'
 
 
 class Mastery(db.Model):
     __tablename__ = 'mastery'
 
     MASTERY = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False, index=True)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
     mastery_level = db.Column(db.Float, nullable=False)
     mastery_survey = db.Column(db.Integer, nullable=False)
     aptitude_survey = db.Column(db.Integer, nullable=False)
@@ -371,7 +340,7 @@ class MasteryHistory(db.Model):
     __tablename__ = 'mastery_history'
 
     MASTERY_HISTORY = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    MASTERY = db.Column(db.Integer, db.ForeignKey('mastery.MASTERY'), nullable=False)
+    MASTERY = db.Column(db.Integer, db.ForeignKey('mastery.MASTERY'), nullable=False, index=True)
     mastery_level = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
 
@@ -386,34 +355,12 @@ class MasteryHistory(db.Model):
         return f'<MasteryHistory {self.MASTERY_HISTORY} {self.MASTERY} {self.mastery_level} {self.timestamp}>'
 
 
-class Message(db.Model):
-    __tablename__ = 'MESSAGE'
-
-    MESSAGE = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    CONVERSATION = db.Column(db.Integer, db.ForeignKey('CONVERSATION.CONVERSATION'), nullable=False)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
-    content = db.Column(db.String(512), nullable=False)
-    timestamp = db.Column(db.DateTime, nullable=False)
-
-    CONVERSATION_RELATION = db.relationship('Conversation', back_populates='MESSAGE_RELATION')
-    USER_RELATION = db.relationship('User', back_populates='MESSAGE_RELATION')
-
-    def __init__(self, conversation, user_id, content, timestamp):
-        self.CONVERSATION = conversation
-        self.USER = user_id
-        self.content = content
-        self.timestamp = timestamp
-
-    def __repr__(self):
-        return f'<Message {self.MESSAGE} {self.CONVERSATION} {self.USER} {self.content} {self.timestamp}'
-
-
 class Payment(db.Model):
     __tablename__ = 'payment'
 
     PAYMENT = db.Column(db.String(30), primary_key=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
-    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
+    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'), nullable=False, index=True)
 
     SECTION_RELATION = db.relationship('Section', back_populates='PAYMENT_RELATION')
     USER_RELATION = db.relationship('User', back_populates='PAYMENT_RELATION')
@@ -442,7 +389,6 @@ class Question(db.Model):
 
     INQUIRY_RELATION = db.relationship('Inquiry', back_populates='QUESTION_RELATION')
     CONCEPT_QUESTION_RELATION = db.relationship('ConceptQuestion', back_populates='QUESTION_RELATION')
-    QUESTION_HISTORY_RELATION = db.relationship('QuestionHistory', back_populates='QUESTION_RELATION')
     QUESTION_SET_RELATION = db.relationship('QuestionSet', back_populates='QUESTION_RELATION')
 
     def __init__(self, question_set, name, string, answers, total, category=0, auto_marked=True, config=None):
@@ -462,36 +408,11 @@ class Question(db.Model):
         )
 
 
-class QuestionHistory(db.Model):
-    __tablename__ = 'question_history'
-
-    QUESTION_HISTORY = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
-    QUESTION = db.Column(db.Integer, db.ForeignKey('QUESTION.QUESTION'), nullable=False)
-    answer = db.Column(db.String(512), nullable=False)
-    grade = db.Column(db.Float, nullable=False)
-    timestamp = db.Column(db.DateTime, nullable=False)
-
-    QUESTION_RELATION = db.relationship('Question', back_populates='QUESTION_HISTORY_RELATION')
-    USER_RELATION = db.relationship('User', back_populates='QUESTION_HISTORY_RELATION')
-
-    def __init__(self, user_id, question_id, answer, grade, timestamp):
-        self.USER = user_id
-        self.QUESTION = question_id
-        self.answer = answer
-        self.grade = grade
-        self.timestamp = timestamp
-
-    def __repr__(self):
-        return f'<QuestionHistory {self.QUESTION_HISTORY} {self.USER} {self.QUESTION} {self.answer} {self.grade}' \
-               f' {self.timestamp}>'
-
-
 class QuestionSet(db.Model):
     __tablename__ = 'QUESTION_SET'
 
     QUESTION_SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
+    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'), index=True)
     name = db.Column(db.String(45), nullable=False)
 
     COURSE_RELATION = db.relationship('Course', back_populates='QUESTION_SET_RELATION')
@@ -509,7 +430,7 @@ class Section(db.Model):
     __tablename__ = 'SECTION'
 
     SECTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'))
+    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'), index=True)
     name = db.Column(db.String(45), nullable=False)
     enroll_key = db.Column(db.String(10))
     price = db.Column(db.Float, nullable=False, default=0)
@@ -544,8 +465,8 @@ class Takes(db.Model):
     __tablename__ = 'takes'
 
     TAKES = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    TEST = db.Column(db.Integer, db.ForeignKey('TEST.TEST'), nullable=False)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
+    TEST = db.Column(db.Integer, db.ForeignKey('TEST.TEST'), nullable=False, index=True)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
     time_started = db.Column(db.DateTime, nullable=False)
     time_submitted = db.Column(db.DateTime, nullable=False)
     grade = db.Column(db.Float, nullable=False)
@@ -577,7 +498,7 @@ class Test(db.Model):
     __tablename__ = 'TEST'
 
     TEST = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'))
+    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'), index=True)
     name = db.Column(db.String(200), nullable=False)
     open_time = db.Column(db.DateTime)
     deadline = db.Column(db.DateTime, nullable=False)
@@ -622,40 +543,43 @@ class User(UserMixin, db.Model):
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     color = db.Column(db.Integer, nullable=False, default=9)
     theme = db.Column(db.Boolean, nullable=False, default=False)
+    country = db.Column(db.String(3), nullable=True)
+    language = db.Column(db.String(2), nullable=False, default='en')
+    description = db.Column(db.String(1024), nullable=True)
+    display_name = db.Column(db.String(45), nullable=False)
+    profile_id = db.Column(db.String(16), nullable=False, unique=True)
 
     ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='USER_RELATION')
+    ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='USER_RELATION')
     FEEDBACK_RELATION = db.relationship('Feedback', back_populates='USER_RELATION')
-    FORUM_MESSAGE_RELATION = db.relationship('ForumMessage', back_populates='USER_RELATION')
-    ISSUE_RELATION = db.relationship('Issue', back_populates='USER_RELATION')
     MASTERY_RELATION = db.relationship('Mastery', back_populates='USER_RELATION')
-    MESSAGE_RELATION = db.relationship('Message', back_populates='USER_RELATION')
     PAYMENT_RELATION = db.relationship('Payment', back_populates='USER_RELATION')
-    QUESTION_HISTORY_RELATION = db.relationship('QuestionHistory', back_populates='USER_RELATION')
     TAKES_RELATION = db.relationship('Takes', back_populates='USER_RELATION')
-    USER_CONVERSATION_RELATION = db.relationship('UserConversation', back_populates='USER_RELATION')
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='USER_RELATION')
     USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='USER_RELATION')
     USER_SECTION_RELATION = db.relationship('UserSection', back_populates='USER_RELATION')
-    IMAGE_RELATION = db.relationship('Image', back_populates='USER_RELATION')
+    FILE_RELATION = db.relationship('File', back_populates='USER_RELATION')
 
     def __init__(
-            self, email, first_name, last_name, password,
+            self, email, first_name, last_name, password, profile_id,
             is_teacher=False, color=9, theme=0, confirmed=False, is_admin=False
     ):
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
         self.change_password(password)
+        self.profile_id = profile_id
         self.confirmed = confirmed
         self.is_teacher = is_teacher
         self.is_admin = is_admin
         self.color = color
         self.theme = theme
+        self.display_name = first_name + ' ' + last_name
 
     def __repr__(self):
         return (
-            f'<User {self.USER} {self.email} {self.first_name} {self.last_name} {self.password} {self.salt}'
-            f' {self.confirmed} {self.is_teacher} {self.is_admin} {self.color} {self.theme}>'
+            f'<User {self.USER} {self.email} {self.first_name} {self.last_name} {self.password} {self.profile_id}'
+            f' {self.salt} {self.confirmed} {self.is_teacher} {self.is_admin} {self.color} {self.theme}>'
         )
 
     def get_id(self):
@@ -666,32 +590,12 @@ class User(UserMixin, db.Model):
         self.password = hash_password(password, self.salt)
 
 
-class UserConversation(db.Model):
-    __tablename__ = 'user_conversation'
-
-    USER_CONVERSATION = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
-    CONVERSATION = db.Column(db.Integer, db.ForeignKey('CONVERSATION.CONVERSATION'), nullable=False)
-    status = db.Column(db.Integer, nullable=False, default=0)
-
-    CONVERSATION_RELATION = db.relationship('Conversation', back_populates='USER_CONVERSATION_RELATION')
-    USER_RELATION = db.relationship('User', back_populates='USER_CONVERSATION_RELATION')
-
-    def __init__(self, user, conversation, status=0):
-        self.USER = user
-        self.CONVERSATION = conversation
-        self.status = status
-
-    def __repr__(self):
-        return f'<UserConversation {self.USER_CONVERSATION} {self.USER} {self.CONVERSATION} {self.status}>'
-
-
 class UserCourse(db.Model):
     __tablename__ = 'user_course'
 
     USER_COURSE = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
-    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
+    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'), nullable=False, index=True)
     can_edit = db.Column(db.Boolean, nullable=False, default=False)
 
     COURSE_RELATION = db.relationship('Course', back_populates='USER_COURSE_RELATION')
@@ -710,8 +614,8 @@ class UserInquiry(db.Model):
     __tablename__ = 'user_inquiry'
 
     USER_INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
-    INQUIRY = db.Column(db.Integer, db.ForeignKey('INQUIRY.INQUIRY'))
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
+    INQUIRY = db.Column(db.Integer, db.ForeignKey('INQUIRY.INQUIRY'), index=True)
     isOwner = db.Column(db.Boolean, default=False)
 
     USER_RELATION = db.relationship('User', back_populates='USER_INQUIRY_RELATION')
@@ -730,8 +634,8 @@ class UserSection(db.Model):
     __tablename__ = 'user_section'
 
     USER_SECTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
-    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'), nullable=False)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
+    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'), nullable=False, index=True)
     user_type = db.Column(db.String(10), nullable=False)
     transaction_id = db.Column(db.String(45))
     expiry = db.Column(db.DateTime)
@@ -750,6 +654,24 @@ class UserSection(db.Model):
         return (
             f'<UserSection {self.USER_SECTION} {self.USER} {self.SECTION} {self.user_type} {self.transaction_id}'
             f' {self.expiry}>'
+        )
+
+
+class SocialMediaLink(db.Model):
+    __tablename__ = 'social_media_link'
+
+    # TODO should probably make this a composite primary key of userid and link
+    LINK_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
+    link = db.Column(db.String(100), nullable=False)
+
+    def __init__(self, user, link):
+        self.USER = user
+        self.link = link
+
+    def __repr__(self):
+        return (
+            f'<SocialMediaLink {self.USER} {self.link}>'
         )
 
 

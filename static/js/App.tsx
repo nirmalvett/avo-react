@@ -11,7 +11,6 @@ const SignIn = React.lazy(() => import('./SignIn/SignIn'));
 const PasswordResetPage = React.lazy(() => import('./SignIn/PasswordReset'));
 const NotChromeWarningPage = React.lazy(() => import('./SignIn/NotChromeWarningPage'));
 
-
 export interface User {
     firstName: string;
     lastName: string;
@@ -19,10 +18,14 @@ export interface User {
     isAdmin: boolean;
     color: number;
     theme: 'dark' | 'light';
+    country: string;
+    language: string;
+    description: string;
+    displayName: string;
+    socials: string[];
 }
 
-interface AppProps {
-}
+interface AppProps {}
 
 interface AppState {
     authenticated: User | false | null;
@@ -42,17 +45,17 @@ export default class App extends Component<AppProps, AppState> {
 
     render() {
         if (!isChrome() || isMobile() || isSafari()) {
-            return <Suspense fallback={<div>Loading...</div>}>
-                        <NotChromeWarningPage/>
-                    </Suspense>;
+            return (
+                <Suspense fallback={<div>Loading...</div>}>
+                    <NotChromeWarningPage />
+                </Suspense>
+            );
         } else if (this.state.authenticated === null) {
             return null;
         } else {
             return (
                 <MuiPickersUtilsProvider utils={MomentUtils}>
-                    <Suspense fallback={<div>Loading...</div>}>
-                        {this.getContent()}
-                    </Suspense>
+                    <Suspense fallback={<div>Loading...</div>}>{this.getContent()}</Suspense>
                 </MuiPickersUtilsProvider>
             );
         }
@@ -72,7 +75,7 @@ export default class App extends Component<AppProps, AppState> {
                 </PasswordResetPage>
             );
         } else if (this.state.authenticated === false) {
-            return <SignIn login={this.updateUser}/>;
+            return <SignIn login={this.updateUser} />;
         } else {
             const u = this.state.authenticated as User;
             const theme = createMuiTheme({palette: {primary: colorList[u.color], type: u.theme}});
@@ -82,6 +85,7 @@ export default class App extends Component<AppProps, AppState> {
                         setColor={this.setColor}
                         setTheme={this.setTheme}
                         logout={this.logout}
+                        updateUser={this.updateUser}
                         {...u}
                     />
                 </MuiThemeProvider>
@@ -91,7 +95,7 @@ export default class App extends Component<AppProps, AppState> {
 
     updateUser = (result: Http.GetUserInfo) =>
         this.setState({authenticated: {...result, theme: result.theme ? 'dark' : 'light'}}, () => {
-            Http.collectData('login', {}, ()=>{}, console.warn)
+            Http.collectData('update user', {}, () => {}, console.warn);
         });
 
     authError = () => this.setState({authenticated: false});
