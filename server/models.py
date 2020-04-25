@@ -558,7 +558,6 @@ class User(UserMixin, db.Model):
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='USER_RELATION')
     USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='USER_RELATION')
     USER_SECTION_RELATION = db.relationship('UserSection', back_populates='USER_RELATION')
-    IMAGE_RELATION = db.relationship('Image', back_populates='USER_RELATION')
     FILE_RELATION = db.relationship('File', back_populates='FILE_RELATION')
 
     def __init__(
