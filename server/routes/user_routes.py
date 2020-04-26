@@ -6,7 +6,7 @@ from server.PasswordHash import check_password
 import re
 from server.decorators import login_required, validate
 from server.auth import send_email, get_url, validate_token
-from server.models import db, User, Feedback, SocialMediaLink, Course, UserCourse
+from server.models import db, User, Feedback, SocialMediaLink, Course, UserCourse, File, FileType
 from server.helpers import LANGUAGES, COUNTRIES
 
 UserRoutes = Blueprint('UserRoutes', __name__)
@@ -432,9 +432,9 @@ def send_feedback(message: str):
 def get_profile(profile_id: str):
     user = User.query.filter(User.profile_id == profile_id).first()
 
-    courses = Course.query\
-        .join(UserCourse, UserCourse.COURSE == Course.COURSE)\
-        .filter((UserCourse.USER == user.USER) & (Course.is_open == True))\
+    courses = Course.query \
+        .join(UserCourse, UserCourse.COURSE == Course.COURSE) \
+        .filter((UserCourse.USER == user.USER) & (Course.is_open == True)) \
         .all()
 
     if user is None:
@@ -458,11 +458,27 @@ def get_profile(profile_id: str):
         ]
     )
 
+
 @UserRoutes.route('/changeName', methods=['POST'])
 @login_required
 @validate(firstName=str, lastName=str)
 def change_name(first_name: str, last_name: str):
     current_user.first_name = first_name
     current_user.last_name = last_name
+    db.session.commit()
+    return jsonify({})
+
+
+@UserRoutes.route('/setProfilePic', methods=['POST'])
+@login_required
+@validate(fileName=str)
+def set_profile_pic(file_name: str):
+    file = File.query \
+        .join(FileType, FileType.FILE_TYPE == File.FILE_TYPE) \
+        .filter((File.file_name == file_name) & (FileType.name == 'image') & (File.USER == current_user.USER)) \
+        .first()
+    if file is None:
+        return jsonify(error='Could not find image')
+    current_user.profile_pic = file.FILE
     db.session.commit()
     return jsonify({})

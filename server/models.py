@@ -218,7 +218,7 @@ class File(db.Model):
     FILE_TYPE = db.Column(db.Integer, db.ForeignKey('FILE_TYPE.FILE_TYPE'), nullable=False, index=True)
     bucket = db.Column(db.String(100))
 
-    USER_RELATION = db.relationship('User', back_populates='FILE_RELATION')
+    USER_RELATION = db.relationship('User', back_populates='FILE_RELATION', foreign_keys=[USER])
     FILE_TYPE_RELATION = db.relationship('FileType', back_populates='FILE_RELATION')
     ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='FILE_RELATION')
 
@@ -551,6 +551,7 @@ class User(UserMixin, db.Model):
     display_name = db.Column(db.String(45), nullable=False)
     profile_id = db.Column(db.String(16), nullable=False, unique=True)
     is_public = db.Column(db.Boolean, nullable=False, default=False)
+    profile_pic = db.Column(db.Integer, db.ForeignKey('FILE.FILE'))
 
     ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='USER_RELATION')
     ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='USER_RELATION')
@@ -561,7 +562,7 @@ class User(UserMixin, db.Model):
     USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='USER_RELATION')
     USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='USER_RELATION')
     USER_SECTION_RELATION = db.relationship('UserSection', back_populates='USER_RELATION')
-    FILE_RELATION = db.relationship('File', back_populates='USER_RELATION')
+    FILE_RELATION = db.relationship('File', foreign_keys=[profile_pic])
 
     def __init__(
             self, email, first_name, last_name, password, profile_id,
