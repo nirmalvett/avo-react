@@ -42,6 +42,7 @@ export interface GetUserInfo {
     description: string;
     displayName: string;
     socials: string[];
+    profilePicture: string;
 }
 
 export function getUserInfo(success: cb<GetUserInfo>, failure: cb) {
