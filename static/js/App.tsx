@@ -23,6 +23,7 @@ export interface User {
     description: string;
     displayName: string;
     socials: string[];
+    profilePicture: string;
 }
 
 interface AppProps {}
