@@ -65,7 +65,7 @@ def get_images():
 
 
 @FileUploadRoutes.route('/upload/image', methods=['POST'])
-@teacher_only
+@login_required
 def image_upload():
     file = request.files.get('file')
     if file is None:
