@@ -114,6 +114,7 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                 {this.listItem(ClassOutlined, {name: 'My Classes', _class: null, _quiz: null})}
                 {this.listItem(SchoolOutlined, {name: 'Learn'})}
                 {this.listItem(AssignmentTurnedInOutlined, {name: 'My Assignments'})}
+                {this.listItem(Image, {name: 'Upload Images'})}
                 {this.props.isAdmin && this.listItem(SchoolOutlined, {name: 'Mastery'})}
             </List>
         );
@@ -133,7 +134,6 @@ class AvoSidebar extends PureComponent<AvoSidebarProps> {
                     {this.listItem(HelpOutline, {name: 'Documentation'})}
                     {this.listItem(ExtensionOutlined, {name: 'Concept Builder'})}
                     {this.listItem(AssignmentReturnedOutlined, {name: 'Export Tools'})}
-                    {this.listItem(Image, {name: 'Upload Images'})}
                 </List>
             </Fragment>
         );

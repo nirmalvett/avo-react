@@ -55,7 +55,7 @@ def image(filename):
 
 
 @FileUploadRoutes.route('/getImages')
-@teacher_only
+@login_required
 def get_images():
     images = File.query \
         .join(FileType, FileType.FILE_TYPE == File.FILE_TYPE) \
