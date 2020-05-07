@@ -122,6 +122,11 @@ def login(username: str, password: str):
     else:
         # Else log the user in
         login_user(user)
+        prof_pic = current_user.FILE_RELATION
+        if prof_pic is None:
+            prof_pic = None
+        else:
+            prof_pic = prof_pic.file_name
         return jsonify(
             firstName=current_user.first_name,
             lastName=current_user.last_name,
@@ -135,7 +140,7 @@ def login(username: str, password: str):
             displayName=current_user.display_name,
             socials=[media_link.link for media_link in SocialMediaLink.query.filter(
                 SocialMediaLink.USER == current_user.USER).all()],
-            profilePicture=current_user.FILE_RELATION.file_name
+            profilePicture=prof_pic
         )
 
 
@@ -147,6 +152,11 @@ def get_user_info():
     """
     try:
         # Returns the current user's data if not logged in return error JSON
+        prof_pic = current_user.FILE_RELATION
+        if prof_pic is None:
+            prof_pic = None
+        else:
+            prof_pic = prof_pic.file_name
         return jsonify(
             firstName=current_user.first_name,
             lastName=current_user.last_name,
@@ -160,7 +170,7 @@ def get_user_info():
             displayName=current_user.display_name,
             socials=[media_link.link for media_link in SocialMediaLink.query.filter(
                 SocialMediaLink.USER == current_user.USER).all()],
-            profilePicture=current_user.FILE_RELATION.file_name
+            profilePicture=prof_pic
         )
     except AttributeError:
         return jsonify(error='User does not exist')
