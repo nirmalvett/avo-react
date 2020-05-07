@@ -123,9 +123,7 @@ def login(username: str, password: str):
         # Else log the user in
         login_user(user)
         prof_pic = current_user.FILE_RELATION
-        if prof_pic is None:
-            prof_pic = None
-        else:
+        if prof_pic is not None:
             prof_pic = prof_pic.file_name
         return jsonify(
             firstName=current_user.first_name,
@@ -153,9 +151,7 @@ def get_user_info():
     try:
         # Returns the current user's data if not logged in return error JSON
         prof_pic = current_user.FILE_RELATION
-        if prof_pic is None:
-            prof_pic = None
-        else:
+        if prof_pic is not None:
             prof_pic = prof_pic.file_name
         return jsonify(
             firstName=current_user.first_name,
