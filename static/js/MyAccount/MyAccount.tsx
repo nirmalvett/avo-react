@@ -10,6 +10,11 @@ import {
     TextField,
     MenuItem,
     Button,
+    Modal,
+    CardContent,
+    Card,
+    CardHeader,
+    CardActions,
 } from '@material-ui/core';
 import * as Http from '../Http';
 import {colorList} from '../SharedComponents/AVOCustomColors';
@@ -38,9 +43,15 @@ interface MyAccountState {
     description: string;
     displayName: string;
     socials: string[];
+    profilePicture: string;
+    pictureModalOpen: boolean;
+    images: string[];
+    hoveredImage: string;
 }
 
 export default class MyAccount extends React.Component<MyAccountProps, MyAccountState> {
+    private thumbnailStyle: any;
+    private hoveredThumbnailStyle: any;
     constructor(props: MyAccountProps) {
         super(props);
         this.state = {
@@ -55,11 +66,20 @@ export default class MyAccount extends React.Component<MyAccountProps, MyAccount
             description: '',
             displayName: '',
             socials: [],
+            profilePicture: '',
+            pictureModalOpen: false,
+            images: [], // A list of all images available to the user
+            hoveredImage: '',
         };
     }
 
     componentDidMount = () => {
+        console.log(colorList[this.props.color]);
         this.setState(this.props.user);
+        Http.getImages(
+            result => this.setState({images: Object.values(result.images)}),
+            () => this.props.showSnackBar('error', 'Could not load images', 1500),
+        );
     };
 
     personalInfoChanged = () => {
@@ -158,6 +178,25 @@ export default class MyAccount extends React.Component<MyAccountProps, MyAccount
         } else {
             this.props.showSnackBar('error', 'Regional info could not be updated', 1500);
         }
+    };
+
+    updateProfilePicture = (image: string) => {
+        const {user} = this.props;
+        this.setState({profilePicture: image, pictureModalOpen: false});
+        this.props.updateUser({
+            ...user,
+            profilePicture: image,
+            theme: user.theme === 'dark',
+        });
+        Http.setProfilePicture(
+            image,
+            () => this.props.showSnackBar('success', 'Profile picture updated', 1500),
+            () => this.props.showSnackBar('error', 'Profile picture could not be updated', 1500),
+        );
+    };
+
+    closeModal = () => {
+        this.setState({hoveredImage: '', pictureModalOpen: false});
     };
 
     render() {
@@ -323,6 +362,84 @@ export default class MyAccount extends React.Component<MyAccountProps, MyAccount
                         Save
                     </Button>
                 </Grid>
+                <Typography variant='h5' style={{margin: '10px 0 5px'}}>
+                    Profile Picture
+                </Typography>
+                <Grid container spacing={2} style={{display: 'block'}}>
+                    <Grid item>
+                        <img
+                            src={'/image/' + this.state.profilePicture}
+                            height='200px'
+                            width='200px'
+                            style={{objectFit: 'cover'}}
+                            alt='Profile picture'
+                        />
+                    </Grid>
+                    <Button
+                        variant='contained'
+                        color='primary'
+                        style={{marginLeft: '8px', display: 'block'}}
+                        onClick={() => this.setState({pictureModalOpen: true})}
+                    >
+                        Change
+                    </Button>
+                </Grid>
+                <Modal open={this.state.pictureModalOpen} onClose={this.closeModal}>
+                    <Card
+                        style={{
+                            position: 'absolute',
+                            left: '10px',
+                            top: '10px',
+                            right: '10px',
+                            bottom: '10px',
+                            overflowY: 'auto',
+                        }}
+                    >
+                        {/* <Typography variant='h3' style={{margin: '10px'}}>
+                            Select your profile picture
+                        </Typography> */}
+                        <CardHeader title='Select your profile picture' />
+                        <CardContent>
+                            <Grid container xs={12} justify='flex-start' spacing={2}>
+                                {this.state.images.map((image: string) => (
+                                    <Grid item>
+                                        <img
+                                            src={'/image/' + image}
+                                            height='200px'
+                                            width='200px'
+                                            style={
+                                                this.state.hoveredImage === image
+                                                    ? {
+                                                          objectFit: 'cover',
+                                                          border:
+                                                              '2px solid ' +
+                                                              colorList[this.props.color]['500'],
+                                                      }
+                                                    : {objectFit: 'cover', border: '2px solid gray'}
+                                            }
+                                            alt='image'
+                                            onClick={() => this.updateProfilePicture(image)}
+                                            onMouseEnter={() =>
+                                                this.setState({hoveredImage: image})
+                                            }
+                                            onMouseLeave={() => this.setState({hoveredImage: ''})}
+                                        />
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </CardContent>
+                        <CardActions>
+                            <Button
+                                onClick={this.closeModal}
+                                variant='contained'
+                                color='primary'
+                                style={{marginLeft: '8px'}}
+                            >
+                                Close
+                            </Button>
+                        </CardActions>
+                    </Card>
+                </Modal>
             </Paper>
         );
     }

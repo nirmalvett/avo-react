@@ -1,5 +1,5 @@
 import {_request, cb} from './baseRequest';
-import {OpenCourse} from "./CourseRoutes";
+import {OpenCourse} from './CourseRoutes';
 
 export function register(
     firstName: string,
@@ -42,6 +42,7 @@ export interface GetUserInfo {
     description: string;
     displayName: string;
     socials: string[];
+    profilePicture: string;
 }
 
 export function getUserInfo(success: cb<GetUserInfo>, failure: cb) {
@@ -80,15 +81,19 @@ export function availableProfileId(profileId: string, success: cb<{}>, failure: 
     _request('POST', '/availableProfileId', success, failure, {profileId});
 }
 
-export function getProfile(profileId: string, success: cb<{
-    country: string | undefined
-    courses?: OpenCourse[]
-    description?: string | undefined;
-    display_name?: string | undefined;
-    firstName?: string;
-    language: string;
-    lastName?: string;
-}>, failure: cb<{}>) {
+export function getProfile(
+    profileId: string,
+    success: cb<{
+        country: string | undefined;
+        courses?: OpenCourse[];
+        description?: string | undefined;
+        display_name?: string | undefined;
+        firstName?: string;
+        language: string;
+        lastName?: string;
+    }>,
+    failure: cb<{}>,
+) {
     _request('POST', '/getProfile', success, failure, {profileId});
 }
 
@@ -118,4 +123,8 @@ export function deleteSocialLink(link: string, success: cb<{}>, failure: cb) {
 
 export function changeName(firstName: string, lastName: string, success: cb<{}>, failure: cb) {
     _request('POST', '/changeName', success, failure, {firstName, lastName});
+}
+
+export function setProfilePicture(fileName: string, success: cb<{}>, failure: cb) {
+    _request('POST', '/setProfilePic', success, failure, {fileName});
 }

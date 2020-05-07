@@ -79,10 +79,11 @@ interface LayoutProps {
     description: string;
     displayName: string;
     socials: string[];
+    profilePicture: string;
     logout: () => void;
     setColor: (color: number) => () => void;
     setTheme: (theme: 'light' | 'dark') => () => void;
-    initialSection?: Section
+    initialSection?: Section;
     updateUser: (result: Http.GetUserInfo) => void;
 }
 
@@ -294,14 +295,26 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 />
             );
         } else if (section.name === 'Answer Inquiries') {
-            return <AnswerInquiries theme={{theme: this.props.theme, color: this.color()}}
-                                    showSnackBar={this.showSnackBar}/>
+            return (
+                <AnswerInquiries
+                    theme={{theme: this.props.theme, color: this.color()}}
+                    showSnackBar={this.showSnackBar}
+                />
+            );
         } else if (section.name === 'Manage Assignments') {
-            return <ManageAssignments theme={{theme: this.props.theme, color: this.color()}}
-                                    showSnackBar={this.showSnackBar}/>
+            return (
+                <ManageAssignments
+                    theme={{theme: this.props.theme, color: this.color()}}
+                    showSnackBar={this.showSnackBar}
+                />
+            );
         } else if (section.name === 'My Assignments') {
-            return <MyAssignments theme={{theme: this.props.theme, color: this.color()}}
-                                    showSnackBar={this.showSnackBar}/>
+            return (
+                <MyAssignments
+                    theme={{theme: this.props.theme, color: this.color()}}
+                    showSnackBar={this.showSnackBar}
+                />
+            );
         } else if (section.name === 'Notify Class') {
             return <NotifyClass />;
         } else if (section.name === 'Post Test') {
@@ -319,6 +332,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                 description,
                 displayName,
                 socials,
+                profilePicture,
             } = this.props;
             return (
                 <MyAccount
@@ -340,6 +354,7 @@ class Layout extends Component<LayoutProps, LayoutState> {
                         description,
                         displayName,
                         socials,
+                        profilePicture,
                     }}
                 />
             );
@@ -353,12 +368,10 @@ class Layout extends Component<LayoutProps, LayoutState> {
             );
         } else if (section.name === 'Upload Images') {
             return <ImageUploader showCard={true} />;
-        }
-        else if (section.name === 'Open Courses') {
-            return <OpenCourses color={this.color()}/>
-        }
-        else if (section.name === 'Profile') {
-            return <Profile color={this.color()}/>
+        } else if (section.name === 'Open Courses') {
+            return <OpenCourses color={this.color()} />;
+        } else if (section.name === 'Profile') {
+            return <Profile color={this.color()} />;
         }
     };
 
