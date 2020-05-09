@@ -20,7 +20,7 @@ export function getCourses(success: cb<GetCourses>, failure: cb) {
 }
 
 export interface OpenCourse {
-    contributers: Profile[];
+    contributors: Profile[];
     courseID: number;
     courseName: string;
     description?: string;
