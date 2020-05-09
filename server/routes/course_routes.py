@@ -6,7 +6,7 @@ from flask_login import current_user
 from sqlalchemy import or_, and_
 
 from server.decorators import teacher_only, login_required, validate
-from server.models import Course, db, UserCourse, Section, UserSection
+from server.models import Course, db, UserCourse, Section, UserSection, User
 
 CourseRoutes = Blueprint('CourseRoutes', __name__)
 
@@ -65,7 +65,11 @@ def get_open_course(course_id: int):
     course = Course.query.get(course_id)
     enrolled_in = UserSection.query.filter(UserSection.USER == current_user.USER).all()
     enrolled_in = {u.SECTION for u in enrolled_in}
+    contributor_ids = UserCourse.query.filter(UserCourse.COURSE == course_id and UserCourse.can_edit == 1)
+    contributor_ids = [row.USER for row in contributor_ids]
+    contributors = User.query.filter(User.USER.in_(contributor_ids)).all()
     return jsonify(course={
+        'contributors': [{'userID': contributor.USER, 'username': contributor.profile_id, 'firstName': contributor.first_name, 'lastName': contributor.last_name, 'profilePicture': contributor.profile_pic} for contributor in contributors],
         'courseID': course_id,
         'courseName': course.name,
         'description': course.description,
