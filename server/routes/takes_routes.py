@@ -247,7 +247,9 @@ def post_test(takes_id: int):
             if not current_question.config:
                 q = AvoQuestion(current_question.string, seeds[i], answers[i])
                 question_list.append({'prompt': q.prompt, 'prompts': q.prompts, 'explanation': q.explanation,
-                                      'types': q.types, 'answers': answers[i], 'totals': q.totals, 'scores': marks[i]})
+                                      'types': q.types, 'answers': answers[i], 'totals': q.totals, 'scores': marks[i],
+                                      'hideAnswersUntilDeadline': test.hide_answers_until_deadline,
+                                      'deadline': test.deadline})
             # simple
             else:
                 prompt, prompts, types = get_prompt_prompts_types(current_question)
@@ -256,7 +258,8 @@ def post_test(takes_id: int):
                 question_list.append(
                     {'prompt': prompt, 'prompts': prompts, 'explanation': explanations,
                      'types': types, 'answers': answers[i], 'totals': totals, 'scores': marks[i],
-                     'correctAnswer': current_question.config.get('correct_answer')})
+                     'correctAnswer': current_question.config.get('correct_answer'),
+                     'hideAnswersUntilDeadline': test.hide_answers_until_deadline, 'deadline': test.deadline})
         return jsonify(questions=question_list)
     else:
         return jsonify(error="User isn't in class")

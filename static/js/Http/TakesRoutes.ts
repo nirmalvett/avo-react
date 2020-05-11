@@ -46,6 +46,8 @@ export interface PostTest_Question {
     totals: number[];
     explanation: string[];
     correctAnswer?: any;
+    hideAnswersUntilDeadline: boolean;
+    deadline: string;
 }
 
 export function postTest(takesID: number, success: cb<PostTest>, failure: cb) {

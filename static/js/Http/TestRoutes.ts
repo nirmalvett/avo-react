@@ -13,6 +13,7 @@ export function saveTest(
     attempts: number,
     questionList: number[],
     seedList: number[],
+    hideAnswersUntilDeadline: boolean,
     success: cb<SaveTest>,
     failure: cb,
 ) {
@@ -25,6 +26,7 @@ export function saveTest(
         questionList,
         seedList,
         openTime,
+        hideAnswersUntilDeadline,
     });
 }
 

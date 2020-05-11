@@ -11,6 +11,7 @@ import {
     Paper,
     TextField,
     Typography,
+    Checkbox,
 } from '@material-ui/core';
 import {Delete, Done, Lock, LockOpen, Refresh} from '@material-ui/icons';
 import * as Http from '../../Http';
@@ -38,6 +39,7 @@ interface CreateTestState {
     timeLimit: string;
     openTime: Date;
     closeTime: Date;
+    hideAnswersUntilDeadline: boolean;
 }
 
 interface TestQuestion {
@@ -67,6 +69,7 @@ export default class CreateTest extends Component<CreateTestProps, CreateTestSta
                 .set({hour: 23, minute: 55})
                 .add(1, 'weeks')
                 .toDate(),
+            hideAnswersUntilDeadline: false,
         };
     }
 
@@ -255,6 +258,19 @@ export default class CreateTest extends Component<CreateTestProps, CreateTestSta
                 <DatePicker time={this.state.openTime} onChange={this.setOpenTime} />
                 <Typography>When should the test stop being available to students?</Typography>
                 <DatePicker time={this.state.closeTime} onChange={this.setCloseTime} />
+                <Typography variant='caption'>
+                    <Checkbox
+                        color='primary'
+                        checked={this.state.hideAnswersUntilDeadline}
+                        onClick={() =>
+                            this.setState({
+                                hideAnswersUntilDeadline: !this.state.hideAnswersUntilDeadline
+                            })
+                        }
+                    />
+                    Don't show answers and explanations until after deadline
+                </Typography>
+
             </Card>
         );
     }
@@ -342,6 +358,7 @@ export default class CreateTest extends Component<CreateTestProps, CreateTestSta
             Number(s.attempts) || -1,
             s.testQuestions.map(x => x.id),
             s.testQuestions.map(x => (x.locked ? x.seed : -1)),
+            s.hideAnswersUntilDeadline,
             this.props.onCreate,
             alert,
         );

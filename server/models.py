@@ -509,11 +509,13 @@ class Test(db.Model):
     question_list = db.Column(db.String(5000), nullable=False)
     seed_list = db.Column(db.String(5000), nullable=False)
     total = db.Column(db.Integer, nullable=False)
+    hide_answers_until_deadline = db.Column(db.Boolean, default=False, nullable=False)
 
     SECTION_RELATION = db.relationship('Section', back_populates='TEST_RELATION')
     TAKES_RELATION = db.relationship('Takes', back_populates='TEST_RELATION')
 
-    def __init__(self, section, name, is_open, open_time, deadline, timer, attempts, question_list, seed_list, total):
+    def __init__(self, section, name, is_open, open_time, deadline, timer,
+                 attempts, question_list, seed_list, total, hide_answers_until_deadline=False):
         self.SECTION = section
         self.name = name
         self.open_time = open_time
@@ -523,6 +525,7 @@ class Test(db.Model):
         self.question_list = question_list
         self.seed_list = seed_list
         self.total = total
+        self.hide_answers_until_deadline = hide_answers_until_deadline
 
     def __repr__(self):
         return (

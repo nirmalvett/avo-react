@@ -7,6 +7,7 @@ import {AnswerInput} from '../AnswerInput';
 import Typography from '@material-ui/core/Typography/Typography';
 import {uniqueKey} from '../HelperFunctions/Helpers';
 import {Content} from '../HelperFunctions/Content';
+import moment from "moment";
 
 export interface PostTestProps {
     takes: number;
@@ -48,6 +49,11 @@ export default class PostTest extends Component<PostTestProps, Http.PostTest> {
     }
 
     getQuestionCard = (question: Http.PostTest_Question) => {
+        const date = new Date(question.deadline.replace(" GMT", ""));
+        const deadline = Number(moment(date).toDate());
+        const now = Number(moment().toDate());
+        const deadlinePassed = deadline < now;
+
         return (
             <Card
                 key={uniqueKey()}
@@ -80,7 +86,7 @@ export default class PostTest extends Component<PostTestProps, Http.PostTest> {
                         correctAnswer={question.correctAnswer}
                     />,
                 ])}
-                {question.explanation.map((x, y) => [
+                {((question.hideAnswersUntilDeadline && deadlinePassed) || (!question.hideAnswersUntilDeadline)) && question.explanation.map((x, y) => [
                     <Divider key={uniqueKey()} style={{marginTop: '10px', marginBottom: '10px'}} />,
                     <div key={uniqueKey()} style={{position: 'relative'}}>
                         <Typography

@@ -20,10 +20,12 @@ TestRoutes = Blueprint('TestRoutes', __name__)
 @validate(
     sectionID=int, name=str, openTime=[int], deadline=int,
     timer=int, attempts=int, questionList=list, seedList=list,
+    hideAnswersUntilDeadline=bool,
 )
 def save_test(
         section_id: int, name: str, open_time, deadline: int,
         timer: int, attempts: int, question_list: list, seed_list: list,
+        hide_answers_until_deadline: bool,
 ):
     """
     Save a test created by teacher
@@ -63,6 +65,7 @@ def save_test(
         str(question_list),
         str(seed_list),
         total,
+        hide_answers_until_deadline=hide_answers_until_deadline,
     )
     db.session.add(test)
     db.session.commit()

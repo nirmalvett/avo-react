@@ -57,6 +57,7 @@ export interface GetSections_Test {
     sectionMedian: number;
     sectionSize: number;
     standardDeviation: number;
+    hideAnswersUntilDeadline: boolean;
 }
 
 export interface GetSections_TestSubmitted {
