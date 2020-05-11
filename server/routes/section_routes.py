@@ -140,6 +140,7 @@ def get_sections():
             'sectionMedian': 0,
             'sectionSize': 0,
             'standardDeviation': 0,
+            'hideAnswersUntilDeadline': t.hide_answers_until_deadline,
         }
 
     for t in takes:
