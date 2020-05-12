@@ -6,7 +6,7 @@ from flask_login import current_user
 from sqlalchemy import or_, and_
 
 from server.decorators import teacher_only, login_required, validate
-from server.models import Course, db, UserCourse, Section, UserSection, User
+from server.models import Course, db, UserCourse, Section, UserSection, User, File
 
 CourseRoutes = Blueprint('CourseRoutes', __name__)
 
@@ -34,9 +34,9 @@ def get_courses():
         .join(Section, Section.COURSE == Course.COURSE)\
         .join(UserSection, UserSection.SECTION == Section.SECTION)\
         .filter(and_(
-                    UserSection.USER == current_user.USER,
-                    or_(UserSection.expiry == None, UserSection.expiry > datetime.now())
-                )).all()
+            UserSection.USER == current_user.USER,
+            or_(UserSection.expiry == None, UserSection.expiry > datetime.now())
+        )).all()
     courses = list(set(courses + courses_in))
 
     user_courses: List[UserCourse] = UserCourse.query.filter(
@@ -63,13 +63,15 @@ def get_open_courses():
 def get_open_course(course_id: int):
     sections = Section.query.filter(Section.COURSE == course_id).all()
     course = Course.query.get(course_id)
-    enrolled_in = UserSection.query.filter(UserSection.USER == current_user.USER).all()
+    enrolled_in = UserSection.query.filter(
+        UserSection.USER == current_user.USER).all()
     enrolled_in = {u.SECTION for u in enrolled_in}
-    contributor_ids = UserCourse.query.filter(UserCourse.COURSE == course_id and UserCourse.can_edit == 1)
+    contributor_ids = UserCourse.query.filter(
+        UserCourse.COURSE == course_id and UserCourse.can_edit == 1)
     contributor_ids = [row.USER for row in contributor_ids]
     contributors = User.query.filter(User.USER.in_(contributor_ids)).all()
     return jsonify(course={
-        'contributors': [{'userID': contributor.USER, 'username': contributor.profile_id, 'firstName': contributor.first_name, 'lastName': contributor.last_name, 'profilePicture': contributor.profile_pic} for contributor in contributors],
+        'contributors': [{'userID': contributor.USER, 'username': contributor.profile_id, 'firstName': contributor.first_name, 'lastName': contributor.last_name, 'profilePicture': File.query.filter(File.FILE == contributor.profile_pic).first().file_name} for contributor in contributors],
         'courseID': course_id,
         'courseName': course.name,
         'description': course.description,
