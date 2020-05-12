@@ -13,7 +13,7 @@ const Nameplate: React.SFC<NameplateProps> = (props: NameplateProps) => {
         <div>
             <img
                 id={'profile-picture-' + props.profile.userID}
-                src={props.profile.profilePicture}
+                src={'image/' + props.profile.profilePicture}
                 alt='Profile picture'
                 style={{
                     borderRadius: '50%',
