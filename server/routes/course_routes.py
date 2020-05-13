@@ -71,7 +71,7 @@ def get_open_course(course_id: int):
     contributor_ids = [row.USER for row in contributor_ids]
     contributors = User.query.filter(User.USER.in_(contributor_ids)).all()
     return jsonify(course={
-        'contributors': [{'userID': contributor.USER, 'username': contributor.profile_id, 'firstName': contributor.first_name, 'lastName': contributor.last_name, 'profilePicture': File.query.filter(File.FILE == contributor.profile_pic).first().file_name} for contributor in contributors],
+        'contributors': [{'userID': contributor.USER, 'username': contributor.profile_id, 'firstName': contributor.first_name, 'lastName': contributor.last_name, 'profilePicture': contributor.FILE_RELATION.file_name} for contributor in contributors],
         'courseID': course_id,
         'courseName': course.name,
         'description': course.description,
