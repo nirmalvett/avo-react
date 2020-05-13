@@ -71,12 +71,13 @@ export function CourseModal(props: {
                         <br />
                         {props.course && <Typography variant='h5'>Contributors</Typography>}
                         {props.course && (
-                            <div style={{display: 'flex'}}>
+                            <div>
                                 {props.course.contributors.map((profile: Profile) => (
                                     <Nameplate profile={profile} />
                                 ))}
                             </div>
                         )}
+                        <br />
                         <Typography variant={'h5'}>Sections:</Typography>
                         {(props.course &&
                             props.course.sections &&
