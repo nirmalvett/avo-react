@@ -67,7 +67,7 @@ def get_open_course(course_id: int):
         UserSection.USER == current_user.USER).all()
     enrolled_in = {u.SECTION for u in enrolled_in}
     contributor_ids = UserCourse.query.filter(
-        UserCourse.COURSE == course_id and UserCourse.can_edit == 1)
+        (UserCourse.COURSE == course_id) & (UserCourse.can_edit == 1))
     contributor_ids = [row.USER for row in contributor_ids]
     contributors = User.query.filter(User.USER.in_(contributor_ids)).all()
     return jsonify(course={
