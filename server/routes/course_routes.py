@@ -9,6 +9,7 @@ from server.decorators import teacher_only, login_required, validate
 from server.models import Course, db, UserCourse, Section, UserSection, User, File
 
 CourseRoutes = Blueprint('CourseRoutes', __name__)
+DEFAULT_PROFILE_PICTURE = 'images__8__AVO_Default.png'
 
 
 @CourseRoutes.route('/createCourse', methods=['POST'])
@@ -70,8 +71,18 @@ def get_open_course(course_id: int):
         (UserCourse.COURSE == course_id) & (UserCourse.can_edit == 1))
     contributor_ids = [row.USER for row in contributor_ids]
     contributors = User.query.filter(User.USER.in_(contributor_ids)).all()
+    contributors_json = []
+    for contributor in contributors:
+        if contributor.FILE_RELATION != None:
+            profile_picture = contributor.FILE_RELATION.file_name
+        else:
+            profile_picture = DEFAULT_PROFILE_PICTURE
+
+        contributors_json.append({'userID': contributor.USER, 'username': contributor.profile_id,
+                                  'firstName': contributor.first_name, 'lastName': contributor.last_name, 'profilePicture': profile_picture})
+
     return jsonify(course={
-        'contributors': [{'userID': contributor.USER, 'username': contributor.profile_id, 'firstName': contributor.first_name, 'lastName': contributor.last_name, 'profilePicture': contributor.FILE_RELATION.file_name} for contributor in contributors],
+        'contributors': contributors_json,
         'courseID': course_id,
         'courseName': course.name,
         'description': course.description,
