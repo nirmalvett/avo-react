@@ -627,7 +627,7 @@ class User(UserMixin, db.Model):
     display_name = db.Column(db.String(45), nullable=False)
     profile_id = db.Column(db.String(16), nullable=False, unique=True)
     is_public = db.Column(db.Boolean, nullable=False, default=False)
-    profile_pic = db.Column(db.Integer, db.ForeignKey('FILE.FILE'), default=13)
+    profile_pic = db.Column(db.Integer, db.ForeignKey('FILE.FILE'))
 
     ANNOUNCEMENT_RELATION = db.relationship(
         'Announcement', back_populates='USER_RELATION')
