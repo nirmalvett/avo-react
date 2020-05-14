@@ -247,7 +247,7 @@ class File(db.Model):
     file_name = db.Column(db.String(2000), nullable=False)
     FILE_TYPE = db.Column(db.Integer, db.ForeignKey(
         'FILE_TYPE.FILE_TYPE'), nullable=False, index=True)
-    is_public = db.Column(db.Boolean, nullable=False)
+    is_public = db.Column(db.Boolean, nullable=False, default=False)
     bucket = db.Column(db.String(100))
 
     USER_RELATION = db.relationship(
