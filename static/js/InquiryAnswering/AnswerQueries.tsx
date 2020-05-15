@@ -198,7 +198,7 @@ export default class AnswerQueries extends Component<AnswerQueriesProps, AnswerQ
                 this.props.showSnackBar('success', 'Successfully updated Question', 2000);
                 Http.getInquiries(
                     this.props.conceptID,
-                    1,
+                    this.props.type,
                     (res: any) => {
                         this.setState({ 
                             inqueries: res,
