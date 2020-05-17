@@ -663,6 +663,7 @@ class User(UserMixin, db.Model):
         self.color = color
         self.theme = theme
         self.display_name = first_name + ' ' + last_name
+        self.profile_pic = File.query.filter(File.file_name == 'AVODefault.png').first().FILE
 
     def __repr__(self):
         return (
