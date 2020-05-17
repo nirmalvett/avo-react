@@ -9,7 +9,7 @@ from server.decorators import teacher_only, login_required, validate
 from server.models import Course, db, UserCourse, Section, UserSection, User, File
 
 CourseRoutes = Blueprint('CourseRoutes', __name__)
-DEFAULT_PROFILE_PICTURE = 'images__8__AVO_Default.png'
+DEFAULT_PROFILE_PICTURE = 'AVODefault.png'
 
 
 @CourseRoutes.route('/createCourse', methods=['POST'])
