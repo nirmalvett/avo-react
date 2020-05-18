@@ -649,7 +649,7 @@ class User(UserMixin, db.Model):
     FILE_RELATION = db.relationship('File', foreign_keys=[profile_pic])
 
     def __init__(
-            self, email, first_name, last_name, password, profile_id,
+            self, email, first_name, last_name, password, profile_id, profile_pic,
             is_teacher=False, color=9, theme=0, confirmed=False, is_admin=False
     ):
         self.email = email
@@ -663,7 +663,7 @@ class User(UserMixin, db.Model):
         self.color = color
         self.theme = theme
         self.display_name = first_name + ' ' + last_name
-        self.profile_pic = File.query.filter(File.file_name == 'AVODefault.png').first().FILE
+        self.profile_pic = profile_pic
 
     def __repr__(self):
         return (
