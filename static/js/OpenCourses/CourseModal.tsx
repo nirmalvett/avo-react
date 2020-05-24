@@ -1,7 +1,9 @@
 import React from 'react';
 import {IconButton, Paper, Typography, Button} from '@material-ui/core';
 import {Close} from '@material-ui/icons';
-import {OpenCourse, OpenCourseSection} from '../Http/'
+import {OpenCourse, OpenCourseSection} from '../Http/';
+import {Profile} from 'Http/types';
+import Nameplate from '../Profiles/Nameplate';
 
 const styles = {
     modalBackdrop: {
@@ -31,7 +33,12 @@ const styles = {
     },
 };
 
-export function CourseModal(props: { modalDisplay: string, hideModal: () => void, course: OpenCourse | undefined, enroll: (section: OpenCourseSection) => void }) {
+export function CourseModal(props: {
+    modalDisplay: string;
+    hideModal: () => void;
+    course: OpenCourse | undefined;
+    enroll: (section: OpenCourseSection) => void;
+}) {
     return (
         <div
             style={{
@@ -40,45 +47,62 @@ export function CourseModal(props: { modalDisplay: string, hideModal: () => void
             }}
             id='avo_open_course_selected_modal'
         >
-            <div style={styles.modalBackdrop}/>
+            <div style={styles.modalBackdrop} />
             <Paper style={styles.modalBody} className='avo-card'>
                 <IconButton
                     onClick={props.hideModal}
                     style={{position: 'absolute', top: '9px', right: '9px'}}
                     id='open_course_selected_close'
                 >
-                    <Close/>
+                    <Close />
                 </IconButton>
-                <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
                     <div style={{flex: 1}}>
-                        <Typography variant={'h3'}>{props.course && props.course.courseName}</Typography>
-                        <br/>
+                        <Typography variant={'h3'}>
+                            {props.course && props.course.courseName}
+                        </Typography>
+                        <br />
+                        {props.course && <Typography variant='h5'>Contributors</Typography>}
+                        {props.course && (
+                            <div>
+                                {props.course.contributors.map((profile: Profile) => (
+                                    <Nameplate profile={profile} />
+                                ))}
+                            </div>
+                        )}
+                        <br />
                         <Typography variant={'h5'}>Sections:</Typography>
-                        {
-                            props.course && props.course.sections && props.course.sections.length > 0 && props.course.sections.map((section: OpenCourseSection) => (
+                        {(props.course &&
+                            props.course.sections &&
+                            props.course.sections.length > 0 &&
+                            props.course.sections.map((section: OpenCourseSection) => (
                                 <div style={{display: 'flex', flexDirection: 'row'}}>
                                     <Typography style={{marginRight: 25, marginTop: 5}}>
                                         {`${section.name}`}
                                     </Typography>
-                                    {
-                                        section.enrolled && (
-                                            <div style={{marginTop: 5}}>
-                                                <Typography>Already enrolled</Typography>
-                                            </div>
-                                        ) || <Button
+                                    {(section.enrolled && (
+                                        <div style={{marginTop: 5}}>
+                                            <Typography>Already enrolled</Typography>
+                                        </div>
+                                    )) || (
+                                        <Button
                                             style={{borderRadius: '2.5em'}}
-                                            variant="outlined"
-                                            color="primary"
+                                            variant='outlined'
+                                            color='primary'
                                             onClick={() => props.enroll(section)}
                                         >
                                             Enroll
                                         </Button>
-                                    }
+                                    )}
                                 </div>
-                            )) || <Typography>
-                                No sections
-                            </Typography>
-                        }
+                            ))) || <Typography>No sections</Typography>}
                     </div>
                     <div style={{flex: 1}}>
                         <Typography>{props.course && props.course.description}</Typography>

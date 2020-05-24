@@ -1,7 +1,13 @@
 import {_request, cb} from './baseRequest';
-import {Course} from './types';
+import {Course, Profile} from './types';
 
-export function createCourse(name: string, description: string, isOpen: boolean, success: cb<{}>, failure: cb) {
+export function createCourse(
+    name: string,
+    description: string,
+    isOpen: boolean,
+    success: cb<{}>,
+    failure: cb,
+) {
     _request('POST', '/createCourse', success, failure, {name, description, isOpen});
 }
 
@@ -14,6 +20,7 @@ export function getCourses(success: cb<GetCourses>, failure: cb) {
 }
 
 export interface OpenCourse {
+    contributors: Profile[];
     courseID: number;
     courseName: string;
     description?: string;
@@ -28,17 +35,21 @@ export interface OpenCourseSection {
 }
 
 export function getOpenCourses(success: cb<{courses: OpenCourse[]}>, failure: cb) {
-    _request('GET', '/getOpenCourses', success, failure)
+    _request('GET', '/getOpenCourses', success, failure);
 }
 
 export function getOpenCourse(courseID: Number, success: cb<{course: OpenCourse}>, failure: cb) {
-    _request('POST', '/getOpenCourse', success, failure, {courseID})
+    _request('POST', '/getOpenCourse', success, failure, {courseID});
 }
 
 export function enrollOpenCourse(sectionID: number, success: cb, failure: cb) {
-    _request('POST', '/enrollOpenCourse', success, failure, {sectionID})
+    _request('POST', '/enrollOpenCourse', success, failure, {sectionID});
 }
 
-export function toggleOrganicContent(courseID: number, success: cb<{ toggle: boolean }>, failure: cb) {
-    _request('POST', '/toggleOrganicContent', success, failure, { courseID });
-} 
+export function toggleOrganicContent(
+    courseID: number,
+    success: cb<{toggle: boolean}>,
+    failure: cb,
+) {
+    _request('POST', '/toggleOrganicContent', success, failure, {courseID});
+}

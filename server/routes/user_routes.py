@@ -50,7 +50,7 @@ def register(first_name: str, last_name: str, email: str, profile_id: str, passw
 
     # Create new user instance form data entered and commit to database
     user = User(email, first_name, last_name, password,
-                profile_id, confirmed=True, is_teacher=is_teacher)
+                profile_id, File.query.filter(File.file_name == 'AVODefault.png').first().FILE, confirmed=True, is_teacher=is_teacher)
     db.session.add(user)
     db.session.commit()
 

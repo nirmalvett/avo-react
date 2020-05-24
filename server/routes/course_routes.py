@@ -6,9 +6,10 @@ from flask_login import current_user
 from sqlalchemy import or_, and_
 
 from server.decorators import teacher_only, login_required, validate
-from server.models import Course, db, UserCourse, Section, UserSection
+from server.models import Course, db, UserCourse, Section, UserSection, User, File
 
 CourseRoutes = Blueprint('CourseRoutes', __name__)
+DEFAULT_PROFILE_PICTURE = 'AVODefault.png'
 
 
 @CourseRoutes.route('/createCourse', methods=['POST'])
@@ -34,9 +35,9 @@ def get_courses():
         .join(Section, Section.COURSE == Course.COURSE)\
         .join(UserSection, UserSection.SECTION == Section.SECTION)\
         .filter(and_(
-                    UserSection.USER == current_user.USER,
-                    or_(UserSection.expiry == None, UserSection.expiry > datetime.now())
-                )).all()
+            UserSection.USER == current_user.USER,
+            or_(UserSection.expiry == None, UserSection.expiry > datetime.now())
+        )).all()
     courses = list(set(courses + courses_in))
 
     user_courses: List[UserCourse] = UserCourse.query.filter(
@@ -63,9 +64,25 @@ def get_open_courses():
 def get_open_course(course_id: int):
     sections = Section.query.filter(Section.COURSE == course_id).all()
     course = Course.query.get(course_id)
-    enrolled_in = UserSection.query.filter(UserSection.USER == current_user.USER).all()
+    enrolled_in = UserSection.query.filter(
+        UserSection.USER == current_user.USER).all()
     enrolled_in = {u.SECTION for u in enrolled_in}
+    contributor_ids = UserCourse.query.filter(
+        (UserCourse.COURSE == course_id) & (UserCourse.can_edit == 1))
+    contributor_ids = [row.USER for row in contributor_ids]
+    contributors = User.query.filter(User.USER.in_(contributor_ids)).all()
+    contributors_json = []
+    for contributor in contributors:
+        if contributor.FILE_RELATION != None:
+            profile_picture = contributor.FILE_RELATION.file_name
+        else:
+            profile_picture = DEFAULT_PROFILE_PICTURE
+
+        contributors_json.append({'userID': contributor.USER, 'username': contributor.profile_id,
+                                  'firstName': contributor.first_name, 'lastName': contributor.last_name, 'profilePicture': profile_picture})
+
     return jsonify(course={
+        'contributors': contributors_json,
         'courseID': course_id,
         'courseName': course.name,
         'description': course.description,

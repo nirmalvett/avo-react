@@ -19,14 +19,17 @@ class Announcement(db.Model):
     __tablename__ = 'ANNOUNCEMENT'
 
     ANNOUNCEMENT = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'), nullable=False)
+    SECTION = db.Column(db.Integer, db.ForeignKey(
+        'SECTION.SECTION'), nullable=False)
     USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
     header = db.Column(db.String(200), nullable=False)
     body = db.Column(db.String(1000), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
 
-    SECTION_RELATION = db.relationship('Section', back_populates='ANNOUNCEMENT_RELATION')
-    USER_RELATION = db.relationship('User', back_populates='ANNOUNCEMENT_RELATION')
+    SECTION_RELATION = db.relationship(
+        'Section', back_populates='ANNOUNCEMENT_RELATION')
+    USER_RELATION = db.relationship(
+        'User', back_populates='ANNOUNCEMENT_RELATION')
 
     def __init__(self, section_id, user_id, header, body, timestamp):
         self.SECTION = section_id
@@ -44,13 +47,17 @@ class Assignment(db.Model):
     __tablename__ = 'ASSIGNMENT'
 
     ASSIGNMENT = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    LESSON = db.Column(db.Integer, db.ForeignKey('LESSON.LESSON'), nullable=False)
+    LESSON = db.Column(db.Integer, db.ForeignKey(
+        'LESSON.LESSON'), nullable=False)
     USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False)
     FILE = db.Column(db.Integer, db.ForeignKey('FILE.FILE'), nullable=False)
 
-    LESSON_RELATION = db.relationship('Lesson', back_populates='ASSIGNMENT_RELATION')
-    USER_RELATION = db.relationship('User', back_populates='ASSIGNMENT_RELATION')
-    FILE_RELATION = db.relationship('File', back_populates='ASSIGNMENT_RELATION')
+    LESSON_RELATION = db.relationship(
+        'Lesson', back_populates='ASSIGNMENT_RELATION')
+    USER_RELATION = db.relationship(
+        'User', back_populates='ASSIGNMENT_RELATION')
+    FILE_RELATION = db.relationship(
+        'File', back_populates='ASSIGNMENT_RELATION')
 
     def __init__(self, lesson, user, file):
         self.LESSON = lesson
@@ -65,21 +72,26 @@ class Concept(db.Model):
     __tablename__ = 'CONCEPT'
 
     CONCEPT = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'), nullable=False)
+    COURSE = db.Column(db.Integer, db.ForeignKey(
+        'COURSE.COURSE'), nullable=False)
     name = db.Column(db.String(45), nullable=False)
     concept_type = db.Column(db.Integer, nullable=False, default=0)
     lesson_content = db.Column(db.String(5000), nullable=False)
 
-    CONCEPT_QUESTION_RELATION = db.relationship('ConceptQuestion', back_populates='CONCEPT_RELATION')
+    CONCEPT_QUESTION_RELATION = db.relationship(
+        'ConceptQuestion', back_populates='CONCEPT_RELATION')
     CONCEPT_PARENT_RELATION = db.relationship(
         'ConceptRelation', back_populates='CONCEPT_PARENT_RELATION', foreign_keys='ConceptRelation.PARENT'
     )
     CONCEPT_CHILD_RELATION = db.relationship(
         'ConceptRelation', back_populates='CONCEPT_CHILD_RELATION', foreign_keys='ConceptRelation.CHILD'
     )
-    COURSE_RELATION = db.relationship('Course', back_populates='CONCEPT_RELATION')
-    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='CONCEPT_RELATION')
-    MASTERY_RELATION = db.relationship('Mastery', back_populates='CONCEPT_RELATION')
+    COURSE_RELATION = db.relationship(
+        'Course', back_populates='CONCEPT_RELATION')
+    INQUIRY_RELATION = db.relationship(
+        'Inquiry', back_populates='CONCEPT_RELATION')
+    MASTERY_RELATION = db.relationship(
+        'Mastery', back_populates='CONCEPT_RELATION')
 
     def __init__(self, course_id, name, concept_type, lesson_content):
         self.COURSE = course_id
@@ -94,13 +106,18 @@ class Concept(db.Model):
 class ConceptQuestion(db.Model):
     __tablename__ = 'concept_question'
 
-    CONCEPT_QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
-    QUESTION = db.Column(db.Integer, db.ForeignKey('QUESTION.QUESTION'), nullable=False)
+    CONCEPT_QUESTION = db.Column(
+        db.Integer, primary_key=True, autoincrement=True)
+    CONCEPT = db.Column(db.Integer, db.ForeignKey(
+        'CONCEPT.CONCEPT'), nullable=False)
+    QUESTION = db.Column(db.Integer, db.ForeignKey(
+        'QUESTION.QUESTION'), nullable=False)
     weight = db.Column(db.Integer, nullable=False)
 
-    CONCEPT_RELATION = db.relationship('Concept', back_populates='CONCEPT_QUESTION_RELATION')
-    QUESTION_RELATION = db.relationship('Question', back_populates='CONCEPT_QUESTION_RELATION')
+    CONCEPT_RELATION = db.relationship(
+        'Concept', back_populates='CONCEPT_QUESTION_RELATION')
+    QUESTION_RELATION = db.relationship(
+        'Question', back_populates='CONCEPT_QUESTION_RELATION')
 
     def __init__(self, concept, question, weight):
         self.CONCEPT = concept
@@ -114,16 +131,20 @@ class ConceptQuestion(db.Model):
 class ConceptRelation(db.Model):
     __tablename__ = 'concept_relation'
 
-    CONCEPT_RELATION = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    PARENT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
-    CHILD = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False)
+    CONCEPT_RELATION = db.Column(
+        db.Integer, primary_key=True, autoincrement=True)
+    PARENT = db.Column(db.Integer, db.ForeignKey(
+        'CONCEPT.CONCEPT'), nullable=False)
+    CHILD = db.Column(db.Integer, db.ForeignKey(
+        'CONCEPT.CONCEPT'), nullable=False)
     concept_type = db.Column(db.Integer, nullable=False, default=0)
     weight = db.Column(db.Integer, nullable=False)
 
     CONCEPT_PARENT_RELATION = db.relationship(
         'Concept', back_populates='CONCEPT_PARENT_RELATION', foreign_keys=[PARENT]
     )
-    CONCEPT_CHILD_RELATION = db.relationship('Concept', back_populates='CONCEPT_CHILD_RELATION', foreign_keys=[CHILD])
+    CONCEPT_CHILD_RELATION = db.relationship(
+        'Concept', back_populates='CONCEPT_CHILD_RELATION', foreign_keys=[CHILD])
 
     def __init__(self, parent_id, child_id, concept_type, weight):
         self.PARENT = parent_id
@@ -142,13 +163,19 @@ class Course(db.Model):
     name = db.Column(db.String(45), nullable=False)
     is_open = db.Column(db.Boolean, nullable=False, default=False)
     description = db.Column(db.String(2000), nullable=False, default='')
-    organic_content_enabled = db.Column(db.Boolean, nullable=False, default=True)
+    organic_content_enabled = db.Column(
+        db.Boolean, nullable=False, default=True)
 
-    CONCEPT_RELATION = db.relationship('Concept', back_populates='COURSE_RELATION')
-    LESSON_RELATION = db.relationship('Lesson', back_populates='COURSE_RELATION')
-    QUESTION_SET_RELATION = db.relationship('QuestionSet', back_populates='COURSE_RELATION')
-    SECTION_RELATION = db.relationship('Section', back_populates='COURSE_RELATION')
-    USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='COURSE_RELATION')
+    CONCEPT_RELATION = db.relationship(
+        'Concept', back_populates='COURSE_RELATION')
+    LESSON_RELATION = db.relationship(
+        'Lesson', back_populates='COURSE_RELATION')
+    QUESTION_SET_RELATION = db.relationship(
+        'QuestionSet', back_populates='COURSE_RELATION')
+    SECTION_RELATION = db.relationship(
+        'Section', back_populates='COURSE_RELATION')
+    USER_COURSE_RELATION = db.relationship(
+        'UserCourse', back_populates='COURSE_RELATION')
 
     def __init__(self, name, description, is_open):
         self.name = name
@@ -163,11 +190,13 @@ class Discount(db.Model):
     __tablename__ = 'DISCOUNT'
 
     DISCOUNT = db.Column(db.String(10), primary_key=True)
-    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'), nullable=False)
+    SECTION = db.Column(db.Integer, db.ForeignKey(
+        'SECTION.SECTION'), nullable=False)
     price = db.Column(db.Float, nullable=False)
     single_use = db.Column(db.Boolean, nullable=False, default=False)
 
-    SECTION_RELATION = db.relationship('Section', back_populates='DISCOUNT_RELATION')
+    SECTION_RELATION = db.relationship(
+        'Section', back_populates='DISCOUNT_RELATION')
 
     def __init__(self, section_id, price, single_use=False):
         self.DISCOUNT = Discount._generate_key()
@@ -213,14 +242,20 @@ class File(db.Model):
     __tablename__ = 'FILE'
 
     FILE = db.Column(db.Integer, primary_key=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
+    USER = db.Column(db.Integer, db.ForeignKey(
+        'USER.USER'), nullable=False, index=True)
     file_name = db.Column(db.String(2000), nullable=False)
-    FILE_TYPE = db.Column(db.Integer, db.ForeignKey('FILE_TYPE.FILE_TYPE'), nullable=False, index=True)
+    FILE_TYPE = db.Column(db.Integer, db.ForeignKey(
+        'FILE_TYPE.FILE_TYPE'), nullable=False, index=True)
+    is_public = db.Column(db.Boolean, nullable=False, default=False)
     bucket = db.Column(db.String(100))
 
-    USER_RELATION = db.relationship('User', back_populates='FILE_RELATION', foreign_keys=[USER])
-    FILE_TYPE_RELATION = db.relationship('FileType', back_populates='FILE_RELATION')
-    ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='FILE_RELATION')
+    USER_RELATION = db.relationship(
+        'User', back_populates='FILE_RELATION', foreign_keys=[USER])
+    FILE_TYPE_RELATION = db.relationship(
+        'FileType', back_populates='FILE_RELATION')
+    ASSIGNMENT_RELATION = db.relationship(
+        'Assignment', back_populates='FILE_RELATION')
 
     def __init__(self, user_id, file_name, file_type, bucket):
         self.USER = user_id
@@ -229,7 +264,7 @@ class File(db.Model):
         self.bucket = bucket
 
     def __repr__(self):
-        return f'<File {self.FILE} {self.USER} {self.file_name}>'
+        return f'<File {self.FILE} {self.USER} {self.file_name} {self.is_public}>'
 
 
 class FileType(db.Model):
@@ -238,7 +273,8 @@ class FileType(db.Model):
     FILE_TYPE = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
 
-    FILE_RELATION = db.relationship('File', back_populates='FILE_TYPE_RELATION')
+    FILE_RELATION = db.relationship(
+        'File', back_populates='FILE_TYPE_RELATION')
 
     def __init__(self, name: str):
         self.name = name
@@ -251,9 +287,12 @@ class Inquiry(db.Model):
     __tablename__ = 'INQUIRY'
 
     INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=True, index=True)
-    LESSON = db.Column(db.Integer, db.ForeignKey('LESSON.LESSON'), nullable=True, index=True)
-    QUESTION = db.Column(db.Integer, db.ForeignKey('QUESTION.QUESTION'), nullable=True, index=True)
+    CONCEPT = db.Column(db.Integer, db.ForeignKey(
+        'CONCEPT.CONCEPT'), nullable=True, index=True)
+    LESSON = db.Column(db.Integer, db.ForeignKey(
+        'LESSON.LESSON'), nullable=True, index=True)
+    QUESTION = db.Column(db.Integer, db.ForeignKey(
+        'QUESTION.QUESTION'), nullable=True, index=True)
     originalInquiry = db.Column(db.Text, nullable=False)
     editedInquiry = db.Column(db.TEXT, nullable=False, default="")
     inquiryType = db.Column(db.Integer, nullable=False)
@@ -262,10 +301,14 @@ class Inquiry(db.Model):
     stringifiedQuestion = db.Column(db.TEXT, nullable=False, default="")
     inquiryAnswer = db.Column(db.TEXT, nullable=False, default="")
 
-    CONCEPT_RELATION = db.relationship('Concept', back_populates='INQUIRY_RELATION')
-    LESSON_RELATION = db.relationship('Lesson', back_populates='INQUIRY_RELATION')
-    QUESTION_RELATION = db.relationship('Question', back_populates='INQUIRY_RELATION')
-    USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='INQUIRY_RELATION')
+    CONCEPT_RELATION = db.relationship(
+        'Concept', back_populates='INQUIRY_RELATION')
+    LESSON_RELATION = db.relationship(
+        'Lesson', back_populates='INQUIRY_RELATION')
+    QUESTION_RELATION = db.relationship(
+        'Question', back_populates='INQUIRY_RELATION')
+    USER_INQUIRY_RELATION = db.relationship(
+        'UserInquiry', back_populates='INQUIRY_RELATION')
 
     def __init__(self, original_inquiry, inquiry_type, stringified_question, concept=None, question=None, lesson=None):
         self.CONCEPT = concept
@@ -280,8 +323,8 @@ class Inquiry(db.Model):
         self.inquiryAnswer = None
 
     def __repr__(self):
-        return f'Inquiry {self.INQUIRY} {self.originalInquiry} {self.editedInquiry} {self.hasAnswered} ' \
-               f'{self.stringifiedQuestion} {self.inquiryAnswer}'
+        return f'Inquiry {self.INQUIRY} {self.originalInquiry} {self.editedInquiry} {self.hasAnswered} '
+        f'{self.stringifiedQuestion} {self.inquiryAnswer}'
 
 
 class Lesson(db.Model):
@@ -294,9 +337,12 @@ class Lesson(db.Model):
     has_assignment = db.Column(db.Boolean, nullable=False, default=False)
     due_date = db.Column(db.DateTime, nullable=True)
 
-    ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='LESSON_RELATION')
-    COURSE_RELATION = db.relationship('Course', back_populates='LESSON_RELATION')
-    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='LESSON_RELATION')
+    ASSIGNMENT_RELATION = db.relationship(
+        'Assignment', back_populates='LESSON_RELATION')
+    COURSE_RELATION = db.relationship(
+        'Course', back_populates='LESSON_RELATION')
+    INQUIRY_RELATION = db.relationship(
+        'Inquiry', back_populates='LESSON_RELATION')
 
     def __init__(self, course_id: int, name: str, content: str, has_assignment: bool, due_date: datetime):
         self.COURSE = course_id
@@ -306,22 +352,26 @@ class Lesson(db.Model):
         self.due_date = due_date
 
     def __repr__(self):
-        return f'<Lesson {self.LESSON} {self.COURSE} {self.name} {self.content} {self.has_assignment} ' \
-               f'{self.due_date}>'
+        return f'<Lesson {self.LESSON} {self.COURSE} {self.name} {self.content} {self.has_assignment} '
+        f'{self.due_date}>'
 
 
 class Mastery(db.Model):
     __tablename__ = 'mastery'
 
     MASTERY = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    CONCEPT = db.Column(db.Integer, db.ForeignKey('CONCEPT.CONCEPT'), nullable=False, index=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
+    CONCEPT = db.Column(db.Integer, db.ForeignKey(
+        'CONCEPT.CONCEPT'), nullable=False, index=True)
+    USER = db.Column(db.Integer, db.ForeignKey(
+        'USER.USER'), nullable=False, index=True)
     mastery_level = db.Column(db.Float, nullable=False)
     mastery_survey = db.Column(db.Integer, nullable=False)
     aptitude_survey = db.Column(db.Integer, nullable=False)
 
-    CONCEPT_RELATION = db.relationship('Concept', back_populates='MASTERY_RELATION')
-    MASTERY_HISTORY_RELATION = db.relationship('MasteryHistory', back_populates='MASTERY_RELATION')
+    CONCEPT_RELATION = db.relationship(
+        'Concept', back_populates='MASTERY_RELATION')
+    MASTERY_HISTORY_RELATION = db.relationship(
+        'MasteryHistory', back_populates='MASTERY_RELATION')
     USER_RELATION = db.relationship('User', back_populates='MASTERY_RELATION')
 
     def __init__(self, concept_id, user_id, mastery_level, mastery_survey, aptitude_survey):
@@ -341,12 +391,15 @@ class Mastery(db.Model):
 class MasteryHistory(db.Model):
     __tablename__ = 'mastery_history'
 
-    MASTERY_HISTORY = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    MASTERY = db.Column(db.Integer, db.ForeignKey('mastery.MASTERY'), nullable=False, index=True)
+    MASTERY_HISTORY = db.Column(
+        db.Integer, primary_key=True, autoincrement=True)
+    MASTERY = db.Column(db.Integer, db.ForeignKey(
+        'mastery.MASTERY'), nullable=False, index=True)
     mastery_level = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
 
-    MASTERY_RELATION = db.relationship('Mastery', back_populates='MASTERY_HISTORY_RELATION')
+    MASTERY_RELATION = db.relationship(
+        'Mastery', back_populates='MASTERY_HISTORY_RELATION')
 
     def __init__(self, mastery, mastery_level, timestamp):
         self.MASTERY = mastery
@@ -361,10 +414,13 @@ class Payment(db.Model):
     __tablename__ = 'payment'
 
     PAYMENT = db.Column(db.String(30), primary_key=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
-    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'), nullable=False, index=True)
+    USER = db.Column(db.Integer, db.ForeignKey(
+        'USER.USER'), nullable=False, index=True)
+    SECTION = db.Column(db.Integer, db.ForeignKey(
+        'SECTION.SECTION'), nullable=False, index=True)
 
-    SECTION_RELATION = db.relationship('Section', back_populates='PAYMENT_RELATION')
+    SECTION_RELATION = db.relationship(
+        'Section', back_populates='PAYMENT_RELATION')
     USER_RELATION = db.relationship('User', back_populates='PAYMENT_RELATION')
 
     def __init__(self, payment, user, section):
@@ -380,7 +436,8 @@ class Question(db.Model):
     __tablename__ = 'QUESTION'
 
     QUESTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    QUESTION_SET = db.Column(db.Integer, db.ForeignKey('QUESTION_SET.QUESTION_SET'))
+    QUESTION_SET = db.Column(
+        db.Integer, db.ForeignKey('QUESTION_SET.QUESTION_SET'))
     name = db.Column(db.String(60), nullable=False)
     string = db.Column(db.String(5000), nullable=False)
     answers = db.Column(db.Integer, nullable=False)
@@ -389,9 +446,12 @@ class Question(db.Model):
     category = db.Column(db.Integer, nullable=False)
     config = db.Column(db.JSON)
 
-    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='QUESTION_RELATION')
-    CONCEPT_QUESTION_RELATION = db.relationship('ConceptQuestion', back_populates='QUESTION_RELATION')
-    QUESTION_SET_RELATION = db.relationship('QuestionSet', back_populates='QUESTION_RELATION')
+    INQUIRY_RELATION = db.relationship(
+        'Inquiry', back_populates='QUESTION_RELATION')
+    CONCEPT_QUESTION_RELATION = db.relationship(
+        'ConceptQuestion', back_populates='QUESTION_RELATION')
+    QUESTION_SET_RELATION = db.relationship(
+        'QuestionSet', back_populates='QUESTION_RELATION')
 
     def __init__(self, question_set, name, string, answers, total, category=0, auto_marked=True, config=None):
         self.QUESTION_SET = question_set
@@ -413,12 +473,15 @@ class Question(db.Model):
 class QuestionSet(db.Model):
     __tablename__ = 'QUESTION_SET'
 
-    QUESTION_SET = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    QUESTION_SET = db.Column(
+        db.Integer, primary_key=True, autoincrement=True)
     COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'), index=True)
     name = db.Column(db.String(45), nullable=False)
 
-    COURSE_RELATION = db.relationship('Course', back_populates='QUESTION_SET_RELATION')
-    QUESTION_RELATION = db.relationship('Question', back_populates='QUESTION_SET_RELATION')
+    COURSE_RELATION = db.relationship(
+        'Course', back_populates='QUESTION_SET_RELATION')
+    QUESTION_RELATION = db.relationship(
+        'Question', back_populates='QUESTION_SET_RELATION')
 
     def __init__(self, course, name):
         self.COURSE = course
@@ -437,12 +500,17 @@ class Section(db.Model):
     enroll_key = db.Column(db.String(10))
     price = db.Column(db.Float, nullable=False, default=0)
 
-    ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='SECTION_RELATION')
-    COURSE_RELATION = db.relationship('Course', back_populates='SECTION_RELATION')
-    DISCOUNT_RELATION = db.relationship('Discount', back_populates='SECTION_RELATION')
-    PAYMENT_RELATION = db.relationship('Payment', back_populates='SECTION_RELATION')
+    ANNOUNCEMENT_RELATION = db.relationship(
+        'Announcement', back_populates='SECTION_RELATION')
+    COURSE_RELATION = db.relationship(
+        'Course', back_populates='SECTION_RELATION')
+    DISCOUNT_RELATION = db.relationship(
+        'Discount', back_populates='SECTION_RELATION')
+    PAYMENT_RELATION = db.relationship(
+        'Payment', back_populates='SECTION_RELATION')
     TEST_RELATION = db.relationship('Test', back_populates='SECTION_RELATION')
-    USER_SECTION_RELATION = db.relationship('UserSection', back_populates='SECTION_RELATION')
+    USER_SECTION_RELATION = db.relationship(
+        'UserSection', back_populates='SECTION_RELATION')
 
     def __init__(self, course_id: int, name: str, enroll_key: bool, price: float = 0):
         self.COURSE = course_id
@@ -450,7 +518,7 @@ class Section(db.Model):
         self.enroll_key = Section._generate_key() if enroll_key else None
         self.price = price
 
-    @staticmethod
+    @ staticmethod
     def _generate_key():
         key = random_key(10)
         taken = bool(Section.query.filter(Section.enroll_key == key).all())
@@ -467,8 +535,10 @@ class Takes(db.Model):
     __tablename__ = 'takes'
 
     TAKES = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    TEST = db.Column(db.Integer, db.ForeignKey('TEST.TEST'), nullable=False, index=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
+    TEST = db.Column(db.Integer, db.ForeignKey(
+        'TEST.TEST'), nullable=False, index=True)
+    USER = db.Column(db.Integer, db.ForeignKey(
+        'USER.USER'), nullable=False, index=True)
     time_started = db.Column(db.DateTime, nullable=False)
     time_submitted = db.Column(db.DateTime, nullable=False)
     grade = db.Column(db.Float, nullable=False)
@@ -500,7 +570,8 @@ class Test(db.Model):
     __tablename__ = 'TEST'
 
     TEST = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'), index=True)
+    SECTION = db.Column(db.Integer, db.ForeignKey(
+        'SECTION.SECTION'), index=True)
     name = db.Column(db.String(200), nullable=False)
     open_time = db.Column(db.DateTime)
     deadline = db.Column(db.DateTime, nullable=False)
@@ -509,9 +580,11 @@ class Test(db.Model):
     question_list = db.Column(db.String(5000), nullable=False)
     seed_list = db.Column(db.String(5000), nullable=False)
     total = db.Column(db.Integer, nullable=False)
-    hide_answers_until_deadline = db.Column(db.Boolean, default=False, nullable=False)
+    hide_answers_until_deadline = db.Column(
+        db.Boolean, default=False, nullable=False)
 
-    SECTION_RELATION = db.relationship('Section', back_populates='TEST_RELATION')
+    SECTION_RELATION = db.relationship(
+        'Section', back_populates='TEST_RELATION')
     TAKES_RELATION = db.relationship('Takes', back_populates='TEST_RELATION')
 
     def __init__(self, section, name, is_open, open_time, deadline, timer,
@@ -556,19 +629,27 @@ class User(UserMixin, db.Model):
     is_public = db.Column(db.Boolean, nullable=False, default=False)
     profile_pic = db.Column(db.Integer, db.ForeignKey('FILE.FILE'))
 
-    ANNOUNCEMENT_RELATION = db.relationship('Announcement', back_populates='USER_RELATION')
-    ASSIGNMENT_RELATION = db.relationship('Assignment', back_populates='USER_RELATION')
-    FEEDBACK_RELATION = db.relationship('Feedback', back_populates='USER_RELATION')
-    MASTERY_RELATION = db.relationship('Mastery', back_populates='USER_RELATION')
-    PAYMENT_RELATION = db.relationship('Payment', back_populates='USER_RELATION')
+    ANNOUNCEMENT_RELATION = db.relationship(
+        'Announcement', back_populates='USER_RELATION')
+    ASSIGNMENT_RELATION = db.relationship(
+        'Assignment', back_populates='USER_RELATION')
+    FEEDBACK_RELATION = db.relationship(
+        'Feedback', back_populates='USER_RELATION')
+    MASTERY_RELATION = db.relationship(
+        'Mastery', back_populates='USER_RELATION')
+    PAYMENT_RELATION = db.relationship(
+        'Payment', back_populates='USER_RELATION')
     TAKES_RELATION = db.relationship('Takes', back_populates='USER_RELATION')
-    USER_COURSE_RELATION = db.relationship('UserCourse', back_populates='USER_RELATION')
-    USER_INQUIRY_RELATION = db.relationship('UserInquiry', back_populates='USER_RELATION')
-    USER_SECTION_RELATION = db.relationship('UserSection', back_populates='USER_RELATION')
+    USER_COURSE_RELATION = db.relationship(
+        'UserCourse', back_populates='USER_RELATION')
+    USER_INQUIRY_RELATION = db.relationship(
+        'UserInquiry', back_populates='USER_RELATION')
+    USER_SECTION_RELATION = db.relationship(
+        'UserSection', back_populates='USER_RELATION')
     FILE_RELATION = db.relationship('File', foreign_keys=[profile_pic])
 
     def __init__(
-            self, email, first_name, last_name, password, profile_id,
+            self, email, first_name, last_name, password, profile_id, profile_pic,
             is_teacher=False, color=9, theme=0, confirmed=False, is_admin=False
     ):
         self.email = email
@@ -582,6 +663,7 @@ class User(UserMixin, db.Model):
         self.color = color
         self.theme = theme
         self.display_name = first_name + ' ' + last_name
+        self.profile_pic = profile_pic
 
     def __repr__(self):
         return (
@@ -601,12 +683,16 @@ class UserCourse(db.Model):
     __tablename__ = 'user_course'
 
     USER_COURSE = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
-    COURSE = db.Column(db.Integer, db.ForeignKey('COURSE.COURSE'), nullable=False, index=True)
+    USER = db.Column(db.Integer, db.ForeignKey(
+        'USER.USER'), nullable=False, index=True)
+    COURSE = db.Column(db.Integer, db.ForeignKey(
+        'COURSE.COURSE'), nullable=False, index=True)
     can_edit = db.Column(db.Boolean, nullable=False, default=False)
 
-    COURSE_RELATION = db.relationship('Course', back_populates='USER_COURSE_RELATION')
-    USER_RELATION = db.relationship('User', back_populates='USER_COURSE_RELATION')
+    COURSE_RELATION = db.relationship(
+        'Course', back_populates='USER_COURSE_RELATION')
+    USER_RELATION = db.relationship(
+        'User', back_populates='USER_COURSE_RELATION')
 
     def __init__(self, user, course, can_edit=False):
         self.USER = user
@@ -621,12 +707,16 @@ class UserInquiry(db.Model):
     __tablename__ = 'user_inquiry'
 
     USER_INQUIRY = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
-    INQUIRY = db.Column(db.Integer, db.ForeignKey('INQUIRY.INQUIRY'), index=True)
+    USER = db.Column(db.Integer, db.ForeignKey(
+        'USER.USER'), nullable=False, index=True)
+    INQUIRY = db.Column(db.Integer, db.ForeignKey(
+        'INQUIRY.INQUIRY'), index=True)
     isOwner = db.Column(db.Boolean, default=False)
 
-    USER_RELATION = db.relationship('User', back_populates='USER_INQUIRY_RELATION')
-    INQUIRY_RELATION = db.relationship('Inquiry', back_populates='USER_INQUIRY_RELATION')
+    USER_RELATION = db.relationship(
+        'User', back_populates='USER_INQUIRY_RELATION')
+    INQUIRY_RELATION = db.relationship(
+        'Inquiry', back_populates='USER_INQUIRY_RELATION')
 
     def __init__(self, user, inquiry, is_owner=False):
         self.USER = user
@@ -641,14 +731,18 @@ class UserSection(db.Model):
     __tablename__ = 'user_section'
 
     USER_SECTION = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
-    SECTION = db.Column(db.Integer, db.ForeignKey('SECTION.SECTION'), nullable=False, index=True)
+    USER = db.Column(db.Integer, db.ForeignKey(
+        'USER.USER'), nullable=False, index=True)
+    SECTION = db.Column(db.Integer, db.ForeignKey(
+        'SECTION.SECTION'), nullable=False, index=True)
     user_type = db.Column(db.String(10), nullable=False)
     transaction_id = db.Column(db.String(45))
     expiry = db.Column(db.DateTime)
 
-    SECTION_RELATION = db.relationship('Section', back_populates='USER_SECTION_RELATION')
-    USER_RELATION = db.relationship('User', back_populates='USER_SECTION_RELATION')
+    SECTION_RELATION = db.relationship(
+        'Section', back_populates='USER_SECTION_RELATION')
+    USER_RELATION = db.relationship(
+        'User', back_populates='USER_SECTION_RELATION')
 
     def __init__(self, user, section, user_type, transaction_id=None, expiry=None):
         self.USER = user
@@ -669,7 +763,8 @@ class SocialMediaLink(db.Model):
 
     # TODO should probably make this a composite primary key of userid and link
     LINK_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    USER = db.Column(db.Integer, db.ForeignKey('USER.USER'), nullable=False, index=True)
+    USER = db.Column(db.Integer, db.ForeignKey(
+        'USER.USER'), nullable=False, index=True)
     link = db.Column(db.String(100), nullable=False)
 
     def __init__(self, user, link):
