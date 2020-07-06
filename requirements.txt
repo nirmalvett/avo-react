@@ -34,7 +34,7 @@ Jinja2==2.10
 jmespath==0.9.4
 lxml==4.4.1
 Mail==2.1.0
-MarkupSafe==1.0
+MarkupSafe==1.1.1
 more-itertools==7.2.0
 mpmath==1.1.0
 numpy==1.15.1
